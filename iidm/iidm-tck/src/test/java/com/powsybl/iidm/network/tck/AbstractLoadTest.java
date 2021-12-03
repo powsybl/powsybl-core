@@ -291,4 +291,18 @@ public abstract class AbstractLoadTest {
                     .add();
     }
 
+    @Test
+    public void removePropertyTest() {
+        Load load = network.getLoad("CE");
+        assertNotNull(load);
+        assertFalse(load.hasProperty("a"));
+        assertNull(load.getProperty("a"));
+        load.setProperty("a", "b");
+        assertTrue(load.hasProperty("a"));
+        assertNotNull(load.getProperty("a"));
+        assertEquals("b", load.getProperty("a"));
+        load.removeProperty("a");
+        assertFalse(load.hasProperty("a"));
+        assertNull(load.getProperty("a"));
+    }
 }

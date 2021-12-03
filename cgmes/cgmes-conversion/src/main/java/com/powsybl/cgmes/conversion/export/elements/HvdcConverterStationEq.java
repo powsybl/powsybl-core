@@ -20,7 +20,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class HvdcConverterStationEq {
 
-    public static void write(String id, String converterName, HvdcConverterStation.HvdcType converterType, double ratedUdc, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String converterName, HvdcConverterStation.HvdcType converterType, double ratedUdc, String dcEquipmentContainerId, String capabilityCurveId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, converterClassName(converterType));
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
@@ -31,6 +31,10 @@ public final class HvdcConverterStationEq {
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "Equipment.EquipmentContainer");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcEquipmentContainerId);
+        if (capabilityCurveId != null) {
+            writer.writeEmptyElement(cimNamespace, "VsConverter.CapabilityCurve");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + capabilityCurveId);
+        }
         writer.writeEndElement();
     }
 

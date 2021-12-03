@@ -248,7 +248,7 @@ public final class EquipmentExport {
                         CurveDataEq.write(CgmesExportUtil.getUniqueId(), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer);
                     }
                     String reactiveCapabilityCurveName = "RCC_" + generator.getNameOrId();
-                    ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, cimNamespace, writer);
+                    ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, generator, cimNamespace, writer);
                     break;
 
                 case MIN_MAX:
@@ -554,24 +554,56 @@ public final class EquipmentExport {
             writeDCTerminal(dcTerminal2, line.getId(), dcNode2, 2, cimNamespace, writer);
             HvdcConverterStation<?> converter = line.getConverterStation1();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
+            String capabilityCurveId1 = writeVsCapabilityCurve(converter, cimNamespace, writer);
             String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter.getId(), dcNode1, 2, cimNamespace, writer);
             converter = line.getConverterStation2();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
+            String capabilityCurveId2 = writeVsCapabilityCurve(converter, cimNamespace, writer);
             String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter.getId(), dcNode2, 2, cimNamespace, writer);
             DCLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), cimNamespace, writer);
-            writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, cimNamespace, writer);
-            writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, cimNamespace, writer);
+            writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, capabilityCurveId1, cimNamespace, writer);
+            writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, capabilityCurveId2, cimNamespace, writer);
         }
+    }
+
+    private static String writeVsCapabilityCurve(HvdcConverterStation<?> converter, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        if (converter instanceof LccConverterStation) {
+            return null;
+        }
+        VscConverterStation vscConverter = (VscConverterStation) converter;
+        if (vscConverter.getReactiveLimits() == null) {
+            return null;
+        }
+        String reactiveLimitsId = CgmesExportUtil.getUniqueId();
+        switch (vscConverter.getReactiveLimits().getKind()) {
+            case CURVE:
+                ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
+                for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
+                    CurveDataEq.write(CgmesExportUtil.getUniqueId(), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer);
+                }
+                String reactiveCapabilityCurveName = "RCC_" + vscConverter.getNameOrId();
+                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, vscConverter, cimNamespace, writer);
+                break;
+
+            case MIN_MAX:
+                //Do not have to export anything
+                reactiveLimitsId = null;
+                break;
+
+            default:
+                throw new PowsyblException("Unexpected type of ReactiveLimits on the VsConverter " + converter.getNameOrId());
+        }
+        return reactiveLimitsId;
     }
 
     private static void writeDCConverterUnit(String id, String dcConverterUnitName, String substationId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         DCConverterUnitEq.write(id, dcConverterUnitName, substationId, cimNamespace, writer);
     }
 
-    private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        HvdcConverterStationEq.write(converterStation.getId(), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, dcEquipmentContainerId, cimNamespace, writer);
+    private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId, String capabilityCurveId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        HvdcConverterStationEq.write(converterStation.getId(), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, dcEquipmentContainerId, capabilityCurveId, cimNamespace, writer);
     }
 
     private static void writeDCNode(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
