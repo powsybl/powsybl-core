@@ -7,6 +7,8 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesTapChanger;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -138,11 +140,25 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTapChanger(Identifiable<?> eq, String tcId, TapChanger<?, ?> tc, String defaultType, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        String type = eq.getProperty(cgmesTapChangerReferenceKey(tcId, "type"), defaultType);
+    private static <C extends Connectable<C>> void writeTapChanger(C eq, String tcId, TapChanger<?, ?> tc, String defaultType, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        String type = defaultType;
+        CgmesTapChanger cgmesTc = null;
+        if (cgmesTcs != null) {
+            cgmesTc = cgmesTcs.getTapChanger(tcId);
+            if (cgmesTc != null) {
+                type = Optional.ofNullable(cgmesTc.getType()).orElse(defaultType);
+            }
+        }
         writeTapChanger(type, tcId, tc, cimNamespace, writer);
-        addRegulatingControlView(tc, tcId, eq, regulatingControlViews);
-        writeHiddenTapChanger(eq, tcId, defaultType, cimNamespace, writer);
+        addRegulatingControlView(tc, cgmesTc, regulatingControlViews);
+        if (cgmesTcs != null) {
+            for (CgmesTapChanger tapChanger : cgmesTcs.getTapChangers()) {
+                if (tapChanger.isHidden() && tapChanger.getCombinedTapChangerId().equals(tcId)) {
+                    writeHiddenTapChanger(tapChanger, defaultType, cimNamespace, writer);
+                }
+            }
+        }
     }
 
     private static void writeShuntCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
@@ -287,12 +303,11 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void addRegulatingControlView(TapChanger tc, String tcId, Identifiable<?> eq, Map<String, List<RegulatingControlView>> regulatingControlViews) {
+    private static void addRegulatingControlView(TapChanger<?, ?> tc, CgmesTapChanger cgmesTc, Map<String, List<RegulatingControlView>> regulatingControlViews) {
         // Multiple tap changers can be stored at the same equipment
         // We use the tap changer id as part of the key for storing the tap changer control id
-        String key = String.format("%s%s.TapChangerControl", Conversion.CGMES_PREFIX_ALIAS_PROPERTIES, tcId);
-        if (eq.hasProperty(key)) {
-            String controlId = eq.getProperty(key);
+        if (cgmesTc != null && cgmesTc.getControlId() != null) {
+            String controlId = cgmesTc.getControlId();
             RegulatingControlView rcv = null;
             if (tc instanceof RatioTapChanger) {
                 rcv = new RegulatingControlView(controlId,
@@ -319,19 +334,10 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static String cgmesTapChangerReferenceKey(String tcId, String property) {
-        return String.format("%s%s.%s", Conversion.CGMES_PREFIX_ALIAS_PROPERTIES, tcId, property);
-    }
-
-    private static void writeHiddenTapChanger(Identifiable<?> eq, String tcId, String defaultType, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        String key = cgmesTapChangerReferenceKey(tcId, "hiddenTapChangerId");
-        if (!eq.hasProperty(key)) {
-            return;
-        }
-        String hiddenTcId = eq.getProperty(key);
-        int step = Integer.parseInt(eq.getProperty(cgmesTapChangerReferenceKey(hiddenTcId, "step")));
-        String type = eq.getProperty(cgmesTapChangerReferenceKey(hiddenTcId, "type"), defaultType);
-        writeTapChanger(type, hiddenTcId, false, step, cimNamespace, writer);
+    private static void writeHiddenTapChanger(CgmesTapChanger cgmesTc, String defaultType, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writeTapChanger(Optional.ofNullable(cgmesTc.getType()).orElse(defaultType), cgmesTc.getId(), false,
+                cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId())),
+                cimNamespace, writer);
     }
 
     private static void writeRegulatingControls(Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
