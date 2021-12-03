@@ -115,6 +115,7 @@ public class DanglingLineAdapterTest {
         double p10 = -606.2968572845882;
         double q10 = -305.09371456918353;
         final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
+        dl1.setProperty("keyTest", "test");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
@@ -135,6 +136,16 @@ public class DanglingLineAdapterTest {
         assertSame(line, mergingView.getIdentifiable("dl2"));
         assertTrue(line instanceof MergedLine);
         assertTrue(mergingView.getIdentifiables().contains(line));
+
+        // Properties
+        assertFalse(line.removeProperty("noFound"));
+        assertTrue(line.hasProperty("keyTest"));
+        assertTrue(line.removeProperty("keyTest"));
+        assertFalse(line.hasProperty("keyTest"));
+        line.setProperty("keyTest", "test");
+        assertTrue(line.hasProperty("keyTest"));
+        assertTrue(line.removeProperty("keyTest"));
+        assertFalse(line.hasProperty("keyTest"));
 
         // MergedLine
         final MergedLine mergedLine = (MergedLine) line;

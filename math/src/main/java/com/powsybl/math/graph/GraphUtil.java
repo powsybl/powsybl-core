@@ -8,7 +8,7 @@ package com.powsybl.math.graph;
 
 import gnu.trove.list.array.TIntArrayList;
 
-import java.util.Arrays;
+import java.util.*;
 
 /**
  *
@@ -52,35 +52,44 @@ public final class GraphUtil {
 
     }
 
-    private static void computeConnectedComponents(int v1, int c, int[] componentSize, TIntArrayList[] adjacencyList, int[] componentNumber) {
-        componentNumber[v1] = c;
-        ++componentSize[c];
-        TIntArrayList ls = adjacencyList[v1];
-        for (int i = 0; i < ls.size(); i++) {
-            int v2 = ls.getQuick(i);
-            if (componentNumber[v2] == -1) {
-                computeConnectedComponents(v2, c, componentSize, adjacencyList, componentNumber);
+    private static void computeConnectedComponents(int v1, List<Integer> componentSizes, TIntArrayList[] adjacencyList, int[] componentNumbers) {
+        int c = componentSizes.size();
+        int componentSize = 0;
+        Queue<Integer> nodes = new ArrayDeque<>();
+        nodes.add(v1);
+        while (!nodes.isEmpty()) {
+            int node = nodes.poll();
+            if (componentNumbers[node] == -1) {
+                componentSize++;
+                componentNumbers[node] = c;
+                adjacencyList[node].forEach(e -> {
+                    if (componentNumbers[e] == -1) {
+                        nodes.add(e);
+                    }
+                    return true;
+                });
             }
         }
+        componentSizes.add(componentSize);
     }
 
     public static ConnectedComponentsComputationResult computeConnectedComponents(TIntArrayList[] adjacencyList) {
         int[] componentNumber = new int[adjacencyList.length];
         Arrays.fill(componentNumber, -1);
-        int c = 0;
-        int[] componentSize = new int[adjacencyList.length];
-        Arrays.fill(componentSize, 0);
+        List<Integer> componentSizes = new ArrayList<>();
+
         for (int v = 0; v < adjacencyList.length; v++) {
             if (componentNumber[v] == -1) {
-                computeConnectedComponents(v, c++, componentSize, adjacencyList, componentNumber);
+                computeConnectedComponents(v, componentSizes, adjacencyList, componentNumber);
             }
         }
 
         // sort components by size
-        ConnectedComponent[] components = new ConnectedComponent[c];
-        ConnectedComponent[] orderedComponents = new ConnectedComponent[c];
-        for (int i = 0; i < c; i++) {
-            ConnectedComponent comp = new ConnectedComponent(componentSize[i]);
+        int nbComponents = componentSizes.size();
+        ConnectedComponent[] components = new ConnectedComponent[nbComponents];
+        ConnectedComponent[] orderedComponents = new ConnectedComponent[nbComponents];
+        for (int i = 0; i < nbComponents; i++) {
+            ConnectedComponent comp = new ConnectedComponent(componentSizes.get(i));
             components[i] = comp;
             orderedComponents[i] = comp;
         }
@@ -89,15 +98,15 @@ public final class GraphUtil {
             orderedComponents[i].orderedNumber = i;
         }
 
-        componentSize = new int[orderedComponents.length];
+        int[] orderedComponentSizes = new int[nbComponents];
         for (ConnectedComponent cc : orderedComponents) {
-            componentSize[cc.orderedNumber] = cc.size;
+            orderedComponentSizes[cc.orderedNumber] = cc.size;
         }
         for (int i = 0; i < componentNumber.length; i++) {
             ConnectedComponent cc = components[componentNumber[i]];
             componentNumber[i] = cc.orderedNumber;
         }
 
-        return new ConnectedComponentsComputationResult(componentNumber, componentSize);
+        return new ConnectedComponentsComputationResult(componentNumber, orderedComponentSizes);
     }
 }
