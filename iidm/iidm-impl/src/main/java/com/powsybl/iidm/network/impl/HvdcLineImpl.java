@@ -19,8 +19,6 @@ import gnu.trove.list.array.TIntArrayList;
  */
 class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
-    private final NetworkImpl network;
-
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
     private double r;
@@ -36,6 +34,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     private final TDoubleArrayList activePowerSetpoint;
 
     //
+
+    private final Ref<NetworkImpl> networkRef;
 
     private AbstractHvdcConverterStation<?> converterStation1;
 
@@ -55,7 +55,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         this.activePowerSetpoint.fill(0, variantArraySize, activePowerSetpoint);
         this.converterStation1 = attach(converterStation1);
         this.converterStation2 = attach(converterStation2);
-        network = networkRef.get();
+        this.networkRef = networkRef;
     }
 
     private AbstractHvdcConverterStation<?> attach(AbstractHvdcConverterStation<?> converterStation) {
@@ -64,31 +64,33 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        network.getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
     protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
-        network.getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
     public NetworkImpl getNetwork() {
-        return network;
+        return networkRef.get();
     }
 
     @Override
     public ConvertersMode getConvertersMode() {
-        return convertersMode.get(network.getVariantIndex()) != -1 ? ConvertersMode.values()[convertersMode.get(network.getVariantIndex())] : null;
+        int variantIndex = networkRef.get().getVariantIndex();
+        return convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[convertersMode.get(variantIndex)] : null;
     }
 
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
-        ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        int variantIndex = network.getVariantIndex();
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        int variantIndex = n.getVariantIndex();
         ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
         this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
-        String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidateValidationLevel();
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("convertersMode", variantId, oldValue, convertersMode);
         return this;
     }
@@ -137,17 +139,18 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public double getActivePowerSetpoint() {
-        return activePowerSetpoint.get(network.getVariantIndex());
+        return activePowerSetpoint.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
+        NetworkImpl n = getNetwork();
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint,
-                network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        int variantIndex = network.getVariantIndex();
+                n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        int variantIndex = n.getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
-        String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidateValidationLevel();
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
         return this;
     }
@@ -203,6 +206,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public void remove() {
+        NetworkImpl network = getNetwork();
+
         network.getListeners().notifyBeforeRemoval(this);
 
         // Detach converter stations

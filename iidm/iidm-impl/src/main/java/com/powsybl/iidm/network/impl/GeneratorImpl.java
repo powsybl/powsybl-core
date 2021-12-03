@@ -16,7 +16,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner {
 
-    private final NetworkImpl network;
+    private final Ref<? extends VariantManagerHolder> network;
 
     private EnergySource energySource;
 
@@ -40,21 +40,21 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList targetV;
 
-    GeneratorImpl(Ref<NetworkImpl> ref,
+    GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
                   double targetP, double targetQ, double targetV,
                   double ratedS) {
-        super(ref, id, name, fictitious);
-        network = ref.get();
+        super(network, id, name, fictitious);
+        this.network = network;
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.regulatingTerminal = regulatingTerminal;
         this.ratedS = ratedS;
-        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
@@ -118,18 +118,19 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(network.getVariantIndex());
+        return voltageRegulatorOn.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        int variantIndex = network.getVariantIndex();
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this,
                 voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
-                network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
-        String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidateValidationLevel();
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
@@ -141,7 +142,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
@@ -150,50 +151,53 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getTargetP() {
-        return targetP.get(network.getVariantIndex());
+        return targetP.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetP(double targetP) {
-        ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        int variantIndex = network.getVariantIndex();
-        double oldValue = this.targetP.set(network.getVariantIndex(), targetP);
-        String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidateValidationLevel();
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.targetP.set(network.get().getVariantIndex(), targetP);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("targetP", variantId, oldValue, targetP);
         return this;
     }
 
     @Override
     public double getTargetQ() {
-        return targetQ.get(network.getVariantIndex());
+        return targetQ.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetQ(double targetQ) {
-        int variantIndex = network.getVariantIndex();
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
-                targetV.get(variantIndex), targetQ, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                targetV.get(variantIndex), targetQ, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetQ.set(variantIndex, targetQ);
-        String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidateValidationLevel();
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("targetQ", variantId, oldValue, targetQ);
         return this;
     }
 
     @Override
     public double getTargetV() {
-        return this.targetV.get(network.getVariantIndex());
+        return this.targetV.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetV(double targetV) {
-        int variantIndex = network.getVariantIndex();
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
-                targetV, targetQ.get(variantIndex), network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                targetV, targetQ.get(variantIndex), n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetV.set(variantIndex, targetV);
-        String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidateValidationLevel();
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("targetV", variantId, oldValue, targetV);
         return this;
     }

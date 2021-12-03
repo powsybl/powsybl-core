@@ -17,8 +17,6 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner {
 
-    private final NetworkImpl network;
-
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private TDoubleArrayList p0;
@@ -31,7 +29,6 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double p0, double q0, double minP, double maxP) {
         super(ref, id, name, fictitious);
-        this.network = ref.get();
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
@@ -58,7 +55,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public double getP0() {
-        return p0.get(network.getVariantIndex());
+        return p0.get(getNetwork().getVariantIndex());
     }
 
     /**
@@ -66,6 +63,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setP0(double p0) {
+        NetworkImpl network = getNetwork();
         ValidationUtil.checkP0(this, p0, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
@@ -80,7 +78,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public double getQ0() {
-        return q0.get(network.getVariantIndex());
+        return q0.get(getNetwork().getVariantIndex());
     }
 
     /**
@@ -88,6 +86,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setQ0(double q0) {
+        NetworkImpl network = getNetwork();
         ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
