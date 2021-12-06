@@ -13,7 +13,10 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,8 +26,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -59,13 +61,13 @@ public class GroovyScriptPostProcessorTest {
     }
 
     @Test
-    public void test2() throws IOException {
+    public void testEurostagFactory() throws IOException {
         // Create configuration
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
         // Copy script
         Path script = platformConfig.getConfigDir().resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME);
-        Files.copy(getClass().getResourceAsStream("/real-script.groovy"), script);
+        Files.copy(getClass().getResourceAsStream("/script-eurostag.groovy"), script);
 
         // Create post-processor
         GroovyScriptPostProcessor processor = new GroovyScriptPostProcessor(platformConfig);
@@ -83,6 +85,44 @@ public class GroovyScriptPostProcessorTest {
         // Check processing results
         assertEquals(1, network.getVoltageLevelStream().filter(vl -> vl.getNominalV() > 300).count());
         assertEquals(280, network.getVoltageLevel("VLHV1").getNominalV(), 0.0);
+        assertEquals(100, network.getLoad("LOAD").getExtension(LoadDetail.class).getVariableActivePower(), 0.0);
+        assertEquals(500, network.getLoad("LOAD").getExtension(LoadDetail.class).getFixedActivePower(), 0.0);
+
+    }
+
+    @Test
+    public void testFourSubstationsFactory() throws IOException {
+        // Create configuration
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+        // Copy script
+        Path script = platformConfig.getConfigDir().resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+        Files.copy(getClass().getResourceAsStream("/script-four-substations.groovy"), script);
+
+        // Create post-processor
+        GroovyScriptPostProcessor processor = new GroovyScriptPostProcessor(platformConfig);
+
+        // Create network
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        try { // Launch process
+            processor.process(network, LocalComputationManager.getDefault());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // Check processing results
+        assertEquals(800, network.getGenerator("GEN2").getTargetP(), 0.0);
+        for (ReactiveCapabilityCurve.Point point : network.getGenerator("GEN2").getReactiveLimits(ReactiveCapabilityCurve.class).getPoints()) {
+            if (point.getP() == 200) {
+                assertEquals(-350, point.getMinQ(), 0.0);
+                assertEquals(350, point.getMaxQ(), 0.0);
+            }
+            if (point.getP() == 800) {
+                assertEquals(-400, point.getMinQ(), 0.0);
+                assertEquals(400, point.getMaxQ(), 0.0);
+            }
+        }
     }
 
     private void test(PlatformConfig platformConfig) {
