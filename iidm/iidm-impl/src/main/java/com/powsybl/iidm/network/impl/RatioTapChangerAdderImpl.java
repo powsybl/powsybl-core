@@ -183,7 +183,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
-                targetV, network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+                targetV, network, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger

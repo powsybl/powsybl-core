@@ -495,14 +495,14 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                      Terminal regulationTerminal, double targetV, Network network) {
-        checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, true);
+    public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
+                                                                 Terminal regulationTerminal, double targetV, Network network, ValidationLevel validationLevel) {
+        return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, validationLevel, Reporter.NO_OP);
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                                 Terminal regulationTerminal, double targetV, Network network, boolean throwException) {
-        return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, throwException, Reporter.NO_OP);
+                                                                 Terminal regulationTerminal, double targetV, Network network, ValidationLevel validationLevel, Reporter reporter) {
+        return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
