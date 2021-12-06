@@ -29,6 +29,10 @@ public interface ExtensionAdderProvider<T extends Extendable<T>, E extends Exten
      */
     String getImplementationName();
 
+    default String getExtensionsName() {
+        return null;
+    }
+
     /**
      * Returns the builder class provided by this Provider.
      *
