@@ -167,7 +167,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     public RatioTapChanger add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
         }
         if (steps.isEmpty()) {
@@ -178,14 +178,14 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                        + highTapPosition + "]", network.getMinValidationLevel());
                 network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
                 targetV, network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
-                network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+                network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);

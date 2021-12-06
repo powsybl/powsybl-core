@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -75,7 +74,7 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     @Override
     public LoadImpl setP0(double p0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkP0(this, p0, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        ValidationUtil.checkP0(this, p0, n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -92,7 +91,7 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     @Override
     public LoadImpl setQ0(double q0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkQ0(this, q0, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        ValidationUtil.checkQ0(this, q0, n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);

@@ -178,7 +178,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     public PhaseTapChanger add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
         }
         if (steps.isEmpty()) {
@@ -189,14 +189,14 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                        + highTapPosition + "]", network.getMinValidationLevel());
                 network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
                 regulationTerminal, network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating,
-                targetDeadband, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+                targetDeadband, network.getMinValidationLevel()));
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 

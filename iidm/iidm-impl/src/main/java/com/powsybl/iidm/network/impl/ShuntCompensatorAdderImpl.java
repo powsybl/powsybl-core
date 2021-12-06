@@ -218,9 +218,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel()));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(network.getRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,

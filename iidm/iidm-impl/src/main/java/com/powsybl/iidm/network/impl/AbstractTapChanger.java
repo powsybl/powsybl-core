@@ -121,7 +121,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C unsetTapPosition() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -154,7 +154,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setRegulating(boolean regulating) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel());
         boolean oldValue = this.regulating.set(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -184,7 +184,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         int variantIndex = network.get().getVariantIndex();
         NetworkImpl n = getNetwork();
         ValidationUtil.checkTargetDeadband(parent, type, this.regulating.get(variantIndex),
-                targetDeadband, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                targetDeadband, n.getMinValidationLevel());
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();

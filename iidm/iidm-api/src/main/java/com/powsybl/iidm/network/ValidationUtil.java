@@ -58,11 +58,19 @@ public final class ValidationUtil {
         throwExceptionOrLogError(validable, message, throwException, Reporter.NO_OP);
     }
 
+    public static void throwExceptionOrLogError(Validable validable, String message, ValidationLevel validationLevel) {
+        throwExceptionOrLogError(validable, message, validationLevel, Reporter.NO_OP);
+    }
+
     public static void throwExceptionOrLogError(Validable validable, String message, boolean throwException, Reporter reporter) {
         if (throwException) {
             throw new ValidationException(validable, message);
         }
         logError(validable, message, reporter);
+    }
+
+    public static void throwExceptionOrLogError(Validable validable, String message, ValidationLevel validationLevel, Reporter reporter) {
+        throwExceptionOrLogError(validable, message, validationLevel == ValidationLevel.LOADFLOW);
     }
 
     private static void throwExceptionOrLogErrorForInvalidValue(Validable validable, double value, String valueName, boolean throwException, Reporter reporter) {
@@ -71,6 +79,13 @@ public final class ValidationUtil {
 
     private static void throwExceptionOrLogErrorForInvalidValue(Validable validable, double value, String valueName, String reason, boolean throwException, Reporter reporter) {
         if (throwException) {
+            throw createInvalidValueException(validable, value, valueName, reason);
+        }
+        logError(validable, createInvalidValueMessage(value, valueName, reason), reporter);
+    }
+
+    private static void throwExceptionOrLogErrorForInvalidValue(Validable validable, double value, String valueName, String reason, ValidationLevel validationLevel, Reporter reporter) {
+        if (validationLevel == ValidationLevel.LOADFLOW) {
             throw createInvalidValueException(validable, value, valueName, reason);
         }
         logError(validable, createInvalidValueMessage(value, valueName, reason), reporter);
@@ -123,13 +138,17 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, boolean throwException) {
-        return checkTargetDeadband(validable, validableType, regulating, targetDeadband, throwException, Reporter.NO_OP);
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel) {
+        return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, boolean throwException, Reporter reporter) {
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel, Reporter reporter) {
+        return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel == ValidationLevel.LOADFLOW, reporter);
+    }
+
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, boolean throwsException, Reporter reporter) {
         if (regulating && Double.isNaN(targetDeadband)) {
-            throwExceptionOrLogError(validable, "Undefined value for target deadband of regulating " + validableType, throwException, reporter);
+            throwExceptionOrLogError(validable, "Undefined value for target deadband of regulating " + validableType, throwsException, reporter);
             return ValidationLevel.SCADA;
         }
         if (targetDeadband < 0) {
@@ -138,8 +157,12 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, boolean throwException) {
-        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, throwException, Reporter.NO_OP);
+    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel) {
+        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, validationLevel, Reporter.NO_OP);
+    }
+
+    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel, Reporter reporter) {
+        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, boolean throwException, Reporter reporter) {
@@ -159,8 +182,12 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, boolean throwException) {
-        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, throwException, Reporter.NO_OP);
+    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel) {
+        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, validationLevel, Reporter.NO_OP);
+    }
+
+    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel, Reporter reporter) {
+        return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, boolean throwException, Reporter reporter) {
@@ -227,8 +254,12 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkP0(Validable validable, double p0, boolean throwException) {
-        return checkP0(validable, p0, throwException, Reporter.NO_OP);
+    public static ValidationLevel checkP0(Validable validable, double p0, ValidationLevel validationLevel) {
+        return checkP0(validable, p0, validationLevel, Reporter.NO_OP);
+    }
+
+    public static ValidationLevel checkP0(Validable validable, double p0, ValidationLevel validationLevel, Reporter reporter) {
+        return checkP0(validable, p0, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     public static ValidationLevel checkP0(Validable validable, double p0, boolean throwException, Reporter reporter) {
@@ -239,8 +270,12 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static ValidationLevel checkQ0(Validable validable, double q0, boolean throwException) {
-        return checkQ0(validable, q0, throwException, Reporter.NO_OP);
+    public static ValidationLevel checkQ0(Validable validable, double q0, ValidationLevel validationLevel) {
+        return checkQ0(validable, q0, validationLevel, Reporter.NO_OP);
+    }
+
+    public static ValidationLevel checkQ0(Validable validable, double q0, ValidationLevel validationLevel, Reporter reporter) {
+        return checkQ0(validable, q0, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     public static ValidationLevel checkQ0(Validable validable, double q0, boolean throwException, Reporter reporter) {
@@ -360,12 +395,12 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount) {
-        return checkSections(validable, currentSectionCount, maximumSectionCount, true);
+    public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount, ValidationLevel validationLevel) {
+        return checkSections(validable, currentSectionCount, maximumSectionCount, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount, boolean throwException) {
-        return checkSections(validable, currentSectionCount, maximumSectionCount, throwException, Reporter.NO_OP);
+    public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount, ValidationLevel validationLevel, Reporter reporter) {
+        return checkSections(validable, currentSectionCount, maximumSectionCount, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount, boolean throwException, Reporter reporter) {
@@ -401,12 +436,13 @@ public final class ValidationUtil {
         checkRatedU(validable, ratedU2, "2");
     }
 
-    public static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
-        checkSvcRegulator(validable, voltageSetpoint, reactivePowerSetpoint, regulationMode, true);
+    public static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode, ValidationLevel validationLevel) {
+        return checkSvcRegulator(validable, voltageSetpoint, reactivePowerSetpoint, regulationMode, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode, boolean throwException) {
-        return checkSvcRegulator(validable, voltageSetpoint, reactivePowerSetpoint, regulationMode, throwException, Reporter.NO_OP);
+    public static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint,
+                                                    StaticVarCompensator.RegulationMode regulationMode, ValidationLevel validationLevel, Reporter reporter) {
+        return checkSvcRegulator(validable, voltageSetpoint, reactivePowerSetpoint, regulationMode, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     public static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint,

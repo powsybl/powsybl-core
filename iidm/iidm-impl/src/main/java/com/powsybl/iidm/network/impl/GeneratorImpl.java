@@ -127,7 +127,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this,
                 voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
-                n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                n.getMinValidationLevel());
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -176,7 +176,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
-                targetV.get(variantIndex), targetQ, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
         double oldValue = this.targetQ.set(variantIndex, targetQ);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -194,7 +194,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
-                targetV, targetQ.get(variantIndex), n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                targetV, targetQ.get(variantIndex), n.getMinValidationLevel());
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
