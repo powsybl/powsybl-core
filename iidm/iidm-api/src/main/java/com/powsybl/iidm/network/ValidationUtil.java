@@ -54,10 +54,6 @@ public final class ValidationUtil {
         LOGGER.error("{}{}", validable.getMessageHeader(), message);
     }
 
-    public static void throwExceptionOrLogError(Validable validable, String message, boolean throwException) {
-        throwExceptionOrLogError(validable, message, throwException, Reporter.NO_OP);
-    }
-
     public static void throwExceptionOrLogError(Validable validable, String message, ValidationLevel validationLevel) {
         throwExceptionOrLogError(validable, message, validationLevel, Reporter.NO_OP);
     }
@@ -622,15 +618,6 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
-        if (rtc.getTapPosition().isPresent()) {
-            int tapPosition = rtc.getTapPosition().getAsInt();
-            int highTapPosition = rtc.getLowTapPosition() + rtc.getAllSteps().size() - 1;
-            if (tapPosition < rtc.getLowTapPosition() || tapPosition > highTapPosition) {
-                throw new ValidationException(validable, "incorrect tap position "
-                        + tapPosition + " [" + rtc.getLowTapPosition() + ", "
-                        + highTapPosition + "]");
-            }
-        }
         validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating(), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getTargetV(), network, throwException, reporter));
         validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "ratio tap changer", rtc.isRegulating(), rtc.getTargetDeadband(), throwException, reporter));
         return validationLevel;
@@ -641,15 +628,6 @@ public final class ValidationUtil {
         if (ptc.getTapPosition().isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
-        }
-        if (ptc.getTapPosition().isPresent()) {
-            int tapPosition = ptc.getTapPosition().getAsInt();
-            int highTapPosition = ptc.getLowTapPosition() + ptc.getAllSteps().size() - 1;
-            if (tapPosition < ptc.getLowTapPosition() || tapPosition > highTapPosition) {
-                throw new ValidationException(validable, "incorrect tap position "
-                        + tapPosition + " [" + ptc.getLowTapPosition() + ", "
-                        + highTapPosition + "]");
-            }
         }
         validationLevel = ValidationLevel.min(validationLevel, checkPhaseTapChangerRegulation(validable, ptc.getRegulationMode(), ptc.getRegulationValue(), ptc.isRegulating(), ptc.getRegulationTerminal(), network, throwException, reporter));
         validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "phase tap changer", ptc.isRegulating(), ptc.getTargetDeadband(), throwException, reporter));
