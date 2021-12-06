@@ -6,22 +6,29 @@
  */
 package com.powsybl.iidm.import_;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.AbstractConvertersTest;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import org.junit.*;
+import com.powsybl.iidm.tools.ImportPostProcessorMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
@@ -209,4 +216,23 @@ public class ImportersTest extends AbstractConvertersTest {
         assertEquals(2, isLoadPresent.size());
         isLoadPresent.forEach(Assert::assertTrue);
     }
+
+    @Test
+    public void postProcessorWithReporter() throws IOException {
+        ReporterModel reporter = new ReporterModel("testPostProcessor", "Test importer post processor");
+        ImporterTestWithPostProcessor importer = new ImporterTestWithPostProcessor(new ImportPostProcessorMock(), computationManager);
+        Network network1 = importer.importData(null, NetworkFactory.findDefault(), null, reporter);
+        assertNotNull(network1);
+        Optional<Report> report = reporter.getReports().stream().findFirst();
+        assertTrue(report.isPresent());
+
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+        InputStream refStream = getClass().getResourceAsStream("/postProcessorReporterTest.txt");
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+    }
+
 }
+
