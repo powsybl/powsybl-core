@@ -25,6 +25,7 @@ import java.util.UUID;
 public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowBasedPhaseShifterOptimizer.class);
+    private static final String SCADA_NOT_SUPPORTED = "SCADA network not supported";
 
     private final ComputationManager computationManager;
 
@@ -85,7 +86,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             int tapPosInc = 1; // start by incrementing tap +1
             double i;
             double limit = getLimit(phaseShifter);
-            int tapPos = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
+            int tapPos = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED));
             int maxTap = phaseShifter.getPhaseTapChanger().getHighTapPosition();
 
             // increment tap until going above permanent limit
@@ -106,10 +107,10 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
             if (i < limit) {
                 // we reached the maximal (ou minimal) tap and phase shifter is not overloaded
-                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
+                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED));
             } else {
                 // with the last tap, phase shifter is overloaded, in that case we take the previous tap as the optimmal one
-                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) - tapPosInc;
+                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)) - tapPosInc;
                 phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
 
                 // just to be sure, check that with the previous tap, phase shifter is not overloaded...
@@ -126,7 +127,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         }
 
         LOGGER.debug("Optimal phase shifter '{}' tap is {} (from {})",
-                phaseShifter, optimalTap, phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")));
+                phaseShifter, optimalTap, phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)));
 
         // set the best optimal tap on the current state
         phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);

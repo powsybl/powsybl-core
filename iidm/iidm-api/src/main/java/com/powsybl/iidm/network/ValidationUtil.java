@@ -70,7 +70,7 @@ public final class ValidationUtil {
     }
 
     public static void throwExceptionOrLogError(Validable validable, String message, ValidationLevel validationLevel, Reporter reporter) {
-        throwExceptionOrLogError(validable, message, validationLevel == ValidationLevel.LOADFLOW);
+        throwExceptionOrLogError(validable, message, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
     private static void throwExceptionOrLogErrorForInvalidValue(Validable validable, double value, String valueName, boolean throwException, Reporter reporter) {
@@ -79,13 +79,6 @@ public final class ValidationUtil {
 
     private static void throwExceptionOrLogErrorForInvalidValue(Validable validable, double value, String valueName, String reason, boolean throwException, Reporter reporter) {
         if (throwException) {
-            throw createInvalidValueException(validable, value, valueName, reason);
-        }
-        logError(validable, createInvalidValueMessage(value, valueName, reason), reporter);
-    }
-
-    private static void throwExceptionOrLogErrorForInvalidValue(Validable validable, double value, String valueName, String reason, ValidationLevel validationLevel, Reporter reporter) {
-        if (validationLevel == ValidationLevel.LOADFLOW) {
             throw createInvalidValueException(validable, value, valueName, reason);
         }
         logError(validable, createInvalidValueMessage(value, valueName, reason), reporter);

@@ -49,6 +49,7 @@ public class UcteExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
 
     public static final String NAMING_STRATEGY = "ucte.export.naming-strategy";
+    private static final String SCADA_NOT_SUPPORTED = "SCADA network not supported";
 
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
 
@@ -786,7 +787,7 @@ public class UcteExporter implements Exporter {
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
-                twoWindingsTransformer.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")),
+                twoWindingsTransformer.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)),
                 Double.NaN);
         if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
             uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
@@ -809,14 +810,14 @@ public class UcteExporter implements Exporter {
             return new UcteAngleRegulation(calculateSymmAngleDu(twoWindingsTransformer),
                     90,
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
             return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer),
                     calculateAsymmAngleTheta(twoWindingsTransformer),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         }

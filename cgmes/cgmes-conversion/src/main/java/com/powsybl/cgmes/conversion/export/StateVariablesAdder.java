@@ -174,11 +174,11 @@ public class StateVariablesAdder {
             // TODO If we could store an identifier for the tap changer in IIDM
             // then we would not need to query the CGMES model
             if (hasPhaseTapChanger(t)) {
-                p.put(tapChangerPositionName, is(t.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"))));
+                p.put(tapChangerPositionName, is(t.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED))));
                 p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerListForPowerTransformer(t.getId()).stream().filter(Objects::nonNull).findFirst().orElseThrow(() -> new PowsyblException("Missing CGMES ptc")));
                 tapSteps.add(p);
             } else if (hasRatioTapChanger(t)) {
-                p.put(tapChangerPositionName, is(t.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"))));
+                p.put(tapChangerPositionName, is(t.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED))));
                 p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerListForPowerTransformer(t.getId()).stream().filter(Objects::nonNull).findFirst().orElseThrow(() -> new PowsyblException("Missing CGMES rtc")));
                 tapSteps.add(p);
             }
@@ -189,11 +189,11 @@ public class StateVariablesAdder {
             int legNum = 0;
             for (Leg leg : Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3())) {
                 if (hasPhaseTapChanger(leg)) {
-                    p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"))));
+                    p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED))));
                     p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerListForPowerTransformer(t.getId()).get(legNum));
                     tapSteps.add(p);
                 } else if (hasRatioTapChanger(leg)) {
-                    p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"))));
+                    p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED))));
                     p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerListForPowerTransformer(t.getId()).get(legNum));
                     tapSteps.add(p);
                 }
@@ -394,4 +394,6 @@ public class StateVariablesAdder {
         CgmesNames.ANGLEREF_TOPOLOGICALNODE, CgmesNames.TOPOLOGICAL_NODES);
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesAdder.class);
+
+    private static final String SCADA_NOT_SUPPORTED = "SCADA network not supported";
 }
