@@ -17,7 +17,6 @@ import com.powsybl.iidm.AbstractConvertersTest;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.tools.ImportPostProcessorMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -219,10 +218,14 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void postProcessorWithReporter() throws IOException {
+        ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
+        ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
+        Importer importer1 = Importers.addPostProcessors(loader, testImporter, computationManager, "testReporter");
+
         ReporterModel reporter = new ReporterModel("testPostProcessor", "Test importer post processor");
-        ImporterTestWithPostProcessor importer = new ImporterTestWithPostProcessor(new ImportPostProcessorMock(), computationManager);
-        Network network1 = importer.importData(null, NetworkFactory.findDefault(), null, reporter);
+        Network network1 = importer1.importData(null, NetworkFactory.findDefault(), null, reporter);
         assertNotNull(network1);
+
         Optional<Report> report = reporter.getReports().stream().findFirst();
         assertTrue(report.isPresent());
 

@@ -1,9 +1,8 @@
-package com.powsybl.iidm.tools;
+package com.powsybl.iidm.import_;
 
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
 
 public class ImportPostProcessorMock implements ImportPostProcessor {
@@ -13,7 +12,7 @@ public class ImportPostProcessorMock implements ImportPostProcessor {
 
     @Override
     public String getName() {
-        return "test with reporter";
+        return "testReporter";
     }
 
     @Override
