@@ -11,6 +11,9 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +56,33 @@ public class GroovyScriptPostProcessorTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("groovy-post-processor");
         moduleConfig.setStringProperty("script", script.toAbsolutePath().toString());
         test(platformConfig);
+    }
+
+    @Test
+    public void test2() throws IOException {
+        // Create configuration
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+        // Copy script
+        Path script = platformConfig.getConfigDir().resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+        Files.copy(getClass().getResourceAsStream("/real-script.groovy"), script);
+
+        // Create post-processor
+        GroovyScriptPostProcessor processor = new GroovyScriptPostProcessor(platformConfig);
+
+        // Create network
+        Network network = EurostagTutorialExample1Factory.create();
+        assertEquals(2, network.getVoltageLevelStream().filter(vl -> vl.getNominalV() > 300).count());
+
+        try { // Launch process
+            processor.process(network, LocalComputationManager.getDefault());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // Check processing results
+        assertEquals(1, network.getVoltageLevelStream().filter(vl -> vl.getNominalV() > 300).count());
+        assertEquals(280, network.getVoltageLevel("VLHV1").getNominalV(), 0.0);
     }
 
     private void test(PlatformConfig platformConfig) {
