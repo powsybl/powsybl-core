@@ -193,6 +193,16 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
+    public boolean removeProperty(String key) {
+        Object oldValue = properties.remove(key);
+        if (oldValue != null) {
+            getNetwork().getListeners().notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public Set<String> getPropertyNames() {
         return properties.keySet().stream().map(Object::toString).collect(Collectors.toSet());
     }

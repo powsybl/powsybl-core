@@ -468,6 +468,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
+    PowerFlow powerFlowSV(int n) {
+        if (stateVariablesPowerFlow(n).defined()) {
+            return stateVariablesPowerFlow(n);
+        }
+        return PowerFlow.UNDEFINED;
+    }
+
     // Terminals
 
     protected void convertedTerminals(Terminal... ts) {
@@ -475,7 +482,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
-            context.convertedTerminal(terminalId(n), t, n, powerFlow(n));
+            context.convertedTerminal(terminalId(n), t, n, powerFlowSV(n));
         }
     }
 

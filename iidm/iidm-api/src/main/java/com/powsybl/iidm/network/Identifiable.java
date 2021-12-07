@@ -156,6 +156,14 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     String setProperty(String key, String value);
 
     /**
+     * Remove property with specified key.
+     *
+     * @param key the property key
+     * @return {@code true} if property exists and has been removed, {@code false} otherwise
+     */
+    boolean removeProperty(String key);
+
+    /**
      * Get properties key values.
      */
     Set<String> getPropertyNames();
