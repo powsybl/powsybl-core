@@ -123,6 +123,7 @@ public class GroovyScriptPostProcessorTest {
                 assertEquals(400, point.getMaxQ(), 0.0);
             }
         }
+        assertTrue(network.getGenerator("GEN2").getTerminal().isConnected());
     }
 
     private void test(PlatformConfig platformConfig) {

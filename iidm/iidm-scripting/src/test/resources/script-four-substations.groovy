@@ -23,3 +23,13 @@ generator.newReactiveCapabilityCurve()
         .setMaxQ(400)
         .endPoint()
         .add()
+
+node = network.getBusbarSection("S1VL2_BBS1").getTerminal().getNodeBreakerView().getNode()
+
+voltageLevel.nodeBreakerView.newSwitch()
+        .setId("NEW_SWITCH")
+        .setKind("BREAKER")
+        .setNode1(node)
+        .setNode2(newNode)
+        .add()
+
