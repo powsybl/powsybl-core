@@ -9,3 +9,9 @@ network.getLoad("LOAD").newExtension(LoadDetailAdder.class)
         .withVariableActivePower(100)
         .withFixedActivePower(500)
         .add()
+
+for (b in network.getBusView().getBuses()) {
+    if (b.isInMainConnectedComponent()) {
+        b.angle = 0
+    }
+}

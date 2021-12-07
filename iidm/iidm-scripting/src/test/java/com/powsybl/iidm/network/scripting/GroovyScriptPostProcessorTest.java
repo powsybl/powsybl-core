@@ -87,7 +87,7 @@ public class GroovyScriptPostProcessorTest {
         assertEquals(280, network.getVoltageLevel("VLHV1").getNominalV(), 0.0);
         assertEquals(100, network.getLoad("LOAD").getExtension(LoadDetail.class).getVariableActivePower(), 0.0);
         assertEquals(500, network.getLoad("LOAD").getExtension(LoadDetail.class).getFixedActivePower(), 0.0);
-
+        assertEquals(0, network.getBusView().getBus("VLLOAD_0").getAngle(), 0.0);
     }
 
     @Test
