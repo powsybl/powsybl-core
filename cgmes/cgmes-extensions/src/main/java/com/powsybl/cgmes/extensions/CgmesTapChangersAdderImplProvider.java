@@ -23,6 +23,11 @@ public class CgmesTapChangersAdderImplProvider<C extends Connectable<C>>
     }
 
     @Override
+    public String getExtensionsName() {
+        return CgmesTapChangers.NAME;
+    }
+
+    @Override
     public Class<? super CgmesTapChangersAdderImpl<C>> getAdderClass() {
         return CgmesTapChangersAdderImpl.class;
     }

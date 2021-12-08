@@ -27,6 +27,11 @@ public class HvdcAngleDroopActivePowerControlAdderImplProvider
     }
 
     @Override
+    public String getExtensionsName() {
+        return HvdcAngleDroopActivePowerControl.NAME;
+    }
+
+    @Override
     public Class<? super HvdcAngleDroopActivePowerControlAdder> getAdderClass() {
         return HvdcAngleDroopActivePowerControlAdder.class;
     }

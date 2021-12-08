@@ -16,12 +16,14 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesModelExtension extends Extension<Network> {
 
+    String NAME = "CgmesModel";
+
     CgmesModel getCgmesModel();
 
     CgmesUpdate getCgmesUpdate();
 
     @Override
     default String getName() {
-        return "CgmesModel";
+        return NAME;
     }
 }

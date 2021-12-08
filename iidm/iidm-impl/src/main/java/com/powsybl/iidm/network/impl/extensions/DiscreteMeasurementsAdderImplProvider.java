@@ -22,6 +22,11 @@ public class DiscreteMeasurementsAdderImplProvider<I extends Identifiable<I>> im
     }
 
     @Override
+    public String getExtensionsName() {
+        return DiscreteMeasurements.NAME;
+    }
+
+    @Override
     public Class<? super DiscreteMeasurementsAdderImpl<I>> getAdderClass() {
         return DiscreteMeasurementsAdderImpl.class;
     }

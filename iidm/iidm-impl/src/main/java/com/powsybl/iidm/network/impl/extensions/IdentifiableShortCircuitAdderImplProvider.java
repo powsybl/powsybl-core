@@ -25,6 +25,11 @@ public class IdentifiableShortCircuitAdderImplProvider<I extends Identifiable<I>
     }
 
     @Override
+    public String getExtensionsName() {
+        return IdentifiableShortCircuit.NAME;
+    }
+
+    @Override
     public Class<? super IdentifiableShortCircuitAdderImpl> getAdderClass() {
         return IdentifiableShortCircuitAdderImpl.class;
     }

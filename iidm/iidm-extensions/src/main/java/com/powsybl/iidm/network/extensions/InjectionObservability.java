@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Injection;
  */
 public interface InjectionObservability<I extends Injection<I>> extends Extension<I>, Observability<I> {
 
+    String NAME = "injectionObservability";
+
     @Override
     default String getName() {
-        return "injectionObservability";
+        return NAME;
     }
 
     /**
