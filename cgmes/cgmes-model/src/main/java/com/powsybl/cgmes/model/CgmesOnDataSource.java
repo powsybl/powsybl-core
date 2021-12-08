@@ -77,7 +77,7 @@ public class CgmesOnDataSource {
     private static boolean isCimNamespace(String ns) {
         // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
         // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
-        return ns.contains("CIM-schema-cim") || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
+        return CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
     }
 
     private boolean containsValidNamespace(String name) {
