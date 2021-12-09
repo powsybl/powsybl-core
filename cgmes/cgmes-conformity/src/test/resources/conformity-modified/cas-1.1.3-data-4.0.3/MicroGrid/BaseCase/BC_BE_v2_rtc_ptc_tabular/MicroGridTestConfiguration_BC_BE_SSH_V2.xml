@@ -173,10 +173,10 @@
     <cim:SynchronousMachine.referencePriority>0</cim:SynchronousMachine.referencePriority>
     <cim:RegulatingCondEq.controlEnabled>true</cim:RegulatingCondEq.controlEnabled>
   </cim:SynchronousMachine>
-  <cim:PhaseTapChangerAsymmetrical rdf:about="#_6ebbef67-3061-4236-a6fd-6ccc4595f6c3">
+  <cim:PhaseTapChangerTabular rdf:about="#_6ebbef67-3061-4236-a6fd-6ccc4595f6c3">
     <cim:TapChanger.step>2</cim:TapChanger.step>
     <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
-  </cim:PhaseTapChangerAsymmetrical>
+  </cim:PhaseTapChangerTabular>
   <cim:RatioTapChanger rdf:about="#_955d9cd0-4a10-4031-b008-60c0dc340a07">
     <cim:TapChanger.step>2</cim:TapChanger.step>
     <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>

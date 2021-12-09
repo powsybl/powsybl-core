@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
-import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
+import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
@@ -24,7 +24,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class AcDcConverterConversion extends AbstractConductingEquipmentConversion {
+public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversion {
 
     private static final double DEFAULT_POWER_FACTOR = 0.8;
 
@@ -60,6 +60,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             addAliasesAndProperties(c);
 
             convertedTerminals(c.getTerminal());
+            convertReactiveLimits(c);
             context.regulatingControlMapping().forVscConverters().add(c.getId(), p);
         } else if (converterType.equals(HvdcType.LCC)) {
 
@@ -69,7 +70,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                 .setLossFactor((float) this.lossFactor)
-                .setPowerFactor((float) DEFAULT_POWER_FACTOR);
+                .setPowerFactor((float) getPowerFactor(p));
             identify(adder);
             connect(adder);
             LccConverterStation c = adder.add();
@@ -78,6 +79,16 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             this.lccConverter = c;
             convertedTerminals(c.getTerminal());
         }
+    }
+
+    private static double getPowerFactor(PropertyBag propertyBag) {
+        double p = propertyBag.asDouble("p");
+        double q = propertyBag.asDouble("q");
+        double powerFactor = p / Math.hypot(p, q);
+        if (Double.isNaN(powerFactor)) {
+            return DEFAULT_POWER_FACTOR;
+        }
+        return powerFactor;
     }
 
     public void setLccPowerFactor(double powerFactor) {

@@ -28,6 +28,11 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
 
     @Override
     public boolean valid() {
+        double nominalVoltage = p.asDouble("nominalVoltage");
+        if (nominalVoltage == 0) {
+            ignored("Voltage level", () -> String.format("nominal voltage of %s is equal to 0", id));
+            return false;
+        }
         if (substation == null) {
             missing(String.format("Substation %s (IIDM id: %s)",
                     cgmesSubstationId,

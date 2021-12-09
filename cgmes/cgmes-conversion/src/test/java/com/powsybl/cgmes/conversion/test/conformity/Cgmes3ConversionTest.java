@@ -114,6 +114,7 @@ public class Cgmes3ConversionTest {
             NetworkFactory.findDefault(), null);
 
         resetBusVoltageAndAngleBeforeComparison(network);
+        resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
         // RegulatingTerminals of both networks are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
         // Differences are associated with regulating cgmesTerminals defined for breakers
@@ -178,6 +179,7 @@ public class Cgmes3ConversionTest {
             NetworkFactory.findDefault(), null);
 
         resetBusVoltageAndAngleBeforeComparison(network);
+        resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
@@ -235,6 +237,7 @@ public class Cgmes3ConversionTest {
             NetworkFactory.findDefault(), null);
 
         resetBusVoltageAndAngleBeforeComparison(network);
+        resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
@@ -292,6 +295,7 @@ public class Cgmes3ConversionTest {
             NetworkFactory.findDefault(), null);
 
         resetBusVoltageAndAngleBeforeComparison(network);
+        resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
         // regulatingTerminals of network are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
         // Differences are associated with regulating cgmesTerminals defined for breakers
@@ -316,6 +320,17 @@ public class Cgmes3ConversionTest {
         network.getBusBreakerView().getBuses().forEach(bus -> {
             bus.setV(Double.NaN);
             bus.setAngle(Double.NaN);
+        });
+    }
+
+    private static void resetTerminalPQofLoadsAndGeneratorsBeforeComparison(Network network) {
+        network.getGenerators().forEach(generator -> {
+            generator.getTerminal().setP(Double.NaN);
+            generator.getTerminal().setQ(Double.NaN);
+        });
+        network.getLoads().forEach(load -> {
+            load.getTerminal().setP(Double.NaN);
+            load.getTerminal().setQ(Double.NaN);
         });
     }
 

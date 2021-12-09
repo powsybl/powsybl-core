@@ -39,10 +39,7 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        if (!(foundNamespaces.contains(CIM_16_NAMESPACE) || foundNamespaces.contains(CIM_100_NAMESPACE))) {
-            return false;
-        }
-        return names().stream().anyMatch(CgmesSubset.EQUIPMENT::isValidName);
+        return foundNamespaces.contains(CIM_16_NAMESPACE) || foundNamespaces.contains(CIM_100_NAMESPACE);
     }
 
     public boolean existsCim14() {
@@ -80,7 +77,7 @@ public class CgmesOnDataSource {
     private static boolean isCimNamespace(String ns) {
         // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
         // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
-        return ns.contains("CIM-schema-cim") || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
+        return CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
     }
 
     private boolean containsValidNamespace(String name) {
