@@ -34,7 +34,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private boolean loadTapChangingCapabilities = false;
 
-    private boolean regulating = false;
+    private Boolean regulating = null;
 
     private double targetV = Double.NaN;
 
@@ -190,8 +190,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);
 
-        Set<TapChanger> tapChangers = new HashSet<>();
-        tapChangers.addAll(parent.getAllTapChangers());
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
                 network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));

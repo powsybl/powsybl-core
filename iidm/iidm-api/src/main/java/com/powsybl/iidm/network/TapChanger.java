@@ -101,7 +101,7 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * Depends on the working variant.
      * @see VariantManager
      */
-    boolean isRegulating();
+    Optional<Boolean> isRegulating();
 
     /**
      * Set the regulating status.

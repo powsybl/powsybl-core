@@ -8,14 +8,9 @@ package com.powsybl.iidm.network.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChangerHolder;
-import com.powsybl.iidm.network.RatioTapChangerHolder;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 
 /**
@@ -102,6 +97,7 @@ public class TapChangerAttributeTest {
             .setTapPosition(1)
             .setLowTapPosition(0)
             .setRegulating(false)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
             .beginStep()
             .setR(1.0)
             .setX(2.0)
@@ -123,6 +119,7 @@ public class TapChangerAttributeTest {
 
     private void createRatioTapChanger(RatioTapChangerHolder rtch) {
         rtch.newRatioTapChanger()
+            .setRegulating(false)
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(false)

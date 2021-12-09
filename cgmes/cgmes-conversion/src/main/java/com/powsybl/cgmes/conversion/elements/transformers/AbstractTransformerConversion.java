@@ -54,7 +54,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                     .setG(g1)
                     .endStep();
         });
-        rtca.add();
+        rtca.setRegulating(false).add(); // TODO: when SCADA allowed, this should be changed
     }
 
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
@@ -85,7 +85,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                     .setG(g1)
                     .endStep();
         });
-        ptca.add();
+        ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP).setRegulating(false).add(); // TODO: when SCADA allowed, change this
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {

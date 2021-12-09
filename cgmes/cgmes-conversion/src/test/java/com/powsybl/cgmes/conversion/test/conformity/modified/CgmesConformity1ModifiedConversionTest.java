@@ -175,11 +175,11 @@ public class CgmesConformity1ModifiedConversionTest {
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
-        assertFalse(rtc.isRegulating());
+        assertFalse(rtc.isRegulating().orElse(true));
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
-        assertFalse(ptc.isRegulating());
+        assertFalse(ptc.isRegulating().orElse(true));
     }
 
     @Test
@@ -230,14 +230,14 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getTargetV()));
-        assertFalse(rtc.isRegulating());
+        assertFalse(rtc.isRegulating().orElse(true));
         assertNull(rtc.getRegulationTerminal());
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
-        assertFalse(ptc.isRegulating());
+        assertFalse(ptc.isRegulating().orElse(true));
         assertNull(ptc.getRegulationTerminal());
 
         Generator generator2 = network.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
@@ -257,14 +257,14 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getTargetV()));
-        assertFalse(rtc.isRegulating());
+        assertFalse(rtc.isRegulating().orElse(true));
         assertNull(rtc.getRegulationTerminal());
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
-        assertFalse(ptc.isRegulating());
+        assertFalse(ptc.isRegulating().orElse(true));
         assertNull(ptc.getRegulationTerminal());
     }
 
@@ -660,13 +660,13 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(rtc2);
         Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
         assertNotNull(regulatingTerminal2);
-        assertTrue(rtc2.isRegulating());
+        assertTrue(rtc2.isRegulating().orElse(false));
 
         RatioTapChanger rtc3 = twt3.getLeg3().getRatioTapChanger();
         assertNotNull(rtc3);
         Terminal regulatingTerminal3 = rtc3.getRegulationTerminal();
         assertNotNull(regulatingTerminal3);
-        assertFalse(rtc3.isRegulating());
+        assertFalse(rtc3.isRegulating().orElse(true));
     }
 
     @Test

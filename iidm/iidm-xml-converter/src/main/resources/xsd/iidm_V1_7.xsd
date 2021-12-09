@@ -504,7 +504,7 @@
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
-        <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
+        <xs:attribute name="regulating" use="required" type="xs:boolean"/>
         <xs:attribute name="targetV" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="PhaseRegulationMode">
@@ -524,7 +524,7 @@
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
-        <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
+        <xs:attribute name="regulating" use="required" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="Line">
         <xs:complexContent>

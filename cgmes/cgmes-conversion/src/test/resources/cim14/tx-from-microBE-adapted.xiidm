@@ -16,7 +16,7 @@
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="_e482b89a-fa84-4ea9-8e70-a83d44790957" name="BE-TR2_3" r="9.481463930569589E-4" x="0.05291150510311127" g="0.0019138280767947435" b="-0.009170063771307468" ratedU1="110.34375" ratedU2="10.5" bus1="_GRID_TN" connectableBus1="_GRID_TN" voltageLevelId1="_GRID_VL" bus2="_GEN_TN" connectableBus2="_GEN_TN" voltageLevelId2="_GEN_VL">
-            <iidm:ratioTapChanger lowTapPosition="1" tapPosition="18" loadTapChangingCapabilities="false">
+            <iidm:ratioTapChanger lowTapPosition="1" tapPosition="18" loadTapChangingCapabilities="false" regulating="false">
                 <iidm:step r="-23.961603659057573" x="-23.961603659057573" g="31.512505276437007" b="31.512505276437007" rho="0.871999979019165"/>
                 <iidm:step r="-22.560000839233396" x="-22.560000839233396" g="29.132232804391567" b="29.132232804391567" rho="0.8799999952316284"/>
                 <iidm:step r="-21.145597967529284" x="-21.145597967529284" g="26.816001925703436" b="26.816001925703436" rho="0.8880000114440918"/>

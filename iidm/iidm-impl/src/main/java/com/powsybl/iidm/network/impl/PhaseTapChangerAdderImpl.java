@@ -32,11 +32,11 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
 
-    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+    private PhaseTapChanger.RegulationMode regulationMode = null;
 
     private double regulationValue = Double.NaN;
 
-    private boolean regulating = false;
+    private Boolean regulating = null;
 
     private double targetDeadband = Double.NaN;
 
@@ -200,8 +200,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
-        Set<TapChanger> tapChangers = new HashSet<>();
-        tapChangers.addAll(parent.getAllTapChangers());
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
                 regulating, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));

@@ -44,7 +44,7 @@
             <iidm:load id="B12-L1 " loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B12" connectableBus="B12"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-4-12-1 " r="0.0" x="2.78784" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B12" connectableBus2="B12" voltageLevelId2="VL12">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="15.124610878815226" b="15.124610878815226" rho="1.0729613733905579"/>
             </iidm:ratioTapChanger>
             <iidm:currentLimits1 permanentLimit="284.3012689191339"/>
@@ -84,14 +84,14 @@
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-6-9-1 " r="0.0" x="0.00208" g="0.0" b="0.0" ratedU1="132.0" ratedU2="1.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="4.54957950159125" b="4.54957950159125" rho="1.0224948875255624"/>
             </iidm:ratioTapChanger>
             <iidm:currentLimits1 permanentLimit="284.3012689191339"/>
             <iidm:currentLimits2 permanentLimit="37527.76749732568"/>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T-6-10-1 " r="0.0" x="6.05484" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="6.500695982048255" b="6.500695982048255" rho="1.0319917440660475"/>
             </iidm:ratioTapChanger>
             <iidm:currentLimits1 permanentLimit="139.96370162172747"/>
@@ -255,7 +255,7 @@
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-28-27-1 " r="0.0" x="4.3124400000000005" g="0.0" b="0.0" ratedU1="132.0" ratedU2="33.0" bus1="B28" connectableBus1="B28" voltageLevelId1="VL28" bus2="B27" connectableBus2="B27" voltageLevelId2="VL27">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false" regulating="false">
                 <iidm:step r="0.0" x="0.0" g="6.720852400792299" b="6.720852400792299" rho="1.0330578512396695"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>

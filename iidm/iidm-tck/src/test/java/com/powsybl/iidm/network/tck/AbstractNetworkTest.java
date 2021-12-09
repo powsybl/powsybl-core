@@ -579,7 +579,7 @@ public abstract class AbstractNetworkTest {
         assertEquals("IIDMValidation", subReporter.getTaskKey());
         assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
         Collection<Report> reports = subReporter.getReports();
-        assertEquals(26, reports.size());
+        assertEquals(32, reports.size());
 
         assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
 

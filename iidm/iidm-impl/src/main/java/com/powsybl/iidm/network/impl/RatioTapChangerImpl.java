@@ -26,7 +26,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
                         List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean loadTapChangingCapabilities,
-                        Integer tapPosition, boolean regulating, double targetV, double targetDeadband) {
+                        Integer tapPosition, Boolean regulating, double targetV, double targetDeadband) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband, "ratio tap changer");
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -65,8 +65,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         NetworkImpl n = getNetwork();
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities,
                 regulationTerminal, getTargetV(), n, n.getMinValidationLevel());
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
-        tapChangers.addAll(parent.getAllTapChangers());
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
                 n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
@@ -82,7 +81,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulationTerminal,
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating().orElse(null), loadTapChangingCapabilities, regulationTerminal,
                 getTargetV(), n, n.getMinValidationLevel());
         boolean oldValue = this.loadTapChangingCapabilities;
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
@@ -99,7 +98,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulationTerminal,
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating().orElse(null), loadTapChangingCapabilities, regulationTerminal,
                 targetV, n, n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.targetV.set(variantIndex, targetV);
@@ -112,7 +111,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(),
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating().orElse(null),
                 loadTapChangingCapabilities, regulationTerminal, getTargetV(), n, n.getMinValidationLevel());
         n.invalidateValidationLevel();
         return super.setRegulationTerminal(regulationTerminal);

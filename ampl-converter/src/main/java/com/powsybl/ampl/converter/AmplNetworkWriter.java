@@ -1110,7 +1110,7 @@ public class AmplNetworkWriter {
                     .writeCell(rtcNum)
                     .writeCell(rtc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) - rtc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
-                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
+                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating().orElseThrow(() -> new PowsyblException("SCADA network not supported")));
             if (config.isExportRatioTapChangerVoltageTarget()) {
                 formatter.writeCell(rtc.getTargetV());
             }

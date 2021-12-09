@@ -27,7 +27,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
-                        Integer tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue, double targetDeadband) {
+                        Integer tapPosition, Boolean regulating, RegulationMode regulationMode, double regulationValue, double targetDeadband) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, targetDeadband, "phase tap changer");
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
@@ -66,8 +66,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(),
                 n, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        Set<TapChanger> tapChangers = new HashSet<TapChanger>();
-        tapChangers.addAll(parent.getAllTapChangers());
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
                 regulating, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
@@ -84,7 +83,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(),
-                isRegulating(), getRegulationTerminal(), n, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                isRegulating().orElse(null), getRegulationTerminal(), n, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
         n.invalidateValidationLevel();
@@ -101,7 +100,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue,
-                isRegulating(), getRegulationTerminal(), n, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                isRegulating().orElse(null), getRegulationTerminal(), n, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -113,7 +112,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(),
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating().orElse(null),
                 regulationTerminal, n, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         n.invalidateValidationLevel();
         return super.setRegulationTerminal(regulationTerminal);

@@ -79,7 +79,7 @@ public class PhaseTapChangerAdapterTest {
         assertEquals(2, phaseTapChanger.getStepCount());
         assertEquals(0, phaseTapChanger.getLowTapPosition());
         assertEquals(1, phaseTapChanger.getHighTapPosition());
-        assertTrue(phaseTapChanger.isRegulating());
+        assertTrue(phaseTapChanger.isRegulating().orElse(false));
         assertEquals(1.0, phaseTapChanger.getTargetDeadband(), 0.0);
         assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
         assertSame(terminal, phaseTapChanger.getRegulationTerminal());
@@ -94,7 +94,7 @@ public class PhaseTapChangerAdapterTest {
         phaseTapChanger.setTargetDeadband(0.5);
         assertEquals(0.5, phaseTapChanger.getTargetDeadband(), 0.0);
         phaseTapChanger.setRegulating(false);
-        assertFalse(phaseTapChanger.isRegulating());
+        assertFalse(phaseTapChanger.isRegulating().orElse(true));
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
         final Terminal terminal2 = twt.getTerminal2();

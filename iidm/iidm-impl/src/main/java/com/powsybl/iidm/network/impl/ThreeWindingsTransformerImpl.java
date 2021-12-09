@@ -221,8 +221,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public Set<TapChanger> getAllTapChangers() {
-            Set<TapChanger> tapChangers = new HashSet<>();
+        public Set<TapChanger<?, ?>> getAllTapChangers() {
+            Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
             transformer.leg1.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
             transformer.leg1.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
             transformer.leg2.getOptionalRatioTapChanger().ifPresent(tapChangers::add);

@@ -522,7 +522,7 @@
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
-        <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
+        <xs:attribute name="regulationMode" use="optional" type="iidm:PhaseRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
     </xs:complexType>

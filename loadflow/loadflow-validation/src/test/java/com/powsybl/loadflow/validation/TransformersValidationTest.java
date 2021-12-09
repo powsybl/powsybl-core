@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.stream.Stream;
 
@@ -74,7 +75,7 @@ public class TransformersValidationTest extends AbstractValidationTest {
         Mockito.when(nextStep.getRho()).thenReturn(rhoNextStep);
 
         RatioTapChanger ratioTapChanger = Mockito.mock(RatioTapChanger.class);
-        Mockito.when(ratioTapChanger.isRegulating()).thenReturn(true);
+        Mockito.when(ratioTapChanger.isRegulating()).thenReturn(Optional.of(true));
         Mockito.when(ratioTapChanger.getRegulationTerminal()).thenReturn(terminal);
         Mockito.when(ratioTapChanger.getTapPosition()).thenReturn(OptionalInt.of(tapPosition));
         Mockito.when(ratioTapChanger.getLowTapPosition()).thenReturn(lowTapPosition);

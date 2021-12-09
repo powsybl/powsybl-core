@@ -127,15 +127,19 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel) {
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, Boolean regulating, double targetDeadband, ValidationLevel validationLevel) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel, Reporter reporter) {
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, Boolean regulating, double targetDeadband, ValidationLevel validationLevel, Reporter reporter) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, boolean throwsException, Reporter reporter) {
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, Boolean regulating, double targetDeadband, boolean throwsException, Reporter reporter) {
+        if (regulating == null) {
+            throwExceptionOrLogError(validable, "Undefined regulating status", throwsException, reporter);
+            return ValidationLevel.SCADA;
+        }
         if (regulating && Double.isNaN(targetDeadband)) {
             throwExceptionOrLogError(validable, "Undefined value for target deadband of regulating " + validableType, throwsException, reporter);
             return ValidationLevel.SCADA;
@@ -491,21 +495,25 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
+    public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, Boolean regulating, boolean loadTapChangingCapabilities,
                                                                  Terminal regulationTerminal, double targetV, Network network, ValidationLevel validationLevel) {
         return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
+    public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, Boolean regulating, boolean loadTapChangingCapabilities,
                                                                  Terminal regulationTerminal, double targetV, Network network, ValidationLevel validationLevel, Reporter reporter) {
         return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
-    public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
+    public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, Boolean regulating, boolean loadTapChangingCapabilities,
                                                                  Terminal regulationTerminal, double targetV, Network network, boolean throwException,
                                                                  Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
-        if (regulating) {
+        if (regulating == null) {
+            throwExceptionOrLogError(validable, "Undefined regulating status", throwException, reporter);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
+        }
+        if (regulating != null && regulating) {
             if (Double.isNaN(targetV)) {
                 validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a target voltage has to be set for a regulating ratio tap changer", throwException, reporter));
             }
@@ -515,28 +523,32 @@ public final class ValidationUtil {
             if (regulationTerminal == null) {
                 validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer", throwException, reporter));
             }
-            if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
-                throw new ValidationException(validable, "regulation terminal is not part of the network");
-            }
+        }
+        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
+            throw new ValidationException(validable, "regulation terminal is not part of the network");
         }
         return validationLevel;
     }
 
     public static ValidationLevel checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                                 double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                                                 double regulationValue, Boolean regulating, Terminal regulationTerminal,
                                                                  Network network, boolean throwException) {
         return checkPhaseTapChangerRegulation(validable, regulationMode, regulationValue, regulating, regulationTerminal, network, throwException, Reporter.NO_OP);
     }
 
     public static ValidationLevel checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                                 double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                                                 double regulationValue, Boolean regulating, Terminal regulationTerminal,
                                                                  Network network, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "phase regulation mode is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
-        if (regulating && regulationMode != null) {
+        if (regulating == null) {
+            throwExceptionOrLogError(validable, "phase regulating status is not set", throwException, reporter);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
+        }
+        if (regulating != null && regulating && regulationMode != null) {
             if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
                 throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set", throwException, reporter);
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
@@ -557,13 +569,17 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                                          Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
+                                                                          Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified, Boolean regulating, boolean throwException) {
         return checkOnlyOneTapChangerRegulatingEnabled(validable, tapChangersNotIncludingTheModified, regulating, throwException, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger> tapChangersNotIncludingTheModified,
-                                                                          boolean regulating, boolean throwException, Reporter reporter) {
-        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
+    public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified,
+                                                                          Boolean regulating, boolean throwException, Reporter reporter) {
+        if (regulating == null) {
+            throwExceptionOrLogError(validable, "Regulating status not set", throwException, reporter);
+            return ValidationLevel.SCADA;
+        }
+        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(tc -> tc.isRegulating().orElse(false))) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
             return ValidationLevel.SCADA;
         }
@@ -618,8 +634,8 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
-        validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating(), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getTargetV(), network, throwException, reporter));
-        validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "ratio tap changer", rtc.isRegulating(), rtc.getTargetDeadband(), throwException, reporter));
+        validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating().orElse(null), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getTargetV(), network, throwException, reporter));
+        validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "ratio tap changer", rtc.isRegulating().orElse(null), rtc.getTargetDeadband(), throwException, reporter));
         return validationLevel;
     }
 
@@ -629,8 +645,8 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
-        validationLevel = ValidationLevel.min(validationLevel, checkPhaseTapChangerRegulation(validable, ptc.getRegulationMode(), ptc.getRegulationValue(), ptc.isRegulating(), ptc.getRegulationTerminal(), network, throwException, reporter));
-        validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "phase tap changer", ptc.isRegulating(), ptc.getTargetDeadband(), throwException, reporter));
+        validationLevel = ValidationLevel.min(validationLevel, checkPhaseTapChangerRegulation(validable, ptc.getRegulationMode(), ptc.getRegulationValue(), ptc.isRegulating().orElse(null), ptc.getRegulationTerminal(), network, throwException, reporter));
+        validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "phase tap changer", ptc.isRegulating().orElse(null), ptc.getTargetDeadband(), throwException, reporter));
         return validationLevel;
     }
 
@@ -647,12 +663,12 @@ public final class ValidationUtil {
         long regulatingTc = twt.getLegStream()
                 .map(ThreeWindingsTransformer.Leg::getRatioTapChanger)
                 .filter(Objects::nonNull)
-                .filter(TapChanger::isRegulating)
+                .filter(tc -> tc.isRegulating().orElse(false))
                 .count()
                 + twt.getLegStream()
                 .map(ThreeWindingsTransformer.Leg::getPhaseTapChanger)
                 .filter(Objects::nonNull)
-                .filter(TapChanger::isRegulating)
+                .filter(tc -> tc.isRegulating().orElse(false))
                 .count();
         if (regulatingTc > 1) {
             throw new ValidationException(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG);
@@ -668,8 +684,8 @@ public final class ValidationUtil {
         if (twt.hasPhaseTapChanger()) {
             validationLevel = ValidationLevel.min(validationLevel, checkPtc(validable, twt.getPhaseTapChanger(), twt.getNetwork(), throwException, reporter));
         }
-        if (twt.getOptionalRatioTapChanger().map(RatioTapChanger::isRegulating).orElse(false)
-                && twt.getOptionalPhaseTapChanger().map(PhaseTapChanger::isRegulating).orElse(false)) {
+        if (twt.getOptionalRatioTapChanger().map(rtc -> rtc.isRegulating().orElse(false)).orElse(false)
+                && twt.getOptionalPhaseTapChanger().map(ptc -> ptc.isRegulating().orElse(false)).orElse(false)) {
             throw new ValidationException(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG);
         }
         return validationLevel;

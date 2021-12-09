@@ -56,7 +56,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
     }
 
     private static boolean filterTwt(TwoWindingsTransformer twt) {
-        return twt.hasRatioTapChanger() && twt.getRatioTapChanger().isRegulating();
+        return twt.hasRatioTapChanger() && twt.getRatioTapChanger().isRegulating().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
     }
 
     public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
