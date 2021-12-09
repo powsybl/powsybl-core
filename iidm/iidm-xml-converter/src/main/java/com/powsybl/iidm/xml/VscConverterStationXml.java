@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
@@ -39,7 +40,13 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
+        cs.isVoltageRegulatorOn().ifPresent(voltageRegulatorOn -> {
+            try {
+                context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(voltageRegulatorOn));
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
         XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
         XmlUtil.writeDouble("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
         XmlUtil.writeDouble("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());

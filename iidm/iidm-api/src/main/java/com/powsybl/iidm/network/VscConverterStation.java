@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * VSC converter station.
  *
@@ -76,7 +78,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * Check if voltage regulator is on.
      * @return true if voltage regulator is on, false otherwise
      */
-    boolean isVoltageRegulatorOn();
+    Optional<Boolean> isVoltageRegulatorOn();
 
     /**
      * Set voltage regulator status.
