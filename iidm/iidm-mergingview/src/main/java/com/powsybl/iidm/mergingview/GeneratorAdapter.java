@@ -102,6 +102,12 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
+    public Generator unsetVoltageRegulatorOn() {
+        getDelegate().unsetVoltageRegulatorOn();
+        return this;
+    }
+
+    @Override
     public double getTargetV() {
         return getDelegate().getTargetV();
     }

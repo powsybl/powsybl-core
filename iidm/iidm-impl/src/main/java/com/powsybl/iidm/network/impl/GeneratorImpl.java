@@ -139,6 +139,20 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
+    public Generator unsetVoltageRegulatorOn() {
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this,
+                null, targetV.get(variantIndex), targetQ.get(variantIndex),
+                n.getMinValidationLevel());
+        boolean oldValue = this.voltageRegulatorOn.set(variantIndex, null);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, null);
+        return this;
+    }
+
+    @Override
     public TerminalExt getRegulatingTerminal() {
         return regulatingTerminal;
     }

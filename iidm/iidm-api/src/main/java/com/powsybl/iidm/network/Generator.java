@@ -180,6 +180,11 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
+     * Unset the voltage regulator status. It is null.
+     */
+    Generator unsetVoltageRegulatorOn();
+
+    /**
      * Get the terminal used for regulation.
      * @return the terminal used for regulation
      */
