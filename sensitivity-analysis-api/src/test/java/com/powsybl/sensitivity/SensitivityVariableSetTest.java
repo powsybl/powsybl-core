@@ -34,9 +34,11 @@ public class SensitivityVariableSetTest extends AbstractConverterTest {
         SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(variable));
         assertEquals("id", variableSet.getId());
         assertEquals(1, variableSet.getVariables().size());
-        assertNotNull(variableSet.getVariables().get(0));
-        assertEquals("v1", variableSet.getVariables().get(0).getId());
-        assertEquals("SensitivityVariableSet(id='id', variables=[WeightedSensitivityVariable(id='v1', weight=3.4)])", variableSet.toString());
+        assertNotNull(variableSet.getVariables().stream().findFirst());
+        assertEquals("v1", variableSet.getVariables().stream().findFirst().get().getId());
+        assertEquals("v1", variableSet.getVariablesById().get("v1").getId());
+        assertEquals(3.4, variableSet.getVariablesById().get("v1").getWeight(), EPSILON_COMPARISON);
+        assertEquals("SensitivityVariableSet(id='id', variables={v1=WeightedSensitivityVariable(id='v1', weight=3.4)})", variableSet.toString());
     }
 
     @Test

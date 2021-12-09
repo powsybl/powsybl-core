@@ -13,9 +13,7 @@ import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Models a group of variables.
@@ -29,7 +27,7 @@ public class SensitivityVariableSet {
 
     private final String id;
 
-    private final List<WeightedSensitivityVariable> variables;
+    private final Map<String, WeightedSensitivityVariable> variables;
 
     /**
      * Constructor
@@ -38,14 +36,20 @@ public class SensitivityVariableSet {
      */
     public SensitivityVariableSet(String id, List<WeightedSensitivityVariable> variables) {
         this.id = Objects.requireNonNull(id);
-        this.variables = Collections.unmodifiableList(Objects.requireNonNull(variables));
+        //Use LinkedHashMap to preserve insertion order
+        this.variables = Collections.unmodifiableMap(
+                Objects.requireNonNull(variables).stream().collect(LinkedHashMap::new, (map, item) -> map.put(item.getId(), item), Map::putAll));
     }
 
     public String getId() {
         return id;
     }
 
-    public List<WeightedSensitivityVariable> getVariables() {
+    public Collection<WeightedSensitivityVariable> getVariables() {
+        return variables.values();
+    }
+
+    public Map<String, WeightedSensitivityVariable> getVariablesById() {
         return variables;
     }
 
