@@ -24,7 +24,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private Boolean voltageRegulatorOn;
+    private Boolean voltageRegulatorOn = null;
 
     private double targetP = Double.NaN;
 
