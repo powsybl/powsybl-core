@@ -276,6 +276,7 @@ public class IeeeCdfImporter implements Importer {
                     .setConnectableBus(busId)
                     .setBus(busId)
                     .setSectionCount(1)
+                    .setVoltageRegulatorOn(false)
                     .newLinearModel()
                         .setMaximumSectionCount(1)
                         .setBPerSection(ieeeCdfBus.getShuntSusceptance() / zb)

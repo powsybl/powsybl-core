@@ -75,7 +75,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(0.0, shuntCompensator.getG(0), 0.0);
         assertEquals(24.0, shuntCompensator.getG(6), 0.0);
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
-        assertTrue(shuntCompensator.isVoltageRegulatorOn());
+        assertTrue(shuntCompensator.isVoltageRegulatorOn().orElse(false));
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
         assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
         assertEquals(ShuntCompensatorModelType.LINEAR, shuntCompensator.getModelType());
@@ -235,7 +235,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(2.0, shuntCompensator.getG(1), 0.0);
         assertEquals(2.0, shuntCompensator.getG(2), 0.0);
         assertSame(terminal, shuntCompensator.getRegulatingTerminal());
-        assertTrue(shuntCompensator.isVoltageRegulatorOn());
+        assertTrue(shuntCompensator.isVoltageRegulatorOn().orElse(false));
         assertEquals(200, shuntCompensator.getTargetV(), 0.0);
         assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
         assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator.getModelType());
@@ -343,7 +343,7 @@ public abstract class AbstractShuntCompensatorTest {
 
         // voltageRegulatorOn
         shuntCompensator.setVoltageRegulatorOn(false);
-        assertFalse(shuntCompensator.isVoltageRegulatorOn());
+        assertFalse(shuntCompensator.isVoltageRegulatorOn().orElse(true));
 
         // targetV
         try {
@@ -441,7 +441,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(4, shunt.getSectionCount().orElseThrow(AssertionError::new));
         assertEquals(8.0, shunt.getB(), 0.0); // 2*4
         assertEquals(4.0, shunt.getG(), 0.0); // 1*4
-        assertFalse(shunt.isVoltageRegulatorOn());
+        assertFalse(shunt.isVoltageRegulatorOn().orElse(true));
         assertEquals(220, shunt.getTargetV(), 0.0);
         assertEquals(5.0, shunt.getTargetDeadband(), 0.0);
 
@@ -450,7 +450,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(5, shunt.getSectionCount().orElseThrow(AssertionError::new));
         assertEquals(10.0, shunt.getB(), 0.0); // 2*5
         assertEquals(5.0, shunt.getG(), 0.0); // 1*5
-        assertTrue(shunt.isVoltageRegulatorOn());
+        assertTrue(shunt.isVoltageRegulatorOn().orElse(false));
         assertEquals(200, shunt.getTargetV(), 0.0);
         assertEquals(10, shunt.getTargetDeadband(), 0.0);
 

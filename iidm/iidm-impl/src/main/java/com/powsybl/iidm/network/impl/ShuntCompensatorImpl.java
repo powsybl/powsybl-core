@@ -6,15 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -34,7 +30,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final List<Integer> sectionCount;
 
     /* the regulating status */
-    private final TBooleanArrayList voltageRegulatorOn;
+    private final List<Boolean> voltageRegulatorOn;
 
     /* the target voltage value */
     private final TDoubleArrayList targetV;
@@ -44,14 +40,14 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     ShuntCompensatorImpl(Ref<NetworkImpl> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
-                         Integer sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
+                         Integer sectionCount, TerminalExt regulatingTerminal, Boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
         super(network, id, name, fictitious);
         this.network = network;
         this.regulatingTerminal = regulatingTerminal;
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
         this.sectionCount = new ArrayList<>(variantArraySize);
-        this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
+        this.voltageRegulatorOn = new ArrayList<>(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
@@ -161,8 +157,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(network.get().getVariantIndex());
+    public Optional<Boolean> isVoltageRegulatorOn() {
+        return Optional.ofNullable(voltageRegulatorOn.get(network.get().getVariantIndex()));
     }
 
     @Override
@@ -171,7 +167,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), n.getMinValidationLevel());
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband.get(variantIndex), n.getMinValidationLevel());
-        boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
+        Boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
@@ -216,7 +212,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         ((ArrayList<Integer>) sectionCount).ensureCapacity(sectionCount.size() + number);
-        voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
+        ((ArrayList<Boolean>) voltageRegulatorOn).ensureCapacity(voltageRegulatorOn.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
         for (int i = 0; i < number; i++) {
@@ -230,10 +226,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        List<Integer> tmp = new ArrayList<>(sectionCount.subList(0, number));
+        List<Integer> tmpInt = new ArrayList<>(sectionCount.subList(0, number));
         sectionCount.clear();
-        sectionCount.addAll(tmp);
-        voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
+        sectionCount.addAll(tmpInt);
+        List<Boolean> tmpBool = new ArrayList<>(voltageRegulatorOn.subList(0, number));
+        voltageRegulatorOn.clear();
+        voltageRegulatorOn.addAll(tmpBool);
         targetV.remove(targetV.size() - number, number);
         targetDeadband.remove(targetDeadband.size() - number, number);
     }

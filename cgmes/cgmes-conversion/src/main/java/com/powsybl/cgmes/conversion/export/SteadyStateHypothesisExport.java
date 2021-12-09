@@ -175,7 +175,7 @@ public final class SteadyStateHypothesisExport {
                 default:
                     throw new AssertionError("Unexpected shunt model type: " + s.getModelType());
             }
-            boolean controlEnabled = s.isVoltageRegulatorOn();
+            boolean controlEnabled = s.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
             writer.writeStartElement(cimNamespace, shuntType + "ShuntCompensator");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + s.getId());
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
@@ -195,7 +195,7 @@ public final class SteadyStateHypothesisExport {
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = s.getProperty(REGULATING_CONTROL_PROPERTY);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
-                s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
+                s.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported")), s.getTargetDeadband(), s.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }

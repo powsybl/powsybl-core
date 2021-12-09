@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -74,10 +75,11 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(shuntCActual.setTargetDeadband(20) instanceof ShuntCompensatorAdapter);
         assertEquals(shuntCExpected.getTargetDeadband(), shuntCActual.getTargetDeadband(), 0.0d);
 
-        boolean voltageRegulatorOn = shuntCExpected.isVoltageRegulatorOn();
-        assertEquals(voltageRegulatorOn, shuntCActual.isVoltageRegulatorOn());
+        boolean voltageRegulatorOn = shuntCExpected.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("Should be present"));
+        assertEquals(voltageRegulatorOn, shuntCActual.isVoltageRegulatorOn().orElse(!voltageRegulatorOn));
         assertTrue(shuntCActual.setVoltageRegulatorOn(!voltageRegulatorOn) instanceof ShuntCompensatorAdapter);
-        assertEquals(shuntCExpected.isVoltageRegulatorOn(), shuntCActual.isVoltageRegulatorOn());
+        assertEquals(shuntCExpected.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("Should be present")),
+                shuntCActual.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("Should be present")));
 
         // Not implemented yet !
         TestUtil.notImplemented(shuntCActual::remove);
@@ -93,6 +95,7 @@ public class ShuntCompensatorAdapterTest {
                     .setId("linear")
                     .setConnectableBus("NLOAD")
                     .setSectionCount(0)
+                    .setVoltageRegulatorOn(false)
                     .newLinearModel()
                         .setBPerSection(1.0)
                         .setMaximumSectionCount(2)
@@ -127,6 +130,7 @@ public class ShuntCompensatorAdapterTest {
                 .setId("nonLinear")
                 .setConnectableBus("NLOAD")
                 .setSectionCount(1)
+                .setVoltageRegulatorOn(false)
                 .newNonLinearModel()
                     .beginSection()
                         .setB(1.0)

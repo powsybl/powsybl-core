@@ -30,7 +30,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private TerminalExt regulatingTerminal;
 
-    private boolean voltageRegulatorOn = false;
+    private Boolean voltageRegulatorOn = null;
 
     ShuntCompensatorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;

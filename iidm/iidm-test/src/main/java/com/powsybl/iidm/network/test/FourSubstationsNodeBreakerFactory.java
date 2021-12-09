@@ -367,6 +367,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setId("SHUNT")
                 .setNode(19)
                 .setSectionCount(1)
+                .setVoltageRegulatorOn(false)
                 .newLinearModel().setMaximumSectionCount(1).setBPerSection(-0.012).add()
                 .add();
         shunt.getTerminal().setQ(1920.0);

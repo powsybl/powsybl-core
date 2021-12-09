@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -215,7 +216,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default boolean isVoltageRegulatorOn() {
+    default Optional<Boolean> isVoltageRegulatorOn() {
         throw new UnsupportedOperationException();
     }
 

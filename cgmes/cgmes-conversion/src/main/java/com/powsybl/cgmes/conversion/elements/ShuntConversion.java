@@ -48,7 +48,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         int sections = getSections(p, normalSections);
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
-        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections);
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections).setVoltageRegulatorOn(false); // TODO: when SCADA allowed, change this
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);

@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.ShuntCompensatorModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -98,7 +99,7 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
-    public boolean isVoltageRegulatorOn() {
+    public Optional<Boolean> isVoltageRegulatorOn() {
         return getDelegate().isVoltageRegulatorOn();
     }
 

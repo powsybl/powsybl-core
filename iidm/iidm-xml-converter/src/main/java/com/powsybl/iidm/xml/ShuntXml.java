@@ -62,7 +62,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         if (sc.getSectionCount().isPresent()) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount().getAsInt())));
         }
-        IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+        sc.isVoltageRegulatorOn().ifPresent(voltageRegulatorOn -> IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", voltageRegulatorOn, false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context));
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetDeadband",
@@ -114,13 +114,16 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected void readElement(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
+            String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
             double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
-            adder.setVoltageRegulatorOn(voltageRegulatorOn)
-                    .setTargetV(targetV)
+            adder.setTargetV(targetV)
                     .setTargetDeadband(targetDeadband);
+            if (voltageRegulatorOn != null || context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
+                adder.setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+            }
         });
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), B_PER_SECTION);
             int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), MAXIMUM_SECTION_COUNT);
