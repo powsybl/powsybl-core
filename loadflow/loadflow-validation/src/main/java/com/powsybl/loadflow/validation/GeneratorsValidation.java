@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +93,7 @@ public final class GeneratorsValidation {
         double targetP = gen.getTargetP();
         double targetQ = gen.getTargetQ();
         double targetV = gen.getTargetV();
-        boolean voltageRegulatorOn = gen.isVoltageRegulatorOn();
+        boolean voltageRegulatorOn = gen.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
         double minP = gen.getMinP();
         double maxP = gen.getMaxP();
         double minQ = gen.getReactiveLimits().getMinQ(targetP);

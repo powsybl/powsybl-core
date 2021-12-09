@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.update;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +150,7 @@ public final class NetworkChanges {
     public static void modifyGeneratorVoltageRegulation(Network network) {
         // Apply changes to first generator with voltage regulation active
         for (Generator g : network.getGenerators()) {
-            if (g.isVoltageRegulatorOn()) {
+            if (g.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"))) {
                 g.setTargetV(g.getTargetV() + 0.1);
                 g.setVoltageRegulatorOn(false);
             }

@@ -271,7 +271,7 @@ public class UcteExporter implements Exporter {
                 // Should we use bus.getV() instead?
                 voltageReference = generator.getTargetV();
             }
-            if (generator.isVoltageRegulatorOn()) {
+            if (generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED))) {
                 nodeType = UcteNodeTypeCode.PU;
             }
             minP = generator.getMinP();

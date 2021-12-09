@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -40,7 +41,13 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
         XmlUtil.writeDouble("minP", g.getMinP(), context.getWriter());
         XmlUtil.writeDouble("maxP", g.getMaxP(), context.getWriter());
         XmlUtil.writeDouble("ratedS", g.getRatedS(), context.getWriter());
-        context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
+        g.isVoltageRegulatorOn().ifPresent(voltageRegulatorOn -> {
+            try {
+                context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(voltageRegulatorOn));
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
         XmlUtil.writeDouble("targetP", g.getTargetP(), context.getWriter());
         XmlUtil.writeDouble("targetV", g.getTargetV(), context.getWriter());
         XmlUtil.writeDouble("targetQ", g.getTargetQ(), context.getWriter());

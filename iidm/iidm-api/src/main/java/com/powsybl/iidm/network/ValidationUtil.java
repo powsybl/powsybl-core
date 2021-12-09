@@ -693,7 +693,7 @@ public final class ValidationUtil {
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reporter));
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn().orElse(null), generator.getTargetV(), generator.getTargetQ(), throwException, reporter));
             } else if (identifiable instanceof HvdcLine) {
                 HvdcLine hvdcLine = (HvdcLine) identifiable;
                 validationLevel = ValidationLevel.min(validationLevel, checkConvertersMode(validable, hvdcLine.getConvertersMode(), throwException, reporter));

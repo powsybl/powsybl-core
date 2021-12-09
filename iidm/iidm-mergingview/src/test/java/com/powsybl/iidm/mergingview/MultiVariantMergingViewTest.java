@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.google.common.collect.Iterables;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
@@ -35,9 +36,9 @@ public class MultiVariantMergingViewTest {
         manager.setWorkingVariant("SecondVariant");
         final Generator generator = mergingView.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isVoltageRegulatorOn().orElse(true));
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.isVoltageRegulatorOn().orElse(false));
 
         assertEquals(2, manager.getVariantIds().size());
         manager.removeVariant("SecondVariant");
@@ -75,14 +76,14 @@ public class MultiVariantMergingViewTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
                 return null;
             },
             () -> {
                 manager.setWorkingVariant("SecondVariant");
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
                 return null;
             })
         );

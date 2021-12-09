@@ -1533,7 +1533,7 @@ public class AmplNetworkWriter {
                         .writeCell(g.getReactiveLimits().getMaxQ(maxP))
                         .writeCell(g.getReactiveLimits().getMaxQ(0))
                         .writeCell(g.getReactiveLimits().getMaxQ(minP))
-                        .writeCell(g.isVoltageRegulatorOn())
+                        .writeCell(g.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported")))
                         .writeCell(g.getTargetV() / vb)
                         .writeCell(g.getTargetP())
                         .writeCell(g.getTargetQ())
