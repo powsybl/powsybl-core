@@ -64,6 +64,19 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
+    public VscConverterStation unsetVoltageRegulatorOn() {
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, null, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), n.getMinValidationLevel());
+        boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
+        this.voltageRegulatorOn.set(variantIndex, null);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, null);
+        return this;
+    }
+
+    @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();

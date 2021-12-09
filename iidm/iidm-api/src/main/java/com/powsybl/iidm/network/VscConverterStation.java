@@ -81,6 +81,11 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
     Optional<Boolean> isVoltageRegulatorOn();
 
     /**
+     * Unset voltage regulator status (make it null)
+     */
+    VscConverterStation unsetVoltageRegulatorOn();
+
+    /**
      * Set voltage regulator status.
      * @param voltageRegulatorOn the new voltage regulator status
      * @return the converter itself to allow method chaining

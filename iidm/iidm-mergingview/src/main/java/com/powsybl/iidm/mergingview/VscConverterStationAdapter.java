@@ -63,6 +63,12 @@ public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdap
     }
 
     @Override
+    public VscConverterStation unsetVoltageRegulatorOn() {
+        getDelegate().unsetVoltageRegulatorOn();
+        return this;
+    }
+
+    @Override
     public double getVoltageSetpoint() {
         return getDelegate().getVoltageSetpoint();
     }
