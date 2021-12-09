@@ -112,6 +112,11 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     C setRegulating(boolean regulating);
 
     /**
+     * Unset the regulating status (make it null).
+     */
+    C unsetRegulating();
+
+    /**
      * Get the terminal used for regulation.
      */
     Terminal getRegulationTerminal();

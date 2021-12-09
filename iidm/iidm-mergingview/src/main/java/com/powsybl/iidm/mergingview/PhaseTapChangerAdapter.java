@@ -42,4 +42,10 @@ public class PhaseTapChangerAdapter extends AbstractTapChangerAdapter<PhaseTapCh
         getDelegate().setRegulationValue(regulationValue);
         return this;
     }
+
+    @Override
+    public PhaseTapChanger unsetRegulating() {
+        getDelegate().unsetRegulating();
+        return this;
+    }
 }

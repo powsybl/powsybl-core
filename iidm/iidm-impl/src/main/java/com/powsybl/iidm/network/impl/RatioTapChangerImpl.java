@@ -74,6 +74,19 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    public RatioTapChangerImpl unsetRegulating() {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkRatioTapChangerRegulation(parent, null, loadTapChangingCapabilities,
+                regulationTerminal, getTargetV(), n, n.getMinValidationLevel());
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
+        tapChangers.remove(parent.getRatioTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, null,
+                n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        n.invalidateValidationLevel();
+        return super.unsetRegulating();
+    }
+
+    @Override
     public boolean hasLoadTapChangingCapabilities() {
         return loadTapChangingCapabilities;
     }

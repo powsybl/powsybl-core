@@ -75,6 +75,19 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     }
 
     @Override
+    public PhaseTapChangerImpl unsetRegulating() {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), null, getRegulationTerminal(),
+                n, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
+        tapChangers.remove(parent.getPhaseTapChanger());
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
+                null, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        n.invalidateValidationLevel();
+        return super.unsetRegulating();
+    }
+
+    @Override
     public RegulationMode getRegulationMode() {
         return regulationMode;
     }

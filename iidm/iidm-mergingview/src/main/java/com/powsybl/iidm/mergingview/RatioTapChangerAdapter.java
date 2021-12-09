@@ -42,4 +42,10 @@ public class RatioTapChangerAdapter extends AbstractTapChangerAdapter<RatioTapCh
         getDelegate().setLoadTapChangingCapabilities(status);
         return this;
     }
+
+    @Override
+    public RatioTapChanger unsetRegulating() {
+        getDelegate().unsetRegulating();
+        return this;
+    }
 }

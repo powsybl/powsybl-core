@@ -151,10 +151,21 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel());
-        boolean oldValue = this.regulating.set(variantIndex, regulating);
+        Boolean oldValue = this.regulating.set(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
+        return (C) this;
+    }
+
+    public C unsetRegulating() {
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkTargetDeadband(parent, type, null, targetDeadband.get(variantIndex), n.getMinValidationLevel());
+        Boolean oldValue = this.regulating.set(variantIndex, null);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, null);
         return (C) this;
     }
 
