@@ -17,6 +17,8 @@ import java.util.*;
  */
 class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> implements ShuntCompensator {
 
+    private static final String SHUNT_COMPENSATOR = "shunt compensator";
+
     private final Ref<? extends VariantManagerHolder> network;
 
     private final ShuntCompensatorModelExt model;
@@ -166,7 +168,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), n.getMinValidationLevel());
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband.get(variantIndex), n.getMinValidationLevel());
+        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, voltageRegulatorOn, targetDeadband.get(variantIndex), n.getMinValidationLevel());
         Boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -179,7 +181,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, null, targetV.get(variantIndex), n.getMinValidationLevel());
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", null, targetDeadband.get(variantIndex), n.getMinValidationLevel());
+        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, null, targetDeadband.get(variantIndex), n.getMinValidationLevel());
         Boolean oldValue = this.voltageRegulatorOn.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -213,7 +215,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setTargetDeadband(double targetDeadband) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", this.voltageRegulatorOn.get(variantIndex), targetDeadband, n.getMinValidationLevel());
+        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, this.voltageRegulatorOn.get(variantIndex), targetDeadband, n.getMinValidationLevel());
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();

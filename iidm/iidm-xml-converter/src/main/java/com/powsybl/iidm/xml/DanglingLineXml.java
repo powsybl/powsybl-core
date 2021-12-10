@@ -19,6 +19,11 @@ import javax.xml.stream.XMLStreamException;
  */
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
     private static final String GENERATION = "generation";
+    private static final String GENERATION_MAX_P = "generationMaxP";
+    private static final String GENERATION_MIN_P = "generationMinP";
+    private static final String GENERATION_TARGET_P = "generationTargetP";
+    private static final String GENERATION_TARGET_Q = "generationTargetQ";
+    private static final String GENERATION_TARGET_V = "generationTargetV";
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
@@ -73,8 +78,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         if (generation != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
                 IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> context.getWriter().writeAttribute("withGeneration", "true"));
-                XmlUtil.writeDouble("generationMinP", generation.getMinP(), context.getWriter());
-                XmlUtil.writeDouble("generationMaxP", generation.getMaxP(), context.getWriter());
+                XmlUtil.writeDouble(GENERATION_MIN_P, generation.getMinP(), context.getWriter());
+                XmlUtil.writeDouble(GENERATION_MAX_P, generation.getMaxP(), context.getWriter());
                 generation.isVoltageRegulationOn().ifPresent(voltageRegulationOn -> {
                     try {
                         context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(voltageRegulationOn));
@@ -82,9 +87,9 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                         throw new UncheckedXmlStreamException(e);
                     }
                 });
-                XmlUtil.writeDouble("generationTargetP", generation.getTargetP(), context.getWriter());
-                XmlUtil.writeDouble("generationTargetV", generation.getTargetV(), context.getWriter());
-                XmlUtil.writeDouble("generationTargetQ", generation.getTargetQ(), context.getWriter());
+                XmlUtil.writeDouble(GENERATION_TARGET_P, generation.getTargetP(), context.getWriter());
+                XmlUtil.writeDouble(GENERATION_TARGET_V, generation.getTargetV(), context.getWriter());
+                XmlUtil.writeDouble(GENERATION_TARGET_Q, generation.getTargetQ(), context.getWriter());
             });
         }
         if (dl.getUcteXnodeCode() != null) {
@@ -130,12 +135,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
             String voltageRegulationOnStr = context.getReader().getAttributeValue(null, "generationVoltageRegulationOn");
             if (context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
                 if (voltageRegulationOnStr != null) {
-                    double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMinP");
-                    double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMaxP");
+                    double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MIN_P);
+                    double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MAX_P);
                     boolean voltageRegulationOn = Boolean.parseBoolean(voltageRegulationOnStr);
-                    double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetP");
-                    double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetV");
-                    double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetQ");
+                    double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_P);
+                    double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_V);
+                    double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_Q);
                     adder.newGeneration()
                             .setMinP(minP)
                             .setMaxP(maxP)
@@ -146,11 +151,11 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                             .add();
                 }
             } else if (Boolean.parseBoolean(context.getReader().getAttributeValue(null, "withGeneration"))) {
-                double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMinP");
-                double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMaxP");
-                double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetP");
-                double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetV");
-                double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetQ");
+                double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MIN_P);
+                double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MAX_P);
+                double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_P);
+                double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_V);
+                double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_Q);
                 DanglingLineAdder.GenerationAdder ga = adder.newGeneration()
                         .setMinP(minP)
                         .setMaxP(maxP)
