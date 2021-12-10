@@ -16,6 +16,8 @@ import java.util.Set;
  */
 public interface CgmesTapChangers<C extends Connectable<C>> extends Extension<C> {
 
+    String NAME = "cgmesTapChangers";
+
     Set<CgmesTapChanger> getTapChangers();
 
     CgmesTapChanger getTapChanger(String id);
@@ -24,6 +26,6 @@ public interface CgmesTapChangers<C extends Connectable<C>> extends Extension<C>
 
     @Override
     default String getName() {
-        return "cgmesTapChangers";
+        return NAME;
     }
 }

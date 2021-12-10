@@ -19,9 +19,11 @@ import java.util.Collection;
  */
 public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extension<I> {
 
+    String NAME = "discreteMeasurements";
+
     @Override
     default String getName() {
-        return "discreteMeasurements";
+        return NAME;
     }
 
     Collection<DiscreteMeasurement> getDiscreteMeasurements();
