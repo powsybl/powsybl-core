@@ -11,6 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.triplestore.api.TripleStore;
 import org.junit.After;
@@ -77,7 +78,7 @@ public class CgmesImportPostProcessorTest {
     public void testEmpty() {
         CgmesImport cgmesImport = new CgmesImport(Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
         Properties properties = new Properties();
-        cgmesImport.importData(modelResources.dataSource(), properties);
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
         assertTrue(activatedPostProcessorNames.isEmpty());
     }
 
@@ -88,7 +89,7 @@ public class CgmesImportPostProcessorTest {
                                                                                 new FakeCgmesImportPostProcessor("baz")));
         Properties properties = new Properties();
         properties.put(CgmesImport.POST_PROCESSORS, Arrays.asList("foo", "baz"));
-        cgmesImport.importData(modelResources.dataSource(), properties);
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
         assertEquals(Arrays.asList("foo", "baz"), activatedPostProcessorNames);
     }
 }

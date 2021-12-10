@@ -73,6 +73,11 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
+    public boolean removeProperty(String key) {
+        return getDelegate().removeProperty(key);
+    }
+
+    @Override
     public Set<String> getPropertyNames() {
         return getDelegate().getPropertyNames();
     }
