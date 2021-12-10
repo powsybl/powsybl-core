@@ -17,9 +17,11 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
  */
 public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWindingsTransformer> {
 
+    String NAME = "threeWindingsTransformerToBeEstimated";
+
     @Override
     default String getName() {
-        return "threeWindingsTransformerToBeEstimated";
+        return NAME;
     }
 
     /**

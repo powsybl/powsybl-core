@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Generator;
  */
 public interface CoordinatedReactiveControl extends Extension<Generator> {
 
+    String NAME = "coordinatedReactiveControl";
+
     @Override
     default String getName() {
-        return "coordinatedReactiveControl";
+        return NAME;
     }
 
     /**
