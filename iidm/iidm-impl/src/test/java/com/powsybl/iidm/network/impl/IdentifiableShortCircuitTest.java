@@ -26,12 +26,12 @@ public class IdentifiableShortCircuitTest {
         VoltageLevel voltageLevel = network.getVoltageLevel("VLLOAD");
         assertNotNull(voltageLevel);
         voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
-                .withIpMin(2000)
-                .withIpMax(1000)
+                .withIpMin(1000)
+                .withIpMax(2000)
                 .add();
         IdentifiableShortCircuit identifiableShortCircuit = voltageLevel.getExtension(IdentifiableShortCircuit.class);
-        assertEquals(2000, identifiableShortCircuit.getIpMin(), 0);
-        assertEquals(1000, identifiableShortCircuit.getIpMax(), 0);
+        assertEquals(1000, identifiableShortCircuit.getIpMin(), 0);
+        assertEquals(2000, identifiableShortCircuit.getIpMax(), 0);
         identifiableShortCircuit.setIpMax(1500);
         identifiableShortCircuit.setIpMin(900);
         assertEquals(900, identifiableShortCircuit.getIpMin(), 0);
@@ -44,6 +44,20 @@ public class IdentifiableShortCircuitTest {
         VoltageLevel voltageLevel = network.getVoltageLevel("VLLOAD");
         assertNotNull(voltageLevel);
         PowsyblException e = assertThrows(PowsyblException.class, () -> voltageLevel.newExtension(IdentifiableShortCircuitAdder.class).withIpMin(Double.NaN).withIpMax(Double.NaN).add());
-        assertEquals("Undefined ipMax or ipMin", e.getMessage());
+        assertEquals("Undefined ipMax", e.getMessage());
+    }
+
+    @Test
+    public void testWithoutIpMin() {
+        Network network = EurostagTutorialExample1Factory.create();
+        VoltageLevel voltageLevel = network.getVoltageLevel("VLLOAD");
+        assertNotNull(voltageLevel);
+        voltageLevel.newExtension(IdentifiableShortCircuitAdder.class)
+                .withIpMax(1000)
+                .add();
+        IdentifiableShortCircuit identifiableShortCircuit = voltageLevel.getExtension(IdentifiableShortCircuit.class);
+        assertEquals(Double.NaN, identifiableShortCircuit.getIpMin(), 0);
+        assertEquals(1000, identifiableShortCircuit.getIpMax(), 0);
+
     }
 }
