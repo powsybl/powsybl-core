@@ -78,8 +78,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         writeTapChanger(rtc, context);
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
         if (rtc.isRegulating().isPresent()) {
-            if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating().get() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
-                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating().get()));
+            boolean regulating = rtc.isRegulating().get();
+            if (rtc.hasLoadTapChangingCapabilities() || regulating || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
+                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(regulating));
             }
         }
         XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
@@ -158,8 +159,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             XmlUtil.writeDouble("regulationValue", ptc.getRegulationValue(), context.getWriter());
         }
         if (ptc.isRegulating().isPresent()) {
-            if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating().get() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
-                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating().get()));
+            boolean regulating = ptc.isRegulating().get();
+            if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || regulating || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
+                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(regulating));
             }
         }
         if (ptc.getRegulationTerminal() != null) {
