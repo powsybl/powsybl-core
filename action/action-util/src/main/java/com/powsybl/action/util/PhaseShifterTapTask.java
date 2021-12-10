@@ -12,6 +12,7 @@ import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
 
@@ -49,7 +50,7 @@ public class PhaseShifterTapTask implements ModificationTask {
     }
 
     private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
-        phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) + tapDelta,
+        phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException) + tapDelta,
                 phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
     }
 }

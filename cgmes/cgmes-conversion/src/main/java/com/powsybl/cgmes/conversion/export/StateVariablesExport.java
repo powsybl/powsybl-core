@@ -32,7 +32,6 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class StateVariablesExport {
 
-    private static final String SCADA_NOT_SUPPORTED = "SCADA network not supported";
     private static final String SV_VOLTAGE_ANGLE = "SvVoltage.angle";
     private static final String SV_VOLTAGE_V = "SvVoltage.v";
     private static final String SV_VOLTAGE_TOPOLOGICAL_NODE = "SvVoltage.TopologicalNode";
@@ -377,10 +376,10 @@ public final class StateVariablesExport {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
                 String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)), cimNamespace, writer);
+                writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException), cimNamespace, writer);
             } else if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)), cimNamespace, writer);
+                writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException), cimNamespace, writer);
             }
         }
 
@@ -389,10 +388,10 @@ public final class StateVariablesExport {
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
                     String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)), cimNamespace, writer);
+                    writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException), cimNamespace, writer);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)), cimNamespace, writer);
+                    writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException), cimNamespace, writer);
                 }
                 i++;
             }

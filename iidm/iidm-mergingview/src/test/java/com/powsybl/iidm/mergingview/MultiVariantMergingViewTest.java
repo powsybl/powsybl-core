@@ -7,7 +7,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.google.common.collect.Iterables;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
@@ -19,6 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static com.powsybl.iidm.network.ValidationUtil.createUnsupportedScadaException;
 import static org.junit.Assert.*;
 
 /**
@@ -76,14 +76,14 @@ public class MultiVariantMergingViewTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUnsupportedScadaException);
                 return null;
             },
             () -> {
                 manager.setWorkingVariant("SecondVariant");
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUnsupportedScadaException);
                 return null;
             })
         );

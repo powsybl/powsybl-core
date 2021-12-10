@@ -49,7 +49,6 @@ public class UcteExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
 
     public static final String NAMING_STRATEGY = "ucte.export.naming-strategy";
-    private static final String SCADA_NOT_SUPPORTED = "SCADA network not supported";
 
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
 
@@ -271,7 +270,7 @@ public class UcteExporter implements Exporter {
                 // Should we use bus.getV() instead?
                 voltageReference = generator.getTargetV();
             }
-            if (generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED))) {
+            if (generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
             minP = generator.getMinP();
@@ -322,7 +321,7 @@ public class UcteExporter implements Exporter {
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
         double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (danglingLine.getGeneration().isVoltageRegulationOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"))) {
+        if (danglingLine.getGeneration().isVoltageRegulationOn().orElseThrow(ValidationUtil::createUnsupportedScadaException)) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
             ucteNode.setVoltageReference(danglingLine.getGeneration().getTargetV());
             double minP = danglingLine.getGeneration().getMinP();
@@ -787,7 +786,7 @@ public class UcteExporter implements Exporter {
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
-                twoWindingsTransformer.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)),
+                twoWindingsTransformer.getRatioTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException),
                 Double.NaN);
         if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
             uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
@@ -810,14 +809,14 @@ public class UcteExporter implements Exporter {
             return new UcteAngleRegulation(calculateSymmAngleDu(twoWindingsTransformer),
                     90,
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
             return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer),
                     calculateAsymmAngleTheta(twoWindingsTransformer),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException(SCADA_NOT_SUPPORTED)),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         }

@@ -8,7 +8,6 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
@@ -1108,9 +1107,9 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(rtc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) - rtc.getLowTapPosition() + 1)
+                    .writeCell(rtc.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException) - rtc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
-                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating().orElseThrow(() -> new PowsyblException("SCADA network not supported")));
+                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating().orElseThrow(ValidationUtil::createUnsupportedScadaException));
             if (config.isExportRatioTapChangerVoltageTarget()) {
                 formatter.writeCell(rtc.getTargetV());
             }
@@ -1161,7 +1160,7 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(ptc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) - ptc.getLowTapPosition() + 1)
+                    .writeCell(ptc.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException) - ptc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
                     .writeCell(faultNum)
                     .writeCell(actionNum)
@@ -1533,7 +1532,7 @@ public class AmplNetworkWriter {
                         .writeCell(g.getReactiveLimits().getMaxQ(maxP))
                         .writeCell(g.getReactiveLimits().getMaxQ(0))
                         .writeCell(g.getReactiveLimits().getMaxQ(minP))
-                        .writeCell(g.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported")))
+                        .writeCell(g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException))
                         .writeCell(g.getTargetV() / vb)
                         .writeCell(g.getTargetP())
                         .writeCell(g.getTargetQ())
@@ -1887,7 +1886,7 @@ public class AmplNetworkWriter {
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
-                            .writeCell(vscStation.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported")))
+                            .writeCell(vscStation.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException))
                             .writeCell(vlSet / vb)
                             .writeCell(vscStation.getReactivePowerSetpoint())
                             .writeCell(vscStation.getLossFactor())

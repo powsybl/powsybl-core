@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import java.util.function.Consumer;
 
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,7 @@ public class DebugPhaseTapChanger {
                     tx.getTerminal2().getBusView().getBus().getV(),
                     tx.getTerminal2().getBusView().getBus().getAngle()));
         }
-        int backup = tx.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
+        int backup = tx.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException);
         for (int k = tx.getPhaseTapChanger().getLowTapPosition(); k <= tx.getPhaseTapChanger()
                 .getHighTapPosition(); k++) {
             tx.getPhaseTapChanger().setTapPosition(k);

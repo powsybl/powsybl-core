@@ -13,17 +13,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -298,7 +291,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static double getQ(ShuntCompensator switchedShunt) {
-        return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount().orElseThrow(() -> new PowsyblException("SCADA network not supported"))),
+        return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount().orElseThrow(ValidationUtil::createUnsupportedScadaException)),
             switchedShunt.getTerminal().getVoltageLevel().getNominalV());
     }
 

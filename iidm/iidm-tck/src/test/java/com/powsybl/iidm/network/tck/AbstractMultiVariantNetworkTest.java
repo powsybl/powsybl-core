@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
@@ -67,14 +66,14 @@ public abstract class AbstractMultiVariantNetworkTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
                 return null;
             },
             () -> {
                 manager.setWorkingVariant(SECOND_VARIANT);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
                 return null;
             })
         );

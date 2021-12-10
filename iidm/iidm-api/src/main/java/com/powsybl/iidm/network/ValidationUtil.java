@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import org.joda.time.DateTime;
@@ -30,6 +31,10 @@ public final class ValidationUtil {
     private static final String VOLTAGE_SETPOINT = "voltage setpoint";
 
     private ValidationUtil() {
+    }
+
+    public static PowsyblException createUnsupportedScadaException() {
+        return new PowsyblException("SCADA network not supported");
     }
 
     private static ValidationException createInvalidValueException(Validable validable, double value, String valueName) {
