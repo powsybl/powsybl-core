@@ -16,6 +16,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  *
@@ -28,6 +29,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     protected final H parent;
 
     protected int lowTapPosition;
+
+    protected final Integer relativeNeutralPosition;
 
     protected final List<S> steps;
 
@@ -62,9 +65,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             this.targetDeadband.add(targetDeadband);
         }
         this.type = Objects.requireNonNull(type);
+        relativeNeutralPosition = getRelativeNeutralPosition();
     }
 
     protected abstract NetworkImpl getNetwork();
+
+    protected abstract Integer getRelativeNeutralPosition();
 
     public int getStepCount() {
         return steps.size();
@@ -89,6 +95,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public int getTapPosition() {
         return tapPosition.get(network.get().getVariantIndex());
+    }
+
+    public OptionalInt getNeutralPosition() {
+        return relativeNeutralPosition != null ? OptionalInt.of(lowTapPosition + relativeNeutralPosition) : OptionalInt.empty();
     }
 
     protected abstract String getTapChangerAttribute();

@@ -50,6 +50,22 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    protected Integer getRelativeNeutralPosition() {
+        for (int i = 0; i < steps.size(); i++) {
+            RatioTapChangerStepImpl step = steps.get(i);
+            if (step.getRho() == 1) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Optional<RatioTapChangerStep> getNeutralStep() {
+        return relativeNeutralPosition != null ? Optional.of(steps.get(relativeNeutralPosition)) : Optional.empty();
+    }
+
+    @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal, getTargetV(), getNetwork());
 
