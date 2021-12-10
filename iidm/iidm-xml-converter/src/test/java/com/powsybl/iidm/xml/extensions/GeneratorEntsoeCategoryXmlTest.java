@@ -10,14 +10,12 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
-import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionDir;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -26,7 +24,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class GeneratorEntsoeCategoryXmlTest extends AbstractConverterTest {
 
-    static Network createTestNetwork() {
+    public static Network createTestNetwork() {
         Network network = NetworkFactory.create("test", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
@@ -65,9 +63,9 @@ public class GeneratorEntsoeCategoryXmlTest extends AbstractConverterTest {
         GeneratorEntsoeCategory entsoeCategory = generator.getExtension(GeneratorEntsoeCategory.class);
 
         Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::read,
-                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "generatorEntsoeCategoryRef.xml");
+                                            NetworkXml::writeAndValidate,
+                                            NetworkXml::read,
+                "/generatorEntsoeCategoryRef.xml");
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);
