@@ -24,6 +24,8 @@ public class TypedValue {
     public static final String INFO_LOGLEVEL = "INFO_LOGLEVEL";
     public static final String WARN_LOGLEVEL = "WARN_LOGLEVEL";
     public static final String ERROR_LOGLEVEL = "ERROR_LOGLEVEL";
+    public static final String ACTIVE_POWER = "ACTIVE_POWER";
+    public static final String REACTIVE_POWER = "REACTIVE_POWER";
     public static final String RESISTANCE = "RESISTANCE";
     public static final String REACTANCE = "REACTANCE";
     public static final String IMPEDANCE = "IMPEDANCE";

@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.StaticVarCompensator;
  */
 public interface VoltagePerReactivePowerControl extends Extension<StaticVarCompensator> {
 
+    String NAME = "voltagePerReactivePowerControl";
+
     @Override
     default String getName() {
-        return "voltagePerReactivePowerControl";
+        return NAME;
     }
 
     /**
