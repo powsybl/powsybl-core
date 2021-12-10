@@ -231,6 +231,11 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     }
 
     /**
+     * Unset the shunt compensator's regulating status (making it undefined).
+     */
+    ShuntCompensator unsetVoltageRegulatorOn();
+
+    /**
      * Get the shunt compensator's voltage target in kV if it exists. Else return NaN.
      * <p>
      * Depends on the working variant.

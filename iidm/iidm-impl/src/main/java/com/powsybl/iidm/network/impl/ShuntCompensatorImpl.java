@@ -175,6 +175,19 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public ShuntCompensator unsetVoltageRegulatorOn() {
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, null, targetV.get(variantIndex), n.getMinValidationLevel());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", null, targetDeadband.get(variantIndex), n.getMinValidationLevel());
+        Boolean oldValue = this.voltageRegulatorOn.set(variantIndex, null);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, null);
+        return this;
+    }
+
+    @Override
     public double getTargetV() {
         return targetV.get(network.get().getVariantIndex());
     }
