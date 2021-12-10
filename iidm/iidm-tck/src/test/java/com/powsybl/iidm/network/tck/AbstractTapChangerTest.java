@@ -67,8 +67,8 @@ public abstract class AbstractTapChangerTest {
                                                     .setX(2.0)
                                                     .setG(3.0)
                                                     .setB(4.0)
-                                                    .setAlpha(5.0)
-                                                    .setRho(6.0)
+                                                    .setAlpha(0.0)
+                                                    .setRho(1.0)
                                                 .endStep()
                                                 .beginStep()
                                                     .setR(1.0)
@@ -90,6 +90,14 @@ public abstract class AbstractTapChangerTest {
         assertEquals(10.0, phaseTapChanger.getRegulationValue(), 0.0);
 
         // setter getter
+        assertEquals(0, phaseTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
+        PhaseTapChangerStep neutralStep = phaseTapChanger.getNeutralStep().orElseThrow(AssertionError::new);
+        assertEquals(1.0, neutralStep.getR(), 0.0);
+        assertEquals(2.0, neutralStep.getX(), 0.0);
+        assertEquals(3.0, neutralStep.getG(), 0.0);
+        assertEquals(4.0, neutralStep.getB(), 0.0);
+        assertEquals(0.0, neutralStep.getAlpha(), 0.0);
+        assertEquals(1.0, neutralStep.getRho(), 0.0);
         phaseTapChanger.setTapPosition(0);
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
@@ -107,6 +115,7 @@ public abstract class AbstractTapChangerTest {
         int lowTapPosition = 2;
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
+        assertEquals(2, phaseTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
 
         try {
             phaseTapChanger.setTapPosition(5);
@@ -364,7 +373,7 @@ public abstract class AbstractTapChangerTest {
                                                     .setX(39.784725)
                                                     .setG(0.0)
                                                     .setB(0.0)
-                                                    .setRho(1.0)
+                                                    .setRho(0.9)
                                                 .endStep()
                                                 .beginStep()
                                                     .setR(39.78474)
@@ -378,10 +387,9 @@ public abstract class AbstractTapChangerTest {
                                                     .setX(39.784727)
                                                     .setG(0.0)
                                                     .setB(0.0)
-                                                    .setRho(1.0)
+                                                    .setRho(1.1)
                                                 .endStep()
                                             .add();
-        assertEquals(0, ratioTapChanger.getLowTapPosition());
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertEquals(3, ratioTapChanger.getAllSteps().size());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
@@ -392,6 +400,13 @@ public abstract class AbstractTapChangerTest {
         assertEquals(3, ratioTapChanger.getStepCount());
 
         // setter getter
+        assertEquals(1, ratioTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
+        RatioTapChangerStep neutralStep = ratioTapChanger.getNeutralStep().orElseThrow(AssertionError::new);
+        assertEquals(39.78474, neutralStep.getR(), 0.0);
+        assertEquals(39.784726, neutralStep.getX(), 0.0);
+        assertEquals(0.0, neutralStep.getG(), 0.0);
+        assertEquals(0.0, neutralStep.getB(), 0.0);
+        assertEquals(1.0, neutralStep.getRho(), 0.0);
         ratioTapChanger.setTapPosition(2);
         assertEquals(2, ratioTapChanger.getTapPosition());
         ratioTapChanger.setTargetV(110.0);
