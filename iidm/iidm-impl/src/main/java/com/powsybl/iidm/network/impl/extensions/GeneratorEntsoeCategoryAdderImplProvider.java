@@ -24,6 +24,11 @@ public class GeneratorEntsoeCategoryAdderImplProvider
     }
 
     @Override
+    public String getExtensionsName() {
+        return GeneratorEntsoeCategory.NAME;
+    }
+
+    @Override
     public Class<GeneratorEntsoeCategoryAdderImpl> getAdderClass() {
         return GeneratorEntsoeCategoryAdderImpl.class;
     }

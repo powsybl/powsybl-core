@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Generator;
  */
 public interface GeneratorEntsoeCategory extends Extension<Generator> {
 
+    String NAME = "entsoeCategory";
+
     @Override
     default String getName() {
-        return "entsoeCategory";
+        return NAME;
     }
 
     int getCode();
