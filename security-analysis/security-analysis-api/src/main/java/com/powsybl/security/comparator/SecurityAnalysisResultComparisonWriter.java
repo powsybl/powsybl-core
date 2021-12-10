@@ -6,14 +6,6 @@
  */
 package com.powsybl.security.comparator;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-import java.util.Objects;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatter;
@@ -21,6 +13,13 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *

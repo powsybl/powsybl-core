@@ -9,10 +9,10 @@ package com.powsybl.iidm.tools;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
-import com.powsybl.iidm.import_.ImportConfig;
 import org.junit.Before;
 import org.junit.Test;
 

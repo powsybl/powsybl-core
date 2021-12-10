@@ -6,7 +6,10 @@
  */
 package com.powsybl.security.impl.interceptors;
 
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import com.powsybl.security.results.PostContingencyResult;

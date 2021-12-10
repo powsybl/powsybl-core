@@ -8,7 +8,7 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
 
 import javax.annotation.Nullable;
 import java.util.Objects;

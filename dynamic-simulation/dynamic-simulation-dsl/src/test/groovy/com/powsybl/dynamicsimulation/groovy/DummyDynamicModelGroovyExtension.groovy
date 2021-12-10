@@ -6,11 +6,11 @@
  */
 package com.powsybl.dynamicsimulation.groovy
 
-import java.util.function.Consumer
-
 import com.google.auto.service.AutoService
 import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.DynamicModel
+
+import java.util.function.Consumer
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

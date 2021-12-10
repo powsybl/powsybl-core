@@ -7,7 +7,9 @@
 package com.powsybl.security.execution;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.security.*;
+import com.powsybl.security.SecurityAnalysis;
+import com.powsybl.security.SecurityAnalysisInput;
+import com.powsybl.security.SecurityAnalysisReport;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;

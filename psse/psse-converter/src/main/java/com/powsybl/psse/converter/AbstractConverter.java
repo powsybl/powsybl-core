@@ -6,12 +6,11 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Objects;
-
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.ContainersMapping;
+import org.apache.commons.math3.complex.Complex;
+
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

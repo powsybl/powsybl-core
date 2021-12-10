@@ -6,14 +6,14 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static java.util.Comparator.comparingDouble;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
+import static java.util.Comparator.comparingDouble;
 
 /**
  *

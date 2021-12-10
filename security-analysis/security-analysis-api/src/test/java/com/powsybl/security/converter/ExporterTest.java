@@ -8,7 +8,7 @@ package com.powsybl.security.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.contingency.*;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -24,7 +24,9 @@ import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -6,7 +6,10 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseRates;
 import com.powsybl.psse.model.pf.PsseTransformer;
 import com.powsybl.psse.model.pf.PsseTransformer.TransformerImpedances;
@@ -21,10 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import static com.powsybl.psse.model.PsseVersion.Major.*;
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
 /**

@@ -7,23 +7,21 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
+import com.powsybl.dsl.ExpressionDslLoader;
+import com.powsybl.dsl.GroovyScripts;
+import com.powsybl.dynamicsimulation.EventModel;
+import com.powsybl.dynamicsimulation.EventModelsSupplier;
+import com.powsybl.iidm.network.Network;
+import groovy.lang.Binding;
+import groovy.lang.GroovyCodeSource;
+import groovy.lang.GroovyShell;
+import org.codehaus.groovy.control.CompilerConfiguration;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import org.codehaus.groovy.control.CompilerConfiguration;
-
-import com.powsybl.dsl.ExpressionDslLoader;
-import com.powsybl.dsl.GroovyScripts;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
-import com.powsybl.dynamicsimulation.EventModel;
-import com.powsybl.iidm.network.Network;
-
-import groovy.lang.Binding;
-import groovy.lang.GroovyCodeSource;
-import groovy.lang.GroovyShell;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

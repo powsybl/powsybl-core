@@ -6,13 +6,13 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import java.io.Writer;
-import java.util.Locale;
-
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.util.TwtTestData;
 import com.powsybl.loadflow.validation.ValidationType;
+
+import java.io.Writer;
+import java.util.Locale;
 
 /**
  *

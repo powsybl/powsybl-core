@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collection;
-
 import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.*;

@@ -8,7 +8,8 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.contingency.Contingency;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

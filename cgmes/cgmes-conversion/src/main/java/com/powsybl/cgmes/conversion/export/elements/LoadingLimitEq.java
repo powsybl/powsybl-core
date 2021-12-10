@@ -8,7 +8,10 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ActivePowerLimits;
+import com.powsybl.iidm.network.ApparentPowerLimits;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.LoadingLimits;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;

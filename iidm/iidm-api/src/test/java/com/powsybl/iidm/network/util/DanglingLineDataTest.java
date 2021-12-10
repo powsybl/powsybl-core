@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.iidm.network.DanglingLine;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.DanglingLine;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

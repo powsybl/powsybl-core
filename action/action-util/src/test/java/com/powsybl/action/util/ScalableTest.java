@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.*;
+import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
 import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
 import static org.junit.Assert.*;
 

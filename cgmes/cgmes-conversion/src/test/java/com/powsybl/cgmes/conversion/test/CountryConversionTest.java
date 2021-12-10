@@ -7,15 +7,14 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Optional;
-
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
+import org.junit.Test;
+
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

@@ -6,12 +6,12 @@
  */
 package com.powsybl.loadflow.validation;
 
-import java.io.Writer;
-import java.util.Objects;
-
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
+
+import java.io.Writer;
+import java.util.Objects;
 
 /**
  *

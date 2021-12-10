@@ -7,8 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.Objects;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
 import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
@@ -18,6 +16,8 @@ import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>

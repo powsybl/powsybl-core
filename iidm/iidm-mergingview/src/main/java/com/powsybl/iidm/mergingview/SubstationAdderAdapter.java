@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.SubstationAdder;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

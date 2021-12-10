@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.network.util;
 
-import org.mockito.Mockito;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusBreakerView;
 import com.powsybl.iidm.network.Terminal.BusView;
+import org.mockito.Mockito;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

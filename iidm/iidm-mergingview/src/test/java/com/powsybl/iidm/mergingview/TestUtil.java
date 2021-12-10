@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.fail;
-
 import com.powsybl.commons.PowsyblException;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

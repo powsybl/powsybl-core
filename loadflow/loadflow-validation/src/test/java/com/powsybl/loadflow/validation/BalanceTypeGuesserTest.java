@@ -6,17 +6,16 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  *

@@ -7,12 +7,17 @@
 package com.powsybl.security.distributed;
 
 import com.google.common.base.Preconditions;
-import com.powsybl.computation.*;
+import com.powsybl.computation.Partition;
+import com.powsybl.computation.SimpleCommand;
+import com.powsybl.computation.SimpleCommandBuilder;
 import com.powsybl.security.LimitViolationType;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

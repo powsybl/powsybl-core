@@ -7,18 +7,11 @@
 
 package com.powsybl.triplestore.impl.rdf4j.test;
 
-import static org.junit.Assert.assertFalse;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
-
-import javax.xml.transform.Source;
-
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.impl.rdf4j.TripleStoreRDF4J;
 import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
@@ -35,11 +28,16 @@ import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.impl.rdf4j.TripleStoreRDF4J;
+import javax.xml.transform.Source;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

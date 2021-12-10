@@ -7,7 +7,6 @@
 package com.powsybl.timeseries.ast;
 
 import com.powsybl.timeseries.DoubleMultiPoint;
-
 import org.apache.commons.lang3.tuple.Pair;
 
 /**

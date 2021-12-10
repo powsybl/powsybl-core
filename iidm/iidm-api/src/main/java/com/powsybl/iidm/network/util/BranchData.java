@@ -6,14 +6,13 @@
  */
 package com.powsybl.iidm.network.util;
 
-import java.util.Objects;
-
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import org.apache.commons.math3.complex.Complex;
+
+import java.util.Objects;
 
 /**
  *

@@ -7,7 +7,7 @@
 package com.powsybl.contingency.dsl
 
 import com.powsybl.commons.extensions.Extension
-import com.powsybl.contingency.*
+import com.powsybl.contingency.Contingency
 import com.powsybl.dsl.DslException
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ExtendableDslExtension

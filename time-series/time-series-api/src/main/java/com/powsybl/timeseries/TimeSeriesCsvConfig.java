@@ -6,10 +6,10 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.timeseries.TimeSeries.TimeFormat;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-
-import com.powsybl.timeseries.TimeSeries.TimeFormat;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

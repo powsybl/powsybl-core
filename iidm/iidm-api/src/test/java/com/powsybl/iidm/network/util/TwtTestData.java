@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.network.util;
 
-import org.mockito.Mockito;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import org.mockito.Mockito;
 
 /**
  *

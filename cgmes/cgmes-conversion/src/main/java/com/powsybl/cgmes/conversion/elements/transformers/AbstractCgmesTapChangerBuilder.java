@@ -7,8 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.Objects;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -16,6 +14,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

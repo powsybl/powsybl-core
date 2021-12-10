@@ -6,12 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *

@@ -9,7 +9,6 @@ package com.powsybl.math.graph;
 import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
 import org.junit.After;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

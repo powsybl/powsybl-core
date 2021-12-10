@@ -7,9 +7,7 @@
 package com.powsybl.dynamicsimulation.groovy
 
 import com.google.auto.service.AutoService
-import com.powsybl.commons.extensions.Extension
 import com.powsybl.dsl.DslException
-import com.powsybl.dsl.ExtendableDslExtension
 import com.powsybl.dynamicsimulation.Curve
 
 import java.util.function.Consumer

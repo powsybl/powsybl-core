@@ -7,10 +7,9 @@
 package com.powsybl.timeseries;
 
 import com.powsybl.timeseries.ast.*;
+import org.junit.Test;
 
 import java.util.HashMap;
-
-import org.junit.Test;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

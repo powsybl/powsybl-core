@@ -13,9 +13,10 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.*;
+import static com.powsybl.action.util.Scalable.ScalingConvention.GENERATOR;
+import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
 import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>

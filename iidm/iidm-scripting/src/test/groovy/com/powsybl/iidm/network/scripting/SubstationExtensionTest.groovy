@@ -7,11 +7,11 @@
 package com.powsybl.iidm.network.scripting
 
 import com.powsybl.iidm.network.Country
-import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import com.powsybl.iidm.network.Network
+import org.junit.Test
 
 import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNull
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

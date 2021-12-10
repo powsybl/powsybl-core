@@ -7,13 +7,13 @@
 
 package com.powsybl.triplestore.api;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.ServiceLoaderCache;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.ServiceLoaderCache;
 
 /**
  * Factory for the creation of Triplestore databases.

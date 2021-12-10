@@ -7,6 +7,7 @@
 package com.powsybl.ucte.network.ext;
 
 import com.powsybl.ucte.network.UcteNodeCode;
+
 import java.util.Collection;
 import java.util.Objects;
 

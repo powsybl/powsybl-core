@@ -8,7 +8,8 @@ package com.powsybl.action.dsl.ast;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.dsl.GroovyUtil;
-import com.powsybl.dsl.ast.*;
+import com.powsybl.dsl.ast.ExpressionEvaluator;
+import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;

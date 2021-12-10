@@ -10,7 +10,8 @@ package com.powsybl.contingency;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**

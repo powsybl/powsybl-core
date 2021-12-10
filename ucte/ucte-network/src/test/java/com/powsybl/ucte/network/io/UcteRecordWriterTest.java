@@ -8,9 +8,11 @@ package com.powsybl.ucte.network.io;
 
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

@@ -6,13 +6,11 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.FACTS_CONTROL_DEVICE;
-
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseFacts;
+
+import static com.powsybl.psse.model.PsseVersion.Major.*;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.FACTS_CONTROL_DEVICE;
 
 /**
  *

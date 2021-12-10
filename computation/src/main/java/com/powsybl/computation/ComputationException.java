@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.compress.ZipPackager;
 
-import java.util.*;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 

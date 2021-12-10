@@ -6,17 +6,16 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertEquals;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.security.results.PostContingencyResult;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import com.powsybl.contingency.Contingency;
-import com.powsybl.security.results.PostContingencyResult;
+import static org.junit.Assert.assertEquals;
 
 /**
  *

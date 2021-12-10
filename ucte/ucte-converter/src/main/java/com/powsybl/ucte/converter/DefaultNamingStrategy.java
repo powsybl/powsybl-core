@@ -8,7 +8,10 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 

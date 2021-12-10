@@ -12,9 +12,7 @@ import com.powsybl.psse.model.pf.PsseBus;
 
 import java.io.OutputStream;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.PsseVersion.Major.*;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
 /**

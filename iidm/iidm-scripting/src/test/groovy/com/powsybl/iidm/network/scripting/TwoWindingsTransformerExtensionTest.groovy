@@ -6,11 +6,7 @@
  */
 package com.powsybl.iidm.network.scripting
 
-import com.powsybl.iidm.network.Network
-import com.powsybl.iidm.network.Substation
-import com.powsybl.iidm.network.TopologyKind
-import com.powsybl.iidm.network.TwoWindingsTransformer
-import com.powsybl.iidm.network.VoltageLevel
+import com.powsybl.iidm.network.*
 import org.junit.Test
 
 import static org.junit.Assert.assertNull

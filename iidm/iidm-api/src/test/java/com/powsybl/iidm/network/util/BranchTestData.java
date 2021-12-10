@@ -6,13 +6,12 @@
  */
 package com.powsybl.iidm.network.util;
 
-import org.mockito.Mockito;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.network.VoltageLevel;
+import org.mockito.Mockito;
 
 /**
  *

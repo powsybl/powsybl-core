@@ -7,12 +7,11 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import java.util.*;
-
+import com.powsybl.iidm.network.Identifiable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Identifiable;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

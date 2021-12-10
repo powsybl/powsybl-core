@@ -6,13 +6,12 @@
  */
 package com.powsybl.cgmes.model;
 
-import org.junit.Test;
-
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>

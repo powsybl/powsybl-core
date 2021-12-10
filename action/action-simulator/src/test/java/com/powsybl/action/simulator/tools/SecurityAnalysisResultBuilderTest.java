@@ -9,7 +9,10 @@ package com.powsybl.action.simulator.tools;
 import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.Test;
 

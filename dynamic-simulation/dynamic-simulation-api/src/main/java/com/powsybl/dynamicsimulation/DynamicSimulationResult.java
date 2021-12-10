@@ -6,11 +6,11 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import java.util.Map;
-
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
+
+import java.util.Map;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

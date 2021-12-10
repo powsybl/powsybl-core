@@ -7,15 +7,14 @@
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
-import java.io.IOException;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

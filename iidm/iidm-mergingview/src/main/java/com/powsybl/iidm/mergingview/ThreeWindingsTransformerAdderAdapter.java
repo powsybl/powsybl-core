@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

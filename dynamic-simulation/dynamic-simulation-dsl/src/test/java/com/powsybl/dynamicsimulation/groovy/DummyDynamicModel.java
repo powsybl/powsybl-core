@@ -7,9 +7,9 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import java.util.Objects;
-
 import com.powsybl.dynamicsimulation.DynamicModel;
+
+import java.util.Objects;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

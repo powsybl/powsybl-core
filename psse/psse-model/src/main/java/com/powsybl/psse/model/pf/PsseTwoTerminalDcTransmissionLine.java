@@ -6,12 +6,12 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.lang.reflect.Field;
-
 import com.powsybl.psse.model.PsseVersioned;
 import com.univocity.parsers.annotations.HeaderTransformer;
 import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
+
+import java.lang.reflect.Field;
 
 /**
  *

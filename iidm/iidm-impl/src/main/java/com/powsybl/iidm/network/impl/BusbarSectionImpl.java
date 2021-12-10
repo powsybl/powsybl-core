@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 /**

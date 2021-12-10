@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class JsonSensitivityFactorsProviderFactoryTest {
 

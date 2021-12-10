@@ -6,7 +6,9 @@
  */
 package com.powsybl.ucte.util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.ucte.network.UcteElementId;
 
 import java.util.HashSet;

@@ -7,10 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
@@ -19,7 +15,10 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.Cgme
 import com.powsybl.cgmes.conversion.elements.BoundaryLine;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
 
 /**
  * TwoWindingsTransformer Cgmes Conversion

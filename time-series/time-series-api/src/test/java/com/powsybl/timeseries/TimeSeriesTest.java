@@ -6,9 +6,8 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.Test;
-
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;

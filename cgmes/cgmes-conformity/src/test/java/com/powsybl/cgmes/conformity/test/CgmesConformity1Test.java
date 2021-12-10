@@ -7,11 +7,10 @@
 
 package com.powsybl.cgmes.conformity.test;
 
-import java.io.IOException;
-
+import com.powsybl.cgmes.model.test.CgmesModelTester;
 import org.junit.Test;
 
-import com.powsybl.cgmes.model.test.CgmesModelTester;
+import java.io.IOException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

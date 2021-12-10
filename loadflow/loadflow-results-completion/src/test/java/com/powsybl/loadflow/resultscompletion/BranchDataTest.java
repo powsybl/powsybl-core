@@ -6,11 +6,10 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.Assert.assertEquals;
-
+import com.powsybl.iidm.network.util.BranchData;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.util.BranchData;
+import static org.junit.Assert.assertEquals;
 
 /**
  *

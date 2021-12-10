@@ -6,17 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.Assert.assertEquals;
-
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChangerHolder;
-import com.powsybl.iidm.network.RatioTapChangerHolder;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

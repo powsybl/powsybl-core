@@ -9,7 +9,9 @@ package com.powsybl.security;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.results.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

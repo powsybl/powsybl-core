@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.SubstationAdder;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *

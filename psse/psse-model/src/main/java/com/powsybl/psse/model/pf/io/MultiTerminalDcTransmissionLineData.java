@@ -6,10 +6,10 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_TERMINAL_DC_TRANSMISSION_LINE;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_CONVERTER;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_BUS;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_LINK;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine;
+import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,20 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.io.RecordGroupIOJson;
-import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcBus;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcBusx;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcConverter;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcConverterx;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcLink;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcLinkx;
-import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.PsseMultiTerminalDcMain;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
 /**
  *

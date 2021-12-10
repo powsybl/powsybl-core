@@ -6,13 +6,13 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

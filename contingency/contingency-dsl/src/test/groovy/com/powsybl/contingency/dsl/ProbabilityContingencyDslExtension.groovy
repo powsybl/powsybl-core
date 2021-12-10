@@ -10,7 +10,6 @@ package com.powsybl.contingency.dsl
 import com.google.auto.service.AutoService
 import com.powsybl.commons.extensions.Extension
 import com.powsybl.contingency.Contingency
-import com.powsybl.dsl.ExtendableDslExtension
 
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>

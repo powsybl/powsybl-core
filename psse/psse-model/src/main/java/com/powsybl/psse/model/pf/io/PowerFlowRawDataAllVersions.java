@@ -8,11 +8,11 @@ package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
-import com.powsybl.psse.model.PsseVersion;
 
 import java.io.BufferedReader;
 import java.io.IOException;

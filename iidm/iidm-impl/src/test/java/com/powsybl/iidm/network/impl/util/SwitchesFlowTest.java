@@ -6,24 +6,12 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.SwitchesFlow;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

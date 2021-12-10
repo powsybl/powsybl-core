@@ -7,13 +7,12 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+import com.powsybl.iidm.network.Identifiable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Identifiable;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

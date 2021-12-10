@@ -6,10 +6,9 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.DanglingLine;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
-
-import com.powsybl.iidm.network.DanglingLine;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

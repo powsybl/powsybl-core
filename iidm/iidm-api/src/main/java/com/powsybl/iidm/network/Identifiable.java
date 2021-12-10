@@ -6,9 +6,12 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.*;
-
 import com.powsybl.commons.extensions.Extendable;
+
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * An object that is part of the network model and that is identified uniquely

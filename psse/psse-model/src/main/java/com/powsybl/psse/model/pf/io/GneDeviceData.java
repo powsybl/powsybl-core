@@ -6,7 +6,12 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.pf.PsseGneDevice;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,13 +19,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
-import com.powsybl.psse.model.pf.PsseGneDevice;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
 
 /**
  *

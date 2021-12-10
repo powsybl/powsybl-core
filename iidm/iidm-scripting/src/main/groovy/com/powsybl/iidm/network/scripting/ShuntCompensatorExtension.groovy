@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException
 import com.powsybl.iidm.network.ShuntCompensator
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel
 import com.powsybl.iidm.network.ShuntCompensatorModelType
-import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel
 
 /**
  *

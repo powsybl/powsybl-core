@@ -6,10 +6,6 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -17,6 +13,10 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

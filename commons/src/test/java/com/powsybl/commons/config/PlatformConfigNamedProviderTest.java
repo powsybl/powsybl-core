@@ -6,17 +6,16 @@
  */
 package com.powsybl.commons.config;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
 
 import static org.junit.Assert.assertEquals;
 

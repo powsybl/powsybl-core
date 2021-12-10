@@ -7,13 +7,12 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.Objects;
-
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.transformers.TapChanger.Step;
 import com.powsybl.cgmes.model.CgmesModelException;
+import org.apache.commons.math3.complex.Complex;
+
+import java.util.Objects;
 
 /**
  * TapChangerTypes

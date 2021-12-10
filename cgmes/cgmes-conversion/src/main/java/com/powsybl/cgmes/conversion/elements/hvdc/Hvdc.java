@@ -7,13 +7,13 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
+import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
+import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
-import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
 
 /**
  *

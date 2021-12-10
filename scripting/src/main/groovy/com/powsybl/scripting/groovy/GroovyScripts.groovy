@@ -6,12 +6,11 @@
  */
 package com.powsybl.scripting.groovy
 
+import com.powsybl.computation.DefaultComputationManagerConfig
 import org.codehaus.groovy.control.CompilerConfiguration
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-
-import com.powsybl.computation.DefaultComputationManagerConfig
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

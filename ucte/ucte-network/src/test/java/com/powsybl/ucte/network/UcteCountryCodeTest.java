@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

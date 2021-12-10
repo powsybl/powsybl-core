@@ -7,18 +7,16 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.util.List;
-
-import java.util.stream.Collectors;
-
-import com.powsybl.iidm.network.Substation;
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.FakeCgmesModel;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

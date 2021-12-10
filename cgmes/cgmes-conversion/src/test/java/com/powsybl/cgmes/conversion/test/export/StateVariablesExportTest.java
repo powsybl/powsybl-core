@@ -21,15 +21,8 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
-
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;

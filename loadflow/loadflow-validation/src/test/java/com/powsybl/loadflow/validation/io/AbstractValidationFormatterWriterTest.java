@@ -6,20 +6,19 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import static org.junit.Assert.assertEquals;
+import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.iidm.network.util.TwtTestData;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Locale;
 
-import org.junit.Test;
-
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.iidm.network.util.TwtTestData;
+import static org.junit.Assert.assertEquals;
 
 /**
  *

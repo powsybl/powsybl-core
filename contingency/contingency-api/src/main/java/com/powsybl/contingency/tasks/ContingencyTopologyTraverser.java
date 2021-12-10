@@ -6,7 +6,10 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Objects;

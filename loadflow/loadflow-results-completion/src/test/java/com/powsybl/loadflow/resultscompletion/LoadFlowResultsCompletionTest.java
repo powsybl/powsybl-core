@@ -6,12 +6,11 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *

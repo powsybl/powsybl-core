@@ -6,8 +6,8 @@
  */
 package com.powsybl.computation;
 
-import org.junit.Test;
 import com.powsybl.commons.PowsyblException;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;

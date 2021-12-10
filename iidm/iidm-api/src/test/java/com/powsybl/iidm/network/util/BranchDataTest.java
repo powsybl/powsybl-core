@@ -6,17 +6,16 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.Line;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Branch.Side;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

@@ -8,8 +8,8 @@ package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.*;
+import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.writeQ;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

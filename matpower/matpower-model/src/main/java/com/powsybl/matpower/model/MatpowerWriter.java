@@ -7,10 +7,14 @@
 package com.powsybl.matpower.model;
 
 import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.types.MatFile;
+import us.hebi.matlab.mat.types.Matrix;
+import us.hebi.matlab.mat.types.Sinks;
+import us.hebi.matlab.mat.types.Struct;
 import us.hebi.matlab.mat.util.Casts;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.Channels;

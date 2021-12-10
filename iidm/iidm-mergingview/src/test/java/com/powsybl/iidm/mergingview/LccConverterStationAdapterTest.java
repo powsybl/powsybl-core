@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Before;
 import org.junit.Test;

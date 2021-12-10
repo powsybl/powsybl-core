@@ -6,12 +6,11 @@
  */
 package com.powsybl.cgmes.conversion.test.update;
 
+import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
+import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
-import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

@@ -9,7 +9,10 @@ package com.powsybl.security.monitor;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>

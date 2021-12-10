@@ -6,6 +6,10 @@
  */
 package com.powsybl.loadflow.validation.io;
 
+import com.powsybl.loadflow.validation.ValidationConfig;
+import com.powsybl.loadflow.validation.ValidationType;
+import com.powsybl.loadflow.validation.ValidationUtils;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -14,10 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.Set;
-
-import com.powsybl.loadflow.validation.ValidationConfig;
-import com.powsybl.loadflow.validation.ValidationType;
-import com.powsybl.loadflow.validation.ValidationUtils;
 
 /**
  *

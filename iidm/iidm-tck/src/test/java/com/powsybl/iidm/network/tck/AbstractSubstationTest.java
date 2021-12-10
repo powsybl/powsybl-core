@@ -7,13 +7,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkListener;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

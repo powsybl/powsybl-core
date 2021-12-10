@@ -6,13 +6,12 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch.Side;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Branch.Side;
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

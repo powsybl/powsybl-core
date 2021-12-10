@@ -7,12 +7,11 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.Optional;
-
+import com.powsybl.iidm.network.Country;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Country;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

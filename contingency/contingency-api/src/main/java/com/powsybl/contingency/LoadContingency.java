@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.LoadTripping;
 import com.powsybl.contingency.tasks.AbstractTrippingTask;
+import com.powsybl.contingency.tasks.LoadTripping;
 
 /**
  * @author Hadrien Godard <hadrien.godard at artelys.com>

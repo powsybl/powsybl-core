@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.xml;
 
-import javax.xml.stream.XMLStreamException;
-
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
+
+import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

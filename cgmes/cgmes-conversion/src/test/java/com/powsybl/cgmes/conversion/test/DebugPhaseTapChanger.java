@@ -7,15 +7,14 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.function.Consumer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

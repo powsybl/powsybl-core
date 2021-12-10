@@ -6,12 +6,12 @@
  */
 package com.powsybl.ampl.converter;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.Network;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
 *

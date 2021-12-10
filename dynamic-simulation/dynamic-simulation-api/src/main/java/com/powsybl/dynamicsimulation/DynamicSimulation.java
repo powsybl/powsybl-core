@@ -6,15 +6,15 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

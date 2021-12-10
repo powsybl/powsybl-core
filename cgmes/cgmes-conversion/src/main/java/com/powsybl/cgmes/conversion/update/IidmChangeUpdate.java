@@ -6,9 +6,9 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.Identifiable;
+
+import java.util.Objects;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>

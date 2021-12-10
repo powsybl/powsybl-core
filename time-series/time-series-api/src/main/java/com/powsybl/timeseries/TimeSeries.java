@@ -18,7 +18,6 @@ import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
-
 import org.slf4j.LoggerFactory;
 
 import java.io.*;

@@ -6,14 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.update.elements16.IidmToCgmes16;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -21,6 +13,13 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>

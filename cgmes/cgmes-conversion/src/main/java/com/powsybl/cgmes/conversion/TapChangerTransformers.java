@@ -7,11 +7,11 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

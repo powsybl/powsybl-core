@@ -6,14 +6,13 @@
  */
 package com.powsybl.triplestore.test;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>

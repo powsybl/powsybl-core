@@ -11,7 +11,6 @@ import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
-
 import org.junit.Test;
 
 import java.io.IOException;

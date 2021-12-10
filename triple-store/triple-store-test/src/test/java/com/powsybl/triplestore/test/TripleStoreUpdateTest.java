@@ -7,13 +7,12 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>

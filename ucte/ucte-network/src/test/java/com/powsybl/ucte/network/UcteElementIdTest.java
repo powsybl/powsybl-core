@@ -9,7 +9,7 @@ package com.powsybl.ucte.network;
 import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

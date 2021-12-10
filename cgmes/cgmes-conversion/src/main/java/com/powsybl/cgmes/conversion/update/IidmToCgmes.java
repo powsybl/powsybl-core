@@ -6,19 +6,13 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.iidm.network.Identifiable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.iidm.network.Identifiable;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>

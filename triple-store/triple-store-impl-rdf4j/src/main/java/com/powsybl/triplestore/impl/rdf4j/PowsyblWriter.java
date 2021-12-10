@@ -7,22 +7,17 @@
 
 package com.powsybl.triplestore.impl.rdf4j;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-
 import org.eclipse.rdf4j.common.xml.XMLUtil;
-import org.eclipse.rdf4j.model.BNode;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
-import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Literals;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
 import org.eclipse.rdf4j.rio.rdfxml.RDFXMLWriter;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

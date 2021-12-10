@@ -6,10 +6,10 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERAREA_TRANSFER;
-
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseInterareaTransfer;
+
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERAREA_TRANSFER;
 
 /**
  *

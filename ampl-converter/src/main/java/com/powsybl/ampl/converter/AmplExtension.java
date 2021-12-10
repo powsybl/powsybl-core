@@ -6,10 +6,10 @@
  */
 package com.powsybl.ampl.converter;
 
-import java.util.Objects;
-
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
+
+import java.util.Objects;
 
 /**
 *

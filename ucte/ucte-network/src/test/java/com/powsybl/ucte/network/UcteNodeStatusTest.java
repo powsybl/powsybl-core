@@ -8,7 +8,8 @@ package com.powsybl.ucte.network;
 
 import org.junit.Test;
 
-import static com.powsybl.ucte.network.UcteNodeStatus.*;
+import static com.powsybl.ucte.network.UcteNodeStatus.EQUIVALENT;
+import static com.powsybl.ucte.network.UcteNodeStatus.REAL;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 

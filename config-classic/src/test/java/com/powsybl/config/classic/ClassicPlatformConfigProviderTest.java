@@ -6,12 +6,9 @@
  */
 package com.powsybl.config.classic;
 
-import static org.junit.Assert.assertEquals;
-
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.ModuleConfigRepository;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +21,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>

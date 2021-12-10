@@ -6,11 +6,11 @@
  */
 package com.powsybl.security.comparator;
 
-import java.util.Collections;
-
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+
+import java.util.Collections;
 
 /**
  *

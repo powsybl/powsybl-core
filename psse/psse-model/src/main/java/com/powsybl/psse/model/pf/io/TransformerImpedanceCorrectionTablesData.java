@@ -22,9 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.PsseVersion.Major.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TRANSFORMER_IMPEDANCE_CORRECTION_TABLES;
 
 /**

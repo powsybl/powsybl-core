@@ -6,20 +6,19 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.stream.Stream;
-
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.TwtTestData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.util.TwtTestData;
+import java.io.IOException;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

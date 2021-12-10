@@ -7,7 +7,10 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 import java.util.Set;

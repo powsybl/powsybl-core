@@ -6,15 +6,6 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
@@ -23,6 +14,14 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 
 /**
  *

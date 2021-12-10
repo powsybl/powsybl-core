@@ -12,7 +12,6 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
 import java.util.function.BiConsumer;
 import java.util.function.DoubleConsumer;
 

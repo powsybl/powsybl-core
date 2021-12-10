@@ -7,9 +7,9 @@
 
 package com.powsybl.cgmes.model;
 
-import java.util.Map;
-
 import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

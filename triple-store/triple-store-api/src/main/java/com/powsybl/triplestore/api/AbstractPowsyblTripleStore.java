@@ -7,6 +7,10 @@
 
 package com.powsybl.triplestore.api;
 
+import com.powsybl.commons.datasource.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -14,11 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.commons.datasource.DataSource;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

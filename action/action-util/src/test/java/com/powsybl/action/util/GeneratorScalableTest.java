@@ -8,13 +8,16 @@ package com.powsybl.action.util;
 
 import com.powsybl.action.util.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.*;
+import static com.powsybl.action.util.Scalable.ScalingConvention.GENERATOR;
+import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
 import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
 import static org.junit.Assert.*;
 

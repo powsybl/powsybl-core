@@ -7,11 +7,11 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

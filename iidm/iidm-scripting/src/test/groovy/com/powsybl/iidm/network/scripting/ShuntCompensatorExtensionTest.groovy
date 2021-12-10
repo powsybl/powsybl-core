@@ -7,13 +7,7 @@
 package com.powsybl.iidm.network.scripting
 
 import com.powsybl.commons.PowsyblException
-import com.powsybl.iidm.network.Country
-import com.powsybl.iidm.network.Network
-import com.powsybl.iidm.network.ShuntCompensator
-import com.powsybl.iidm.network.ShuntCompensatorAdder
-import com.powsybl.iidm.network.Substation
-import com.powsybl.iidm.network.TopologyKind
-import com.powsybl.iidm.network.VoltageLevel
+import com.powsybl.iidm.network.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException

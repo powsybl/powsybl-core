@@ -6,11 +6,11 @@
  */
 package com.powsybl.security.comparator;
 
-import java.util.Comparator;
-import java.util.Objects;
-
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
+
+import java.util.Comparator;
+import java.util.Objects;
 
 /**
  *

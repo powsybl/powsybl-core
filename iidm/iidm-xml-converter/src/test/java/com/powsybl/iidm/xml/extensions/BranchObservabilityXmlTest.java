@@ -8,7 +8,8 @@ package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.impl.extensions.BranchObservabilityImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;

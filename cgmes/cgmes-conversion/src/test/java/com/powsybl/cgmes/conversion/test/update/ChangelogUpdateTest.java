@@ -6,31 +6,19 @@
  */
 package com.powsybl.cgmes.conversion.test.update;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.powsybl.cgmes.conversion.update.Changelog;
+import com.powsybl.cgmes.conversion.update.IidmChange;
+import com.powsybl.cgmes.conversion.update.IidmChangeRemoval;
+import com.powsybl.cgmes.conversion.update.IidmChangeUpdate;
+import com.powsybl.iidm.network.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.powsybl.cgmes.conversion.update.Changelog;
-import com.powsybl.cgmes.conversion.update.IidmChange;
-import com.powsybl.cgmes.conversion.update.IidmChangeRemoval;
-import com.powsybl.cgmes.conversion.update.IidmChangeUpdate;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import static org.junit.Assert.*;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>

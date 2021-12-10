@@ -7,13 +7,13 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.Comparator;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Comparator;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

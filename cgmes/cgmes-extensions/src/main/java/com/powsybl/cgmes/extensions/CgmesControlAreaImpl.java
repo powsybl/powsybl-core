@@ -9,7 +9,10 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

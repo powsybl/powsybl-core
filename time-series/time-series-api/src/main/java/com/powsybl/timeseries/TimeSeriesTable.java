@@ -7,7 +7,6 @@
 package com.powsybl.timeseries;
 
 import com.google.common.base.Stopwatch;
-
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;

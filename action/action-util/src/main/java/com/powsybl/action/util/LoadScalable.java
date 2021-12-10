@@ -6,14 +6,17 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.*;
+import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
 
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>

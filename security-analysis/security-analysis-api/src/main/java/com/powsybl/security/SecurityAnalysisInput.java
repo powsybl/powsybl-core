@@ -10,9 +10,9 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
-import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 
 import java.util.Collections;
 import java.util.HashSet;

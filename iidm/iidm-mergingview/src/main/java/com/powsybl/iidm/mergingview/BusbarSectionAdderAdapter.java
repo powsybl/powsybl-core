@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.BusbarSectionAdder;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

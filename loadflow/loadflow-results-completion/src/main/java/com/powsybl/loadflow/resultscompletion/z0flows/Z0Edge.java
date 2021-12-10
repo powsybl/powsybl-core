@@ -6,15 +6,14 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
+import com.powsybl.iidm.network.Line;
+import org.jgrapht.graph.DefaultWeightedEdge;
+
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Objects;
-
-import org.jgrapht.graph.DefaultWeightedEdge;
-
-import com.powsybl.iidm.network.Line;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

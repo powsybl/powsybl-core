@@ -7,16 +7,15 @@
 
 package com.powsybl.triplestore.api.test;
 
-import static org.junit.Assert.assertEquals;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

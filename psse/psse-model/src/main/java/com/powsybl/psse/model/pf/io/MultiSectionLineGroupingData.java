@@ -6,17 +6,16 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseLineGrouping;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_SECTION_LINE_GROUPING;
 /**

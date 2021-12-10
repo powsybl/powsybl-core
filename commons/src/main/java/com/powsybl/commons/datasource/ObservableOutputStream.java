@@ -7,6 +7,7 @@
 package com.powsybl.commons.datasource;
 
 import com.powsybl.commons.io.ForwardingOutputStream;
+
 import java.io.IOException;
 import java.io.OutputStream;
 

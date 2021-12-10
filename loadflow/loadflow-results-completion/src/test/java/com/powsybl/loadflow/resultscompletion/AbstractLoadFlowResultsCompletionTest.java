@@ -6,29 +6,18 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Terminal.BusView;
-
-import static org.junit.Assert.assertEquals;
-
-import java.util.stream.Stream;
-
+import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *

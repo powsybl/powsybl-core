@@ -8,6 +8,7 @@ package com.powsybl.contingency.tasks;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;

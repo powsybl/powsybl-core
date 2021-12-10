@@ -8,7 +8,6 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.AmplExportConfig.ExportActionType;
 import com.powsybl.ampl.converter.AmplExportConfig.ExportScope;
-
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -6,13 +6,13 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
+
+import java.io.IOException;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

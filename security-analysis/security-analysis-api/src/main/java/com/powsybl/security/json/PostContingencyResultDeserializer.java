@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
-import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.BranchResult;
 import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
 
 import java.io.IOException;

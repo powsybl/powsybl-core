@@ -7,13 +7,13 @@
 
 package com.powsybl.triplestore.api;
 
+import com.powsybl.commons.datasource.DataSource;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import com.powsybl.commons.datasource.DataSource;
 
 /**
  * A Triplestore database.

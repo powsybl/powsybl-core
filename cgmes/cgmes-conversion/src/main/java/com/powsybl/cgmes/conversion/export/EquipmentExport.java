@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
 import java.util.*;
 
 /**

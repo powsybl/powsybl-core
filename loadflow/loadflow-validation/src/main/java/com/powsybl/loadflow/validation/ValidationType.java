@@ -6,12 +6,12 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.validation.io.ValidationWriter;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
-
-import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**
  *

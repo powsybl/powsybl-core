@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * A default implementation of {@link NetworkPredicate} that keeps everything.

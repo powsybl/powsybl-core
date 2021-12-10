@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import com.powsybl.iidm.network.Identifiable;
+
 import java.util.Objects;
 import java.util.function.Function;
-
-import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

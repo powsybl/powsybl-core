@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import com.powsybl.iidm.network.Identifiable;
+
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>

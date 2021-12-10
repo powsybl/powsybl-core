@@ -6,11 +6,11 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
-
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

@@ -6,8 +6,12 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -17,13 +21,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  *

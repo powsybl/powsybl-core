@@ -8,7 +8,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>

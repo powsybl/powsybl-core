@@ -8,7 +8,10 @@ package com.powsybl.commons.plugins;
 
 import com.powsybl.commons.util.ServiceLoaderCache;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**

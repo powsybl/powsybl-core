@@ -6,18 +6,17 @@
  */
 package com.powsybl.commons.extensions;
 
-import static org.junit.Assert.*;
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
-
-import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
+import static org.junit.Assert.*;
 
 public class ExtensionAdderProvidersTest {
 

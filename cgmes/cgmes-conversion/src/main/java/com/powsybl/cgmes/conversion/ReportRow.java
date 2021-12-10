@@ -7,10 +7,10 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.function.Consumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.Consumer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

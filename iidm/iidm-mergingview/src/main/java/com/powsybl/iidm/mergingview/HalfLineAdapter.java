@@ -7,9 +7,9 @@
 
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;

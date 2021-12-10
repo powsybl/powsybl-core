@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Before;
 import org.junit.Test;

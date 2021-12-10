@@ -7,10 +7,10 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.Objects;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.HvdcLine;
+
+import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>

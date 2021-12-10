@@ -6,6 +6,9 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,9 +19,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import com.powsybl.cgmes.model.CgmesOnDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

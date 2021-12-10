@@ -15,7 +15,10 @@ import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversi
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.List;

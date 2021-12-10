@@ -6,12 +6,12 @@
  */
 package com.powsybl.dynamicsimulation;
 
+import com.powsybl.timeseries.StringTimeSeries;
+import com.powsybl.timeseries.TimeSeries;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-
-import com.powsybl.timeseries.StringTimeSeries;
-import com.powsybl.timeseries.TimeSeries;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

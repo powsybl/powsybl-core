@@ -6,7 +6,10 @@
  */package com.powsybl.tools.autocompletion;
 
 import org.apache.commons.io.IOUtils;
-import org.stringtemplate.v4.*;
+import org.stringtemplate.v4.AutoIndentWriter;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STGroupString;
 
 import java.io.IOException;
 import java.io.InputStream;

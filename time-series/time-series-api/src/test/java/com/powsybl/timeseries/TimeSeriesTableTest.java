@@ -8,7 +8,6 @@ package com.powsybl.timeseries;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

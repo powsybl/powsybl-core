@@ -6,19 +6,13 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.powsybl.psse.model.PsseVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.psse.model.PsseVersion;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**

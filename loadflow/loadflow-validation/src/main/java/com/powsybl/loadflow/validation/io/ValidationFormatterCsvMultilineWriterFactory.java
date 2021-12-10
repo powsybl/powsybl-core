@@ -6,10 +6,10 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import java.io.Writer;
-
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.validation.ValidationType;
+
+import java.io.Writer;
 
 /**
  *

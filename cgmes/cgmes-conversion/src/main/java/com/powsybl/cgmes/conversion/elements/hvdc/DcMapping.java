@@ -7,10 +7,12 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.*;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

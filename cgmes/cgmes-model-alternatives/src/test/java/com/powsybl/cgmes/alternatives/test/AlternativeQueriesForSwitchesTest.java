@@ -7,15 +7,14 @@
 
 package com.powsybl.cgmes.alternatives.test;
 
-import java.io.IOException;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

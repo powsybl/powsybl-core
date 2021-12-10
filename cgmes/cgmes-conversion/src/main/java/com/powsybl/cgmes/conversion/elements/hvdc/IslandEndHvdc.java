@@ -7,15 +7,11 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 import com.powsybl.cgmes.conversion.elements.hvdc.Adjacency.AdjacentType;
 import com.powsybl.cgmes.conversion.elements.hvdc.NodeEquipment.EquipmentReference;
 import com.powsybl.commons.PowsyblException;
+
+import java.util.*;
 
 /**
  *

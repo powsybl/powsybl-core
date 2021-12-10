@@ -7,6 +7,7 @@
 package com.powsybl.security.results;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 /**

@@ -6,11 +6,11 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import java.util.*;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
+
+import java.util.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>

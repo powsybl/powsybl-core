@@ -8,7 +8,6 @@ package com.powsybl.commons.xml;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-
 import javanet.staxutils.IndentingXMLStreamWriter;
 
 import javax.xml.stream.*;

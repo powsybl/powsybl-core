@@ -6,11 +6,7 @@
  */
 package com.powsybl.cgmes.model.test;
 
-import com.powsybl.cgmes.model.CgmesContainer;
-import com.powsybl.cgmes.model.CgmesDcTerminal;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -21,11 +17,7 @@ import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
