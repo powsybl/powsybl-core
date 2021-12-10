@@ -465,7 +465,7 @@ public final class SteadyStateHypothesisExport {
             boolean regulationStatus = false;
             double regulationTarget = 0;
             if (dl.getGeneration() != null) {
-                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
+                regulationStatus = dl.getGeneration().isVoltageRegulationOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
                 regulationTarget = dl.getGeneration().getTargetV();
             }
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");

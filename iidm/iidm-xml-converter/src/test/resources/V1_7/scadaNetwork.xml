@@ -14,7 +14,7 @@
             <iidm:battery id="battery" minP="0.0" maxP="100.0" bus="bus" connectableBus="bus">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:battery>
-            <iidm:danglingLine id="dl" r="1.0" x="1.0" g="0.0" b="0.0" generationMinP="100.0" generationMaxP="200.0" generationVoltageRegulationOn="false" bus="bus" connectableBus="bus">
+            <iidm:danglingLine id="dl" r="1.0" x="1.0" g="0.0" b="0.0" withGeneration="true" generationMinP="100.0" generationMaxP="200.0" bus="bus" connectableBus="bus">
                 <iidm:minMaxReactiveLimits minQ="100.0" maxQ="200.0"/>
             </iidm:danglingLine>
             <iidm:lccConverterStation id="lcs" lossFactor="80.0" powerFactor="0.2" bus="bus" connectableBus="bus"/>

@@ -705,7 +705,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), throwException, reporter));
                 DanglingLine.Generation generation = danglingLine.getGeneration();
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reporter));
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn().orElse(null), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reporter));

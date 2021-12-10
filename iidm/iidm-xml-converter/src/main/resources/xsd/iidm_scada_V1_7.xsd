@@ -337,6 +337,7 @@
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g" use="required" type="xs:double"/>
                 <xs:attribute name="b" use="required" type="xs:double"/>
+                <xs:attribute name="withGeneration" use="optional" type="xs:boolean"/>
                 <xs:attribute name="generationMinP" use="optional" type="xs:double"/>
                 <xs:attribute name="generationMaxP" use="optional" type="xs:double"/>
                 <xs:attribute name="generationVoltageRegulationOn" use="optional" type="xs:boolean"/>

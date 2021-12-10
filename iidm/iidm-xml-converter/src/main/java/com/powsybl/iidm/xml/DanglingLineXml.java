@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -71,9 +72,16 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         XmlUtil.writeDouble("b", dl.getB(), context.getWriter());
         if (generation != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> context.getWriter().writeAttribute("withGeneration", "true"));
                 XmlUtil.writeDouble("generationMinP", generation.getMinP(), context.getWriter());
                 XmlUtil.writeDouble("generationMaxP", generation.getMaxP(), context.getWriter());
-                context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
+                generation.isVoltageRegulationOn().ifPresent(voltageRegulationOn -> {
+                    try {
+                        context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(voltageRegulationOn));
+                    } catch (XMLStreamException e) {
+                        throw new UncheckedXmlStreamException(e);
+                    }
+                });
                 XmlUtil.writeDouble("generationTargetP", generation.getTargetP(), context.getWriter());
                 XmlUtil.writeDouble("generationTargetV", generation.getTargetV(), context.getWriter());
                 XmlUtil.writeDouble("generationTargetQ", generation.getTargetQ(), context.getWriter());
@@ -120,21 +128,39 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             String voltageRegulationOnStr = context.getReader().getAttributeValue(null, "generationVoltageRegulationOn");
-            if (voltageRegulationOnStr != null) {
+            if (context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
+                if (voltageRegulationOnStr != null) {
+                    double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMinP");
+                    double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMaxP");
+                    boolean voltageRegulationOn = Boolean.parseBoolean(voltageRegulationOnStr);
+                    double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetP");
+                    double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetV");
+                    double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetQ");
+                    adder.newGeneration()
+                            .setMinP(minP)
+                            .setMaxP(maxP)
+                            .setVoltageRegulationOn(voltageRegulationOn)
+                            .setTargetP(targetP)
+                            .setTargetV(targetV)
+                            .setTargetQ(targetQ)
+                            .add();
+                }
+            } else if (Boolean.parseBoolean(context.getReader().getAttributeValue(null, "withGeneration"))) {
                 double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMinP");
                 double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationMaxP");
-                boolean voltageRegulationOn = Boolean.parseBoolean(voltageRegulationOnStr);
                 double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetP");
                 double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetV");
                 double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "generationTargetQ");
-                adder.newGeneration()
+                DanglingLineAdder.GenerationAdder ga = adder.newGeneration()
                         .setMinP(minP)
                         .setMaxP(maxP)
-                        .setVoltageRegulationOn(voltageRegulationOn)
                         .setTargetP(targetP)
                         .setTargetV(targetV)
-                        .setTargetQ(targetQ)
-                        .add();
+                        .setTargetQ(targetQ);
+                if (voltageRegulationOnStr != null) {
+                    ga.setVoltageRegulationOn(Boolean.parseBoolean(voltageRegulationOnStr));
+                }
+                ga.add();
             }
         });
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");

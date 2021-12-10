@@ -169,7 +169,7 @@ public class UcteImporterTest {
         ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         DanglingLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
-        assertTrue(dl.getGeneration().isVoltageRegulationOn());
+        assertTrue(dl.getGeneration().isVoltageRegulationOn().orElse(false));
         assertEquals(409.08, dl.getGeneration().getTargetV(), 0.01);
         assertEquals(1.0, dl.getGeneration().getTargetP(), 0.01);
         assertEquals(2.0, dl.getGeneration().getMaxP(), 0.01);

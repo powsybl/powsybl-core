@@ -24,7 +24,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         private double maxP = Double.NaN;
         private double targetP = Double.NaN;
         private double targetQ = Double.NaN;
-        private boolean voltageRegulationOn;
+        private Boolean voltageRegulationOn = null;
         private double targetV = Double.NaN;
 
         @Override

@@ -322,7 +322,7 @@ public class UcteExporter implements Exporter {
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
         double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+        if (danglingLine.getGeneration().isVoltageRegulationOn().orElseThrow(() -> new PowsyblException("SCADA network not supported"))) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
             ucteNode.setVoltageReference(danglingLine.getGeneration().getTargetV());
             double minP = danglingLine.getGeneration().getMinP();
