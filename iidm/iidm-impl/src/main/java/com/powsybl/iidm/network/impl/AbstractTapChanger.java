@@ -136,8 +136,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public S getCurrentStep() {
-        int position = tapPosition.get(network.get().getVariantIndex());
-        if (position == Integer.MIN_VALUE) {
+        Integer position = tapPosition.get(network.get().getVariantIndex());
+        if (position == null) {
             return null;
         }
         return getStep(position);

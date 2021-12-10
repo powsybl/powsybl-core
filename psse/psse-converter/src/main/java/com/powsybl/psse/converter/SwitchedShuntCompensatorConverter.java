@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,7 +298,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static double getQ(ShuntCompensator switchedShunt) {
-        return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount().orElseThrow(AssertionError::new)),
+        return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount().orElseThrow(() -> new PowsyblException("SCADA network not supported"))),
             switchedShunt.getTerminal().getVoltageLevel().getNominalV());
     }
 

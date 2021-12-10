@@ -9,6 +9,7 @@ package com.powsybl.psse.converter;
 import java.util.Collections;
 import java.util.Objects;
 
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static double getQ(ShuntCompensator fixedShunt) {
-        return shuntAdmittanceToPower(fixedShunt.getB(fixedShunt.getSectionCount().orElseThrow(AssertionError::new)),
+        return shuntAdmittanceToPower(fixedShunt.getB(fixedShunt.getSectionCount().orElseThrow(() -> new PowsyblException("SCADA network not supported"))),
             fixedShunt.getTerminal().getVoltageLevel().getNominalV());
     }
 

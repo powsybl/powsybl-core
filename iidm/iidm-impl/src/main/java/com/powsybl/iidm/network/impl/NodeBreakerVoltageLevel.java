@@ -118,6 +118,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public NodeBreakerView.SwitchAdder setKind(SwitchKind kind) {
+            if (kind == null) {
+                throw new NullPointerException("kind is null");
+            }
             this.kind = kind;
             return this;
         }
