@@ -14,6 +14,7 @@ import com.powsybl.commons.reporter.ReporterModelSerializer;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -21,20 +22,20 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class PostProcessorReporterTest extends AbstractConverterTest {
+    Importer testImporter = new TestImporter();
+    ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
+    ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
+    ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+    Importer importer1 = Importers.addPostProcessors(loader, testImporter, computationManager, "testReporter");
+
     @Test
     public void postProcessorWithReporter() throws IOException {
-        Importer testImporter = new TestImporter();
-        ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
-        ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        Importer importer1 = Importers.addPostProcessors(loader, testImporter, computationManager, "testReporter");
 
         ReporterModel reporter = new ReporterModel("testPostProcessor", "Test importer post processor");
         Network network1 = importer1.importData(null, NetworkFactory.findDefault(), null, reporter);
@@ -44,5 +45,12 @@ public class PostProcessorReporterTest extends AbstractConverterTest {
         assertTrue(report.isPresent());
 
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/postProcessorReporterTest.json");
+    }
+
+    @Test
+    public void postProcessorWithoutReporter() {
+        Network network1 = importer1.importData(null, NetworkFactory.findDefault(), null);
+        assertNotNull(network1);
+        assertEquals(new DateTime(2021, 12, 20, 0, 0, 0), network1.getCaseDate());
     }
 }
