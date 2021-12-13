@@ -35,7 +35,7 @@ public final class DiscreteMeasurementValidationUtil {
         if (id != null && discreteMeasurements.getDiscreteMeasurement(id) != null) {
             if (idUnicity) {
                 finalId = Identifiables.getUniqueId(id, s -> discreteMeasurements.getDiscreteMeasurement(s) != null);
-                LOGGER.warn(String.format("Ensure ID %s unicity: %s", id, finalId));
+                LOGGER.warn("Ensure ID {} unicity: {}", id, finalId);
             } else {
                 throw new PowsyblException(String.format("There is already a discrete measurement with ID %s", id));
             }

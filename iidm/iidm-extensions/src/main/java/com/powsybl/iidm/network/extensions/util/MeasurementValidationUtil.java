@@ -33,7 +33,7 @@ public final class MeasurementValidationUtil {
         if (id != null && measurements.getMeasurement(id) != null) {
             if (idUnicity) {
                 finalId = Identifiables.getUniqueId(id, s -> measurements.getMeasurement(s) != null);
-                LOGGER.warn(String.format("Ensure ID %s unicity: %s", id, finalId));
+                LOGGER.warn("Ensure ID {} unicity: {}", id, finalId);
             } else {
                 throw new PowsyblException(String.format("There is already a measurement with ID %s", id));
             }
