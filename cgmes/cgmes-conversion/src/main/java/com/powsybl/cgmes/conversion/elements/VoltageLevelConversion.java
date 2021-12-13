@@ -70,11 +70,11 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     .setHighVoltageLimit(highVoltageLimit);
             identify(adder);
             VoltageLevel vl = adder.add();
-            addAliases(vl, baseVoltage);
+            addAliasesAndBaseVoltage(vl, baseVoltage);
         }
     }
 
-    private void addAliases(VoltageLevel vl, String baseVoltage) {
+    private void addAliasesAndBaseVoltage(VoltageLevel vl, String baseVoltage) {
         int index = 0;
         for (String mergedVl : context.substationIdMapping().mergedVoltageLevels(vl.getId())) {
             index++;

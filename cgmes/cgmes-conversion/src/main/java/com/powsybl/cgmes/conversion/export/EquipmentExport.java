@@ -50,8 +50,8 @@ public final class EquipmentExport {
             writeSwitches(network, cimNamespace, writer);
 
             writeSubstations(network, cimNamespace, writer);
-            Map<Double, String> baseVoltageIds = writeVoltageLevels(network, cimNamespace, writer);
-            writeBusbarSections(network, baseVoltageIds, cimNamespace, writer);
+            writeVoltageLevels(network, cimNamespace, writer);
+            writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, exportedTerminals, cimNamespace, writer);
             writeShuntCompensators(network, cimNamespace, writer);
@@ -190,7 +190,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static Map<Double, String> writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         Map<Double, String> baseVoltageIds = new HashMap<>();
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
@@ -205,13 +205,11 @@ public final class EquipmentExport {
             });
             VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getNullableSubstation().getId(), baseVoltageIds.get(voltageLevel.getNominalV()), cimNamespace, writer);
         }
-
-        return baseVoltageIds;
     }
 
-    private static void writeBusbarSections(Network network, Map<Double, String> baseVoltageIds, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeBusbarSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (BusbarSection bus : network.getBusbarSections()) {
-            BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), baseVoltageIds.get(bus.getTerminal().getVoltageLevel().getNominalV()), cimNamespace, writer);
+            BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), context.getBaseVoltageByNominalVoltage(bus.getTerminal().getVoltageLevel().getNominalV()), cimNamespace, writer);
         }
     }
 

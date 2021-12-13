@@ -31,7 +31,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
         this.converterType = Objects.requireNonNull(converterType);
         this.lossFactor = lossFactor;
-        this.acDcConverterDcTerminalId = acDcConverterDcTerminalId;
+        this.acDcConverterDcTerminalId = Objects.requireNonNull(acDcConverterDcTerminalId);
     }
 
     @Override
@@ -57,7 +57,6 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             RegulatingControlMappingForVscConverters.initialize(adder);
             VscConverterStation c = adder.add();
             addAliasesAndProperties(c);
-            addHvdcAliasesAndProperties(c);
 
             convertedTerminals(c.getTerminal());
             convertReactiveLimits(c);
@@ -75,15 +74,16 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             connect(adder);
             LccConverterStation c = adder.add();
             addAliasesAndProperties(c);
-            addHvdcAliasesAndProperties(c);
 
             this.lccConverter = c;
             convertedTerminals(c.getTerminal());
         }
     }
 
-    private void addHvdcAliasesAndProperties(HvdcConverterStation<?> c) {
-        c.addAlias(acDcConverterDcTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal");
+    @Override
+    protected void addAliasesAndProperties(Identifiable<?> identifiable) {
+        super.addAliasesAndProperties(identifiable);
+        identifiable.addAlias(acDcConverterDcTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal");
     }
 
     private static double getPowerFactor(PropertyBag propertyBag) {

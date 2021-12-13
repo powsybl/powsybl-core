@@ -58,9 +58,9 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         extension.getBaseVoltages()
                 .forEach((nominalV, baseVoltage) -> {
                     try {
-                        context.getWriter().writeEmptyElement(getNamespaceUri(), "base");
+                        context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
                         context.getWriter().writeAttribute("nominalVoltage", Double.toString(nominalV));
-                        context.getWriter().writeAttribute("baseVoltage", baseVoltage);
+                        context.getWriter().writeAttribute("baseVoltageId", baseVoltage);
                     } catch (XMLStreamException e) {
                         throw new UncheckedXmlStreamException(e);
                     }
@@ -94,9 +94,9 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                         mapping.putTopologicalNode(busId, topologicalNodeId);
                     }
                     break;
-                case "base":
+                case "baseVoltage":
                     double nominalV = Double.parseDouble(context.getReader().getAttributeValue(null, "nominalVoltage"));
-                    String baseVoltage = context.getReader().getAttributeValue(null, "baseVoltage");
+                    String baseVoltage = context.getReader().getAttributeValue(null, "baseVoltageId");
                     mapping.addBaseVoltage(nominalV, baseVoltage);
                     break;
                 default:
