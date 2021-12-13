@@ -16,10 +16,12 @@ import com.powsybl.psse.model.io.Context;
  */
 public interface PsseConversionContextExtension extends Extension<Network> {
 
+    String NAME = "PsseConversionContext";
+
     Context getContext();
 
     @Override
     default String getName() {
-        return "PsseConversionContext";
+        return NAME;
     }
 }

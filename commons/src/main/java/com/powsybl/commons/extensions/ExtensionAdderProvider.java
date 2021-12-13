@@ -30,6 +30,15 @@ public interface ExtensionAdderProvider<T extends Extendable<T>, E extends Exten
     String getImplementationName();
 
     /**
+     * Returns extension name.
+     *
+     * @return the extension name
+     */
+    default String getExtensionsName() {
+        return null;
+    }
+
+    /**
      * Returns the builder class provided by this Provider.
      *
      * @return the class

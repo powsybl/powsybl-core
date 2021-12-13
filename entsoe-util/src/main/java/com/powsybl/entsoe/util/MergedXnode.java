@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Line;
  */
 public interface MergedXnode extends Extension<Line> {
 
+    String NAME = "mergedXnode";
+
     @Override
     default String getName() {
-        return "mergedXnode";
+        return NAME;
     }
 
     double getRdp();

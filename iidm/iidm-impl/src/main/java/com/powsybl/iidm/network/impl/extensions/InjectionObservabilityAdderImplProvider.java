@@ -24,6 +24,11 @@ public class InjectionObservabilityAdderImplProvider<I extends Injection<I>> imp
     }
 
     @Override
+    public String getExtensionsName() {
+        return InjectionObservability.NAME;
+    }
+
+    @Override
     public Class<InjectionObservabilityAdderImpl> getAdderClass() {
         return InjectionObservabilityAdderImpl.class;
     }

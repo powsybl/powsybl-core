@@ -19,9 +19,11 @@ import java.util.Collection;
  */
 public interface Measurements<C extends Connectable<C>> extends Extension<C> {
 
+    String NAME = "measurements";
+
     @Override
     default String getName() {
-        return "measurements";
+        return NAME;
     }
 
     Collection<Measurement> getMeasurements();
