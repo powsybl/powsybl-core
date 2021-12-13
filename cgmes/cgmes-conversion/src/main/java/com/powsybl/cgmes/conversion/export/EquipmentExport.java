@@ -50,7 +50,7 @@ public final class EquipmentExport {
             writeSwitches(network, cimNamespace, writer);
 
             writeSubstations(network, cimNamespace, writer);
-            writeVoltageLevels(network, cimNamespace, writer);
+            writeVoltageLevels(network, cimNamespace, writer, context);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, exportedTerminals, cimNamespace, writer);
@@ -190,20 +190,16 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        Map<Double, String> baseVoltageIds = new HashMap<>();
+    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
-            baseVoltageIds.computeIfAbsent(nominalV, k -> {
-                try {
-                    String baseVoltageId = CgmesExportUtil.getUniqueId();
-                    BaseVoltageEq.write(baseVoltageId, nominalV, cimNamespace, writer);
-                    return baseVoltageId;
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
-            VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getNullableSubstation().getId(), baseVoltageIds.get(voltageLevel.getNominalV()), cimNamespace, writer);
+            if (!exportedBaseVoltagesByNominalV.contains(nominalV)) {
+                String baseVoltageId = context.getBaseVoltageByNominalVoltage(nominalV);
+                BaseVoltageEq.write(baseVoltageId, nominalV, cimNamespace, writer);
+                exportedBaseVoltagesByNominalV.add(nominalV);
+            }
+            VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getNullableSubstation().getId(), context.getBaseVoltageByNominalVoltage(nominalV), cimNamespace, writer);
         }
     }
 
