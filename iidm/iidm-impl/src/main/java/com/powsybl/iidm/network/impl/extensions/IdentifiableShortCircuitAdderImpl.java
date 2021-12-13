@@ -46,8 +46,8 @@ public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extend
 
     @Override
     public I add() {
-        if (Double.isNaN(ipMax) || Double.isNaN(ipMin)) {
-            throw new PowsyblException("Undefined ipMax or ipMin");
+        if (Double.isNaN(ipMax)) {
+            throw new PowsyblException("Undefined ipMax");
         }
         return super.add();
     }

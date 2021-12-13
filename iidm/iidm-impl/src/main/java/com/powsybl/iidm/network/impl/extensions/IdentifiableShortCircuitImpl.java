@@ -32,9 +32,6 @@ public class IdentifiableShortCircuitImpl<I extends Identifiable<I>> extends Abs
 
     @Override
     public IdentifiableShortCircuit<I> setIpMin(double ipMin) {
-        if (Double.isNaN(ipMin)) {
-            throw new PowsyblException("Undefined ipMin");
-        }
         this.ipMin = ipMin;
         return this;
     }
