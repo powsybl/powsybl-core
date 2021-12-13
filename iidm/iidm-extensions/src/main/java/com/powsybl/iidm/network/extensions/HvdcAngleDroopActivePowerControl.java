@@ -15,9 +15,12 @@ import com.powsybl.iidm.network.HvdcLine;
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 public interface HvdcAngleDroopActivePowerControl extends Extension<HvdcLine> {
+
+    String NAME = "hvdcAngleDroopActivePowerControl";
+
     @Override
     default String getName() {
-        return "hvdcAngleDroopActivePowerControl";
+        return NAME;
     }
 
     float getP0();

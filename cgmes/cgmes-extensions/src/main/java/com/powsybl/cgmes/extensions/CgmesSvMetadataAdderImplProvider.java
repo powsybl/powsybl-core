@@ -23,6 +23,11 @@ public class CgmesSvMetadataAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionsName() {
+        return CgmesSvMetadata.NAME;
+    }
+
+    @Override
     public Class<? super CgmesSvMetadataAdderImpl> getAdderClass() {
         return CgmesSvMetadataAdderImpl.class;
     }
