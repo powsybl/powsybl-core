@@ -15,3 +15,9 @@ for (b in network.getBusView().getBuses()) {
         b.angle = 0
     }
 }
+
+for (generator in network.generators) {
+    if (!generator.terminal.isConnected()) {
+        generator.terminal.connect()
+    }
+}

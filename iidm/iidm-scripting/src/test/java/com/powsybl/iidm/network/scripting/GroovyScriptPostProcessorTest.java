@@ -76,6 +76,8 @@ public class GroovyScriptPostProcessorTest {
         Network network = EurostagTutorialExample1Factory.create();
         assertEquals(2, network.getVoltageLevelStream().filter(vl -> vl.getNominalV() > 300).count());
 
+        network.getGenerator("GEN").getTerminal().disconnect();
+
         try { // Launch process
             processor.process(network, LocalComputationManager.getDefault());
         } catch (Exception e) {
@@ -88,6 +90,7 @@ public class GroovyScriptPostProcessorTest {
         assertEquals(100, network.getLoad("LOAD").getExtension(LoadDetail.class).getVariableActivePower(), 0.0);
         assertEquals(500, network.getLoad("LOAD").getExtension(LoadDetail.class).getFixedActivePower(), 0.0);
         assertEquals(0, network.getBusView().getBus("VLLOAD_0").getAngle(), 0.0);
+        assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
     }
 
     @Test
