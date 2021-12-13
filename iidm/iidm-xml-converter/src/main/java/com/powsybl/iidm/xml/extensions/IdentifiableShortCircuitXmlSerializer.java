@@ -34,13 +34,13 @@ public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> ex
     @Override
     public void write(IdentifiableShortCircuit identifiableShortCircuit, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("ipMax", identifiableShortCircuit.getIpMax(), context.getWriter());
-        XmlUtil.writeDouble("ipMin", identifiableShortCircuit.getIpMin(), context.getWriter());
+        XmlUtil.writeOptionalDouble("ipMin", identifiableShortCircuit.getIpMin(), Double.NaN, context.getWriter());
     }
 
     @Override
     public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) throws XMLStreamException {
         double ipMax = XmlUtil.readDoubleAttribute(context.getReader(), "ipMax");
-        double ipMin = XmlUtil.readDoubleAttribute(context.getReader(), "ipMin");
+        double ipMin = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ipMin", Double.NaN);
         identifiable.newExtension(IdentifiableShortCircuitAdder.class)
                 .withIpMax(ipMax)
                 .withIpMin(ipMin)
