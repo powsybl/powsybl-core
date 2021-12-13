@@ -7,7 +7,6 @@
         <xs:simpleType>
             <xs:restriction base="xs:integer">
                 <xs:minInclusive value="1"/>
-                <xs:maxInclusive value="42"/>
             </xs:restriction>
         </xs:simpleType>
     </xs:element>
