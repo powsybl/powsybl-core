@@ -61,7 +61,7 @@ public class GeneratorEntsoeCategoryXmlSerializer implements ExtensionXmlSeriali
 
     @Override
     public void write(GeneratorEntsoeCategory entsoeCategory, XmlWriterContext context) throws XMLStreamException {
-        context.getExtensionsWriter().writeCharacters(Integer.toString(entsoeCategory.getCode()));
+        context.getWriter().writeCharacters(Integer.toString(entsoeCategory.getCode()));
     }
 
     @Override
