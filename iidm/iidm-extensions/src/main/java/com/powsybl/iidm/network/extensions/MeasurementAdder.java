@@ -25,5 +25,7 @@ public interface MeasurementAdder {
 
     MeasurementAdder setValid(boolean valid);
 
+    MeasurementAdder setEnsureIdUnicity(boolean ensureIdUnicity);
+
     Measurement add();
 }

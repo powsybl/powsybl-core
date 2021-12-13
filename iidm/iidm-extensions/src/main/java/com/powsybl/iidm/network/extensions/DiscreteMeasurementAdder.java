@@ -27,5 +27,7 @@ public interface DiscreteMeasurementAdder {
 
     DiscreteMeasurementAdder setValid(boolean valid);
 
+    DiscreteMeasurementAdder setEnsureIdUnicity(boolean idUnicity);
+
     DiscreteMeasurement add();
 }

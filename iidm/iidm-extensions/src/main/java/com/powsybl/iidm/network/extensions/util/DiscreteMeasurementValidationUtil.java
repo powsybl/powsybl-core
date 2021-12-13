@@ -13,6 +13,9 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
+import com.powsybl.iidm.network.util.Identifiables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -21,10 +24,23 @@ import java.util.Objects;
  */
 public final class DiscreteMeasurementValidationUtil {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscreteMeasurementValidationUtil.class);
+
     public static <I extends Identifiable<I>> void checkId(String id, DiscreteMeasurements<I> discreteMeasurements) {
+        checkId(id, false, discreteMeasurements);
+    }
+
+    public static <I extends Identifiable<I>> String checkId(String id, boolean idUnicity, DiscreteMeasurements<I> discreteMeasurements) {
+        String finalId = id;
         if (id != null && discreteMeasurements.getDiscreteMeasurement(id) != null) {
-            throw new PowsyblException(String.format("There is already a discrete measurement with ID %s", id));
+            if (idUnicity) {
+                finalId = Identifiables.getUniqueId(id, s -> discreteMeasurements.getDiscreteMeasurement(s) != null);
+                LOGGER.warn(String.format("Ensure ID %s unicity: %s", id, finalId));
+            } else {
+                throw new PowsyblException(String.format("There is already a discrete measurement with ID %s", id));
+            }
         }
+        return finalId;
     }
 
     public static <I extends Identifiable<I>> void checkType(DiscreteMeasurement.Type type, Identifiable<I> i) {
