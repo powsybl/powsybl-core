@@ -56,7 +56,7 @@ public class IdentifiableShortCircuitTest {
                 .withIpMax(1000)
                 .add();
         IdentifiableShortCircuit identifiableShortCircuit = voltageLevel.getExtension(IdentifiableShortCircuit.class);
-        assertEquals(Double.NaN, identifiableShortCircuit.getIpMin(), 0);
+        assertTrue(Double.isNaN(identifiableShortCircuit.getIpMin()));
         assertEquals(1000, identifiableShortCircuit.getIpMax(), 0);
 
     }
