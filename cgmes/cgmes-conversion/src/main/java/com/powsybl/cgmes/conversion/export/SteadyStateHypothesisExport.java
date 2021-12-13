@@ -97,10 +97,10 @@ public final class SteadyStateHypothesisExport {
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
-                    .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
+                .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
             // Terminal for boundary side of original line/switch is always connected
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary")
-                    .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
+                .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
         }
     }
 
@@ -115,12 +115,12 @@ public final class SteadyStateHypothesisExport {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
                 String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
-                        .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                    .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger(twt, ptcId, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer);
             }
             if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
-                        .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                    .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger(twt, rtcId, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer);
             }
         }
@@ -500,12 +500,6 @@ public final class SteadyStateHypothesisExport {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
             writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
-            writer.writeStartElement(cimNamespace, "ACDCConverter.p");
-            writer.writeCharacters(CgmesExportUtil.format(converterStation.getTerminal().getP()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "ACDCConverter.q");
-            writer.writeCharacters(CgmesExportUtil.format(converterStation.getTerminal().getQ()));
-            writer.writeEndElement();
             double ppcc;
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / (100 - converterStation.getLossFactor());
@@ -522,6 +516,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             if (converterStation instanceof LccConverterStation) {
                 LccConverterStation lccConverterStation = (LccConverterStation) converterStation;
+
+                writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer);
                 writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
@@ -537,6 +533,8 @@ public final class SteadyStateHypothesisExport {
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "CsPpccControlKind.activePower");
             } else if (converterStation instanceof VscConverterStation) {
                 VscConverterStation vscConverterStation = (VscConverterStation) converterStation;
+
+                writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer);
                 writer.writeStartElement(cimNamespace, "VsConverter.droop");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
@@ -559,6 +557,15 @@ public final class SteadyStateHypothesisExport {
             }
             writer.writeEndElement();
         }
+    }
+
+    private static void writePandQ(String cimNamespace, double p, double q, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "ACDCConverter.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ACDCConverter.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
     }
 
     public static String converterOperatingMode(HvdcConverterStation<?> converterStation) {
@@ -585,6 +592,13 @@ public final class SteadyStateHypothesisExport {
             return "VsPpccControlKind.udc";
         }
         throw new PowsyblException("Invalid converter type");
+    }
+
+    private static double getQfromPowerFactor(double p, double powerFactor) {
+        if (powerFactor == 0.0) {
+            return 0.0;
+        }
+        return p * Math.sqrt((1 - powerFactor * powerFactor) / (powerFactor * powerFactor));
     }
 
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
