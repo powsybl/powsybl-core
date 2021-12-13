@@ -40,7 +40,7 @@ public class GeneratorShortCircuitXmlSerializer extends AbstractExtensionXmlSeri
 
     @Override
     public GeneratorShortCircuit read(Generator generator, XmlReaderContext context) throws XMLStreamException {
-        double directSubtransX = XmlUtil.readDoubleAttribute(context.getReader(), "directSubtransX");
+        double directSubtransX = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "directSubtransX");
         double directTransX = XmlUtil.readDoubleAttribute(context.getReader(), "directTransX");
         double stepUpTransformerX = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "stepUpTransformerX");
         generator.newExtension(GeneratorShortCircuitAdder.class)
