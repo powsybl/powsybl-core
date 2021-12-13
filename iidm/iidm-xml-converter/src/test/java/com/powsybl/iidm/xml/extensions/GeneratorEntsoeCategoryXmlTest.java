@@ -6,10 +6,11 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
+import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -22,7 +23,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GeneratorEntsoeCategoryXmlTest extends AbstractConverterTest {
+public class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
 
     public static Network createTestNetwork() {
         Network network = NetworkFactory.create("test", "test");
@@ -65,7 +66,7 @@ public class GeneratorEntsoeCategoryXmlTest extends AbstractConverterTest {
         Network network2 = roundTripXmlTest(network,
                                             NetworkXml::writeAndValidate,
                                             NetworkXml::read,
-                "/generatorEntsoeCategoryRef.xml");
+                getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "/generatorEntsoeCategoryRef.xml");
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator2);
