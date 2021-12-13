@@ -28,11 +28,11 @@ import static org.junit.Assert.*;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class PostProcessorReporterTest extends AbstractConverterTest {
-    Importer testImporter = new TestImporter();
-    ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
-    ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
-    ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-    Importer importer1 = Importers.addPostProcessors(loader, testImporter, computationManager, "testReporter");
+    private final Importer testImporter = new TestImporter();
+    private final ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
+    private final ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
+    private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+    private final Importer importer1 = Importers.addPostProcessors(loader, testImporter, computationManager, "testReporter");
 
     @Test
     public void postProcessorWithReporter() throws IOException {
