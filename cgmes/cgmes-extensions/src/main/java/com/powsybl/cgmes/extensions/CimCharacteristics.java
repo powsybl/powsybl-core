@@ -14,12 +14,14 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CimCharacteristics extends Extension<Network> {
 
+    String NAME = "cimCharacteristics";
+
     CgmesTopologyKind getTopologyKind();
 
     int getCimVersion();
 
     @Override
     default String getName() {
-        return "cimCharacteristics";
+        return NAME;
     }
 }
