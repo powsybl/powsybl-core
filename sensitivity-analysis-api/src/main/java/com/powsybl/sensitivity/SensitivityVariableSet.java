@@ -53,6 +53,10 @@ public class SensitivityVariableSet {
         return variables;
     }
 
+    public WeightedSensitivityVariable getVariable(String key) {
+        return variables.get(key);
+    }
+
     @Override
     public String toString() {
         return "SensitivityVariableSet(" +

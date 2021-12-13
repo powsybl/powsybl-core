@@ -13,10 +13,12 @@ import com.powsybl.sensitivity.json.SensitivityJson;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,10 +37,26 @@ public class SensitivityVariableSetTest extends AbstractConverterTest {
         assertEquals("id", variableSet.getId());
         assertEquals(1, variableSet.getVariables().size());
         assertNotNull(variableSet.getVariables().stream().findFirst());
+        assertTrue(variableSet.getVariablesById().containsKey("v1"));
         assertEquals("v1", variableSet.getVariables().stream().findFirst().get().getId());
-        assertEquals("v1", variableSet.getVariablesById().get("v1").getId());
-        assertEquals(3.4, variableSet.getVariablesById().get("v1").getWeight(), EPSILON_COMPARISON);
+        assertEquals("v1", variableSet.getVariable("v1").getId());
+        assertEquals(3.4, variableSet.getVariable("v1").getWeight(), EPSILON_COMPARISON);
         assertEquals("SensitivityVariableSet(id='id', variables={v1=WeightedSensitivityVariable(id='v1', weight=3.4)})", variableSet.toString());
+    }
+
+    @Test
+    public void testKeepInsertionOrder() {
+        SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("firstV", 3.4),
+                new WeightedSensitivityVariable("secondV", 2.1), new WeightedSensitivityVariable("bVariable", 4.1),
+                new WeightedSensitivityVariable("aVariable", 6.1)));
+
+        assertEquals(4, variableSet.getVariables().size());
+        assertEquals("[firstV, secondV, bVariable, aVariable]", variableSet.getVariablesById().keySet().toString());
+        List<WeightedSensitivityVariable> list = new ArrayList(variableSet.getVariables());
+        assertEquals("firstV", list.get(0).getId());
+        assertEquals("secondV", list.get(1).getId());
+        assertEquals("bVariable", list.get(2).getId());
+        assertEquals("aVariable", list.get(3).getId());
     }
 
     @Test
