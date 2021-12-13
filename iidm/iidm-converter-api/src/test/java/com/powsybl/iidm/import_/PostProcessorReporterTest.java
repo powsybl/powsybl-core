@@ -48,8 +48,9 @@ public class PostProcessorReporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void postProcessorWithoutReporter() {
+    public void postProcessorWithoutReporter() throws Exception {
         Network network1 = importer1.importData(null, NetworkFactory.findDefault(), null);
+        importPostProcessorMock.process(network1, computationManager);
         assertNotNull(network1);
         assertEquals(new DateTime(2021, 12, 20, 0, 0, 0), network1.getCaseDate());
     }
