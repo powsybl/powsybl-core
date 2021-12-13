@@ -217,16 +217,21 @@ public final class Importers {
         }
 
         @Override
-        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
             Network network = importer.importData(dataSource, networkFactory, parameters);
             for (String name : names) {
                 try {
-                    getPostProcessor(loader, name).process(network, computationManager);
+                    getPostProcessor(loader, name).process(network, computationManager, reporter);
                 } catch (Exception e) {
                     throw new PowsyblException(e);
                 }
             }
             return network;
+        }
+
+        @Override
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+            return importData(dataSource, networkFactory, parameters, Reporter.NO_OP);
         }
 
         @Override
