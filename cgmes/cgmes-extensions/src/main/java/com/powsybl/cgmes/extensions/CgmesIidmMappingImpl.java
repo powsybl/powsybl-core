@@ -149,24 +149,24 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public CgmesIidmMapping putBaseVoltage(double nominalVoltage, String baseVoltage) {
-        if (canBaseVoltageBeMapped(nominalVoltage, baseVoltage)) {
-            nominalVoltageBaseVoltageMap.put(nominalVoltage, baseVoltage);
-            unmappedBaseVoltages.remove(baseVoltage);
+    public CgmesIidmMapping putBaseVoltage(double nominalVoltage, String baseVoltageId) {
+        if (canBaseVoltageBeMapped(nominalVoltage, baseVoltageId)) {
+            nominalVoltageBaseVoltageMap.put(nominalVoltage, baseVoltageId);
+            unmappedBaseVoltages.remove(baseVoltageId);
         }
         return this;
     }
 
     @Override
-    public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltage) {
+    public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId) {
         // This method is called when the unmapped list has already been completed
         // There are no "pending" base voltages to be removed from unmapped
         // The check to see if this base voltage has also been mapped to a different nominal voltage
         // can not be the same that we apply when removing elements from "unmapped"
-        if (unmappedBaseVoltages.contains(baseVoltage)) {
-            throw new PowsyblException("Inconsistency: base voltage " + baseVoltage + " has been considered unmapped, but now a mapping to nominal voltage " + nominalVoltage + " is being added");
+        if (unmappedBaseVoltages.contains(baseVoltageId)) {
+            throw new PowsyblException("Inconsistency: base voltage " + baseVoltageId + " has been considered unmapped, but now a mapping to nominal voltage " + nominalVoltage + " is being added");
         }
-        nominalVoltageBaseVoltageMap.put(nominalVoltage, baseVoltage);
+        nominalVoltageBaseVoltageMap.put(nominalVoltage, baseVoltageId);
         return this;
     }
 

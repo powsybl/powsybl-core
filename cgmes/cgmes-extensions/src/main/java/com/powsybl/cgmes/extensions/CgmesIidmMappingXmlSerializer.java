@@ -56,11 +56,11 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                     }
                 });
         extension.getBaseVoltages()
-                .forEach((nominalV, baseVoltage) -> {
+                .forEach((nominalV, baseVoltageId) -> {
                     try {
                         context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
                         context.getWriter().writeAttribute("nominalVoltage", Double.toString(nominalV));
-                        context.getWriter().writeAttribute("baseVoltageId", baseVoltage);
+                        context.getWriter().writeAttribute("id", baseVoltageId);
                     } catch (XMLStreamException e) {
                         throw new UncheckedXmlStreamException(e);
                     }
@@ -96,8 +96,8 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                     break;
                 case "baseVoltage":
                     double nominalV = Double.parseDouble(context.getReader().getAttributeValue(null, "nominalVoltage"));
-                    String baseVoltage = context.getReader().getAttributeValue(null, "baseVoltageId");
-                    mapping.addBaseVoltage(nominalV, baseVoltage);
+                    String baseVoltageId = context.getReader().getAttributeValue(null, "id");
+                    mapping.addBaseVoltage(nominalV, baseVoltageId);
                     break;
                 default:
                     throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <cgmesIidmMapping>");

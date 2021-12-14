@@ -48,9 +48,9 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
     boolean isBaseVoltageEmpty();
 
-    CgmesIidmMapping putBaseVoltage(double nominalVoltage, String baseVoltage);
+    CgmesIidmMapping putBaseVoltage(double nominalVoltage, String baseVoltageId);
 
-    CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltage);
+    CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId);
 
     Map<Double, String> baseVoltagesByNominalVoltageMap();
 
