@@ -45,7 +45,7 @@ public class CgmesExportContext {
     private final Map<String, Set<String>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<String> unmappedTopologicalNodes = new HashSet<>();
 
-    private final Map<Double, CgmesIidmMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<Double, CgmesIidmMapping.BaseVoltageSource>();
+    private final Map<Double, CgmesIidmMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
     public static final class ModelDescription {
 

@@ -196,11 +196,9 @@ public final class EquipmentExport {
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
             CgmesIidmMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
-            if (!exportedBaseVoltagesByNominalV.contains(nominalV)) {
-                if (baseVoltage.getSource().equals(CgmesIidmMapping.Source.IGM)) {
-                    BaseVoltageEq.write(baseVoltage.getCgmesId(), nominalV, cimNamespace, writer);
-                    exportedBaseVoltagesByNominalV.add(nominalV);
-                }
+            if (!exportedBaseVoltagesByNominalV.contains(nominalV) && baseVoltage.getSource().equals(CgmesIidmMapping.Source.IGM)) {
+                BaseVoltageEq.write(baseVoltage.getCgmesId(), nominalV, cimNamespace, writer);
+                exportedBaseVoltagesByNominalV.add(nominalV);
             }
             VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getNullableSubstation().getId(), baseVoltage.getCgmesId(), cimNamespace, writer);
         }
