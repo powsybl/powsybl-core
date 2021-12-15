@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -46,8 +45,7 @@ public class CgmesExportContext {
     private final Map<String, Set<String>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<String> unmappedTopologicalNodes = new HashSet<>();
 
-    private final Map<Double, String> baseVoltageByNominalVoltageMapping = new HashMap<>();
-    private final Set<String> unmappedBaseVoltages = new HashSet<>();
+    private final Map<Double, CgmesIidmMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<Double, CgmesIidmMapping.BaseVoltageSource>();
 
     public static final class ModelDescription {
 
@@ -140,15 +138,6 @@ public class CgmesExportContext {
         addIidmMappings(network);
     }
 
-    /**
-     * @deprecated Not used anymore. To add the topological nodes mappings, use
-     * {@link CgmesExportContext#addIidmMappings(Network)} instead.
-     */
-    @Deprecated
-    public void addTopologicalNodeMappings(Network network) {
-        throw new ConversionException("Deprecated. Not used anymore");
-    }
-
     public void addIidmMappings(Network network) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
         addIidmMappingsTopologicalNodes(network);
@@ -234,25 +223,19 @@ public class CgmesExportContext {
     private void addIidmMappingsBaseVoltages(Network network) {
         CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
         if (cgmesIidmMapping != null) {
-            Map<Double, String> bvByNominalVoltage = cgmesIidmMapping.baseVoltagesByNominalVoltageMap();
+            Map<Double, CgmesIidmMapping.BaseVoltageSource> bvByNominalVoltage = cgmesIidmMapping.baseVoltagesByNominalVoltageMap();
             baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
-            unmappedBaseVoltages.addAll(cgmesIidmMapping.getUnmappedBaseVoltages());
-
-            // And remove from unmapped the currently mapped
-            // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
-            unmappedBaseVoltages.removeAll(bvByNominalVoltage.values().stream().collect(Collectors.toSet()));
         } else {
-            Map<Double, String> bvsFromBusBreaker = new HashMap<>();
+            Map<Double, CgmesIidmMapping.BaseVoltageSource> bvsFromBusBreaker = new HashMap<>();
             Set<String> mappedBvs = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
                 String baseVoltageId = CgmesExportUtil.getUniqueId();
-                bvsFromBusBreaker.computeIfAbsent(nominalV, v -> baseVoltageId);
+                bvsFromBusBreaker.computeIfAbsent(nominalV, v -> new CgmesIidmMapping.BaseVoltageSource(baseVoltageId, nominalV, CgmesIidmMapping.Source.IGM));
                 mappedBvs.add(baseVoltageId);
             }
 
             baseVoltageByNominalVoltageMapping.putAll(bvsFromBusBreaker);
-            unmappedBaseVoltages.removeAll(mappedBvs);
         }
     }
 
@@ -513,11 +496,7 @@ public class CgmesExportContext {
         this.unmappedTopologicalNodes.remove(mappedTopologicalNode);
     }
 
-    public String getBaseVoltageByNominalVoltage(double nominalV) {
+    public CgmesIidmMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
-    }
-
-    public Set<String> getUnmappedBaseVoltages() {
-        return Collections.unmodifiableSet(unmappedBaseVoltages);
     }
 }

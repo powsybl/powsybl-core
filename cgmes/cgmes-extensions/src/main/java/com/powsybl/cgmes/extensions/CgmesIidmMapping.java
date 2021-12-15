@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -18,6 +19,34 @@ import java.util.Set;
  * WARNING: this class is still in a beta version, it will change in the future
  */
 public interface CgmesIidmMapping extends Extension<Network> {
+
+    enum Source {
+        BOUNDARY, IGM
+    }
+
+    class BaseVoltageSource {
+        private final String cgmesId;
+        private final double nominalV;
+        private final Source source;
+
+        public BaseVoltageSource(String cgmesId, double nominalV, Source source) {
+            this.cgmesId = Objects.requireNonNull(cgmesId);
+            this.nominalV = nominalV;
+            this.source = Objects.requireNonNull(source);
+        }
+
+        public String getCgmesId() {
+            return cgmesId;
+        }
+
+        public double getNominalV() {
+            return nominalV;
+        }
+
+        public Source getSource() {
+            return source;
+        }
+    }
 
     @Override
     default String getName() {
@@ -40,19 +69,15 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
     Set<String> getUnmappedTopologicalNodes();
 
-    Map<Double, String> getBaseVoltages();
+    Map<Double, BaseVoltageSource> getBaseVoltages();
 
-    String getBaseVoltage(double nominalVoltage);
+    BaseVoltageSource getBaseVoltage(double nominalVoltage);
 
     boolean isBaseVoltageMapped(double nominalVoltage);
 
     boolean isBaseVoltageEmpty();
 
-    CgmesIidmMapping putBaseVoltage(double nominalVoltage, String baseVoltageId);
+    CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source);
 
-    CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId);
-
-    Map<Double, String> baseVoltagesByNominalVoltageMap();
-
-    Set<String> getUnmappedBaseVoltages();
+    Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap();
 }

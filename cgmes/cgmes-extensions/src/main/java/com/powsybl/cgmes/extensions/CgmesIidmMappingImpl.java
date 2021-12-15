@@ -50,18 +50,16 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     // Ideally, each nominal voltage is represented by a single base voltage,
     // for this reason the mapping has been considered 1: 1
 
-    private final Map<Double, String> nominalVoltageBaseVoltageMap;
-    private final Set<String> unmappedBaseVoltages;
+    private final Map<Double, BaseVoltageSource> nominalVoltageBaseVoltageMap;
 
-    CgmesIidmMappingImpl(Set<String> topologicalNodes, Set<String> baseVoltages) {
+    CgmesIidmMappingImpl(Set<String> topologicalNodes, Set<BaseVoltageSource> baseVoltages) {
         equipmentSideTopologicalNodeMap = new HashMap<>();
         busTopologicalNodeMap = new HashMap<>();
         unmappedTopologicalNodes = new HashSet<>();
         unmappedTopologicalNodes.addAll(Objects.requireNonNull(topologicalNodes));
 
         nominalVoltageBaseVoltageMap = new HashMap<>();
-        unmappedBaseVoltages = new HashSet<>();
-        unmappedBaseVoltages.addAll(Objects.requireNonNull(baseVoltages));
+        baseVoltages.forEach(bvs -> addBaseVoltage(bvs.getNominalV(), bvs.getCgmesId(), bvs.getSource()));
     }
 
     @Override
@@ -129,12 +127,12 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public Map<Double, String> getBaseVoltages() {
+    public Map<Double, BaseVoltageSource> getBaseVoltages() {
         return Collections.unmodifiableMap(nominalVoltageBaseVoltageMap);
     }
 
     @Override
-    public String getBaseVoltage(double nominalVoltage) {
+    public BaseVoltageSource getBaseVoltage(double nominalVoltage) {
         return nominalVoltageBaseVoltageMap.get(nominalVoltage);
     }
 
@@ -149,46 +147,16 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public CgmesIidmMapping putBaseVoltage(double nominalVoltage, String baseVoltageId) {
-        if (canBaseVoltageBeMapped(nominalVoltage, baseVoltageId)) {
-            nominalVoltageBaseVoltageMap.put(nominalVoltage, baseVoltageId);
-            unmappedBaseVoltages.remove(baseVoltageId);
+    public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source) {
+        if (nominalVoltageBaseVoltageMap.containsKey(nominalVoltage)) {
+            LOGGER.info("Nominal voltage " + nominalVoltage + " is already mapped and not to the given base voltage " + baseVoltageId);
         }
+        nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
         return this;
     }
 
-    @Override
-    public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId) {
-        // This method is called when the unmapped list has already been completed
-        // There are no "pending" base voltages to be removed from unmapped
-        // The check to see if this base voltage has also been mapped to a different nominal voltage
-        // can not be the same that we apply when removing elements from "unmapped"
-        if (unmappedBaseVoltages.contains(baseVoltageId)) {
-            throw new PowsyblException("Inconsistency: base voltage " + baseVoltageId + " has been considered unmapped, but now a mapping to nominal voltage " + nominalVoltage + " is being added");
-        }
-        nominalVoltageBaseVoltageMap.put(nominalVoltage, baseVoltageId);
-        return this;
-    }
-
-    public Map<Double, String> baseVoltagesByNominalVoltageMap() {
+    public Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap() {
         return new HashMap<>(nominalVoltageBaseVoltageMap);
-    }
-
-    @Override
-    public Set<String> getUnmappedBaseVoltages() {
-        return new HashSet<>(unmappedBaseVoltages);
-    }
-
-    private boolean canBaseVoltageBeMapped(double nominalVoltage, String baseVoltage) {
-        // Base voltage has been removed from unmapped collection
-        // and this nominal voltage has not received it
-        // because no mappings exist for this nominal voltage: get(nominalVoltage) == null
-        // or because the base voltage can not be found int the mappings for this nominal voltage: !get(nominalVoltage).equals(baseVoltage)
-        if (!unmappedBaseVoltages.contains(baseVoltage) && (nominalVoltageBaseVoltageMap.get(nominalVoltage) == null || !nominalVoltageBaseVoltageMap.get(nominalVoltage).equals(baseVoltage))) {
-            LOGGER.warn("CGMES base voltage {} is already mapped and not to the given nominal voltage {}", baseVoltage, nominalVoltage);
-            return false;
-        }
-        return true;
     }
 
     private void calculate() {
