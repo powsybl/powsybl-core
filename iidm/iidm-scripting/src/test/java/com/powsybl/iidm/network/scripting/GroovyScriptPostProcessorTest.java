@@ -14,6 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -87,8 +88,11 @@ public class GroovyScriptPostProcessorTest {
         // Check processing results
         assertEquals(1, network.getVoltageLevelStream().filter(vl -> vl.getNominalV() > 300).count());
         assertEquals(280, network.getVoltageLevel("VLHV1").getNominalV(), 0.0);
+        assertNotNull(network.getLoad("LOAD").getExtension(LoadDetail.class));
         assertEquals(100, network.getLoad("LOAD").getExtension(LoadDetail.class).getVariableActivePower(), 0.0);
         assertEquals(500, network.getLoad("LOAD").getExtension(LoadDetail.class).getFixedActivePower(), 0.0);
+        assertNotNull(network.getGenerator("GEN").getExtension(GeneratorEntsoeCategory.class));
+        assertEquals(4, network.getGenerator("GEN").getExtension(GeneratorEntsoeCategory.class).getCode());
         assertEquals(0, network.getBusView().getBus("VLLOAD_0").getAngle(), 0.0);
         assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
     }
