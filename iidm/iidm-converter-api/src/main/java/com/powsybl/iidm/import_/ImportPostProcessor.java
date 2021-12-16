@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.import_;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -18,6 +19,12 @@ public interface ImportPostProcessor {
 
     String getName();
 
-    void process(Network network, ComputationManager computationManager) throws Exception;
+    default void process(Network network, ComputationManager computationManager) throws Exception {
+        process(network, computationManager, Reporter.NO_OP);
+    }
+
+    default void process(Network network, ComputationManager computationManager, Reporter reporter) throws Exception {
+        process(network, computationManager);
+    }
 
 }

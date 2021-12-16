@@ -40,7 +40,7 @@ public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> ex
     @Override
     public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) throws XMLStreamException {
         double ipMax = XmlUtil.readDoubleAttribute(context.getReader(), "ipMax");
-        double ipMin = XmlUtil.readDoubleAttribute(context.getReader(), "ipMin");
+        double ipMin = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ipMin");
         identifiable.newExtension(IdentifiableShortCircuitAdder.class)
                 .withIpMax(ipMax)
                 .withIpMin(ipMin)

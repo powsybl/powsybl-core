@@ -14,9 +14,12 @@ import com.powsybl.iidm.network.Terminal;
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 public interface RemoteReactivePowerControl extends Extension<Generator> {
+
+    String NAME = "generatorRemoteReactivePowerControl";
+
     @Override
     default String getName() {
-        return "generatorRemoteReactivePowerControl";
+        return NAME;
     }
 
     /**

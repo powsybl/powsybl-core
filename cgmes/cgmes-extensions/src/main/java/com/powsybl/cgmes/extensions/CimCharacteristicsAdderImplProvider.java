@@ -22,6 +22,11 @@ public class CimCharacteristicsAdderImplProvider implements ExtensionAdderProvid
     }
 
     @Override
+    public String getExtensionsName() {
+        return CimCharacteristics.NAME;
+    }
+
+    @Override
     public Class<? super CimCharacteristicsAdderImpl> getAdderClass() {
         return CimCharacteristicsAdderImpl.class;
     }
