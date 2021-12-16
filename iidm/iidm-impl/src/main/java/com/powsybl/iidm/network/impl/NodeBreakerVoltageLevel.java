@@ -925,6 +925,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             throw createNotSupportedNodeBreakerTopologyException();
         }
 
+        @Override
+        public void traverse(String busId, TopologyTraverser traverser) {
+            throw createNotSupportedNodeBreakerTopologyException();
+        }
     };
 
     @Override

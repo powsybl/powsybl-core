@@ -9,12 +9,12 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.*;
 
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.math.graph.TraverseResult;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -22,7 +22,6 @@ import com.powsybl.iidm.network.VoltageLevel;
  */
 class SwitchesChain {
     private final NodeConnectables nodeConnectables;
-    private final Adjacency adjacency;
     private final VoltageLevel vl;
     private final Switch sw;
     private final boolean isNodeBreakerModel;
@@ -32,15 +31,14 @@ class SwitchesChain {
         this.sw = sw;
         this.isNodeBreakerModel = isNodeBreakerModel;
         nodeConnectables = new NodeConnectables(vl, isNodeBreakerModel);
-        adjacency = new Adjacency(vl, sw.getId(), isNodeBreakerModel);
     }
 
     Terminal getBestTerminalChain() {
         String end1 = getSwitchEnd(vl, sw, true, isNodeBreakerModel);
         String end2 = getSwitchEnd(vl, sw, false, isNodeBreakerModel);
 
-        Terminal terminalEnd1 = findTerminalChainEnd(end1, end2, nodeConnectables, adjacency, isNodeBreakerModel);
-        Terminal terminalEnd2 = findTerminalChainEnd(end2, end1, nodeConnectables, adjacency, isNodeBreakerModel);
+        Terminal terminalEnd1 = findTerminalChainEnd(end1, end2, nodeConnectables, isNodeBreakerModel);
+        Terminal terminalEnd2 = findTerminalChainEnd(end2, end1, nodeConnectables, isNodeBreakerModel);
         return bestTerminal(terminalEnd1, terminalEnd2);
     }
 
@@ -60,10 +58,9 @@ class SwitchesChain {
         }
     }
 
-    private static Terminal findTerminalChainEnd(String end, String otherEnd, NodeConnectables nodeConnectables,
-        Adjacency adjacency, boolean isNodeBreakerModel) {
+    private Terminal findTerminalChainEnd(String end, String otherEnd, NodeConnectables nodeConnectables, boolean isNodeBreakerModel) {
 
-        List<String> nodes = expand(end, adjacency);
+        List<String> nodes = expand(vl, end, sw, isNodeBreakerModel);
         if (nodes.contains(otherEnd)) {
             return null;
         }
@@ -73,26 +70,44 @@ class SwitchesChain {
         return null;
     }
 
-    private static List<String> expand(String initialNode, Adjacency adjacency) {
-        List<String> nodes = new ArrayList<>();
-        Set<String> visitedNodes = new HashSet<>();
-        nodes.add(initialNode);
-        visitedNodes.add(initialNode);
-
-        int k = 0;
-        while (k < nodes.size()) {
-            String node = nodes.get(k);
-            List<String> adjacents = adjacency.getAdjacents(node);
-            adjacents.forEach(adjacentNode -> {
-                if (!visitedNodes.contains(adjacentNode)) {
-                    nodes.add(adjacentNode);
-                    visitedNodes.add(adjacentNode);
-                }
-            });
-            k++;
+    private static List<String> expand(VoltageLevel voltageLevel, String node, Switch swTerminal, boolean isNodeBreakerModel) {
+        if (isNodeBreakerModel) {
+            return expandNodeBreaker(voltageLevel, node, swTerminal);
         }
+        return expandBusBranch(voltageLevel, node, swTerminal);
+    }
 
+    private static List<String> expandNodeBreaker(VoltageLevel voltageLevel, String node, Switch swTerminal) {
+        List<String> nodes = new ArrayList<>();
+        nodes.add(node);
+
+        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
+            if (sw == swTerminal) {
+                return TraverseResult.TERMINATE_PATH;
+            }
+            nodes.add(String.valueOf(node2));
+            return TraverseResult.CONTINUE;
+        };
+
+        voltageLevel.getNodeBreakerView().traverse(Integer.valueOf(node), traverser);
         return nodes;
+    }
+
+    private static List<String> expandBusBranch(VoltageLevel voltageLevel, String busId, Switch swTerminal) {
+        List<String> buses = new ArrayList<>();
+        buses.add(busId);
+
+        VoltageLevel.BusBreakerView.TopologyTraverser traverser = (busId1, sw, busId2) -> {
+            if (sw == swTerminal) {
+                return TraverseResult.TERMINATE_PATH;
+            }
+            buses.add(busId2);
+            return TraverseResult.CONTINUE;
+        };
+
+        voltageLevel.getBusBreakerView().traverse(busId, traverser);
+
+        return buses;
     }
 
     private static boolean onlyOneConnectable(List<String> nodes, NodeConnectables connectables) {
@@ -202,61 +217,6 @@ class SwitchesChain {
         private static boolean isConductingEquipment(Connectable<?> connectable) {
             return connectable.getType() == IdentifiableType.LINE
                 || connectable.getType() == IdentifiableType.DANGLING_LINE;
-        }
-    }
-
-    private static class Adjacency {
-
-        private final Map<String, List<String>> adjacencies;
-
-        Adjacency(VoltageLevel vl, String switchId, boolean isNodeBreakerModel) {
-            adjacencies = new HashMap<>();
-
-            if (isNodeBreakerModel) {
-                adjacencyNodeBreaker(vl, switchId, adjacencies);
-            } else {
-                adjacencyBusBreaker(vl, switchId, adjacencies);
-            }
-        }
-
-        private static void adjacencyNodeBreaker(VoltageLevel vl, String switchId, Map<String, List<String>> adjacency) {
-            vl.getSwitches().forEach(sw -> {
-                if (sw.getId().equals(switchId)) {
-                    return;
-                }
-                addAdjacency(adjacency, vl.getNodeBreakerView().getNode1(sw.getId()), vl.getNodeBreakerView().getNode2(sw.getId()));
-            });
-            vl.getNodeBreakerView().getInternalConnections().forEach(ic -> addAdjacency(adjacency, ic.getNode1(), ic.getNode2()));
-        }
-
-        private static void addAdjacency(Map<String, List<String>> adjacency, int nodeEnd1, int nodeEnd2) {
-            String end1 = String.valueOf(nodeEnd1);
-            String end2 = String.valueOf(nodeEnd2);
-            adjacency.computeIfAbsent(end1, k -> new ArrayList<>()).add(end2);
-            adjacency.computeIfAbsent(end2, k -> new ArrayList<>()).add(end1);
-        }
-
-        private static void adjacencyBusBreaker(VoltageLevel vl, String switchId, Map<String, List<String>> adjacency) {
-            vl.getSwitches().forEach(sw -> {
-                if (sw.getId().equals(switchId)) {
-                    return;
-                }
-                addAdjacency(adjacency, vl.getBusBreakerView().getBus1(sw.getId()), vl.getBusBreakerView().getBus2(sw.getId()));
-            });
-        }
-
-        private static void addAdjacency(Map<String, List<String>> adjacency, Bus busEnd1, Bus busEnd2) {
-            String end1 = busEnd1.getId();
-            String end2 = busEnd2.getId();
-            adjacency.computeIfAbsent(end1, k -> new ArrayList<>()).add(end2);
-            adjacency.computeIfAbsent(end2, k -> new ArrayList<>()).add(end1);
-        }
-
-        private List<String> getAdjacents(String nodeId) {
-            if (adjacencies.containsKey(nodeId)) {
-                return adjacencies.get(nodeId);
-            }
-            return Collections.<String>emptyList();
         }
     }
 }
