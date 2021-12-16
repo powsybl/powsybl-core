@@ -330,8 +330,8 @@ public class CgmesDcConversion {
         // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor / 100
         // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor / 100
 
-        double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P);
-        double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P);
+        double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P, 0.0);
+        double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P, 0.0);
 
         // load sign convention is used i.e. positive sign means flow out from a node
         // i.e. pACx >= 0 if converterx is rectifier and pACx <= 0 if converterx is

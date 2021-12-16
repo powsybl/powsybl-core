@@ -14,9 +14,12 @@ import com.powsybl.iidm.network.Identifiable;
  * @author Coline Piloquet <coline.piloquet@rte-france.com>
  */
 public interface IdentifiableShortCircuit<I extends Identifiable<I>> extends Extension<I> {
+
+    String NAME = "identifiableShortCircuit";
+
     @Override
     default String getName() {
-        return "identifiableShortCircuit";
+        return NAME;
     }
 
     /**

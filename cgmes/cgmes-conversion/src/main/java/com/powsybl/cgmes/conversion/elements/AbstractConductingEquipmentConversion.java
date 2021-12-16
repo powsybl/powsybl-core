@@ -254,7 +254,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
         addMappingForTopologicalNode(dl, modelSide, 1);
-        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+        // We do not have SSH values at the model side, it is a line flow. We take directly SV values
+        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlowSV(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
@@ -464,6 +465,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                     return steadyStateHypothesisPowerFlow();
                 }
                 break;
+        }
+        return PowerFlow.UNDEFINED;
+    }
+
+    PowerFlow powerFlowSV() {
+        if (stateVariablesPowerFlow().defined()) {
+            return stateVariablesPowerFlow();
         }
         return PowerFlow.UNDEFINED;
     }

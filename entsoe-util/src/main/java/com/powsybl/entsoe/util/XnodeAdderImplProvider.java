@@ -22,6 +22,11 @@ public class XnodeAdderImplProvider implements ExtensionAdderProvider<DanglingLi
     }
 
     @Override
+    public String getExtensionsName() {
+        return Xnode.NAME;
+    }
+
+    @Override
     public Class<XnodeAdderImpl> getAdderClass() {
         return XnodeAdderImpl.class;
     }

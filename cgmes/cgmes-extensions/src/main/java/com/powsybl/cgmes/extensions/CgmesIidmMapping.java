@@ -48,9 +48,11 @@ public interface CgmesIidmMapping extends Extension<Network> {
         }
     }
 
+    String NAME = "cgmesIidmMapping";
+
     @Override
     default String getName() {
-        return "cgmesIidmMapping";
+        return NAME;
     }
 
     Set<String> getTopologicalNodes(String busId);

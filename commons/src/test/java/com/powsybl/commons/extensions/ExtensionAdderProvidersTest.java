@@ -33,8 +33,11 @@ public class ExtensionAdderProvidersTest {
     }
 
     private interface SimpleExtension extends Extension<SimpleExtendable> {
+
+        String NAME = "SimpleExtension";
+
         default String getName() {
-            return "SimpleExtension";
+            return NAME;
         }
     }
 
@@ -87,6 +90,11 @@ public class ExtensionAdderProvidersTest {
         }
 
         @Override
+        public String getExtensionsName() {
+            return SimpleExtension.NAME;
+        }
+
+        @Override
         public Class<SimpleExtensionAdderImpl> getAdderClass() {
             return SimpleExtensionAdderImpl.class;
         }
@@ -103,6 +111,11 @@ public class ExtensionAdderProvidersTest {
         @Override
         public String getImplementationName() {
             return "Custom";
+        }
+
+        @Override
+        public String getExtensionsName() {
+            return SimpleExtension.NAME;
         }
 
         @Override
@@ -141,8 +154,10 @@ public class ExtensionAdderProvidersTest {
 
     private interface GenericExtension<G extends GenericExtendable<G>> extends Extension<G> {
 
+        String NAME = "SimpleExtension";
+
         default String getName() {
-            return "SimpleExtension";
+            return NAME;
         }
     }
 
@@ -198,6 +213,11 @@ public class ExtensionAdderProvidersTest {
         }
 
         @Override
+        public String getExtensionsName() {
+            return GenericExtension.NAME;
+        }
+
+        @Override
         public Class<GenericExtensionAdderImpl> getAdderClass() {
             return GenericExtensionAdderImpl.class;
         }
@@ -215,6 +235,11 @@ public class ExtensionAdderProvidersTest {
         @Override
         public String getImplementationName() {
             return "Custom";
+        }
+
+        @Override
+        public String getExtensionsName() {
+            return GenericExtension.NAME;
         }
 
         @Override

@@ -560,8 +560,8 @@ public final class EquipmentExport {
             String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter.getId(), dcNode2, 2, cimNamespace, writer);
             DCLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), cimNamespace, writer);
-            writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, capabilityCurveId1, cimNamespace, writer);
-            writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, capabilityCurveId2, cimNamespace, writer);
+            writeHvdcConverterStation(line.getConverterStation1(), exportedTerminals, line.getNominalV(), dcConverterUnit1, capabilityCurveId1, cimNamespace, writer);
+            writeHvdcConverterStation(line.getConverterStation2(), exportedTerminals, line.getNominalV(), dcConverterUnit2, capabilityCurveId2, cimNamespace, writer);
         }
     }
 
@@ -599,8 +599,16 @@ public final class EquipmentExport {
         DCConverterUnitEq.write(id, dcConverterUnitName, substationId, cimNamespace, writer);
     }
 
-    private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId, String capabilityCurveId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        HvdcConverterStationEq.write(converterStation.getId(), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, dcEquipmentContainerId, capabilityCurveId, cimNamespace, writer);
+    private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, Map<Terminal, String> exportedTerminals, double ratedUdc, String dcEquipmentContainerId, String capabilityCurveId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        String pccTerminal = getConverterStationPccTerminal(converterStation, exportedTerminals);
+        HvdcConverterStationEq.write(converterStation.getId(), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, dcEquipmentContainerId, pccTerminal, capabilityCurveId, cimNamespace, writer);
+    }
+
+    private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, Map<Terminal, String> exportedTerminals) {
+        if (converterStation.getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)) {
+            return exportedTerminalId(exportedTerminals, ((VscConverterStation) converterStation).getRegulatingTerminal());
+        }
+        return null;
     }
 
     private static void writeDCNode(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
