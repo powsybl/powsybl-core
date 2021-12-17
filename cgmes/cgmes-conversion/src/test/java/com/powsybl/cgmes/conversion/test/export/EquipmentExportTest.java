@@ -54,7 +54,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCGMES(dataSource, network);
+        testCgmes(dataSource, network);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCGMES(dataSource, network);
+        testCgmes(dataSource, network);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCGMES(dataSource, network);
+        testCgmes(dataSource, network);
     }
 
     @Test
@@ -81,14 +81,14 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridType4BE().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCGMES(dataSource, network);
+        testCgmes(dataSource, network);
     }
 
     @Test
     public void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-        testIIDM(network);
+        testIidm(network);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         assertEquals(1E-14, model.getBPerSection(), 0.0);
     }
 
-    private void testCGMES(ReadOnlyDataSource dataSource, Network network) throws IOException, XMLStreamException {
+    private void testCgmes(ReadOnlyDataSource dataSource, Network network) throws IOException, XMLStreamException {
         Path exportedEq = exportToCgmesEQ(network);
         Path repackaged = tmpDir.resolve("repackaged.zip");
         Repackager r = new Repackager(dataSource)
@@ -128,7 +128,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         compareNetworks(network, actual);
     }
 
-    private void testIIDM(Network network) throws IOException, XMLStreamException {
+    private void testIidm(Network network) throws IOException, XMLStreamException {
         exportToCgmesEQ(network);
 
         // Import with new SSH
