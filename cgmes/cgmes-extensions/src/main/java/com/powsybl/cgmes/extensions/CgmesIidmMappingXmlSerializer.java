@@ -20,7 +20,10 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -52,17 +55,20 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                         throw new UncheckedXmlStreamException(e);
                     }
                 });
-        extension.getBaseVoltages()
-                .forEach((nominalV, baseVoltageSource) -> {
-                    try {
-                        context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
-                        context.getWriter().writeAttribute("nominalVoltage", Double.toString(nominalV));
-                        context.getWriter().writeAttribute("source", baseVoltageSource.getSource().name());
-                        context.getWriter().writeAttribute("id", baseVoltageSource.getCgmesId());
-                    } catch (XMLStreamException e) {
-                        throw new UncheckedXmlStreamException(e);
-                    }
-                });
+        Map<Double, CgmesIidmMapping.BaseVoltageSource> sortedBaseVoltages = extension.getBaseVoltages().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                    (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        sortedBaseVoltages.forEach((nominalV, baseVoltageSource) -> {
+            try {
+                context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
+                context.getWriter().writeAttribute("nominalVoltage", Double.toString(nominalV));
+                context.getWriter().writeAttribute("source", baseVoltageSource.getSource().name());
+                context.getWriter().writeAttribute("id", baseVoltageSource.getCgmesId());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
     }
 
     @Override

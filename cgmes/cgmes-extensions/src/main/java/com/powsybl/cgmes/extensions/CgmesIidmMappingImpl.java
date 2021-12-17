@@ -149,9 +149,15 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     @Override
     public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source) {
         if (nominalVoltageBaseVoltageMap.containsKey(nominalVoltage)) {
-            LOGGER.info("Nominal voltage {} is already mapped and not to the given base voltage {}", nominalVoltage, baseVoltageId);
+            if (nominalVoltageBaseVoltageMap.get(nominalVoltage).getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
+                LOGGER.info("Nominal voltage {} is already mapped with an {} base voltage. Replaced by a {} base voltage", nominalVoltage, Source.IGM.name(), Source.BOUNDARY.name());
+                nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
+            } else {
+                LOGGER.info("Nominal voltage {} is already mapped and not to the given base voltage {} from {}", nominalVoltage, baseVoltageId, source.name());
+            }
+        } else {
+            nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
         }
-        nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
         return this;
     }
 

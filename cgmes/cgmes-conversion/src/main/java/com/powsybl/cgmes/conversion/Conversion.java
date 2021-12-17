@@ -251,7 +251,8 @@ public class Conversion {
     }
 
     private CgmesIidmMapping.Source isBoundaryBaseVoltage(String graph) {
-        return graph.contains("EQBD") ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+        //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
+        return graph.contains("EQ") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {
