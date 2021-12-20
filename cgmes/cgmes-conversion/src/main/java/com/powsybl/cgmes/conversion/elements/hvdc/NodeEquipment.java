@@ -32,12 +32,10 @@ class NodeEquipment {
 
     private final Map<String, List<EquipmentReference>> nodeEquipment;
 
-    NodeEquipment(CgmesModel cgmesModel, Adjacency adjacency) {
+    NodeEquipment(CgmesModel cgmesModel, AcDcConverterNodes acDcConverterNodes, Adjacency adjacency) {
         nodeEquipment = new HashMap<>();
 
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegment(cgmesModel, adjacency, dcls));
-
-        AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
 
         acDcConverterNodes.getConverterNodes().values()
             .forEach(value -> addEquipment(adjacency, value.id, value.acNode,

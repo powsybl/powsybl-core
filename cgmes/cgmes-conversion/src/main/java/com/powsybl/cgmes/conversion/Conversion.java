@@ -148,6 +148,7 @@ public class Conversion {
         if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
             cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode")));
+            cgmes.baseVoltages().forEach(bv -> mappingAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
             mappingAdder.add();
         }
 
@@ -247,6 +248,11 @@ public class Conversion {
         }
 
         return network;
+    }
+
+    private CgmesIidmMapping.Source isBoundaryBaseVoltage(String graph) {
+        //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
+        return graph.contains("EQ") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {

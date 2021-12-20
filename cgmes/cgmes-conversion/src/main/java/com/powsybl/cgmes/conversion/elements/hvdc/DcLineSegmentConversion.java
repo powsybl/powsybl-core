@@ -10,7 +10,11 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
+import com.powsybl.cgmes.model.CgmesDcTerminal;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -26,6 +30,11 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
 
     DcLineSegmentConversion(PropertyBag l, HvdcLine.ConvertersMode mode, double r, double ratedUdc,
         DcLineSegmentConverter converter1, DcLineSegmentConverter converter2, Context context) {
+        this(l, mode, r, ratedUdc, converter1, converter2, false, context);
+    }
+
+    DcLineSegmentConversion(PropertyBag l, HvdcLine.ConvertersMode mode, double r, double ratedUdc,
+        DcLineSegmentConverter converter1, DcLineSegmentConverter converter2, boolean isDuplicated, Context context) {
         super("DCLineSegment", l, context);
 
         Objects.requireNonNull(converter1);
@@ -35,6 +44,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         this.ratedUdc = ratedUdc;
         this.converter1 = converter1;
         this.converter2 = converter2;
+        this.isDuplicated = isDuplicated;
     }
 
     @Override
@@ -58,8 +68,24 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             .setConvertersMode(mode)
             .setConverterStationId1(converter1.converterId)
             .setConverterStationId2(converter2.converterId);
-        identify(adder);
-        adder.add();
+        identify(adder, isDuplicated ? "-1" : "");
+        HvdcLine hvdcLine = adder.add();
+
+        addHvdcAliasesAndProperties(super.p, isDuplicated ? "-1" : "", context.cgmes(), hvdcLine);
+    }
+
+    // We do not use "#n" to guarantee uniqueness since the getId() method does not support more than one '#' character
+    private static void addHvdcAliasesAndProperties(PropertyBag pb, String duplicatedTag,  CgmesModel cgmesModel,  HvdcLine hvdcLine) {
+        CgmesDcTerminal t1 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 1));
+        String dcNode1 = CgmesDcConversion.getDcNode(cgmesModel, t1);
+        CgmesDcTerminal t2 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 2));
+        String dcNode2 = CgmesDcConversion.getDcNode(cgmesModel, t2);
+
+        // connectiviyNode, topologicalNode or both ???
+        hvdcLine.addAlias(t1.id() + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + 1);
+        hvdcLine.addAlias(t2.id() + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.DC_TERMINAL + 2);
+        hvdcLine.addAlias(dcNode1 + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + 1);
+        hvdcLine.addAlias(dcNode2 + duplicatedTag, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + 2);
     }
 
     private static double getMaxP(double pAC1, double pAC2, HvdcLine.ConvertersMode mode) {
@@ -110,4 +136,5 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     private final double ratedUdc;
     private final DcLineSegmentConverter converter1;
     private final DcLineSegmentConverter converter2;
+    private final boolean isDuplicated;
 }
