@@ -8,7 +8,9 @@
 package com.powsybl.cgmes.conversion;
 
 import java.util.*;
+import java.util.function.Function;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Switch;
@@ -49,8 +51,8 @@ class SwitchesChain {
     }
 
     private Terminal getBestTerminalChainBusBranch() {
-        String end1 = getSwitchEndBusBranch(vl, sw, true);
-        String end2 = getSwitchEndBusBranch(vl, sw, false);
+        Bus end1 = getSwitchEndBusBranch(vl, sw, true);
+        Bus end2 = getSwitchEndBusBranch(vl, sw, false);
 
         Terminal terminalEnd1 = findTerminalChainEndBusBranch(end1, end2);
         Terminal terminalEnd2 = findTerminalChainEndBusBranch(end2, end1);
@@ -65,11 +67,11 @@ class SwitchesChain {
         }
     }
 
-    private static String getSwitchEndBusBranch(VoltageLevel vl, Switch sw, boolean end1) {
+    private static Bus getSwitchEndBusBranch(VoltageLevel vl, Switch sw, boolean end1) {
         if (end1) {
-            return vl.getBusBreakerView().getBus1(sw.getId()).getId();
+            return vl.getBusBreakerView().getBus1(sw.getId());
         } else {
-            return vl.getBusBreakerView().getBus2(sw.getId()).getId();
+            return vl.getBusBreakerView().getBus2(sw.getId());
         }
     }
 
@@ -79,22 +81,23 @@ class SwitchesChain {
         if (nodes.contains(otherEnd)) {
             return null;
         }
-        return uniqueTerminalAssociatedConductingEquipmentNodeBreaker(vl, nodes);
+        return uniqueTerminalAssociatedConductingEquipment(vl, nodes, t -> t.getNodeBreakerView().getNode());
     }
 
-    private Terminal findTerminalChainEndBusBranch(String end, String otherEnd) {
+    private Terminal findTerminalChainEndBusBranch(Bus end, Bus otherEnd) {
 
-        List<String> configuredBuses = expandBusBranch(vl, end, sw);
-        if (configuredBuses.contains(otherEnd)) {
+        List<Bus> buses = expandBusBranch(vl, end, sw);
+        if (buses.contains(otherEnd)) {
             return null;
         }
-        return uniqueTerminalAssociatedConductingEquipmentBusBranch(vl, configuredBuses);
+        return uniqueTerminalAssociatedConductingEquipment(vl, buses, t -> t.getBusBreakerView().getBus());
     }
 
     private static List<Integer> expandNodeBreaker(VoltageLevel voltageLevel, int node, Switch swTerminal) {
         List<Integer> nodes = new ArrayList<>();
         nodes.add(node);
 
+        // Expand using opened and closed switches
         VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
             if (sw == swTerminal) {
                 return TraverseResult.TERMINATE_PATH;
@@ -107,36 +110,36 @@ class SwitchesChain {
         return nodes;
     }
 
-    private static List<String> expandBusBranch(VoltageLevel voltageLevel, String configuredBusId, Switch swTerminal) {
-        List<String> configuredBuses = new ArrayList<>();
-        configuredBuses.add(configuredBusId);
+    private static List<Bus> expandBusBranch(VoltageLevel voltageLevel, Bus bus, Switch swTerminal) {
+        List<Bus> buses = new ArrayList<>();
+        buses.add(bus);
 
-        VoltageLevel.BusBreakerView.TopologyTraverser traverser = (busId1, sw, busId2) -> {
+        // Expand using opened and closed switches
+        VoltageLevel.BusBreakerView.TopologyTraverser traverser = (bus1, sw, bus2) -> {
             if (sw == swTerminal) {
                 return TraverseResult.TERMINATE_PATH;
             }
-            configuredBuses.add(busId2);
+            buses.add(bus2);
             return TraverseResult.CONTINUE;
         };
 
-        voltageLevel.getBusBreakerView().traverse(configuredBusId, traverser);
-        return configuredBuses;
+        voltageLevel.getBusBreakerView().traverse(bus, traverser);
+        return buses;
     }
 
-    private static Terminal uniqueTerminalAssociatedConductingEquipmentNodeBreaker(VoltageLevel vl, List<Integer> nodes) {
+    private static <T> Terminal uniqueTerminalAssociatedConductingEquipment(VoltageLevel vl, List<T> vertices, Function<Terminal, T> terminalToVertex) {
         List<Terminal> terminals = new ArrayList<>();
 
-        vl.getConnectables().forEach(c -> {
-            if (isDiscarded(c)) {
+        vl.getConnectableStream().forEach(c -> {
+            if (c.getType() == IdentifiableType.BUSBAR_SECTION) {
                 return;
             }
 
-            c.getTerminals().forEach(terminal -> {
-                if (!isSameVoltageLevel((Terminal) terminal, vl)
-                    || !isTerminalInNodes((Terminal) terminal, nodes)) {
-                    return;
+            Connectable<?> c1 = c;
+            c1.getTerminals().forEach(terminal -> {
+                if (isSameVoltageLevel(terminal, vl) && vertices.contains(terminalToVertex.apply(terminal))) {
+                    terminals.add(terminal);
                 }
-                terminals.add((Terminal) terminal);
             });
         });
 
@@ -144,51 +147,18 @@ class SwitchesChain {
             return terminals.get(0);
         }
         return null;
-    }
-
-    private static Terminal uniqueTerminalAssociatedConductingEquipmentBusBranch(VoltageLevel vl, List<String> configuredBuses) {
-        List<Terminal> terminals = new ArrayList<>();
-
-        vl.getConnectables().forEach(c -> {
-            if (isDiscarded(c)) {
-                return;
-            }
-
-            c.getTerminals().forEach(terminal -> {
-                if (!isSameVoltageLevel((Terminal) terminal, vl)
-                    || !isTerminalInConfiguredBuses((Terminal) terminal, configuredBuses)) {
-                    return;
-                }
-                terminals.add((Terminal) terminal);
-            });
-        });
-
-        if (terminals.size() == 1) {
-            return terminals.get(0);
-        }
-        return null;
-    }
-
-    private static boolean isTerminalInNodes(Terminal terminal, List<Integer> nodes) {
-        return nodes.contains(terminal.getNodeBreakerView().getNode());
-    }
-
-    private static boolean isTerminalInConfiguredBuses(Terminal terminal, List<String> configuredBuses) {
-        return configuredBuses.contains(terminal.getBusBreakerView().getBus().getId());
     }
 
     private static boolean isSameVoltageLevel(Terminal terminal, VoltageLevel vl) {
         return terminal.getVoltageLevel().equals(vl);
     }
 
-    private static boolean isDiscarded(Connectable<?> connectable) {
-        return connectable.getType() == IdentifiableType.BUSBAR_SECTION;
-    }
-
-    // The best terminal is the terminal associated to the line, branch at the border
-    // one end inside the controlArea and the other outside.
-    // At this moment we only know this information in danglingLines so
-    // the terminal will only be accepted if it is a danglingLine
+    /**
+     * The best terminal is the terminal associated to the line, branch at the border
+     * one end inside the controlArea and the other outside.
+     * At this moment we only know this information in danglingLines so
+     * the terminal will only be accepted if it is a danglingLine
+     */
     private static Terminal bestTerminal(Terminal terminalEnd1, Terminal terminalEnd2) {
         if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
             return terminalEnd1;

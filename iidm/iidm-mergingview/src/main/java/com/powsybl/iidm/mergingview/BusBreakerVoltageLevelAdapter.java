@@ -150,7 +150,7 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
-        public void traverse(String busId, TopologyTraverser traverser) {
+        public void traverse(Bus bus, TopologyTraverser traverser) {
             // TODO
             throw MergingView.createNotImplementedException();
         }
