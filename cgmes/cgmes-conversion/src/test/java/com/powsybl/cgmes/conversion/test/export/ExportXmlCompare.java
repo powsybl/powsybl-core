@@ -356,10 +356,21 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringHvdcLinePmax(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control != null && control.getLocalName().equals("maxP")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringNonEQ(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
-            Node test = comparison.getTestDetails().getTarget();
             if (comparison.getType() == ComparisonType.ATTR_VALUE) {
                 if (control != null && control.getLocalName().equals("geographicalTags")) {
                     return ComparisonResult.EQUAL;
@@ -537,7 +548,7 @@ public final class ExportXmlCompare {
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
                 || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
                 || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
-                || name.equals("bPerSection")
+                || name.equals("bPerSection") || name.equals("activePowerSetpoint")
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -570,7 +581,7 @@ public final class ExportXmlCompare {
                 || n.getLocalName().equals("b1") || n.getLocalName().equals("b2")
                 || n.getLocalName().equals("g1") || n.getLocalName().equals("g2")
                 || n.getLocalName().equals("alpha") || n.getLocalName().equals("rho")
-                || n.getLocalName().equals("bPerSection")) {
+                || n.getLocalName().equals("bPerSection") || n.getLocalName().equals("activePowerSetpoint")) {
             return 1e-5;
         }
         return 1e-10;

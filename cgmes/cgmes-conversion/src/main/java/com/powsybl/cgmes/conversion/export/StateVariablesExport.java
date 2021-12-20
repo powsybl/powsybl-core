@@ -60,6 +60,7 @@ public final class StateVariablesExport {
             writeShuntCompensatorSections(network, cimNamespace, writer);
             writeTapSteps(network, cimNamespace, writer);
             writeStatus(network, cimNamespace, writer);
+            writeConverters(network, cimNamespace, writer);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -176,7 +177,7 @@ public final class StateVariablesExport {
             Bus b = dl.getTerminal().getBusView().getBus();
             Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNode.isPresent()) {
-                context.isMapped(topologicalNode.get());
+                context.isTopologicalNodeMapped(topologicalNode.get());
                 if (dl.hasProperty("v") && dl.hasProperty("angle")) {
                     writeVoltage(topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")), cimNamespace, writer);
                 } else if (b != null) {
@@ -453,6 +454,47 @@ public final class StateVariablesExport {
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
+            double poleLoss;
+            if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
+                poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / (100 - converterStation.getLossFactor());
+            } else {
+                poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / 100;
+            }
+            writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
+            writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
+            writer.writeCharacters(CgmesExportUtil.format(poleLoss));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "ACDCConverter.idc");
+            writer.writeCharacters(CgmesExportUtil.format(0));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "ACDCConverter.uc");
+            writer.writeCharacters(CgmesExportUtil.format(0));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "ACDCConverter.udc");
+            writer.writeCharacters(CgmesExportUtil.format(0));
+            writer.writeEndElement();
+            if (converterStation instanceof LccConverterStation) {
+                writer.writeStartElement(cimNamespace, "CsConverter.alpha");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "CsConverter.gamma");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+            } else if (converterStation instanceof VscConverterStation) {
+                writer.writeStartElement(cimNamespace, "VsConverter.delta");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "VsConverter.uf");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
         }
     }
 

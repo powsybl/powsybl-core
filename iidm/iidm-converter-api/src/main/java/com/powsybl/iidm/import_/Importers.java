@@ -217,16 +217,21 @@ public final class Importers {
         }
 
         @Override
-        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
             Network network = importer.importData(dataSource, networkFactory, parameters);
             for (String name : names) {
                 try {
-                    getPostProcessor(loader, name).process(network, computationManager);
+                    getPostProcessor(loader, name).process(network, computationManager, reporter);
                 } catch (Exception e) {
                     throw new PowsyblException(e);
                 }
             }
             return network;
+        }
+
+        @Override
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+            return importData(dataSource, networkFactory, parameters, Reporter.NO_OP);
         }
 
         @Override
@@ -282,7 +287,7 @@ public final class Importers {
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
         }
-        return importer.importData(dataSource, parameters);
+        return importer.importData(dataSource, NetworkFactory.findDefault(), parameters);
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
@@ -312,7 +317,7 @@ public final class Importers {
             if (listener != null) {
                 listener.accept(dataSource);
             }
-            Network network = reporter == Reporter.NO_OP ? importer.importData(dataSource, parameters) : importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+            Network network = reporter == Reporter.NO_OP ? importer.importData(dataSource, NetworkFactory.findDefault(), parameters) : importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
             consumer.accept(network);
         } catch (Exception e) {
             LOGGER.error(e.toString(), e);
@@ -456,7 +461,7 @@ public final class Importers {
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             if (reporter == Reporter.NO_OP) {
-                return importer.importData(dataSource, parameters);
+                return importer.importData(dataSource, NetworkFactory.findDefault(), parameters);
             } else {
                 return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
             }
@@ -535,7 +540,7 @@ public final class Importers {
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             if (reporter == Reporter.NO_OP) {
-                return importer.importData(dataSource, parameters);
+                return importer.importData(dataSource, NetworkFactory.findDefault(), parameters);
             } else {
                 return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
             }

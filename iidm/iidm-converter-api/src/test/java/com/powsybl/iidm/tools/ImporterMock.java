@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
 
 import java.util.List;
@@ -48,7 +49,7 @@ public class ImporterMock implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory factory, Properties parameters) {
         assertEquals(2, parameters.size());
         assertEquals("value1", parameters.getProperty("param1"));
         assertEquals("value", parameters.getProperty("import.parameter"));

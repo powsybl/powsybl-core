@@ -16,10 +16,12 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
  */
 public interface PsseModelExtension extends Extension<Network> {
 
+    String NAME = "PsseModel";
+
     PssePowerFlowModel getPsseModel();
 
     @Override
     default String getName() {
-        return "PsseModel";
+        return NAME;
     }
 }
