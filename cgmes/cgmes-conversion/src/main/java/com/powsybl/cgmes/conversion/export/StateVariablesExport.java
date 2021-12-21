@@ -179,7 +179,6 @@ public final class StateVariablesExport {
             Bus b = dl.getTerminal().getBusView().getBus();
             Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNode.isPresent()) {
-                context.isTopologicalNodeMapped(topologicalNode.get());
                 if (dl.hasProperty("v") && dl.hasProperty("angle")) {
                     writeVoltage(topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")), cimNamespace, writer);
                 } else if (b != null) {

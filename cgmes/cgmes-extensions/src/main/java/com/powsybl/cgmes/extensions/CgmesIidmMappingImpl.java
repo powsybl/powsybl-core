@@ -112,9 +112,7 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     @Override
     public CgmesIidmMapping putUnmappedTopologicalNode(String topologicalNodeId, String topologicalNodeName, Source source) {
-        if (!unmappedTopologicalNodes.containsKey(topologicalNodeId)) {
-            unmappedTopologicalNodes.put(topologicalNodeId, new CgmesTopologicalNode(topologicalNodeId, topologicalNodeName, source));
-        }
+        unmappedTopologicalNodes.computeIfAbsent(topologicalNodeId, ctn -> new CgmesTopologicalNode(topologicalNodeId, topologicalNodeName, source));
         return this;
     }
 
