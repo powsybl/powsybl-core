@@ -65,11 +65,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.GENERATOR;
-    }
-
-    @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
     }

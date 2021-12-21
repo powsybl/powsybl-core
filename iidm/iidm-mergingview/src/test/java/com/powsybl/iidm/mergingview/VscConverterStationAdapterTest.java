@@ -39,7 +39,7 @@ public class VscConverterStationAdapterTest {
         cs1.setLossFactor(0.022f);
         assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
         assertNotNull(cs1.getTerminal());
-        assertEquals(ConnectableType.HVDC_CONVERTER_STATION, cs1.getType());
+        assertEquals(IdentifiableType.HVDC_CONVERTER_STATION, cs1.getType());
         assertEquals(1, cs1.getTerminals().size());
 
         assertNotNull(cs1.getReactiveLimits());

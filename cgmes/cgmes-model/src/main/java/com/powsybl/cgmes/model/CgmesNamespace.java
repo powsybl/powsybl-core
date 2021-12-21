@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.model;
 
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -34,6 +35,8 @@ public final class CgmesNamespace {
     public static final String TP_PROFILE = "http://entsoe.eu/CIM/Topology/4/1";
     public static final String SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
     public static final String SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
+
+    public static final Set<String> CIM_NAMESPACES = Set.of(CIM_14_NAMESPACE, CIM_16_NAMESPACE, CIM_100_NAMESPACE);
 
     public static String getCimNamespace(int cimVersion) {
         if (cimVersion == 14) {

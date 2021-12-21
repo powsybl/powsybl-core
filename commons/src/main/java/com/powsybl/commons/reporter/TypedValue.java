@@ -11,9 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import java.util.Objects;
 
 /**
- * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
- *
- * <p>A class associating a value with a type.
+ * A class associating a value with a type.
  * The value should be an instance of any of the following classes: Integer, Long, Float, Double, Boolean or String.
  * The type is given by a string. Some generic types are provided by public constants of current class.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -26,6 +24,8 @@ public class TypedValue {
     public static final String INFO_LOGLEVEL = "INFO_LOGLEVEL";
     public static final String WARN_LOGLEVEL = "WARN_LOGLEVEL";
     public static final String ERROR_LOGLEVEL = "ERROR_LOGLEVEL";
+    public static final String ACTIVE_POWER = "ACTIVE_POWER";
+    public static final String REACTIVE_POWER = "REACTIVE_POWER";
     public static final String RESISTANCE = "RESISTANCE";
     public static final String REACTANCE = "REACTANCE";
     public static final String IMPEDANCE = "IMPEDANCE";

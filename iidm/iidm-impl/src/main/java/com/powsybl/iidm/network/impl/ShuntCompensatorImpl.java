@@ -62,11 +62,6 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.SHUNT_COMPENSATOR;
-    }
-
-    @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
     }

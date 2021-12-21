@@ -297,7 +297,9 @@ public final class CgmesConformity1NetworkCatalog {
         busBrussels21.setAngle(-6.650800);
         {
             double p = -118;
-            double q = -18.720301;
+            double targetQ = 18.720301;
+            double q = -92.612077;
+
             Generator genBrussels21 = vlBrussels21.newGenerator()
                     .setId("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                     .setName("BE-G2")
@@ -306,7 +308,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setMinP(50)
                     .setMaxP(200)
                     .setTargetP(-p)
-                    .setTargetQ(-q)
+                    .setTargetQ(targetQ)
                     .setTargetV(21.987)
                     .setVoltageRegulatorOn(true)
                     .setRatedS(300)
@@ -645,7 +647,8 @@ public final class CgmesConformity1NetworkCatalog {
         }
         {
             double p = -90;
-            double q = -100.256;
+            double targetQ = 100.256;
+            double q = 51.115627;
             Generator genBrussels10 = vlBrussels10.newGenerator()
                     .setId("_3a3b27be-b18b-4385-b557-6735d733baf0")
                     .setName("BE-G1")
@@ -654,7 +657,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setMinP(50)
                     .setMaxP(200)
                     .setTargetP(-p)
-                    .setTargetQ(-q)
+                    .setTargetQ(targetQ)
                     .setTargetV(115.5)
                     .setVoltageRegulatorOn(true)
                     // This generator regulates one end point of a power transformer
@@ -934,19 +937,21 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
 
         double p = -118.0;
-        double q = -18.720301;
+        double targetQ = 18.720301;
+        double q = -85.603401;
         Generator genBrussels21 = network
                 .getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                 .setTargetP(-p)
-                .setTargetQ(-q);
+                .setTargetQ(targetQ);
         genBrussels21.getTerminal().setP(p).setQ(q);
 
         p = -90.0;
-        q = -100.256;
+        targetQ = 100.256;
+        q = 84.484905;
         Generator genBrussels10 = network
                 .getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0")
                 .setTargetP(-p)
-                .setTargetQ(-q);
+                .setTargetQ(targetQ);
         genBrussels10.getTerminal().setP(p).setQ(q);
 
         // Line _df16b3dd comes from a SeriesCompensator in CGMES model

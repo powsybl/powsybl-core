@@ -16,7 +16,12 @@ public class DefaultNetworkListener implements NetworkListener {
     }
 
     @Override
-    public void onRemoval(Identifiable identifiable) {
+    public void beforeRemoval(Identifiable identifiable) {
+        // empty default implementation
+    }
+
+    @Override
+    public void afterRemoval(String identifiable) {
         // empty default implementation
     }
 

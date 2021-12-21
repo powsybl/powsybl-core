@@ -44,18 +44,26 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     // An IIDM "terminal" can be serialized as an (equipmentId, side)
 
     private final Map<EquipmentSide, String> equipmentSideTopologicalNodeMap;
-    private final Map<String, Set<String>> busTopologicalNodeMap;
-    private final Set<String> unmapped;
+    private final Map<String, Set<CgmesTopologicalNode>> busTopologicalNodeMap;
+    private final Map<String, CgmesTopologicalNode> unmappedTopologicalNodes;
 
-    CgmesIidmMappingImpl(Set<String> topologicalNodes) {
+    // Ideally, each nominal voltage is represented by a single base voltage,
+    // for this reason the mapping has been considered 1: 1
+
+    private final Map<Double, BaseVoltageSource> nominalVoltageBaseVoltageMap;
+
+    CgmesIidmMappingImpl(Set<CgmesTopologicalNode> topologicalNodes, Set<BaseVoltageSource> baseVoltages) {
         equipmentSideTopologicalNodeMap = new HashMap<>();
         busTopologicalNodeMap = new HashMap<>();
-        unmapped = new HashSet<>();
-        unmapped.addAll(Objects.requireNonNull(topologicalNodes));
+        unmappedTopologicalNodes = new HashMap<>();
+        topologicalNodes.forEach(ctn -> unmappedTopologicalNodes.put(ctn.getCgmesId(), ctn));
+
+        nominalVoltageBaseVoltageMap = new HashMap<>();
+        baseVoltages.forEach(bvs -> addBaseVoltage(bvs.getNominalV(), bvs.getCgmesId(), bvs.getSource()));
     }
 
     @Override
-    public Set<String> getTopologicalNodes(String busId) {
+    public Set<CgmesTopologicalNode> getTopologicalNodes(String busId) {
         if (busTopologicalNodeMap.isEmpty()) {
             calculate();
         }
@@ -68,7 +76,7 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public boolean isMapped(String busId) {
+    public boolean isTopologicalNodeMapped(String busId) {
         if (busTopologicalNodeMap.isEmpty()) {
             calculate();
         }
@@ -76,7 +84,7 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public boolean isEmpty() {
+    public boolean isTopologicalNodeEmpty() {
         if (busTopologicalNodeMap.isEmpty()) {
             calculate();
         }
@@ -84,26 +92,34 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public CgmesIidmMapping put(String equipmentId, int side, String topologicalNodeId) {
+    public CgmesIidmMapping putTopologicalNode(String equipmentId, int side, String topologicalNodeId) {
         equipmentSideTopologicalNodeMap.put(new EquipmentSide(equipmentId, side), topologicalNodeId);
         return this;
     }
 
     @Override
-    public CgmesIidmMapping put(String busId, String topologicalNodeId) {
+    public CgmesIidmMapping putTopologicalNode(String busId, String topologicalNodeId, String topologicalNodeName, Source source) {
         // This method is called when the unmapped list has already been completed
         // There are no "pending" TNs to be removed from unmapped
         // The check to see if this TN has also been mapped to a different bus
         // can not be the same that we apply when removing elements from "unmapped"
-        if (unmapped.contains(topologicalNodeId)) {
+        if (unmappedTopologicalNodes.containsKey(topologicalNodeId)) {
             throw new PowsyblException("Inconsistency: TN " + topologicalNodeId + " has been considered unmapped, but now a mapping to bus " + busId + " is being added");
         }
-        busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(topologicalNodeId);
+        busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(new CgmesTopologicalNode(topologicalNodeId, topologicalNodeName, source));
         return this;
     }
 
     @Override
-    public Map<String, Set<String>> topologicalNodesByBusViewBusMap() {
+    public CgmesIidmMapping putUnmappedTopologicalNode(String topologicalNodeId, String topologicalNodeName, Source source) {
+        if (!unmappedTopologicalNodes.containsKey(topologicalNodeId)) {
+            unmappedTopologicalNodes.put(topologicalNodeId, new CgmesTopologicalNode(topologicalNodeId, topologicalNodeName, source));
+        }
+        return this;
+    }
+
+    @Override
+    public Map<String, Set<CgmesTopologicalNode>> topologicalNodesByBusViewBusMap() {
         if (busTopologicalNodeMap.isEmpty()) {
             calculate();
         }
@@ -111,15 +127,54 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public Set<String> getUnmappedTopologicalNodes() {
+    public Set<CgmesTopologicalNode> getUnmappedTopologicalNodes() {
         if (busTopologicalNodeMap.isEmpty()) {
             calculate();
         }
-        return new HashSet<>(unmapped);
+        return new HashSet<>(unmappedTopologicalNodes.values());
+    }
+
+    @Override
+    public Map<Double, BaseVoltageSource> getBaseVoltages() {
+        return Collections.unmodifiableMap(nominalVoltageBaseVoltageMap);
+    }
+
+    @Override
+    public BaseVoltageSource getBaseVoltage(double nominalVoltage) {
+        return nominalVoltageBaseVoltageMap.get(nominalVoltage);
+    }
+
+    @Override
+    public boolean isBaseVoltageMapped(double nominalVoltage) {
+        return nominalVoltageBaseVoltageMap.containsKey(nominalVoltage);
+    }
+
+    @Override
+    public boolean isBaseVoltageEmpty() {
+        return nominalVoltageBaseVoltageMap.isEmpty();
+    }
+
+    @Override
+    public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source) {
+        if (nominalVoltageBaseVoltageMap.containsKey(nominalVoltage)) {
+            if (nominalVoltageBaseVoltageMap.get(nominalVoltage).getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
+                LOGGER.info("Nominal voltage {} is already mapped with an {} base voltage. Replaced by a {} base voltage", nominalVoltage, Source.IGM.name(), Source.BOUNDARY.name());
+                nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
+            } else {
+                LOGGER.info("Nominal voltage {} is already mapped and not to the given base voltage {} from {}", nominalVoltage, baseVoltageId, source.name());
+            }
+        } else {
+            nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
+        }
+        return this;
+    }
+
+    public Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap() {
+        return new HashMap<>(nominalVoltageBaseVoltageMap);
     }
 
     private void calculate() {
-        equipmentSideTopologicalNodeMap.forEach((equipmentSide, tn) -> {
+        equipmentSideTopologicalNodeMap.forEach((equipmentSide, ctn) -> {
             Identifiable i = getExtendable().getIdentifiable(equipmentSide.equipmentId);
             if (i instanceof Connectable) {
                 Connectable c = (Connectable) i;
@@ -132,21 +187,23 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
                     return;
                 }
                 String busId = t.getBusView().getBus().getId();
-                if (canBeMapped(busId, tn)) {
-                    busTopologicalNodeMap.computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
-                    unmapped.remove(tn);
+                if (canTopologicalNodeBeMapped(busId, ctn)) {
+                    CgmesTopologicalNode cgmesTopologicalNode = unmappedTopologicalNodes.get(ctn);
+                    busTopologicalNodeMap.computeIfAbsent(busId, bid -> new HashSet<>()).add(cgmesTopologicalNode);
+                    unmappedTopologicalNodes.remove(ctn);
                 }
             }
         });
     }
 
-    private boolean canBeMapped(String busId, String topologicalNodeId) {
+    private boolean canTopologicalNodeBeMapped(String busId, String topologicalNode) {
         // TN has been removed from unmapped collection (that starts with all TNs)
         // and this bus has not received it
         // because no mappings exist for this bus: get(busId) == null
         // or because the TN can not be found in the mappings for this bus: !get(busId).contains(TN)
-        if (!unmapped.contains(topologicalNodeId) && (busTopologicalNodeMap.get(busId) == null || !busTopologicalNodeMap.get(busId).contains(topologicalNodeId))) {
-            LOGGER.warn("CGMES topological Node {} is already mapped and not to the given IIDM bus {}", topologicalNodeId, busId);
+        CgmesTopologicalNode cgmesTopologicalNode = unmappedTopologicalNodes.get(topologicalNode);
+        if (!unmappedTopologicalNodes.containsKey(topologicalNode) && (busTopologicalNodeMap.get(busId) == null || !busTopologicalNodeMap.get(busId).contains(cgmesTopologicalNode))) {
+            LOGGER.warn("CGMES topological Node {} is already mapped and not to the given IIDM bus {}", topologicalNode, busId);
             return false;
         }
         return true;

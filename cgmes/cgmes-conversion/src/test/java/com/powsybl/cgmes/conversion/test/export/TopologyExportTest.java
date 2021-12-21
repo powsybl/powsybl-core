@@ -52,6 +52,7 @@ public class TopologyExportTest extends AbstractConverterTest {
     private void test(ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
         // Import original
         Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
         // Export TP

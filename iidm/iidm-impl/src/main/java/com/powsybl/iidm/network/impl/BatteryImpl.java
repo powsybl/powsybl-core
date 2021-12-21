@@ -46,14 +46,6 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      * {@inheritDoc}
      */
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.BATTERY;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected String getTypeDescription() {
         return "Battery";
     }

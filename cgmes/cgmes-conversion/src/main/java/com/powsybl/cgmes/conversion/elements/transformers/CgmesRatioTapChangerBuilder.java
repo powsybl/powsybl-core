@@ -39,14 +39,22 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     protected void addSteps() {
         String tableId = p.getId(CgmesNames.RATIO_TAP_CHANGER_TABLE);
         if (tableId != null) {
-            addStepsFromTable(tableId);
+            PropertyBags table = context.ratioTapChangerTable(tableId);
+            if (table == null) {
+                addStepsFromLowHighIncrement();
+                return;
+            }
+            if (isTableValid(tableId, table)) {
+                addStepsFromTable(table, tableId);
+            } else {
+                addStepsFromLowHighIncrement();
+            }
         } else {
             addStepsFromLowHighIncrement();
         }
     }
 
-    private void addStepsFromTable(String tableId) {
-        PropertyBags table = context.ratioTapChangerTable(tableId);
+    private void addStepsFromTable(PropertyBags table, String tableId) {
         Comparator<PropertyBag> byStep = Comparator
                 .comparingInt((PropertyBag p) -> p.asInt(CgmesNames.STEP));
         table.sort(byStep);
@@ -69,9 +77,8 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
 
     private void addStepsFromLowHighIncrement() {
         double stepVoltageIncrement = p.asDouble(CgmesNames.STEP_VOLTAGE_INCREMENT);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
-        for (int step = tapChanger.getLowTapPosition(); step <= highStep; step++) {
+        for (int step = lowStep; step <= highStep; step++) {
             double ratio = 1.0 + (step - neutralStep) * (stepVoltageIncrement / 100.0);
             tapChanger.beginStep()
                     .setRatio(ratio)

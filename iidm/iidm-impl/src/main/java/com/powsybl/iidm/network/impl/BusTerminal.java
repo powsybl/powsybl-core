@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ class BusTerminal extends AbstractTerminal {
             // Assert that the new bus exists
             vl.getBus(busId, true);
 
-            vl.detach(BusTerminal.this);
+            vl.detach(BusTerminal.this, false);
             int variantIndex = network.get().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
             vl.attach(BusTerminal.this, false);
@@ -132,12 +131,12 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
-        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
+    public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+        return ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+    public void traverse(TopologyTraverser traverser) {
         ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 

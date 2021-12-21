@@ -22,6 +22,11 @@ public class MeasurementsAdderImplProvider<C extends Connectable<C>> implements 
     }
 
     @Override
+    public String getExtensionsName() {
+        return Measurements.NAME;
+    }
+
+    @Override
     public Class<? super MeasurementsAdderImpl<C>> getAdderClass() {
         return MeasurementsAdderImpl.class;
     }
