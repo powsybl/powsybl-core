@@ -284,7 +284,7 @@ public class MatpowerImporter implements Importer {
                             .setTapPosition(0)
                             .beginStep()
                             .setRho(1)
-                            .setAlpha(mBranch.getPhaseShiftAngle())
+                            .setAlpha(-mBranch.getPhaseShiftAngle())
                             .setR(0)
                             .setX(0)
                             .setG(0)

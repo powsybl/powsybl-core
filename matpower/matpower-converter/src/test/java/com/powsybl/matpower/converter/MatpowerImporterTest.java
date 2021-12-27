@@ -77,6 +77,11 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testCase14WithPhaseShifter() throws IOException {
+        testCase(MatpowerModelFactory.create14WithPhaseShifter());
+    }
+
+    @Test
     public void testCase30() throws IOException {
         testCase(MatpowerModelFactory.create30());
     }
