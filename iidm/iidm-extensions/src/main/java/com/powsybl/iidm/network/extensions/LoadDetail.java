@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Load;
  */
 public interface LoadDetail extends Extension<Load> {
 
+    String NAME = "detail";
+
     @Override
     default String getName() {
-        return "detail";
+        return NAME;
     }
 
     float getFixedActivePower();

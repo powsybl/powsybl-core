@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -19,24 +20,66 @@ import java.util.Set;
  */
 public interface CgmesIidmMapping extends Extension<Network> {
 
+    enum Source {
+        BOUNDARY, IGM
+    }
+
+    class BaseVoltageSource {
+        private final String cgmesId;
+        private final double nominalV;
+        private final Source source;
+
+        public BaseVoltageSource(String cgmesId, double nominalV, Source source) {
+            this.cgmesId = Objects.requireNonNull(cgmesId);
+            this.nominalV = nominalV;
+            this.source = Objects.requireNonNull(source);
+        }
+
+        public String getCgmesId() {
+            return cgmesId;
+        }
+
+        public double getNominalV() {
+            return nominalV;
+        }
+
+        public Source getSource() {
+            return source;
+        }
+    }
+
+    String NAME = "cgmesIidmMapping";
+
     @Override
     default String getName() {
-        return "cgmesIidmMapping";
+        return NAME;
     }
 
     Set<String> getTopologicalNodes(String busId);
 
     String getTopologicalNode(String equipmentId, int side);
 
-    boolean isMapped(String busId);
+    boolean isTopologicalNodeMapped(String busId);
 
-    boolean isEmpty();
+    boolean isTopologicalNodeEmpty();
 
-    CgmesIidmMapping put(String equipmentId, int side, String topologicalNodeId);
+    CgmesIidmMapping putTopologicalNode(String equipmentId, int side, String topologicalNodeId);
 
-    CgmesIidmMapping put(String busId, String topologicalNodeId);
+    CgmesIidmMapping putTopologicalNode(String busId, String topologicalNodeId);
 
     Map<String, Set<String>> topologicalNodesByBusViewBusMap();
 
     Set<String> getUnmappedTopologicalNodes();
+
+    Map<Double, BaseVoltageSource> getBaseVoltages();
+
+    BaseVoltageSource getBaseVoltage(double nominalVoltage);
+
+    boolean isBaseVoltageMapped(double nominalVoltage);
+
+    boolean isBaseVoltageEmpty();
+
+    CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source);
+
+    Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap();
 }

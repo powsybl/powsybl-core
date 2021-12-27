@@ -78,6 +78,11 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
+        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4);
+    }
+
+    @Test
     public void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), 4);
     }

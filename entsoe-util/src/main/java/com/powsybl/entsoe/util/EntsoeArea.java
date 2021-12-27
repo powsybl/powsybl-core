@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Substation;
  */
 public interface EntsoeArea extends Extension<Substation> {
 
+    String NAME = "entsoeArea";
+
     @Override
     default String getName() {
-        return "entsoeArea";
+        return NAME;
     }
 
     EntsoeGeographicalCode getCode();

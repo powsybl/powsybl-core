@@ -22,6 +22,11 @@ public class CgmesIidmMappingAdderImplProvider implements ExtensionAdderProvider
     }
 
     @Override
+    public String getExtensionsName() {
+        return CgmesIidmMapping.NAME;
+    }
+
+    @Override
     public Class<? super CgmesIidmMappingAdderImpl> getAdderClass() {
         return CgmesIidmMappingAdderImpl.class;
     }

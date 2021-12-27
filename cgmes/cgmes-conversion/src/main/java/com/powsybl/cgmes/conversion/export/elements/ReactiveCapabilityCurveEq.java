@@ -7,6 +7,10 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.VscConverterStation;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -22,8 +26,8 @@ public final class ReactiveCapabilityCurveEq {
     public static final String UNITSYMBOL_W = "http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W";
     public static final String UNITSYMBOL_VAR = "http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr";
 
-    public static void write(String id, String reactiveCapabilityCurveName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "ReactiveCapabilityCurve");
+    public static void write(String id, String reactiveCapabilityCurveName, ReactiveLimitsHolder holder, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, holderClassName(holder));
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(reactiveCapabilityCurveName);
@@ -37,6 +41,15 @@ public final class ReactiveCapabilityCurveEq {
         writer.writeEmptyElement(cimNamespace, "Curve.y2Unit");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, UNITSYMBOL_VAR);
         writer.writeEndElement();
+    }
+
+    private static String holderClassName(ReactiveLimitsHolder holder) {
+        if (holder instanceof Generator) {
+            return "ReactiveCapabilityCurve";
+        } else if (holder instanceof VscConverterStation) {
+            return "VsCapabilityCurve";
+        }
+        throw new PowsyblException("Unexpected holder type " + holder.getClass().toString());
     }
 
     private ReactiveCapabilityCurveEq() {

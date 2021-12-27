@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-matpower</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.6.0-SNAPSHOT</version>
+        <version>4.7.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-matpower-converter</artifactId>
@@ -41,6 +41,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

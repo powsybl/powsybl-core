@@ -16,12 +16,14 @@ import java.util.Optional;
  */
 public interface CgmesLineBoundaryNode extends Extension<Line> {
 
+    String NAME = "cgmesLineBoundaryNode";
+
     boolean isHvdc();
 
     Optional<String> getLineEnergyIdentificationCodeEic();
 
     @Override
     default String getName() {
-        return "cgmesLineBoundaryNode";
+        return NAME;
     }
 }
