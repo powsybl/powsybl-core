@@ -202,7 +202,7 @@ public class HvdcConversionTest {
 
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
             "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 2 * 12.3, 63.8, 76.55999999999999));
-        assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0-1", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
+        assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0-1", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine-1",
             "_7393a68f-c4e6-48dd-9347-543858363fdb", "_9793118e-5ba1-4a9c-b2e0-db1d15be5913", 2 * 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));

@@ -35,11 +35,10 @@ class Adjacency {
 
     private final Map<String, List<Adjacent>> adjacency;
 
-    Adjacency(CgmesModel cgmesModel) {
+    Adjacency(CgmesModel cgmesModel, AcDcConverterNodes acDcConverterNodes) {
         adjacency = new HashMap<>();
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegmentAdjacency(cgmesModel, dcls));
 
-        AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
         acDcConverterNodes.getConverterNodes()
             .forEach((key, value) -> computeAcDcConverterAdjacency(value.acNode,
                 value.dcNode));
@@ -134,6 +133,14 @@ class Adjacency {
 
     boolean isEmpty() {
         return adjacency.isEmpty();
+    }
+
+    boolean areAdjacentsByAcDcConverter(String node1, String node2) {
+        if (adjacency.containsKey(node1)) {
+            return adjacency.get(node1).stream()
+                .anyMatch(ad -> ad.type == AdjacentType.AC_DC_CONVERTER && ad.node.equals(node2));
+        }
+        return false;
     }
 
     static class Adjacent {
