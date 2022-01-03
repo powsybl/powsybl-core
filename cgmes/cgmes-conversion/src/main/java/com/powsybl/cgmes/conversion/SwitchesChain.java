@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
@@ -128,25 +129,16 @@ class SwitchesChain {
     }
 
     private static <T> Terminal uniqueTerminalAssociatedConductingEquipment(VoltageLevel vl, List<T> vertices, Function<Terminal, T> terminalToVertex) {
-        List<Terminal> terminals = new ArrayList<>();
 
-        vl.getConnectableStream().forEach(c -> {
-            if (c.getType() == IdentifiableType.BUSBAR_SECTION) {
-                return;
-            }
+        List<Terminal> terminals = vl.getConnectableStream()
+                .filter(c -> c.getType() != IdentifiableType.BUSBAR_SECTION)
+                .map(c -> (Connectable<?>) c)
+                .flatMap(c -> c.getTerminals().stream())
+                .filter(terminal -> isSameVoltageLevel(terminal, vl))
+                .filter(terminal -> vertices.contains(terminalToVertex.apply(terminal)))
+                .collect(Collectors.toList());
 
-            Connectable<?> c1 = c;
-            c1.getTerminals().forEach(terminal -> {
-                if (isSameVoltageLevel(terminal, vl) && vertices.contains(terminalToVertex.apply(terminal))) {
-                    terminals.add(terminal);
-                }
-            });
-        });
-
-        if (terminals.size() == 1) {
-            return terminals.get(0);
-        }
-        return null;
+        return terminals.size() == 1 ? terminals.get(0) : null;
     }
 
     private static boolean isSameVoltageLevel(Terminal terminal, VoltageLevel vl) {
