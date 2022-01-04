@@ -637,6 +637,14 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             return new SwitchAdderImpl();
         }
 
+        private com.powsybl.math.graph.Traverser adapt(TopologyTraverser t) {
+            return (vertex1, e, vertex2) -> t.traverse(graph.getVertexObject(vertex1), graph.getEdgeObject(e), graph.getVertexObject(vertex2));
+        }
+
+        @Override
+        public void traverse(Bus bus, TopologyTraverser traverser) {
+            graph.traverse(getVertex(bus.getId(), true), adapt(traverser));
+        }
     };
 
     @Override

@@ -148,6 +148,12 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         public Bus getBus(Bus bus) {
             return getIndex().getBus(bus);
         }
+
+        @Override
+        public void traverse(Bus bus, TopologyTraverser traverser) {
+            // TODO
+            throw MergingView.createNotImplementedException();
+        }
     }
 
     static class BusViewAdapter extends BusCache<BusView> implements BusViewExt {
