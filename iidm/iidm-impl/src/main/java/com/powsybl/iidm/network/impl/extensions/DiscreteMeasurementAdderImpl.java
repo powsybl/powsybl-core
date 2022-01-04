@@ -25,6 +25,7 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     private final Map<String, String> properties = new HashMap<>();
 
     private String id;
+    private boolean idUnicity = false;
     private DiscreteMeasurement.Type type;
     private DiscreteMeasurement.TapChanger tapChanger;
     private Object value = null;
@@ -83,8 +84,14 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     }
 
     @Override
+    public DiscreteMeasurementAdder setEnsureIdUnicity(boolean idUnicity) {
+        this.idUnicity = idUnicity;
+        return this;
+    }
+
+    @Override
     public DiscreteMeasurement add() {
-        checkId(id, discreteMeasurements);
+        id = checkId(id, idUnicity, discreteMeasurements);
         checkType(type, discreteMeasurements.getExtendable());
         checkTapChanger(tapChanger, type, discreteMeasurements.getExtendable());
         checkValue(value, valid);
