@@ -279,6 +279,19 @@ public class MatpowerImporter implements Importer {
                         .setG(0)
                         .setB(mBranch.getB() / zb)
                         .add();
+                if (mBranch.getPhaseShiftAngle() != 0) {
+                    newTwt.newPhaseTapChanger()
+                            .setTapPosition(0)
+                            .beginStep()
+                            .setRho(1)
+                            .setAlpha(-mBranch.getPhaseShiftAngle())
+                            .setR(0)
+                            .setX(0)
+                            .setG(0)
+                            .setB(0)
+                            .endStep()
+                            .add();
+                }
                 LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
                 Line newLine = network.newLine()
