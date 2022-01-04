@@ -791,6 +791,19 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         SwitchAdder newSwitch();
 
+        interface TopologyTraverser {
+            /**
+             * Called for each traversal step
+             * @param bus1 the Bus the traversal comes from
+             * @param sw the {@link Switch} encountered
+             * @param bus2 the Bus the traversal will go to, if the returned TraverseResult is {@link TraverseResult#CONTINUE}
+             * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+             * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+             */
+            TraverseResult traverse(Bus bus1, Switch sw, Bus bus2);
+        }
+
+        void traverse(Bus bus, TopologyTraverser traverser);
     }
 
     /**
