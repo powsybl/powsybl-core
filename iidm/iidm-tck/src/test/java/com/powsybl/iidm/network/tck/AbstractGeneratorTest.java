@@ -70,9 +70,13 @@ public abstract class AbstractGeneratorTest {
         assertEquals(ratedS, generator.getRatedS(), 0.0);
 
         generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn().orElse(true));
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertTrue(generator.findVoltageRegulatorStatus().isPresent());
+        assertFalse(generator.findVoltageRegulatorStatus().orElse(true));
         generator.setVoltageRegulatorOn(true);
-        assertTrue(generator.isVoltageRegulatorOn().orElse(false));
+        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.findVoltageRegulatorStatus().isPresent());
+        assertTrue(generator.findVoltageRegulatorStatus().orElse(false));
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
@@ -194,7 +198,9 @@ public abstract class AbstractGeneratorTest {
         Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
         assertEquals(GEN_ID, generator.getId());
-        assertTrue(generator.isVoltageRegulatorOn().orElse(false));
+        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.findVoltageRegulatorStatus().isPresent());
+        assertTrue(generator.findVoltageRegulatorStatus().orElse(false));
         assertEquals(EnergySource.NUCLEAR, generator.getEnergySource());
         assertEquals(100.0, generator.getMaxP(), 0.0);
         assertEquals(10.0, generator.getMinP(), 0.0);
@@ -228,7 +234,9 @@ public abstract class AbstractGeneratorTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertTrue(generator.isVoltageRegulatorOn().orElse(false));
+        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.findVoltageRegulatorStatus().isPresent());
+        assertTrue(generator.findVoltageRegulatorStatus().orElse(false));
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
@@ -244,14 +252,18 @@ public abstract class AbstractGeneratorTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertFalse(generator.isVoltageRegulatorOn().orElse(true));
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertTrue(generator.findVoltageRegulatorStatus().isPresent());
+        assertFalse(generator.findVoltageRegulatorStatus().orElse(true));
         assertEquals(12.1, generator.getTargetP(), 0.0);
         assertEquals(9.2, generator.getTargetQ(), 0.0);
         assertEquals(9.3, generator.getTargetV(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn().orElse(false));
+        assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.findVoltageRegulatorStatus().isPresent());
+        assertTrue(generator.findVoltageRegulatorStatus().orElse(false));
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);

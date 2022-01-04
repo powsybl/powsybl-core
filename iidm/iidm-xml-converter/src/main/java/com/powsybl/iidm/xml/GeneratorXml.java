@@ -41,7 +41,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
         XmlUtil.writeDouble("minP", g.getMinP(), context.getWriter());
         XmlUtil.writeDouble("maxP", g.getMaxP(), context.getWriter());
         XmlUtil.writeDouble("ratedS", g.getRatedS(), context.getWriter());
-        g.isVoltageRegulatorOn().ifPresent(voltageRegulatorOn -> {
+        g.findVoltageRegulatorStatus().ifPresent(voltageRegulatorOn -> {
             try {
                 context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(voltageRegulatorOn));
             } catch (XMLStreamException e) {

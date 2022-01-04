@@ -120,7 +120,13 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public Optional<Boolean> isVoltageRegulatorOn() {
+    public boolean isVoltageRegulatorOn() {
+        return Optional.ofNullable(voltageRegulatorOn.get(network.get().getVariantIndex()))
+                .orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+    }
+
+    @Override
+    public Optional<Boolean> findVoltageRegulatorStatus() {
         return Optional.ofNullable(voltageRegulatorOn.get(network.get().getVariantIndex()));
     }
 

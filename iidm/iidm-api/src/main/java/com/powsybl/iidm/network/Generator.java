@@ -169,7 +169,11 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
-    Optional<Boolean> isVoltageRegulatorOn();
+    boolean isVoltageRegulatorOn();
+
+    default Optional<Boolean> findVoltageRegulatorStatus() {
+        return Optional.of(isVoltageRegulatorOn());
+    }
 
     /**
      * Set the voltage regulator status.

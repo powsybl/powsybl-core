@@ -202,7 +202,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSynchronousMachines(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            boolean controlEnabled = g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+            boolean controlEnabled = g.isVoltageRegulatorOn();
             writer.writeStartElement(cimNamespace, "SynchronousMachine");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + g.getId());
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
@@ -234,7 +234,7 @@ public final class SteadyStateHypothesisExport {
             String rcid = g.getProperty(REGULATING_CONTROL_PROPERTY);
             double targetDeadband = 0;
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException), targetDeadband, g.getTargetV(), "k");
+                g.isVoltageRegulatorOn(), targetDeadband, g.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }

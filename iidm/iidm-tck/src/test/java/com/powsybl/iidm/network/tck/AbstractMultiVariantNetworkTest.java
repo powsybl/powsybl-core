@@ -36,9 +36,9 @@ public abstract class AbstractMultiVariantNetworkTest {
         manager.setWorkingVariant(SECOND_VARIANT);
         final Generator generator = network.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn().orElse(true));
+        assertFalse(generator.isVoltageRegulatorOn());
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn().orElse(false));
+        assertTrue(generator.isVoltageRegulatorOn());
     }
 
     @Test
@@ -66,14 +66,14 @@ public abstract class AbstractMultiVariantNetworkTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             },
             () -> {
                 manager.setWorkingVariant(SECOND_VARIANT);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             })
         );

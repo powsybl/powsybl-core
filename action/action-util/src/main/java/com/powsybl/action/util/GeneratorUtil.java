@@ -21,7 +21,7 @@ public final class GeneratorUtil {
     public static void connectGenerator(Generator g) {
         Terminal t = g.getTerminal();
         t.connect();
-        if (g.isVoltageRegulatorOn().orElse(false)) {
+        if (g.isVoltageRegulatorOn()) {
             Bus bus = t.getBusView().getBus();
             if (bus != null) {
                 // set voltage setpoint to the same as other generators connected to the bus

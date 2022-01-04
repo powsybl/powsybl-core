@@ -224,7 +224,7 @@ public final class EquipmentExport {
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            if (regulatingControlId != null || generator.isVoltageRegulatorOn().orElse(false) || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable())) {
+            if (regulatingControlId != null || generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable())) {
                 if (regulatingControlId == null) {
                     regulatingControlId = CgmesExportUtil.getUniqueId();
                     generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);

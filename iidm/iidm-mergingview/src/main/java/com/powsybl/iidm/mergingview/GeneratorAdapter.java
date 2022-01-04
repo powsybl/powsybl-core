@@ -91,8 +91,13 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public Optional<Boolean> isVoltageRegulatorOn() {
+    public boolean isVoltageRegulatorOn() {
         return getDelegate().isVoltageRegulatorOn();
+    }
+
+    @Override
+    public Optional<Boolean> findVoltageRegulatorStatus() {
+        return getDelegate().findVoltageRegulatorStatus();
     }
 
     @Override

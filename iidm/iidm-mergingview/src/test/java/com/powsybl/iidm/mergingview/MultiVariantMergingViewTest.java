@@ -35,9 +35,9 @@ public class MultiVariantMergingViewTest {
         manager.setWorkingVariant("SecondVariant");
         final Generator generator = mergingView.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn().orElse(true));
+        assertFalse(generator.isVoltageRegulatorOn());
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn().orElse(false));
+        assertTrue(generator.isVoltageRegulatorOn());
 
         assertEquals(2, manager.getVariantIds().size());
         manager.removeVariant("SecondVariant");
@@ -75,14 +75,14 @@ public class MultiVariantMergingViewTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUndefinedValueGetterException);
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             },
             () -> {
                 manager.setWorkingVariant("SecondVariant");
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUndefinedValueGetterException);
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             })
         );

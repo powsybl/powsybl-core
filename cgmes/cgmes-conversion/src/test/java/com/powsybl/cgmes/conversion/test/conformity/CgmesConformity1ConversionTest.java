@@ -162,7 +162,7 @@ public class CgmesConformity1ConversionTest {
         // But the SSH data says the synchronous machine has control disabled
         // So the generator is not participating in the voltage regulation
         // Voltage regulating must be off
-        assertFalse(tester.lastConvertedNetwork().getGenerator("_2970a2b7-b840-4e9c-b405-0cb854cd2318").isVoltageRegulatorOn().orElse(true));
+        assertFalse(tester.lastConvertedNetwork().getGenerator("_2970a2b7-b840-4e9c-b405-0cb854cd2318").isVoltageRegulatorOn());
     }
 
     @Test

@@ -56,7 +56,7 @@ public class GeneratorModificationActionTest {
         assertEquals(50., g.getTargetP(), 0.1);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertFalse(g.isVoltageRegulatorOn().orElse(true));
+        assertFalse(g.isVoltageRegulatorOn());
     }
 
     @Test
@@ -66,7 +66,7 @@ public class GeneratorModificationActionTest {
         action.run(network, null);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertTrue(g.isVoltageRegulatorOn().orElse(false));
+        assertTrue(g.isVoltageRegulatorOn());
     }
 
     @Test
