@@ -24,7 +24,7 @@ public class BranchObservabilityAdderImplProvider<B extends Branch<B>> implement
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return BranchObservability.NAME;
     }
 

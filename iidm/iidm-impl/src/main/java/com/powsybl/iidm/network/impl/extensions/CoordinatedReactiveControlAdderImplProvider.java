@@ -25,7 +25,7 @@ public class CoordinatedReactiveControlAdderImplProvider implements
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return CoordinatedReactiveControl.NAME;
     }
 

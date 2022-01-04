@@ -22,7 +22,7 @@ public class CgmesControlAreasAdderImplProvider implements ExtensionAdderProvide
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return CgmesControlAreas.NAME;
     }
 

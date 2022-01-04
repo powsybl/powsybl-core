@@ -21,7 +21,7 @@ public class CgmesLineBoundaryNodeAdderImplProvider implements ExtensionAdderPro
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return CgmesLineBoundaryNode.NAME;
     }
 

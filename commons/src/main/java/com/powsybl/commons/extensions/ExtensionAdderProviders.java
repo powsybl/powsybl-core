@@ -61,7 +61,7 @@ public final class ExtensionAdderProviders {
     private static ExtensionAdderProvider findProvider(
             String implName, String extensionName,
             ConcurrentMap<String, List<ExtensionAdderProvider>> providersMap) {
-        return findProvider(implName, s -> s.getExtensionsName() != null && extensionName.equals(s.getExtensionsName()), extensionName, providersMap);
+        return findProvider(implName, s -> s.getExtensionName() != null && extensionName.equals(s.getExtensionName()), extensionName, providersMap);
     }
 
     private static ExtensionAdderProvider findProvider(
