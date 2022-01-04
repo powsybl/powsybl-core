@@ -34,7 +34,7 @@ public interface ExtensionAdderProvider<T extends Extendable<T>, E extends Exten
      *
      * @return the extension name
      */
-    default String getExtensionsName() {
+    default String getExtensionName() {
         return null;
     }
 

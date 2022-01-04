@@ -22,7 +22,7 @@ public class DiscreteMeasurementsAdderImplProvider<I extends Identifiable<I>> im
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return DiscreteMeasurements.NAME;
     }
 

@@ -23,7 +23,7 @@ public class RemoteReactivePowerControlAdderImplProvider implements ExtensionAdd
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return RemoteReactivePowerControl.NAME;
     }
 
