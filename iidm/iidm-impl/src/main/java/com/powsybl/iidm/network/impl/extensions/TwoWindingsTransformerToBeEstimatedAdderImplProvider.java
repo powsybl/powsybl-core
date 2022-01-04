@@ -23,7 +23,7 @@ public class TwoWindingsTransformerToBeEstimatedAdderImplProvider implements Ext
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return TwoWindingsTransformerToBeEstimated.NAME;
     }
 

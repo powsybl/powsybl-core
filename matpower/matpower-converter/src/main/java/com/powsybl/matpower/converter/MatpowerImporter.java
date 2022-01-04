@@ -264,7 +264,7 @@ public class MatpowerImporter implements Importer {
 
             Branch<?> branch;
             if (isTransformer(model, mBranch)) {
-                branch = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(network::newTwoWindingsTransformer)
+                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(network::newTwoWindingsTransformer)
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(connectedBus1)
@@ -280,7 +280,21 @@ public class MatpowerImporter implements Importer {
                         .setG(0)
                         .setB(mBranch.getB() / zb)
                         .add();
-                LOGGER.trace("Created TwoWindingsTransformer {} {} {}", branch.getId(), bus1Id, bus2Id);
+                if (mBranch.getPhaseShiftAngle() != 0) {
+                    newTwt.newPhaseTapChanger()
+                            .setTapPosition(0)
+                            .beginStep()
+                            .setRho(1)
+                            .setAlpha(-mBranch.getPhaseShiftAngle())
+                            .setR(0)
+                            .setX(0)
+                            .setG(0)
+                            .setB(0)
+                            .endStep()
+                            .add();
+                }
+                branch = newTwt;
+                LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
                 branch = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))

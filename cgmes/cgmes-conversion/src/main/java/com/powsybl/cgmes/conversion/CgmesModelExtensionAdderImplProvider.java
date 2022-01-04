@@ -23,7 +23,7 @@ public class CgmesModelExtensionAdderImplProvider implements
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return CgmesModelExtension.NAME;
     }
 

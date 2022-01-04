@@ -22,7 +22,7 @@ public class MeasurementsAdderImplProvider<C extends Connectable<C>> implements 
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return Measurements.NAME;
     }
 

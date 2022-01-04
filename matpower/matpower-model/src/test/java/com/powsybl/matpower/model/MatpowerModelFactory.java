@@ -46,6 +46,10 @@ public final class MatpowerModelFactory {
         return readModelJsonFromResources("ieee14.json");
     }
 
+    public static MatpowerModel create14WithPhaseShifter() {
+        return readModelJsonFromResources("ieee14-phase-shifter.json");
+    }
+
     public static MatpowerModel create30() {
         return readModelJsonFromResources("ieee30.json");
     }
