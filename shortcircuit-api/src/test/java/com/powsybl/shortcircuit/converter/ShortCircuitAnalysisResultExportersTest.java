@@ -35,6 +35,13 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         assertEquals("JSON", ShortCircuitAnalysisResultExporters.getExporter("JSON").getFormat());
     }
 
+    @Test
+    public void testComment() {
+        assertEquals("Export a result in ASCII tables", ShortCircuitAnalysisResultExporters.getExporter("ASCII").getComment());
+        assertEquals("Export a result in a CSV-like format", ShortCircuitAnalysisResultExporters.getExporter("CSV").getComment());
+        assertEquals("Export a result in JSON format", ShortCircuitAnalysisResultExporters.getExporter("JSON").getComment());
+    }
+
     private static ShortCircuitAnalysisResult createResult() {
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult = new FaultResult("faultResultID", 1);
