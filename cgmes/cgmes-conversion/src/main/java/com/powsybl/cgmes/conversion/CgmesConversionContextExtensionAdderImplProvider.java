@@ -23,7 +23,7 @@ public class CgmesConversionContextExtensionAdderImplProvider implements
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return CgmesConversionContextExtension.NAME;
     }
 

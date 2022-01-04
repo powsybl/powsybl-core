@@ -24,7 +24,7 @@ public class CgmesSshMetadataAdderImplProvider implements
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return CgmesSshMetadata.NAME;
     }
 

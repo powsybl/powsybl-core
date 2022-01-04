@@ -24,7 +24,7 @@ public class ThreeWindingsTransformerToBeEstimatedAdderImplProvider implements
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return ThreeWindingsTransformerToBeEstimated.NAME;
     }
 

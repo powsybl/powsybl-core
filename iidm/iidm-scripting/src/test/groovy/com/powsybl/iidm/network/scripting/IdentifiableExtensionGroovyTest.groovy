@@ -67,7 +67,7 @@ class IdentifiableExtensionGroovyTest {
     static class FooAdderProvider implements ExtensionAdderProvider<Substation, Foo, FooAdder> {
 
         @Override
-        String getExtensionsName() {
+        String getExtensionName() {
             return Foo.NAME
         }
 
