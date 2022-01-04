@@ -93,7 +93,7 @@ public final class GeneratorsValidation {
         double targetP = gen.getTargetP();
         double targetQ = gen.getTargetQ();
         double targetV = gen.getTargetV();
-        boolean voltageRegulatorOn = gen.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+        boolean voltageRegulatorOn = gen.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
         double minP = gen.getMinP();
         double maxP = gen.getMaxP();
         double minQ = gen.getReactiveLimits().getMinQ(targetP);

@@ -33,8 +33,8 @@ public final class ValidationUtil {
     private ValidationUtil() {
     }
 
-    public static PowsyblException createUnsupportedScadaException() {
-        return new PowsyblException("SCADA network not supported");
+    public static PowsyblException createUndefinedValueGetterException() {
+        return new PowsyblException("This getter cannot be used if the value is not defined");
     }
 
     private static ValidationException createInvalidValueException(Validable validable, double value, String valueName) {
@@ -710,7 +710,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), throwException, reporter));
                 DanglingLine.Generation generation = danglingLine.getGeneration();
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reporter));
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn().orElse(null), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.findVoltageRegulationStatus().orElse(null), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reporter));

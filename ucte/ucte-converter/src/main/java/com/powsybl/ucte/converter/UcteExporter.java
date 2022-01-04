@@ -270,7 +270,7 @@ public class UcteExporter implements Exporter {
                 // Should we use bus.getV() instead?
                 voltageReference = generator.getTargetV();
             }
-            if (generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException)) {
+            if (generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException)) {
                 nodeType = UcteNodeTypeCode.PU;
             }
             minP = generator.getMinP();
@@ -321,7 +321,7 @@ public class UcteExporter implements Exporter {
         ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
         double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
         ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
-        if (danglingLine.getGeneration().isVoltageRegulationOn().orElseThrow(ValidationUtil::createUnsupportedScadaException)) {
+        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
             ucteNode.setVoltageReference(danglingLine.getGeneration().getTargetV());
             double minP = danglingLine.getGeneration().getMinP();
@@ -786,7 +786,7 @@ public class UcteExporter implements Exporter {
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
-                twoWindingsTransformer.getRatioTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException),
+                twoWindingsTransformer.getRatioTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException),
                 Double.NaN);
         if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
             uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
@@ -809,14 +809,14 @@ public class UcteExporter implements Exporter {
             return new UcteAngleRegulation(calculateSymmAngleDu(twoWindingsTransformer),
                     90,
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
             return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer),
                     calculateAsymmAngleTheta(twoWindingsTransformer),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         }

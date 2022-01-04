@@ -52,7 +52,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
     }
 
     private static boolean filterTwt(TwoWindingsTransformer twt) {
-        return twt.hasRatioTapChanger() && twt.getRatioTapChanger().isRegulating().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+        return twt.hasRatioTapChanger() && twt.getRatioTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
     }
 
     public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
@@ -73,7 +73,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
         Objects.requireNonNull(twtsWriter);
 
         RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
-        int tapPosition = ratioTapChanger.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+        int tapPosition = ratioTapChanger.getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
         int lowTapPosition = ratioTapChanger.getLowTapPosition();
         int highTapPosition = ratioTapChanger.getHighTapPosition();
         double rho = ratioTapChanger.getCurrentStep().getRho();

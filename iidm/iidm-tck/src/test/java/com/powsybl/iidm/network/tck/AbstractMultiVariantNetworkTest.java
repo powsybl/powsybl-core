@@ -66,14 +66,14 @@ public abstract class AbstractMultiVariantNetworkTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
                 return null;
             },
             () -> {
                 manager.setWorkingVariant(SECOND_VARIANT);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
                 return null;
             })
         );

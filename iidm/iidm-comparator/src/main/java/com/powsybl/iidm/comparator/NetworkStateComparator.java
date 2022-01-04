@@ -204,7 +204,7 @@ public class NetworkStateComparator {
         public void setValue(TwoWindingsTransformer twt, Cell cell) {
             RatioTapChanger rtc = twt.getRatioTapChanger();
             if (rtc != null) {
-                cell.setCellValue(rtc.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException));
+                cell.setCellValue(rtc.getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
             }
         }
     };
@@ -220,7 +220,7 @@ public class NetworkStateComparator {
         public void setValue(TwoWindingsTransformer twt, Cell cell) {
             PhaseTapChanger ptc = twt.getPhaseTapChanger();
             if (ptc != null) {
-                cell.setCellValue(ptc.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException));
+                cell.setCellValue(ptc.getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
             }
         }
     };

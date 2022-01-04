@@ -132,7 +132,13 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public Optional<Boolean> isVoltageRegulationOn() {
+        public boolean isVoltageRegulationOn() {
+            return Optional.ofNullable(voltageRegulationOn.get(danglingLine.getNetwork().getVariantIndex()))
+                    .orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+        }
+
+        @Override
+        public Optional<Boolean> findVoltageRegulationStatus() {
             return Optional.ofNullable(voltageRegulationOn.get(danglingLine.getNetwork().getVariantIndex()));
         }
 
@@ -147,6 +153,20 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             danglingLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
+            return this;
+        }
+
+        @Override
+        public Generation unsetVoltageRegulationOn() {
+            NetworkImpl n = danglingLine.getNetwork();
+            int variantIndex = danglingLine.getNetwork().getVariantIndex();
+            ValidationUtil.checkVoltageControl(danglingLine, null,
+                    targetV.get(variantIndex), targetQ.get(variantIndex), n.getMinValidationLevel());
+            Boolean oldValue = this.voltageRegulationOn.get(variantIndex);
+            this.voltageRegulationOn.set(variantIndex, null);
+            String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            danglingLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, null);
             return this;
         }
 

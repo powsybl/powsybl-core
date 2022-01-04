@@ -175,7 +175,7 @@ public final class SteadyStateHypothesisExport {
                 default:
                     throw new AssertionError("Unexpected shunt model type: " + s.getModelType());
             }
-            boolean controlEnabled = s.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+            boolean controlEnabled = s.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
             writer.writeStartElement(cimNamespace, shuntType + "ShuntCompensator");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + s.getId());
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
@@ -195,14 +195,14 @@ public final class SteadyStateHypothesisExport {
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = s.getProperty(REGULATING_CONTROL_PROPERTY);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
-                s.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException), s.getTargetDeadband(), s.getTargetV(), "k");
+                s.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException), s.getTargetDeadband(), s.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
 
     private static void writeSynchronousMachines(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            boolean controlEnabled = g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+            boolean controlEnabled = g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
             writer.writeStartElement(cimNamespace, "SynchronousMachine");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + g.getId());
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
@@ -234,7 +234,7 @@ public final class SteadyStateHypothesisExport {
             String rcid = g.getProperty(REGULATING_CONTROL_PROPERTY);
             double targetDeadband = 0;
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException), targetDeadband, g.getTargetV(), "k");
+                g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException), targetDeadband, g.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
@@ -289,7 +289,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writeTapChanger(type, id, tc.isRegulating().orElseThrow(ValidationUtil::createUnsupportedScadaException), tc.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException), cimNamespace, writer);
+        writeTapChanger(type, id, tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException), tc.getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException), cimNamespace, writer);
     }
 
     private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -314,7 +314,7 @@ public final class SteadyStateHypothesisExport {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
-                        tc.isRegulating().orElseThrow(ValidationUtil::createUnsupportedScadaException),
+                        tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException),
                         tc.getTargetDeadband(),
                         ((RatioTapChanger) tc).getTargetV(),
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
@@ -323,7 +323,7 @@ public final class SteadyStateHypothesisExport {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
-                        tc.isRegulating().orElseThrow(ValidationUtil::createUnsupportedScadaException),
+                        tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException),
                         tc.getTargetDeadband(),
                         ((PhaseTapChanger) tc).getRegulationValue(),
                         // Unit multiplier is M for phase tap changers (regulation value is an active power flow in MW)
@@ -465,7 +465,7 @@ public final class SteadyStateHypothesisExport {
             boolean regulationStatus = false;
             double regulationTarget = 0;
             if (dl.getGeneration() != null) {
-                regulationStatus = dl.getGeneration().isVoltageRegulationOn().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
                 regulationTarget = dl.getGeneration().getTargetV();
             }
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
@@ -553,7 +553,7 @@ public final class SteadyStateHypothesisExport {
                 writer.writeEmptyElement(cimNamespace, "VsConverter.pPccControl");
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
                 writer.writeEmptyElement(cimNamespace, "VsConverter.qPccControl");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + (vscConverterStation.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException) ? "voltagePcc" : "reactivePcc"));
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + (vscConverterStation.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException) ? "voltagePcc" : "reactivePcc"));
             }
             writer.writeEndElement();
         }

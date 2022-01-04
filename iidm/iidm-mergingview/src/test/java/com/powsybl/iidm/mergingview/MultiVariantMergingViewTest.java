@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static com.powsybl.iidm.network.ValidationUtil.createUnsupportedScadaException;
 import static org.junit.Assert.*;
 
 /**
@@ -76,14 +75,14 @@ public class MultiVariantMergingViewTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUnsupportedScadaException);
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUndefinedValueGetterException);
                 return null;
             },
             () -> {
                 manager.setWorkingVariant("SecondVariant");
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUnsupportedScadaException);
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn().orElseThrow(com.powsybl.iidm.network.ValidationUtil::createUndefinedValueGetterException);
                 return null;
             })
         );

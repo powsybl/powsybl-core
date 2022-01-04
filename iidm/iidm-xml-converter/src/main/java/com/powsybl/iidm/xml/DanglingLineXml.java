@@ -80,7 +80,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> context.getWriter().writeAttribute("withGeneration", "true"));
                 XmlUtil.writeDouble(GENERATION_MIN_P, generation.getMinP(), context.getWriter());
                 XmlUtil.writeDouble(GENERATION_MAX_P, generation.getMaxP(), context.getWriter());
-                generation.isVoltageRegulationOn().ifPresent(voltageRegulationOn -> {
+                generation.findVoltageRegulationStatus().ifPresent(voltageRegulationOn -> {
                     try {
                         context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(voltageRegulationOn));
                     } catch (XMLStreamException e) {

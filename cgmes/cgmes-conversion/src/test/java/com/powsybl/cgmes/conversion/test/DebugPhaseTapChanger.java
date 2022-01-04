@@ -64,7 +64,7 @@ public class DebugPhaseTapChanger {
                     tx.getTerminal2().getBusView().getBus().getV(),
                     tx.getTerminal2().getBusView().getBus().getAngle()));
         }
-        int backup = tx.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException);
+        int backup = tx.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
         for (int k = tx.getPhaseTapChanger().getLowTapPosition(); k <= tx.getPhaseTapChanger()
                 .getHighTapPosition(); k++) {
             tx.getPhaseTapChanger().setTapPosition(k);

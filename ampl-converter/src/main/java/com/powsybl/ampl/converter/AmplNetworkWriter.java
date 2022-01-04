@@ -1107,9 +1107,9 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(rtc.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException) - rtc.getLowTapPosition() + 1)
+                    .writeCell(rtc.getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException) - rtc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
-                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating().orElseThrow(ValidationUtil::createUnsupportedScadaException));
+                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
             if (config.isExportRatioTapChangerVoltageTarget()) {
                 formatter.writeCell(rtc.getTargetV());
             }
@@ -1160,7 +1160,7 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(ptc.getTapPosition().orElseThrow(ValidationUtil::createUnsupportedScadaException) - ptc.getLowTapPosition() + 1)
+                    .writeCell(ptc.getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException) - ptc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
                     .writeCell(faultNum)
                     .writeCell(actionNum)
@@ -1532,7 +1532,7 @@ public class AmplNetworkWriter {
                         .writeCell(g.getReactiveLimits().getMaxQ(maxP))
                         .writeCell(g.getReactiveLimits().getMaxQ(0))
                         .writeCell(g.getReactiveLimits().getMaxQ(minP))
-                        .writeCell(g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException))
+                        .writeCell(g.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException))
                         .writeCell(g.getTargetV() / vb)
                         .writeCell(g.getTargetP())
                         .writeCell(g.getTargetQ())
@@ -1886,7 +1886,7 @@ public class AmplNetworkWriter {
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
-                            .writeCell(vscStation.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUnsupportedScadaException))
+                            .writeCell(vscStation.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException))
                             .writeCell(vlSet / vb)
                             .writeCell(vscStation.getReactivePowerSetpoint())
                             .writeCell(vscStation.getLossFactor())

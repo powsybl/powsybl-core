@@ -177,12 +177,22 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
         /**
          * Get the generator voltage regulation status.
          */
-        Optional<Boolean> isVoltageRegulationOn();
+        boolean isVoltageRegulationOn();
+
+        /**
+         * Get the generator voltage regulation status as an optional if it is defined.
+         * If not, return an empty optional.
+         */
+        default Optional<Boolean> findVoltageRegulationStatus() {
+            return Optional.of(isVoltageRegulationOn());
+        }
 
         /**
          * Set the generator voltage regulation status.
          */
         Generation setVoltageRegulationOn(boolean voltageRegulationOn);
+
+        Generation unsetVoltageRegulationOn();
 
         /**
          * <p>Get the generator voltage target in Kv.</p>
