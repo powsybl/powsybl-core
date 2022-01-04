@@ -24,7 +24,7 @@ public class PsseConversionContextExtensionAdderImplProvider implements
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return PsseConversionContextExtension.NAME;
     }
 
