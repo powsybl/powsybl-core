@@ -22,7 +22,7 @@ public class ActivePowerControlAdderImplProvider<I extends Injection<I>> impleme
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return ActivePowerControl.NAME;
     }
 
