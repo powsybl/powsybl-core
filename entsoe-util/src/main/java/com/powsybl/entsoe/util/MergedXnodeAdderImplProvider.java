@@ -22,7 +22,7 @@ public class MergedXnodeAdderImplProvider implements ExtensionAdderProvider<Line
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return MergedXnode.NAME;
     }
 

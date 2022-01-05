@@ -366,6 +366,11 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
             throw createNotSupportedNodeBreakerTopologyException();
         }
 
+        @Override
+        public void traverse(Bus bus, TopologyTraverser traverser) {
+            throw createNotSupportedNodeBreakerTopologyException();
+        }
+
         private PowsyblException createNotSupportedNodeBreakerTopologyException() {
             return new PowsyblException("Not supported in a node/breaker topology");
         }

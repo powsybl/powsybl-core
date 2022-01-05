@@ -24,7 +24,7 @@ public class ThreeWindingsTransformerPhaseAngleClockAdderImplProvider implements
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return ThreeWindingsTransformerPhaseAngleClock.NAME;
     }
 

@@ -26,6 +26,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     private final Map<String, String> properties = new HashMap<>();
 
     private String id;
+    private boolean idUnicity = false;
     private Measurement.Type type;
     private double value = Double.NaN;
     private double standardDeviation = Double.NaN;
@@ -79,8 +80,14 @@ class MeasurementAdderImpl implements MeasurementAdder {
     }
 
     @Override
+    public MeasurementAdder setEnsureIdUnicity(boolean idUnicity) {
+        this.idUnicity = idUnicity;
+        return this;
+    }
+
+    @Override
     public Measurement add() {
-        checkId(id, measurements);
+        id = checkId(id, idUnicity, measurements);
         if (type == null) {
             throw new PowsyblException("Measurement type can not be null");
         }

@@ -90,7 +90,7 @@ public class ExtensionAdderProvidersTest {
         }
 
         @Override
-        public String getExtensionsName() {
+        public String getExtensionName() {
             return SimpleExtension.NAME;
         }
 
@@ -114,7 +114,7 @@ public class ExtensionAdderProvidersTest {
         }
 
         @Override
-        public String getExtensionsName() {
+        public String getExtensionName() {
             return SimpleExtension.NAME;
         }
 
@@ -213,7 +213,7 @@ public class ExtensionAdderProvidersTest {
         }
 
         @Override
-        public String getExtensionsName() {
+        public String getExtensionName() {
             return GenericExtension.NAME;
         }
 
@@ -238,7 +238,7 @@ public class ExtensionAdderProvidersTest {
         }
 
         @Override
-        public String getExtensionsName() {
+        public String getExtensionName() {
             return GenericExtension.NAME;
         }
 
