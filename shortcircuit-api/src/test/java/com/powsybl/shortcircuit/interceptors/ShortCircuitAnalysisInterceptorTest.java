@@ -6,23 +6,31 @@
  */
 package com.powsybl.shortcircuit.interceptors;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.fail;
+import java.util.Collections;
+
+import static org.junit.Assert.*;
 
 public class ShortCircuitAnalysisInterceptorTest {
     @Test
     public void test() {
+        Assert.assertEquals(Collections.singleton("ShortCircuitInterceptorExtensionMock"), ShortCircuitAnalysisInterceptors.getExtensionNames());
+
+        ShortCircuitAnalysisInterceptor interceptor = ShortCircuitAnalysisInterceptors.createInterceptor("ShortCircuitInterceptorExtensionMock");
+        assertNotNull(interceptor);
+        assertEquals(ShortCircuitAnalysisInterceptorMock.class, interceptor.getClass());
 
         try {
-            ShortCircuitAnalysisInterceptor interceptor = ShortCircuitAnalysisInterceptors.createInterceptor(null);
+            interceptor = ShortCircuitAnalysisInterceptors.createInterceptor(null);
             fail();
         } catch (NullPointerException e) {
             // Nothing to do
         }
 
         try {
-            ShortCircuitAnalysisInterceptor interceptor = ShortCircuitAnalysisInterceptors.createInterceptor("unknown-shortcircuit-analysis-interceptor");
+            interceptor = ShortCircuitAnalysisInterceptors.createInterceptor("unknown-shortcircuit-analysis-interceptor");
             fail();
         } catch (IllegalArgumentException e) {
             // Nothing to do
