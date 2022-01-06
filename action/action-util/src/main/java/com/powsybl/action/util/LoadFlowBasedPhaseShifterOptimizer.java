@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -86,7 +85,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             int tapPosInc = 1; // start by incrementing tap +1
             double i;
             double limit = getLimit(phaseShifter);
-            int tapPos = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+            int tapPos = phaseShifter.getPhaseTapChanger().getTapPosition();
             int maxTap = phaseShifter.getPhaseTapChanger().getHighTapPosition();
 
             // increment tap until going above permanent limit
@@ -107,10 +106,10 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
             if (i < limit) {
                 // we reached the maximal (ou minimal) tap and phase shifter is not overloaded
-                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition();
             } else {
                 // with the last tap, phase shifter is overloaded, in that case we take the previous tap as the optimmal one
-                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException) - tapPosInc;
+                optimalTap = phaseShifter.getPhaseTapChanger().getTapPosition() - tapPosInc;
                 phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
 
                 // just to be sure, check that with the previous tap, phase shifter is not overloaded...
@@ -127,7 +126,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         }
 
         LOGGER.debug("Optimal phase shifter '{}' tap is {} (from {})",
-                phaseShifter, optimalTap, phaseShifter.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
+                phaseShifter, optimalTap, phaseShifter.getPhaseTapChanger().getTapPosition());
 
         // set the best optimal tap on the current state
         phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);

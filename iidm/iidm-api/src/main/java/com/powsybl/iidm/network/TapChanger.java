@@ -38,7 +38,18 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * Depends on the working variant.
      * @see VariantManager
      */
-    OptionalInt getTapPosition();
+    int getTapPosition();
+
+    /**
+     * Get an optional containing the current tap position if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findTapPosition() {
+        return OptionalInt.of(getTapPosition());
+    }
 
     /**
      * Set the current tap position.

@@ -99,7 +99,7 @@ public abstract class AbstractTapChangerTest {
         assertEquals(0.0, neutralStep.getAlpha(), 0.0);
         assertEquals(1.0, neutralStep.getRho(), 0.0);
         phaseTapChanger.setTapPosition(0);
-        assertEquals(0, phaseTapChanger.getTapPosition().orElse(-1));
+        assertEquals(0, phaseTapChanger.getTapPosition());
         assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
         phaseTapChanger.setRegulationValue(5.0);
         assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
@@ -262,16 +262,16 @@ public abstract class AbstractTapChangerTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(0, phaseTapChanger.getTapPosition().orElse(-1));
+        assertEquals(0, phaseTapChanger.getTapPosition());
         assertFalse(phaseTapChanger.isRegulating().orElse(true));
         assertEquals(9.9, phaseTapChanger.getRegulationValue(), 0.0);
-        assertEquals(0, ratioTapChanger.getTapPosition().orElse(-1));
+        assertEquals(0, ratioTapChanger.getTapPosition());
         assertFalse(ratioTapChanger.isRegulating().orElse(true));
         assertEquals(3.5, ratioTapChanger.getTargetV(), 0.0);
-        assertEquals(2, ratioTapChangerInLeg2.getTapPosition().orElse(-1));
+        assertEquals(2, ratioTapChangerInLeg2.getTapPosition());
         assertFalse(ratioTapChangerInLeg2.isRegulating().orElse(true));
         assertEquals(31.5, ratioTapChangerInLeg2.getTargetV(), 0.0);
-        assertEquals(4, ratioTapChangerInLeg3.getTapPosition().orElse(-1));
+        assertEquals(4, ratioTapChangerInLeg3.getTapPosition());
         assertFalse(ratioTapChangerInLeg3.isRegulating().orElse(true));
         assertEquals(13.5, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
@@ -290,16 +290,16 @@ public abstract class AbstractTapChangerTest {
 
     private void assertKnownState(PhaseTapChanger phaseTapChanger, RatioTapChanger ratioTapChanger,
             RatioTapChanger ratioTapChangerInLeg2, RatioTapChanger ratioTapChangerInLeg3) {
-        assertEquals(1, phaseTapChanger.getTapPosition().orElse(-1));
+        assertEquals(1, phaseTapChanger.getTapPosition());
         assertFalse(phaseTapChanger.isRegulating().orElse(true));
         assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
-        assertEquals(1, ratioTapChanger.getTapPosition().orElse(-1));
+        assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating().orElse(false));
         assertEquals(10.0, ratioTapChanger.getTargetV(), 0.0);
-        assertEquals(1, ratioTapChangerInLeg2.getTapPosition().orElse(-1));
+        assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
         assertTrue(ratioTapChangerInLeg2.isRegulating().orElse(false));
         assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
-        assertEquals(3, ratioTapChangerInLeg3.getTapPosition().orElse(-1));
+        assertEquals(3, ratioTapChangerInLeg3.getTapPosition());
         assertFalse(ratioTapChangerInLeg3.isRegulating().orElse(true));
         assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
     }
@@ -390,7 +390,7 @@ public abstract class AbstractTapChangerTest {
                                                     .setRho(1.1)
                                                 .endStep()
                                             .add();
-        assertEquals(1, ratioTapChanger.getTapPosition().orElse(-1));
+        assertEquals(1, ratioTapChanger.getTapPosition());
         assertEquals(3, ratioTapChanger.getAllSteps().size());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
         assertTrue(ratioTapChanger.isRegulating().orElse(false));
@@ -408,7 +408,7 @@ public abstract class AbstractTapChangerTest {
         assertEquals(0.0, neutralStep.getB(), 0.0);
         assertEquals(1.0, neutralStep.getRho(), 0.0);
         ratioTapChanger.setTapPosition(2);
-        assertEquals(2, ratioTapChanger.getTapPosition().orElse(-1));
+        assertEquals(2, ratioTapChanger.getTapPosition());
         ratioTapChanger.setTargetV(110.0);
         assertEquals(110.0, ratioTapChanger.getTargetV(), 0.0);
         ratioTapChanger.setRegulating(false);

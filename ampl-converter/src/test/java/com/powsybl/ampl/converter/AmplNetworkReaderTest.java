@@ -98,17 +98,17 @@ public class AmplNetworkReaderTest {
         // Ratio tap changers
         RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
         RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-        assertEquals(2, rtc2.getTapPosition().orElse(-1));
-        assertEquals(0, rtc3.getTapPosition().orElse(-1));
+        assertEquals(2, rtc2.getTapPosition());
+        assertEquals(0, rtc3.getTapPosition());
         reader.readRatioTapChangers();
-        assertEquals(0, rtc2.getTapPosition().orElse(-1));
-        assertEquals(2, rtc3.getTapPosition().orElse(-1));
+        assertEquals(0, rtc2.getTapPosition());
+        assertEquals(2, rtc3.getTapPosition());
 
         // Phase tap changers
         PhaseTapChanger ptc = twt.getLeg1().getPhaseTapChanger();
-        assertEquals(1, ptc.getTapPosition().orElse(-1));
+        assertEquals(1, ptc.getTapPosition());
         reader.readPhaseTapChangers();
-        assertEquals(0, ptc.getTapPosition().orElse(-1));
+        assertEquals(0, ptc.getTapPosition());
     }
 
     @Test
@@ -292,11 +292,11 @@ public class AmplNetworkReaderTest {
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
         RatioTapChanger rtc = twt.getRatioTapChanger();
 
-        assertEquals(1, rtc.getTapPosition().orElse(-1));
+        assertEquals(1, rtc.getTapPosition());
 
         reader.readRatioTapChangers();
 
-        assertEquals(2, rtc.getTapPosition().orElse(-1));
+        assertEquals(2, rtc.getTapPosition());
     }
 
     private void testMetrics(AmplNetworkReader reader) throws IOException {
@@ -319,7 +319,7 @@ public class AmplNetworkReaderTest {
 
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("PS1");
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
-        assertEquals(1, ptc.getTapPosition().orElse(-1));
+        assertEquals(1, ptc.getTapPosition());
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("ptc-test",
                 new ResourceSet("/outputs/",
@@ -328,7 +328,7 @@ public class AmplNetworkReaderTest {
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         reader.readPhaseTapChangers();
 
-        assertEquals(2, ptc.getTapPosition().orElse(-1));
+        assertEquals(2, ptc.getTapPosition());
     }
 
     private void testBuses(Network network, AmplNetworkReader reader) throws IOException {

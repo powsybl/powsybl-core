@@ -90,7 +90,15 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return lowTapPosition + steps.size() - 1;
     }
 
-    public OptionalInt getTapPosition() {
+    public int getTapPosition() {
+        Integer position = tapPosition.get(network.get().getVariantIndex());
+        if (position == null) {
+            throw ValidationUtil.createUndefinedValueGetterException();
+        }
+        return position;
+    }
+
+    public OptionalInt findTapPosition() {
         Integer position = tapPosition.get(network.get().getVariantIndex());
         return position == null ? OptionalInt.empty() : OptionalInt.of(position);
     }

@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.test;
 
 import java.util.function.Consumer;
 
-import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +49,7 @@ public class DebugPhaseTapChanger {
             Consumer<TwoWindingsTransformer> pre,
             Consumer<TwoWindingsTransformer> post) {
         if (LOG.isInfoEnabled()) {
-            if (tx.getPhaseTapChanger().getTapPosition().isPresent()) {
-                LOG.info(String.format("current = %d", tx.getPhaseTapChanger().getTapPosition().getAsInt()));
-            } else {
-                LOG.info("current = undefined");
-            }
+            LOG.info(String.format("current = %d", tx.getPhaseTapChanger().getTapPosition()));
             LOG.info(String.format("ratedU1 = %10.4f", tx.getRatedU1()));
             LOG.info(String.format("ratedU2 = %10.4f", tx.getRatedU2()));
             LOG.info(String.format("v,a1    = %10.4f %10.4f",
@@ -64,7 +59,7 @@ public class DebugPhaseTapChanger {
                     tx.getTerminal2().getBusView().getBus().getV(),
                     tx.getTerminal2().getBusView().getBus().getAngle()));
         }
-        int backup = tx.getPhaseTapChanger().getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+        int backup = tx.getPhaseTapChanger().getTapPosition();
         for (int k = tx.getPhaseTapChanger().getLowTapPosition(); k <= tx.getPhaseTapChanger()
                 .getHighTapPosition(); k++) {
             tx.getPhaseTapChanger().setTapPosition(k);

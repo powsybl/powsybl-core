@@ -635,7 +635,7 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkRtc(Validable validable, RatioTapChanger rtc, Network network, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
-        if (rtc.getTapPosition().isEmpty()) {
+        if (rtc.findTapPosition().isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
@@ -646,7 +646,7 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkPtc(Validable validable, PhaseTapChanger ptc, Network network, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
-        if (ptc.getTapPosition().isEmpty()) {
+        if (ptc.findTapPosition().isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }

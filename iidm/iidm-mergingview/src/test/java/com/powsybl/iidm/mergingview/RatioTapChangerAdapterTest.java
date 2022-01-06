@@ -80,7 +80,7 @@ public class RatioTapChangerAdapterTest {
         assertTrue(ratioTapChanger instanceof RatioTapChangerAdapter);
 
         assertEquals(0, ratioTapChanger.getLowTapPosition());
-        assertEquals(1, ratioTapChanger.getTapPosition().orElse(-1));
+        assertEquals(1, ratioTapChanger.getTapPosition());
         assertEquals(2, ratioTapChanger.getHighTapPosition());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
         assertTrue(ratioTapChanger.isRegulating().orElse(false));
@@ -91,7 +91,7 @@ public class RatioTapChangerAdapterTest {
 
         // setter getter
         ratioTapChanger.setTapPosition(2);
-        assertEquals(2, ratioTapChanger.getTapPosition().orElse(-1));
+        assertEquals(2, ratioTapChanger.getTapPosition());
         assertSame(ratioTapChanger.getCurrentStep(), ratioTapChanger.getStep(2));
         ratioTapChanger.setTargetV(110.0);
         assertEquals(110.0, ratioTapChanger.getTargetV(), 0.0);

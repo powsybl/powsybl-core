@@ -57,8 +57,13 @@ abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends T
     }
 
     @Override
-    public OptionalInt getTapPosition() {
+    public int getTapPosition() {
         return getDelegate().getTapPosition();
+    }
+
+    @Override
+    public OptionalInt findTapPosition() {
+        return getDelegate().findTapPosition();
     }
 
     @Override

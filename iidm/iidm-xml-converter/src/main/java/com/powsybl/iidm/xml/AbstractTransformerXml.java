@@ -68,8 +68,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
     private static void writeTapChanger(TapChanger<?, ?> tc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute(ATTR_LOW_TAP_POSITION, Integer.toString(tc.getLowTapPosition()));
-        if (tc.getTapPosition().isPresent()) {
-            context.getWriter().writeAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition().getAsInt()));
+        if (tc.findTapPosition().isPresent()) {
+            context.getWriter().writeAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition()));
         }
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }

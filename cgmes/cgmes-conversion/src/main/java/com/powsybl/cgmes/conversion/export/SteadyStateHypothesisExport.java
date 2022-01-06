@@ -289,7 +289,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writeTapChanger(type, id, tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException), tc.getTapPosition().orElseThrow(ValidationUtil::createUndefinedValueGetterException), cimNamespace, writer);
+        writeTapChanger(type, id, tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException), tc.getTapPosition(), cimNamespace, writer);
     }
 
     private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
