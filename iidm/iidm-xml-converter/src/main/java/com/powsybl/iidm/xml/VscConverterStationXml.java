@@ -40,7 +40,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        cs.isVoltageRegulatorOn().ifPresent(voltageRegulatorOn -> {
+        cs.findVoltageRegulatorStatus().ifPresent(voltageRegulatorOn -> {
             try {
                 context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(voltageRegulatorOn));
             } catch (XMLStreamException e) {

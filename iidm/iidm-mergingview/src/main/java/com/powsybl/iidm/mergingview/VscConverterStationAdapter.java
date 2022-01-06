@@ -58,8 +58,13 @@ public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdap
     }
 
     @Override
-    public Optional<Boolean> isVoltageRegulatorOn() {
+    public boolean isVoltageRegulatorOn() {
         return getDelegate().isVoltageRegulatorOn();
+    }
+
+    @Override
+    public Optional<Boolean> findVoltageRegulatorStatus() {
+        return getDelegate().findVoltageRegulatorStatus();
     }
 
     @Override

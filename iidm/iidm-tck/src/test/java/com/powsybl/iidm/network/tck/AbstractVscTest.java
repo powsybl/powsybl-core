@@ -46,20 +46,20 @@ public abstract class AbstractVscTest {
         assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
         cs1.setLossFactor(2.2f);
         assertEquals(2.2f, cs1.getLossFactor(), 0.0f);
-        assertTrue(cs1.isVoltageRegulatorOn().orElse(false));
+        assertTrue(cs1.isVoltageRegulatorOn());
         assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
         cs1.setVoltageSetpoint(406.0);
         assertEquals(406.0, cs1.getVoltageSetpoint(), 0.0);
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
         assertEquals(1.1f, cs2.getLossFactor(), 0.0f);
-        assertFalse(cs2.isVoltageRegulatorOn().orElse(true));
+        assertFalse(cs2.isVoltageRegulatorOn());
         assertEquals(123.0, cs2.getReactivePowerSetpoint(), 0.0);
         cs2.setReactivePowerSetpoint(124.0);
         assertEquals(124.0, cs2.getReactivePowerSetpoint(), 0.0);
         assertTrue(Double.isNaN(cs2.getVoltageSetpoint()));
         cs2.setVoltageSetpoint(405);
         cs2.setVoltageRegulatorOn(true);
-        assertTrue(cs2.isVoltageRegulatorOn().orElse(false));
+        assertTrue(cs2.isVoltageRegulatorOn());
         assertEquals(1, network.getHvdcLineCount());
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
@@ -119,7 +119,7 @@ public abstract class AbstractVscTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertTrue(cs1.isVoltageRegulatorOn().orElse(false));
+        assertTrue(cs1.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
         assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
         // change values in s4
@@ -133,13 +133,13 @@ public abstract class AbstractVscTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertFalse(cs1.isVoltageRegulatorOn().orElse(true));
+        assertFalse(cs1.isVoltageRegulatorOn());
         assertEquals(1.0, cs1.getReactivePowerSetpoint(), 0.0);
         assertEquals(10.0, cs1.getVoltageSetpoint(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(cs1.isVoltageRegulatorOn().orElse(false));
+        assertTrue(cs1.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
         assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
 
@@ -178,7 +178,7 @@ public abstract class AbstractVscTest {
 
         assertEquals(123, network.getVscConverterStation("C3").getReactivePowerSetpoint(), 0);
         assertEquals(405, network.getVscConverterStation("C3").getVoltageSetpoint(), 0);
-        assertTrue(network.getVscConverterStation("C3").isVoltageRegulatorOn().orElse(false));
+        assertTrue(network.getVscConverterStation("C3").isVoltageRegulatorOn());
         assertEquals(1.1, network.getVscConverterStation("C3").getLossFactor(), 0.01);
         assertEquals(cs2.getTerminal(), network.getVscConverterStation("C3").getRegulatingTerminal());
 

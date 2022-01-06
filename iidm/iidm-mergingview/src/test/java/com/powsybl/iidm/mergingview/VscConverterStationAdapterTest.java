@@ -69,7 +69,7 @@ public class VscConverterStationAdapterTest {
         cs1.setReactivePowerSetpoint(124.0);
         assertEquals(124.0, cs1.getReactivePowerSetpoint(), 0.0);
         cs1.setVoltageRegulatorOn(false);
-        assertFalse(cs1.isVoltageRegulatorOn().orElse(true));
+        assertFalse(cs1.isVoltageRegulatorOn());
 
         // Not implemented yet !
         TestUtil.notImplemented(cs1::remove);

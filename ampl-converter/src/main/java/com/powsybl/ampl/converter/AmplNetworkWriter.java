@@ -1886,7 +1886,7 @@ public class AmplNetworkWriter {
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(maxP))
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(0))
                             .writeCell(vscStation.getReactiveLimits().getMaxQ(minP))
-                            .writeCell(vscStation.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException))
+                            .writeCell(vscStation.isVoltageRegulatorOn())
                             .writeCell(vlSet / vb)
                             .writeCell(vscStation.getReactivePowerSetpoint())
                             .writeCell(vscStation.getLossFactor())

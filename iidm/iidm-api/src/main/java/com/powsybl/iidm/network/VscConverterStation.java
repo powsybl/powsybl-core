@@ -78,7 +78,15 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * Check if voltage regulator is on.
      * @return true if voltage regulator is on, false otherwise
      */
-    Optional<Boolean> isVoltageRegulatorOn();
+    boolean isVoltageRegulatorOn();
+
+    /**
+     * Get an optional containing the voltage regulator status if it is defined.
+     * Otherwise, get an empty optional.
+     */
+    default Optional<Boolean> findVoltageRegulatorStatus() {
+        return Optional.of(isVoltageRegulatorOn());
+    }
 
     /**
      * Unset voltage regulator status (make it null)

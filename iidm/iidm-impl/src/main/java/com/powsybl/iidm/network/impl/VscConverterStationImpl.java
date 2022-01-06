@@ -59,7 +59,12 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
-    public Optional<Boolean> isVoltageRegulatorOn() {
+    public boolean isVoltageRegulatorOn() {
+        return Optional.ofNullable(voltageRegulatorOn.get(getNetwork().getVariantIndex())).orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+    }
+
+    @Override
+    public Optional<Boolean> findVoltageRegulatorStatus() {
         return Optional.ofNullable(voltageRegulatorOn.get(getNetwork().getVariantIndex()));
     }
 

@@ -737,7 +737,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, (TwoWindingsTransformer) identifiable, throwException, reporter));
             } else if (identifiable instanceof VscConverterStation) {
                 VscConverterStation converterStation = (VscConverterStation) identifiable;
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.isVoltageRegulatorOn().orElse(null), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.findVoltageRegulatorStatus().orElse(null), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), throwException, reporter));
             }
         }
         return validationLevel;

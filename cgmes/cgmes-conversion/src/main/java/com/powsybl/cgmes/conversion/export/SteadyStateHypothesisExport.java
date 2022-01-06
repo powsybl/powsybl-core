@@ -553,7 +553,7 @@ public final class SteadyStateHypothesisExport {
                 writer.writeEmptyElement(cimNamespace, "VsConverter.pPccControl");
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
                 writer.writeEmptyElement(cimNamespace, "VsConverter.qPccControl");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + (vscConverterStation.isVoltageRegulatorOn().orElseThrow(ValidationUtil::createUndefinedValueGetterException) ? "voltagePcc" : "reactivePcc"));
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + (vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc"));
             }
             writer.writeEndElement();
         }

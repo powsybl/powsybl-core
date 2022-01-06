@@ -442,7 +442,7 @@ public class AmplNetworkReaderTest {
         VscConverterStation vc = network.getVscConverterStation("C1");
         assertEquals(100, vc.getTerminal().getP(), 0.0);
         assertEquals(50, vc.getTerminal().getQ(), 0.0);
-        assertTrue(vc.isVoltageRegulatorOn().orElse(false));
+        assertTrue(vc.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(vc.getReactivePowerSetpoint()));
         assertEquals(405, vc.getVoltageSetpoint(), 0.0);
 
@@ -450,7 +450,7 @@ public class AmplNetworkReaderTest {
 
         assertEquals(200, vc.getTerminal().getP(), 0.0);
         assertEquals(75, vc.getTerminal().getQ(), 0.0);
-        assertTrue(vc.isVoltageRegulatorOn().orElse(false));
+        assertTrue(vc.isVoltageRegulatorOn());
         assertEquals(30, vc.getReactivePowerSetpoint(), 0.0);
         assertEquals(400 * 1.01000, vc.getVoltageSetpoint(), 0.0);
     }
