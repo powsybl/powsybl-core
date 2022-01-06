@@ -94,7 +94,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating().orElse(null), loadTapChangingCapabilities, regulationTerminal,
+        ValidationUtil.checkRatioTapChangerRegulation(parent, findRegulatingStatus().orElse(null), loadTapChangingCapabilities, regulationTerminal,
                 getTargetV(), n, n.getMinValidationLevel());
         boolean oldValue = this.loadTapChangingCapabilities;
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
@@ -111,7 +111,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating().orElse(null), loadTapChangingCapabilities, regulationTerminal,
+        ValidationUtil.checkRatioTapChangerRegulation(parent, findRegulatingStatus().orElse(null), loadTapChangingCapabilities, regulationTerminal,
                 targetV, n, n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.targetV.set(variantIndex, targetV);
@@ -124,7 +124,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating().orElse(null),
+        ValidationUtil.checkRatioTapChangerRegulation(parent, findRegulatingStatus().orElse(null),
                 loadTapChangingCapabilities, regulationTerminal, getTargetV(), n, n.getMinValidationLevel());
         n.invalidateValidationLevel();
         return super.setRegulationTerminal(regulationTerminal);

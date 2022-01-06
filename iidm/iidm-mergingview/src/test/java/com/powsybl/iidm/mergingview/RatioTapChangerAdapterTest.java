@@ -83,7 +83,7 @@ public class RatioTapChangerAdapterTest {
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertEquals(2, ratioTapChanger.getHighTapPosition());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
-        assertTrue(ratioTapChanger.isRegulating().orElse(false));
+        assertTrue(ratioTapChanger.isRegulating());
         assertEquals(1.0, ratioTapChanger.getTargetDeadband(), 0.0);
         assertEquals(220.0, ratioTapChanger.getTargetV(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
@@ -96,7 +96,7 @@ public class RatioTapChangerAdapterTest {
         ratioTapChanger.setTargetV(110.0);
         assertEquals(110.0, ratioTapChanger.getTargetV(), 0.0);
         ratioTapChanger.setRegulating(false);
-        assertFalse(ratioTapChanger.isRegulating().orElse(true));
+        assertFalse(ratioTapChanger.isRegulating());
         ratioTapChanger.setTargetDeadband(0.5);
         assertEquals(0.5, ratioTapChanger.getTargetDeadband(), 0.0);
         ratioTapChanger.setRegulationTerminal(twt.getTerminal2());

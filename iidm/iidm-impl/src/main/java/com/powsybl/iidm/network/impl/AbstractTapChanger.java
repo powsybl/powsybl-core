@@ -151,7 +151,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return getStep(position);
     }
 
-    public Optional<Boolean> isRegulating() {
+    public boolean isRegulating() {
+        return Optional.ofNullable(regulating.get(network.get().getVariantIndex())).orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+    }
+
+    public Optional<Boolean> findRegulatingStatus() {
         return Optional.ofNullable(regulating.get(network.get().getVariantIndex()));
     }
 

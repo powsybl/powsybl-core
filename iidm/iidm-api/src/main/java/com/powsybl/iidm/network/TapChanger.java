@@ -112,7 +112,11 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * Depends on the working variant.
      * @see VariantManager
      */
-    Optional<Boolean> isRegulating();
+    boolean isRegulating();
+
+    default Optional<Boolean> findRegulatingStatus() {
+        return Optional.of(isRegulating());
+    }
 
     /**
      * Set the regulating status.

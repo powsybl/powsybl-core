@@ -85,12 +85,12 @@ public class ActionDslLoaderTest {
         addPhaseShifter(0);
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
         assertEquals(0, phaseTapChanger.getTapPosition());
-        assertTrue(phaseTapChanger.isRegulating().orElse(false));
+        assertTrue(phaseTapChanger.isRegulating());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         fixedTapAction.run(network, null);
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
-        assertFalse(phaseTapChanger.isRegulating().orElse(true));
+        assertFalse(phaseTapChanger.isRegulating());
     }
 
     private static List<DeltaTapData> provideParams() {
@@ -116,12 +116,12 @@ public class ActionDslLoaderTest {
             addPhaseShifter(data.getInitTapPosition());
             PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
             assertEquals(1, phaseTapChanger.getTapPosition());
-            assertTrue(phaseTapChanger.isRegulating().orElse(false));
+            assertTrue(phaseTapChanger.isRegulating());
             assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             deltaTapAction.run(network, null);
             assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition());
             assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
-            assertFalse(phaseTapChanger.isRegulating().orElse(true));
+            assertFalse(phaseTapChanger.isRegulating());
         }
     }
 

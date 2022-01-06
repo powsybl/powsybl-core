@@ -289,7 +289,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writeTapChanger(type, id, tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException), tc.getTapPosition(), cimNamespace, writer);
+        writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition(), cimNamespace, writer);
     }
 
     private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -314,7 +314,7 @@ public final class SteadyStateHypothesisExport {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
-                        tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException),
+                        tc.isRegulating(),
                         tc.getTargetDeadband(),
                         ((RatioTapChanger) tc).getTargetV(),
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
@@ -323,7 +323,7 @@ public final class SteadyStateHypothesisExport {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
-                        tc.isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException),
+                        tc.isRegulating(),
                         tc.getTargetDeadband(),
                         ((PhaseTapChanger) tc).getRegulationValue(),
                         // Unit multiplier is M for phase tap changers (regulation value is an active power flow in MW)

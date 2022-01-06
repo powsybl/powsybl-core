@@ -52,7 +52,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
     }
 
     private static boolean filterTwt(TwoWindingsTransformer twt) {
-        return twt.hasRatioTapChanger() && twt.getRatioTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+        return twt.hasRatioTapChanger() && twt.getRatioTapChanger().isRegulating();
     }
 
     public boolean checkTransformer(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {

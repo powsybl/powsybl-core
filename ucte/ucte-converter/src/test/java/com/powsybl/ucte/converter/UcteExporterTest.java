@@ -181,7 +181,7 @@ public class UcteExporterTest extends AbstractConverterTest {
         }
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             RatioTapChanger rtc = twt.getRatioTapChanger();
-            if (rtc != null && rtc.isRegulating().orElse(false)) {
+            if (rtc != null && rtc.isRegulating()) {
                 rtc.setTargetV(rtc.getRegulationTerminal().getVoltageLevel().getNominalV() * 1.4);
             }
         }

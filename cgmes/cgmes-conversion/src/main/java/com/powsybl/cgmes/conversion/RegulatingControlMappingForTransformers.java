@@ -91,7 +91,7 @@ public class RegulatingControlMappingForTransformers {
         boolean ptcRegulating = isTapChangerRegulating(ptcControl, rc.phaseTapChanger);
 
         setPhaseTapChangerControl(ptcRegulating, rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
-        boolean regulatingSet = twt.hasPhaseTapChanger() && twt.getPhaseTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+        boolean regulatingSet = twt.hasPhaseTapChanger() && twt.getPhaseTapChanger().isRegulating();
 
         rtcRegulating = checkOnlyOneEnabled(twt.getId(), rtcRegulating, regulatingSet, "ratioTapChanger");
         setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
@@ -124,23 +124,23 @@ public class RegulatingControlMappingForTransformers {
         boolean ptcRegulating3 = isTapChangerRegulating(ptcControl3, rc.phaseTapChanger3);
 
         setPhaseTapChangerControl(ptcRegulating1, rc.phaseTapChanger1, ptcControl1, twt.getLeg1().getPhaseTapChanger());
-        boolean regulatingSet = twt.getLeg1().hasPhaseTapChanger() && twt.getLeg1().getPhaseTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException);
+        boolean regulatingSet = twt.getLeg1().hasPhaseTapChanger() && twt.getLeg1().getPhaseTapChanger().isRegulating();
 
         rtcRegulating1 = checkOnlyOneEnabled(twt.getId(), rtcRegulating1, regulatingSet, "ratioTapChanger at Leg1");
         setRatioTapChangerControl(rtcRegulating1, rc.ratioTapChanger1, rtcControl1, twt.getLeg1().getRatioTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg1().hasRatioTapChanger() && twt.getLeg1().getRatioTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
+        regulatingSet = regulatingSet || (twt.getLeg1().hasRatioTapChanger() && twt.getLeg1().getRatioTapChanger().isRegulating());
 
         ptcRegulating2 = checkOnlyOneEnabled(twt.getId(), ptcRegulating2, regulatingSet, "phaseTapChanger at Leg2");
         setPhaseTapChangerControl(ptcRegulating2, rc.phaseTapChanger2, ptcControl2, twt.getLeg2().getPhaseTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg2().hasPhaseTapChanger() && twt.getLeg2().getPhaseTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
+        regulatingSet = regulatingSet || (twt.getLeg2().hasPhaseTapChanger() && twt.getLeg2().getPhaseTapChanger().isRegulating());
 
         rtcRegulating2 = checkOnlyOneEnabled(twt.getId(), rtcRegulating2, regulatingSet, "ratioTapChanger at Leg2");
         setRatioTapChangerControl(rtcRegulating2, rc.ratioTapChanger2, rtcControl2, twt.getLeg2().getRatioTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg2().hasRatioTapChanger() && twt.getLeg2().getRatioTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
+        regulatingSet = regulatingSet || (twt.getLeg2().hasRatioTapChanger() && twt.getLeg2().getRatioTapChanger().isRegulating());
 
         ptcRegulating3 = checkOnlyOneEnabled(twt.getId(), ptcRegulating3, regulatingSet, "phaseTapChanger at Leg3");
         setPhaseTapChangerControl(ptcRegulating3, rc.phaseTapChanger3, ptcControl3, twt.getLeg3().getPhaseTapChanger());
-        regulatingSet = regulatingSet || (twt.getLeg3().hasPhaseTapChanger() && twt.getLeg3().getPhaseTapChanger().isRegulating().orElseThrow(ValidationUtil::createUndefinedValueGetterException));
+        regulatingSet = regulatingSet || (twt.getLeg3().hasPhaseTapChanger() && twt.getLeg3().getPhaseTapChanger().isRegulating());
 
         rtcRegulating3 = checkOnlyOneEnabled(twt.getId(), rtcRegulating3, regulatingSet, "ratioTapChanger at Leg3");
         setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
