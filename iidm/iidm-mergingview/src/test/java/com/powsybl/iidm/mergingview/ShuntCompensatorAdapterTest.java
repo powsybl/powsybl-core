@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -75,11 +74,10 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(shuntCActual.setTargetDeadband(20) instanceof ShuntCompensatorAdapter);
         assertEquals(shuntCExpected.getTargetDeadband(), shuntCActual.getTargetDeadband(), 0.0d);
 
-        boolean voltageRegulatorOn = shuntCExpected.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("Should be present"));
-        assertEquals(voltageRegulatorOn, shuntCActual.isVoltageRegulatorOn().orElse(!voltageRegulatorOn));
+        boolean voltageRegulatorOn = shuntCExpected.isVoltageRegulatorOn();
+        assertEquals(voltageRegulatorOn, shuntCActual.isVoltageRegulatorOn());
         assertTrue(shuntCActual.setVoltageRegulatorOn(!voltageRegulatorOn) instanceof ShuntCompensatorAdapter);
-        assertEquals(shuntCExpected.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("Should be present")),
-                shuntCActual.isVoltageRegulatorOn().orElseThrow(() -> new PowsyblException("Should be present")));
+        assertEquals(shuntCExpected.isVoltageRegulatorOn(), shuntCActual.isVoltageRegulatorOn());
 
         // Not implemented yet !
         TestUtil.notImplemented(shuntCActual::remove);

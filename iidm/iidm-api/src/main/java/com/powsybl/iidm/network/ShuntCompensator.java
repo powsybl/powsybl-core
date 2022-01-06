@@ -216,8 +216,14 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Optional<Boolean> isVoltageRegulatorOn() {
-        throw new UnsupportedOperationException();
+    boolean isVoltageRegulatorOn();
+
+    /**
+     * Get an optional containing the shunt compensator's regulating status if it exists.
+     * Get an empty optional otherwise.
+     */
+    default Optional<Boolean> findVoltageRegulatorStatus() {
+        return Optional.of(isVoltageRegulatorOn());
     }
 
     /**

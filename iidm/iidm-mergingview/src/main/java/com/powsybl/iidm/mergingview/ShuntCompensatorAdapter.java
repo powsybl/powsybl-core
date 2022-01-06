@@ -99,8 +99,13 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
-    public Optional<Boolean> isVoltageRegulatorOn() {
+    public boolean isVoltageRegulatorOn() {
         return getDelegate().isVoltageRegulatorOn();
+    }
+
+    @Override
+    public Optional<Boolean> findVoltageRegulatorStatus() {
+        return getDelegate().findVoltageRegulatorStatus();
     }
 
     @Override
