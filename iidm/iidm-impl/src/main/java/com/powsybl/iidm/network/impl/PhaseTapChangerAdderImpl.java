@@ -32,7 +32,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
 
-    private PhaseTapChanger.RegulationMode regulationMode = null;
+    private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
     private double regulationValue = Double.NaN;
 

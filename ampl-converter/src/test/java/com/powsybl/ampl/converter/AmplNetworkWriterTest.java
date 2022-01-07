@@ -11,7 +11,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.*;
 import org.junit.Assert;
@@ -143,7 +142,6 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         network.getThreeWindingsTransformer("3WT").getLeg1()
                 .newPhaseTapChanger()
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .beginStep()
                 .setRho(1)
                 .setR(0.1)
