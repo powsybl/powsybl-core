@@ -57,7 +57,6 @@ public class AmplNetworkReaderTest {
                 .setTapPosition(1)
                 .setRegulationTerminal(twt.getTerminal(ThreeWindingsTransformer.Side.TWO))
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
-                .setRegulating(false)
                 .setRegulationValue(200)
                 .beginStep()
                     .setAlpha(-20.0)

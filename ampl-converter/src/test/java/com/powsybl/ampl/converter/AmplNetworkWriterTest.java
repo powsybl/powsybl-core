@@ -143,7 +143,6 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         network.getThreeWindingsTransformer("3WT").getLeg1()
                 .newPhaseTapChanger()
-                .setRegulating(false)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .beginStep()
                 .setRho(1)

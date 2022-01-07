@@ -179,6 +179,7 @@ public final class ScadaNetworkFactory {
                 .endStep()
                 .add();
         t3wt.getLeg2().newPhaseTapChanger()
+                .unsetRegulating()
                 .beginStep()
                 .setAlpha(1.0)
                 .setRho(1.0)
@@ -212,6 +213,7 @@ public final class ScadaNetworkFactory {
                 .endStep()
                 .add();
         t2wt.newPhaseTapChanger()
+                .unsetRegulating()
                 .beginStep()
                 .setAlpha(1.0)
                 .setRho(1.0)

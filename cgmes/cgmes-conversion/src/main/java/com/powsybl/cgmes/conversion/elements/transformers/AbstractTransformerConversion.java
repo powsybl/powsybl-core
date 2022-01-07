@@ -85,7 +85,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                     .setG(g1)
                     .endStep();
         });
-        ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP).setRegulating(false).add(); // TODO: when SCADA allowed, change this
+        ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP).add(); // TODO: when SCADA allowed, change this
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {

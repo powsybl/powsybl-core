@@ -197,6 +197,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         }
         if (regulatingStr != null || context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
             adder.setRegulating(Boolean.parseBoolean(regulatingStr));
+        } else {
+            adder.unsetRegulating();
         }
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement(name, context.getReader(), () -> {
