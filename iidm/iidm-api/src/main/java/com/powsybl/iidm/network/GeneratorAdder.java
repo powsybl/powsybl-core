@@ -34,6 +34,8 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
 
     GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
+    GeneratorAdder unsetVoltageRegulatorOn();
+
     /**
      * Set the regulating terminal, If not set or set to null local terminal is used.
      */

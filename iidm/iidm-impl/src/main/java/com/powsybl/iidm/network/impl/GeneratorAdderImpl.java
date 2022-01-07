@@ -24,7 +24,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private Boolean voltageRegulatorOn = null;
+    private Boolean voltageRegulatorOn;
 
     private double targetP = Double.NaN;
 
@@ -69,6 +69,12 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public GeneratorAdder unsetVoltageRegulatorOn() {
+        voltageRegulatorOn = null;
         return this;
     }
 
