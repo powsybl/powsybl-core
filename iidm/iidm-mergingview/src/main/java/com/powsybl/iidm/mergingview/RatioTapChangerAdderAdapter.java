@@ -115,6 +115,12 @@ public class RatioTapChangerAdderAdapter extends AbstractAdapter<RatioTapChanger
     }
 
     @Override
+    public RatioTapChangerAdder unsetRegulating() {
+        getDelegate().unsetRegulating();
+        return this;
+    }
+
+    @Override
     public RatioTapChangerAdder setTargetV(final double targetV) {
         getDelegate().setTargetV(targetV);
         return this;

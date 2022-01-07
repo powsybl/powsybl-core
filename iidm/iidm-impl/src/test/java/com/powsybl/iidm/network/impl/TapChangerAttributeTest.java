@@ -119,7 +119,6 @@ public class TapChangerAttributeTest {
 
     private void createRatioTapChanger(RatioTapChangerHolder rtch) {
         rtch.newRatioTapChanger()
-            .setRegulating(false)
             .setLowTapPosition(0)
             .setTapPosition(1)
             .setLoadTapChangingCapabilities(false)

@@ -54,7 +54,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                     .setG(g1)
                     .endStep();
         });
-        rtca.setRegulating(false).add(); // TODO: when SCADA allowed, this should be changed
+        rtca.add();
     }
 
     protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
