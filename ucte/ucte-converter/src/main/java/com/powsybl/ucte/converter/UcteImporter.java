@@ -286,7 +286,6 @@ public class UcteImporter implements Importer {
                 .newGeneration()
                 .setTargetP(-targetP)
                 .setTargetQ(-targetQ)
-                .setVoltageRegulationOn(false)
                 .add()
                 .add();
 
@@ -608,7 +607,6 @@ public class UcteImporter implements Importer {
                 .newGeneration()
                 .setTargetP(-targetP)
                 .setTargetQ(-targetQ)
-                .setVoltageRegulationOn(false)
                 .add()
                 .add();
         yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();

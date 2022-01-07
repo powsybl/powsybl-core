@@ -39,6 +39,8 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
 
         GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn);
 
+        GenerationAdder unsetVoltageRegulationOn();
+
         GenerationAdder setTargetV(double targetV);
 
         DanglingLineAdder add();

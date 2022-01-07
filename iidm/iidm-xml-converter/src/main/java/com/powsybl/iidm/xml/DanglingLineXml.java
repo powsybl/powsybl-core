@@ -164,6 +164,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                         .setTargetQ(targetQ);
                 if (voltageRegulationOnStr != null) {
                     ga.setVoltageRegulationOn(Boolean.parseBoolean(voltageRegulationOnStr));
+                } else {
+                    ga.unsetVoltageRegulationOn();
                 }
                 ga.add();
             }

@@ -55,6 +55,12 @@ public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<Dang
         }
 
         @Override
+        public GenerationAdder unsetVoltageRegulationOn() {
+            delegate.unsetVoltageRegulationOn();
+            return this;
+        }
+
+        @Override
         public GenerationAdder setTargetV(double targetV) {
             delegate.setTargetV(targetV);
             return this;
