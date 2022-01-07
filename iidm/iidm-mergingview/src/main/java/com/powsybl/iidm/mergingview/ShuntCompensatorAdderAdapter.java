@@ -53,6 +53,12 @@ public class ShuntCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<
     }
 
     @Override
+    public ShuntCompensatorAdder unsetSectionCount() {
+        getDelegate().unsetSectionCount();
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
         return this;
