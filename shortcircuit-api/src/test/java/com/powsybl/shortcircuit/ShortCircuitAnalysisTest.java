@@ -9,12 +9,16 @@ package com.powsybl.shortcircuit;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
+import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptorMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -109,6 +113,20 @@ public class ShortCircuitAnalysisTest {
     public void testSyncDefaultProviderWithoutParameters() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network);
         assertNotNull(result);
+    }
+
+    @Test
+    public void testInterceptor() {
+        Network network = EurostagTutorialExample1Factory.create();
+        List<ShortCircuitAnalysisInterceptor> interceptors = new ArrayList<>();
+        ShortCircuitAnalysisInterceptorMock interceptorMock = new ShortCircuitAnalysisInterceptorMock();
+        interceptors.add(interceptorMock);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisMock.runAsync(network);
+
+        assertNotNull(result);
+
+        List<FaultResult> faultResult = result.getFaultResults();
+        interceptors.forEach(o -> o.onFaultResult(network, faultResult.get(0)));
     }
 
 }

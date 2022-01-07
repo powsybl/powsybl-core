@@ -5,6 +5,7 @@ import com.powsybl.security.LimitViolation;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnalysisInterceptor {
@@ -50,7 +51,7 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
 
     private static void assertFaultResult(FaultResult faultResult) {
         assertNotNull(faultResult);
-        assertNotNull(faultResult.getThreePhaseFaultCurrent());
+        assertEquals(10, faultResult.getThreePhaseFaultCurrent(),0);
     }
 
     private static void assertLimitViolation(LimitViolation limitViolation) {

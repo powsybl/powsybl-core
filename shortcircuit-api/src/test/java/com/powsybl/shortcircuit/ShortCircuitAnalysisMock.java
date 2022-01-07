@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -20,14 +22,16 @@ import java.util.concurrent.CompletableFuture;
 @AutoService(ShortCircuitAnalysisProvider.class)
 public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
 
+    private final List<ShortCircuitAnalysisInterceptor> interceptors = new ArrayList<>();
+
     @Override
     public void addInterceptor(ShortCircuitAnalysisInterceptor interceptor) {
-
+        interceptors.add(interceptor);
     }
 
     @Override
     public boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor) {
-        return false;
+        return interceptors.remove(interceptor);
     }
 
     @Override
@@ -43,5 +47,11 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     @Override
     public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
         return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>(), new ArrayList<>()));
+    }
+
+    public static ShortCircuitAnalysisResult runAsync(Network network) {
+        FaultResult faultResult = new FaultResult("VLGEN", 10);
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.emptyList());
+        return result;
     }
 }

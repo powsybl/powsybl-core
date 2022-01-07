@@ -115,4 +115,5 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
             return "DummyShortCircuitAnalysisResultExtension";
         }
     }
+
 }
