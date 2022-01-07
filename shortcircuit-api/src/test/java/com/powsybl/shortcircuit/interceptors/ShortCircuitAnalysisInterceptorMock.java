@@ -51,7 +51,7 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
 
     private static void assertFaultResult(FaultResult faultResult) {
         assertNotNull(faultResult);
-        assertEquals(10, faultResult.getThreePhaseFaultCurrent(),0);
+        assertEquals(10, faultResult.getThreePhaseFaultCurrent(), 0);
     }
 
     private static void assertLimitViolation(LimitViolation limitViolation) {
