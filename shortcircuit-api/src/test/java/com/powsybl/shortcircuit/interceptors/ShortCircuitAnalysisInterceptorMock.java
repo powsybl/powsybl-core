@@ -2,6 +2,7 @@ package com.powsybl.shortcircuit.interceptors;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
@@ -56,11 +57,12 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
 
     private static void assertLimitViolation(LimitViolation limitViolation) {
         assertNotNull(limitViolation);
-        assertNotNull(limitViolation.getLimit());
+        assertEquals(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, limitViolation.getLimitType());
     }
 
     private static void assertShortCircuitResult(ShortCircuitAnalysisResult shortCircuitAnalysisResult) {
         assertNotNull(shortCircuitAnalysisResult);
-        assertNotNull(shortCircuitAnalysisResult.getFaultResults());
+        assertEquals(1, shortCircuitAnalysisResult.getFaultResults().size());
+        assertEquals(1, shortCircuitAnalysisResult.getLimitViolations().size());
     }
 }

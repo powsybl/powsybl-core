@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -118,15 +117,13 @@ public class ShortCircuitAnalysisTest {
     @Test
     public void testInterceptor() {
         Network network = EurostagTutorialExample1Factory.create();
-        List<ShortCircuitAnalysisInterceptor> interceptors = new ArrayList<>();
         ShortCircuitAnalysisInterceptorMock interceptorMock = new ShortCircuitAnalysisInterceptorMock();
-        interceptors.add(interceptorMock);
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisMock.runAsync(network);
-
         assertNotNull(result);
 
         List<FaultResult> faultResult = result.getFaultResults();
-        interceptors.forEach(o -> o.onFaultResult(network, faultResult.get(0)));
+        interceptorMock.onFaultResult(network, faultResult.get(0));
+        interceptorMock.onLimitViolation(network, result.getLimitViolations().get(0));
+        interceptorMock.onShortCircuitResult(network, result);
     }
-
 }
