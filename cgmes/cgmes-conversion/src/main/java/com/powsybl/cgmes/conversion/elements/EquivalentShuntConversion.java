@@ -23,7 +23,6 @@ public class EquivalentShuntConversion extends AbstractConductingEquipmentConver
     public void convert() {
         ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
                 .setSectionCount(terminalConnected() ? 1 : 0)
-                .setVoltageRegulatorOn(false) // TODO: when SCADA allowed, change this
                 .newLinearModel()
                     .setBPerSection(p.asDouble("b"))
                     .setMaximumSectionCount(1)
