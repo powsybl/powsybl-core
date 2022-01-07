@@ -71,9 +71,4 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
     public String getMessageHeader() {
         return identifiable.getMessageHeader();
     }
-
-    @Override
-    public NetworkImpl getNetwork() {
-        return identifiable.getNetwork();
-    }
 }
