@@ -45,10 +45,10 @@ public class ShuntCompensatorAdapterTest {
 
         int maxCount = shuntCExpected.getMaximumSectionCount();
         shuntCActual.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(++maxCount);
-        int currentCount = shuntCExpected.getSectionCount().orElseThrow(AssertionError::new);
-        assertEquals(currentCount, shuntCActual.getSectionCount().orElseThrow(AssertionError::new));
+        int currentCount = shuntCExpected.getSectionCount();
+        assertEquals(currentCount, shuntCActual.getSectionCount());
         assertTrue(shuntCActual.setSectionCount(++currentCount) instanceof ShuntCompensatorAdapter);
-        assertEquals(currentCount, shuntCActual.getSectionCount().orElseThrow(AssertionError::new));
+        assertEquals(currentCount, shuntCActual.getSectionCount());
 
         double b = shuntCExpected.getModel(ShuntCompensatorLinearModel.class).getBPerSection();
         assertEquals(b, shuntCActual.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0d);
@@ -102,7 +102,7 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(adder.add() instanceof ShuntCompensatorAdapter);
 
         ShuntCompensator shunt = mergingView.getShuntCompensator("linear");
-        assertEquals(0, shunt.getSectionCount().orElseThrow(AssertionError::new));
+        assertEquals(0, shunt.getSectionCount());
         assertEquals(2, shunt.getMaximumSectionCount());
         assertEquals(0, shunt.getB(), 0.0);
         assertEquals(0.0, shunt.getG(), 0.0);
@@ -141,7 +141,7 @@ public class ShuntCompensatorAdapterTest {
         assertTrue(adder.add() instanceof ShuntCompensatorAdapter);
 
         ShuntCompensator shunt = mergingView.getShuntCompensator("nonLinear");
-        assertEquals(1, shunt.getSectionCount().orElseThrow(AssertionError::new));
+        assertEquals(1, shunt.getSectionCount());
         assertEquals(2, shunt.getMaximumSectionCount());
 
         ShuntCompensatorNonLinearModel model = shunt.getModel(ShuntCompensatorNonLinearModel.class);

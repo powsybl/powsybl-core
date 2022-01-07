@@ -366,7 +366,7 @@ public final class StateVariablesExport {
             writer.writeEmptyElement(cimNamespace, "SvShuntCompensatorSections.ShuntCompensator");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
-            writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount().orElseThrow(AssertionError::new)));
+            writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
             writer.writeEndElement();
         }

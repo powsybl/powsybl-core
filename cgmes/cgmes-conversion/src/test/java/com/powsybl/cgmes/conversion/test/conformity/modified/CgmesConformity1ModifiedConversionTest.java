@@ -322,7 +322,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(shunt);
         assertEquals(1, shunt.getMaximumSectionCount());
         assertEquals(0.0012, shunt.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
-        assertEquals(1, shunt.getSectionCount().orElseThrow(AssertionError::new));
+        assertEquals(1, shunt.getSectionCount());
     }
 
     @Test

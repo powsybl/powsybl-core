@@ -328,8 +328,8 @@ public class Comparison {
                 actual.getTerminal().getVoltageLevel());
         compareAliases(expected, actual);
         compare("sectionCount",
-                expected.getSectionCount().orElseThrow(AssertionError::new),
-                actual.getSectionCount().orElseThrow(AssertionError::new));
+                expected.getSectionCount(),
+                actual.getSectionCount());
         compare("voltageRegulationOn",
                 expected.isVoltageRegulatorOn(),
                 actual.isVoltageRegulatorOn());

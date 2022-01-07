@@ -296,7 +296,7 @@ public class NetworkStateComparator {
 
         @Override
         public void setValue(ShuntCompensator sc, Cell cell) {
-            cell.setCellValue(sc.getSectionCount().orElseThrow(AssertionError::new));
+            cell.setCellValue(sc.getSectionCount());
         }
     };
 

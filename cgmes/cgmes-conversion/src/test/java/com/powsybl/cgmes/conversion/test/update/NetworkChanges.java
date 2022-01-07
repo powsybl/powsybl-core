@@ -99,8 +99,8 @@ public final class NetworkChanges {
     public static void modifyShuntCompensatorSections(Network network) {
         boolean found = false;
         for (ShuntCompensator sh : network.getShuntCompensators()) {
-            int newSections = sh.getSectionCount().orElseThrow(AssertionError::new) == 0 ? sh.getMaximumSectionCount() : 0;
-            if (newSections != sh.getSectionCount().orElseThrow(AssertionError::new)) {
+            int newSections = sh.getSectionCount() == 0 ? sh.getMaximumSectionCount() : 0;
+            if (newSections != sh.getSectionCount()) {
                 sh.setSectionCount(newSections);
                 found = true;
             }

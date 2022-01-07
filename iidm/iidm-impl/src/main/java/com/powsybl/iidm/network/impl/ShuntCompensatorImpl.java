@@ -67,7 +67,16 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public OptionalInt getSectionCount() {
+    public int getSectionCount() {
+        Integer section = sectionCount.get(network.get().getVariantIndex());
+        if (section == null) {
+            throw ValidationUtil.createUndefinedValueGetterException();
+        }
+        return section;
+    }
+
+    @Override
+    public OptionalInt findSectionCount() {
         Integer section = sectionCount.get(network.get().getVariantIndex());
         return section == null ? OptionalInt.empty() : OptionalInt.of(section);
     }

@@ -179,7 +179,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, shuntType + "ShuntCompensator");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + s.getId());
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
-            writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount().orElseThrow(AssertionError::new)));
+            writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters(Boolean.toString(controlEnabled));

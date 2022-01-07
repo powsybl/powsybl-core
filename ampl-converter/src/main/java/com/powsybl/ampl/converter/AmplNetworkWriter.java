@@ -1359,14 +1359,14 @@ public class AmplNetworkWriter {
                 int sectionCount = 1;
                 if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
                     // TODO non linear shunt has to be converted as multiple sections shunt.
-                    if (sc.getSectionCount().orElseThrow(AssertionError::new) > 1) {
-                        b1 = sc.getB(sc.getSectionCount().orElseThrow(AssertionError::new) - 1) * zb;
+                    if (sc.getSectionCount() > 1) {
+                        b1 = sc.getB(sc.getSectionCount() - 1) * zb;
                     }
                     b2 = sc.getB() * zb;
                 } else {
                     b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
                     points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
-                    sectionCount = sc.getSectionCount().orElseThrow(AssertionError::new);
+                    sectionCount = sc.getSectionCount();
                 }
                 double b = sc.getB() * zb;
                 double minB = Math.min(b1, b2);

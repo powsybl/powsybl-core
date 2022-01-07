@@ -56,11 +56,11 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
             int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(maximumSectionCount));
-            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount().orElseThrow(() -> new PowsyblException("Should not happen for XIIDM version " + context.getVersion().toString("."))) : 1;
+            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
             context.getWriter().writeAttribute("currentSectionCount", Integer.toString(currentSectionCount));
         });
-        if (sc.getSectionCount().isPresent()) {
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount().getAsInt())));
+        if (sc.findSectionCount().isPresent()) {
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount())));
         }
         sc.findVoltageRegulatorStatus().ifPresent(voltageRegulatorOn -> IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", voltageRegulatorOn, false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context));
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),

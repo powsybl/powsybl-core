@@ -158,7 +158,7 @@ public class StateVariablesAdder {
         PropertyBags shuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : network.getShuntCompensators()) {
             PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
-            p.put("sections", is(s.getSectionCount().orElseThrow(AssertionError::new)));
+            p.put("sections", is(s.getSectionCount()));
             p.put("ShuntCompensator", s.getId());
             shuntCompensatorSections.add(p);
         }

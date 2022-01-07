@@ -120,7 +120,18 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    OptionalInt getSectionCount();
+    int getSectionCount();
+
+    /**
+     * Get the count of sections in service if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSectionCount() {
+        return OptionalInt.of(getSectionCount());
+    }
 
     /**
      * Get the maximum number of sections that can be in service

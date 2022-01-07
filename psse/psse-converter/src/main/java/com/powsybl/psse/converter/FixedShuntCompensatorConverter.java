@@ -86,7 +86,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static double getQ(ShuntCompensator fixedShunt) {
-        return shuntAdmittanceToPower(fixedShunt.getB(fixedShunt.getSectionCount().orElseThrow(ValidationUtil::createUndefinedValueGetterException)),
+        return shuntAdmittanceToPower(fixedShunt.getB(fixedShunt.getSectionCount()),
             fixedShunt.getTerminal().getVoltageLevel().getNominalV());
     }
 
