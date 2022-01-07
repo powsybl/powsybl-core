@@ -121,6 +121,8 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     .setTargetDeadband(targetDeadband);
             if (voltageRegulatorOn != null || context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
                 adder.setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+            } else {
+                adder.unsetVoltageRegulatorOn();
             }
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));

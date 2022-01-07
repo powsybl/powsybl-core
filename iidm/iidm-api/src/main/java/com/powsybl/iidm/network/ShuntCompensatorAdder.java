@@ -40,6 +40,8 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
         throw new UnsupportedOperationException();
     }
 
+    ShuntCompensatorAdder unsetVoltageRegulatorOn();
+
     default ShuntCompensatorAdder setTargetV(double targetV) {
         throw new UnsupportedOperationException();
     }
