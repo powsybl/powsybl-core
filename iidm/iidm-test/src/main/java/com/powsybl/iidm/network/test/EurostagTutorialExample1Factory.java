@@ -632,7 +632,6 @@ public final class EurostagTutorialExample1Factory {
                 .setId("SHUNT")
                 .setConnectableBus(nshunt.getId())
                 .setSectionCount(1)
-                .setVoltageRegulatorOn(false)
                 .newLinearModel()
                     .setBPerSection(1e-5)
                     .setMaximumSectionCount(1)
