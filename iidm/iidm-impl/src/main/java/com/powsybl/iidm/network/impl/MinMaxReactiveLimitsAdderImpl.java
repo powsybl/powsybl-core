@@ -6,7 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.MinMaxReactiveLimits;
+import com.powsybl.iidm.network.MinMaxReactiveLimitsAdder;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
