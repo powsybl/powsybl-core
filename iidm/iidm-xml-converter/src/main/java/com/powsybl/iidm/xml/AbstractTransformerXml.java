@@ -13,7 +13,6 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.DoubleConsumer;
 
@@ -78,10 +77,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), name);
         writeTapChanger(rtc, context);
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
-        Optional<Boolean> regulating = rtc.findRegulatingStatus();
-        if (regulating.isPresent()) {
-            if (rtc.hasLoadTapChangingCapabilities() || regulating.get() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
-                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(regulating.get()));
+        if (rtc.findRegulatingStatus().isPresent()) {
+            if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
+                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
             }
         }
         XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
@@ -161,10 +159,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || !Double.isNaN(ptc.getRegulationValue())) {
             XmlUtil.writeDouble("regulationValue", ptc.getRegulationValue(), context.getWriter());
         }
-        Optional<Boolean> regulating = ptc.findRegulatingStatus();
-        if (regulating.isPresent()) {
-            if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || regulating.get() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
-                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(regulating.get()));
+        if (ptc.findRegulatingStatus().isPresent()) {
+            if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
+                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
             }
         }
         if (ptc.getRegulationTerminal() != null) {
