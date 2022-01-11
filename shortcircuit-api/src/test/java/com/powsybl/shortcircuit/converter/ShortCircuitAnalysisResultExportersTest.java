@@ -8,6 +8,8 @@ package com.powsybl.shortcircuit.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.FaultResult;
@@ -90,6 +92,33 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     public void roundTripJson() throws IOException {
         ShortCircuitAnalysisResult result = createResultWithExtension();
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-with-extensions-results.json");
+    }
+
+    public void writeCsv(ShortCircuitAnalysisResult result, Path path) {
+        Network network = EurostagTutorialExample1Factory.create();
+        ShortCircuitAnalysisResultExporters.export(result, path, "CSV", network);
+    }
+
+    @Test
+    public void testWriteCsv() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        ShortCircuitAnalysisResult result = createResult(network);
+        writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/shortcircuit-results.csv");
+    }
+
+    public ShortCircuitAnalysisResult createResult(Network network) {
+        List<FaultResult> faultResults = new ArrayList<>();
+        FaultResult faultResult = new FaultResult("VLGEN", 2500);
+        faultResults.add(faultResult);
+        List<LimitViolation> limitViolations = new ArrayList<>();
+        String subjectId = "VLGEN";
+        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
+        float limit = 2000;
+        float limitReduction = 1;
+        float value = 2500;
+        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        limitViolations.add(limitViolation);
+        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
     }
 
     static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {
