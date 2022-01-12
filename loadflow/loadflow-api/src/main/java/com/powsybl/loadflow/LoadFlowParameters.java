@@ -62,14 +62,15 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.3 simulShunt, read/write slack bus
     // VERSION = 1.4 dc, distributedSlack, balanceType
     // VERSION = 1.5 dcUseTransformerRatio, countriesToBalance, computedConnectedComponentScope
-    public static final String VERSION = "1.5";
+    // VERSION = 1.6 shuntCompensatorVoltageControlOn instead of simulShunt
+    public static final String VERSION = "1.6";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
-    public static final boolean DEFAULT_SIMUL_SHUNT = false;
+    public static final boolean DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_READ_SLACK_BUS = true;
     public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
     public static final boolean DEFAULT_DC = false;
@@ -117,7 +118,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
                 // keep old tag name "specificCompatibility" for compatibility
                 parameters.setTwtSplitShuntAdmittance(config.getBooleanProperty("twtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE)));
-                parameters.setSimulShunt(config.getBooleanProperty("simulShunt", DEFAULT_SIMUL_SHUNT));
+                parameters.setShuntCompensatorVoltageControlOn(config.getBooleanProperty("shuntCompensatorVoltageControlOn",
+                        config.getOptionalBooleanProperty("simulShunt").orElse(DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON)));
                 parameters.setReadSlackBus(config.getBooleanProperty("readSlackBus", DEFAULT_READ_SLACK_BUS));
                 parameters.setWriteSlackBus(config.getBooleanProperty("writeSlackBus", DEFAULT_WRITE_SLACK_BUS));
                 parameters.setDc(config.getBooleanProperty("dc", DEFAULT_DC));
@@ -139,7 +141,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean twtSplitShuntAdmittance;
 
-    private boolean simulShunt;
+    private boolean shuntCompensatorVoltageControlOn;
 
     private boolean readSlackBus;
 
@@ -159,7 +161,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
                               boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
-                              boolean twtSplitShuntAdmittance, boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
+                              boolean twtSplitShuntAdmittance, boolean shuntCompensatorVoltageControlOn, boolean readSlackBus, boolean writeSlackBus,
                               boolean dc, boolean distributedSlack, BalanceType balanceType, boolean dcUseTransformerRatio,
                               Set<Country> countriesToBalance, ConnectedComponentMode connectedComponentMode) {
         this.voltageInitMode = voltageInitMode;
@@ -167,7 +169,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
-        this.simulShunt = simulShunt;
+        this.shuntCompensatorVoltageControlOn = shuntCompensatorVoltageControlOn;
         this.readSlackBus = readSlackBus;
         this.writeSlackBus = writeSlackBus;
         this.dc = dc;
@@ -181,7 +183,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
         boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
         boolean twtSplitShuntAdmittance) {
-        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SIMUL_SHUNT, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
+        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
                 DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE, DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, DEFAULT_COUNTRIES_TO_BALANCE, DEFAULT_CONNECTED_COMPONENT_MODE);
     }
 
@@ -204,7 +206,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         twtSplitShuntAdmittance = other.twtSplitShuntAdmittance;
-        simulShunt = other.simulShunt;
+        shuntCompensatorVoltageControlOn = other.shuntCompensatorVoltageControlOn;
         readSlackBus = other.readSlackBus;
         writeSlackBus = other.writeSlackBus;
         dc = other.dc;
@@ -292,12 +294,28 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
+    /**
+     * @deprecated Use {@link #isShuntCompensatorVoltageControlOn()} instead.
+     */
+    @Deprecated
     public boolean isSimulShunt() {
-        return simulShunt;
+        return isShuntCompensatorVoltageControlOn();
     }
 
+    public boolean isShuntCompensatorVoltageControlOn() {
+        return shuntCompensatorVoltageControlOn;
+    }
+
+    /**
+     * @deprecated Use {@link #setShuntCompensatorVoltageControlOn(boolean)} instead.
+     */
+    @Deprecated
     public LoadFlowParameters setSimulShunt(boolean simulShunt) {
-        this.simulShunt = simulShunt;
+        return setShuntCompensatorVoltageControlOn(simulShunt);
+    }
+
+    public LoadFlowParameters setShuntCompensatorVoltageControlOn(boolean shuntCompensatorVoltageControlOn) {
+        this.shuntCompensatorVoltageControlOn = shuntCompensatorVoltageControlOn;
         return this;
     }
 
@@ -354,7 +372,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("noGeneratorReactiveLimits", noGeneratorReactiveLimits)
                 .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
                 .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
-                .put("simulShunt", simulShunt)
+                .put("simulShunt", shuntCompensatorVoltageControlOn)
                 .put("readSlackBus", readSlackBus)
                 .put("writeSlackBus", writeSlackBus)
                 .put("dc", dc)

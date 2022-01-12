@@ -68,7 +68,7 @@ public class LoadFlowParametersTest {
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
         assertEquals(parameters.isNoGeneratorReactiveLimits(), noGeneratorReactiveLimits);
         assertEquals(parameters.isTwtSplitShuntAdmittance(), twtSplitShuntAdmittance);
-        assertEquals(parameters.isSimulShunt(), simulShunt);
+        assertEquals(parameters.isShuntCompensatorVoltageControlOn(), simulShunt);
         assertEquals(parameters.isReadSlackBus(), readSlackBus);
         assertEquals(parameters.isWriteSlackBus(), writeSlackBus);
         assertEquals(parameters.isDc(), dc);
@@ -88,7 +88,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
+                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC,
@@ -151,7 +151,7 @@ public class LoadFlowParametersTest {
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
                 transformerVoltageControlOn, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
+                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
                 LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE);
@@ -164,7 +164,7 @@ public class LoadFlowParametersTest {
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
+                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
                 LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE);
@@ -177,7 +177,7 @@ public class LoadFlowParametersTest {
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
+                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
                 LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
                 LoadFlowParameters.DEFAULT_CONNECTED_COMPONENT_MODE);
@@ -191,7 +191,7 @@ public class LoadFlowParametersTest {
         checkValues(parameters, voltageInitMode, true, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
+                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC,
@@ -210,7 +210,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
+                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC,
@@ -229,7 +229,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON,
                 LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
-                LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
+                LoadFlowParameters.DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 true,
@@ -264,7 +264,7 @@ public class LoadFlowParametersTest {
                 .setTransformerVoltageControlOn(transformerVoltageControlOn)
                 .setVoltageInitMode(voltageInitMode)
                 .setTwtSplitShuntAdmittance(twtSplitShuntAdmittance)
-                .setSimulShunt(simulShunt)
+                .setShuntCompensatorVoltageControlOn(simulShunt)
                 .setReadSlackBus(readSlackBus)
                 .setWriteSlackBus(writeSlackBus)
                 .setDc(dc)
@@ -298,7 +298,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
-                parameters.isSimulShunt(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
+                parameters.isShuntCompensatorVoltageControlOn(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
                 parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType(), parameters.isDcUseTransformerRatio(),
                 parameters.getCountriesToBalance(), parameters.getConnectedComponentMode());
     }
