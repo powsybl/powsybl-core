@@ -372,7 +372,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("noGeneratorReactiveLimits", noGeneratorReactiveLimits)
                 .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
                 .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
-                .put("simulShunt", shuntCompensatorVoltageControlOn)
+                .put("shuntCompensatorVoltageControlOn", shuntCompensatorVoltageControlOn)
                 .put("readSlackBus", readSlackBus)
                 .put("writeSlackBus", writeSlackBus)
                 .put("dc", dc)
