@@ -73,7 +73,7 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
         @Override
         public int hashCode() {
-            return Objects.hash(cgmesId, name);
+            return cgmesId.hashCode();
         }
 
         @Override
@@ -83,7 +83,7 @@ public interface CgmesIidmMapping extends Extension<Network> {
             }
 
             CgmesTopologicalNode node = (CgmesTopologicalNode) o;
-            return cgmesId.equals(node.getCgmesId()) && name.equals(node.getName());
+            return cgmesId.equals(node.getCgmesId());
         }
     }
 
