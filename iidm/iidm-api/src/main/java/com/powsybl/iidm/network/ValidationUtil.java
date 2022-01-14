@@ -725,8 +725,8 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, load.getQ0(), throwException, reporter));
             } else if (identifiable instanceof ShuntCompensator) {
                 ShuntCompensator shunt = (ShuntCompensator) identifiable;
-                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.findVoltageRegulatorStatus().orElse(null), shunt.getTargetV(), throwException, reporter));
-                validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.findVoltageRegulatorStatus().orElse(null), shunt.getTargetDeadband(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, shunt.findSectionCount().isPresent() ? shunt.getSectionCount() : null, shunt.getMaximumSectionCount(), throwException, reporter));
             } else if (identifiable instanceof StaticVarCompensator) {
                 StaticVarCompensator svc = (StaticVarCompensator) identifiable;

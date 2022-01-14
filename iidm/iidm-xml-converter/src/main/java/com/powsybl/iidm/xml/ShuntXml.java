@@ -62,7 +62,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         if (sc.findSectionCount().isPresent()) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount())));
         }
-        sc.findVoltageRegulatorStatus().ifPresent(voltageRegulatorOn -> IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", voltageRegulatorOn, false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context));
+        IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetDeadband",
@@ -118,12 +118,8 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
             double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
             adder.setTargetV(targetV)
-                    .setTargetDeadband(targetDeadband);
-            if (voltageRegulatorOn != null || context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
-                adder.setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
-            } else {
-                adder.unsetVoltageRegulatorOn();
-            }
+                    .setTargetDeadband(targetDeadband)
+                    .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {

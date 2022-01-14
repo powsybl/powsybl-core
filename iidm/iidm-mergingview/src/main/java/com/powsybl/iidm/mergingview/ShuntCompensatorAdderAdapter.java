@@ -65,12 +65,6 @@ public class ShuntCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<
     }
 
     @Override
-    public ShuntCompensatorAdder unsetVoltageRegulatorOn() {
-        getDelegate().unsetVoltageRegulatorOn();
-        return this;
-    }
-
-    @Override
     public ShuntCompensatorAdder setTargetV(double targetV) {
         getDelegate().setTargetV(targetV);
         return this;

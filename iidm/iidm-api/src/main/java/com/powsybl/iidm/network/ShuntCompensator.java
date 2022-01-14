@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -230,14 +229,6 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     boolean isVoltageRegulatorOn();
 
     /**
-     * Get an optional containing the shunt compensator's regulating status if it exists.
-     * Get an empty optional otherwise.
-     */
-    default Optional<Boolean> findVoltageRegulatorStatus() {
-        return Optional.of(isVoltageRegulatorOn());
-    }
-
-    /**
      * Set the shunt compensator's regulating status.
      * <p>
      * Depends on the working variant.
@@ -246,11 +237,6 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     default ShuntCompensator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }
-
-    /**
-     * Unset the shunt compensator's regulating status (making it undefined).
-     */
-    ShuntCompensator unsetVoltageRegulatorOn();
 
     /**
      * Get the shunt compensator's voltage target in kV if it exists. Else return NaN.
