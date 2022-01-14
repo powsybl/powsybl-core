@@ -24,7 +24,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         private double maxP = Double.NaN;
         private double targetP = Double.NaN;
         private double targetQ = Double.NaN;
-        private Boolean voltageRegulationOn = false;
+        private boolean voltageRegulationOn = false;
         private double targetV = Double.NaN;
 
         @Override
@@ -54,12 +54,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         @Override
         public GenerationAdder setVoltageRegulationOn(boolean voltageRegulationOn) {
             this.voltageRegulationOn = voltageRegulationOn;
-            return this;
-        }
-
-        @Override
-        public GenerationAdder unsetVoltageRegulationOn() {
-            voltageRegulationOn = null;
             return this;
         }
 

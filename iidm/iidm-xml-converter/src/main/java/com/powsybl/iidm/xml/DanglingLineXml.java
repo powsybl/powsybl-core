@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -80,13 +79,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> context.getWriter().writeAttribute("withGeneration", "true"));
                 XmlUtil.writeDouble(GENERATION_MIN_P, generation.getMinP(), context.getWriter());
                 XmlUtil.writeDouble(GENERATION_MAX_P, generation.getMaxP(), context.getWriter());
-                generation.findVoltageRegulationStatus().ifPresent(voltageRegulationOn -> {
-                    try {
-                        context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(voltageRegulationOn));
-                    } catch (XMLStreamException e) {
-                        throw new UncheckedXmlStreamException(e);
-                    }
-                });
+                XmlUtil.writeOptionalBoolean("generationVoltageRegulationOn", generation.isVoltageRegulationOn(), false, context.getWriter());
                 XmlUtil.writeDouble(GENERATION_TARGET_P, generation.getTargetP(), context.getWriter());
                 XmlUtil.writeDouble(GENERATION_TARGET_V, generation.getTargetV(), context.getWriter());
                 XmlUtil.writeDouble(GENERATION_TARGET_Q, generation.getTargetQ(), context.getWriter());
@@ -164,8 +157,6 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                         .setTargetQ(targetQ);
                 if (voltageRegulationOnStr != null) {
                     ga.setVoltageRegulationOn(Boolean.parseBoolean(voltageRegulationOnStr));
-                } else {
-                    ga.unsetVoltageRegulationOn();
                 }
                 ga.add();
             }

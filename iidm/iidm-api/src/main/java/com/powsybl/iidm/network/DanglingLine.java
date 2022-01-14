@@ -192,8 +192,6 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
          */
         Generation setVoltageRegulationOn(boolean voltageRegulationOn);
 
-        Generation unsetVoltageRegulationOn();
-
         /**
          * <p>Get the generator voltage target in Kv.</p>
          * <p>Depends on the working variant.</p>

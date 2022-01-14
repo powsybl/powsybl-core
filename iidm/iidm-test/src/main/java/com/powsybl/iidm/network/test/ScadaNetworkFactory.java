@@ -52,7 +52,6 @@ public final class ScadaNetworkFactory {
                 .setG(0.0)
                 .setB(0.0)
                 .newGeneration()
-                .unsetVoltageRegulationOn()
                 .setMinP(100.0)
                 .setMaxP(200.0)
                 .add()

@@ -280,8 +280,6 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(0, generation.getMinP(), 0.0);
         assertEquals(400, generation.getTargetV(), 0.0);
         assertTrue(generation.isVoltageRegulationOn());
-        assertTrue(generation.findVoltageRegulationStatus().isPresent());
-        assertTrue(generation.findVoltageRegulationStatus().orElse(false));
         generation.newMinMaxReactiveLimits()
                 .setMaxQ(500)
                 .setMinQ(-500)

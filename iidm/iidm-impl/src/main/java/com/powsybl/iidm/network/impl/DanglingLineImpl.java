@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -37,9 +38,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         private final TDoubleArrayList targetV;
 
-        private final List<Boolean> voltageRegulationOn;
+        private final TBooleanArrayList voltageRegulationOn;
 
-        GenerationImpl(VariantManagerHolder network, double minP, double maxP, double targetP, double targetQ, double targetV, Boolean voltageRegulationOn) {
+        GenerationImpl(VariantManagerHolder network, double minP, double maxP, double targetP, double targetQ, double targetV, boolean voltageRegulationOn) {
             this.minP = Double.isNaN(minP) ? -Double.MAX_VALUE : minP;
             this.maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
 
@@ -47,7 +48,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             this.targetP = new TDoubleArrayList(variantArraySize);
             this.targetQ = new TDoubleArrayList(variantArraySize);
             this.targetV = new TDoubleArrayList(variantArraySize);
-            this.voltageRegulationOn = new ArrayList<>(variantArraySize);
+            this.voltageRegulationOn = new TBooleanArrayList(variantArraySize);
             for (int i = 0; i < variantArraySize; i++) {
                 this.targetP.add(targetP);
                 this.targetQ.add(targetQ);
@@ -133,13 +134,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public boolean isVoltageRegulationOn() {
-            return Optional.ofNullable(voltageRegulationOn.get(danglingLine.getNetwork().getVariantIndex()))
-                    .orElseThrow(ValidationUtil::createUndefinedValueGetterException);
-        }
-
-        @Override
-        public Optional<Boolean> findVoltageRegulationStatus() {
-            return Optional.ofNullable(voltageRegulationOn.get(danglingLine.getNetwork().getVariantIndex()));
+            return voltageRegulationOn.get(danglingLine.getNetwork().getVariantIndex());
         }
 
         @Override
@@ -148,25 +143,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
             ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn,
                     targetV.get(variantIndex), targetQ.get(variantIndex), n.getMinValidationLevel());
-            Boolean oldValue = this.voltageRegulationOn.get(variantIndex);
+            boolean oldValue = this.voltageRegulationOn.get(variantIndex);
             this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             danglingLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
-            return this;
-        }
-
-        @Override
-        public Generation unsetVoltageRegulationOn() {
-            NetworkImpl n = danglingLine.getNetwork();
-            int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, null,
-                    targetV.get(variantIndex), targetQ.get(variantIndex), n.getMinValidationLevel());
-            Boolean oldValue = this.voltageRegulationOn.get(variantIndex);
-            this.voltageRegulationOn.set(variantIndex, null);
-            String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
-            n.invalidateValidationLevel();
-            danglingLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, null);
             return this;
         }
 
@@ -221,7 +202,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         void extendVariantArraySize(int number, int sourceIndex) {
             targetP.ensureCapacity(targetP.size() + number);
             targetQ.ensureCapacity(targetQ.size() + number);
-            ((ArrayList<Boolean>) voltageRegulationOn).ensureCapacity(voltageRegulationOn.size() + number);
+            voltageRegulationOn.ensureCapacity(voltageRegulationOn.size() + number);
             targetV.ensureCapacity(targetV.size() + number);
             for (int i = 0; i < number; i++) {
                 targetP.add(targetP.get(sourceIndex));
@@ -234,11 +215,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         void reduceVariantArraySize(int number) {
             targetP.remove(targetP.size() - number, number);
             targetQ.remove(targetQ.size() - number, number);
-            List<Boolean> tmp = new ArrayList<>(voltageRegulationOn.subList(0, number));
-            voltageRegulationOn.clear();
-            voltageRegulationOn.addAll(tmp);
+            voltageRegulationOn.remove(voltageRegulationOn.size() - number, number);
             targetV.remove(targetV.size() - number, number);
-
         }
 
         void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
