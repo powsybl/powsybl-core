@@ -64,12 +64,6 @@ public class GeneratorAdderAdapter extends AbstractInjectionAdderAdapter<Generat
     }
 
     @Override
-    public GeneratorAdder unsetVoltageRegulatorOn() {
-        getDelegate().unsetVoltageRegulatorOn();
-        return this;
-    }
-
-    @Override
     public GeneratorAdder setTargetP(final double targetP) {
         getDelegate().setTargetP(targetP);
         return this;

@@ -8,8 +8,6 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.Optional;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -96,19 +94,8 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public Optional<Boolean> findVoltageRegulatorStatus() {
-        return getDelegate().findVoltageRegulatorStatus();
-    }
-
-    @Override
     public Generator setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
         getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
-        return this;
-    }
-
-    @Override
-    public Generator unsetVoltageRegulatorOn() {
-        getDelegate().unsetVoltageRegulatorOn();
         return this;
     }
 

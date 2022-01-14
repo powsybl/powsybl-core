@@ -73,12 +73,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdder unsetVoltageRegulatorOn() {
-        voltageRegulatorOn = null;
-        return this;
-    }
-
-    @Override
     public GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         return this;
@@ -111,6 +105,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public GeneratorImpl add() {
         NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.SCADA && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkMinP(this, minP);

@@ -6,13 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,7 +32,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     // attributes depending on the variant
 
-    private final List<Boolean> voltageRegulatorOn;
+    private final TBooleanArrayList voltageRegulatorOn;
 
     private final TDoubleArrayList targetP;
 
@@ -46,7 +43,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
-                  Boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
+                  boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
                   double targetP, double targetQ, double targetV,
                   double ratedS) {
         super(network, id, name, fictitious);
@@ -58,7 +55,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.regulatingTerminal = regulatingTerminal;
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.voltageRegulatorOn = new ArrayList<>(variantArraySize);
+        this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
@@ -121,13 +118,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return Optional.ofNullable(voltageRegulatorOn.get(network.get().getVariantIndex()))
-                .orElseThrow(ValidationUtil::createUndefinedValueGetterException);
-    }
-
-    @Override
-    public Optional<Boolean> findVoltageRegulatorStatus() {
-        return Optional.ofNullable(voltageRegulatorOn.get(network.get().getVariantIndex()));
+        return voltageRegulatorOn.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -137,24 +128,10 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         ValidationUtil.checkVoltageControl(this,
                 voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
                 n.getMinValidationLevel());
-        Boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
+        boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
-        return this;
-    }
-
-    @Override
-    public Generator unsetVoltageRegulatorOn() {
-        NetworkImpl n = getNetwork();
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this,
-                null, targetV.get(variantIndex), targetQ.get(variantIndex),
-                n.getMinValidationLevel());
-        Boolean oldValue = this.voltageRegulatorOn.set(variantIndex, null);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("voltageRegulatorOn", variantId, oldValue, null);
         return this;
     }
 
@@ -267,7 +244,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        ((ArrayList<Boolean>) voltageRegulatorOn).ensureCapacity(voltageRegulatorOn.size() + number);
+        voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
         targetP.ensureCapacity(targetP.size() + number);
         targetQ.ensureCapacity(targetQ.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
@@ -282,9 +259,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        List<Boolean> tmp = new ArrayList<>(voltageRegulatorOn.subList(0, number));
-        voltageRegulatorOn.clear();
-        voltageRegulatorOn.addAll(tmp);
+        voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
         targetP.remove(targetP.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);

@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
-
 /**
  * A power generator.
  *
@@ -171,10 +169,6 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      */
     boolean isVoltageRegulatorOn();
 
-    default Optional<Boolean> findVoltageRegulatorStatus() {
-        return Optional.of(isVoltageRegulatorOn());
-    }
-
     /**
      * Set the voltage regulator status.
      * <p>
@@ -182,11 +176,6 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * @see VariantManager
      */
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
-
-    /**
-     * Unset the voltage regulator status. It is null.
-     */
-    Generator unsetVoltageRegulatorOn();
 
     /**
      * Get the terminal used for regulation.
