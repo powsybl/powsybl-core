@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
@@ -40,13 +39,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        cs.findVoltageRegulatorStatus().ifPresent(voltageRegulatorOn -> {
-            try {
-                context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(voltageRegulatorOn));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
         XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
         XmlUtil.writeDouble("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
         XmlUtil.writeDouble("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
@@ -77,10 +70,8 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
         adder
                 .setLossFactor(lossFactor)
                 .setVoltageSetpoint(voltageSetpoint)
-                .setReactivePowerSetpoint(reactivePowerSetpoint);
-        if (voltageRegulatorOn != null) {
-            adder.setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
-        }
+                .setReactivePowerSetpoint(reactivePowerSetpoint)
+                .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
         VscConverterStation cs = adder.add();
         readPQ(null, cs.getTerminal(), context.getReader());
         return cs;

@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
-
 /**
  * VSC converter station.
  *
@@ -79,19 +77,6 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return true if voltage regulator is on, false otherwise
      */
     boolean isVoltageRegulatorOn();
-
-    /**
-     * Get an optional containing the voltage regulator status if it is defined.
-     * Otherwise, get an empty optional.
-     */
-    default Optional<Boolean> findVoltageRegulatorStatus() {
-        return Optional.of(isVoltageRegulatorOn());
-    }
-
-    /**
-     * Unset voltage regulator status (make it null)
-     */
-    VscConverterStation unsetVoltageRegulatorOn();
 
     /**
      * Set voltage regulator status.

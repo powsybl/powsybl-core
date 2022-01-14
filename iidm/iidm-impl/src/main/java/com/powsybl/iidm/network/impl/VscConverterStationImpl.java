@@ -6,13 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +21,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private final List<Boolean> voltageRegulatorOn;
+    private final TBooleanArrayList voltageRegulatorOn;
 
     private final TDoubleArrayList reactivePowerSetpoint;
 
@@ -33,10 +30,10 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     private TerminalExt regulatingTerminal;
 
     VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
-                            Boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint, TerminalExt regulatingTerminal) {
+                            boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint, TerminalExt regulatingTerminal) {
         super(ref, id, name, fictitious, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.voltageRegulatorOn = new ArrayList<>(variantArraySize);
+        this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
@@ -60,25 +57,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return Optional.ofNullable(voltageRegulatorOn.get(getNetwork().getVariantIndex())).orElseThrow(ValidationUtil::createUndefinedValueGetterException);
-    }
-
-    @Override
-    public Optional<Boolean> findVoltageRegulatorStatus() {
-        return Optional.ofNullable(voltageRegulatorOn.get(getNetwork().getVariantIndex()));
-    }
-
-    @Override
-    public VscConverterStation unsetVoltageRegulatorOn() {
-        NetworkImpl n = getNetwork();
-        int variantIndex = n.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, null, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), n.getMinValidationLevel());
-        Boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
-        this.voltageRegulatorOn.set(variantIndex, null);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("voltageRegulatorOn", variantId, oldValue, null);
-        return this;
+        return voltageRegulatorOn.get(getNetwork().getVariantIndex());
     }
 
     @Override
@@ -86,7 +65,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), n.getMinValidationLevel());
-        Boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
+        boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
         this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -163,7 +142,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         voltageSetpoint.ensureCapacity(voltageSetpoint.size() + number);
         voltageSetpoint.fill(initVariantArraySize, initVariantArraySize + number, voltageSetpoint.get(sourceIndex));
 
-        ((ArrayList<Boolean>) voltageRegulatorOn).ensureCapacity(voltageRegulatorOn.size() + number);
+        voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
         for (int i = 0; i < number; i++) {
             voltageRegulatorOn.add(voltageRegulatorOn.get(sourceIndex));
         }
@@ -174,9 +153,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         super.reduceVariantArraySize(number);
         reactivePowerSetpoint.remove(reactivePowerSetpoint.size() - number, number);
         voltageSetpoint.remove(voltageSetpoint.size() - number, number);
-        List<Boolean> tmp = new ArrayList<>(voltageRegulatorOn.subList(0, number));
-        voltageRegulatorOn.clear();
-        voltageRegulatorOn.addAll(tmp);
+        voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
     }
 
     @Override
