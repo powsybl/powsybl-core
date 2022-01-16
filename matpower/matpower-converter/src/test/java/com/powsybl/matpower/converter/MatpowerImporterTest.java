@@ -72,6 +72,11 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testCase9limits() throws IOException {
+        testCase(MatpowerModelFactory.create9limits());
+    }
+
+    @Test
     public void testCase14() throws IOException {
         testCase(MatpowerModelFactory.create14());
     }
@@ -120,7 +125,7 @@ public class MatpowerImporterTest extends AbstractConverterTest {
         ZonedDateTime caseDateTime = DEFAULTDATEFORTESTS.atStartOfDay(ZoneOffset.UTC.normalized());
         network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
 
-        String fileName = id + "mat.xiidm";
+        String fileName = id + ".xiidm";
         Path file = tmpDir.resolve(fileName);
         NetworkXml.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
