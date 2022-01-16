@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Branch;
  */
 public interface BranchObservability<B extends Branch<B>> extends Extension<B>, Observability<B> {
 
+    String NAME = "branchObservability";
+
     @Override
     default String getName() {
-        return "branchObservability";
+        return NAME;
     }
 
     /**

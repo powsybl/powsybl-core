@@ -81,7 +81,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         addAliasesAndProperties(shunt);
 
         // At a shunt terminal, only Q can be set
-        PowerFlow f = powerFlow();
+        PowerFlow f = powerFlowSV();
         if (f.defined()) {
             double q = f.q();
             if (context.config().changeSignForShuntReactivePowerFlowInitialState()) {

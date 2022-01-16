@@ -147,7 +147,8 @@ public class Conversion {
         addCimCharacteristics(network);
         if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
-            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode")));
+            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
+            cgmes.baseVoltages().forEach(bv -> mappingAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
             mappingAdder.add();
         }
 
@@ -202,20 +203,20 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.loadingLimitsMapping().addAll();
 
-        if (config.importControlAreas()) {
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
-            cgmesControlAreas.cleanIfEmpty();
-        }
-
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
 
         clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
         voltageAngles(nodes, context);
+
+        if (config.importControlAreas()) {
+            network.newExtension(CgmesControlAreasAdder.class).add();
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
+            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf, cgmes, network));
+            cgmesControlAreas.cleanIfEmpty();
+        }
 
         // set all regulating controls
         context.regulatingControlMapping().setAllRegulatingControls(network);
@@ -249,6 +250,16 @@ public class Conversion {
         return network;
     }
 
+    private CgmesIidmMapping.Source isBoundaryTopologicalNode(String graph) {
+        //There are unit tests where the boundary file contains the sequence "TPBD" and others "TP_BD"
+        return graph.contains("TP") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+    }
+
+    private CgmesIidmMapping.Source isBoundaryBaseVoltage(String graph) {
+        //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
+        return graph.contains("EQ") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+    }
+
     private static void completeVoltagesAndAngles(Network network) {
 
         // Voltage and angle in starBus as properties
@@ -270,7 +281,8 @@ public class Conversion {
                 .add();
     }
 
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
+    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf,
+        CgmesModel cgmesModel, Network network) {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         if (cgmesControlArea == null) {
@@ -278,10 +290,14 @@ public class Conversion {
             return;
         }
         String terminalId = tf.getId("terminal");
-        if (context.terminalMapping().find(terminalId) != null) {
-            cgmesControlArea.add(context.terminalMapping().find(terminalId));
-        } else if (context.terminalMapping().findBoundary(terminalId) != null) {
-            cgmesControlArea.add(context.terminalMapping().findBoundary(terminalId));
+        Boundary boundary = context.terminalMapping().findBoundary(terminalId, cgmesModel);
+        if (boundary != null) {
+            cgmesControlArea.add(boundary);
+            return;
+        }
+        Terminal terminal = context.terminalMapping().find(terminalId, cgmesModel, network);
+        if (terminal != null) {
+            cgmesControlArea.add(terminal);
         }
     }
 

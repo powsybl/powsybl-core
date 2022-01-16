@@ -6,7 +6,7 @@
     <xs:element name="identifiableShortCircuit">
         <xs:complexType>
             <xs:attribute name="ipMax" use="required" type="xs:double"/>
-            <xs:attribute name="ipMin" use="required" type="xs:double"/>
+            <xs:attribute name="ipMin" use="optional" type="xs:double"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

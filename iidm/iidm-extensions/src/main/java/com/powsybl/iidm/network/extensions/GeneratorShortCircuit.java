@@ -14,9 +14,12 @@ import com.powsybl.iidm.network.Generator;
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
  */
 public interface GeneratorShortCircuit extends Extension<Generator> {
+
+    String NAME = "generatorShortCircuit";
+
     @Override
     default String getName() {
-        return "generatorShortCircuit";
+        return NAME;
     }
 
     /**

@@ -34,6 +34,7 @@ public abstract class AbstractDiscreteMeasurementsTest {
         sw.getExtension(DiscreteMeasurements.class)
                 .newDiscreteMeasurement()
                 .setType(DiscreteMeasurement.Type.SWITCH_POSITION)
+                .setId("IS_FICT")
                 .setValue("CLOSED")
                 .setValid(false)
                 .putProperty("source", "test")
@@ -42,6 +43,7 @@ public abstract class AbstractDiscreteMeasurementsTest {
         sw.getExtension(DiscreteMeasurements.class)
                 .newDiscreteMeasurement()
                 .setId("IS_FICT")
+                .setEnsureIdUnicity(true)
                 .setType(DiscreteMeasurement.Type.OTHER)
                 .setValue(false)
                 .setValid(true)
@@ -62,7 +64,7 @@ public abstract class AbstractDiscreteMeasurementsTest {
         assertNotNull(swDisMeasurements);
         assertEquals(2, swDisMeasurements.getDiscreteMeasurements().size());
         for (DiscreteMeasurement meas : swDisMeasurements.getDiscreteMeasurements()) {
-            if (meas.getId() == null) {
+            if ("IS_FICT".equals(meas.getId())) {
                 assertEquals(DiscreteMeasurement.Type.SWITCH_POSITION, meas.getType());
                 assertNull(meas.getTapChanger());
                 assertEquals(STRING, meas.getValueType());
@@ -72,7 +74,7 @@ public abstract class AbstractDiscreteMeasurementsTest {
                 assertEquals("test", meas.getProperty("source"));
                 assertEquals("test3", meas.getProperty("other"));
             } else {
-                assertEquals("IS_FICT", meas.getId());
+                assertEquals("IS_FICT#0", meas.getId());
                 assertEquals(DiscreteMeasurement.Type.OTHER, meas.getType());
                 assertNull(meas.getTapChanger());
                 assertEquals(BOOLEAN, meas.getValueType());

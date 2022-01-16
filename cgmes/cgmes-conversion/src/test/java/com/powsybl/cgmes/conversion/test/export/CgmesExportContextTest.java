@@ -6,8 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -15,20 +13,16 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -141,42 +135,21 @@ public class CgmesExportContextTest {
     }
 
     @Test
-    public void nodeBreakerBuildTNMappingError() throws IOException {
-        // Instead of a generic NPE exception,
-        // Check that a controlled exception is thrown explaining the problem
-
-        // When a CgmesExportContext is built from a Network that has NOT been imported
-        // with the option to create the mapping between buses and Topological Nodes
-        // That is, the CgmesExportContext should be responsible for creating that mapping
+    public void testBuildIidmMapping() {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
 
-        // Import without creating mapping between buses and Topological Nodes during import
+        // Import without creating mappings
         Properties ip = new Properties();
         ip.put("iidm.import.cgmes.create-cgmes-export-mapping", "false");
         Network n = new CgmesImport().importData(ds, NetworkFactory.findDefault(), ip);
+        CgmesExportContext context = new CgmesExportContext(n);
 
-        // Export SSH, SV files using only information from Network
-        Properties ep = new Properties();
-        ep.setProperty(CgmesExport.USING_ONLY_NETWORK, "true");
-        String exportBaseName = "testNoNPE";
-        ep.setProperty(CgmesExport.BASE_NAME, exportBaseName);
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            String expectedMessage = "Node/breaker model without explicit mapping between IIDM buses and CGMES Topological Nodes. "
-                + " To be able to export you must import the CGMES data with the parameter "
-                + CgmesImport.CREATE_CGMES_EXPORT_MAPPING
-                + " set to true";
-            assertThrows(expectedMessage,
-                PowsyblException.class,
-                () -> new CgmesExport().export(n, ep, new FileDataSource(tmpDir, exportBaseName)));
-            // TODO (Luma) After TP files are exported and exception is not thrown,
-            // check that these file exists:
-            // tmpDir.resolve(exportBaseName + "_SSH.xml")
-            // tmpDir.resolve(exportBaseName + "_SV.xml")
+        for (Bus bus : n.getBusView().getBuses()) {
+            assertNotNull(context.getTopologicalNodesByBusViewBus(bus.getId()));
         }
 
-        // TODO (Luma) When TP files are exported,
-        // We should be able to export with and without the mapping Bus-TN from the import,
-        // and re-importing the exported data should give the same networks
+        for (VoltageLevel voltageLevel : n.getVoltageLevels()) {
+            assertNotNull(context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()));
+        }
     }
 }

@@ -27,6 +27,11 @@ public class HvdcOperatorActivePowerRangeAdderImplProvider
     }
 
     @Override
+    public String getExtensionName() {
+        return HvdcOperatorActivePowerRange.NAME;
+    }
+
+    @Override
     public Class<HvdcOperatorActivePowerRangeAdderImpl> getAdderClass() {
         return HvdcOperatorActivePowerRangeAdderImpl.class;
     }

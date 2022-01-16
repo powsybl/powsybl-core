@@ -24,6 +24,11 @@ public class PsseModelExtensionAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionName() {
+        return PsseModelExtension.NAME;
+    }
+
+    @Override
     public Class<PsseModelExtensionAdderImpl> getAdderClass() {
         return PsseModelExtensionAdderImpl.class;
     }

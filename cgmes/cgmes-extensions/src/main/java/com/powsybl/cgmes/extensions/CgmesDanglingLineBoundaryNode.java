@@ -16,12 +16,14 @@ import java.util.Optional;
  */
 public interface CgmesDanglingLineBoundaryNode extends Extension<DanglingLine> {
 
+    String NAME = "cgmesDanglingLineBoundaryNode";
+
     boolean isHvdc();
 
     Optional<String> getLineEnergyIdentificationCodeEic();
 
     @Override
     default String getName() {
-        return "cgmesDanglingLineBoundaryNode";
+        return NAME;
     }
 }
