@@ -23,6 +23,9 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ */
 public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
 
     @Test

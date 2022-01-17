@@ -13,6 +13,9 @@ import java.util.Collections;
 
 import static org.junit.Assert.*;
 
+/**
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ */
 public class ShortCircuitAnalysisInterceptorTest {
     @Test
     public void test() {
