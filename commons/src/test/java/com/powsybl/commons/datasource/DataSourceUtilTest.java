@@ -17,7 +17,7 @@ public class DataSourceUtilTest {
 
     @Test
     public void testGetBaseName() {
-        assertEquals("dummy", DataSourceUtil.getBaseName("dummy.xml.gz"));
+        assertEquals("dummy.xml", DataSourceUtil.getBaseName("dummy.xml.gz"));
         assertEquals("dummy", DataSourceUtil.getBaseName("dummy.gz"));
         assertEquals("dummy", DataSourceUtil.getBaseName("dummy"));
     }

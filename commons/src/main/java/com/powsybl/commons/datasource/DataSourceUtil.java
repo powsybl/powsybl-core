@@ -34,7 +34,7 @@ public interface DataSourceUtil {
 
     static String getBaseName(String fileName) {
         Objects.requireNonNull(fileName);
-        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
+        int pos = fileName.lastIndexOf('.'); // find last dot
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
 
@@ -63,11 +63,11 @@ public interface DataSourceUtil {
         Objects.requireNonNull(fileNameOrBaseName);
 
         if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
+            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         } else {
             return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         }
