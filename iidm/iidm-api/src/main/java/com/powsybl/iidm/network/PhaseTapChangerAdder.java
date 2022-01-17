@@ -35,8 +35,6 @@ public interface PhaseTapChangerAdder {
 
     PhaseTapChangerAdder setRegulating(boolean regulating);
 
-    PhaseTapChangerAdder unsetRegulating();
-
     PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode);
 
     PhaseTapChangerAdder setRegulationValue(double regulationValue);

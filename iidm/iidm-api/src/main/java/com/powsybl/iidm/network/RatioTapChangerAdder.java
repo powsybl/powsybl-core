@@ -35,8 +35,6 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setRegulating(boolean regulating);
 
-    RatioTapChangerAdder unsetRegulating();
-
     RatioTapChangerAdder setTargetV(double targetV);
 
     RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);

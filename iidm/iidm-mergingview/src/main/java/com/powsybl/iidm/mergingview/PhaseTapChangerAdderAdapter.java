@@ -112,12 +112,6 @@ public class PhaseTapChangerAdderAdapter extends AbstractAdapter<PhaseTapChanger
     }
 
     @Override
-    public PhaseTapChangerAdder unsetRegulating() {
-        getDelegate().unsetRegulating();
-        return this;
-    }
-
-    @Override
     public PhaseTapChangerAdder setRegulationMode(final RegulationMode regulationMode) {
         getDelegate().setRegulationMode(regulationMode);
         return this;

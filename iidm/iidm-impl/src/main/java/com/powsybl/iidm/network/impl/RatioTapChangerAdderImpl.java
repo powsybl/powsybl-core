@@ -34,7 +34,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private boolean loadTapChangingCapabilities = false;
 
-    private Boolean regulating = false;
+    private boolean regulating = false;
 
     private double targetV = Double.NaN;
 
@@ -137,12 +137,6 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     @Override
     public RatioTapChangerAdder setRegulating(boolean regulating) {
         this.regulating = regulating;
-        return this;
-    }
-
-    @Override
-    public RatioTapChangerAdder unsetRegulating() {
-        regulating = null;
         return this;
     }
 

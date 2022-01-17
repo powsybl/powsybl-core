@@ -36,7 +36,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private double regulationValue = Double.NaN;
 
-    private Boolean regulating = false;
+    private boolean regulating = false;
 
     private double targetDeadband = Double.NaN;
 
@@ -154,12 +154,6 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     @Override
     public PhaseTapChangerAdder setRegulating(boolean regulating) {
         this.regulating = regulating;
-        return this;
-    }
-
-    @Override
-    public PhaseTapChangerAdder unsetRegulating() {
-        regulating = null;
         return this;
     }
 

@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.TapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -96,11 +95,6 @@ abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends T
     @Override
     public boolean isRegulating() {
         return getDelegate().isRegulating();
-    }
-
-    @Override
-    public Optional<Boolean> findRegulatingStatus() {
-        return getDelegate().findRegulatingStatus();
     }
 
     @Override

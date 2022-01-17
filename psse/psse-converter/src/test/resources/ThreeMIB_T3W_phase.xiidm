@@ -62,10 +62,10 @@
                 <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-23.80952380952381"/>
                 <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-25.0"/>
             </iidm:phaseTapChanger1>
-            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false" regulating="false">
+            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.987004441519987"/>
             </iidm:ratioTapChanger2>
-            <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false" regulating="false">
+            <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0001250156269534"/>
             </iidm:ratioTapChanger3>
             <iidm:currentLimits1 permanentLimit="116.62475437630441"/>

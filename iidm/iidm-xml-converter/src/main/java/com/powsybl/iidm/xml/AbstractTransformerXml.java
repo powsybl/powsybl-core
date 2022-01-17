@@ -77,10 +77,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), name);
         writeTapChanger(rtc, context);
         context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
-        if (rtc.findRegulatingStatus().isPresent()) {
-            if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
-                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
-            }
+        if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
+            context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
         }
         XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         if (rtc.getRegulationTerminal() != null) {
@@ -108,10 +106,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (tapPosition != null) {
             adder.setTapPosition(tapPosition);
         }
-        if (regulatingStr != null || context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
+        if (regulatingStr != null) {
             adder.setRegulating(Boolean.parseBoolean(regulatingStr));
-        } else {
-            adder.unsetRegulating();
         }
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
@@ -156,13 +152,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (ptc.getRegulationMode() != null) {
             context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
         }
-        if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || !Double.isNaN(ptc.getRegulationValue())) {
+        if ((ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP) || !Double.isNaN(ptc.getRegulationValue())) {
             XmlUtil.writeDouble("regulationValue", ptc.getRegulationValue(), context.getWriter());
         }
-        if (ptc.findRegulatingStatus().isPresent()) {
-            if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating() || context.getVersion().compareTo(IidmXmlVersion.V_1_7) >= 0) {
-                context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
-            }
+        if ((ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP) || ptc.isRegulating()) {
+            context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefXml.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
@@ -192,10 +186,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (tapPosition != null) {
             adder.setTapPosition(tapPosition);
         }
-        if (regulatingStr != null || context.getVersion().compareTo(IidmXmlVersion.V_1_7) < 0) {
+        if (regulatingStr != null) {
             adder.setRegulating(Boolean.parseBoolean(regulatingStr));
-        } else {
-            adder.unsetRegulating();
         }
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement(name, context.getReader(), () -> {
