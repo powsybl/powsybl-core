@@ -110,7 +110,7 @@
         <jimfs.version>1.1</jimfs.version>
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.13.1</junit.version>
-        <logback.version>1.2.3</logback.version>
+        <logback.version>1.2.10</logback.version>
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
         <mfl.version>0.5.6</mfl.version>
