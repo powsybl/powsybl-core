@@ -17,6 +17,8 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.shortcircuit.ShortCircuitConstants.DEFAULT_STUDY_TYPE;
+
 /**
  * Generic parameters for short circuit-computations.
  * May contain extensions for implementation-specific parameters.
@@ -26,6 +28,8 @@ import java.util.function.Supplier;
 public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParameters> {
 
     private boolean subTransStudy = ShortCircuitConstants.SUBTRANS_STUDY;
+    private ShortCircuitConstants.StudyType studyType = DEFAULT_STUDY_TYPE;
+    private String equipment = null; //the line/transformer where the fault is simulated in case of selective study
 
     private boolean withFeederResult = ShortCircuitConstants.WITH_FEEDER_RESULT;
 
@@ -48,9 +52,14 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         ModuleConfig config = platformConfig.getOptionalModuleConfig("short-circuit-parameters").orElse(null);
         if (config != null) {
+            //TODO: add parameter for a list of equipments on which the analysis should be done (sytematic study but with specified equipments)
             parameters.setSubTransStudy(config.getBooleanProperty("subTransStudy", ShortCircuitConstants.SUBTRANS_STUDY));
             parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", ShortCircuitConstants.WITH_FEEDER_RESULT));
-
+            parameters.setStudyType(config.getEnumProperty("study-type", ShortCircuitConstants.StudyType.class, DEFAULT_STUDY_TYPE));
+            if (parameters.studyType == ShortCircuitConstants.StudyType.SELECTIVE_STUDY) {
+                //TODO: make sure an equipment ID is specified in config file
+                parameters.setEquipment(config.getStringProperty("equipment-name"));
+            }
         }
         return parameters;
     }
@@ -76,6 +85,24 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setWithFeederResult(boolean withFeederResult) {
         this.withFeederResult = withFeederResult;
+        return this;
+    }
+
+    public ShortCircuitConstants.StudyType getStudyType() {
+        return studyType;
+    }
+
+    public ShortCircuitParameters setStudyType(ShortCircuitConstants.StudyType studyType) {
+        this.studyType = studyType;
+        return this;
+    }
+
+    public String getEquipment() {
+        return equipment;
+    }
+
+    public ShortCircuitParameters setEquipment(String equipment) {
+        this.equipment = equipment;
         return this;
     }
 

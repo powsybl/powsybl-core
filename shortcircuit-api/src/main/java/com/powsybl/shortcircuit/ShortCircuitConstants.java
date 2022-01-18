@@ -14,7 +14,12 @@ public final class ShortCircuitConstants {
     private ShortCircuitConstants() {
     }
 
-    public static final boolean SUBTRANS_STUDY = false;
+    public enum StudyType {
+        SYSTEMATIC_STUDY,
+        SELECTIVE_STUDY,
+    }
 
+    public static final boolean SUBTRANS_STUDY = false;
     public static final boolean WITH_FEEDER_RESULT = true;
+    public static final StudyType DEFAULT_STUDY_TYPE = StudyType.SYSTEMATIC_STUDY;
 }

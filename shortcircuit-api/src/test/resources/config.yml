@@ -1,3 +1,5 @@
 short-circuit-parameters:
   subTransStudy: true
   withFeederResult: false
+  study-type: "SELECTIVE_STUDY"
+  equipment-name: "id"
