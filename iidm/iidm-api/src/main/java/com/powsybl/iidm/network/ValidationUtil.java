@@ -132,19 +132,15 @@ public final class ValidationUtil {
         }
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, Boolean regulating, double targetDeadband, ValidationLevel validationLevel) {
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, Boolean regulating, double targetDeadband, ValidationLevel validationLevel, Reporter reporter) {
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel, Reporter reporter) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
-    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, Boolean regulating, double targetDeadband, boolean throwsException, Reporter reporter) {
-        if (regulating == null) {
-            throwExceptionOrLogError(validable, "Undefined regulating status", throwsException, reporter);
-            return ValidationLevel.SCADA;
-        }
+    public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, boolean throwsException, Reporter reporter) {
         if (regulating && Double.isNaN(targetDeadband)) {
             throwExceptionOrLogError(validable, "Undefined value for target deadband of regulating " + validableType, throwsException, reporter);
             return ValidationLevel.SCADA;
@@ -155,19 +151,15 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel) {
+    public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel) {
         return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel, Reporter reporter) {
+    public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, ValidationLevel validationLevel, Reporter reporter) {
         return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, boolean throwException, Reporter reporter) {
-        if (voltageRegulatorOn == null) {
-            throwExceptionOrLogError(validable, "voltage regulator status is not set", throwException, reporter);
-            return ValidationLevel.SCADA;
-        }
+    public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, boolean throwException, Reporter reporter) {
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON, throwException, reporter);
@@ -180,19 +172,15 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel) {
+    public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel) {
         return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, validationLevel, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel, Reporter reporter) {
+    public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, ValidationLevel validationLevel, Reporter reporter) {
         return checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, validationLevel == ValidationLevel.LOADFLOW, reporter);
     }
 
-    public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, boolean throwException, Reporter reporter) {
-        if (voltageRegulatorOn == null) {
-            throwExceptionOrLogError(validable, "voltage regulator status is not set", throwException, reporter);
-            return ValidationLevel.SCADA;
-        }
+    public static ValidationLevel checkVoltageControl(Validable validable, boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, boolean throwException, Reporter reporter) {
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint)) {
                 throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON, throwException, reporter);
@@ -566,16 +554,12 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                                          Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified, Boolean regulating, boolean throwException) {
+                                                                          Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
         return checkOnlyOneTapChangerRegulatingEnabled(validable, tapChangersNotIncludingTheModified, regulating, throwException, Reporter.NO_OP);
     }
 
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger<?, ?>> tapChangersNotIncludingTheModified,
-                                                                          Boolean regulating, boolean throwException, Reporter reporter) {
-        if (regulating == null) {
-            throwExceptionOrLogError(validable, "Regulating status not set", throwException, reporter);
-            return ValidationLevel.SCADA;
-        }
+                                                                          boolean regulating, boolean throwException, Reporter reporter) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
             return ValidationLevel.SCADA;

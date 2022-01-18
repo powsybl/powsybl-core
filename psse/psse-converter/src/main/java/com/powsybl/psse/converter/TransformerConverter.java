@@ -450,7 +450,7 @@ class TransformerConverter extends AbstractConverter {
                 .setB(step.getB1())
                 .setG(step.getG1())
                 .endStep());
-        rtc.setRegulating(false).add();
+        rtc.add();
 
     }
 

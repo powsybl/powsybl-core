@@ -61,7 +61,6 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         modelAdder.add();
 
         adder.setBus(psseSwitchedShunt.getStat() == 1 ? busId : null);
-        adder.setVoltageRegulatorOn(false);
         adder.add();
     }
 
