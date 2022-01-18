@@ -24,6 +24,11 @@ public class ThreeWindingsTransformerToBeEstimatedAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionName() {
+        return ThreeWindingsTransformerToBeEstimated.NAME;
+    }
+
+    @Override
     public Class<? super ThreeWindingsTransformerToBeEstimatedAdderImpl> getAdderClass() {
         return ThreeWindingsTransformerToBeEstimatedAdderImpl.class;
     }

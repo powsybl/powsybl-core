@@ -163,5 +163,28 @@ public final class CgmesExportUtil {
         return 0;
     }
 
+    public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
+        if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
+                return true;
+            }
+        } else {
+            if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String converterClassName(HvdcConverterStation<?> converterStation) {
+        if (converterStation instanceof LccConverterStation) {
+            return "CsConverter";
+        } else if (converterStation instanceof VscConverterStation) {
+            return "VsConverter";
+        } else {
+            throw new PowsyblException("Invalid converter type");
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
 }

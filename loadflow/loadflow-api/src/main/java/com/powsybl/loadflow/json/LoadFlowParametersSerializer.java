@@ -35,7 +35,7 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         jsonGenerator.writeBooleanField("phaseShifterRegulationOn", parameters.isPhaseShifterRegulationOn());
         jsonGenerator.writeBooleanField("noGeneratorReactiveLimits", parameters.isNoGeneratorReactiveLimits());
         jsonGenerator.writeBooleanField("twtSplitShuntAdmittance", parameters.isTwtSplitShuntAdmittance());
-        jsonGenerator.writeBooleanField("simulShunt", parameters.isSimulShunt());
+        jsonGenerator.writeBooleanField("shuntCompensatorVoltageControlOn", parameters.isShuntCompensatorVoltageControlOn());
         jsonGenerator.writeBooleanField("readSlackBus", parameters.isReadSlackBus());
         jsonGenerator.writeBooleanField("writeSlackBus", parameters.isWriteSlackBus());
         jsonGenerator.writeBooleanField("dc", parameters.isDc());

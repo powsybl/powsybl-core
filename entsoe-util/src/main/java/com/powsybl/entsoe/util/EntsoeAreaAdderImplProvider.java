@@ -23,6 +23,11 @@ public class EntsoeAreaAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionName() {
+        return EntsoeArea.NAME;
+    }
+
+    @Override
     public Class<EntsoeAreaAdderImpl> getAdderClass() {
         return EntsoeAreaAdderImpl.class;
     }

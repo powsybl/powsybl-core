@@ -21,6 +21,11 @@ public class CgmesDanglingLineBoundaryNodeAdderImplProvider implements Extension
     }
 
     @Override
+    public String getExtensionName() {
+        return CgmesDanglingLineBoundaryNode.NAME;
+    }
+
+    @Override
     public Class<? super CgmesDanglingLineBoundaryNodeAdderImpl> getAdderClass() {
         return CgmesDanglingLineBoundaryNodeAdderImpl.class;
     }

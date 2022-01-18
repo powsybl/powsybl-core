@@ -25,6 +25,11 @@ public class GeneratorShortCircuitAdderImplProvider
     }
 
     @Override
+    public String getExtensionName() {
+        return GeneratorShortCircuit.NAME;
+    }
+
+    @Override
     public Class<GeneratorShortCircuitAdder> getAdderClass() {
         return GeneratorShortCircuitAdder.class;
     }

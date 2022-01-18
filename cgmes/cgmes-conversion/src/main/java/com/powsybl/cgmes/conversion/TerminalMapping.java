@@ -9,9 +9,12 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.*;
 
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 
 /**
@@ -50,8 +53,60 @@ public class TerminalMapping {
         return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
     }
 
+    public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network) {
+        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
+
+        if (isSwitch(cgmesTerminal.conductingEquipmentType())) {
+            Switch sw = network.getSwitch(cgmesTerminal.conductingEquipment());
+            if (sw == null) {
+                return find(cgmesTerminalId);
+            }
+            Terminal terminal = new SwitchesChain(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getBestTerminalChain();
+            if (terminal != null) {
+                return terminal;
+            }
+        }
+        return find(cgmesTerminalId);
+    }
+
+    private static boolean isSwitch(String conductingEquipmentType) {
+        return conductingEquipmentType.equals("Breaker") || conductingEquipmentType.equals("Disconnector");
+    }
+
     public Boundary findBoundary(String cgmesTerminalId) {
         return boundaries.get(cgmesTerminalId);
+    }
+
+    public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
+        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
+        if (cgmesTerminal.conductingEquipmentType().equals("EquivalentInjection")) {
+            String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
+            if (acLineSegmentCgmesTerminalId != null) {
+                return findBoundary(acLineSegmentCgmesTerminalId);
+            }
+        }
+        return findBoundary(cgmesTerminalId);
+    }
+
+    private static String findAssociatedAcLineSegmentCgmesTerminalId(CgmesModel cgmesModel, CgmesTerminal cgmesTerminal) {
+        CgmesTerminal acLineSegmentCgmesTerminal = cgmesModel.computedTerminals().stream()
+            .filter(computedTerminal -> cgmesTerminalOk(computedTerminal, cgmesTerminal)).findFirst().orElse(null);
+        if (acLineSegmentCgmesTerminal != null) {
+            return acLineSegmentCgmesTerminal.id();
+        }
+        return null;
+    }
+
+    private static boolean cgmesTerminalOk(CgmesTerminal acLineSegmentCgmesTerminal, CgmesTerminal cgmesTerminal) {
+        if (!acLineSegmentCgmesTerminal.conductingEquipmentType().equals("ACLineSegment")) {
+            return false;
+        }
+        if (acLineSegmentCgmesTerminal.connectivityNode() != null
+            && acLineSegmentCgmesTerminal.connectivityNode().equals(cgmesTerminal.connectivityNode())) {
+            return true;
+        }
+        return acLineSegmentCgmesTerminal.topologicalNode() != null
+            && acLineSegmentCgmesTerminal.topologicalNode().equals(cgmesTerminal.topologicalNode());
     }
 
     public int number(String cgmesTerminalId) {

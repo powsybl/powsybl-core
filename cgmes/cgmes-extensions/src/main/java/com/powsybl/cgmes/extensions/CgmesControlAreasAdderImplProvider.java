@@ -22,6 +22,11 @@ public class CgmesControlAreasAdderImplProvider implements ExtensionAdderProvide
     }
 
     @Override
+    public String getExtensionName() {
+        return CgmesControlAreas.NAME;
+    }
+
+    @Override
     public Class<? super CgmesControlAreasAdderImpl> getAdderClass() {
         return CgmesControlAreasAdderImpl.class;
     }

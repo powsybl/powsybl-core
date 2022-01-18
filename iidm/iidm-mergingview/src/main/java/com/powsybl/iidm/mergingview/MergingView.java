@@ -277,6 +277,11 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public boolean removeProperty(String key) {
+        return index.getNetworkStream().filter(n -> n.removeProperty(key)).count() > 0;
+    }
+
+    @Override
     public Set<String> getPropertyNames() {
         return index.getNetworkStream()
                 .map(Network::getPropertyNames)

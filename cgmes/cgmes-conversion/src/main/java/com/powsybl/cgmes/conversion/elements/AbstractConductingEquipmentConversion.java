@@ -254,7 +254,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
         addMappingForTopologicalNode(dl, modelSide, 1);
-        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+        // We do not have SSH values at the model side, it is a line flow. We take directly SV values
+        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlowSV(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
@@ -468,6 +469,20 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
+    PowerFlow powerFlowSV() {
+        if (stateVariablesPowerFlow().defined()) {
+            return stateVariablesPowerFlow();
+        }
+        return PowerFlow.UNDEFINED;
+    }
+
+    PowerFlow powerFlowSV(int n) {
+        if (stateVariablesPowerFlow(n).defined()) {
+            return stateVariablesPowerFlow(n);
+        }
+        return PowerFlow.UNDEFINED;
+    }
+
     // Terminals
 
     protected void convertedTerminals(Terminal... ts) {
@@ -475,7 +490,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
-            context.convertedTerminal(terminalId(n), t, n, powerFlow(n));
+            context.convertedTerminal(terminalId(n), t, n, powerFlowSV(n));
         }
     }
 
@@ -647,7 +662,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
         if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
             CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-            mapping.put(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
+            mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
         }
     }
 
