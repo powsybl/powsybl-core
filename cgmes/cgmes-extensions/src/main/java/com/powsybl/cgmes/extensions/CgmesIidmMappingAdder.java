@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesIidmMappingAdder extends ExtensionAdder<Network, CgmesIidmMapping> {
 
-    CgmesIidmMappingAdder addTopologicalNode(String topologicalNode);
+    CgmesIidmMappingAdder addTopologicalNode(String topologicalNodeId, String topologicalNodeName, CgmesIidmMapping.Source source);
 
     CgmesIidmMappingAdder addBaseVoltage(String baseVoltage, double nominalVoltage, CgmesIidmMapping.Source source);
 
