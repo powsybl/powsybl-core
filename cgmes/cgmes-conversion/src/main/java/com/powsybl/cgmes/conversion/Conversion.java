@@ -18,6 +18,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -118,12 +119,16 @@ public class Conversion {
         this(cgmes, config, postProcessors, NetworkFactory.findDefault());
     }
 
-    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors,
-                      NetworkFactory networkFactory) {
+    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors, NetworkFactory networkFactory) {
+        this(cgmes, config, postProcessors, networkFactory, null);
+    }
+
+    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory, Reporter reporter) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
-        this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.postProcessors = Objects.requireNonNull(activatedPostProcessors);
         this.networkFactory = Objects.requireNonNull(networkFactory);
+        this.reporter = reporter;
     }
 
     public void report(Consumer<String> out) {
@@ -140,7 +145,7 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        Context context = createContext(network);
+        Context context = createContext(network, reporter);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
@@ -328,8 +333,8 @@ public class Conversion {
         return networkFactory.createNetwork(networkId, sourceFormat);
     }
 
-    private Context createContext(Network network) {
-        Context context = new Context(cgmes, config, network);
+    private Context createContext(Network network, Reporter reporter) {
+        Context context = new Context(cgmes, config, network, reporter);
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangers();
@@ -875,6 +880,7 @@ public class Conversion {
     private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
     private final NetworkFactory networkFactory;
+    private final Reporter reporter;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 

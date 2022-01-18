@@ -7,24 +7,24 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Supplier;
-
-import com.powsybl.iidm.network.IdentifiableType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -37,9 +37,14 @@ public class Context {
     private static final String IGNORED_REASON = "Ignored {}. Reason: {}";
 
     public Context(CgmesModel cgmes, Config config, Network network) {
+        this(cgmes, config, network, null);
+    }
+
+    public Context(CgmesModel cgmes, Config config, Network network, Reporter reporter) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
+        this.reporter = reporter;
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -204,6 +209,14 @@ public class Context {
     }
 
     public void invalid(String what, String reason) {
+        // XXX(Luma) first approach to invalid logs, report invalid data grouped by reason
+        if (reporter != null) {
+            if (reporterInvalid == null) {
+                reporterInvalid = reporter.createSubReporter("Invalid", "Invalid data");
+            }
+            Reporter reporterInvalidReason = reportersInvalidByReason.computeIfAbsent(reason, r -> reporterInvalid.createSubReporter(r, r));
+            reporterInvalidReason.report(what, what);
+        }
         LOG.warn(INVALID_REASON, what, reason);
     }
 
@@ -266,6 +279,10 @@ public class Context {
     private final CgmesModel cgmes;
     private final Network network;
     private final Config config;
+    private final Reporter reporter;
+    private Reporter reporterInvalid;
+    private final Map<String, Reporter> reportersInvalidByReason = new HashMap<>();
+
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
     private final SubstationIdMapping substationIdMapping;
