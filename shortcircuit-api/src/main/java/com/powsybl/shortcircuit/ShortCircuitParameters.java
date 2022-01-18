@@ -75,7 +75,6 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
             }
         }
-
         return parameters;
     }
 
