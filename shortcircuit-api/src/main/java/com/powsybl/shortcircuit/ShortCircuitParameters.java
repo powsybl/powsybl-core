@@ -30,7 +30,6 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean subTransStudy = ShortCircuitConstants.SUBTRANS_STUDY;
     private ShortCircuitConstants.StudyType studyType = DEFAULT_STUDY_TYPE;
     private String equipment = null; //the line/transformer where the fault is simulated in case of selective study
-
     private boolean withFeederResult = ShortCircuitConstants.WITH_FEEDER_RESULT;
 
     public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
@@ -61,6 +60,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                 parameters.setEquipment(config.getStringProperty("equipment-name"));
             }
         }
+
         return parameters;
     }
 
