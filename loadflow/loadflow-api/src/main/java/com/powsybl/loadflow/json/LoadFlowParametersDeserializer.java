@@ -91,8 +91,15 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "simulShunt":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.3");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.6");
                     parser.nextToken();
-                    parameters.setSimulShunt(parser.readValueAs(Boolean.class));
+                    parameters.setShuntCompensatorVoltageControlOn(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "shuntCompensatorVoltageControlOn":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: shuntCompensatorVoltageControlOn", version, "1.6");
+                    parser.nextToken();
+                    parameters.setShuntCompensatorVoltageControlOn(parser.readValueAs(Boolean.class));
                     break;
 
                 case "readSlackBus":

@@ -36,14 +36,15 @@ public class CgmesExportContext {
     private DateTime scenarioTime = DateTime.now();
 
     private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.EQ_PROFILE);
+    private ModelDescription tpModelDescription = new ModelDescription("TP Model", CgmesNamespace.TP_PROFILE);
     private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
 
-    private final Map<String, Set<String>> topologicalNodeByBusViewBusMapping = new HashMap<>();
-    private final Set<String> unmappedTopologicalNodes = new HashSet<>();
+    private final Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> topologicalNodeByBusViewBusMapping = new HashMap<>();
+    private final Set<CgmesIidmMapping.CgmesTopologicalNode> unmappedTopologicalNodes = new HashSet<>();
 
     private final Map<Double, CgmesIidmMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
@@ -152,7 +153,7 @@ public class CgmesExportContext {
     private void addIidmMappingsTopologicalNodes(Network network) {
         CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
         if (cgmesIidmMapping != null) {
-            Map<String, Set<String>> tnsByBus = cgmesIidmMapping.topologicalNodesByBusViewBusMap();
+            Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsByBus = cgmesIidmMapping.topologicalNodesByBusViewBusMap();
             topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
             unmappedTopologicalNodes.addAll(cgmesIidmMapping.getUnmappedTopologicalNodes());
 
@@ -177,8 +178,8 @@ public class CgmesExportContext {
     }
 
     private void addTopologicalNodeBusBreakerMappings(VoltageLevel vl) {
-        Map<String, Set<String>> tnsFromBusBreaker = new HashMap<>();
-        Set<String> mappedTns = new HashSet<>();
+        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsFromBusBreaker = new HashMap<>();
+        Set<CgmesIidmMapping.CgmesTopologicalNode> mappedTns = new HashSet<>();
         for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
             Bus busViewBus;
             String topologicalNode;
@@ -187,8 +188,10 @@ public class CgmesExportContext {
             topologicalNode = configuredBus.getId();
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
             if (busViewBus != null && topologicalNode != null) {
-                tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(topologicalNode);
-                mappedTns.add(topologicalNode);
+                String topologicalNodeName = configuredBus.getNameOrId();
+                CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = new CgmesIidmMapping.CgmesTopologicalNode(topologicalNode, topologicalNodeName, CgmesIidmMapping.Source.IGM);
+                tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(cgmesTopologicalNode);
+                mappedTns.add(cgmesTopologicalNode);
             }
         }
         topologicalNodeByBusViewBusMapping.putAll(tnsFromBusBreaker);
@@ -196,8 +199,8 @@ public class CgmesExportContext {
     }
 
     private void addTopologicalNodeNodeBreakerMappings(VoltageLevel vl) {
-        Map<String, Set<String>> tnsFromBusBreaker = new HashMap<>();
-        Set<String> mappedTns = new HashSet<>();
+        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsFromBusBreaker = new HashMap<>();
+        Set<CgmesIidmMapping.CgmesTopologicalNode> mappedTns = new HashSet<>();
         for (int node : vl.getNodeBreakerView().getNodes()) {
             Bus busViewBus;
             String topologicalNode;
@@ -210,8 +213,10 @@ public class CgmesExportContext {
                     topologicalNode = bus.getId();
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
-                        tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(topologicalNode);
-                        mappedTns.add(topologicalNode);
+                        String topologicalNodeName = bus.getNameOrId();
+                        CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = new CgmesIidmMapping.CgmesTopologicalNode(topologicalNode, topologicalNodeName, CgmesIidmMapping.Source.IGM);
+                        tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(cgmesTopologicalNode);
+                        mappedTns.add(cgmesTopologicalNode);
                     }
                 }
             }
@@ -454,6 +459,10 @@ public class CgmesExportContext {
         return eqModelDescription;
     }
 
+    public ModelDescription getTpModelDescription() {
+        return tpModelDescription;
+    }
+
     public ModelDescription getSvModelDescription() {
         return svModelDescription;
     }
@@ -484,16 +493,16 @@ public class CgmesExportContext {
         return CgmesNamespace.getCimNamespace(cimVersion);
     }
 
-    public Set<String> getTopologicalNodesByBusViewBus(String busId) {
+    public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {
         return topologicalNodeByBusViewBusMapping.get(busId);
     }
 
-    public Set<String> getUnmappedTopologicalNodes() {
+    public Set<CgmesIidmMapping.CgmesTopologicalNode> getUnmappedTopologicalNodes() {
         return Collections.unmodifiableSet(unmappedTopologicalNodes);
     }
 
-    public void isTopologicalNodeMapped(String mappedTopologicalNode) {
-        this.unmappedTopologicalNodes.remove(mappedTopologicalNode);
+    public CgmesIidmMapping.CgmesTopologicalNode getUnmappedTopologicalNode(String topologicalNodeId) {
+        return unmappedTopologicalNodes.stream().filter(cgmesTopologicalNode -> cgmesTopologicalNode.getCgmesId().equals(topologicalNodeId)).findAny().orElse(null);
     }
 
     public CgmesIidmMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
