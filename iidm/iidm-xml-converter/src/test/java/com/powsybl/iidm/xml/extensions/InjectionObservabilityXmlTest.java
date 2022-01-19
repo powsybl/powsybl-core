@@ -48,9 +48,9 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         Generator generator = network.getGenerator("GEN");
         generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02d, true, 0.5d, true, 0.0d, true));
 
-        Network network2 = roundTripTest(network,
+        Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkXml::validateAndRead,
                 getVersionedNetworkPath("/injectionObservabilityRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
 
         Battery bat2 = network2.getBattery("BAT");
@@ -61,8 +61,8 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         assertEquals(injectionObservability.isObservable(), injectionObservability2.isObservable());
         assertEquals(injectionObservability.getQualityP().getStandardDeviation(), injectionObservability2.getQualityP().getStandardDeviation(), 0.0d);
         assertEquals(injectionObservability.getQualityQ().getStandardDeviation(), injectionObservability2.getQualityQ().getStandardDeviation(), 0.0d);
-        assertEquals(injectionObservability.getQualityP().isRedundant().orElse(null), injectionObservability2.getQualityP().isRedundant().orElse(null));
-        assertEquals(injectionObservability.getQualityQ().isRedundant().orElse(null), injectionObservability2.getQualityQ().isRedundant().orElse(null));
+        assertEquals(injectionObservability.getQualityP().isRedundant(), injectionObservability2.getQualityP().isRedundant());
+        assertEquals(injectionObservability.getQualityQ().isRedundant(), injectionObservability2.getQualityQ().isRedundant());
         assertEquals(injectionObservability.getQualityV(), injectionObservability2.getQualityV());
 
         assertEquals(injectionObservability.getName(), injectionObservability2.getName());

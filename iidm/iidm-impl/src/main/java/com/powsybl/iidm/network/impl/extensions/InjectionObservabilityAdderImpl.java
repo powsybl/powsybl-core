@@ -20,17 +20,17 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
 
     private boolean observable;
 
-    private Double standardDeviationP = null;
+    private double standardDeviationP = Double.NaN;
 
-    private Double standardDeviationQ = null;
+    private double standardDeviationQ = Double.NaN;
 
-    private Double standardDeviationV = null;
+    private double standardDeviationV = Double.NaN;
 
-    private Boolean redundantP = null;
+    private boolean redundantP = false;
 
-    private Boolean redundantQ = null;
+    private boolean redundantQ = false;
 
-    private Boolean redundantV = null;
+    private boolean redundantV = false;
 
     public InjectionObservabilityAdderImpl(I extendable) {
         super(extendable);
@@ -39,13 +39,13 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
     @Override
     protected InjectionObservability<I> createExtension(I extendable) {
         InjectionObservabilityImpl<I> extension = new InjectionObservabilityImpl<>(extendable, observable);
-        if (standardDeviationP != null) {
+        if (!Double.isNaN(standardDeviationP)) {
             extension.setQualityP(standardDeviationP, redundantP);
         }
-        if (standardDeviationQ != null) {
+        if (!Double.isNaN(standardDeviationQ)) {
             extension.setQualityQ(standardDeviationQ, redundantQ);
         }
-        if (standardDeviationV != null) {
+        if (!Double.isNaN(standardDeviationV)) {
             extension.setQualityV(standardDeviationV, redundantV);
         }
         return extension;
