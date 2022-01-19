@@ -208,21 +208,45 @@ public class Context {
         return phaseTapChangerTables.get(tableId);
     }
 
+    // XXX(Luma) first approach to functional logs, report invalid data grouped by "what" or by "reason"
+    // This is just to evaluate how to proceed ...
+    // If we have an identifier inside "what", we don't use it for grouping messages
+
+    boolean isValidForGrouping(String what) {
+        return what.equals("SvVoltage") || what.equals("Regulating Terminal");
+    }
+
+    private void reportInvalid(String what, String reason) {
+        if (reporterInvalid == null) {
+            reporterInvalid = reporter.createSubReporter("Invalid", "Invalid data");
+        }
+        String group;
+        String item;
+        if (isValidForGrouping(what)) {
+            group = what;
+            item = reason;
+        } else {
+            group = reason;
+            item = what;
+        }
+        Reporter reporterInvalidGroup = reportersInvalidByGroup.computeIfAbsent(group, g -> reporterInvalid.createSubReporter(g, g));
+        reporterInvalidGroup.report(item, item);
+    }
+
     public void invalid(String what, String reason) {
-        // XXX(Luma) first approach to invalid logs, report invalid data grouped by reason
         if (reporter != null) {
-            if (reporterInvalid == null) {
-                reporterInvalid = reporter.createSubReporter("Invalid", "Invalid data");
-            }
-            Reporter reporterInvalidReason = reportersInvalidByReason.computeIfAbsent(reason, r -> reporterInvalid.createSubReporter(r, r));
-            reporterInvalidReason.report(what, what);
+            reportInvalid(what, reason);
         }
         LOG.warn(INVALID_REASON, what, reason);
     }
 
     public void invalid(String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(INVALID_REASON, what, reason.get());
+        if (LOG.isWarnEnabled() || reporter != null) {
+            String reason1 = reason.get();
+            if (reporter != null) {
+                reportInvalid(what, reason1);
+            }
+            LOG.warn(INVALID_REASON, what, reason1);
         }
     }
 
@@ -281,7 +305,7 @@ public class Context {
     private final Config config;
     private final Reporter reporter;
     private Reporter reporterInvalid;
-    private final Map<String, Reporter> reportersInvalidByReason = new HashMap<>();
+    private final Map<String, Reporter> reportersInvalidByGroup = new HashMap<>();
 
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
