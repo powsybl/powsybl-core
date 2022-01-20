@@ -40,9 +40,14 @@ public final class CgmesExportUtil {
 
     private static final DecimalFormatSymbols DOUBLE_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", DOUBLE_FORMAT_SYMBOLS);
+    private static final DecimalFormat SCIENFIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
 
     public static String format(double value) {
         return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+    }
+
+    public static String scientificFormat(double value) {
+        return SCIENFIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String format(int value) {
@@ -156,6 +161,29 @@ public final class CgmesExportUtil {
             }
         }
         return 0;
+    }
+
+    public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
+        if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
+                return true;
+            }
+        } else {
+            if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String converterClassName(HvdcConverterStation<?> converterStation) {
+        if (converterStation instanceof LccConverterStation) {
+            return "CsConverter";
+        } else if (converterStation instanceof VscConverterStation) {
+            return "VsConverter";
+        } else {
+            throw new PowsyblException("Invalid converter type");
+        }
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);

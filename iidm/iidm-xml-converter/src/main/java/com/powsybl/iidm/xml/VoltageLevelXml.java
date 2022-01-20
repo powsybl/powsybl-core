@@ -133,8 +133,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             BusXml.INSTANCE.write(b, null, context);
         }
         for (Switch sw : IidmXmlUtil.sorted(vl.getBusBreakerView().getSwitches(), context.getOptions())) {
-            Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
-            Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
+            Bus b1 = vl.getBusBreakerView().getBus1(sw.getId());
+            Bus b2 = vl.getBusBreakerView().getBus2(sw.getId());
             if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
                 continue;
             }

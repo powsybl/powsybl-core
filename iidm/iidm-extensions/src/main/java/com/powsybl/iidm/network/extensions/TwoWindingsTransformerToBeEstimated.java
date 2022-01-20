@@ -17,9 +17,11 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public interface TwoWindingsTransformerToBeEstimated extends Extension<TwoWindingsTransformer> {
 
+    String NAME = "twoWindingsTransformerToBeEstimated";
+
     @Override
     default String getName() {
-        return "twoWindingsTransformerToBeEstimated";
+        return NAME;
     }
 
     /**

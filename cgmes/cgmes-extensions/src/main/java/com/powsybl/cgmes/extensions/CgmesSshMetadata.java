@@ -17,6 +17,8 @@ import java.util.List;
  */
 public interface CgmesSshMetadata extends Extension<Network> {
 
+    String NAME = "cgmesSshMetadata";
+
     String getDescription();
 
     int getSshVersion();
@@ -27,6 +29,6 @@ public interface CgmesSshMetadata extends Extension<Network> {
 
     @Override
     default String getName() {
-        return "cgmesSshMetadata";
+        return NAME;
     }
 }

@@ -24,6 +24,11 @@ public class VoltagePerReactivePowerControlAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionName() {
+        return VoltagePerReactivePowerControl.NAME;
+    }
+
+    @Override
     public Class<VoltagePerReactivePowerControlAdderImpl> getAdderClass() {
         return VoltagePerReactivePowerControlAdderImpl.class;
     }

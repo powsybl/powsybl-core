@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Injection;
  */
 public interface InjectionObservability<I extends Injection<I>> extends Extension<I>, Observability<I> {
 
+    String NAME = "injectionObservability";
+
     @Override
     default String getName() {
-        return "injectionObservability";
+        return NAME;
     }
 
     /**
@@ -25,7 +27,7 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
      */
     ObservabilityQuality<I> getQualityP();
 
-    InjectionObservability<I> setQualityP(double standardDeviation, Boolean redundant);
+    InjectionObservability<I> setQualityP(double standardDeviation, boolean redundant);
 
     InjectionObservability<I> setQualityP(double standardDeviation);
 
@@ -35,7 +37,7 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
      */
     ObservabilityQuality<I> getQualityQ();
 
-    InjectionObservability<I> setQualityQ(double standardDeviation, Boolean redundant);
+    InjectionObservability<I> setQualityQ(double standardDeviation, boolean redundant);
 
     InjectionObservability<I> setQualityQ(double standardDeviation);
 
@@ -45,7 +47,7 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
      */
     ObservabilityQuality<I> getQualityV();
 
-    InjectionObservability<I> setQualityV(double standardDeviation, Boolean redundant);
+    InjectionObservability<I> setQualityV(double standardDeviation, boolean redundant);
 
     InjectionObservability<I> setQualityV(double standardDeviation);
 }

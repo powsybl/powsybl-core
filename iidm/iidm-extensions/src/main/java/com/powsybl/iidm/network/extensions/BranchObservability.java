@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Branch;
  */
 public interface BranchObservability<B extends Branch<B>> extends Extension<B>, Observability<B> {
 
+    String NAME = "branchObservability";
+
     @Override
     default String getName() {
-        return "branchObservability";
+        return NAME;
     }
 
     /**
@@ -25,7 +27,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
      */
     ObservabilityQuality<B> getQualityP1();
 
-    BranchObservability<B> setQualityP1(double standardDeviation, Boolean redundant);
+    BranchObservability<B> setQualityP1(double standardDeviation, boolean redundant);
 
     BranchObservability<B> setQualityP1(double standardDeviation);
 
@@ -35,7 +37,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
      */
     ObservabilityQuality<B> getQualityP2();
 
-    BranchObservability<B> setQualityP2(double standardDeviation, Boolean redundant);
+    BranchObservability<B> setQualityP2(double standardDeviation, boolean redundant);
 
     BranchObservability<B> setQualityP2(double standardDeviation);
 
@@ -45,7 +47,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
      */
     ObservabilityQuality<B> getQualityQ1();
 
-    BranchObservability<B> setQualityQ1(double standardDeviation, Boolean redundant);
+    BranchObservability<B> setQualityQ1(double standardDeviation, boolean redundant);
 
     BranchObservability<B> setQualityQ1(double standardDeviation);
 
@@ -55,7 +57,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
      */
     ObservabilityQuality<B> getQualityQ2();
 
-    BranchObservability<B> setQualityQ2(double standardDeviation, Boolean redundant);
+    BranchObservability<B> setQualityQ2(double standardDeviation, boolean redundant);
 
     BranchObservability<B> setQualityQ2(double standardDeviation);
 }

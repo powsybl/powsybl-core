@@ -9,9 +9,12 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.*;
 
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 
 /**
@@ -24,6 +27,7 @@ public class TerminalMapping {
         terminals = new HashMap<>();
         terminalNumbers = new HashMap<>();
         topologicalNodesMapping = new HashMap<>();
+        cgmesTerminalsMapping = new HashMap<>();
     }
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
@@ -46,17 +50,63 @@ public class TerminalMapping {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
-        return topologicalNodesMapping.entrySet().stream()
-                .filter(entry -> entry.getValue().contains(cgmesTerminalId))
-                .map(Map.Entry::getKey)
-                .map(this::findFromTopologicalNode)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
+    }
+
+    public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network) {
+        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
+
+        if (isSwitch(cgmesTerminal.conductingEquipmentType())) {
+            Switch sw = network.getSwitch(cgmesTerminal.conductingEquipment());
+            if (sw == null) {
+                return find(cgmesTerminalId);
+            }
+            Terminal terminal = new SwitchesChain(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getBestTerminalChain();
+            if (terminal != null) {
+                return terminal;
+            }
+        }
+        return find(cgmesTerminalId);
+    }
+
+    private static boolean isSwitch(String conductingEquipmentType) {
+        return conductingEquipmentType.equals("Breaker") || conductingEquipmentType.equals("Disconnector");
     }
 
     public Boundary findBoundary(String cgmesTerminalId) {
         return boundaries.get(cgmesTerminalId);
+    }
+
+    public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
+        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
+        if (cgmesTerminal.conductingEquipmentType().equals("EquivalentInjection")) {
+            String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
+            if (acLineSegmentCgmesTerminalId != null) {
+                return findBoundary(acLineSegmentCgmesTerminalId);
+            }
+        }
+        return findBoundary(cgmesTerminalId);
+    }
+
+    private static String findAssociatedAcLineSegmentCgmesTerminalId(CgmesModel cgmesModel, CgmesTerminal cgmesTerminal) {
+        CgmesTerminal acLineSegmentCgmesTerminal = cgmesModel.computedTerminals().stream()
+            .filter(computedTerminal -> cgmesTerminalOk(computedTerminal, cgmesTerminal)).findFirst().orElse(null);
+        if (acLineSegmentCgmesTerminal != null) {
+            return acLineSegmentCgmesTerminal.id();
+        }
+        return null;
+    }
+
+    private static boolean cgmesTerminalOk(CgmesTerminal acLineSegmentCgmesTerminal, CgmesTerminal cgmesTerminal) {
+        if (!acLineSegmentCgmesTerminal.conductingEquipmentType().equals("ACLineSegment")) {
+            return false;
+        }
+        if (acLineSegmentCgmesTerminal.connectivityNode() != null
+            && acLineSegmentCgmesTerminal.connectivityNode().equals(cgmesTerminal.connectivityNode())) {
+            return true;
+        }
+        return acLineSegmentCgmesTerminal.topologicalNode() != null
+            && acLineSegmentCgmesTerminal.topologicalNode().equals(cgmesTerminal.topologicalNode());
     }
 
     public int number(String cgmesTerminalId) {
@@ -66,10 +116,11 @@ public class TerminalMapping {
         return -1;
     }
 
-    public void buildTopologicalNodesMapping(CgmesTerminal t) {
+    public void buildTopologicalNodeCgmesTerminalsMapping(CgmesTerminal t) {
         String tp = t.topologicalNode();
         if (tp != null) {
             topologicalNodesMapping.computeIfAbsent(tp, tpnode -> new ArrayList<>()).add(t.id());
+            cgmesTerminalsMapping.put(t.id(), tp);
         }
     }
 
@@ -107,4 +158,5 @@ public class TerminalMapping {
     // (only mapped when the terminal is connected to a branch)
     private final Map<String, Integer>  terminalNumbers;
     private final Map<String, List<String>> topologicalNodesMapping;
+    private final Map<String, String> cgmesTerminalsMapping;
 }

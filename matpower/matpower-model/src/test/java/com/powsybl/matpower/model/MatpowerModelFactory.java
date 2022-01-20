@@ -38,8 +38,16 @@ public final class MatpowerModelFactory {
         return readModelJsonFromResources("ieee9.json");
     }
 
+    public static MatpowerModel create9limits() {
+        return readModelJsonFromResources("ieee9_limits.json");
+    }
+
     public static MatpowerModel create14() {
         return readModelJsonFromResources("ieee14.json");
+    }
+
+    public static MatpowerModel create14WithPhaseShifter() {
+        return readModelJsonFromResources("ieee14-phase-shifter.json");
     }
 
     public static MatpowerModel create30() {

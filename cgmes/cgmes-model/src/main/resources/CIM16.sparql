@@ -333,9 +333,12 @@ WHERE {
         a ?type ;
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
-    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch } .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
     OPTIONAL {
         ?Switch cim:Switch.retained ?retained
+    }
+    OPTIONAL {
+        ?Switch cim:Switch.normalOpen ?normalOpen
     }
     ?Terminal1
         a cim:Terminal ;
@@ -745,7 +748,9 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:RotatingMachine.q ?q ;
         cim:SynchronousMachine.referencePriority ?referencePriority ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-    OPTIONAL { ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF }
+}}
+OPTIONAL { GRAPH ?graphSSH2 {
+    ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
 }}
 }
 
@@ -904,6 +909,9 @@ WHERE {
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
     OPTIONAL {
         ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
+    }
+    OPTIONAL {
+        ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve
     }
 }}
 OPTIONAL { GRAPH ?graphSSH {
