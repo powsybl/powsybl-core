@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -52,13 +51,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
         if (quality != null) {
             writer.writeEmptyElement(getNamespaceUri(), elementName);
             XmlUtil.writeDouble(STANDARD_DEVIATION, quality.getStandardDeviation(), writer);
-            quality.isRedundant().ifPresent(redundant -> {
-                try {
-                    writer.writeAttribute(REDUNDANT, Boolean.toString(redundant));
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
+            XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), false, writer);
         }
     }
 

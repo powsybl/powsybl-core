@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -17,6 +16,7 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
+import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -45,48 +45,30 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         // qualityP1
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_P);
         context.getWriter().writeAttribute(SIDE, Branch.Side.ONE.name());
-        XmlUtil.writeDouble(STANDARD_DEVIATION, branchObservability.getQualityP1().getStandardDeviation(), context.getWriter());
-        branchObservability.getQualityP1().isRedundant().ifPresent(redundant -> {
-            try {
-                context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(redundant));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        ObservabilityQuality<T> qualityP1 = branchObservability.getQualityP1();
+        XmlUtil.writeDouble(STANDARD_DEVIATION, qualityP1.getStandardDeviation(), context.getWriter());
+        XmlUtil.writeOptionalBoolean(REDUNDANT, qualityP1.isRedundant(), false, context.getWriter());
+
         // qualityP2
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_P);
         context.getWriter().writeAttribute(SIDE, Branch.Side.TWO.name());
-        XmlUtil.writeDouble(STANDARD_DEVIATION, branchObservability.getQualityP2().getStandardDeviation(), context.getWriter());
-        branchObservability.getQualityP2().isRedundant().ifPresent(redundant -> {
-            try {
-                context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(redundant));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        ObservabilityQuality<T> qualityP2 = branchObservability.getQualityP2();
+        XmlUtil.writeDouble(STANDARD_DEVIATION, qualityP2.getStandardDeviation(), context.getWriter());
+        XmlUtil.writeOptionalBoolean(REDUNDANT, qualityP2.isRedundant(), false, context.getWriter());
 
         // qualityQ1
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_Q);
         context.getWriter().writeAttribute(SIDE, Branch.Side.ONE.name());
-        XmlUtil.writeDouble(STANDARD_DEVIATION, branchObservability.getQualityQ1().getStandardDeviation(), context.getWriter());
-        branchObservability.getQualityQ1().isRedundant().ifPresent(redundant -> {
-            try {
-                context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(redundant));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        ObservabilityQuality<T> qualityQ1 = branchObservability.getQualityQ1();
+        XmlUtil.writeDouble(STANDARD_DEVIATION, qualityQ1.getStandardDeviation(), context.getWriter());
+        XmlUtil.writeOptionalBoolean(REDUNDANT, qualityQ1.isRedundant(), false, context.getWriter());
+
         // qualityQ2
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_Q);
         context.getWriter().writeAttribute(SIDE, Branch.Side.TWO.name());
-        XmlUtil.writeDouble(STANDARD_DEVIATION, branchObservability.getQualityQ2().getStandardDeviation(), context.getWriter());
-        branchObservability.getQualityQ2().isRedundant().ifPresent(redundant -> {
-            try {
-                context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(redundant));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        ObservabilityQuality<T> qualityQ2 = branchObservability.getQualityQ2();
+        XmlUtil.writeDouble(STANDARD_DEVIATION, qualityQ2.getStandardDeviation(), context.getWriter());
+        XmlUtil.writeOptionalBoolean(REDUNDANT, qualityQ2.isRedundant(), false, context.getWriter());
     }
 
     @Override
