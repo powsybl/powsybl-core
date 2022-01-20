@@ -9,6 +9,8 @@ package com.powsybl.matpower.converter;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -18,6 +20,12 @@ import com.powsybl.matpower.model.MatpowerModel;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
+
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
+import com.powsybl.loadflow.validation.ValidationConfig;
+import com.powsybl.loadflow.validation.ValidationType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +95,11 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testCase14WithPhaseShifterSolved() throws IOException {
+        testCaseSolved(MatpowerModelFactory.create14WithPhaseShifter());
+    }
+
+    @Test
     public void testCase30() throws IOException {
         testCase(MatpowerModelFactory.create30());
     }
@@ -135,5 +148,53 @@ public class MatpowerImporterTest extends AbstractConverterTest {
 
     private void testNetwork(Network network) throws IOException {
         testNetwork(network, network.getId());
+    }
+
+    private void testCaseSolved(MatpowerModel model) throws IOException {
+        String caseId = model.getCaseName();
+        Path matFile = tmpDir.resolve(caseId + ".mat");
+        MatpowerWriter.write(model, matFile);
+
+        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+        testSolved(network);
+    }
+
+    private void testSolved(Network network) throws IOException {
+        // Precision required on bus balances (MVA)
+        double threshold = 0.0000001;
+        ValidationConfig config = loadFlowValidationConfig(threshold);
+        Path work = Files.createDirectories(fileSystem.getPath("/lf-validation" + network.getId()));
+        computeMissingFlows(network, config.getLoadFlowParameters());
+        assertTrue(ValidationType.BUSES.check(network, config, work));
+    }
+
+    private static ValidationConfig loadFlowValidationConfig(double threshold) {
+        ValidationConfig config = ValidationConfig.load();
+        config.setVerbose(true);
+        config.setThreshold(threshold);
+        config.setOkMissingValues(false);
+        LoadFlowParameters lf = new LoadFlowParameters();
+        lf.setTwtSplitShuntAdmittance(true);
+        config.setLoadFlowParameters(lf);
+        return config;
+    }
+
+    private static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
+        for (Load l : network.getLoads()) {
+            l.getTerminal().setP(l.getP0());
+            l.getTerminal().setQ(l.getQ0());
+        }
+        for (Generator g : network.getGenerators()) {
+            g.getTerminal().setP(-g.getTargetP());
+            if (Double.isNaN(g.getTerminal().getQ())) {
+                g.getTerminal().setQ(-g.getTargetQ());
+            }
+        }
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
+            LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
+            LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
+            LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
+        LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
+        lf.run(network, null);
     }
 }
