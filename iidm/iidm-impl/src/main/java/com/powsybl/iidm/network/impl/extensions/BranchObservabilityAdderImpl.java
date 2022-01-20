@@ -20,21 +20,21 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
 
     private boolean observable;
 
-    private Double standardDeviationP1 = null;
+    private double standardDeviationP1 = Double.NaN;
 
-    private Double standardDeviationP2 = null;
+    private double standardDeviationP2 = Double.NaN;
 
-    private Double standardDeviationQ1 = null;
+    private double standardDeviationQ1 = Double.NaN;
 
-    private Double standardDeviationQ2 = null;
+    private double standardDeviationQ2 = Double.NaN;
 
-    private Boolean redundantP1 = null;
+    private boolean redundantP1 = false;
 
-    private Boolean redundantP2 = null;
+    private boolean redundantP2 = false;
 
-    private Boolean redundantQ1 = null;
+    private boolean redundantQ1 = false;
 
-    private Boolean redundantQ2 = null;
+    private boolean redundantQ2 = false;
 
     public BranchObservabilityAdderImpl(B extendable) {
         super(extendable);
@@ -43,16 +43,16 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
     @Override
     protected BranchObservability<B> createExtension(B extendable) {
         BranchObservabilityImpl<B> extension = new BranchObservabilityImpl<>(extendable, observable);
-        if (standardDeviationP1 != null) {
+        if (!Double.isNaN(standardDeviationP1)) {
             extension.setQualityP1(standardDeviationP1, redundantP1);
         }
-        if (standardDeviationP2 != null) {
+        if (!Double.isNaN(standardDeviationP2)) {
             extension.setQualityP2(standardDeviationP2, redundantP2);
         }
-        if (standardDeviationQ1 != null) {
+        if (!Double.isNaN(standardDeviationQ1)) {
             extension.setQualityQ1(standardDeviationQ1, redundantQ1);
         }
-        if (standardDeviationQ2 != null) {
+        if (!Double.isNaN(standardDeviationQ2)) {
             extension.setQualityQ2(standardDeviationQ2, redundantQ2);
         }
         return extension;
