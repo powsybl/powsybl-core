@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -192,8 +193,8 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         CgmesIidmMapping iidmMapping = expected0.getExtension(CgmesIidmMapping.class);
         if (iidmMapping != null) {
             for (Line l : expected0.getLines()) {
-                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal1().getBusView().getBus().getId()).contains(iidmMapping.getTopologicalNode(l.getId(), 1)));
-                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal2().getBusView().getBus().getId()).contains(iidmMapping.getTopologicalNode(l.getId(), 2)));
+                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal1().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(iidmMapping.getTopologicalNode(l.getId(), 1)));
+                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal2().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(iidmMapping.getTopologicalNode(l.getId(), 2)));
             }
         }
 

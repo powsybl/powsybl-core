@@ -33,10 +33,10 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     public BranchObservabilityImpl(B component, boolean observable,
-                                   double standardDeviationP1, Boolean redundantP1,
-                                   double standardDeviationP2, Boolean redundantP2,
-                                   double standardDeviationQ1, Boolean redundantQ1,
-                                   double standardDeviationQ2, Boolean redundantQ2) {
+                                   double standardDeviationP1, boolean redundantP1,
+                                   double standardDeviationP2, boolean redundantP2,
+                                   double standardDeviationQ1, boolean redundantQ1,
+                                   double standardDeviationQ2, boolean redundantQ2) {
         this(component, observable);
         this.qualityP1 = new ObservabilityQualityImpl<>(standardDeviationP1, redundantP1);
         this.qualityP2 = new ObservabilityQualityImpl<>(standardDeviationP2, redundantP2);
@@ -60,7 +60,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public BranchObservability<B> setQualityP1(double standardDeviation, Boolean redundant) {
+    public BranchObservability<B> setQualityP1(double standardDeviation, boolean redundant) {
         if (qualityP1 == null) {
             qualityP1 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         } else {
@@ -86,7 +86,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public BranchObservability<B> setQualityP2(double standardDeviation, Boolean redundant) {
+    public BranchObservability<B> setQualityP2(double standardDeviation, boolean redundant) {
         if (qualityP2 == null) {
             qualityP2 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         } else {
@@ -112,7 +112,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public BranchObservability<B> setQualityQ1(double standardDeviation, Boolean redundant) {
+    public BranchObservability<B> setQualityQ1(double standardDeviation, boolean redundant) {
         if (qualityQ1 == null) {
             qualityQ1 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         } else {
@@ -138,7 +138,7 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
-    public BranchObservability<B> setQualityQ2(double standardDeviation, Boolean redundant) {
+    public BranchObservability<B> setQualityQ2(double standardDeviation, boolean redundant) {
         if (qualityQ2 == null) {
             qualityQ2 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         } else {

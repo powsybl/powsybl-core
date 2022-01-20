@@ -94,7 +94,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     public void readJsonVersion13() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion13.json"));
-        assertTrue(parameters.isSimulShunt());
+        assertTrue(parameters.isShuntCompensatorVoltageControlOn());
         assertTrue(parameters.isReadSlackBus());
         assertTrue(parameters.isWriteSlackBus());
     }
@@ -117,6 +117,13 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         assertTrue(parameters.getCountriesToBalance().contains(Country.FR));
         assertTrue(parameters.getCountriesToBalance().contains(Country.KI));
         assertEquals(LoadFlowParameters.ConnectedComponentMode.MAIN, parameters.getConnectedComponentMode());
+    }
+
+    @Test
+    public void readJsonVersion16() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion16.json"));
+        assertFalse(parameters.isShuntCompensatorVoltageControlOn());
     }
 
     @Test
