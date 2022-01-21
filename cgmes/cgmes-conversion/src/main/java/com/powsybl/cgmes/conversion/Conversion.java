@@ -607,7 +607,15 @@ public class Conversion {
         } else if (numEquipmentsAtNode == 2) {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
         } else if (numEquipmentsAtNode > 2) {
-            context.invalid(node, "Too many equipment at boundary node");
+            // In some TYNDP there are three acLineSegments at the boundary node,
+            // one of them disconnected. The two connected acLineSegments are imported.
+            List<BoundaryEquipment> connectedBeqs = beqs.stream()
+                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
+            if (connectedBeqs.size() == 2) {
+                convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
+            } else {
+                context.invalid(node, "Too many equipment at boundary node");
+            }
         }
     }
 

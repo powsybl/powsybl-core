@@ -57,6 +57,13 @@ class BoundaryEquipment {
         return c;
     }
 
+    boolean isAcLineSegmentDisconnected(Context context) {
+        if (type == BoundaryEquipmentType.AC_LINE_SEGMENT) {
+            return !(new ACLineSegmentConversion(propertyBags.get(0), context)).isConnectedAtBothEnds();
+        }
+        return false;
+    }
+
     void log() {
         if (LOG.isDebugEnabled()) {
             if (propertyBags.size() == 1) {
