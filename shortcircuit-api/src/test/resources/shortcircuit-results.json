@@ -1,0 +1,14 @@
+{
+  "version" : "1.0",
+  "faultResults" : [ {
+    "id" : "faultResultID",
+    "threePhaseFaultCurrent" : 1.0
+  } ],
+  "limitViolations" : [ {
+    "subjectId" : "id",
+    "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
+    "limit" : 2000.0,
+    "limitReduction" : 1.0,
+    "value" : 2500.0
+  } ]
+}
