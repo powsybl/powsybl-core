@@ -262,6 +262,7 @@ public class MatpowerImporter implements Importer {
             String connectedBus1 = isInService ? bus1Id : null;
             String connectedBus2 = isInService ? bus2Id : null;
 
+            Branch<?> branch;
             if (isTransformer(model, mBranch)) {
                 TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(network::newTwoWindingsTransformer)
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
@@ -279,9 +280,23 @@ public class MatpowerImporter implements Importer {
                         .setG(0)
                         .setB(mBranch.getB() / zb)
                         .add();
+                if (mBranch.getPhaseShiftAngle() != 0) {
+                    newTwt.newPhaseTapChanger()
+                            .setTapPosition(0)
+                            .beginStep()
+                            .setRho(1)
+                            .setAlpha(-mBranch.getPhaseShiftAngle())
+                            .setR(0)
+                            .setX(0)
+                            .setG(0)
+                            .setB(0)
+                            .endStep()
+                            .add();
+                }
+                branch = newTwt;
                 LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
-                Line newLine = network.newLine()
+                branch = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(connectedBus1)
@@ -297,7 +312,30 @@ public class MatpowerImporter implements Importer {
                         .setG2(0)
                         .setB2(mBranch.getB() / zb / 2)
                         .add();
-                LOGGER.trace("Created line {} {} {}", newLine.getId(), bus1Id, bus2Id);
+                LOGGER.trace("Created line {} {} {}", branch.getId(), bus1Id, bus2Id);
+            }
+            if (mBranch.getRateA() != 0) {
+                // we create the apparent power limit arbitrary on side one
+                // there is probably something to fix on IIDM API to not have sided apparent
+                // power limits. Apparent power does not depend on voltage so it does not make
+                // sens to associate the limit to a branch side.
+                ApparentPowerLimitsAdder limitsAdder = branch.newApparentPowerLimits1()
+                        .setPermanentLimit(mBranch.getRateA()); // long term rating
+                if (mBranch.getRateB() != 0) {
+                    limitsAdder.beginTemporaryLimit()
+                            .setName("RateB")
+                            .setValue(mBranch.getRateB())
+                            .setAcceptableDuration(60 * 20) // 20' for short term rating
+                            .endTemporaryLimit();
+                }
+                if (mBranch.getRateC() != 0) {
+                    limitsAdder.beginTemporaryLimit()
+                            .setName("RateC")
+                            .setValue(mBranch.getRateC())
+                            .setAcceptableDuration(60) // 1' for emergency rating
+                            .endTemporaryLimit();
+                }
+                limitsAdder.add();
             }
         }
     }

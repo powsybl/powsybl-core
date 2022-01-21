@@ -25,7 +25,7 @@ public class IdentifiableShortCircuitAdderImplProvider<I extends Identifiable<I>
     }
 
     @Override
-    public String getExtensionsName() {
+    public String getExtensionName() {
         return IdentifiableShortCircuit.NAME;
     }
 
