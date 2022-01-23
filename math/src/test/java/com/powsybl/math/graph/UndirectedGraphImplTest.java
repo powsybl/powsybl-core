@@ -49,6 +49,8 @@ public class UndirectedGraphImplTest {
 
     }
 
+    private static final int VERTEX_LIMIT = 100;
+
     private UndirectedGraph<Vertex, Object> graph;
 
     public UndirectedGraphImplTest() {
@@ -56,7 +58,7 @@ public class UndirectedGraphImplTest {
 
     @Before
     public void setUp() {
-        graph = new UndirectedGraphImpl<>();
+        graph = new UndirectedGraphImpl<>(VERTEX_LIMIT);
     }
 
     @After
@@ -74,6 +76,31 @@ public class UndirectedGraphImplTest {
     public void testAddVertex() {
         graph.addVertex();
         assertEquals(1, graph.getVertexCount());
+    }
+
+    @Test
+    public void testAddVertexIfNotPresent() {
+        graph.addVertexIfNotPresent(0);
+        assertEquals(1, graph.getVertexCount());
+        graph.addVertexIfNotPresent(0);
+        assertEquals(1, graph.getVertexCount());
+
+        graph.addVertexIfNotPresent(VERTEX_LIMIT - 1);
+        assertEquals(2, graph.getVertexCount());
+        graph.addVertexIfNotPresent(VERTEX_LIMIT - 1);
+        assertEquals(2, graph.getVertexCount());
+    }
+
+    @Test
+    public void testAddVertexIfNotPresentNegative() {
+        exception.expect(PowsyblException.class);
+        graph.addVertexIfNotPresent(-1);
+    }
+
+    @Test
+    public void testAddVertexIfNotPresentLimit() {
+        exception.expect(PowsyblException.class);
+        graph.addVertexIfNotPresent(VERTEX_LIMIT);
     }
 
     @Test
