@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
@@ -169,6 +171,7 @@ public final class EquipmentExport {
 
     private static void writeSubstations(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         Map<String, String> geographicalRegionIds = new HashMap<>();
+        BiMap<String, String> subGeographicalRegionIds = HashBiMap.create();
         for (Substation substation : network.getSubstations()) {
             String geoName = network.getNameOrId();
             Optional<Country> country = substation.getCountry();
@@ -178,16 +181,37 @@ public final class EquipmentExport {
             String finalGeoName = geoName;
             geographicalRegionIds.computeIfAbsent(geoName, k -> {
                 try {
-                    String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
                     String geographicalRegionId = CgmesExportUtil.getUniqueId();
                     GeographicalRegionEq.write(geographicalRegionId, finalGeoName, cimNamespace, writer);
-                    SubGeographicalRegionEq.write(subGeographicalRegionId, finalGeoName, geographicalRegionId, cimNamespace, writer);
-                    return subGeographicalRegionId;
+                    return geographicalRegionId;
                 } catch (XMLStreamException e) {
                     throw new UncheckedXmlStreamException(e);
                 }
             });
-            SubstationEq.write(substation.getId(), substation.getNameOrId(), geographicalRegionIds.get(geoName), cimNamespace, writer);
+            String subGeographicalRegionId;
+            if (substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
+                subGeographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
+            } else if (substation.getGeographicalTags().size() == 1) {
+                subGeographicalRegionId = subGeographicalRegionIds.inverse().getOrDefault(substation.getGeographicalTags().iterator().next(),
+                        CgmesExportUtil.getUniqueId());
+            } else {
+                subGeographicalRegionId = CgmesExportUtil.getUniqueId();
+            }
+            subGeographicalRegionIds.computeIfAbsent(subGeographicalRegionId, k -> {
+                try {
+                    String subGeoName;
+                    if (substation.getGeographicalTags().size() == 1) {
+                        subGeoName = substation.getGeographicalTags().iterator().next();
+                    } else {
+                        subGeoName = finalGeoName;
+                    }
+                    SubGeographicalRegionEq.write(subGeographicalRegionId, subGeoName, geographicalRegionIds.get(finalGeoName), cimNamespace, writer);
+                    return subGeoName;
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            });
+            SubstationEq.write(substation.getId(), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer);
         }
     }
 
@@ -200,7 +224,7 @@ public final class EquipmentExport {
                 BaseVoltageEq.write(baseVoltage.getCgmesId(), nominalV, cimNamespace, writer);
                 exportedBaseVoltagesByNominalV.add(nominalV);
             }
-            VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getNullableSubstation().getId(), baseVoltage.getCgmesId(), cimNamespace, writer);
+            VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(), voltageLevel.getNullableSubstation().getId(), baseVoltage.getCgmesId(), cimNamespace, writer);
         }
     }
 
@@ -464,7 +488,7 @@ public final class EquipmentExport {
     private static String writeDanglingLineVoltageLevel(DanglingLine danglingLine, String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         // New VoltageLevel
         String voltageLevelId = CgmesExportUtil.getUniqueId();
-        VoltageLevelEq.write(voltageLevelId, danglingLine.getNameOrId() + "_VL", substationId, baseVoltageId, cimNamespace, writer);
+        VoltageLevelEq.write(voltageLevelId, danglingLine.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer);
 
         return voltageLevelId;
     }

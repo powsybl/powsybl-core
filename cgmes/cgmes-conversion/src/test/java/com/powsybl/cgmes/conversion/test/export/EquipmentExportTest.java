@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -102,7 +103,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network);
+            CgmesExportContext context = new CgmesExportContext(network).setTopologyKind(CgmesTopologyKind.NODE_BREAKER);
             EquipmentExport.write(network, writer, context);
         }
 
@@ -120,7 +121,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 .with("test_TP_BD.xml", Repackager::tpBd);
         r.zip(repackaged);
 
-        // Import with new SSH
+        // Import with new EQ
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         Network actual = Importers.loadNetwork(repackaged,
@@ -131,7 +132,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     private void testIidm(Network network) throws IOException, XMLStreamException {
         exportToCgmesEQ(network);
 
-        // Import with new SSH
+        // Import with new EQ
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), new Properties());
         compareNetworks(network, actual);
     }
@@ -141,7 +142,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network);
+            CgmesExportContext context = new CgmesExportContext(network).setTopologyKind(CgmesTopologyKind.NODE_BREAKER);
             EquipmentExport.write(network, writer, context);
         }
 
