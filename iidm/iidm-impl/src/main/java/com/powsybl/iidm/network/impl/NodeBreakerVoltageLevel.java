@@ -53,7 +53,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final BusNamingStrategy NAMING_STRATEGY = new LowestNodeNumberBusNamingStrategy();
 
-    private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>();
+    private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>(NODE_INDEX_LIMIT);
 
     private final Map<String, Integer> switches = new HashMap<>();
 
