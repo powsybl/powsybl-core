@@ -64,6 +64,13 @@ class BoundaryEquipment {
         return false;
     }
 
+    String getAcLineSegmentId() {
+        if (type == BoundaryEquipmentType.AC_LINE_SEGMENT) {
+            return propertyBags.get(0).getId("ACLineSegment");
+        }
+        return null;
+    }
+
     void log() {
         if (LOG.isDebugEnabled()) {
             if (propertyBags.size() == 1) {
