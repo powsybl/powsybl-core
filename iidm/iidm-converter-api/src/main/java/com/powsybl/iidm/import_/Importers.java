@@ -297,7 +297,7 @@ public final class Importers {
     }
 
     public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
-        return importData(LOADER.get(), format, dataSource, parameters, computationManager, CONFIG.get(), Reporter.NO_OP);
+        return importData(loader, format, dataSource, parameters, computationManager, config, Reporter.NO_OP);
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, Reporter reporter) {
