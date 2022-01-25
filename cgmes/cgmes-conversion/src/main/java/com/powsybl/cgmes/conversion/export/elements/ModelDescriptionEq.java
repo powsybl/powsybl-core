@@ -52,10 +52,11 @@ public final class ModelDescriptionEq {
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
         if (context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
-            LOGGER.warn("EQ Bus-Branch export is not completely correct. EQ export is not advised for Bus-Branch export.");
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
             writer.writeCharacters(CgmesNamespace.EQ_OPERATION_PROFILE);
             writer.writeEndElement();
+        } else {
+            LOGGER.warn("EQ Bus-Branch export is not correct. EQ export is not advised for Bus-Branch export.");
         }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
