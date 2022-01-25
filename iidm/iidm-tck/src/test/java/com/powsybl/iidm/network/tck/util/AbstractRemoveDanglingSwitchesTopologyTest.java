@@ -56,7 +56,7 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
     }
 
     /**
-     *   G(2)    L(1)
+     *   L(1)   G(2)
      *   |       |
      *   B1      B2
      *   |       |
