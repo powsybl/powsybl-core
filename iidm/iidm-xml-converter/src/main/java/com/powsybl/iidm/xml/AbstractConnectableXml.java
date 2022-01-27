@@ -221,7 +221,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
                                           boolean valid, ExportOptions exportOptions) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, exportOptions);
+        writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions);
     }
 
     /**
