@@ -10,23 +10,23 @@ package com.powsybl.shortcircuit;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class ContributionResult {
-    private final String bus;
-    private final String name;
+    private final String subjectId;
+    private final String id;
 
     private final float contribution; //in kA
 
-    public ContributionResult(String bus, String name, float contribution) {
-        this.bus = bus;
-        this.name = name;
+    public ContributionResult(String subjectId, String id, float contribution) {
+        this.subjectId = subjectId;
+        this.id = id;
         this.contribution = contribution;
     }
 
-    public String getBus() {
-        return bus;
+    public String getSubjectId() {
+        return subjectId;
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
     public float getContribution() {

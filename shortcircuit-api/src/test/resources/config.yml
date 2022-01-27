@@ -1,2 +1,3 @@
 short-circuit-parameters:
   subTransStudy: true
+  withContributions: false
