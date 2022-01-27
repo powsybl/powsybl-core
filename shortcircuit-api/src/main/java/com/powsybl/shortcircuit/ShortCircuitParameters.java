@@ -27,6 +27,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     private boolean subTransStudy = ShortCircuitConstants.SUBTRANS_STUDY;
 
+    private boolean withContributions = ShortCircuitConstants.WITH_CONTRIBUTIONS; //In case of systematic study only
+
     public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {
     }
@@ -47,8 +49,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         ModuleConfig config = platformConfig.getOptionalModuleConfig("short-circuit-parameters").orElse(null);
         if (config != null) {
             parameters.setSubTransStudy(config.getBooleanProperty("subTransStudy", ShortCircuitConstants.SUBTRANS_STUDY));
-        }
+            parameters.setWithContributions(config.getBooleanProperty("withContributions", ShortCircuitConstants.WITH_CONTRIBUTIONS));
 
+        }
         return parameters;
     }
 
@@ -64,6 +67,15 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setSubTransStudy(boolean subTransStudy) {
         this.subTransStudy = subTransStudy;
+        return this;
+    }
+
+    public boolean isWithContributions() {
+        return withContributions;
+    }
+
+    public ShortCircuitParameters setWithContributions(boolean withContributions) {
+        this.withContributions = withContributions;
         return this;
     }
 

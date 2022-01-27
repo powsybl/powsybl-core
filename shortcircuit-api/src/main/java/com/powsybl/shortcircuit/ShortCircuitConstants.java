@@ -15,4 +15,6 @@ public final class ShortCircuitConstants {
     }
 
     public static final boolean SUBTRANS_STUDY = false;
+
+    public static final boolean WITH_CONTRIBUTIONS = true;
 }
