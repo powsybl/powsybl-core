@@ -8,6 +8,7 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -21,9 +22,16 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final float threePhaseFaultCurrent;
 
-    public FaultResult(String id, float threePhaseFaultCurrent) {
+    private List<ContributionResult> contributionResults; //in case of systemactic study, optional
+
+    public FaultResult(String id, float threePhaseFaultCurrent, List<ContributionResult> contributionResults) {
         this.id = Objects.requireNonNull(id);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
+        this.contributionResults = contributionResults;
+    }
+
+    public FaultResult(String id, float threePhaseFaultCurrent) {
+        this(id, threePhaseFaultCurrent, null);
     }
 
     /**
@@ -41,4 +49,10 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         return threePhaseFaultCurrent;
     }
 
+    /**
+     * List of contributions of each connectable connected to the equipment to the three phase fault current
+     */
+    public List<ContributionResult> getContributionResults() {
+        return contributionResults;
+    }
 }

@@ -16,6 +16,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.ContributionResult;
 import com.powsybl.shortcircuit.FaultResult;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
         String id = "";
         float threePhaseFaultCurrent = 0;
         List<Extension<FaultResult>> extensions = Collections.emptyList();
+        List<ContributionResult> contributionResults = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -52,6 +54,14 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     threePhaseFaultCurrent = parser.readValueAs(Float.class);
                     break;
 
+                case "contributionsResult":
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        ContributionResult contributionResult = parser.readValueAs(ContributionResult.class);
+                        if (contributionResult != null) {
+                            contributionResults.add(contributionResult);
+                        }
+                    }
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
@@ -62,7 +72,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
             }
         }
 
-        FaultResult faultResult = new FaultResult(id, threePhaseFaultCurrent);
+        FaultResult faultResult = new FaultResult(id, threePhaseFaultCurrent, contributionResults);
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;

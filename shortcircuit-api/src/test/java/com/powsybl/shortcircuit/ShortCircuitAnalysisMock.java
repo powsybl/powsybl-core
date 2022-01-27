@@ -52,9 +52,9 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     }
 
     public static ShortCircuitAnalysisResult runAsync(Network network) {
-        FaultResult faultResult = new FaultResult("VLGEN", 10);
+        ContributionResult contributionResult = new ContributionResult("GEN", 5);
+        FaultResult faultResult = new FaultResult("VLGEN", 10, Collections.singletonList(contributionResult));
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
-        ContributionResult contributionResult = new ContributionResult("VLLOAD", "LOAD", 10);
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation), Collections.singletonList(contributionResult));
 
         return result;
