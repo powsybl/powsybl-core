@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.*;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -55,10 +54,6 @@ public final class TopologyExport {
 
     private static void writeBusTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
-            Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(b.getId());
-            if (topologicalNodes == null) {
-                continue;
-            }
             for (Terminal t : b.getConnectedTerminals()) {
                 Connectable<?> c = t.getConnectable();
                 String terminalId;
@@ -69,7 +64,7 @@ public final class TopologyExport {
                     int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
                     terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElseThrow(PowsyblException::new);
                 }
-                for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : topologicalNodes) {
+                for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
                     writeTerminal(terminalId, topologicalNode.getCgmesId(), cimNamespace, writer);
                 }
             }
@@ -87,11 +82,7 @@ public final class TopologyExport {
     }
 
     private static void writeHvdcBusTerminals(HvdcLine line, Bus bus, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(bus.getId());
-        if (topologicalNodes == null) {
-            return;
-        }
-        for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : topologicalNodes) {
+        for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(bus.getId())) {
             String dcTopologicalNode = topologicalNode.getCgmesId() + "DC";
             String dcNode = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + side).orElseThrow(PowsyblException::new);
             writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer);
@@ -156,11 +147,7 @@ public final class TopologyExport {
 
     private static void writeBusTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
-            Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(b.getId());
-            if (topologicalNodes == null) {
-                continue;
-            }
-            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : topologicalNodes) {
+            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
                 if (topologicalNode.getSource().equals(CgmesIidmMapping.Source.IGM)) {
                     String baseVoltage = context.getBaseVoltageByNominalVoltage(b.getVoltageLevel().getNominalV()).getCgmesId();
                     writeTopologicalNode(topologicalNode.getCgmesId(), topologicalNode.getName(), b.getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
@@ -185,19 +172,13 @@ public final class TopologyExport {
     private static void writeHvdcTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcLine line : network.getHvdcLines()) {
             Bus b1 = line.getConverterStation1().getTerminal().getBusView().getBus();
-            Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(b1.getId());
-            if (topologicalNodes != null) {
-                for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : topologicalNodes) {
-                    writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
-                }
+            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b1.getId())) {
+                writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
             }
 
             Bus b2 = line.getConverterStation2().getTerminal().getBusView().getBus();
-            topologicalNodes = context.getTopologicalNodesByBusViewBus(b2.getId());
-            if (topologicalNodes != null) {
-                for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : topologicalNodes) {
-                    writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
-                }
+            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b2.getId())) {
+                writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
             }
         }
     }
