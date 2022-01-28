@@ -535,11 +535,15 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             public void allEdgesRemoved(Collection<SwitchImpl> aSwitches) {
                 NetworkImpl network = getNetwork();
                 aSwitches.forEach(ss -> {
-                    network.getListeners().notifyBeforeRemoval(ss);
-                    network.getIndex().remove(ss);
+                    if (ss != null) {
+                        network.getListeners().notifyBeforeRemoval(ss);
+                        network.getIndex().remove(ss);
+                    } else {
+                        network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, "internalConnection", null);
+                    }
                 });
                 switches.clear();
-                aSwitches.forEach(ss -> network.getListeners().notifyAfterRemoval(ss.getId()));
+                aSwitches.stream().filter(Objects::nonNull).forEach(ss -> network.getListeners().notifyAfterRemoval(ss.getId()));
             }
         });
     }
