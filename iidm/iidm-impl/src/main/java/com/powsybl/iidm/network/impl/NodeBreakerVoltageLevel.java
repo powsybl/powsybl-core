@@ -507,23 +507,27 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
             @Override
             public void edgeAdded(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
-                    NetworkImpl network = getNetwork();
                     network.getIndex().checkAndAdd(aSwitch);
                     switches.put(aSwitch.getId(), e);
                     network.getListeners().notifyCreation(aSwitch);
+                } else {
+                    network.getListeners().notifyElementAdded(NodeBreakerVoltageLevel.this, "internalConnection", null);
                 }
                 invalidateCache();
             }
 
             @Override
             public void edgeRemoved(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
-                    NetworkImpl network = getNetwork();
                     String switchId = aSwitch.getId();
                     network.getListeners().notifyBeforeRemoval(aSwitch);
                     network.getIndex().remove(aSwitch);
                     network.getListeners().notifyAfterRemoval(switchId);
+                } else {
+                    network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, "internalConnection", null);
                 }
             }
 

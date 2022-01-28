@@ -105,8 +105,16 @@ public class EquipmentExportTest extends AbstractConverterTest {
             CgmesExportContext context = new CgmesExportContext(network);
             EquipmentExport.write(network, writer, context);
         }
+        // Zip with new SSH
+        Path repackaged = tmpDir.resolve("repackaged.zip");
+        Repackager r = new Repackager(CgmesConformity1Catalog.microGridType4BE().dataSource())
+                .with("test_EQ.xml", exportedEq)
+                .with("test_EQ_BD.xml", Repackager::eqBd)
+                .with("test_TP_BD.xml", Repackager::tpBd);
+        r.zip(repackaged);
 
-        Network actual = prepareNetwork(new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), new Properties()));
+        Network actual = prepareNetwork(Importers.loadNetwork(repackaged,
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties));
         model = (ShuntCompensatorLinearModel) actual.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(1E-14, model.getBPerSection(), 0.0);
     }

@@ -191,8 +191,14 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         CgmesIidmMapping iidmMapping = expected0.getExtension(CgmesIidmMapping.class);
         if (iidmMapping != null) {
             for (Line l : expected0.getLines()) {
-                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal1().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(iidmMapping.getTopologicalNode(l.getId(), 1)));
-                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal2().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(iidmMapping.getTopologicalNode(l.getId(), 2)));
+                String ctn = iidmMapping.getTopologicalNode(l.getId(), 1);
+                if (ctn != null) {
+                    assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal1().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(ctn));
+                }
+                ctn = iidmMapping.getTopologicalNode(l.getId(), 2);
+                if (ctn != null) {
+                    assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal2().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(ctn));
+                }
             }
         }
 

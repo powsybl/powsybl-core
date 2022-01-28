@@ -141,8 +141,13 @@ public class CgmesExportContext {
 
     public void addIidmMappings(Network network) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
-        addIidmMappingsTopologicalNodes(network);
-        addIidmMappingsBaseVoltages(network);
+        CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
+        if (mapping == null) {
+            network.newExtension(CgmesIidmMappingAdder.class).add();
+            mapping = network.getExtension(CgmesIidmMapping.class);
+        }
+        addIidmMappingsTopologicalNodes(mapping, network);
+        addIidmMappingsBaseVoltages(mapping, network);
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsShuntCompensators(network);
@@ -150,57 +155,52 @@ public class CgmesExportContext {
         addIidmMappingsEquivalentInjection(network);
     }
 
-    private void addIidmMappingsTopologicalNodes(Network network) {
-        CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
-        if (cgmesIidmMapping != null) {
-            Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsByBus = cgmesIidmMapping.topologicalNodesByBusViewBusMap();
-            topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
-            unmappedTopologicalNodes.addAll(cgmesIidmMapping.getUnmappedTopologicalNodes());
+    private void addIidmMappingsTopologicalNodes(CgmesIidmMapping mapping, Network network) {
+        if (mapping.isTopologicalNodeEmpty()) {
+            updateTopologicalNodesMapping(mapping, network);
+        }
+        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsByBus = mapping.topologicalNodesByBusViewBusMap();
+        topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
+        unmappedTopologicalNodes.addAll(mapping.getUnmappedTopologicalNodes());
 
-            // And remove from unmapped the currently mapped
-            // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
-            unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(Set::stream).collect(Collectors.toSet()));
-        } else {
-            // If we do not have an explicit mapping
-            // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
-            // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
-            // If we consider only connected terminals we would miss configured buses that only have connections through switches
-            // Switches do not add as terminals
-            // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
-            for (VoltageLevel vl : network.getVoltageLevels()) {
-                if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    addTopologicalNodeBusBreakerMappings(vl);
-                } else {
-                    addTopologicalNodeNodeBreakerMappings(vl);
-                }
+        // And remove from unmapped the currently mapped
+        // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
+        unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(Set::stream).collect(Collectors.toSet()));
+    }
+
+    private void updateTopologicalNodesMapping(CgmesIidmMapping mapping, Network network) {
+        // If we do not have an explicit mapping
+        // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
+        // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
+        // If we consider only connected terminals we would miss configured buses that only have connections through switches
+        // Switches do not add as terminals
+        // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                updateBusBreakerTopologicalNodesMapping(mapping, vl);
+            } else {
+                updateNodeBreakerTopologicalNodesMapping(mapping, vl);
             }
         }
     }
 
-    private void addTopologicalNodeBusBreakerMappings(VoltageLevel vl) {
-        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsFromBusBreaker = new HashMap<>();
-        Set<CgmesIidmMapping.CgmesTopologicalNode> mappedTns = new HashSet<>();
+    private void updateBusBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl) {
         for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
             Bus busViewBus;
             String topologicalNode;
             // Bus/breaker IIDM networks have been created from bus/branch CGMES data
             // CGMES Topological Nodes have been used as configured bus identifiers
             topologicalNode = configuredBus.getId();
+
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
             if (busViewBus != null && topologicalNode != null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
-                CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = new CgmesIidmMapping.CgmesTopologicalNode(topologicalNode, topologicalNodeName, CgmesIidmMapping.Source.IGM);
-                tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(cgmesTopologicalNode);
-                mappedTns.add(cgmesTopologicalNode);
+                mapping.putTopologicalNode(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
             }
         }
-        topologicalNodeByBusViewBusMapping.putAll(tnsFromBusBreaker);
-        unmappedTopologicalNodes.removeAll(mappedTns);
     }
 
-    private void addTopologicalNodeNodeBreakerMappings(VoltageLevel vl) {
-        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsFromBusBreaker = new HashMap<>();
-        Set<CgmesIidmMapping.CgmesTopologicalNode> mappedTns = new HashSet<>();
+    private void updateNodeBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl) {
         for (int node : vl.getNodeBreakerView().getNodes()) {
             Bus busViewBus;
             String topologicalNode;
@@ -214,34 +214,23 @@ public class CgmesExportContext {
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
                         String topologicalNodeName = bus.getNameOrId();
-                        CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = new CgmesIidmMapping.CgmesTopologicalNode(topologicalNode, topologicalNodeName, CgmesIidmMapping.Source.IGM);
-                        tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(cgmesTopologicalNode);
-                        mappedTns.add(cgmesTopologicalNode);
+                        mapping.putTopologicalNode(busViewBus.getId(), bus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
                     }
                 }
             }
         }
-        topologicalNodeByBusViewBusMapping.putAll(tnsFromBusBreaker);
-        unmappedTopologicalNodes.removeAll(mappedTns);
     }
 
-    private void addIidmMappingsBaseVoltages(Network network) {
-        CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
-        if (cgmesIidmMapping != null) {
-            Map<Double, CgmesIidmMapping.BaseVoltageSource> bvByNominalVoltage = cgmesIidmMapping.baseVoltagesByNominalVoltageMap();
-            baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
-        } else {
-            Map<Double, CgmesIidmMapping.BaseVoltageSource> bvsFromBusBreaker = new HashMap<>();
-            Set<String> mappedBvs = new HashSet<>();
+    private void addIidmMappingsBaseVoltages(CgmesIidmMapping mapping, Network network) {
+        if (mapping.isBaseVoltageEmpty()) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
                 String baseVoltageId = CgmesExportUtil.getUniqueId();
-                bvsFromBusBreaker.computeIfAbsent(nominalV, v -> new CgmesIidmMapping.BaseVoltageSource(baseVoltageId, nominalV, CgmesIidmMapping.Source.IGM));
-                mappedBvs.add(baseVoltageId);
+                mapping.addBaseVoltage(nominalV, baseVoltageId, CgmesIidmMapping.Source.IGM);
             }
-
-            baseVoltageByNominalVoltageMapping.putAll(bvsFromBusBreaker);
         }
+        Map<Double, CgmesIidmMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
+        baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
     private void addIidmMappingsTerminals(Network network) {
