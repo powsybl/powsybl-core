@@ -505,6 +505,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
         graph.addListener(new DefaultUndirectedGraphListener<>() {
 
+            private static final String INTERNAL_CONNECTION = "internalConnection";
+
             @Override
             public void edgeAdded(int e, SwitchImpl aSwitch) {
                 NetworkImpl network = getNetwork();
@@ -513,7 +515,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     switches.put(aSwitch.getId(), e);
                     network.getListeners().notifyCreation(aSwitch);
                 } else {
-                    network.getListeners().notifyElementAdded(NodeBreakerVoltageLevel.this, "internalConnection", null);
+                    network.getListeners().notifyElementAdded(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
                 }
                 invalidateCache();
             }
@@ -527,7 +529,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     network.getIndex().remove(aSwitch);
                     network.getListeners().notifyAfterRemoval(switchId);
                 } else {
-                    network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, "internalConnection", null);
+                    network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
                 }
             }
 
@@ -539,7 +541,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         network.getListeners().notifyBeforeRemoval(ss);
                         network.getIndex().remove(ss);
                     } else {
-                        network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, "internalConnection", null);
+                        network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
                     }
                 });
                 switches.clear();
