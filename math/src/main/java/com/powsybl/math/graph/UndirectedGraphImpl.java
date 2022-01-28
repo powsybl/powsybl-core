@@ -254,10 +254,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void removeAllEdges() {
+        Collection<E> allEdges = edges.stream().map(Edge::getObject).filter(Objects::nonNull).collect(Collectors.toList());
         edges.clear();
         removedEdges.clear();
         invalidateAdjacencyList();
-        notifyAllEdgesRemoved();
+        notifyAllEdgesRemoved(allEdges);
     }
 
     @Override
@@ -630,9 +631,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    private void notifyAllEdgesRemoved() {
+    private void notifyAllEdgesRemoved(Collection<E> obj) {
         for (UndirectedGraphListener<V, E> l : listeners) {
-            l.allEdgesRemoved();
+            l.allEdgesRemoved(obj);
         }
     }
 
