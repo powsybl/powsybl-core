@@ -202,6 +202,11 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
             @Override
             public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+                // do nothing
+            }
+
+            @Override
+            public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 if (identifiable instanceof Switch && "open".equals(attribute)) {
                     invalidateTopology();
                 }

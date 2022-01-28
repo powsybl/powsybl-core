@@ -145,6 +145,7 @@ public class CgmesExportContext {
         if (mapping == null) {
             network.newExtension(CgmesIidmMappingAdder.class).add();
             mapping = network.getExtension(CgmesIidmMapping.class);
+            mapping.addTopologyListener();
         }
         addIidmMappingsTopologicalNodes(mapping, network);
         addIidmMappingsBaseVoltages(mapping, network);

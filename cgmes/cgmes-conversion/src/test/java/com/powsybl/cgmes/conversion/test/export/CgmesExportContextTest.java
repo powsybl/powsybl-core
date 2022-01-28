@@ -10,14 +10,12 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -143,6 +141,7 @@ public class CgmesExportContextTest {
         ip.put("iidm.import.cgmes.create-cgmes-export-mapping", "false");
         Network n = new CgmesImport().importData(ds, NetworkFactory.findDefault(), ip);
         CgmesExportContext context = new CgmesExportContext(n);
+        assertNotNull(n.getExtension(CgmesIidmMapping.class));
 
         for (Bus bus : n.getBusView().getBuses()) {
             assertNotNull(context.getTopologicalNodesByBusViewBus(bus.getId()));
@@ -151,5 +150,11 @@ public class CgmesExportContextTest {
         for (VoltageLevel voltageLevel : n.getVoltageLevels()) {
             assertNotNull(context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()));
         }
+
+        // Change topology
+        n.getSwitch("_9550e743-98fd-4be7-848f-b6a600d6c67b").setOpen(true);
+
+        // Check that topology mapping has been invalidated
+        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
     }
 }
