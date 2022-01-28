@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -103,7 +102,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network).setTopologyKind(CgmesTopologyKind.NODE_BREAKER);
+            CgmesExportContext context = new CgmesExportContext(network);
             EquipmentExport.write(network, writer, context);
         }
 
@@ -142,7 +141,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network).setTopologyKind(CgmesTopologyKind.NODE_BREAKER);
+            CgmesExportContext context = new CgmesExportContext(network);
             EquipmentExport.write(network, writer, context);
         }
 

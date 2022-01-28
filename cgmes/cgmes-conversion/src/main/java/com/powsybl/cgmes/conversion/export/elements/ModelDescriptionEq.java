@@ -8,13 +8,10 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -26,8 +23,6 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public final class ModelDescriptionEq {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModelDescriptionEq.class);
 
     public static void write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
@@ -51,13 +46,9 @@ public final class ModelDescriptionEq {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
-        if (context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
-            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-            writer.writeCharacters(CgmesNamespace.EQ_OPERATION_PROFILE);
-            writer.writeEndElement();
-        } else {
-            LOGGER.warn("EQ Bus-Branch export is not correct. EQ export is not advised for Bus-Branch export.");
-        }
+        writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+        writer.writeCharacters(CgmesNamespace.EQ_OPERATION_PROFILE);
+        writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();
