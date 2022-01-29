@@ -20,13 +20,13 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directory, String fileName, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new FileDataSource(directory, baseName, observer),
+            new FileDataSource(directory, fileName, observer),
             new ZipFileDataSource(directory),
-            new ZipFileDataSource(directory, baseName + ".zip", baseName, observer),
-            new GzFileDataSource(directory, baseName, observer),
-            new Bzip2FileDataSource(directory, baseName, observer)
+            new ZipFileDataSource(directory, fileName, observer),
+            new GzFileDataSource(directory, fileName, observer),
+            new Bzip2FileDataSource(directory, fileName, observer)
         };
     }
 

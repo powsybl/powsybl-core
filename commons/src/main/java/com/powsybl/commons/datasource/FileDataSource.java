@@ -26,23 +26,23 @@ public class FileDataSource implements DataSource {
 
     private final Path directory;
 
-    private final String baseName;
+    private final String fileName;
 
     private final DataSourceObserver observer;
 
-    public FileDataSource(Path directory, String baseName) {
-        this(directory, baseName, null);
+    public FileDataSource(Path directory, String fileName) {
+        this(directory, fileName, null);
     }
 
-    public FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
+    public FileDataSource(Path directory, String fileName, DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
-        this.baseName = Objects.requireNonNull(baseName);
+        this.fileName = Objects.requireNonNull(fileName);
         this.observer = observer;
     }
 
     @Override
     public String getBaseName() {
-        return baseName;
+        return DataSourceUtil.getBaseName(fileName);
     }
 
     protected String getCompressionExt() {
@@ -59,12 +59,12 @@ public class FileDataSource implements DataSource {
 
     private Path getPath(String fileName) {
         Objects.requireNonNull(fileName);
-        return directory.resolve(fileName + getCompressionExt());
+        return directory.resolve(fileName);
     }
 
     @Override
     public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
-        return newOutputStream(DataSourceUtil.getFileName(baseName, suffix, ext), append);
+        return newOutputStream(DataSourceUtil.getFileName(DataSourceUtil.getBaseName(fileName), suffix, ext), append);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class FileDataSource implements DataSource {
 
     @Override
     public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+        return fileName.endsWith((suffix == null ? "" : suffix) + "." + ext + getCompressionExt()) && Files.isRegularFile(directory.resolve(fileName));
     }
 
     @Override
@@ -87,7 +87,7 @@ public class FileDataSource implements DataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
+        return newInputStream(fileName);
     }
 
     @Override

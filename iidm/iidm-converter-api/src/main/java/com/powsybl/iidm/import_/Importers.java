@@ -326,8 +326,7 @@ public final class Importers {
 
     private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
         Objects.requireNonNull(importer);
-        String caseBaseName = DataSourceUtil.getBaseName(file);
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, file.toString());
         if (importer.exists(ds)) {
             dataSources.add(ds);
         }
@@ -428,8 +427,8 @@ public final class Importers {
         return createDataSource(absFile.getParent(), absFile.getFileName().toString());
     }
 
-    public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
+    public static DataSource createDataSource(Path directory, String fileName) {
+        return DataSourceUtil.createDataSource(directory, fileName, null);
     }
 
     public static Importer findImporter(ReadOnlyDataSource dataSource, ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {

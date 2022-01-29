@@ -157,9 +157,14 @@ public class XMLImporter implements Importer {
                 ByteStreams.copy(is, os);
             }
             // and also anonymization file if exists
-            if (fromDataSource.exists(SUFFIX_MAPPING, "csv")) {
-                try (InputStream is = fromDataSource.newInputStream(SUFFIX_MAPPING, "csv");
-                     OutputStream os = toDataSource.newOutputStream(SUFFIX_MAPPING, "csv", false)) {
+            //
+            // Using the basename here feels a bit off to me. I think
+            // using the full filename with a "_mapping.csv" suffix
+            // seems more predictable and easier to explain to people.
+            String mappingFileName = fromDataSource.getBaseName() + SUFFIX_MAPPING + ".csv";
+            if (fromDataSource.exists(mappingFileName)) {
+                try (InputStream is = fromDataSource.newInputStream(mappingFileName);
+                     OutputStream os = toDataSource.newOutputStream(mappingFileName, false)) {
                     ByteStreams.copy(is, os);
                 }
             }
@@ -196,4 +201,3 @@ public class XMLImporter implements Importer {
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
     }
 }
-

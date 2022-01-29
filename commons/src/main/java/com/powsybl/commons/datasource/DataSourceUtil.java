@@ -47,29 +47,29 @@ public interface DataSourceUtil {
         } else {
             switch (compressionExtension) {
                 case GZIP:
-                    return new GzFileDataSource(directory, basename, observer);
+                    return new GzFileDataSource(directory, basename + ".gz", observer);
                 case BZIP2:
-                    return new Bzip2FileDataSource(directory, basename, observer);
+                    return new Bzip2FileDataSource(directory, basename + ".bz2", observer);
                 case ZIP:
-                    return new ZipFileDataSource(directory, basename, observer);
+                    return new ZipFileDataSource(directory, basename + ".zip", observer);
                 default:
                     throw new AssertionError("Unexpected CompressionFormat value: " + compressionExtension);
             }
         }
     }
 
-    static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
+    static DataSource createDataSource(Path directory, String fileName, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
-        Objects.requireNonNull(fileNameOrBaseName);
+        Objects.requireNonNull(fileName);
 
-        if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
-        } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
-        } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+        if (fileName.endsWith(".zip")) {
+            return new ZipFileDataSource(directory, fileName, observer);
+        } else if (fileName.endsWith(".gz")) {
+            return new GzFileDataSource(directory, fileName, observer);
+        } else if (fileName.endsWith(".bz2")) {
+            return new Bzip2FileDataSource(directory, fileName, observer);
         } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+            return new FileDataSource(directory, fileName, observer);
         }
     }
 }

@@ -70,8 +70,8 @@ public final class Exporters {
         return getExporter(LOADER.get(), format);
     }
 
-    public static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, observer);
+    public static DataSource createDataSource(Path directory, String fileName, DataSourceObserver observer) {
+        return DataSourceUtil.createDataSource(directory, fileName, observer);
     }
 
     public static DataSource createDataSource(Path file, DataSourceObserver observer) {
