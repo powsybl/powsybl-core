@@ -6,6 +6,8 @@
  */
 package com.powsybl.math.graph;
 
+import java.util.Collection;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,5 +26,5 @@ public interface UndirectedGraphListener<V, E> {
 
     void edgeRemoved(int e, E obj);
 
-    void allEdgesRemoved();
+    void allEdgesRemoved(Collection<E> obj);
 }

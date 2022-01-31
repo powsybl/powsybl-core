@@ -126,20 +126,12 @@ public final class StateVariablesExport {
             LOG.info(log.get());
             return;
         }
-        Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(busId);
-        if (topologicalNodes == null) {
-            return;
-        }
-        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = topologicalNodes.iterator().next();
+        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(busId).iterator().next();
         angleRefs.put(componentNum, topologicalNode.getCgmesId());
     }
 
     private static void buildAngleRefs(String busId, Map<String, String> angleRefs, CgmesExportContext context) {
-        Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(busId);
-        if (topologicalNodes == null) {
-            return;
-        }
-        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = topologicalNodes.iterator().next();
+        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(busId).iterator().next();
         angleRefs.put(topologicalNode.getCgmesId(),
                 topologicalNode.getCgmesId());
     }
@@ -149,12 +141,8 @@ public final class StateVariablesExport {
         for (Bus b : network.getBusView().getBuses()) {
             if (b.getSynchronousComponent() != null) {
                 int num = b.getSynchronousComponent().getNum();
-                Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(b.getId());
-                if (topologicalNodes == null) {
-                    continue;
-                }
                 islands.computeIfAbsent(String.valueOf(num), i -> new ArrayList<>());
-                islands.get(String.valueOf(num)).addAll(topologicalNodes.stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()));
+                islands.get(String.valueOf(num)).addAll(context.getTopologicalNodesByBusViewBus(b.getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()));
             } else {
                 islands.put(b.getId(), Collections.singletonList(b.getId()));
             }
@@ -164,11 +152,7 @@ public final class StateVariablesExport {
 
     private static void writeVoltagesForTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
-            Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(b.getId());
-            if (topologicalNodes == null) {
-                continue;
-            }
-            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : topologicalNodes) {
+            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
                 writeVoltage(topologicalNode.getCgmesId(), b.getV(), b.getAngle(), cimNamespace, writer);
             }
         }
@@ -329,14 +313,9 @@ public final class StateVariablesExport {
         if (bus == null) {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
-            Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = context.getTopologicalNodesByBusViewBus(bus.getId());
-            if (topologicalNodes.isEmpty()) {
-                LOG.warn("Fictitious load does not have a corresponding Topological Node. No SvInjection is written");
-            } else {
-                // SvInjection will be assigned to the first of the TNs mapped to the bus
-                CgmesIidmMapping.CgmesTopologicalNode topologicalNode = topologicalNodes.iterator().next();
-                writeSvInjection(svInjection, topologicalNode.getCgmesId(), cimNamespace, writer);
-            }
+            // SvInjection will be assigned to the first of the TNs mapped to the bus
+            CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(bus.getId()).iterator().next();
+            writeSvInjection(svInjection, topologicalNode.getCgmesId(), cimNamespace, writer);
         }
     }
 

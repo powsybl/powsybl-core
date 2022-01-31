@@ -1,11 +1,11 @@
 {
-  "version" : "1.5",
+  "version" : "1.6",
   "voltageInitMode" : "UNIFORM_VALUES",
   "transformerVoltageControlOn" : false,
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
-  "simulShunt" : false,
+  "shuntCompensatorVoltageControlOn" : false,
   "readSlackBus" : true,
   "writeSlackBus" : false,
   "dc" : false,

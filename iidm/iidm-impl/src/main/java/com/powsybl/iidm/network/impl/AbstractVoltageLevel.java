@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -23,6 +24,10 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
+
+    private static final int DEFAULT_NODE_INDEX_LIMIT = 1000;
+
+    public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -42,6 +47,13 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
+    }
+
+    protected static int loadNodeIndexLimit(PlatformConfig platformConfig) {
+        return platformConfig
+            .getOptionalModuleConfig("iidm")
+            .map(moduleConfig -> moduleConfig.getIntProperty("node-index-limit", DEFAULT_NODE_INDEX_LIMIT))
+            .orElse(DEFAULT_NODE_INDEX_LIMIT);
     }
 
     @Override

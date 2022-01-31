@@ -1,0 +1,6 @@
+Short circuit analysis
+ID;Three Phase Fault Current
+VLGEN;2500.00
+Limit violations
+Voltage level;Country;Base voltage;Limit type;Limit;Value
+VLGEN;FR;24.0000;HIGH_SHORT_CIRCUIT_CURRENT;2000.00;2500.00

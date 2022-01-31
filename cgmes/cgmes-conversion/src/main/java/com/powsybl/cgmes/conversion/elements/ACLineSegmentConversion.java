@@ -67,6 +67,10 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         return boundaryLine;
     }
 
+    public boolean isConnectedAtBothEnds() {
+        return terminalConnected(1) && terminalConnected(2);
+    }
+
     public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
 
         Line mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
