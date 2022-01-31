@@ -25,7 +25,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SparseMatrix extends AbstractMatrix {
+public class SparseMatrix extends AbstractMatrix {
 
     private static native void nativeInit();
 
@@ -160,11 +160,11 @@ class SparseMatrix extends AbstractMatrix {
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
     }
 
-    double getRgrowthThreshold() {
+    public double getRgrowthThreshold() {
         return rgrowthThreshold;
     }
 
-    void setRgrowthThreshold(double rgrowthThreshold) {
+    public void setRgrowthThreshold(double rgrowthThreshold) {
         this.rgrowthThreshold = rgrowthThreshold;
     }
 
