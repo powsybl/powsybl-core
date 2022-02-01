@@ -27,7 +27,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     private boolean subTransStudy = ShortCircuitConstants.SUBTRANS_STUDY;
 
-    private boolean withContributions = ShortCircuitConstants.WITH_CONTRIBUTIONS; //In case of systematic study only
+    private boolean withFeederContributions = ShortCircuitConstants.WITH_FEEDER_CONTRIBUTIONS; //In case of systematic study only
 
     public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {
@@ -49,7 +49,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         ModuleConfig config = platformConfig.getOptionalModuleConfig("short-circuit-parameters").orElse(null);
         if (config != null) {
             parameters.setSubTransStudy(config.getBooleanProperty("subTransStudy", ShortCircuitConstants.SUBTRANS_STUDY));
-            parameters.setWithContributions(config.getBooleanProperty("withContributions", ShortCircuitConstants.WITH_CONTRIBUTIONS));
+            // TODO: add a condition on systematic study
+            parameters.setWithFeederContributions(config.getBooleanProperty("withContributions", ShortCircuitConstants.WITH_FEEDER_CONTRIBUTIONS));
 
         }
         return parameters;
@@ -70,12 +71,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    public boolean isWithContributions() {
-        return withContributions;
+    public boolean isWithFeederContributions() {
+        return withFeederContributions;
     }
 
-    public ShortCircuitParameters setWithContributions(boolean withContributions) {
-        this.withContributions = withContributions;
+    public ShortCircuitParameters setWithFeederContributions(boolean withFeederContributions) {
+        this.withFeederContributions = withFeederContributions;
         return this;
     }
 

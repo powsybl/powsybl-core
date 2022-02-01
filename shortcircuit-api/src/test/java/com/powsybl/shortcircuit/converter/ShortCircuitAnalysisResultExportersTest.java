@@ -13,12 +13,14 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.FaultResult;
+import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -81,6 +83,22 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         return shortCircuitAnalysisResult;
     }
 
+    private static ShortCircuitAnalysisResult createWithFeederResults() {
+        List<FaultResult> faultResults = new ArrayList<>();
+        FeederResult feederResult = new FeederResult("connectableId", 1);
+        FaultResult faultResult = new FaultResult("faultResultID", 1, Collections.singletonList(feederResult));
+        faultResults.add(faultResult);
+        List<LimitViolation> limitViolations = new ArrayList<>();
+        String subjectId = "id";
+        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
+        float limit = 2000;
+        float limitReduction = 1;
+        float value = 2500;
+        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        limitViolations.add(limitViolation);
+        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
+    }
+
     public void writeJson(ShortCircuitAnalysisResult results, Path path) {
         ShortCircuitAnalysisResultExporters.export(results, path, "JSON", null);
     }
@@ -95,6 +113,18 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     public void roundTripJson() throws IOException {
         ShortCircuitAnalysisResult result = createResultWithExtension();
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-with-extensions-results.json");
+    }
+
+    @Test
+    public void testJsonWithFeederResult() throws IOException {
+        ShortCircuitAnalysisResult result = createWithFeederResults();
+        writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-results-with-contributions.json");
+    }
+
+    @Test
+    public void roundTripJsonWithFeederResult() throws IOException {
+        ShortCircuitAnalysisResult result = createWithFeederResults();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-contributions.json");
     }
 
     public void writeCsv(ShortCircuitAnalysisResult result, Path path) {

@@ -8,6 +8,7 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,16 +23,16 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final float threePhaseFaultCurrent;
 
-    private List<ContributionResult> contributionResults; //in case of systemactic study, optional
+    private final List<FeederResult> feederResults; //in case of systematic study, optional
 
-    public FaultResult(String id, float threePhaseFaultCurrent, List<ContributionResult> contributionResults) {
+    public FaultResult(String id, float threePhaseFaultCurrent, List<FeederResult> feederResults) {
         this.id = Objects.requireNonNull(id);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
-        this.contributionResults = contributionResults;
+        this.feederResults = List.copyOf(feederResults);
     }
 
     public FaultResult(String id, float threePhaseFaultCurrent) {
-        this(id, threePhaseFaultCurrent, null);
+        this(id, threePhaseFaultCurrent, Collections.emptyList());
     }
 
     /**
@@ -50,9 +51,10 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     /**
-     * List of contributions of each connectable connected to the equipment to the three phase fault current
+     * List of contributions to the three phase fault current of each connectable connected to the equipment
      */
-    public List<ContributionResult> getContributionResults() {
-        return contributionResults;
+    public List<FeederResult> getFeederResults() {
+        return feederResults;
     }
+
 }

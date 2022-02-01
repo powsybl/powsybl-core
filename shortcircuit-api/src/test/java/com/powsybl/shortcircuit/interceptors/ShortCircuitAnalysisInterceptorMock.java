@@ -9,8 +9,8 @@ package com.powsybl.shortcircuit.interceptors;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.shortcircuit.ContributionResult;
 import com.powsybl.shortcircuit.FaultResult;
+import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import static org.junit.Assert.assertEquals;
@@ -44,13 +44,6 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
     }
 
     @Override
-    public void onContributionResult(Network network, ContributionResult contributionResult) {
-        super.onContributionResult(network, contributionResult);
-
-        assertContributionResult(contributionResult);
-    }
-
-    @Override
     public void onShortCircuitResult(Network network, ShortCircuitAnalysisResult shortCircuitAnalysisResult) {
         super.onShortCircuitResult(network, shortCircuitAnalysisResult);
 
@@ -71,9 +64,9 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
 
     private static void assertFaultResult(FaultResult faultResult) {
         assertNotNull(faultResult);
-        assertNotNull(faultResult.getContributionResults());
+        assertNotNull(faultResult.getFeederResults());
         assertEquals(10, faultResult.getThreePhaseFaultCurrent(), 0);
-        assertEquals(5, faultResult.getContributionResults().get(0).getContribution(), 0);
+        assertEquals(5, faultResult.getFeederResults().get(0).getFeederThreePhaseCurrent(), 0);
     }
 
     private static void assertLimitViolation(LimitViolation limitViolation) {
@@ -87,8 +80,8 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
         assertEquals(1, shortCircuitAnalysisResult.getLimitViolations().size());
     }
 
-    private static void assertContributionResult(ContributionResult contributionResult) {
-        assertNotNull(contributionResult);
-        assertEquals(10, contributionResult.getContribution(), 0);
+    private static void assertContributionResult(FeederResult feederResult) {
+        assertNotNull(feederResult);
+        assertEquals(10, feederResult.getFeederThreePhaseCurrent(), 0);
     }
 }

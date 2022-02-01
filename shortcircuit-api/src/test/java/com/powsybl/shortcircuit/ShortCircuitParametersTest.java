@@ -87,10 +87,10 @@ public class ShortCircuitParametersTest {
     @Test
     public void testWithContributions() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
-        assertTrue(parameters.isWithContributions());
+        assertTrue(parameters.isWithFeederContributions());
 
-        parameters.setWithContributions(false);
-        assertFalse(parameters.isWithContributions());
+        parameters.setWithFeederContributions(false);
+        assertFalse(parameters.isWithFeederContributions());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class ShortCircuitParametersTest {
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
         assertTrue(parameters.isSubTransStudy());
-        assertFalse(parameters.isWithContributions());
+        assertFalse(parameters.isWithFeederContributions());
     }
 
     private static class DummyExtension extends AbstractExtension<ShortCircuitParameters> {
