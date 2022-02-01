@@ -76,7 +76,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetP(double targetP) {
             NetworkImpl n = danglingLine.getNetwork();
-            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel());
             int variantIndex = danglingLine.network.get().getVariantIndex();
             double oldValue = this.targetP.set(variantIndex, targetP);
             String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);

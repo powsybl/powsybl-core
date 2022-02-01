@@ -89,6 +89,14 @@ public final class ValidationUtil {
         logError(validable, createInvalidValueMessage(value, valueName, reason), reporter);
     }
 
+    public static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, ValidationLevel validationLevel) {
+        return checkActivePowerSetpoint(validable, activePowerSetpoint, validationLevel, Reporter.NO_OP);
+    }
+
+    public static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, ValidationLevel validationLevel, Reporter reporter) {
+        return checkActivePowerSetpoint(validable, activePowerSetpoint, validationLevel.compareTo(ValidationLevel.LOADFLOW) >= 0, reporter);
+    }
+
     public static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, boolean throwException) {
         return checkActivePowerSetpoint(validable, activePowerSetpoint, throwException, Reporter.NO_OP);
     }
