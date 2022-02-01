@@ -35,7 +35,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     // attributes depending on the variant
 
-    protected final List<Integer> tapPosition;
+    protected final ArrayList<Integer> tapPosition;
 
     protected final TBooleanArrayList regulating;
 
@@ -82,8 +82,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.lowTapPosition = lowTapPosition;
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         int variantIndex = network.get().getVariantIndex();
-        int position = tapPosition.get(network.get().getVariantIndex());
-        this.tapPosition.set(variantIndex, position != Integer.MIN_VALUE ? position + (this.lowTapPosition - oldValue) : Integer.MIN_VALUE);
+        Integer position = tapPosition.get(network.get().getVariantIndex());
+        this.tapPosition.set(variantIndex, position != null ? position + (this.lowTapPosition - oldValue) : null);
         return (C) this;
     }
 
@@ -201,7 +201,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         regulating.ensureCapacity(regulating.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
-        ((ArrayList<Integer>) tapPosition).ensureCapacity(tapPosition.size() + number);
+        tapPosition.ensureCapacity(tapPosition.size() + number);
         for (int i = 0; i < number; i++) {
             regulating.add(regulating.get(sourceIndex));
             tapPosition.add(tapPosition.get(sourceIndex));

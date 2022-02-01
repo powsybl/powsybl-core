@@ -30,7 +30,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     // attributes depending on the variant
 
     /* the current number of section switched on */
-    private final List<Integer> sectionCount;
+    private final ArrayList<Integer> sectionCount;
 
     /* the regulating status */
     private final TBooleanArrayList voltageRegulatorOn;
@@ -223,7 +223,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        ((ArrayList<Integer>) sectionCount).ensureCapacity(sectionCount.size() + number);
+        sectionCount.ensureCapacity(sectionCount.size() + number);
         voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);

@@ -36,9 +36,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.voltageRegulatorOn.add(voltageRegulatorOn);
-        }
+        this.voltageRegulatorOn.fill(0, variantArraySize, voltageRegulatorOn);
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
