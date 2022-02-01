@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -254,7 +255,7 @@ public final class XmlUtil {
         }
     }
 
-    public static void consumeOptionalIntAttribute(XMLStreamReader reader, String attributeName, Consumer<Integer> consumer) {
+    public static void consumeOptionalIntAttribute(XMLStreamReader reader, String attributeName, IntConsumer consumer) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         if (attributeValue != null) {
             consumer.accept(Integer.parseInt(attributeValue));
