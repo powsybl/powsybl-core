@@ -64,13 +64,13 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
         return networkMetadata;
     }
 
-    public List<FeederResult> getFeederResults() {
-        return feederResults;
-    }
-
     public ShortCircuitAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
         this.networkMetadata = networkMetadata;
         return this;
+    }
+
+    public List<FeederResult> getFeederResults() {
+        return feederResults;
     }
 
 }
