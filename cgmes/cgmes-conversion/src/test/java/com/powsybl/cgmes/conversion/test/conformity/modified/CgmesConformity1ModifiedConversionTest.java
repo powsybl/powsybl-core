@@ -524,6 +524,17 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microAssembledThreeLinesAtBoundary() {
+        InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigTieLines.createModuleConfig("import-export-parameters-default-value");
+
+        Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledThreeLinesAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Line line = network.getLine("_78736387-5f60-4832-b3fe-d50daf81b0a6 + _7f43f508-2496-4b64-9146-0a40406cbe49");
+        assertNotNull(line);
+    }
+
+    @Test
     public void microAssembledEquivalentBranchAtBoundary() {
         final double tolerance = 1e-10;
 

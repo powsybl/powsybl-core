@@ -29,6 +29,8 @@ import java.util.stream.Stream;
  */
 public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
+    private int vertexLimit;
+
     private static final int VERTICES_CAPACITY = 10;
 
     private static final int EDGES_CAPACITY = 15;
@@ -106,6 +108,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final List<UndirectedGraphListener<V, E>> listeners = new CopyOnWriteArrayList<>();
 
+    public UndirectedGraphImpl(int vertexLimit) {
+        this.vertexLimit = vertexLimit;
+    }
+
     private void checkVertex(int v) {
         if (v < 0 || v >= vertices.size() || vertices.get(v) == null) {
             throw new PowsyblException("Vertex " + v + " not found");
@@ -136,6 +142,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void addVertexIfNotPresent(int v) {
+        if (v < 0) {
+            throw new PowsyblException("Invalid vertex " + v);
+        }
+        if (v >= this.vertexLimit) {
+            throw new PowsyblException("Vertex index too high: " + v + ". Limit is " + this.vertexLimit);
+        }
         if (v < vertices.size()) {
             if (availableVertices.contains(v)) {
                 vertices.set(v, new Vertex<>());
@@ -254,10 +266,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void removeAllEdges() {
+        Collection<E> allEdges = edges.stream().map(Edge::getObject).filter(Objects::nonNull).collect(Collectors.toList());
         edges.clear();
         removedEdges.clear();
         invalidateAdjacencyList();
-        notifyAllEdgesRemoved();
+        notifyAllEdgesRemoved(allEdges);
     }
 
     @Override
@@ -630,9 +643,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    private void notifyAllEdgesRemoved() {
+    private void notifyAllEdgesRemoved(Collection<E> obj) {
         for (UndirectedGraphListener<V, E> l : listeners) {
-            l.allEdgesRemoved();
+            l.allEdgesRemoved(obj);
         }
     }
 

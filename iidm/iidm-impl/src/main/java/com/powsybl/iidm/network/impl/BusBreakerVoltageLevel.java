@@ -100,7 +100,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    private final UndirectedGraphImpl<ConfiguredBus, SwitchImpl> graph = new UndirectedGraphImpl<>();
+    private final UndirectedGraphImpl<ConfiguredBus, SwitchImpl> graph = new UndirectedGraphImpl<>(NODE_INDEX_LIMIT);
 
     /* buses indexed by vertex number */
     private final Map<String, Integer> buses = new HashMap<>();
@@ -353,7 +353,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
-            public void allEdgesRemoved() {
+            public void allEdgesRemoved(Collection<SwitchImpl> obj) {
                 invalidateCache();
             }
         });
