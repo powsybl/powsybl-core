@@ -37,6 +37,10 @@ public final class ValidationUtil {
         return new PowsyblException("This getter cannot be used if the value is not defined");
     }
 
+    public static PowsyblException createUnsetMethodException() {
+        return new PowsyblException("Unset method is not defined. Implement SCADA mode in order to use it");
+    }
+
     private static ValidationException createInvalidValueException(Validable validable, double value, String valueName) {
         return createInvalidValueException(validable, value, valueName, null);
     }

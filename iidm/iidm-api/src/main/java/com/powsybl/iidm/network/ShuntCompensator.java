@@ -153,7 +153,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Unset the count of sections in service.
      * Note: this can be done <b>only</b> in SCADA validation level.
      */
-    ShuntCompensator unsetSectionCount();
+    default ShuntCompensator unsetSectionCount() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
 
     /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
