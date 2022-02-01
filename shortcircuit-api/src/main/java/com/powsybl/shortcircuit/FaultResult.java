@@ -7,6 +7,8 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +20,8 @@ import java.util.Objects;
  * @author Boubakeur Brahimi
  */
 public final class FaultResult extends AbstractExtendable<FaultResult> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FaultResult.class);
 
     private final String id;
 
@@ -55,6 +59,21 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
      */
     public List<FeederResult> getFeederResults() {
         return feederResults;
+    }
+
+    public double getFeederCurrent(String feederId) {
+        try {
+            double current = 0;
+            for (FeederResult feederResult : feederResults) {
+                if (feederResult.getConnectableId().equals(feederId)) {
+                    current = feederResult.getFeederThreePhaseCurrent();
+                }
+            }
+            return current;
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Feeder id does not exist in FeederResults");
+            return 0;
+        }
     }
 
 }
