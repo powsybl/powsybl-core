@@ -181,11 +181,17 @@ public class MatpowerImporterTest extends AbstractConverterTest {
 
     private static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
         for (Load l : network.getLoads()) {
-            l.getTerminal().setP(l.getP0());
-            l.getTerminal().setQ(l.getQ0());
+            if (Double.isNaN(l.getTerminal().getP())) {
+                l.getTerminal().setP(l.getP0());
+            }
+            if (Double.isNaN(l.getTerminal().getQ())) {
+                l.getTerminal().setQ(l.getQ0());
+            }
         }
         for (Generator g : network.getGenerators()) {
-            g.getTerminal().setP(-g.getTargetP());
+            if (Double.isNaN(g.getTerminal().getP())) {
+                g.getTerminal().setP(-g.getTargetP());
+            }
             if (Double.isNaN(g.getTerminal().getQ())) {
                 g.getTerminal().setQ(-g.getTargetQ());
             }
