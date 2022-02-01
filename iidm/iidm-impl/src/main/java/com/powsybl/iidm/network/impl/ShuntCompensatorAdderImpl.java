@@ -184,12 +184,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
-    public ShuntCompensatorAdder unsetSectionCount() {
-        sectionCount = null;
-        return this;
-    }
-
-    @Override
     public ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         return this;
