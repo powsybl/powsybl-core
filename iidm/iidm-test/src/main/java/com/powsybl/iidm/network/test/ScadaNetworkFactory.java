@@ -24,7 +24,7 @@ public final class ScadaNetworkFactory {
         Objects.requireNonNull(networkFactory);
         Network network = Network.create("scada", "test");
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.SCADA);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Substation sub = network.newSubstation()
                 .setId("sub")
                 .add();

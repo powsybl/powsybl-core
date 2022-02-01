@@ -168,7 +168,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
-            network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
+            network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
         if (steps.isEmpty()) {
             throw new ValidationException(parent, "ratio tap changer should have at least one step");
@@ -179,7 +179,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
                         + highTapPosition + "]", network.getMinValidationLevel());
-                network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
+                network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
@@ -193,7 +193,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
-                network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+                network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
 
         if (parent.hasPhaseTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);

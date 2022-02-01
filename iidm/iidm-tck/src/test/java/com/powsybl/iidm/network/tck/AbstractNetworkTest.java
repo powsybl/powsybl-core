@@ -203,26 +203,26 @@ public abstract class AbstractNetworkTest {
         verifyNoMoreInteractions(mockedListener);
 
         // validation
-        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
         network.runValidationChecks();
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.SCADA);
-        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
         voltageLevel1.newLoad()
                 .setId("unchecked")
                 .setP0(1.0)
                 .setQ0(1.0)
                 .setNode(3)
                 .add();
-        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.SCADA);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         Load unchecked2 = voltageLevel1.newLoad()
                 .setId("unchecked2")
                 .setNode(10)
                 .add();
-        assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
         unchecked2.setP0(0.0).setQ0(0.0);
-        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.LOADFLOW);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     @Test
@@ -567,12 +567,12 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testScadaNetwork() {
         Network network = ScadaNetworkFactory.create();
-        assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
 
-        assertEquals(ValidationLevel.SCADA, network.runValidationChecks(false));
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
         ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
-        assertEquals(ValidationLevel.SCADA, network.runValidationChecks(false, reporter));
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
         ReporterModel subReporter = subReporters.get(0);
@@ -581,7 +581,7 @@ public abstract class AbstractNetworkTest {
         Collection<Report> reports = subReporter.getReports();
         assertFalse(reports.isEmpty());
 
-        assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
 
         try {
             network.runValidationChecks();
@@ -591,7 +591,7 @@ public abstract class AbstractNetworkTest {
         }
 
         try {
-            network.setMinimumAcceptableValidationLevel(ValidationLevel.LOADFLOW);
+            network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
             fail();
         } catch (ValidationException e) {
             // Ignore

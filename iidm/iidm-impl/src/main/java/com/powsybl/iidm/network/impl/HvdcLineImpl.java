@@ -85,7 +85,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
         int variantIndex = n.getVariantIndex();
         ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
         this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
@@ -146,7 +146,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint,
-                n.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
         int variantIndex = n.getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
         String variantId = n.getVariantManager().getVariantId(variantIndex);

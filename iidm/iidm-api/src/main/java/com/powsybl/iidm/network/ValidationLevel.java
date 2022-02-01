@@ -10,12 +10,12 @@ package com.powsybl.iidm.network;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public enum ValidationLevel {
-    SCADA,
-    LOADFLOW;
+    EQUIPMENT,
+    STEADY_STATE_HYPOTHESIS;
 
     public static ValidationLevel min(ValidationLevel vl1, ValidationLevel vl2) {
         return vl1.compareTo(vl2) >= 0 ? vl2 : vl1;
     }
 
-    public static final ValidationLevel MINIMUM_VALUE = SCADA;
+    public static final ValidationLevel MINIMUM_VALUE = EQUIPMENT;
 }

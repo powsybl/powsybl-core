@@ -41,8 +41,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private String sourceFormat;
 
-    private ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
-    private ValidationLevel minValidationLevel = ValidationLevel.LOADFLOW;
+    private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
 
     private final NetworkIndex index = new NetworkIndex();
 
@@ -1185,7 +1185,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     void invalidateValidationLevel() {
-        if (minValidationLevel.compareTo(ValidationLevel.LOADFLOW) < 0) {
+        if (minValidationLevel.compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) < 0) {
             validationLevel = null;
         }
     }

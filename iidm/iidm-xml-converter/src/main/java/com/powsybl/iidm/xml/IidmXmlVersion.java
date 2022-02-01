@@ -50,9 +50,9 @@ public enum IidmXmlVersion {
             return getNamespaceURI();
         }
         if (this.compareTo(V_1_7) < 0) {
-            throw new PowsyblException("Invalid network not supported for XIIDM version < 1.7");
+            throw new PowsyblException("Network in Equipment mode not supported for XIIDM version < 1.7");
         }
-        return "http://www." + domain + "/schema/iidm/invalid/" + toString("_");
+        return "http://www." + domain + "/schema/iidm/equipment/" + toString("_");
     }
 
     public String getXsd() {
@@ -66,7 +66,7 @@ public enum IidmXmlVersion {
         if (this.compareTo(V_1_7) < 0) {
             throw new PowsyblException("Invalid network not supported for XIIDM version < 1.7");
         }
-        return "iidm_scada_V" + toString("_") + ".xsd";
+        return "iidm_equipment_V" + toString("_") + ".xsd";
     }
 
     public static IidmXmlVersion fromNamespaceURI(String namespaceURI) {

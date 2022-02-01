@@ -27,7 +27,7 @@ public final class PropertiesXml {
         if (identifiable.hasProperty()) {
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.LOADFLOW), PROPERTY);
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
                 context.getWriter().writeAttribute(NAME, name);
                 context.getWriter().writeAttribute(VALUE, value);
             }

@@ -179,7 +179,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
-            network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
+            network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
         if (steps.isEmpty()) {
             throw new ValidationException(parent, "a phase tap changer shall have at least one step");
@@ -190,11 +190,11 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
                         + highTapPosition + "]", network.getMinValidationLevel());
-                network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
+                network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
-                regulationTerminal, network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+                regulationTerminal, network, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating,
                 targetDeadband, network.getMinValidationLevel()));
         PhaseTapChangerImpl tapChanger
@@ -203,7 +203,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
-                regulating, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+                regulating, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
 
         if (parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);

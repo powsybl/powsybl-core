@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:vprpc="http://www.powsybl.org/schema/iidm/ext/voltage_per_reactive_power_control/1_0" id="svcTestCase" caseDate="2019-05-27T12:17:02.504+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="LOADFLOW">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:vprpc="http://www.powsybl.org/schema/iidm/ext/voltage_per_reactive_power_control/1_0" id="svcTestCase" caseDate="2019-05-27T12:17:02.504+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

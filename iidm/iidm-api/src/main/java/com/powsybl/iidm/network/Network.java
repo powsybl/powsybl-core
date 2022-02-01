@@ -888,18 +888,18 @@ public interface Network extends Container<Network> {
      * Return the network validation status.
      */
     default ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
-        return ValidationLevel.LOADFLOW;
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     /**
      * Return the network validation status. Do <b>not</b> run any validation check.
      */
     default ValidationLevel getValidationLevel() {
-        return ValidationLevel.LOADFLOW;
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
     default Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
-        if (validationLevel != ValidationLevel.LOADFLOW) {
+        if (validationLevel != ValidationLevel.STEADY_STATE_HYPOTHESIS) {
             throw new UnsupportedOperationException("Validation level below LOADFLOW not supported");
         }
         return this;

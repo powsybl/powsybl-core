@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:dm="http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0" id="fourSubstations" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="LOADFLOW">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:dm="http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0" id="fourSubstations" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="S1VL1" nominalV="225.0" lowVoltageLimit="220.0" highVoltageLimit="240.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
