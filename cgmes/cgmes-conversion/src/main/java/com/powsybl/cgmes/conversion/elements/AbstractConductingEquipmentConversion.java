@@ -435,23 +435,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
-    PowerFlow powerFlow(int n) {
-        if (steadyStateHypothesisPowerFlow().defined()) {
-            return steadyStateHypothesisPowerFlow();
-        }
-        if (stateVariablesPowerFlow(n).defined()) {
-            return stateVariablesPowerFlow(n);
-        }
-        return PowerFlow.UNDEFINED;
-    }
-
-    PowerFlow powerFlowSSH() {
-        if (steadyStateHypothesisPowerFlow().defined()) {
-            return steadyStateHypothesisPowerFlow();
-        }
-        return PowerFlow.UNDEFINED;
-    }
-
     PowerFlow powerFlowSV() {
         if (stateVariablesPowerFlow().defined()) {
             return stateVariablesPowerFlow();
