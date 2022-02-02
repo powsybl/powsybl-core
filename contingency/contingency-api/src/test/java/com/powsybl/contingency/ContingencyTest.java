@@ -6,10 +6,10 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.CompoundModificationTask;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.network.modification.NetworkModification;
+import com.powsybl.network.modification.NetworkModificationList;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -41,8 +41,8 @@ public class ContingencyTest {
         assertEquals("generator", elements.get(1).getId());
         assertEquals(ContingencyElementType.GENERATOR, elements.get(1).getType());
 
-        ModificationTask task = contingency.toTask();
-        assertTrue(task instanceof CompoundModificationTask);
+        NetworkModification task = contingency.toTask();
+        assertTrue(task instanceof NetworkModificationList);
 
         ContingencyElement bbsElement = new BusbarSectionContingency("bbs");
         contingency.addElement(bbsElement);

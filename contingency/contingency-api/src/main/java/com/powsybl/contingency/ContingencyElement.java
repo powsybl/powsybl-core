@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
+import com.powsybl.contingency.tasks.AbstractTripping;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,6 +17,6 @@ public interface ContingencyElement {
 
     ContingencyElementType getType();
 
-    AbstractTrippingTask toTask();
+    AbstractTripping toTask();
 
 }

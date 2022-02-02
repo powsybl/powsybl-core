@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.modification.NetworkModification;
 import com.powsybl.security.*;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
@@ -90,10 +91,13 @@ public class SecurityAnalysisTest {
                                              .addBranch("NHV1_NHV2_2")
                                              .build();
         contingency = Mockito.spy(contingency);
-        Mockito.when(contingency.toTask()).thenReturn((network1, computationManager1) -> {
-            network1.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
-            network1.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
-            network1.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
+        Mockito.when(contingency.toTask()).thenReturn(new NetworkModification() {
+            @Override
+            public void apply(Network network1) {
+                network1.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
+                network1.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
+                network1.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
+            }
         });
         ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
         Mockito.when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency));

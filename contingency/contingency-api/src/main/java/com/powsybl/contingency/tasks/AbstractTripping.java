@@ -6,10 +6,10 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.network.modification.NetworkModification;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,18 +17,18 @@ import java.util.Set;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public abstract class AbstractTrippingTask implements ModificationTask {
+public abstract class AbstractTripping implements NetworkModification {
 
     @Override
-    public void modify(Network network, ComputationManager computationManager) {
+    public void apply(Network network) {
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 
-        traverse(network, computationManager, switchesToOpen, terminalsToDisconnect);
+        traverse(network, switchesToOpen, terminalsToDisconnect);
 
         switchesToOpen.forEach(s -> s.setOpen(true));
         terminalsToDisconnect.forEach(Terminal::disconnect);
     }
 
-    public abstract void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect);
+    public abstract void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect);
 }

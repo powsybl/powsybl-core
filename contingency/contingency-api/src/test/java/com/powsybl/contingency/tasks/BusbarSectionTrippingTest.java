@@ -44,11 +44,11 @@ public class BusbarSectionTrippingTest extends AbstractTrippingTest {
 
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
-        tripping.traverse(network, null, switchesToOpen, terminalsToDisconnect);
+        tripping.traverse(network, switchesToOpen, terminalsToDisconnect);
         assertEquals(switchIds, switchesToOpen.stream().map(Switch::getId).collect(Collectors.toSet()));
         assertEquals(Collections.emptySet(), terminalsToDisconnect);
 
-        tripping.modify(network, null);
+        tripping.apply(network);
         for (String id : switchIds) {
             assertTrue(network.getSwitch(id).isOpen());
         }
@@ -62,6 +62,6 @@ public class BusbarSectionTrippingTest extends AbstractTrippingTest {
         Network network = FictitiousSwitchFactory.create();
 
         BusbarSectionTripping tripping = new BusbarSectionTripping("bbs");
-        tripping.modify(network, null);
+        tripping.apply(network);
     }
 }

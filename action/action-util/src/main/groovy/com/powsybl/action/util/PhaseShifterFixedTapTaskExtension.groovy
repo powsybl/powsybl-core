@@ -8,12 +8,12 @@ package com.powsybl.action.util
 
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.spi.DslTaskExtension
-import com.powsybl.contingency.tasks.ModificationTask
+import com.powsybl.network.modification.NetworkModification
 
 @AutoService(DslTaskExtension.class)
 class PhaseShifterFixedTapTaskExtension implements DslTaskExtension {
     @Override
-    void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
+    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding) {
         tasksSpecMetaClass.phaseShifterFixedTap = { String id, int position ->
             tasks.add(new PhaseShifterFixedTapTask(id, position))
         }

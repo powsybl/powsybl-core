@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
+import com.powsybl.contingency.tasks.AbstractTripping;
 import com.powsybl.contingency.tasks.StaticVarCompensatorTripping;
 
 /**
@@ -24,7 +24,7 @@ public class StaticVarCompensatorContingency extends AbstractInjectionContingenc
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public AbstractTripping toTask() {
         return new StaticVarCompensatorTripping(id);
     }
 

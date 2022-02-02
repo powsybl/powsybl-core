@@ -78,6 +78,7 @@
         <module>tools</module>
         <module>triple-store</module>
         <module>ucte</module>
+        <module>network-modification</module>
     </modules>
 
     <properties>
@@ -486,6 +487,11 @@
                 <artifactId>powsybl-matpower-model</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-network-modification</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>

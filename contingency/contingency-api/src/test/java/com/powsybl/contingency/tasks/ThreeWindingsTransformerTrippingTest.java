@@ -26,13 +26,13 @@ public class ThreeWindingsTransformerTrippingTest extends AbstractTrippingTest {
         assertTrue(twt3.getLeg2().getTerminal().isConnected());
         assertTrue(twt3.getLeg3().getTerminal().isConnected());
         var tripping = new ThreeWindingsTransformerTripping("3WT");
-        tripping.modify(network, null);
+        tripping.apply(network);
         assertFalse(twt3.getLeg1().getTerminal().isConnected());
         assertFalse(twt3.getLeg2().getTerminal().isConnected());
         assertFalse(twt3.getLeg3().getTerminal().isConnected());
 
         var notExistsTripping = new ThreeWindingsTransformerTripping("NOT_EXISTS");
-        Exception e = assertThrows(PowsyblException.class, () -> notExistsTripping.modify(network, null));
+        Exception e = assertThrows(PowsyblException.class, () -> notExistsTripping.apply(network));
         assertEquals("ThreeWindingsTransformer 'NOT_EXISTS' not found", e.getMessage());
     }
 }

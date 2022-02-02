@@ -10,8 +10,8 @@ import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.ActionDslException
 import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.computation.ComputationManager
-import com.powsybl.contingency.tasks.ModificationTask
 import com.powsybl.iidm.network.Network
+import com.powsybl.network.modification.NetworkModification
 
 import static com.powsybl.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
 
@@ -21,7 +21,7 @@ import static com.powsybl.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
 @AutoService(DslTaskExtension.class)
 class ScriptDslTaskExtension implements DslTaskExtension {
     @Override
-    void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
+    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding) {
         tasksSpecMetaClass.script = { Closure<Void> closure ->
             tasks.add(new ScriptTask({ Network network, ComputationManager computationManager ->
                 Network oldNetwork = binding.getVariable("network")

@@ -234,7 +234,7 @@ public class DefaultSecurityAnalysis {
     private void applyContingency(String workingVariantId, String postContVariantId, Contingency contingency) {
         network.getVariantManager().cloneVariant(workingVariantId, postContVariantId, true);
         network.getVariantManager().setWorkingVariant(postContVariantId);
-        contingency.toTask().modify(network, computationManager);
+        contingency.toTask().apply(network, computationManager);
     }
 
     private void addMonitorInfos(Network network, StateMonitor monitor, Consumer<BranchResult> branchResultConsumer,

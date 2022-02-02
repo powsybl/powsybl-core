@@ -9,7 +9,7 @@ package com.powsybl.action.util
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.commons.PowsyblException
-import com.powsybl.contingency.tasks.ModificationTask
+import com.powsybl.network.modification.NetworkModification
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
@@ -17,7 +17,7 @@ import com.powsybl.contingency.tasks.ModificationTask
 @AutoService(DslTaskExtension.class)
 class GeneratorModificationTaskExtension implements DslTaskExtension {
     @Override
-    void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
+    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding) {
         tasksSpecMetaClass.generatorModification = { String id, Closure<Void> closure ->
             def cloned = closure.clone()
             GeneratorModificationSpec spec = new GeneratorModificationSpec()

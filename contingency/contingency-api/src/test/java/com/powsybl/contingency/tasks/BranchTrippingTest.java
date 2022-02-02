@@ -36,21 +36,21 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertTrue(line.getTerminal2().isConnected());
 
         Contingency contingency = Contingency.line("NHV1_NHV2_1", "VLHV2");
-        contingency.toTask().modify(network, null);
+        contingency.toTask().apply(network);
 
         assertTrue(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
 
         contingency = Contingency.line("NHV1_NHV2_1");
-        contingency.toTask().modify(network, null);
+        contingency.toTask().apply(network);
 
         assertFalse(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
 
-        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.line("NOT_EXISTS").toTask().modify(network, null));
+        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.line("NOT_EXISTS").toTask().apply(network));
         assertEquals("Line 'NOT_EXISTS' not found", e1.getMessage());
 
-        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toTask().modify(network, null));
+        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toTask().apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to line 'NHV1_NHV2_1'", e2.getMessage());
     }
 
@@ -63,20 +63,20 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertTrue(transformer.getTerminal2().isConnected());
 
         Contingency contingency = Contingency.twoWindingsTransformer("NHV2_NLOAD", "VLHV2");
-        contingency.toTask().modify(network, null);
+        contingency.toTask().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertTrue(transformer.getTerminal2().isConnected());
 
         contingency = Contingency.twoWindingsTransformer("NHV2_NLOAD");
-        contingency.toTask().modify(network, null);
+        contingency.toTask().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertFalse(transformer.getTerminal2().isConnected());
 
-        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NOT_EXISTS").toTask().modify(network, null));
+        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NOT_EXISTS").toTask().apply(network));
         assertEquals("Two windings transformer 'NOT_EXISTS' not found", e1.getMessage());
-        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toTask().modify(network, null));
+        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toTask().apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to the two windings transformer 'NHV2_NLOAD'", e2.getMessage());
     }
 
@@ -89,13 +89,13 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertTrue(transformer.getTerminal2().isConnected());
 
         Contingency contingency = Contingency.branch("NHV2_NLOAD", "VLHV2");
-        contingency.toTask().modify(network, null);
+        contingency.toTask().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertTrue(transformer.getTerminal2().isConnected());
 
         contingency = Contingency.branch("NHV2_NLOAD");
-        contingency.toTask().modify(network, null);
+        contingency.toTask().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertFalse(transformer.getTerminal2().isConnected());
@@ -106,7 +106,7 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         BranchTripping tripping = new BranchTripping("transformer");
-        tripping.modify(network, null);
+        tripping.apply(network);
     }
 
     @Test(expected = PowsyblException.class)
@@ -114,7 +114,7 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         BranchTripping tripping = new BranchTripping("NHV2_NLOAD", "UNKNOWN");
-        tripping.modify(network, null);
+        tripping.apply(network);
     }
 
     @Test
@@ -128,11 +128,11 @@ public class BranchTrippingTest extends AbstractTrippingTest {
 
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
-        tripping.traverse(network, null, switchesToOpen, terminalsToDisconnect);
+        tripping.traverse(network, switchesToOpen, terminalsToDisconnect);
         assertEquals(switchIds, switchesToOpen.stream().map(Switch::getId).collect(Collectors.toSet()));
         assertEquals(Collections.emptySet(), terminalsToDisconnect);
 
-        tripping.modify(network, null);
+        tripping.apply(network);
         assertTrue(network.getSwitch("BD").isOpen());
         assertTrue(network.getSwitch("BL").isOpen());
 

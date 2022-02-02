@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl.spi;
 
-import com.powsybl.contingency.tasks.ModificationTask;
+import com.powsybl.network.modification.NetworkModification;
 import groovy.lang.Binding;
 import groovy.lang.MetaClass;
 
@@ -17,6 +17,6 @@ import java.util.List;
  */
 public interface DslTaskExtension {
 
-    void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding);
+    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding);
 }
 

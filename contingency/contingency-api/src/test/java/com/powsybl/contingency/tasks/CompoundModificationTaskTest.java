@@ -8,9 +8,11 @@ package com.powsybl.contingency.tasks;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.modification.NetworkModificationList;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -25,8 +27,8 @@ public class CompoundModificationTaskTest {
 
         BranchTripping tripping1 = new BranchTripping("NHV1_NHV2_1", "VLHV1");
         BranchTripping tripping2 = new BranchTripping("NHV1_NHV2_1", "VLHV2");
-        CompoundModificationTask task = new CompoundModificationTask(tripping1, tripping2);
-        task.modify(network, null);
+        NetworkModificationList task = new NetworkModificationList(tripping1, tripping2);
+        task.apply(network);
 
         assertFalse(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
         assertFalse(network.getLine("NHV1_NHV2_1").getTerminal2().isConnected());

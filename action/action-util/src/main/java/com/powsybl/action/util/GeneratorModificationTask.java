@@ -7,17 +7,16 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.network.modification.NetworkModification;
 
 import java.util.Objects;
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class GeneratorModificationTask implements ModificationTask {
+public class GeneratorModificationTask implements NetworkModification {
 
     private final String generatorId;
     private final Modifs modifs;
@@ -28,7 +27,7 @@ public class GeneratorModificationTask implements ModificationTask {
     }
 
     @Override
-    public void modify(Network network, ComputationManager computationManager) {
+    public void apply(Network network) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");

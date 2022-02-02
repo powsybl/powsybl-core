@@ -7,17 +7,16 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.network.modification.NetworkModification;
 
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class OpenSwitchTask implements ModificationTask {
+public class OpenSwitchTask implements NetworkModification {
 
     private final String switchId;
 
@@ -26,7 +25,7 @@ public class OpenSwitchTask implements ModificationTask {
     }
 
     @Override
-    public void modify(Network network, ComputationManager computationManager) {
+    public void apply(Network network) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
             throw new PowsyblException("Switch '" + switchId + "' not found");

@@ -6,7 +6,6 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -15,7 +14,7 @@ import java.util.Set;
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public abstract class AbstractInjectionTripping extends AbstractTrippingTask {
+public abstract class AbstractInjectionTripping extends AbstractTripping {
 
     protected final String id;
 
@@ -24,7 +23,7 @@ public abstract class AbstractInjectionTripping extends AbstractTrippingTask {
     }
 
     @Override
-    public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
         ContingencyTopologyTraverser.traverse(getInjection(network).getTerminal(), switchesToOpen, terminalsToDisconnect);

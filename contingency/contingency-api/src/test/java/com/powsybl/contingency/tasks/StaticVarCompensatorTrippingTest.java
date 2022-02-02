@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.network.modification.NetworkModification;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,8 +35,8 @@ public class StaticVarCompensatorTrippingTest extends AbstractTrippingTest {
 
         Contingency contingency = Contingency.staticVarCompensator("SVC2");
 
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
+        NetworkModification task = contingency.toTask();
+        task.apply(network);
 
         assertFalse(network.getStaticVarCompensator("SVC2").getTerminal().isConnected());
     }
@@ -43,7 +44,7 @@ public class StaticVarCompensatorTrippingTest extends AbstractTrippingTest {
     @Test(expected = PowsyblException.class)
     public void unknownShuntCompensatorTest() {
         StaticVarCompensatorTripping tripping = new StaticVarCompensatorTripping("SVC");
-        tripping.modify(network, null);
+        tripping.apply(network);
     }
 
 }

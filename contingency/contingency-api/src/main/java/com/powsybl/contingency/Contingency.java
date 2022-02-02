@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.contingency.tasks.CompoundModificationTask;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.*;
+import com.powsybl.network.modification.NetworkModificationList;
+import com.powsybl.network.modification.NetworkModification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,10 +70,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
         elements.remove(element);
     }
 
-    public ModificationTask toTask() {
-        List<ModificationTask> subTasks = elements.stream().map(ContingencyElement::toTask).collect(Collectors.toList());
+    public NetworkModification toTask() {
+        List<NetworkModification> subTasks = elements.stream().map(ContingencyElement::toTask).collect(Collectors.toList());
 
-        return new CompoundModificationTask(subTasks);
+        return new NetworkModificationList(subTasks);
     }
 
     boolean isValid(Network network) {

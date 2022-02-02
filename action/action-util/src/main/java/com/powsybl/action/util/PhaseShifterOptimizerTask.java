@@ -7,15 +7,15 @@
 package com.powsybl.action.util;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.network.modification.NetworkModification;
 
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseShifterOptimizerTask implements ModificationTask {
+public class PhaseShifterOptimizerTask implements NetworkModification {
 
     private final String phaseShifterId;
 
@@ -24,8 +24,8 @@ public class PhaseShifterOptimizerTask implements ModificationTask {
     }
 
     @Override
-    public void modify(Network network, ComputationManager computationManager) {
+    public void apply(Network network, ComputationManager computationManager) {
         new LoadFlowBasedPhaseShifterOptimizer(computationManager)
-                        .findMaximalFlowTap(network, phaseShifterId);
+                .findMaximalFlowTap(network, phaseShifterId);
     }
 }

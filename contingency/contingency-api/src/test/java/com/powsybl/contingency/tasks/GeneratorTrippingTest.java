@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.network.modification.NetworkModification;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -35,8 +36,8 @@ public class GeneratorTrippingTest extends AbstractTrippingTest {
 
         Contingency contingency = Contingency.generator("GEN");
 
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
+        NetworkModification task = contingency.toTask();
+        task.apply(network);
 
         assertFalse(network.getGenerator("GEN").getTerminal().isConnected());
     }
@@ -46,7 +47,7 @@ public class GeneratorTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         GeneratorTripping tripping = new GeneratorTripping("generator");
-        tripping.modify(network, null);
+        tripping.apply(network);
     }
 
     @Test
@@ -61,11 +62,11 @@ public class GeneratorTrippingTest extends AbstractTrippingTest {
 
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
-        tripping.traverse(network, null, switchesToOpen, terminalsToDisconnect);
+        tripping.traverse(network, switchesToOpen, terminalsToDisconnect);
         assertEquals(switchIds, switchesToOpen.stream().map(Switch::getId).collect(Collectors.toSet()));
         assertEquals(Collections.emptySet(), terminalsToDisconnect);
 
-        tripping.modify(network, null);
+        tripping.apply(network);
         assertTrue(network.getSwitch("BJ").isOpen());
 
         List<Boolean> switchStates = getSwitchStates(network, switchIds);

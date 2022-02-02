@@ -7,9 +7,9 @@
 package com.powsybl.action.dsl;
 
 import com.powsybl.contingency.tasks.GeneratorTripping;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.modification.NetworkModification;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -26,8 +26,8 @@ public class ActionTest {
 
     @Test
     public void test() {
-        ModificationTask mock = Mockito.mock(ModificationTask.class);
-        List<ModificationTask> tasks = new ArrayList<>();
+        NetworkModification mock = Mockito.mock(NetworkModification.class);
+        List<NetworkModification> tasks = new ArrayList<>();
 
         Action action = new Action("id");
         assertEquals("id", action.getId());
@@ -49,7 +49,7 @@ public class ActionTest {
         testInvalid("id", null);
     }
 
-    private void testInvalid(String id, List<ModificationTask> tasks) {
+    private void testInvalid(String id, List<NetworkModification> tasks) {
         try {
             new Action(id, tasks);
             fail();
@@ -62,9 +62,9 @@ public class ActionTest {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
 
-        ModificationTask task = new GeneratorTripping("GEN");
+        NetworkModification task = new GeneratorTripping("GEN");
         Action action = new Action("action", Collections.singletonList(task));
-        action.run(network, null);
+        action.run(network);
         assertFalse(network.getGenerator("GEN").getTerminal().isConnected());
     }
 }

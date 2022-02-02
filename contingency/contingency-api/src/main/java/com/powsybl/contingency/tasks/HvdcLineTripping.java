@@ -7,7 +7,6 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -19,7 +18,7 @@ import java.util.Set;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcLineTripping extends AbstractTrippingTask {
+public class HvdcLineTripping extends AbstractTripping {
 
     private final String hvdcLineId;
 
@@ -35,7 +34,7 @@ public class HvdcLineTripping extends AbstractTrippingTask {
     }
 
     @Override
-    public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);

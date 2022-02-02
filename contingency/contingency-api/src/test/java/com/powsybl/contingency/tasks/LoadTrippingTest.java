@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.modification.NetworkModification;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -26,8 +27,8 @@ public class LoadTrippingTest extends AbstractTrippingTest {
 
         Contingency contingency = Contingency.load("LOAD");
 
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
+        NetworkModification task = contingency.toTask();
+        task.apply(network);
 
         assertFalse(network.getLoad("LOAD").getTerminal().isConnected());
     }
@@ -37,6 +38,6 @@ public class LoadTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         LoadTripping tripping = new LoadTripping("generator");
-        tripping.modify(network, null);
+        tripping.apply(network);
     }
 }

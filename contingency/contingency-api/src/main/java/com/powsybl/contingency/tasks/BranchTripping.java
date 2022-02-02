@@ -7,7 +7,6 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -22,7 +21,7 @@ import java.util.function.BiFunction;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  *
  */
-public class BranchTripping extends AbstractTrippingTask {
+public class BranchTripping extends AbstractTripping {
 
     private final String branchId;
     private final String voltageLevelId;
@@ -51,7 +50,7 @@ public class BranchTripping extends AbstractTrippingTask {
     }
 
     @Override
-    public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
         Branch<?> branch = supplier.apply(network, branchId);

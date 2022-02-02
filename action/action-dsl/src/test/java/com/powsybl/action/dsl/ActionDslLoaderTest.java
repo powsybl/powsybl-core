@@ -74,7 +74,7 @@ public class ActionDslLoaderTest {
         Action another = actionDb.getAction("anotherAction");
         exception.expect(RuntimeException.class);
         exception.expectMessage("Switch 'switchId' not found");
-        another.run(network, null);
+        another.run(network);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ActionDslLoaderTest {
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
-        fixedTapAction.run(network, null);
+        fixedTapAction.run(network);
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
@@ -118,7 +118,7 @@ public class ActionDslLoaderTest {
             assertEquals(1, phaseTapChanger.getTapPosition());
             assertTrue(phaseTapChanger.isRegulating());
             assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
-            deltaTapAction.run(network, null);
+            deltaTapAction.run(network);
             assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition());
             assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
             assertFalse(phaseTapChanger.isRegulating());
@@ -133,7 +133,7 @@ public class ActionDslLoaderTest {
         assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
         exception.expect(PowsyblException.class);
         exception.expectMessage("Transformer 'NHV1_NHV2_1' not found");
-        deltaTapAction.run(network, null);
+        deltaTapAction.run(network);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class ActionDslLoaderTest {
         assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
         exception.expect(PowsyblException.class);
         exception.expectMessage("Transformer 'NGEN_NHV1' is not a phase shifter");
-        deltaTapAction.run(network, null);
+        deltaTapAction.run(network);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class ActionDslLoaderTest {
         Action someAction = actionDb.getAction("someAction");
         exception.expect(ActionDslException.class);
         exception.expectMessage("Dsl extension task(closeSwitch) is forbidden in task script");
-        someAction.run(network, null);
+        someAction.run(network);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action someAction = actionDb.getAction("missingMethod");
         exception.expect(MissingMethodException.class);
-        someAction.run(network, null);
+        someAction.run(network);
     }
 
     private static <T> ArgumentMatcher<T> matches(Function<T, Boolean> predicate) {

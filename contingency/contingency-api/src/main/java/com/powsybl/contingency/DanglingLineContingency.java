@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
+import com.powsybl.contingency.tasks.AbstractTripping;
 import com.powsybl.contingency.tasks.DanglingLineTripping;
 
 /**
@@ -24,7 +24,7 @@ public class DanglingLineContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public AbstractTripping toTask() {
         return new DanglingLineTripping(id);
     }
 }

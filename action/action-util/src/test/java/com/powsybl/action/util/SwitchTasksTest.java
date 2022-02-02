@@ -30,22 +30,22 @@ public class SwitchTasksTest {
         Assert.assertFalse(sw.isOpen());
         Assert.assertTrue(generator.getTerminal().isConnected());
 
-        new OpenSwitchTask(switchId).modify(network, null);
+        new OpenSwitchTask(switchId).apply(network);
         Assert.assertTrue(sw.isOpen());
         Assert.assertFalse(generator.getTerminal().isConnected());
 
-        new CloseSwitchTask(switchId).modify(network, null);
+        new CloseSwitchTask(switchId).apply(network);
         Assert.assertFalse(sw.isOpen());
         Assert.assertTrue(generator.getTerminal().isConnected());
     }
 
     @Test(expected = RuntimeException.class)
     public void testInvalidOpenSwitch() {
-        new OpenSwitchTask("dummy").modify(network, null);
+        new OpenSwitchTask("dummy").apply(network);
     }
 
     @Test(expected = RuntimeException.class)
     public void testInvalidCloseSwitch() {
-        new CloseSwitchTask("dummy").modify(network, null);
+        new CloseSwitchTask("dummy").apply(network);
     }
 }

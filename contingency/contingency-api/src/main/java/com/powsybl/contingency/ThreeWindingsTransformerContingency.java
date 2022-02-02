@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
+import com.powsybl.contingency.tasks.AbstractTripping;
 import com.powsybl.contingency.tasks.ThreeWindingsTransformerTripping;
 
 import java.util.Objects;
@@ -33,7 +33,7 @@ public class ThreeWindingsTransformerContingency implements ContingencyElement {
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public AbstractTripping toTask() {
         return new ThreeWindingsTransformerTripping(id);
     }
 

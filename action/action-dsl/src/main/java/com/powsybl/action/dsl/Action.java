@@ -7,8 +7,8 @@
 package com.powsybl.action.dsl;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.network.modification.NetworkModification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +23,13 @@ public class Action {
 
     private String description;
 
-    private final List<ModificationTask> tasks;
+    private final List<NetworkModification> tasks;
 
     public Action(String id) {
         this(id, new ArrayList<>());
     }
 
-    public Action(String id, List<ModificationTask> tasks) {
+    public Action(String id, List<NetworkModification> tasks) {
         this.id = Objects.requireNonNull(id);
         this.tasks = Objects.requireNonNull(tasks);
     }
@@ -46,13 +46,19 @@ public class Action {
         this.description = description;
     }
 
-    public List<ModificationTask> getTasks() {
+    public List<NetworkModification> getTasks() {
         return tasks;
     }
 
     public void run(Network network, ComputationManager computationManager) {
-        for (ModificationTask task : tasks) {
-            task.modify(network, computationManager);
+        for (NetworkModification task : tasks) {
+            task.apply(network, computationManager);
+        }
+    }
+
+    public void run(Network network) {
+        for (NetworkModification task : tasks) {
+            task.apply(network);
         }
     }
 }

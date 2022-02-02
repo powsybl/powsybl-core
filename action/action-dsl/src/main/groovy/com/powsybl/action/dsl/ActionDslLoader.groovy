@@ -9,7 +9,7 @@ package com.powsybl.action.dsl
 import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.contingency.Contingency
 import com.powsybl.contingency.dsl.ContingencyDslLoader
-import com.powsybl.contingency.tasks.ModificationTask
+import com.powsybl.network.modification.NetworkModification
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode
@@ -170,7 +170,7 @@ class ActionDslLoader extends DslLoader {
             ActionSpec actionSpec = new ActionSpec()
 
             // fill tasks spec with extensions
-            List<ModificationTask> tasks = new ArrayList<>()
+            List<NetworkModification> tasks = new ArrayList<>()
             for (DslTaskExtension taskExtension : ServiceLoader.load(DslTaskExtension.class, ActionDslLoader.class.getClassLoader())) {
                 taskExtension.addToSpec(actionSpec.tasksSpec.metaClass, tasks, binding)
             }

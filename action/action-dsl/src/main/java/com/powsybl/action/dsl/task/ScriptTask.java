@@ -7,8 +7,8 @@
 package com.powsybl.action.dsl.task;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.network.modification.NetworkModification;
 import groovy.lang.Closure;
 
 import java.util.Objects;
@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ScriptTask implements ModificationTask {
+public class ScriptTask implements NetworkModification {
 
     private final Closure script;
 
@@ -29,7 +29,7 @@ public class ScriptTask implements ModificationTask {
     }
 
     @Override
-    public void modify(Network network, ComputationManager computationManager) {
+    public void apply(Network network, ComputationManager computationManager) {
         script.call(network, computationManager);
     }
 }

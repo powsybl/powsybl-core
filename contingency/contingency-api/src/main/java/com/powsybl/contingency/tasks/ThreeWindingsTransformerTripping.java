@@ -7,7 +7,6 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -19,7 +18,7 @@ import java.util.Set;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ThreeWindingsTransformerTripping extends AbstractTrippingTask {
+public class ThreeWindingsTransformerTripping extends AbstractTripping {
 
     private final String id;
 
@@ -28,7 +27,7 @@ public class ThreeWindingsTransformerTripping extends AbstractTrippingTask {
     }
 
     @Override
-    public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer(id);
