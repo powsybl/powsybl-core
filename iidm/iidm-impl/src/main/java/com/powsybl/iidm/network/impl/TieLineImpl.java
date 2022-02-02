@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.HalfLineUtil;
 import com.powsybl.iidm.network.util.LinkData;
@@ -82,6 +83,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setR(double r) {
+            ValidationUtil.checkR(parent, r);
             double oldValue = this.r;
             this.r = r;
             notifyUpdate("r", oldValue, r);
@@ -95,9 +97,11 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setX(double x) {
+            ValidationUtil.checkX(parent, x);
             double oldValue = this.x;
             this.x = x;
             notifyUpdate("x", oldValue, x);
+
             return this;
         }
 
@@ -108,6 +112,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setG1(double g1) {
+            ValidationUtil.checkG1(parent, g1);
             double oldValue = this.g1;
             this.g1 = g1;
             notifyUpdate("g1", oldValue, g1);
@@ -121,6 +126,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setG2(double g2) {
+            ValidationUtil.checkG2(parent, g2);
             double oldValue = this.g2;
             this.g2 = g2;
             notifyUpdate("g2", oldValue, g2);
@@ -134,6 +140,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setB1(double b1) {
+            ValidationUtil.checkB1(parent, b1);
             double oldValue = this.b1;
             this.b1 = b1;
             notifyUpdate("b1", oldValue, b1);
@@ -147,6 +154,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setB2(double b2) {
+            ValidationUtil.checkB2(parent, b2);
             double oldValue = this.b2;
             this.b2 = b2;
             notifyUpdate("b2", oldValue, b2);

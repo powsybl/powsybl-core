@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
@@ -858,5 +859,49 @@ public interface Network extends Container<Network> {
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.NETWORK;
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationLevel runValidationChecks() {
+        return runValidationChecks(true);
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationLevel runValidationChecks(boolean throwsException) {
+        return runValidationChecks(throwsException, Reporter.NO_OP);
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    /**
+     * Return the network validation status. Do <b>not</b> run any validation check.
+     */
+    default ValidationLevel getValidationLevel() {
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    default Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
+        if (validationLevel != ValidationLevel.STEADY_STATE_HYPOTHESIS) {
+            throw new UnsupportedOperationException("Validation level below LOADFLOW not supported");
+        }
+        return this;
     }
 }

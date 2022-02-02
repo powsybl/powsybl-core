@@ -10,6 +10,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
@@ -41,6 +42,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     private int forecastDistance = 0;
 
     private String sourceFormat;
+
+    private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
 
     private final NetworkIndex index = new NetworkIndex();
 
@@ -1138,5 +1142,58 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public void removeListener(NetworkListener listener) {
         listeners.remove(listener);
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks() {
+        return runValidationChecks(true);
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException) {
+        return runValidationChecks(throwsException, Reporter.NO_OP);
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        Reporter readReporter = Objects.requireNonNull(reporter).createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
+        validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
+                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReporter);
+        return validationLevel;
+    }
+
+    @Override
+    public ValidationLevel getValidationLevel() {
+        if (validationLevel == null) {
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, Reporter.NO_OP);
+        }
+        return validationLevel;
+    }
+
+    @Override
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
+        Objects.requireNonNull(validationLevel);
+        if (this.validationLevel == null) {
+            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, Reporter.NO_OP);
+        }
+        if (this.validationLevel.compareTo(validationLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
+        }
+        this.minValidationLevel = validationLevel;
+        return this;
+    }
+
+    ValidationLevel getMinValidationLevel() {
+        return minValidationLevel;
+    }
+
+    void setValidationLevelIfGreaterThan(ValidationLevel validationLevel) {
+        this.validationLevel = ValidationLevel.min(this.validationLevel, validationLevel);
+    }
+
+    void invalidateValidationLevel() {
+        if (minValidationLevel.compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) < 0) {
+            validationLevel = null;
+        }
     }
 }
