@@ -230,6 +230,7 @@ public class MatpowerImporter implements Importer {
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
+                    .setVoltageRegulatorOn(false)
                     .setSectionCount(1);
             adder.newLinearModel()
                     .setBPerSection(mBus.getShuntSusceptance() / context.getBaseMva() / zb)

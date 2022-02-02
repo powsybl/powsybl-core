@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="ReactiveLimits" sourceFormat="???" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="ReactiveLimits" sourceFormat="???" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S" country="FR" tso="RTE">
         <iidm:voltageLevel id="VL" nominalV="380.0"  topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

@@ -114,6 +114,7 @@ public class ThreeWindingsTransformerAdapterTest {
                     .setTapPosition(1)
                     .setLowTapPosition(0)
                     .setRegulating(false)
+                    .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                     .beginStep()
                         .setR(1.0)
                         .setX(2.0)

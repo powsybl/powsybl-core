@@ -54,8 +54,8 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
 
     @Override
     protected Battery readRootElementAttributes(BatteryAdder adder, NetworkXmlReaderContext context) {
-        double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
-        double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
+        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
+        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
         double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
         double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
         readNodeOrBus(adder, context);

@@ -310,7 +310,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
-
         return transformer;
     }
 }

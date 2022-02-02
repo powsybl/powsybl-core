@@ -78,14 +78,6 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
-    public void invalidSource() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("energy source is not set");
-        createGenerator(INVALID, null, 20.0, 10.0, 20.0,
-                30.0, 40.0, false, 20.0);
-    }
-
-    @Test
     public void invalidMaxP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for maximum P");
