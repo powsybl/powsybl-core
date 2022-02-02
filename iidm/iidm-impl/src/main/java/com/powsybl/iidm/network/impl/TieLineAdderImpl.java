@@ -93,6 +93,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             return this;
         }
 
+        @Override
         public TieLineAdderImpl add() {
             if (id == null || id.isEmpty()) {
                 throw new ValidationException(this, String.format("id is not set for half line %d", num));
@@ -208,7 +209,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
         network.getIndex().checkAndAdd(line);
-        getNetwork().getListeners().notifyCreation(line);
+        network.getListeners().notifyCreation(line);
         return line;
     }
 

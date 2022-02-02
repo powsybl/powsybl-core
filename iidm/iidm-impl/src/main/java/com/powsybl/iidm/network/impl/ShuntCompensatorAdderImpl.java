@@ -22,7 +22,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private ShuntCompensatorModelBuilder modelBuilder;
 
-    private int sectionCount = -1;
+    private Integer sectionCount;
 
     private double targetV = Double.NaN;
 
@@ -89,6 +89,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         public ShuntCompensatorAdder add() {
             ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
             ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
+
             modelBuilder = this;
             return ShuntCompensatorAdderImpl.this;
         }
@@ -208,27 +209,28 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     @Override
     public ShuntCompensatorImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
 
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount());
 
-        ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetwork().getRef(),
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel()));
+
+        ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(network.getRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
                 regulatingTerminal == null ? terminal : regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
 
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(shunt);
-        getNetwork().getListeners().notifyCreation(shunt);
+        network.getIndex().checkAndAdd(shunt);
+        network.getListeners().notifyCreation(shunt);
         return shunt;
     }
 

@@ -65,6 +65,7 @@ public final class NetworkXml {
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
+    private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
 
     // cache to improve performance
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
@@ -223,7 +224,7 @@ public final class NetworkXml {
                     .filter(e -> getExtensionXmlSerializer(options, e) != null)
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
                 context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
                 for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
                     writeExtension(extension, context);
@@ -243,9 +244,11 @@ public final class NetworkXml {
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os);
-        writer.setPrefix(IIDM_PREFIX, version.getNamespaceURI());
-        writer.writeStartElement(version.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME);
-        writer.writeNamespace(IIDM_PREFIX, version.getNamespaceURI());
+        String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        writer.setPrefix(IIDM_PREFIX, namespaceUri);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
+        writer.writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+        writer.writeNamespace(IIDM_PREFIX, namespaceUri);
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, options, writer);
         }
@@ -257,7 +260,10 @@ public final class NetworkXml {
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version);
+        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> writer.writeAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel().toString()));
+
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
 
@@ -408,6 +414,13 @@ public final class NetworkXml {
             network.setForecastDistance(forecastDistance);
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
+
+            ValidationLevel[] minValidationLevel = new ValidationLevel[1];
+            minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> minValidationLevel[0] = ValidationLevel.valueOf(reader.getAttributeValue(null, MINIMUM_VALIDATION_LEVEL)));
+
+            IidmXmlUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
+            network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
 
             if (!config.withNoExtension()) {
                 context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
