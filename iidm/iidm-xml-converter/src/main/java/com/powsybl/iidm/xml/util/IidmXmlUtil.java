@@ -146,6 +146,16 @@ public final class IidmXmlUtil {
     }
 
     /**
+     * Assert that the reader context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
+    public static void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, IidmXmlVersion version) {
+        if (version.compareTo(minVersion) < 0) {
+            throw createException(rootElementName, elementName, type, minVersion, version, MINIMUM_REASON);
+        }
+    }
+
+    /**
      * Assert that the writer context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception or log an error with a given type of error message,
      * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
@@ -174,6 +184,19 @@ public final class IidmXmlUtil {
     public static void assertMinimumVersion(String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
             createExceptionOrLogError(elementName, type, minVersion, MINIMUM_REASON, context);
+        }
+    }
+
+    /**
+     * Assert that the reader context's IIDM-XML version equals or is more recent than a given IIDM-XML version if the value of an attribute or the state of an equipment
+     * is not default (interpretable for previous versions).
+     * If not, throw an exception with a given type of error message.
+     */
+    public static void assertMinimumVersionIfNotDefault(boolean valueIsNotDefault, String rootElementName,
+                                                        String elementName, ErrorMessage type, IidmXmlVersion minVersion,
+                                                        IidmXmlVersion version) {
+        if (valueIsNotDefault) {
+            assertMinimumVersion(rootElementName, elementName, type, minVersion, version);
         }
     }
 

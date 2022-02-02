@@ -125,7 +125,8 @@ public class XMLImporter implements Importer {
                                 String name = xmlsr.getLocalName();
                                 String ns = xmlsr.getNamespaceURI();
                                 return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name)
-                                        && Stream.of(IidmXmlVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns));
+                                        && (Stream.of(IidmXmlVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
+                                        || Stream.of(IidmXmlVersion.values()).filter(v -> v.compareTo(IidmXmlVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
                             }
                         }
                     } finally {

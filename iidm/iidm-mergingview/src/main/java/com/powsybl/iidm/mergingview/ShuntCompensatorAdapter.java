@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.ShuntCompensatorModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.OptionalInt;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -29,6 +31,11 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
+    public OptionalInt findSectionCount() {
+        return getDelegate().findSectionCount();
+    }
+
+    @Override
     public int getMaximumSectionCount() {
         return getDelegate().getMaximumSectionCount();
     }
@@ -36,6 +43,12 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     @Override
     public ShuntCompensator setSectionCount(final int sectionCount) {
         getDelegate().setSectionCount(sectionCount);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensator unsetSectionCount() {
+        getDelegate().unsetSectionCount();
         return this;
     }
 

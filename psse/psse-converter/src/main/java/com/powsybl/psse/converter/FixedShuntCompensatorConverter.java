@@ -9,13 +9,10 @@ package com.powsybl.psse.converter;
 import java.util.Collections;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseFixedShunt;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -43,6 +40,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
             .setId(getShuntId(busId))
             .setConnectableBus(busId)
+            .setVoltageRegulatorOn(false)
             .setSectionCount(1);
         adder.newLinearModel()
             .setGPerSection(powerToShuntAdmittance(psseFixedShunt.getGl(), voltageLevel.getNominalV()))
