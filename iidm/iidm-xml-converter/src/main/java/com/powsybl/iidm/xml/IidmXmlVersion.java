@@ -45,8 +45,28 @@ public enum IidmXmlVersion {
         return "http://www." + domain + "/schema/iidm/" + toString("_");
     }
 
+    public String getNamespaceURI(boolean valid) {
+        if (valid) {
+            return getNamespaceURI();
+        }
+        if (this.compareTo(V_1_7) < 0) {
+            throw new PowsyblException("Network in Equipment mode not supported for XIIDM version < 1.7");
+        }
+        return "http://www." + domain + "/schema/iidm/equipment/" + toString("_");
+    }
+
     public String getXsd() {
         return "iidm_V" + toString("_") + ".xsd";
+    }
+
+    public String getXsd(boolean valid) {
+        if (valid) {
+            return getXsd();
+        }
+        if (this.compareTo(V_1_7) < 0) {
+            throw new PowsyblException("Invalid network not supported for XIIDM version < 1.7");
+        }
+        return "iidm_equipment_V" + toString("_") + ".xsd";
     }
 
     public static IidmXmlVersion fromNamespaceURI(String namespaceURI) {
@@ -54,6 +74,9 @@ public enum IidmXmlVersion {
         IidmXmlVersion v = of(version, "_");
         String namespaceUriV = v.getNamespaceURI();
         if (!namespaceURI.equals(namespaceUriV)) {
+            if (v.compareTo(V_1_7) >= 0 && namespaceURI.equals(v.getNamespaceURI(false))) {
+                return v;
+            }
             throw new PowsyblException("Namespace " + namespaceURI + " is not supported. " +
                     "The namespace for IIDM XML version " + v.toString(".") + " is: " + namespaceUriV + ".");
         }

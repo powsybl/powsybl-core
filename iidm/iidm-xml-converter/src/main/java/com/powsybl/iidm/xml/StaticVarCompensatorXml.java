@@ -49,7 +49,9 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
         XmlUtil.writeDouble(voltageSetpointName[0], svc.getVoltageSetpoint(), context.getWriter());
         XmlUtil.writeDouble(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint(), context.getWriter());
 
-        context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
+        if (svc.getRegulationMode() != null) {
+            context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
+        }
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
     }
@@ -80,7 +82,8 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
         double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), voltageSetpointName[0]);
         double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), reactivePowerSetpointName[0]);
 
-        StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
+        String regulationModeStr = context.getReader().getAttributeValue(null, "regulationMode");
+        StaticVarCompensator.RegulationMode regulationMode = regulationModeStr != null ? StaticVarCompensator.RegulationMode.valueOf(regulationModeStr) : null;
         adder.setBmin(bMin)
                 .setBmax(bMax)
                 .setVoltageSetpoint(voltageSetpoint)
