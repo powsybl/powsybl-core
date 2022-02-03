@@ -36,8 +36,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
-
 /**
  * TwoWindingsTransformer Interpretation
  * <p>
@@ -674,11 +672,6 @@ public class Conversion {
 
     public static class Config {
 
-        public enum StateProfile {
-            SSH,
-            SV
-        }
-
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -757,19 +750,12 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile getProfileUsedForInitialStateValues() {
-            return profileUsedForInitialStateValues;
+        public boolean isReadShuntSectionsTapPositionsFromSVIfPresent() {
+            return readShuntSectionsTapPositionsFromSVIfPresent;
         }
 
-        public Config setProfileUsedForInitialStateValues(String profileUsedForInitialFlowsValues) {
-            switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
-                case "SSH":
-                case "SV":
-                    this.profileUsedForInitialStateValues = StateProfile.valueOf(profileUsedForInitialFlowsValues);
-                    break;
-                default:
-                    throw new CgmesModelException("Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
-            }
+        public Config setReadShuntSectionsTapPositionsFromSVIfPresen(boolean readShuntSectionsTapPositionsFromSVIfPresent) {
+            this.readShuntSectionsTapPositionsFromSVIfPresent = readShuntSectionsTapPositionsFromSVIfPresent;
             return this;
         }
 
@@ -865,7 +851,7 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private StateProfile profileUsedForInitialStateValues = SSH;
+        private boolean readShuntSectionsTapPositionsFromSVIfPresent = false;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 

@@ -11,7 +11,6 @@ import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
-import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -47,14 +46,10 @@ abstract class AbstractCgmesTapChangerBuilder {
     }
 
     protected int initialTapPosition(int defaultStep) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
-            case SSH:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
-            case SV:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
-            default:
-                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
+        if (context.config().isReadShuntSectionsTapPositionsFromSVIfPresent()) {
+            return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
         }
+        return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
     }
 
     protected TapChanger build() {
