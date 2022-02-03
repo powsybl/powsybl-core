@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.AbstractTripping;
 import com.powsybl.network.modification.tripping.GeneratorTripping;
+import com.powsybl.network.modification.tripping.Tripping;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,7 +24,7 @@ public class GeneratorContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTripping toModification() {
+    public Tripping toModification() {
         return new GeneratorTripping(id);
     }
 

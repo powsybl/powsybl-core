@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.modification;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -15,10 +16,18 @@ import com.powsybl.iidm.network.Network;
 public interface NetworkModification {
 
     default void apply(Network network) {
-        apply(network, null);
+        apply(network, (ComputationManager) null);
     }
 
     default void apply(Network network, ComputationManager computationManager) {
         apply(network);
+    }
+
+    default void apply(Network network, ComputationManager computationManager, Reporter reporter) {
+        apply(network, reporter);
+    }
+
+    default void apply(Network network, Reporter reporter) {
+        apply(network, null, reporter);
     }
 }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.AbstractTripping;
+import com.powsybl.network.modification.tripping.Tripping;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,6 +17,6 @@ public interface ContingencyElement {
 
     ContingencyElementType getType();
 
-    AbstractTripping toModification();
+    Tripping toModification();
 
 }

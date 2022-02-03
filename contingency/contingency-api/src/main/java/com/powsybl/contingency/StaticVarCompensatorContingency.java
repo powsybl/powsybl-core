@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.AbstractTripping;
 import com.powsybl.network.modification.tripping.StaticVarCompensatorTripping;
+import com.powsybl.network.modification.tripping.Tripping;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -24,7 +24,7 @@ public class StaticVarCompensatorContingency extends AbstractInjectionContingenc
     }
 
     @Override
-    public AbstractTripping toModification() {
+    public Tripping toModification() {
         return new StaticVarCompensatorTripping(id);
     }
 

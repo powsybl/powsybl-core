@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.AbstractTripping;
 import com.powsybl.network.modification.tripping.LoadTripping;
+import com.powsybl.network.modification.tripping.Tripping;
 
 /**
  * @author Hadrien Godard <hadrien.godard at artelys.com>
@@ -24,7 +24,7 @@ public class LoadContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTripping toModification() {
+    public Tripping toModification() {
         return new LoadTripping(id);
     }
 

@@ -9,7 +9,6 @@ package com.powsybl.network.modification.tripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.network.modification.NetworkModification;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,7 +16,7 @@ import java.util.Set;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public abstract class AbstractTripping implements NetworkModification {
+public abstract class AbstractTripping implements Tripping {
 
     @Override
     public void apply(Network network) {
@@ -29,6 +28,4 @@ public abstract class AbstractTripping implements NetworkModification {
         switchesToOpen.forEach(s -> s.setOpen(true));
         terminalsToDisconnect.forEach(Terminal::disconnect);
     }
-
-    public abstract void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect);
 }

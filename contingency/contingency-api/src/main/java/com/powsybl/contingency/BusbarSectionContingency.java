@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.AbstractTripping;
 import com.powsybl.network.modification.tripping.BusbarSectionTripping;
+import com.powsybl.network.modification.tripping.Tripping;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public class BusbarSectionContingency implements ContingencyElement {
     }
 
     @Override
-    public AbstractTripping toModification() {
+    public Tripping toModification() {
         return new BusbarSectionTripping(busbarSectionId);
     }
 

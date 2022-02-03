@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.AbstractTripping;
 import com.powsybl.network.modification.tripping.DanglingLineTripping;
+import com.powsybl.network.modification.tripping.Tripping;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -24,7 +24,7 @@ public class DanglingLineContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTripping toModification() {
+    public Tripping toModification() {
         return new DanglingLineTripping(id);
     }
 }

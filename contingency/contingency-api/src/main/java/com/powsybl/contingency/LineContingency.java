@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.AbstractTripping;
 import com.powsybl.network.modification.tripping.LineTripping;
+import com.powsybl.network.modification.tripping.Tripping;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public class LineContingency extends AbstractSidedContingency {
     }
 
     @Override
-    public AbstractTripping toModification() {
+    public Tripping toModification() {
         return new LineTripping(id, voltageLevelId);
     }
 
