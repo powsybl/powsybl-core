@@ -6,10 +6,10 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.contingency.tasks.GeneratorTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.network.modification.NetworkModification;
+import com.powsybl.network.modification.tripping.GeneratorTripping;
 import org.junit.Test;
 import org.mockito.Mockito;
 

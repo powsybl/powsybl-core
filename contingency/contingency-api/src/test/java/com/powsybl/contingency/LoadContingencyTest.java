@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.LoadTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.modification.tripping.LoadTripping;
 import org.junit.Test;
 
 import java.util.List;

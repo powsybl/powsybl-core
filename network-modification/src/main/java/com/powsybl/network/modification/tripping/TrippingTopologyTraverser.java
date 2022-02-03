@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
@@ -15,9 +15,9 @@ import java.util.Set;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-final class ContingencyTopologyTraverser {
+final class TrippingTopologyTraverser {
 
-    private ContingencyTopologyTraverser() {
+    private TrippingTopologyTraverser() {
     }
 
     private static boolean isOpenable(Switch aSwitch) {

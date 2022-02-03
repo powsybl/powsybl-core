@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTripping;
-import com.powsybl.contingency.tasks.StaticVarCompensatorTripping;
+import com.powsybl.network.modification.tripping.AbstractTripping;
+import com.powsybl.network.modification.tripping.StaticVarCompensatorTripping;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>

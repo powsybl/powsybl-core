@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTripping;
-import com.powsybl.contingency.tasks.BranchTripping;
+import com.powsybl.network.modification.tripping.AbstractTripping;
+import com.powsybl.network.modification.tripping.BranchTripping;
 
 import java.util.Objects;
 

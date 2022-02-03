@@ -7,7 +7,7 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.ThreeWindingsTransformerTripping;
+import com.powsybl.network.modification.tripping.ThreeWindingsTransformerTripping;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

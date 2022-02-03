@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.BusbarSection;
@@ -35,6 +35,6 @@ public class BusbarSectionTripping extends AbstractTripping {
             throw new PowsyblException("Busbar section '" + busbarSectionId + "' not found");
         }
 
-        ContingencyTopologyTraverser.traverse(busbarSection.getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(busbarSection.getTerminal(), switchesToOpen, terminalsToDisconnect);
     }
 }

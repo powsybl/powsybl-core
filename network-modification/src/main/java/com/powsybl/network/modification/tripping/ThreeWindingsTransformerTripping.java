@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
@@ -34,9 +34,9 @@ public class ThreeWindingsTransformerTripping extends AbstractTripping {
         if (twt3 == null) {
             throw createNotFoundException();
         }
-        ContingencyTopologyTraverser.traverse(twt3.getLeg1().getTerminal(), switchesToOpen, terminalsToDisconnect);
-        ContingencyTopologyTraverser.traverse(twt3.getLeg2().getTerminal(), switchesToOpen, terminalsToDisconnect);
-        ContingencyTopologyTraverser.traverse(twt3.getLeg3().getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(twt3.getLeg1().getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(twt3.getLeg2().getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(twt3.getLeg3().getTerminal(), switchesToOpen, terminalsToDisconnect);
     }
 
     protected PowsyblException createNotFoundException() {

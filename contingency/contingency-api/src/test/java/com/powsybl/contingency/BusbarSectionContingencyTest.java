@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.BusbarSectionTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.network.modification.tripping.BusbarSectionTripping;
 import org.junit.Test;
 
 import java.util.List;

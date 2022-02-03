@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTripping;
-import com.powsybl.contingency.tasks.DanglingLineTripping;
+import com.powsybl.network.modification.tripping.AbstractTripping;
+import com.powsybl.network.modification.tripping.DanglingLineTripping;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

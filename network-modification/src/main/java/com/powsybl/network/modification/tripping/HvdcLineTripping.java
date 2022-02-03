@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
@@ -47,15 +47,15 @@ public class HvdcLineTripping extends AbstractTripping {
 
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {
-                ContingencyTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect);
+                TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect);
             } else if (voltageLevelId.equals(terminal2.getVoltageLevel().getId())) {
-                ContingencyTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect);
+                TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect);
             } else {
                 throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to HVDC line '" + hvdcLineId + "'");
             }
         } else {
-            ContingencyTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect);
-            ContingencyTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect);
+            TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect);
+            TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect);
         }
     }
 }

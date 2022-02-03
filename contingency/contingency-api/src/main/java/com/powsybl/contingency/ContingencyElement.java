@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTripping;
+import com.powsybl.network.modification.tripping.AbstractTripping;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

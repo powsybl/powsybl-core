@@ -4,12 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
-import com.powsybl.contingency.Contingency;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.network.modification.NetworkModification;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class StaticVarCompensatorTrippingTest {
+public class StaticVarCompensatorTrippingTest extends AbstractTrippingTest {
 
     private Network network;
 
@@ -32,11 +31,16 @@ public class StaticVarCompensatorTrippingTest {
     public void generatorTrippingTest() {
         assertTrue(network.getStaticVarCompensator("SVC2").getTerminal().isConnected());
 
-        Contingency contingency = Contingency.staticVarCompensator("SVC2");
-
-        NetworkModification task = contingency.toTask();
-        task.apply(network);
+        StaticVarCompensatorTripping tripping = new StaticVarCompensatorTripping("SVC2");
+        tripping.apply(network);
 
         assertFalse(network.getStaticVarCompensator("SVC2").getTerminal().isConnected());
     }
+
+    @Test(expected = PowsyblException.class)
+    public void unknownShuntCompensatorTest() {
+        StaticVarCompensatorTripping tripping = new StaticVarCompensatorTripping("SVC");
+        tripping.apply(network);
+    }
+
 }

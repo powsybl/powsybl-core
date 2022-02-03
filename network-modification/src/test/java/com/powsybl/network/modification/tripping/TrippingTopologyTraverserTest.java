@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ContingencyTopologyTraverserTest {
+public class TrippingTopologyTraverserTest {
 
     @Test
     public void test() {
@@ -60,7 +60,7 @@ public class ContingencyTopologyTraverserTest {
 
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
-        ContingencyTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect);
         assertTrue(switchesToOpen.isEmpty());
         assertEquals(1, terminalsToDisconnect.size());
         assertEquals("BusTerminal[b1]", terminalsToDisconnect.iterator().next().toString());
@@ -70,13 +70,13 @@ public class ContingencyTopologyTraverserTest {
 
         switchesToOpen.clear();
         terminalsToDisconnect.clear();
-        ContingencyTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect);
         assertTrue(switchesToOpen.isEmpty());
         assertTrue(terminalsToDisconnect.isEmpty());
 
         switchesToOpen.clear();
         terminalsToDisconnect.clear();
-        ContingencyTopologyTraverser.traverse(l1.getTerminal2(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(l1.getTerminal2(), switchesToOpen, terminalsToDisconnect);
         assertTrue(switchesToOpen.isEmpty());
         assertEquals(1, terminalsToDisconnect.size());
         assertEquals("BusTerminal[b2]", terminalsToDisconnect.iterator().next().toString());

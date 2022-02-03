@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -12,17 +12,17 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class ShuntCompensatorTripping extends AbstractInjectionTripping {
+public class StaticVarCompensatorTripping extends AbstractInjectionTripping {
 
-    public ShuntCompensatorTripping(String id) {
+    public StaticVarCompensatorTripping(String id) {
         super(id);
     }
 
     @Override
     protected Injection getInjection(Network network) {
-        Injection injection = network.getShuntCompensator(id);
+        Injection injection = network.getStaticVarCompensator(id);
         if (injection == null) {
-            throw new PowsyblException("ShuntCompensator '" + id + "' not found");
+            throw new PowsyblException("StaticVarCompensator '" + id + "' not found");
         }
 
         return injection;

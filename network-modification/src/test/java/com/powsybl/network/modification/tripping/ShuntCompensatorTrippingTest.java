@@ -4,12 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
-import com.powsybl.contingency.Contingency;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.network.modification.NetworkModification;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,11 +31,14 @@ public class ShuntCompensatorTrippingTest {
     public void generatorTrippingTest() {
         assertTrue(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
 
-        Contingency contingency = Contingency.shuntCompensator("C1_Filter1");
-
-        NetworkModification task = contingency.toTask();
-        task.apply(network);
+        new ShuntCompensatorTripping("C1_Filter1").apply(network);
 
         assertFalse(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void unknownShuntCompensatorTest() {
+        ShuntCompensatorTripping tripping = new ShuntCompensatorTripping("C_Filter");
+        tripping.apply(network);
     }
 }

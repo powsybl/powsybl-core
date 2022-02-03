@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.contingency.tasks;
+package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
@@ -13,23 +13,23 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LineTripping extends BranchTripping {
+public class TwoWindingsTransformerTripping extends BranchTripping {
 
-    public LineTripping(String lineId) {
+    public TwoWindingsTransformerTripping(String lineId) {
         this(lineId, null);
     }
 
-    public LineTripping(String lineId, String voltageLevelId) {
-        super(lineId, voltageLevelId, Network::getLine);
+    public TwoWindingsTransformerTripping(String lineId, String voltageLevelId) {
+        super(lineId, voltageLevelId, Network::getTwoWindingsTransformer);
     }
 
     @Override
     protected PowsyblException createNotFoundException() {
-        return new PowsyblException("Line '" + getBranchId() + "' not found");
+        return new PowsyblException("Two windings transformer '" + getBranchId() + "' not found");
     }
 
     @Override
     protected PowsyblException createNotConnectedException() {
-        return new PowsyblException("VoltageLevel '" + getVoltageLevelId() + "' not connected to line '" + getBranchId() + "'");
+        return new PowsyblException("VoltageLevel '" + getVoltageLevelId() + "' not connected to the two windings transformer '" + getBranchId() + "'");
     }
 }
