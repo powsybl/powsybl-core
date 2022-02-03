@@ -24,7 +24,7 @@ public class GeneratorContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new GeneratorTripping(id);
     }
 

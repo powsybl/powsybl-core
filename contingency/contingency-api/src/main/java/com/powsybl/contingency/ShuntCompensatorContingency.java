@@ -24,7 +24,7 @@ public class ShuntCompensatorContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new ShuntCompensatorTripping(id);
     }
 }

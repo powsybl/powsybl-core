@@ -14,12 +14,12 @@ import com.powsybl.network.modification.NetworkModification;
 
 import java.util.Objects;
 
-public class PhaseShifterFixedTapTask implements NetworkModification {
+public class PhaseShifterSetTap implements NetworkModification {
 
     private final String phaseShifterId;
     private final int tapPosition;
 
-    public PhaseShifterFixedTapTask(String phaseShifterId, int tapPosition) {
+    public PhaseShifterSetTap(String phaseShifterId, int tapPosition) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
         this.tapPosition = tapPosition;
     }

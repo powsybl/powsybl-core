@@ -15,11 +15,11 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseShifterOptimizerTask implements NetworkModification {
+public class PhaseShifterOptimizeTap implements NetworkModification {
 
     private final String phaseShifterId;
 
-    public PhaseShifterOptimizerTask(String phaseShifterId) {
+    public PhaseShifterOptimizeTap(String phaseShifterId) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
     }
 

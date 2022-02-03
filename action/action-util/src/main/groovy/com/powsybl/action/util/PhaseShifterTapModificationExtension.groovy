@@ -7,19 +7,19 @@
 package com.powsybl.action.util
 
 import com.google.auto.service.AutoService
-import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.network.modification.NetworkModification
 
 /**
  * @author Hamou AMROUN <hamou.amroun at rte-france.com>
  */
-@AutoService(DslTaskExtension.class)
-class PhaseShifterTapTaskExtension implements DslTaskExtension {
+@AutoService(DslModificationExtension.class)
+class PhaseShifterTapModificationExtension implements DslModificationExtension {
 
     @Override
-    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding) {
-        tasksSpecMetaClass.phaseShifterTap = { String id, int delta ->
-            tasks.add(new PhaseShifterTapTask(id, delta))
+    void addToSpec(MetaClass modificationsSpecMetaClass, List<NetworkModification> modifications, Binding binding) {
+        modificationsSpecMetaClass.phaseShifterTap = { String id, int delta ->
+            modifications.add(new PhaseShifterShiftTap(id, delta))
         }
     }
 }

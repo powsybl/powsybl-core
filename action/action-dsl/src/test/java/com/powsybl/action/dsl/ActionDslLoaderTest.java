@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.action.util.PhaseShifterTapTask;
+import com.powsybl.action.util.PhaseShifterShiftTap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
@@ -112,7 +112,7 @@ public class ActionDslLoaderTest {
             ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
             Action deltaTapAction = actionDb.getAction(data.getTestName());
             assertNotNull(deltaTapAction);
-            assertEquals(data.getDeltaTap(), ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+            assertEquals(data.getDeltaTap(), ((PhaseShifterShiftTap) deltaTapAction.getTasks().get(0)).getTapDelta());
             addPhaseShifter(data.getInitTapPosition());
             PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
             assertEquals(1, phaseTapChanger.getTapPosition());
@@ -130,7 +130,7 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action deltaTapAction = actionDb.getAction("InvalidTransformerId");
         assertNotNull(deltaTapAction);
-        assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        assertEquals(-10, ((PhaseShifterShiftTap) deltaTapAction.getTasks().get(0)).getTapDelta());
         exception.expect(PowsyblException.class);
         exception.expectMessage("Transformer 'NHV1_NHV2_1' not found");
         deltaTapAction.run(network);
@@ -141,7 +141,7 @@ public class ActionDslLoaderTest {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
         Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
         assertNotNull(deltaTapAction);
-        assertEquals(-10, ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
+        assertEquals(-10, ((PhaseShifterShiftTap) deltaTapAction.getTasks().get(0)).getTapDelta());
         exception.expect(PowsyblException.class);
         exception.expectMessage("Transformer 'NGEN_NHV1' is not a phase shifter");
         deltaTapAction.run(network);

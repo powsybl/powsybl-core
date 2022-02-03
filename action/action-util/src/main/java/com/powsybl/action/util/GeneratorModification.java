@@ -16,12 +16,12 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class GeneratorModificationTask implements NetworkModification {
+public class GeneratorModification implements NetworkModification {
 
     private final String generatorId;
     private final Modifs modifs;
 
-    public GeneratorModificationTask(String generatorId, Modifs modifs) {
+    public GeneratorModification(String generatorId, Modifs modifs) {
         this.generatorId = Objects.requireNonNull(generatorId);
         this.modifs = modifs;
     }

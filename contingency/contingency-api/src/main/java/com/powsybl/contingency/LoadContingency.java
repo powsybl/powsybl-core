@@ -24,7 +24,7 @@ public class LoadContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new LoadTripping(id);
     }
 

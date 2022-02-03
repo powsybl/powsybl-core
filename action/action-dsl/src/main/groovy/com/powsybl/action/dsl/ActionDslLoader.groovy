@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl
 
-import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.contingency.Contingency
 import com.powsybl.contingency.dsl.ContingencyDslLoader
 import com.powsybl.network.modification.NetworkModification
@@ -70,22 +70,22 @@ class ActionDslLoader extends DslLoader {
         }
     }
 
-    static class TasksSpec {
+    static class ModificationsSpec {
     }
 
     static class ActionSpec {
 
         String description
 
-        final TasksSpec tasksSpec = new TasksSpec()
+        final ModificationsSpec modificationsSpec = new ModificationsSpec()
 
         void description(String description) {
             this.description = description
         }
 
-        void tasks(Closure<Void> closure) {
+        void modifications(Closure<Void> closure) {
             def cloned = closure.clone()
-            cloned.delegate = tasksSpec
+            cloned.delegate = modificationsSpec
             cloned()
         }
     }
@@ -169,17 +169,17 @@ class ActionDslLoader extends DslLoader {
 
             ActionSpec actionSpec = new ActionSpec()
 
-            // fill tasks spec with extensions
-            List<NetworkModification> tasks = new ArrayList<>()
-            for (DslTaskExtension taskExtension : ServiceLoader.load(DslTaskExtension.class, ActionDslLoader.class.getClassLoader())) {
-                taskExtension.addToSpec(actionSpec.tasksSpec.metaClass, tasks, binding)
+            // fill modifications spec with extensions
+            List<NetworkModification> modifications = new ArrayList<>()
+            for (DslModificationExtension taskExtension : ServiceLoader.load(DslModificationExtension.class, ActionDslLoader.class.getClassLoader())) {
+                taskExtension.addToSpec(actionSpec.modificationsSpec.metaClass, modifications, binding)
             }
 
             cloned.delegate = actionSpec
             cloned()
 
             // create action
-            Action action = new Action(id, tasks)
+            Action action = new Action(id, modifications)
             if (actionSpec.description) {
                 action.setDescription(actionSpec.description)
             }

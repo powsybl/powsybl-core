@@ -30,7 +30,7 @@ public class TwoWindingsTransformerContingency extends AbstractSidedContingency 
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new TwoWindingsTransformerTripping(id, voltageLevelId);
     }
 

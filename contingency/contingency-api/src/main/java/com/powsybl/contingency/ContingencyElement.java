@@ -17,6 +17,6 @@ public interface ContingencyElement {
 
     ContingencyElementType getType();
 
-    AbstractTripping toTask();
+    AbstractTripping toModification();
 
 }

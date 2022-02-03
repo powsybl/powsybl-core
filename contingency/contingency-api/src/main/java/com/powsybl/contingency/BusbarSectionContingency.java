@@ -33,7 +33,7 @@ public class BusbarSectionContingency implements ContingencyElement {
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new BusbarSectionTripping(busbarSectionId);
     }
 

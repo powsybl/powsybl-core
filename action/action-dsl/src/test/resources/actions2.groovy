@@ -12,7 +12,7 @@ rule ('Memoriser_Prise_Init_TD_Boutre') {
 
 action ('someAction') {
     description 'asdf'
-    tasks {
+    modifications {
         script {
             transformer('NGEN_NHV1').r = 3
             closeSwitch('switchId')
@@ -22,7 +22,7 @@ action ('someAction') {
 
 action ('missingMethod') {
     description 'asdf'
-    tasks {
+    modifications {
         script {
             unknownMethod("foo")
         }
@@ -30,73 +30,73 @@ action ('missingMethod') {
 }
 
 action ('anotherAction') {
-    tasks {
+    modifications {
         closeSwitch('switchId')
     }
 }
 
 action ('fixedTap') {
-    tasks {
+    modifications {
         phaseShifterFixedTap('NGEN_NHV1', 1)
     }
 }
 
 action ('deltaTap0') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', 0)
     }
 }
 
 action ('deltaTap1') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', 1)
     }
 }
 
 action ('deltaTap2') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', 2)
     }
 }
 
 action ('deltaTap3') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', 3)
     }
 }
 
 action ('deltaTap10') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', 10)
     }
 }
 
 action ('deltaTapMinus1') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', -1)
     }
 }
 
 action ('deltaTapMinus2') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', -2)
     }
 }
 
 action ('deltaTapMinus10') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', -10)
     }
 }
 
 action ('InvalidTransformerId') {
-    tasks {
+    modifications {
         phaseShifterTap('NHV1_NHV2_1', -10)
     }
 }
 
 action ('TransformerWithoutPhaseShifter') {
-    tasks {
+    modifications {
         phaseShifterTap('NGEN_NHV1', -10)
     }
 }

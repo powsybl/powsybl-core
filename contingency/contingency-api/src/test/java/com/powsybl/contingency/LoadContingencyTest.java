@@ -32,8 +32,8 @@ public class LoadContingencyTest {
         assertEquals("id", loadContingency.getId());
         assertEquals(ContingencyElementType.LOAD, loadContingency.getType());
 
-        assertNotNull(loadContingency.toTask());
-        assertTrue(loadContingency.toTask() instanceof LoadTripping);
+        assertNotNull(loadContingency.toModification());
+        assertTrue(loadContingency.toModification() instanceof LoadTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new LoadContingency("g1"), new LoadContingency("g1"))

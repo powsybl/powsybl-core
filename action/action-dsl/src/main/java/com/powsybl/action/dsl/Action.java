@@ -23,15 +23,15 @@ public class Action {
 
     private String description;
 
-    private final List<NetworkModification> tasks;
+    private final List<NetworkModification> modifications;
 
     public Action(String id) {
         this(id, new ArrayList<>());
     }
 
-    public Action(String id, List<NetworkModification> tasks) {
+    public Action(String id, List<NetworkModification> modifications) {
         this.id = Objects.requireNonNull(id);
-        this.tasks = Objects.requireNonNull(tasks);
+        this.modifications = Objects.requireNonNull(modifications);
     }
 
     public String getId() {
@@ -47,17 +47,17 @@ public class Action {
     }
 
     public List<NetworkModification> getTasks() {
-        return tasks;
+        return modifications;
     }
 
     public void run(Network network, ComputationManager computationManager) {
-        for (NetworkModification task : tasks) {
+        for (NetworkModification task : modifications) {
             task.apply(network, computationManager);
         }
     }
 
     public void run(Network network) {
-        for (NetworkModification task : tasks) {
+        for (NetworkModification task : modifications) {
             task.apply(network);
         }
     }

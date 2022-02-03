@@ -27,13 +27,13 @@ public class ActionTest {
     @Test
     public void test() {
         NetworkModification mock = Mockito.mock(NetworkModification.class);
-        List<NetworkModification> tasks = new ArrayList<>();
+        List<NetworkModification> modifications = new ArrayList<>();
 
         Action action = new Action("id");
         assertEquals("id", action.getId());
         assertEquals(0, action.getTasks().size());
 
-        action = new Action("id", tasks);
+        action = new Action("id", modifications);
         assertEquals(0, action.getTasks().size());
         action.getTasks().add(mock);
         assertEquals(1, action.getTasks().size());
@@ -49,9 +49,9 @@ public class ActionTest {
         testInvalid("id", null);
     }
 
-    private void testInvalid(String id, List<NetworkModification> tasks) {
+    private void testInvalid(String id, List<NetworkModification> modifications) {
         try {
-            new Action(id, tasks);
+            new Action(id, modifications);
             fail();
         } catch (NullPointerException ignored) {
         }

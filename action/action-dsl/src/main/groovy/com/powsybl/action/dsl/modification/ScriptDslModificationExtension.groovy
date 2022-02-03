@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.dsl.task
+package com.powsybl.action.dsl.modification
 
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.ActionDslException
-import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.computation.ComputationManager
 import com.powsybl.iidm.network.Network
 import com.powsybl.network.modification.NetworkModification
@@ -18,12 +18,12 @@ import static com.powsybl.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(DslTaskExtension.class)
-class ScriptDslTaskExtension implements DslTaskExtension {
+@AutoService(DslModificationExtension.class)
+class ScriptDslModificationExtension implements DslModificationExtension {
     @Override
-    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding) {
-        tasksSpecMetaClass.script = { Closure<Void> closure ->
-            tasks.add(new ScriptTask({ Network network, ComputationManager computationManager ->
+    void addToSpec(MetaClass modificationsSpecMetaClass, List<NetworkModification> modifications, Binding binding) {
+        modificationsSpecMetaClass.script = { Closure<Void> closure ->
+            modifications.add(new ScriptNetworkModification({ Network network, ComputationManager computationManager ->
                 Network oldNetwork = binding.getVariable("network")
                 binding.setVariable("network", network)
                 binding.setVariable("computationManager", computationManager)

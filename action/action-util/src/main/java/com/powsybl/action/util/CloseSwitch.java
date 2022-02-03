@@ -14,13 +14,12 @@ import com.powsybl.network.modification.NetworkModification;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class OpenSwitchTask implements NetworkModification {
-
+public class CloseSwitch implements NetworkModification {
     private final String switchId;
 
-    OpenSwitchTask(String switchId) {
+    CloseSwitch(String switchId) {
         this.switchId = Objects.requireNonNull(switchId);
     }
 
@@ -30,6 +29,6 @@ public class OpenSwitchTask implements NetworkModification {
         if (sw == null) {
             throw new PowsyblException("Switch '" + switchId + "' not found");
         }
-        sw.setOpen(true);
+        sw.setOpen(false);
     }
 }

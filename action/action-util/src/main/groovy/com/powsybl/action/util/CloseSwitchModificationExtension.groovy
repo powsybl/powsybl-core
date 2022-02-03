@@ -7,18 +7,18 @@
 package com.powsybl.action.util
 
 import com.google.auto.service.AutoService
-import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.network.modification.NetworkModification
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-@AutoService(DslTaskExtension.class)
-class CloseSwitchTaskExtension implements DslTaskExtension {
+@AutoService(DslModificationExtension.class)
+class CloseSwitchModificationExtension implements DslModificationExtension {
     @Override
-    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding) {
-        tasksSpecMetaClass.closeSwitch = { String id ->
-            tasks.add(new CloseSwitchTask(id))
+    void addToSpec(MetaClass modificationsSpecMetaClass, List<NetworkModification> modifications, Binding binding) {
+        modificationsSpecMetaClass.closeSwitch = { String id ->
+            modifications.add(new CloseSwitch(id))
         }
     }
 }

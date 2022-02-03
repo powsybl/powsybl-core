@@ -30,7 +30,7 @@ public class LineContingency extends AbstractSidedContingency {
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new LineTripping(id, voltageLevelId);
     }
 

@@ -24,7 +24,7 @@ public class StaticVarCompensatorContingency extends AbstractInjectionContingenc
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new StaticVarCompensatorTripping(id);
     }
 

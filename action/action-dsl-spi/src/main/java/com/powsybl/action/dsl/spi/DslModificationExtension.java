@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface DslTaskExtension {
+public interface DslModificationExtension {
 
-    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding);
+    void addToSpec(MetaClass modificationsSpecMetaClass, List<NetworkModification> modifications, Binding binding);
 }
 

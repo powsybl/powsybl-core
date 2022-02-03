@@ -7,7 +7,7 @@
 import static com.powsybl.action.util.Scalable.*
 
 action('actionScale') {
-    tasks {
+    modifications {
         script {
             variationValue = 15000
             variation = stack('GEN', 'GEN2', 'GEN3')
@@ -18,7 +18,7 @@ action('actionScale') {
 }
 
 action('testCompatible') {
-    tasks {
+    modifications {
         script {
             variationValue = 15000
             variation = stack(onGenerator('GEN'), onGenerator('GEN2'), onGenerator('GEN3'))
@@ -29,7 +29,7 @@ action('testCompatible') {
 }
 
 action('testProportional') {
-    tasks {
+    modifications {
         script {
             variationValue = 15000
             gens = scalables('GEN', 'GEN2', 'GEN3')

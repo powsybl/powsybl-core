@@ -30,8 +30,8 @@ public class DanglingLineContingencyTest {
         assertEquals("id", dlContingency.getId());
         assertEquals(ContingencyElementType.DANGLING_LINE, dlContingency.getType());
 
-        assertNotNull(dlContingency.toTask());
-        assertTrue(dlContingency.toTask() instanceof DanglingLineTripping);
+        assertNotNull(dlContingency.toModification());
+        assertTrue(dlContingency.toModification() instanceof DanglingLineTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new DanglingLineContingency("dl1"), new DanglingLineContingency("dl1"))

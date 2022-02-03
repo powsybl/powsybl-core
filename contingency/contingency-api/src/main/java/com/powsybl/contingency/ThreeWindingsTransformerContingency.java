@@ -33,7 +33,7 @@ public class ThreeWindingsTransformerContingency implements ContingencyElement {
     }
 
     @Override
-    public AbstractTripping toTask() {
+    public AbstractTripping toModification() {
         return new ThreeWindingsTransformerTripping(id);
     }
 

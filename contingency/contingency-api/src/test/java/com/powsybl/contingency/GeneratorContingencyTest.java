@@ -32,8 +32,8 @@ public class GeneratorContingencyTest {
         assertEquals("id", genContingency.getId());
         assertEquals(ContingencyElementType.GENERATOR, genContingency.getType());
 
-        assertNotNull(genContingency.toTask());
-        assertTrue(genContingency.toTask() instanceof GeneratorTripping);
+        assertNotNull(genContingency.toModification());
+        assertTrue(genContingency.toModification() instanceof GeneratorTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new GeneratorContingency("g1"), new GeneratorContingency("g1"))

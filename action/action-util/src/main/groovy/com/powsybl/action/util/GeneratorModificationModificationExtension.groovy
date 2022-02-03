@@ -7,18 +7,18 @@
 package com.powsybl.action.util
 
 import com.google.auto.service.AutoService
-import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.commons.PowsyblException
 import com.powsybl.network.modification.NetworkModification
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-@AutoService(DslTaskExtension.class)
-class GeneratorModificationTaskExtension implements DslTaskExtension {
+@AutoService(DslModificationExtension.class)
+class GeneratorModificationModificationExtension implements DslModificationExtension {
     @Override
-    void addToSpec(MetaClass tasksSpecMetaClass, List<NetworkModification> tasks, Binding binding) {
-        tasksSpecMetaClass.generatorModification = { String id, Closure<Void> closure ->
+    void addToSpec(MetaClass modificationsSpecMetaClass, List<NetworkModification> modifications, Binding binding) {
+        modificationsSpecMetaClass.generatorModification = { String id, Closure<Void> closure ->
             def cloned = closure.clone()
             GeneratorModificationSpec spec = new GeneratorModificationSpec()
             cloned.delegate = spec
@@ -26,7 +26,7 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
             if (spec.hasTargetP() && spec.hasDeltaTargetP()) {
                 throw new PowsyblException("targetP/deltaTargetP actions are both found in generatorModification on '" + id + "'")
             }
-            tasks.add(new GeneratorModificationTask(id, spec.computeModifs()))
+            modifications.add(new GeneratorModification(id, spec.computeModifs()))
         }
     }
 
@@ -43,8 +43,8 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
         Boolean voltageRegulatorOn
         Boolean connected
 
-        GeneratorModificationTask.Modifs computeModifs() {
-            GeneratorModificationTask.Modifs modifs = new GeneratorModificationTask.Modifs()
+        GeneratorModification.Modifs computeModifs() {
+            GeneratorModification.Modifs modifs = new GeneratorModification.Modifs()
             modifs.setMinP(minP)
             modifs.setMaxP(maxP)
             modifs.setTargetP(targetP)
