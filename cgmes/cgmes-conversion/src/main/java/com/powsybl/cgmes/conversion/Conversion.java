@@ -754,7 +754,7 @@ public class Conversion {
             return readShuntSectionsTapPositionsFromSVIfPresent;
         }
 
-        public Config setReadShuntSectionsTapPositionsFromSVIfPresen(boolean readShuntSectionsTapPositionsFromSVIfPresent) {
+        public Config setReadShuntSectionsTapPositionsFromSVIfPresent(boolean readShuntSectionsTapPositionsFromSVIfPresent) {
             this.readShuntSectionsTapPositionsFromSVIfPresent = readShuntSectionsTapPositionsFromSVIfPresent;
             return this;
         }

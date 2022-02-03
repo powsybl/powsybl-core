@@ -176,7 +176,7 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
-                .setReadShuntSectionsTapPositionsFromSVIfPresen(
+                .setReadShuntSectionsTapPositionsFromSVIfPresent(
                         ConversionParameters.readBooleanParameter(
                                 getFormat(),
                                 p,
