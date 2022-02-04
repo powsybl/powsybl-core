@@ -54,6 +54,16 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void smallNodeBreakerOnlyEquipment() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerOnlyEquipment().dataSource(),
+                NetworkFactory.findDefault(), null);
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+        Load load = network.getLoad("_0448d86a-c766-11e1-8775-005056c00008");
+        assertTrue(Double.isNaN(load.getP0()));
+        assertTrue(Double.isNaN(load.getQ0()));
+    }
+
+    @Test
     public void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), NetworkFactory.findDefault(), null);
