@@ -220,10 +220,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private boolean computeIfContainsOnlyEquipment() {
         for (PropertyBag mp : modelProfiles()) {
             String p = mp.get(PROFILE);
-            if (p != null) {
-                if (!p.contains("Equipment") && !p.contains("Boundary")) {
-                    return false;
-                }
+            if (p != null && !p.contains("Equipment") && !p.contains("Boundary")) {
+                return false;
             }
         }
         return true;
