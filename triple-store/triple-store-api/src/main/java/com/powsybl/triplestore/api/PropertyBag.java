@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -79,8 +80,12 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public double asDouble(String property, double defaultValue) {
+        return asDouble(property, () -> defaultValue);
+    }
+
+    public double asDouble(String property, Supplier<Double> defaultValueSupplier) {
         if (!containsKey(property)) {
-            return defaultValue;
+            return defaultValueSupplier.get();
         }
         try {
             return Double.parseDouble(get(property));

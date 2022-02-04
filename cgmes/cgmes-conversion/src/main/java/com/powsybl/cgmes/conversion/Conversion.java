@@ -140,6 +140,9 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
+        if (cgmes.hasOnlyEquipmentProfile()) {
+            network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        }
         Context context = createContext(network);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network, context);
