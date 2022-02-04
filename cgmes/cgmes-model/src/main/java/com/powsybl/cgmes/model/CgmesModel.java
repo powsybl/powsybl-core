@@ -48,10 +48,8 @@ public interface CgmesModel {
     default boolean hasOnlyEquipmentProfile() {
         for (PropertyBag mp : modelProfiles()) {
             String p = mp.get("profile");
-            if (p != null) {
-                if (!p.contains("Equipment") && !p.contains("Boundary")) {
-                    return false;
-                }
+            if (p != null && !p.contains("Equipment") && !p.contains("Boundary")) {
+                return false;
             }
         }
         return true;
