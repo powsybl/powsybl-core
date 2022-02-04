@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
@@ -59,25 +60,31 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     @Override
     public VscConverterStationImpl add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetwork().getRef(), voltageRegulatorOn,
+                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), network.getRef(), voltageRegulatorOn,
                 reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(converterStation);
-        getNetwork().getListeners().notifyCreation(converterStation);
+        network.getIndex().checkAndAdd(converterStation);
+        network.getListeners().notifyCreation(converterStation);
         return converterStation;
     }
 
     @Override
     protected void validate() {
         super.validate();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        NetworkImpl network = getNetwork();
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
+                reactivePowerSetpoint, network.getMinValidationLevel()));
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 
 }

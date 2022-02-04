@@ -52,8 +52,8 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     protected Load readRootElementAttributes(LoadAdder adder, NetworkXmlReaderContext context) {
         String loadTypeStr = context.getReader().getAttributeValue(null, "loadType");
         LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
-        double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
-        double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
+        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
+        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
         readNodeOrBus(adder, context);
         Load l = adder.setLoadType(loadType)
                 .setP0(p0)
