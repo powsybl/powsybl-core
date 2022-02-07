@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 public class ScriptNetworkModification implements NetworkModification {
 
-    private final Closure script;
+    private final Closure<Void> script;
 
     public ScriptNetworkModification(Closure<Void> script) {
         this.script = Objects.requireNonNull(script);
