@@ -176,11 +176,11 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
-                .setReadShuntSectionsTapPositionsFromSVIfPresent(
-                        ConversionParameters.readBooleanParameter(
+                .setProfileForInitialValuesShuntSectionsTapPositions(
+                        ConversionParameters.readStringParameter(
                                 getFormat(),
                                 p,
-                                READ_SHUNT_SECTIONS_TAP_POSITIONS_FROM_SV_IF_PRESENT_PARAMETER,
+                                PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
                                 defaultValueConfig))
                 .setStoreCgmesModelAsNetworkExtension(
                         ConversionParameters.readBooleanParameter(
@@ -248,7 +248,7 @@ public class CgmesImport implements Importer {
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String READ_SHUNT_SECTIONS_TAP_POSITIONS_FROM_SV_IF_PRESENT = "iidm.import.cgmes.read-shunt-sections-tap-positions-from-sv-if-present";
+    public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
 
@@ -306,11 +306,12 @@ public class CgmesImport implements Importer {
             "The triplestore used during the import",
             TripleStoreFactory.defaultImplementation())
             .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter READ_SHUNT_SECTIONS_TAP_POSITIONS_FROM_SV_IF_PRESENT_PARAMETER = new Parameter(
-        READ_SHUNT_SECTIONS_TAP_POSITIONS_FROM_SV_IF_PRESENT,
-            ParameterType.BOOLEAN,
-            "Read shunt sections and tap positions from SV if it is present",
-            Boolean.FALSE);
+    private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
+        PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
+        ParameterType.STRING,
+        "Profile used for initial state values",
+        "SSH")
+        .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,

@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
  * TwoWindingsTransformer Interpretation
@@ -672,6 +673,11 @@ public class Conversion {
 
     public static class Config {
 
+        public enum StateProfile {
+            SSH,
+            SV
+        }
+
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
         }
@@ -750,12 +756,19 @@ public class Conversion {
             return this;
         }
 
-        public boolean isReadShuntSectionsTapPositionsFromSVIfPresent() {
-            return readShuntSectionsTapPositionsFromSVIfPresent;
+        public StateProfile  getProfileForInitialValuesShuntSectionsTapPositions() {
+            return profileForInitialValuesShuntSectionsTapPositions;
         }
 
-        public Config setReadShuntSectionsTapPositionsFromSVIfPresent(boolean readShuntSectionsTapPositionsFromSVIfPresent) {
-            this.readShuntSectionsTapPositionsFromSVIfPresent = readShuntSectionsTapPositionsFromSVIfPresent;
+        public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
+            switch (Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions)) {
+                case "SSH":
+                case "SV":
+                    this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
+                    break;
+                default:
+                    throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
+            }
             return this;
         }
 
@@ -851,7 +864,7 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private boolean readShuntSectionsTapPositionsFromSVIfPresent = false;
+        private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 

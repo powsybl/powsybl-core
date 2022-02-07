@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
@@ -30,10 +31,14 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private int getSections(PropertyBag p, int normalSections) {
-        if (context.config().isReadShuntSectionsTapPositionsFromSVIfPresent()) {
-            return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
+        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
+            case SSH:
+                return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
+            case SV:
+                return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
+            default:
+                throw new PowsyblException("Unexpected profile used for initial values");
         }
-        return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
     }
 
     @Override
