@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.network.modification.NetworkModification;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -41,10 +42,12 @@ public class BranchTrippingTest {
         assertFalse(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
 
-        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.line("NOT_EXISTS").toTask().apply(network));
+        NetworkModification unknownLineModif = Contingency.line("NOT_EXISTS").toTask();
+        Exception e1 = assertThrows(PowsyblException.class, () -> unknownLineModif.apply(network));
         assertEquals("Line 'NOT_EXISTS' not found", e1.getMessage());
 
-        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toTask().apply(network));
+        NetworkModification unknownVlModif = Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toTask();
+        Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlModif.apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to line 'NHV1_NHV2_1'", e2.getMessage());
     }
 
@@ -68,9 +71,12 @@ public class BranchTrippingTest {
         assertFalse(transformer.getTerminal1().isConnected());
         assertFalse(transformer.getTerminal2().isConnected());
 
-        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NOT_EXISTS").toTask().apply(network));
+        NetworkModification modifUnknown2wt = Contingency.twoWindingsTransformer("NOT_EXISTS").toTask();
+        Exception e1 = assertThrows(PowsyblException.class, () -> modifUnknown2wt.apply(network));
         assertEquals("Two windings transformer 'NOT_EXISTS' not found", e1.getMessage());
-        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toTask().apply(network));
+
+        NetworkModification modifUnknownVl = Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toTask();
+        Exception e2 = assertThrows(PowsyblException.class, () -> modifUnknownVl.apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to the two windings transformer 'NHV2_NLOAD'", e2.getMessage());
     }
 

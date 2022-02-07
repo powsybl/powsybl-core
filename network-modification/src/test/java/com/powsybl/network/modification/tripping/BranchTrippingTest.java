@@ -44,10 +44,12 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertFalse(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
 
-        Exception e1 = assertThrows(PowsyblException.class, () -> new LineTripping("NOT_EXISTS").apply(network));
+        LineTripping unknownLineTripping = new LineTripping("NOT_EXISTS");
+        Exception e1 = assertThrows(PowsyblException.class, () -> unknownLineTripping.apply(network));
         assertEquals("Line 'NOT_EXISTS' not found", e1.getMessage());
 
-        Exception e2 = assertThrows(PowsyblException.class, () -> new LineTripping("NHV1_NHV2_1", "NOT_EXISTS_VL").apply(network));
+        LineTripping unknownVlTripping = new LineTripping("NHV1_NHV2_1", "NOT_EXISTS_VL");
+        Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlTripping.apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to line 'NHV1_NHV2_1'", e2.getMessage());
     }
 
@@ -69,9 +71,12 @@ public class BranchTrippingTest extends AbstractTrippingTest {
         assertFalse(transformer.getTerminal1().isConnected());
         assertFalse(transformer.getTerminal2().isConnected());
 
-        Exception e1 = assertThrows(PowsyblException.class, () -> new TwoWindingsTransformerTripping("NOT_EXISTS").apply(network));
+        TwoWindingsTransformerTripping unknown2wtTripping = new TwoWindingsTransformerTripping("NOT_EXISTS");
+        Exception e1 = assertThrows(PowsyblException.class, () -> unknown2wtTripping.apply(network));
         assertEquals("Two windings transformer 'NOT_EXISTS' not found", e1.getMessage());
-        Exception e2 = assertThrows(PowsyblException.class, () -> new TwoWindingsTransformerTripping("NHV2_NLOAD", "NOT_EXISTS_VL").apply(network));
+
+        TwoWindingsTransformerTripping unknownVlTripping = new TwoWindingsTransformerTripping("NHV2_NLOAD", "NOT_EXISTS_VL");
+        Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlTripping.apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to the two windings transformer 'NHV2_NLOAD'", e2.getMessage());
     }
 
