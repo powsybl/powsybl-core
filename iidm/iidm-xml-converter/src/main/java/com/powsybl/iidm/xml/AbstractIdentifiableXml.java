@@ -38,9 +38,9 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
         boolean isNotEmptyElement = hasSubElements(identifiable, context) || identifiable.hasProperty() || identifiable.hasAliases();
         if (isNotEmptyElement) {
-            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), getRootElementName());
+            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         } else {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         }
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
         ((Identifiable<?>) identifiable).getOptionalName().ifPresent(name -> {

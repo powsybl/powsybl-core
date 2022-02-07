@@ -74,6 +74,7 @@
         <module>scripting</module>
         <module>security-analysis</module>
         <module>sensitivity-analysis-api</module>
+        <module>shortcircuit-api</module>
         <module>time-series</module>
         <module>tools</module>
         <module>triple-store</module>

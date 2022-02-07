@@ -53,7 +53,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final BusNamingStrategy NAMING_STRATEGY = new LowestNodeNumberBusNamingStrategy();
 
-    private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>();
+    private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>(NODE_INDEX_LIMIT);
 
     private final Map<String, Integer> switches = new HashMap<>();
 
@@ -528,18 +528,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
-            public void allEdgesRemoved() {
-                List<String> removedSwitchesIds = new ArrayList<>(graph.getEdgeCount());
+            public void allEdgesRemoved(Collection<SwitchImpl> aSwitches) {
                 NetworkImpl network = getNetwork();
-                for (SwitchImpl s : graph.getEdgesObject()) {
-                    if (s != null) {
-                        network.getListeners().notifyBeforeRemoval(s);
-                        removedSwitchesIds.add(s.getId());
-                        network.getIndex().remove(s);
-                    }
-                }
+                aSwitches.forEach(ss -> {
+                    network.getListeners().notifyBeforeRemoval(ss);
+                    network.getIndex().remove(ss);
+                });
                 switches.clear();
-                removedSwitchesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
+                aSwitches.forEach(ss -> network.getListeners().notifyAfterRemoval(ss.getId()));
             }
         });
     }
