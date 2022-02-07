@@ -41,7 +41,7 @@ public class ContingencyTest {
         assertEquals("generator", elements.get(1).getId());
         assertEquals(ContingencyElementType.GENERATOR, elements.get(1).getType());
 
-        NetworkModification task = contingency.toTask();
+        NetworkModification task = contingency.toModification();
         assertTrue(task instanceof NetworkModificationList);
 
         ContingencyElement bbsElement = new BusbarSectionContingency("bbs");

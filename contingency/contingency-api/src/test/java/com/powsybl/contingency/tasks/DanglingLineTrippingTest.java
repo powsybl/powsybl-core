@@ -34,7 +34,7 @@ public class DanglingLineTrippingTest {
 
         Contingency contingency = Contingency.danglingLine("DL");
 
-        NetworkModification task = contingency.toTask();
+        NetworkModification task = contingency.toModification();
         task.apply(network);
 
         assertFalse(network.getDanglingLine("DL").getTerminal().isConnected());

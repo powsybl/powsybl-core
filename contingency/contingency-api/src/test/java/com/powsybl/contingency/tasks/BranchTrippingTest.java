@@ -31,22 +31,22 @@ public class BranchTrippingTest {
         assertTrue(line.getTerminal2().isConnected());
 
         Contingency contingency = Contingency.line("NHV1_NHV2_1", "VLHV2");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertTrue(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
 
         contingency = Contingency.line("NHV1_NHV2_1");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertFalse(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
 
-        NetworkModification unknownLineModif = Contingency.line("NOT_EXISTS").toTask();
+        NetworkModification unknownLineModif = Contingency.line("NOT_EXISTS").toModification();
         Exception e1 = assertThrows(PowsyblException.class, () -> unknownLineModif.apply(network));
         assertEquals("Line 'NOT_EXISTS' not found", e1.getMessage());
 
-        NetworkModification unknownVlModif = Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toTask();
+        NetworkModification unknownVlModif = Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toModification();
         Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlModif.apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to line 'NHV1_NHV2_1'", e2.getMessage());
     }
@@ -60,22 +60,22 @@ public class BranchTrippingTest {
         assertTrue(transformer.getTerminal2().isConnected());
 
         Contingency contingency = Contingency.twoWindingsTransformer("NHV2_NLOAD", "VLHV2");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertTrue(transformer.getTerminal2().isConnected());
 
         contingency = Contingency.twoWindingsTransformer("NHV2_NLOAD");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertFalse(transformer.getTerminal2().isConnected());
 
-        NetworkModification modifUnknown2wt = Contingency.twoWindingsTransformer("NOT_EXISTS").toTask();
+        NetworkModification modifUnknown2wt = Contingency.twoWindingsTransformer("NOT_EXISTS").toModification();
         Exception e1 = assertThrows(PowsyblException.class, () -> modifUnknown2wt.apply(network));
         assertEquals("Two windings transformer 'NOT_EXISTS' not found", e1.getMessage());
 
-        NetworkModification modifUnknownVl = Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toTask();
+        NetworkModification modifUnknownVl = Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toModification();
         Exception e2 = assertThrows(PowsyblException.class, () -> modifUnknownVl.apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to the two windings transformer 'NHV2_NLOAD'", e2.getMessage());
     }
@@ -89,13 +89,13 @@ public class BranchTrippingTest {
         assertTrue(transformer.getTerminal2().isConnected());
 
         Contingency contingency = Contingency.branch("NHV2_NLOAD", "VLHV2");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertTrue(transformer.getTerminal2().isConnected());
 
         contingency = Contingency.branch("NHV2_NLOAD");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertFalse(transformer.getTerminal2().isConnected());

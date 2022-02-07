@@ -34,7 +34,7 @@ public class HvdcLineTrippingTest {
 
         Contingency contingency = Contingency.hvdcLine("L");
 
-        NetworkModification task = contingency.toTask();
+        NetworkModification task = contingency.toModification();
         task.apply(network);
 
         assertFalse(terminal1.isConnected());
@@ -46,7 +46,7 @@ public class HvdcLineTrippingTest {
         assertTrue(terminal2.isConnected());
 
         contingency = Contingency.hvdcLine("L", "VL1");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertFalse(terminal1.isConnected());
         assertTrue(terminal2.isConnected());
@@ -57,7 +57,7 @@ public class HvdcLineTrippingTest {
         assertTrue(terminal2.isConnected());
 
         contingency = Contingency.hvdcLine("L", "VL2");
-        contingency.toTask().apply(network);
+        contingency.toModification().apply(network);
 
         assertTrue(terminal1.isConnected());
         assertFalse(terminal2.isConnected());

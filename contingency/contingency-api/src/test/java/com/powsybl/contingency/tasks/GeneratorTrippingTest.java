@@ -27,7 +27,7 @@ public class GeneratorTrippingTest {
 
         Contingency contingency = Contingency.generator("GEN");
 
-        NetworkModification task = contingency.toTask();
+        NetworkModification task = contingency.toModification();
         task.apply(network);
 
         assertFalse(network.getGenerator("GEN").getTerminal().isConnected());

@@ -70,7 +70,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
         elements.remove(element);
     }
 
-    public NetworkModification toTask() {
+    public NetworkModification toModification() {
         List<NetworkModification> subTasks = elements.stream().map(ContingencyElement::toModification).collect(Collectors.toList());
 
         return new NetworkModificationList(subTasks);
