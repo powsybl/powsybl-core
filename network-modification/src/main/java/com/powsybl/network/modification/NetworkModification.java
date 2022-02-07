@@ -19,15 +19,13 @@ public interface NetworkModification {
         apply(network, (ComputationManager) null);
     }
 
-    default void apply(Network network, ComputationManager computationManager) {
+    void apply(Network network, ComputationManager computationManager);
+
+    default void apply(Network network, ComputationManager computationManager, Reporter reporter) {
         apply(network);
     }
 
-    default void apply(Network network, ComputationManager computationManager, Reporter reporter) {
-        apply(network, reporter);
-    }
-
     default void apply(Network network, Reporter reporter) {
-        apply(network, null, reporter);
+        apply(network);
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.network.modification.NetworkModification;
@@ -22,6 +23,11 @@ public class OpenSwitch implements NetworkModification {
 
     OpenSwitch(String switchId) {
         this.switchId = Objects.requireNonNull(switchId);
+    }
+
+    @Override
+    public void apply(Network network, ComputationManager computationManager) {
+        apply(network);
     }
 
     @Override

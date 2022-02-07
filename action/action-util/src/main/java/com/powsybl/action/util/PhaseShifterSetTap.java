@@ -7,6 +7,7 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -22,6 +23,11 @@ public class PhaseShifterSetTap implements NetworkModification {
     public PhaseShifterSetTap(String phaseShifterId, int tapPosition) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
         this.tapPosition = tapPosition;
+    }
+
+    @Override
+    public void apply(Network network, ComputationManager computationManager) {
+        apply(network);
     }
 
     @Override

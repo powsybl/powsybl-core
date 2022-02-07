@@ -7,6 +7,7 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.network.modification.NetworkModification;
@@ -24,6 +25,11 @@ public class GeneratorModification implements NetworkModification {
     public GeneratorModification(String generatorId, Modifs modifs) {
         this.generatorId = Objects.requireNonNull(generatorId);
         this.modifs = modifs;
+    }
+
+    @Override
+    public void apply(Network network, ComputationManager computationManager) {
+        apply(network);
     }
 
     @Override

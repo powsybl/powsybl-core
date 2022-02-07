@@ -10,6 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.*;
@@ -93,10 +94,15 @@ public class SecurityAnalysisTest {
         contingency = Mockito.spy(contingency);
         Mockito.when(contingency.toTask()).thenReturn(new NetworkModification() {
             @Override
-            public void apply(Network network1) {
-                network1.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
-                network1.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
-                network1.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
+            public void apply(Network network, ComputationManager computationManager) {
+                apply(network);
+            }
+
+            @Override
+            public void apply(Network network) {
+                network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
+                network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
+                network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
             }
         });
         ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);

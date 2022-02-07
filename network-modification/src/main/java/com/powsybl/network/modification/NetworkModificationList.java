@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.modification;
 
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
@@ -28,10 +29,13 @@ public class NetworkModificationList implements NetworkModification {
     }
 
     @Override
+    public void apply(Network network, ComputationManager computationManager) {
+        modificationList.forEach(modification -> modification.apply(network, computationManager));
+    }
+
+    @Override
     public void apply(Network network) {
-        for (NetworkModification modification : modificationList) {
-            modification.apply(network);
-        }
+        modificationList.forEach(modification -> modification.apply(network));
     }
 
 }

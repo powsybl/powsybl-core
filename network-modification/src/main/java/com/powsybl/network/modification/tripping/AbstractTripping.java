@@ -6,6 +6,7 @@
  */
 package com.powsybl.network.modification.tripping;
 
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -17,6 +18,11 @@ import java.util.Set;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public abstract class AbstractTripping implements Tripping {
+
+    @Override
+    public void apply(Network network, ComputationManager computationManager) {
+        apply(network);
+    }
 
     @Override
     public void apply(Network network) {
