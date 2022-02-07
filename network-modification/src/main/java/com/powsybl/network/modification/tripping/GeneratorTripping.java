@@ -8,7 +8,7 @@
 package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -23,8 +23,8 @@ public class GeneratorTripping extends AbstractInjectionTripping {
     }
 
     @Override
-    protected Injection getInjection(Network network) {
-        Injection injection = network.getGenerator(id);
+    protected Generator getInjection(Network network) {
+        Generator injection = network.getGenerator(id);
         if (injection == null) {
             throw new PowsyblException("Generator '" + id + "' not found");
         }

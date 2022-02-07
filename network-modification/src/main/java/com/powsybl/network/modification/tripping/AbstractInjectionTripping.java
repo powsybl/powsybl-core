@@ -21,7 +21,7 @@ public abstract class AbstractInjectionTripping extends AbstractTripping {
 
     protected final String id;
 
-    public AbstractInjectionTripping(String id) {
+    protected AbstractInjectionTripping(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
@@ -32,6 +32,6 @@ public abstract class AbstractInjectionTripping extends AbstractTripping {
         TrippingTopologyTraverser.traverse(getInjection(network).getTerminal(), switchesToOpen, terminalsToDisconnect);
     }
 
-    protected abstract Injection getInjection(Network network);
+    protected abstract Injection<?> getInjection(Network network);
 
 }

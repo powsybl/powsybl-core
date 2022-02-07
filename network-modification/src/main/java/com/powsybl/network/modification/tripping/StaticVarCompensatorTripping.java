@@ -7,7 +7,8 @@
 package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StaticVarCompensator;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -19,8 +20,8 @@ public class StaticVarCompensatorTripping extends AbstractInjectionTripping {
     }
 
     @Override
-    protected Injection getInjection(Network network) {
-        Injection injection = network.getStaticVarCompensator(id);
+    protected StaticVarCompensator getInjection(Network network) {
+        StaticVarCompensator injection = network.getStaticVarCompensator(id);
         if (injection == null) {
             throw new PowsyblException("StaticVarCompensator '" + id + "' not found");
         }

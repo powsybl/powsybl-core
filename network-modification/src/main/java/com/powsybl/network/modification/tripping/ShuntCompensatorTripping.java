@@ -7,7 +7,8 @@
 package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -19,8 +20,8 @@ public class ShuntCompensatorTripping extends AbstractInjectionTripping {
     }
 
     @Override
-    protected Injection getInjection(Network network) {
-        Injection injection = network.getShuntCompensator(id);
+    protected ShuntCompensator getInjection(Network network) {
+        ShuntCompensator injection = network.getShuntCompensator(id);
         if (injection == null) {
             throw new PowsyblException("ShuntCompensator '" + id + "' not found");
         }

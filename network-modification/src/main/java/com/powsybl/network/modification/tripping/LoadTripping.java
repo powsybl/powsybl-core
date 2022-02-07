@@ -7,7 +7,6 @@
 package com.powsybl.network.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
@@ -21,7 +20,7 @@ public class LoadTripping extends AbstractInjectionTripping {
     }
 
     @Override
-    protected Injection getInjection(Network network) {
+    protected Load getInjection(Network network) {
         Load injection = network.getLoad(id);
         if (injection == null) {
             throw new PowsyblException("Load '" + id + "' not found");
