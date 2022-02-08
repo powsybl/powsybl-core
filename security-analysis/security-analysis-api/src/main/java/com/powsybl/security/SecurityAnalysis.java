@@ -13,6 +13,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
@@ -114,6 +115,15 @@ public final class SecurityAnalysis {
 
         public SecurityAnalysisReport run(Network network) {
             return run(network, LocalComputationManager.getDefault());
+        }
+
+        public SecurityAnalysisReport run(Network network, List<Contingency> contingencies) {
+            return run(network, contingencies, SecurityAnalysisParameters.load());
+        }
+
+        public SecurityAnalysisReport run(Network network, List<Contingency> contingencies, SecurityAnalysisParameters parameters) {
+            return run(network, network.getVariantManager().getWorkingVariantId(), new DefaultLimitViolationDetector(), LimitViolationFilter.load(),
+                    LocalComputationManager.getDefault(), parameters, n -> contingencies, Collections.emptyList());
         }
 
         @Override
