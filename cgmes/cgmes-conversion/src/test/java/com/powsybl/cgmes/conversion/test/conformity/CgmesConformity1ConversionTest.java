@@ -121,7 +121,7 @@ public class CgmesConformity1ConversionTest {
         // the interpretation of the location of tap changer
         // relative to the transmission impedance is correct
         Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_STATE_VALUES, "SV");
+        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         ConversionTester t = new ConversionTester(
             params,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -171,7 +171,7 @@ public class CgmesConformity1ConversionTest {
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances from SV values
         Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_STATE_VALUES, "SV");
+        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         ConversionTester t = new ConversionTester(
             params,
             TripleStoreFactory.onlyDefaultImplementation(),

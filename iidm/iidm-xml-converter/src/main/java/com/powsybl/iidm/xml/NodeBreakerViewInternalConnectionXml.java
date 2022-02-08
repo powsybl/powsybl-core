@@ -24,7 +24,7 @@ public class NodeBreakerViewInternalConnectionXml {
     }
 
     protected void write(int node1, int node2, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), getRootElementName());
+        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         context.getWriter().writeAttribute("node1", Integer.toString(node1));
         context.getWriter().writeAttribute("node2", Integer.toString(node2));
     }

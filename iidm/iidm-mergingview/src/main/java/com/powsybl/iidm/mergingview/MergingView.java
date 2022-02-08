@@ -10,6 +10,7 @@ import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -877,5 +878,28 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public void removeListener(final NetworkListener listener) {
         throw createNotImplementedException();
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks() {
+        index.getNetworkStream().forEach(Network::runValidationChecks);
+        return getValidationLevel();
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException) {
+        index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException));
+        return getValidationLevel();
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException, reporter));
+        return getValidationLevel();
+    }
+
+    @Override
+    public ValidationLevel getValidationLevel() {
+        return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(AssertionError::new);
     }
 }
