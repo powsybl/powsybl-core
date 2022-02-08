@@ -289,11 +289,7 @@ public final class Importers {
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
         }
-        if (reporter == Reporter.NO_OP) {
-            return importer.importData(dataSource, NetworkFactory.findDefault(), parameters);
-        } else {
-            return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
-        }
+        return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
     }
 
     public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
