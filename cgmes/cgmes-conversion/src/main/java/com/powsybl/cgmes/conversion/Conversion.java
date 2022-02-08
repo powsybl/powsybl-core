@@ -146,7 +146,9 @@ public class Conversion {
         addCimCharacteristics(network);
         if (context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
-            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
+            if (context.nodeBreaker()) {
+                cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
+            }
             cgmes.baseVoltages().forEach(bv -> mappingAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
             mappingAdder.add();
         }
