@@ -35,7 +35,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
@@ -757,18 +756,18 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile getProfileUsedForInitialStateValues() {
-            return profileUsedForInitialStateValues;
+        public StateProfile  getProfileForInitialValuesShuntSectionsTapPositions() {
+            return profileForInitialValuesShuntSectionsTapPositions;
         }
 
-        public Config setProfileUsedForInitialStateValues(String profileUsedForInitialFlowsValues) {
-            switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
+        public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
+            switch (Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions)) {
                 case "SSH":
                 case "SV":
-                    this.profileUsedForInitialStateValues = StateProfile.valueOf(profileUsedForInitialFlowsValues);
+                    this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
                     break;
                 default:
-                    throw new CgmesModelException("Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
+                    throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
             }
             return this;
         }
@@ -865,7 +864,7 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private StateProfile profileUsedForInitialStateValues = SSH;
+        private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
