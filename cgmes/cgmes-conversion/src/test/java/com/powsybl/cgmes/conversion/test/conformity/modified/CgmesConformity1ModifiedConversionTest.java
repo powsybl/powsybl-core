@@ -147,7 +147,6 @@ public class CgmesConformity1ModifiedConversionTest {
         CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
 
         config.setConvertSvInjections(true);
-        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
         Conversion c = new Conversion(cgmes, config);
         Network n = c.convert();
 
@@ -521,6 +520,17 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(-0.000035332059986, m.getB1(), tolerance);
         assertEquals(0.000024200000000, m.getG2(), tolerance);
         assertEquals(0.000089849500000, m.getB2(), tolerance);
+    }
+
+    @Test
+    public void microAssembledThreeLinesAtBoundary() {
+        InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigTieLines.createModuleConfig("import-export-parameters-default-value");
+
+        Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledThreeLinesAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Line line = network.getLine("_78736387-5f60-4832-b3fe-d50daf81b0a6 + _7f43f508-2496-4b64-9146-0a40406cbe49");
+        assertNotNull(line);
     }
 
     @Test

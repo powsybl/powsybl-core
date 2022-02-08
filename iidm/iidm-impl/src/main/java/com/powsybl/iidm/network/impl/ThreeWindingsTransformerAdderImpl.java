@@ -138,11 +138,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
                     + "' not found");
             }
-            if (substation != null && voltageLevel.getSubstation().map(s -> s != substation).orElse(false)) {
-                throw new ValidationException(this,
-                    "voltage level shall belong to the substation '"
-                        + substation.getId() + "'");
-            }
             return voltageLevel;
         }
 
@@ -166,7 +161,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         @Override
         public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getId());
+            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation != null ? substation.getId() : "");
         }
     }
 
@@ -278,7 +273,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                                 + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "', '"
                                 + voltageLevel3.getSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getSubstation().isPresent() && voltageLevel2.getSubstation().isPresent() && voltageLevel3.getSubstation().isPresent()) {
+        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent() || voltageLevel3.getSubstation().isPresent()) {
             throw new ValidationException(this,
                     "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
                             + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
@@ -315,7 +310,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
-
         return transformer;
     }
 }

@@ -35,7 +35,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
@@ -607,7 +606,19 @@ public class Conversion {
         } else if (numEquipmentsAtNode == 2) {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
         } else if (numEquipmentsAtNode > 2) {
-            context.invalid(node, "Too many equipment at boundary node");
+            // In some TYNDP there are three acLineSegments at the boundary node,
+            // one of them disconnected. The two connected acLineSegments are imported.
+            List<BoundaryEquipment> connectedBeqs = beqs.stream()
+                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
+            if (connectedBeqs.size() == 2) {
+                convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
+                // Log ignored AcLineSegments
+                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
+                    .forEach(beq -> context.ignored("convertEquipmentAtBoundaryNode",
+                        String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is ignored", node, beq.getAcLineSegmentId())));
+            } else {
+                context.invalid(node, "Too many equipment at boundary node");
+            }
         }
     }
 
@@ -745,18 +756,18 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile getProfileUsedForInitialStateValues() {
-            return profileUsedForInitialStateValues;
+        public StateProfile  getProfileForInitialValuesShuntSectionsTapPositions() {
+            return profileForInitialValuesShuntSectionsTapPositions;
         }
 
-        public Config setProfileUsedForInitialStateValues(String profileUsedForInitialFlowsValues) {
-            switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
+        public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
+            switch (Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions)) {
                 case "SSH":
                 case "SV":
-                    this.profileUsedForInitialStateValues = StateProfile.valueOf(profileUsedForInitialFlowsValues);
+                    this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
                     break;
                 default:
-                    throw new CgmesModelException("Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
+                    throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
             }
             return this;
         }
@@ -853,7 +864,7 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private StateProfile profileUsedForInitialStateValues = SSH;
+        private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 

@@ -16,6 +16,8 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner {
 
+    private final Ref<? extends VariantManagerHolder> network;
+
     private EnergySource energySource;
 
     private double minP;
@@ -38,20 +40,21 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList targetV;
 
-    GeneratorImpl(Ref<NetworkImpl> ref,
+    GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
                   double targetP, double targetQ, double targetV,
                   double ratedS) {
-        super(ref, id, name, fictitious);
+        super(network, id, name, fictitious);
+        this.network = network;
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.regulatingTerminal = regulatingTerminal;
         this.ratedS = ratedS;
-        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
@@ -115,15 +118,19 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(getNetwork().getVariantIndex());
+        return voltageRegulatorOn.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex));
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this,
+                voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
+                n.getMinValidationLevel());
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
@@ -144,45 +151,53 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getTargetP() {
-        return targetP.get(getNetwork().getVariantIndex());
+        return targetP.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetP(double targetP) {
-        ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        int variantIndex = getNetwork().getVariantIndex();
-        double oldValue = this.targetP.set(getNetwork().getVariantIndex(), targetP);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, n.getMinValidationLevel());
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.targetP.set(network.get().getVariantIndex(), targetP);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("targetP", variantId, oldValue, targetP);
         return this;
     }
 
     @Override
     public double getTargetQ() {
-        return targetQ.get(getNetwork().getVariantIndex());
+        return targetQ.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetQ(double targetQ) {
-        int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV.get(variantIndex), targetQ);
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
+                targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
         double oldValue = this.targetQ.set(variantIndex, targetQ);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("targetQ", variantId, oldValue, targetQ);
         return this;
     }
 
     @Override
     public double getTargetV() {
-        return this.targetV.get(getNetwork().getVariantIndex());
+        return this.targetV.get(network.get().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetV(double targetV) {
-        int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, targetQ.get(variantIndex));
+        NetworkImpl n = getNetwork();
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
+                targetV, targetQ.get(variantIndex), n.getMinValidationLevel());
         double oldValue = this.targetV.set(variantIndex, targetV);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("targetV", variantId, oldValue, targetV);
         return this;
     }

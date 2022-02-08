@@ -105,14 +105,15 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
             if (leg.getActivePowerLimits() != null) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], leg.getActivePowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], leg.getActivePowerLimits(), context.getWriter(),
+                        context.getVersion(), context.isValid(), context.getOptions()));
             }
             if (leg.getApparentPowerLimits() != null) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], leg.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], leg.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
             }
             if (leg.getCurrentLimits() != null) {
-                writeCurrentLimits(i[0], leg.getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
+                writeCurrentLimits(i[0], leg.getCurrentLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
             }
             i[0]++;
         }
