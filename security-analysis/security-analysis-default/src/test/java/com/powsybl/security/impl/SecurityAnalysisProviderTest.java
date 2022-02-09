@@ -68,7 +68,7 @@ public class SecurityAnalysisProviderTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors);
         assertNotNull(report.get());
     }
 
@@ -92,13 +92,13 @@ public class SecurityAnalysisProviderTest {
 
     @Test
     public void testSyncDefaultProvider() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors);
         assertNotNull(report);
     }
 
     @Test
     public void testSyncDefaultProviderMonitor() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors, monitors);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, monitors);
         assertNotNull(report);
     }
 
