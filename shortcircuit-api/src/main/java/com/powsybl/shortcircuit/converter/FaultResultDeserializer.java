@@ -40,7 +40,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
     @Override
     public FaultResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String id = "";
-        float threePhaseFaultCurrent = 0;
+        double threePhaseFaultCurrent = 0;
         List<Extension<FaultResult>> extensions = Collections.emptyList();
         List<FeederResult> feederResults = Collections.emptyList();
 
@@ -53,7 +53,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
                 case "threePhaseFaultCurrent":
                     parser.nextToken();
-                    threePhaseFaultCurrent = parser.readValueAs(Float.class);
+                    threePhaseFaultCurrent = parser.readValueAs(Double.class);
                     break;
 
                 case "feederResult":

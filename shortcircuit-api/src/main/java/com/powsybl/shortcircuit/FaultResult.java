@@ -25,17 +25,17 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final String id;
 
-    private final float threePhaseFaultCurrent;
+    private final double threePhaseFaultCurrent;
 
     private final List<FeederResult> feederResults; //in case of systematic study, optional
 
-    public FaultResult(String id, float threePhaseFaultCurrent, List<FeederResult> feederResults) {
+    public FaultResult(String id, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
         this.id = Objects.requireNonNull(id);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
         this.feederResults = List.copyOf(feederResults);
     }
 
-    public FaultResult(String id, float threePhaseFaultCurrent) {
+    public FaultResult(String id, double threePhaseFaultCurrent) {
         this(id, threePhaseFaultCurrent, Collections.emptyList());
     }
 
@@ -50,7 +50,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     /**
      * Value of the 3-phase short-circuit current for this fault (in A).
      */
-    public float getThreePhaseFaultCurrent() {
+    public double getThreePhaseFaultCurrent() {
         return threePhaseFaultCurrent;
     }
 
