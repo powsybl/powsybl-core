@@ -496,6 +496,15 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEUndefinedLoad() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseUndefinedLoad().dataSource(), NetworkFactory.findDefault(), null);
+        Load load = network.getLoad("_cb459405-cc14-4215-a45c-416789205904");
+        assertNotNull(load);
+        assertEquals(0.0, load.getP0(), 0.0);
+        assertEquals(0.0, load.getQ0(), 0.0);
+    }
+
+    @Test
     public void microAssembledSwitchAtBoundary() {
         final double tolerance = 1e-10;
 
