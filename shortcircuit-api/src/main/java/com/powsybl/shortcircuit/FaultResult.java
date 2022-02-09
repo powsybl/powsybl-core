@@ -62,18 +62,13 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     public double getFeederCurrent(String feederId) {
-        try {
-            double current = 0;
-            for (FeederResult feederResult : feederResults) {
-                if (feederResult.getConnectableId().equals(feederId)) {
-                    current = feederResult.getFeederThreePhaseCurrent();
-                }
+        double current = 0;
+        for (FeederResult feederResult : feederResults) {
+            if (feederResult.getConnectableId().equals(feederId)) {
+                current = feederResult.getFeederThreePhaseCurrent();
             }
-            return current;
-        } catch (IllegalArgumentException e) {
-            LOGGER.warn("Feeder id does not exist in FeederResults");
-            return 0;
         }
+        return current;
     }
 
 }
