@@ -87,15 +87,6 @@ public class DgsReader {
         return type;
     }
 
-    private DataObject createDataObject(long id, DataClass clazz) {
-        if (objectsById.containsKey(id)) {
-            throw new PowerFactoryException("Object '" + id + "' already exists");
-        }
-        DataObject object = new DataObject(id, clazz);
-        objectsById.put(id, object);
-        return object;
-    }
-
     private void resolveLinks() {
         for (ToResolve toResolve : toResolveList) {
             DataObject obj = objectsById.get(toResolve.id);
@@ -142,6 +133,15 @@ public class DgsReader {
                 DataAttributeType type = getDataAttributeType(attributeType);
                 clazz.addAttribute(new DataAttribute(attributeName, type, ""));
             }
+        }
+
+        private DataObject createDataObject(long id, DataClass clazz) {
+            if (objectsById.containsKey(id)) {
+                throw new PowerFactoryException("Object '" + id + "' already exists");
+            }
+            DataObject object = new DataObject(id, clazz);
+            objectsById.put(id, object);
+            return object;
         }
 
         @Override
