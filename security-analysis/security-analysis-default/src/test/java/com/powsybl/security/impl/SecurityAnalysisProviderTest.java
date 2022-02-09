@@ -74,19 +74,19 @@ public class SecurityAnalysisProviderTest {
 
     @Test
     public void testAsyncDefaultProviderWithFilter() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, filter, computationManager);
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, contingenciesProvider, parameters, computationManager, filter);
         assertNotNull(report.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithComputationManager() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, computationManager);
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, contingenciesProvider, parameters, computationManager);
         assertNotNull(report.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithMiminumArguments() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network);
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, Collections.emptyList());
         assertNotNull(report.get());
     }
 
@@ -104,19 +104,25 @@ public class SecurityAnalysisProviderTest {
 
     @Test
     public void testSyncDefaultProviderWithFilter() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, filter, computationManager);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, contingenciesProvider, parameters, computationManager, filter);
         assertNotNull(report);
     }
 
     @Test
     public void testSyncDefaultProviderWithComputationManager() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, computationManager);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, contingenciesProvider, parameters, computationManager);
+        assertNotNull(report);
+    }
+
+    @Test
+    public void testSyncDefaultProviderWithParameters() {
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, Collections.emptyList(), parameters);
         assertNotNull(report);
     }
 
     @Test
     public void testSyncDefaultProviderWithMiminumArguments() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, Collections.emptyList());
         assertNotNull(report);
     }
 }
