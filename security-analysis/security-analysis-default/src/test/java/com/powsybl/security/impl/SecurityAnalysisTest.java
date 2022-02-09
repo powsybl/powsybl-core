@@ -89,14 +89,13 @@ public class SecurityAnalysisTest {
         Contingency contingency = Contingency.builder("NHV1_NHV2_2_contingency")
                                              .addBranch("NHV1_NHV2_2")
                                              .build();
-        contingency = Mockito.spy(contingency);
-        Mockito.when(contingency.toTask()).thenReturn((network1, computationManager1) -> {
+        Contingency contingencyMock = Mockito.spy(contingency);
+        Mockito.when(contingencyMock.toTask()).thenReturn((network1, computationManager1) -> {
             network1.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
             network1.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
             network1.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
         });
-        ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
-        Mockito.when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.singletonList(contingency));
+        ContingenciesProvider contingenciesProvider = n -> Collections.singletonList(contingencyMock);
 
         LimitViolationFilter filter = new LimitViolationFilter();
         LimitViolationDetector detector = new DefaultLimitViolationDetector();
