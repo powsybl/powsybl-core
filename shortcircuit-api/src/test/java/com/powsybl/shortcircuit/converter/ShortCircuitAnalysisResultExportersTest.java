@@ -118,13 +118,13 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     @Test
     public void testJsonWithFeederResult() throws IOException {
         ShortCircuitAnalysisResult result = createWithFeederResults();
-        writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-results-with-contributions.json");
+        writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
     public void roundTripJsonWithFeederResult() throws IOException {
         ShortCircuitAnalysisResult result = createWithFeederResults();
-        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-contributions.json");
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
     }
 
     public void writeCsv(ShortCircuitAnalysisResult result, Path path) {

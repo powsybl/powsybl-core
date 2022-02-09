@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import static org.junit.Assert.assertEquals;
@@ -24,8 +23,6 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
     private int onFaultResultCount = 0;
 
     private int onLimitViolationCount = 0;
-
-    private int onContributionsResultCount = 0;
 
     private int onShortCircuitResultCount = 0;
 
@@ -79,10 +76,5 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
         assertNotNull(shortCircuitAnalysisResult);
         assertEquals(1, shortCircuitAnalysisResult.getFaultResults().size());
         assertEquals(1, shortCircuitAnalysisResult.getLimitViolations().size());
-    }
-
-    private static void assertContributionResult(FeederResult feederResult) {
-        assertNotNull(feederResult);
-        assertEquals(10, feederResult.getFeederThreePhaseCurrent(), 0);
     }
 }
