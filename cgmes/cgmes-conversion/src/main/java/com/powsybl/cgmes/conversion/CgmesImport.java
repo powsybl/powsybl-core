@@ -176,11 +176,11 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
-                .setProfileUsedForInitialStateValues(
+                .setProfileForInitialValuesShuntSectionsTapPositions(
                         ConversionParameters.readStringParameter(
                                 getFormat(),
                                 p,
-                                PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
+                                PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
                                 defaultValueConfig))
                 .setStoreCgmesModelAsNetworkExtension(
                         ConversionParameters.readBooleanParameter(
@@ -248,7 +248,7 @@ public class CgmesImport implements Importer {
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String PROFILE_USED_FOR_INITIAL_STATE_VALUES = "iidm.import.cgmes.profile-used-for-initial-state-values";
+    public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
 
@@ -306,11 +306,12 @@ public class CgmesImport implements Importer {
             "The triplestore used during the import",
             TripleStoreFactory.defaultImplementation())
             .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER = new Parameter(
-            PROFILE_USED_FOR_INITIAL_STATE_VALUES,
-            ParameterType.STRING,
-            "Profile used for initial state values",
-            "SSH");
+    private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
+        PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
+        ParameterType.STRING,
+        "Profile used for initial state values",
+        "SSH")
+        .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
