@@ -13,8 +13,8 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.powerfactory.model.Project;
-import com.powsybl.powerfactory.model.ProjectLoader;
+import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.powerfactory.model.StudyCaseLoader;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -47,8 +47,8 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         Path dgsFile = fileSystem.getPath("/work/ieee14.dgs");
         Files.copy(is, dgsFile);
 
-        Optional<Project> project = ProjectLoader.load(dgsFile);
-        assertTrue(project.isPresent());
+        Optional<StudyCase> studyCase = StudyCaseLoader.load(dgsFile);
+        assertTrue(studyCase.isPresent());
 
         PowerFactoryImporter importer = new PowerFactoryImporter();
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "ieee14")));

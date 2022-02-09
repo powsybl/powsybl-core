@@ -8,8 +8,8 @@ package com.powsybl.powerfactory.dgs;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.Files;
-import com.powsybl.powerfactory.model.Project;
-import com.powsybl.powerfactory.model.ProjectLoader;
+import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.powerfactory.model.StudyCaseLoader;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,8 +17,8 @@ import java.io.InputStreamReader;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(ProjectLoader.class)
-public class DgsProjectLoader implements ProjectLoader {
+@AutoService(StudyCaseLoader.class)
+public class DgsStudyCaseLoader implements StudyCaseLoader {
 
     @Override
     public String getExtension() {
@@ -31,8 +31,8 @@ public class DgsProjectLoader implements ProjectLoader {
     }
 
     @Override
-    public Project doLoad(String fileName, InputStream is) {
-        String projectName = Files.getNameWithoutExtension(fileName);
-        return new DgsReader().read(projectName, new InputStreamReader(is));
+    public StudyCase doLoad(String fileName, InputStream is) {
+        String studyCaseName = Files.getNameWithoutExtension(fileName);
+        return new DgsReader().read(studyCaseName, new InputStreamReader(is));
     }
 }

@@ -17,7 +17,10 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.powerfactory.model.*;
+import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.PowerFactoryException;
+import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.powerfactory.model.StudyCaseLoader;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
@@ -58,11 +61,11 @@ public class PowerFactoryImporter implements Importer {
         return "PowerFactory to IIDM converter";
     }
 
-    private Optional<ProjectLoader> findProjectLoader(ReadOnlyDataSource dataSource) {
-        for (ProjectLoader projectLoader : ServiceLoader.load(ProjectLoader.class)) {
+    private Optional<StudyCaseLoader> findProjectLoader(ReadOnlyDataSource dataSource) {
+        for (StudyCaseLoader studyCaseLoader : ServiceLoader.load(StudyCaseLoader.class)) {
             try {
-                if (dataSource.exists(null, projectLoader.getExtension())) {
-                    return Optional.of(projectLoader);
+                if (dataSource.exists(null, studyCaseLoader.getExtension())) {
+                    return Optional.of(studyCaseLoader);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -73,9 +76,9 @@ public class PowerFactoryImporter implements Importer {
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-        return findProjectLoader(dataSource).filter(projectLoader -> {
-            try (InputStream is = dataSource.newInputStream(null, projectLoader.getExtension())) {
-                return projectLoader.test(is);
+        return findProjectLoader(dataSource).filter(studyCaseLoader -> {
+            try (InputStream is = dataSource.newInputStream(null, studyCaseLoader.getExtension())) {
+                return studyCaseLoader.test(is);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -86,9 +89,9 @@ public class PowerFactoryImporter implements Importer {
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
-        findProjectLoader(fromDataSource).ifPresent(projectLoader -> {
-            try (InputStream is = fromDataSource.newInputStream(null, projectLoader.getExtension());
-                 OutputStream os = toDataSource.newOutputStream(null, projectLoader.getExtension(), false)) {
+        findProjectLoader(fromDataSource).ifPresent(studyCaseLoader -> {
+            try (InputStream is = fromDataSource.newInputStream(null, studyCaseLoader.getExtension());
+                 OutputStream os = toDataSource.newOutputStream(null, studyCaseLoader.getExtension(), false)) {
                 ByteStreams.copy(is, os);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -143,41 +146,32 @@ public class PowerFactoryImporter implements Importer {
         return new PowerFactoryException("Not yet supported");
     }
 
-    private Network createNetwork(Project project, NetworkFactory networkFactory) {
-        List<StudyCase> studyCases = project.getStudyCases();
-        LOGGER.info("Project has {} study case(s): {}", studyCases.size(), studyCases.stream().map(StudyCase::getName).collect(Collectors.toList()));
-        StudyCase studyCase = project.findActiveStudyCase().orElseThrow(() -> new PowsyblException("Active study case not found"));
-        LOGGER.info("Active study case is '{}'", studyCase.getName());
+    private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
+
         List<DataObject> elmNets = studyCase.getElmNets();
         if (elmNets.isEmpty()) {
             throw new PowsyblException("No ElmNet object found");
         }
-        LOGGER.info("Active study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).collect(Collectors.toList()));
-        List<NetworkVariation> variations = studyCase.getNetworkVariations();
-        LOGGER.info("Active study case has {} network variation(s): {}", variations.size(),
-                variations.stream().map(NetworkVariation::getName).collect(Collectors.toList()));
-        for (NetworkVariation variation : variations) {
-            List<NetworkExpansionStage> expansionStages = variation.getActiveExpansionStages();
-            LOGGER.info("Network variation '{}' has {} active expansion stage(s): {}", variation.getName(), expansionStages.size(),
-                    expansionStages.stream().map(NetworkExpansionStage::getName).collect(Collectors.toList()));
-        }
-
-        // get all network objects resulting from base network and active expansion stages
-        List<DataObject> objs = studyCase.applyNetworkExpansionStages();
-
-        Network network = networkFactory.createNetwork(project.getRootObject().toString(), FORMAT);
+        LOGGER.info("Study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).collect(Collectors.toList()));
 
         // case date
         DateTime caseDate = new Instant(studyCase.getTime().toEpochMilli()).toDateTime();
         network.setCaseDate(caseDate);
 
-        List<DataObject> elmTerms = objs.stream()
+        // index objects by id
+        Map<Long, DataObject> objsById = new HashMap<>();
+        for (DataObject elmNet : elmNets) {
+            elmNet.traverse(obj -> objsById.put(obj.getId(), obj));
+        }
+
+        List<DataObject> elmTerms = objsById.values().stream()
                 .filter(obj -> obj.getDataClassName().equals("ElmTerm"))
                 .collect(Collectors.toList());
 
         LOGGER.info("Creating containers...");
 
-        ContainersMapping containerMapping = ContainersMappingHelper.create(project, elmTerms);
+        ContainersMapping containerMapping = ContainersMappingHelper.create(objsById, elmTerms);
         ImportContext importContext = new ImportContext(containerMapping);
 
         LOGGER.info("Creating topology graphs...");
@@ -196,7 +190,7 @@ public class PowerFactoryImporter implements Importer {
 
         LOGGER.info("Creating equipments...");
 
-        for (DataObject obj : objs) {
+        for (DataObject obj : objsById.values()) {
             switch (obj.getDataClassName()) {
                 case "ElmCoup":
                     createSwitch(network, importContext, obj);
@@ -362,7 +356,7 @@ public class PowerFactoryImporter implements Importer {
                         .add();
             }
         } else {
-            throw createNotYetSupportedException();
+            // TODO
         }
     }
 
@@ -577,12 +571,12 @@ public class PowerFactoryImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
-        return findProjectLoader(dataSource).map(projectLoader -> {
+        return findProjectLoader(dataSource).map(studyCaseLoader -> {
             LOGGER.info("Starting PowerFactory import...");
             Stopwatch stopwatch = Stopwatch.createStarted();
-            try (InputStream is = dataSource.newInputStream(null, projectLoader.getExtension())) {
-                Project project = projectLoader.doLoad(dataSource.getBaseName(), is);
-                return createNetwork(project, networkFactory);
+            try (InputStream is = dataSource.newInputStream(null, studyCaseLoader.getExtension())) {
+                StudyCase studyCase = studyCaseLoader.doLoad(dataSource.getBaseName(), is);
+                return createNetwork(studyCase, networkFactory);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             } finally {

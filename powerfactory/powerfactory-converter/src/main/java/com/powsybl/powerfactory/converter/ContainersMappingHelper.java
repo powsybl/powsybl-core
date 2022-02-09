@@ -10,7 +10,6 @@ import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.powerfactory.model.DataObject;
-import com.powsybl.powerfactory.model.Project;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -73,17 +72,17 @@ final class ContainersMappingHelper {
 
     private static final class BusesToVoltageLevelId {
 
-        private final Project project;
+        private final Map<Long, DataObject> objsById;
 
         private int noNameVoltageLevelCount = 0;
 
-        private BusesToVoltageLevelId(Project project) {
-            this.project = project;
+        private BusesToVoltageLevelId(Map<Long, DataObject> objsById) {
+            this.objsById = objsById;
         }
 
         public String getVoltageLevelId(Set<Integer> ids) {
             List<DataObject> objs = ids.stream()
-                    .map(id -> project.getObjectById(id).orElse(null))
+                    .map(objsById::get)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
@@ -185,7 +184,7 @@ final class ContainersMappingHelper {
         }
     }
 
-    static ContainersMapping create(Project project, List<DataObject> elmTerms) {
+    static ContainersMapping create(Map<Long, DataObject> objs, List<DataObject> elmTerms) {
         List<DataObject> nodes = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
         Map<DataObject, List<DataObject>> branchesByCubicleId = new HashMap<>();
@@ -193,7 +192,7 @@ final class ContainersMappingHelper {
         createNodes(elmTerms, nodes, edges, branchesByCubicleId);
         createEdges(edges, branchesByCubicleId);
 
-        BusesToVoltageLevelId busesToVoltageLevelId = new BusesToVoltageLevelId(project);
+        BusesToVoltageLevelId busesToVoltageLevelId = new BusesToVoltageLevelId(objs);
 
         return ContainersMapping.create(nodes, edges,
             obj -> Ints.checkedCast(obj.getId()),

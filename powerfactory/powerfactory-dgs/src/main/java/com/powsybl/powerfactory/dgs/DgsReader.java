@@ -39,11 +39,11 @@ public class DgsReader {
 
     private DataObject elmNet;
 
-    public static Project read(Path dgsFile) {
+    public static StudyCase read(Path dgsFile) {
         return read(dgsFile, StandardCharsets.ISO_8859_1);
     }
 
-    public static Project read(Path dgsFile, Charset charset) {
+    public static StudyCase read(Path dgsFile, Charset charset) {
         try (Reader reader = Files.newBufferedReader(dgsFile, charset)) {
             return new DgsReader().read(dgsFile.getFileName().toString(), reader);
         } catch (IOException e) {
@@ -96,14 +96,6 @@ public class DgsReader {
         return object;
     }
 
-    private DataClass createDataClass(String name) {
-        DataClass clazz = classesByName.get(name);
-        if (clazz == null) {
-            clazz = new DataClass(name);
-        }
-        return clazz;
-    }
-
     private void resolveLinks() {
         for (ToResolve toResolve : toResolveList) {
             DataObject obj = objectsById.get(toResolve.id);
@@ -114,7 +106,7 @@ public class DgsReader {
         }
     }
 
-    private void buildObjectsTree(List<DataObject> rootObjects) {
+    private void buildObjectsTree() {
         for (DataObject obj : objectsById.values()) {
             DataObject folderObj = obj.findObjectAttributeValue(DataAttribute.FOLD_ID).orElse(null);
             if (folderObj != null) {
@@ -122,66 +114,9 @@ public class DgsReader {
             } else {
                 if (obj != elmNet && obj.getDataClassName().startsWith("Elm")) {
                     obj.setParent(elmNet);
-                } else {
-                    rootObjects.add(obj);
                 }
             }
         }
-    }
-
-    private DataObject createProjectStructure(String projectName, List<DataObject> rootObjects) {
-        DataClass intProj = createDataClass("IntPrj")
-                .addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING))
-                .addAttribute(new DataAttribute("pCase", DataAttributeType.OBJECT));
-        DataClass intPrjfolder = createDataClass("IntPrjfolder")
-                .addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
-        DataClass intCase = createDataClass("IntCase")
-                .addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
-        DataClass intRef = createDataClass("IntRef")
-                .addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING))
-                .addAttribute(new DataAttribute("obj_id", DataAttributeType.OBJECT));
-        DataClass setTime = createDataClass("SetTime")
-                .addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING))
-                .addAttribute(new DataAttribute("datetime", DataAttributeType.INTEGER));
-
-        long nextId = objectsById.keySet().stream().max(Long::compare).orElse(0L) + 1;
-
-        // create project folder and add all roots to this folder
-        DataObject projObj = createDataObject(nextId++, intProj)
-                .setStringAttributeValue(DataAttribute.LOC_NAME, projectName);
-        for (DataObject rootObject : rootObjects) {
-            rootObject.setParent(projObj);
-        }
-
-        // create study cases folder
-        DataObject studyCases = createDataObject(nextId++, intPrjfolder)
-                .setStringAttributeValue(DataAttribute.LOC_NAME, "Study Cases")
-                .setParent(projObj);
-
-        // create study case
-        DataObject studyCase = createDataObject(nextId++, intCase)
-                .setStringAttributeValue(DataAttribute.LOC_NAME, "Study Case")
-                .setParent(studyCases);
-
-        // set study time
-        createDataObject(nextId++, setTime)
-                .setStringAttributeValue(DataAttribute.LOC_NAME, "Set Study Time")
-                .setInstantAttributeValue("datetime", Instant.now())
-                .setParent(studyCase);
-
-        // create a link to network element
-        DataObject summaryGrid = createDataObject(nextId++, classesByName.get("ElmNet"))
-                .setStringAttributeValue(DataAttribute.LOC_NAME, "Summary Grid")
-                .setParent(studyCase);
-        createDataObject(nextId, intRef)
-                .setStringAttributeValue(DataAttribute.LOC_NAME, "Ref")
-                .setObjectAttributeValue("obj_id", elmNet)
-                .setParent(summaryGrid);
-
-        // set active study case
-        projObj.setObjectAttributeValue("pCase", studyCase);
-
-        return projObj;
     }
 
     private class DgsHandlerImpl implements DgsHandler {
@@ -246,8 +181,8 @@ public class DgsReader {
         }
     }
 
-    public Project read(String projectName, Reader reader) {
-        Objects.requireNonNull(projectName);
+    public StudyCase read(String studyCaseName, Reader reader) {
+        Objects.requireNonNull(studyCaseName);
         Objects.requireNonNull(reader);
         Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -255,18 +190,19 @@ public class DgsReader {
 
         Objects.requireNonNull(elmNet, "ElmNet object is missing");
 
+        // resolve object attributes links
         resolveLinks();
 
         // build parent child link
-        List<DataObject> rootObjects = new ArrayList<>();
-        buildObjectsTree(rootObjects);
-
-        // create classes necessary for study structure
-        DataObject projObj = createProjectStructure(projectName, rootObjects);
+        buildObjectsTree();
 
         stopwatch.stop();
         LOGGER.info("DGS file read in {} ms: {} data objects", stopwatch.elapsed(TimeUnit.MILLISECONDS), objectsById.size());
 
-        return new Project(projectName, Instant.now(), general, projObj, objectsById);
+        StudyCase studyCase = new StudyCase(studyCaseName, Instant.now(), List.of(elmNet));
+        for (DataObject obj : objectsById.values()) {
+            obj.setStudyCase(studyCase);
+        }
+        return studyCase;
     }
 }

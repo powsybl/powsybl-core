@@ -19,9 +19,9 @@ import java.util.function.Supplier;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ProjectLoader {
+public interface StudyCaseLoader {
 
-    static Optional<Project> load(Path file) {
+    static Optional<StudyCase> load(Path file) {
         Objects.requireNonNull(file);
         return load(file.getFileName().toString(), () -> {
             try {
@@ -32,12 +32,12 @@ public interface ProjectLoader {
         });
     }
 
-    static Optional<Project> load(String fileName, Supplier<InputStream> inputStreamSupplier) {
+    static Optional<StudyCase> load(String fileName, Supplier<InputStream> inputStreamSupplier) {
         Objects.requireNonNull(inputStreamSupplier);
-        for (ProjectLoader projectLoader : ServiceLoader.load(ProjectLoader.class)) {
-            if (fileName.endsWith(projectLoader.getExtension()) &&
-                    projectLoader.test(inputStreamSupplier.get())) {
-                return Optional.of(projectLoader.doLoad(fileName, inputStreamSupplier.get()));
+        for (StudyCaseLoader studyCaseLoader : ServiceLoader.load(StudyCaseLoader.class)) {
+            if (fileName.endsWith(studyCaseLoader.getExtension()) &&
+                    studyCaseLoader.test(inputStreamSupplier.get())) {
+                return Optional.of(studyCaseLoader.doLoad(fileName, inputStreamSupplier.get()));
             }
         }
         return Optional.empty();
@@ -47,5 +47,5 @@ public interface ProjectLoader {
 
     boolean test(InputStream is);
 
-    Project doLoad(String fileName, InputStream is);
+    StudyCase doLoad(String fileName, InputStream is);
 }

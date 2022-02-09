@@ -29,7 +29,7 @@ public class DataObject {
 
     private final DataClass dataClass;
 
-    private Project project;
+    private StudyCase studyCase;
 
     private Map<String, Object> attributeValues = new HashMap<>();
 
@@ -74,10 +74,6 @@ public class DataObject {
                 .collect(Collectors.toList());
     }
 
-    public SchemeStatus getSchemeStatus() {
-        return SchemeStatus.values()[findIntAttributeValue("iSchemeStatus").orElse(0)]; // according to the doc 0 is default value
-    }
-
     public Optional<DataObject> getChild(String name) {
         Objects.requireNonNull(name);
         return children.stream().filter(child -> child.getLocName().equals(name)).findFirst();
@@ -110,15 +106,15 @@ public class DataObject {
         return dataClass.getName();
     }
 
-    public Project getProject() {
-        return project;
+    public StudyCase getStudyCase() {
+        return studyCase;
     }
 
-    public void setProject(Project project) {
-        if (this.project != null) {
-            throw new PowerFactoryException("Data object is already assigned to a project");
+    public void setStudyCase(StudyCase studyCase) {
+        if (this.studyCase != null) {
+            throw new PowerFactoryException("Data object is already assigned to a study case");
         }
-        this.project = Objects.requireNonNull(project);
+        this.studyCase = Objects.requireNonNull(studyCase);
     }
 
     public List<String> getAttributeNames() {
