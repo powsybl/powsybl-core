@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -99,6 +100,8 @@ public class DataObjectTest {
         assertFalse(objFoo.findIntAttributeValue("s").isPresent());
         assertThrows(PowerFactoryException.class, () -> objFoo.getStringAttributeValue("s"));
         assertEquals("foo", objFoo.getStringAttributeValue(DataAttribute.LOC_NAME));
+        assertEquals(Map.of(DataAttribute.LOC_NAME, "foo"), objFoo.getAttributeValues());
+        assertEquals("foo", objFoo.getAttributeValue(DataAttribute.LOC_NAME));
     }
 
     @Test

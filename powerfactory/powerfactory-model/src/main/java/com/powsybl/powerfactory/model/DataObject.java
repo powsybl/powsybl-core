@@ -31,9 +31,7 @@ public class DataObject {
 
     private StudyCase studyCase;
 
-    private Map<String, Object> attributeValues = new HashMap<>();
-
-    private Map<String, Object> initialAttributeValues;
+    private final Map<String, Object> attributeValues = new HashMap<>();
 
     public DataObject(long id, DataClass dataClass) {
         this.id = id;
@@ -121,28 +119,17 @@ public class DataObject {
         return dataClass.getAttributes().stream().map(DataAttribute::getName).collect(Collectors.toList());
     }
 
-    public void copyAttributeValues(DataObject other) {
-        Objects.requireNonNull(other);
-        if (!getDataClassName().equals(other.getDataClassName())) {
-            throw new PowerFactoryException("It is forbidden to copy attributes from an object with a different class: "
-                    + getDataClassName() + " and " + other.getDataClassName());
-        }
-        initialAttributeValues = new HashMap<>(attributeValues);
-        for (Map.Entry<String, Object> e : other.attributeValues.entrySet()) {
-            String attributeName = e.getKey();
-            Object attributeValue = e.getValue();
-            if (!attributeName.equals(DataAttribute.LOC_NAME)
-                    && !attributeName.equals(DataAttribute.FOLD_ID)
-                    && !attributeName.equals(DataAttribute.FOR_NAME)) {
-                attributeValues.put(attributeName, attributeValue);
-            }
-        }
+    public Map<String, Object> getAttributeValues() {
+        return attributeValues;
     }
 
-    public void restoreAttributeValues() {
-        if (initialAttributeValues != null) {
-            attributeValues = initialAttributeValues;
-        }
+    public Optional<Object> findAttributeValue(String name) {
+        Objects.requireNonNull(name);
+        return Optional.ofNullable(attributeValues.get(name));
+    }
+
+    public Object getAttributeValue(String name) {
+        return findAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException(name));
     }
 
     private static void checkAttributeType(DataAttribute attribute, DataAttributeType type) {
@@ -168,15 +155,6 @@ public class DataObject {
         }
         checkAttributeType(attribute, type);
         attributeValues.put(name, value);
-    }
-
-    public Optional<Object> findAttributeValue(String name) {
-        Objects.requireNonNull(name);
-        return Optional.ofNullable(attributeValues.get(name));
-    }
-
-    public Object getAttributeValue(String name) {
-        return findAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException(name));
     }
 
     private <T> Optional<T> findGenericAttributeValue(String name, DataAttributeType type) {
