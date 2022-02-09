@@ -139,9 +139,9 @@ public class DgsReader {
             if (objectsById.containsKey(id)) {
                 throw new PowerFactoryException("Object '" + id + "' already exists");
             }
-            DataObject object = new DataObject(id, clazz);
-            objectsById.put(id, object);
-            return object;
+            DataObject newObj = new DataObject(id, clazz);
+            objectsById.put(id, newObj);
+            return newObj;
         }
 
         @Override
