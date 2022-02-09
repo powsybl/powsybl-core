@@ -173,45 +173,56 @@ public final class EquipmentExport {
         Map<String, String> geographicalRegionIds = new HashMap<>();
         BiMap<String, String> subGeographicalRegionIds = HashBiMap.create();
         for (Substation substation : network.getSubstations()) {
-            String geoName = network.getNameOrId();
-            Optional<Country> country = substation.getCountry();
-            if (country.isPresent()) {
-                geoName = country.get().toString();
-            }
-            String finalGeoName = geoName;
-            geographicalRegionIds.computeIfAbsent(geoName, k -> {
-                try {
-                    String geographicalRegionId = CgmesExportUtil.getUniqueId();
-                    GeographicalRegionEq.write(geographicalRegionId, finalGeoName, cimNamespace, writer);
-                    return geographicalRegionId;
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
-            String subGeographicalRegionId;
-            if (substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
-                subGeographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
-            } else if (substation.getGeographicalTags().size() == 1) {
-                subGeographicalRegionId = subGeographicalRegionIds.inverse().getOrDefault(substation.getGeographicalTags().iterator().next(),
-                        CgmesExportUtil.getUniqueId());
-            } else {
-                subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-            }
-            subGeographicalRegionIds.computeIfAbsent(subGeographicalRegionId, k -> {
-                try {
-                    String subGeoName;
-                    if (substation.getGeographicalTags().size() == 1) {
-                        subGeoName = substation.getGeographicalTags().iterator().next();
-                    } else {
-                        subGeoName = finalGeoName;
-                    }
-                    SubGeographicalRegionEq.write(subGeographicalRegionId, subGeoName, geographicalRegionIds.get(finalGeoName), cimNamespace, writer);
-                    return subGeoName;
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
+            String geoName = getGeographicalRegionName(substation, network);
+            geographicalRegionIds.computeIfAbsent(geoName, name -> writeGeographicalRegion(name, cimNamespace, writer));
+            String subGeographicalRegionId = getSubGeographicalRegionId(substation, subGeographicalRegionIds);
+            subGeographicalRegionIds.computeIfAbsent(subGeographicalRegionId, id -> writeSubGeographicalRegion(id, geoName, substation, geographicalRegionIds, cimNamespace, writer));
             SubstationEq.write(substation.getId(), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer);
+        }
+    }
+
+    private static String getGeographicalRegionName(Substation substation, Network network) {
+        String geoName = network.getNameOrId();
+        Optional<Country> country = substation.getCountry();
+        if (country.isPresent()) {
+            geoName = country.get().toString();
+        }
+        return geoName;
+    }
+
+    private static String writeGeographicalRegion(String geoName, String cimNamespace, XMLStreamWriter writer) {
+        try {
+            String geographicalRegionId = CgmesExportUtil.getUniqueId();
+            GeographicalRegionEq.write(geographicalRegionId, geoName, cimNamespace, writer);
+            return geographicalRegionId;
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static String getSubGeographicalRegionId(Substation substation, BiMap<String, String> subGeographicalRegionIds) {
+        if (substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
+            return substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
+        } else if (substation.getGeographicalTags().size() == 1) {
+            return subGeographicalRegionIds.inverse().getOrDefault(substation.getGeographicalTags().iterator().next(),
+                    CgmesExportUtil.getUniqueId());
+        } else {
+            return CgmesExportUtil.getUniqueId();
+        }
+    }
+
+    private static String writeSubGeographicalRegion(String subGeographicalRegionId, String geoName, Substation substation, Map<String, String> geographicalRegionIds, String cimNamespace, XMLStreamWriter writer) {
+        try {
+            String subGeoName;
+            if (substation.getGeographicalTags().size() == 1) {
+                subGeoName = substation.getGeographicalTags().iterator().next();
+            } else {
+                subGeoName = geoName;
+            }
+            SubGeographicalRegionEq.write(subGeographicalRegionId, subGeoName, geographicalRegionIds.get(geoName), cimNamespace, writer);
+            return subGeoName;
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
