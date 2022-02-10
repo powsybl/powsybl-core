@@ -34,8 +34,8 @@ public class StaticVarCompensatorTrippingTest {
 
         Contingency contingency = Contingency.staticVarCompensator("SVC2");
 
-        NetworkModification task = contingency.toModification();
-        task.apply(network);
+        NetworkModification modification = contingency.toModification();
+        modification.apply(network);
 
         assertFalse(network.getStaticVarCompensator("SVC2").getTerminal().isConnected());
     }

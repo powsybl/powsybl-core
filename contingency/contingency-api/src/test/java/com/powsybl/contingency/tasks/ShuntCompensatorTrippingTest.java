@@ -34,8 +34,8 @@ public class ShuntCompensatorTrippingTest {
 
         Contingency contingency = Contingency.shuntCompensator("C1_Filter1");
 
-        NetworkModification task = contingency.toModification();
-        task.apply(network);
+        NetworkModification modification = contingency.toModification();
+        modification.apply(network);
 
         assertFalse(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
     }

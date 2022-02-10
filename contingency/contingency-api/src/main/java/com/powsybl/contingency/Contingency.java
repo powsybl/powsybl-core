@@ -71,9 +71,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     public NetworkModification toModification() {
-        List<NetworkModification> subTasks = elements.stream().map(ContingencyElement::toModification).collect(Collectors.toList());
-
-        return new NetworkModificationList(subTasks);
+        return new NetworkModificationList(elements.stream().map(ContingencyElement::toModification).collect(Collectors.toList()));
     }
 
     boolean isValid(Network network) {

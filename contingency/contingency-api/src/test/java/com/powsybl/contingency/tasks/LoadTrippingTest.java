@@ -27,8 +27,8 @@ public class LoadTrippingTest {
 
         Contingency contingency = Contingency.load("LOAD");
 
-        NetworkModification task = contingency.toModification();
-        task.apply(network);
+        NetworkModification modification = contingency.toModification();
+        modification.apply(network);
 
         assertFalse(network.getLoad("LOAD").getTerminal().isConnected());
     }

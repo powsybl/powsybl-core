@@ -46,7 +46,7 @@ public class Action {
         this.description = description;
     }
 
-    public List<NetworkModification> getTasks() {
+    public List<NetworkModification> getModifications() {
         return modifications;
     }
 

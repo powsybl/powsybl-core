@@ -31,12 +31,12 @@ public class ActionTest {
 
         Action action = new Action("id");
         assertEquals("id", action.getId());
-        assertEquals(0, action.getTasks().size());
+        assertEquals(0, action.getModifications().size());
 
         action = new Action("id", modifications);
-        assertEquals(0, action.getTasks().size());
-        action.getTasks().add(mock);
-        assertEquals(1, action.getTasks().size());
+        assertEquals(0, action.getModifications().size());
+        action.getModifications().add(mock);
+        assertEquals(1, action.getModifications().size());
 
         assertNull(action.getDescription());
         action.setDescription("description");

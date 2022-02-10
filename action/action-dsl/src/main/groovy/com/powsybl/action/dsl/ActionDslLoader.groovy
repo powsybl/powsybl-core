@@ -171,8 +171,8 @@ class ActionDslLoader extends DslLoader {
 
             // fill modifications spec with extensions
             List<NetworkModification> modifications = new ArrayList<>()
-            for (DslModificationExtension taskExtension : ServiceLoader.load(DslModificationExtension.class, ActionDslLoader.class.getClassLoader())) {
-                taskExtension.addToSpec(actionSpec.modificationsSpec.metaClass, modifications, binding)
+            for (DslModificationExtension extension : ServiceLoader.load(DslModificationExtension.class, ActionDslLoader.class.getClassLoader())) {
+                extension.addToSpec(actionSpec.modificationsSpec.metaClass, modifications, binding)
             }
 
             cloned.delegate = actionSpec

@@ -12,6 +12,8 @@ import com.powsybl.network.modification.tripping.BranchTripping;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -25,10 +27,10 @@ public class NetworkModificationListTest {
 
         BranchTripping tripping1 = new BranchTripping("NHV1_NHV2_1", "VLHV1");
         BranchTripping tripping2 = new BranchTripping("NHV1_NHV2_1", "VLHV2");
-        NetworkModificationList task = new NetworkModificationList(tripping1, tripping2);
-        task.apply(network);
+        NetworkModificationList modificationList = new NetworkModificationList(tripping1, tripping2);
+        modificationList.apply(network);
 
-        Assert.assertFalse(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
-        Assert.assertFalse(network.getLine("NHV1_NHV2_1").getTerminal2().isConnected());
+        assertFalse(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
+        assertFalse(network.getLine("NHV1_NHV2_1").getTerminal2().isConnected());
     }
 }
