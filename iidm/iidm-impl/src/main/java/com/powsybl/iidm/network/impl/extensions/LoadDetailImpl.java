@@ -25,8 +25,8 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
 
     private final TDoubleArrayList variableReactivePower;
 
-    public LoadDetailImpl(Load load, double fixedActivePower, float fixedReactivePower,
-                          float variableActivePower, float variableReactivePower) {
+    public LoadDetailImpl(Load load, double fixedActivePower, double fixedReactivePower,
+                double variableActivePower, double variableReactivePower) {
         super(load);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.fixedActivePower = new TDoubleArrayList(variantArraySize);
