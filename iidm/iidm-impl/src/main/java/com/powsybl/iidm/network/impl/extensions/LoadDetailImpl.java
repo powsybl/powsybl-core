@@ -9,29 +9,30 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import gnu.trove.list.array.TFloatArrayList;
+
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Load> implements LoadDetail {
 
-    private final TFloatArrayList fixedActivePower;
+    private final TDoubleArrayList fixedActivePower;
 
-    private final TFloatArrayList fixedReactivePower;
+    private final TDoubleArrayList fixedReactivePower;
 
-    private final TFloatArrayList variableActivePower;
+    private final TDoubleArrayList variableActivePower;
 
-    private final TFloatArrayList variableReactivePower;
+    private final TDoubleArrayList variableReactivePower;
 
-    public LoadDetailImpl(Load load, float fixedActivePower, float fixedReactivePower,
+    public LoadDetailImpl(Load load, double fixedActivePower, float fixedReactivePower,
                           float variableActivePower, float variableReactivePower) {
         super(load);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        this.fixedActivePower = new TFloatArrayList(variantArraySize);
-        this.fixedReactivePower = new TFloatArrayList(variantArraySize);
-        this.variableActivePower = new TFloatArrayList(variantArraySize);
-        this.variableReactivePower = new TFloatArrayList(variantArraySize);
+        this.fixedActivePower = new TDoubleArrayList(variantArraySize);
+        this.fixedReactivePower = new TDoubleArrayList(variantArraySize);
+        this.variableActivePower = new TDoubleArrayList(variantArraySize);
+        this.variableReactivePower = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.fixedActivePower.add(checkPower(fixedActivePower, "Invalid fixedActivePower"));
             this.fixedReactivePower.add(checkPower(fixedReactivePower, "Invalid fixedReactivePower"));
@@ -40,55 +41,55 @@ public class LoadDetailImpl extends AbstractMultiVariantIdentifiableExtension<Lo
         }
     }
 
-    public float getFixedActivePower() {
+    public double getFixedActivePower() {
         return fixedActivePower.get(getVariantIndex());
     }
 
     @Override
-    public LoadDetail setFixedActivePower(float fixedActivePower) {
+    public LoadDetail setFixedActivePower(double fixedActivePower) {
         checkPower(fixedActivePower, "Invalid fixedActivePower");
         this.fixedActivePower.set(getVariantIndex(), fixedActivePower);
         return this;
     }
 
     @Override
-    public float getFixedReactivePower() {
+    public double getFixedReactivePower() {
         return fixedReactivePower.get(getVariantIndex());
     }
 
     @Override
-    public LoadDetail setFixedReactivePower(float fixedReactivePower) {
+    public LoadDetail setFixedReactivePower(double fixedReactivePower) {
         checkPower(fixedReactivePower, "Invalid fixedReactivePower");
         this.fixedReactivePower.set(getVariantIndex(), fixedReactivePower);
         return this;
     }
 
     @Override
-    public float getVariableActivePower() {
+    public double getVariableActivePower() {
         return variableActivePower.get(getVariantIndex());
     }
 
     @Override
-    public LoadDetail setVariableActivePower(float variableActivePower) {
+    public LoadDetail setVariableActivePower(double variableActivePower) {
         checkPower(variableActivePower, "Invalid variableActivePower");
         this.variableActivePower.set(getVariantIndex(), variableActivePower);
         return this;
     }
 
     @Override
-    public float getVariableReactivePower() {
+    public double getVariableReactivePower() {
         return variableReactivePower.get(getVariantIndex());
     }
 
     @Override
-    public LoadDetail setVariableReactivePower(float variableReactivePower) {
+    public LoadDetail setVariableReactivePower(double variableReactivePower) {
         checkPower(variableReactivePower, "Invalid variableReactivePower");
         this.variableReactivePower.set(getVariantIndex(), variableReactivePower);
         return this;
     }
 
-    private static float checkPower(float power, String errorMessage) {
-        if (Float.isNaN(power)) {
+    private static double checkPower(double power, String errorMessage) {
+        if (Double.isNaN(power)) {
             throw new IllegalArgumentException(errorMessage);
         }
         return power;
