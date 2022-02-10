@@ -27,13 +27,16 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class ShortCircuitAnalysis {
 
+    private static final String NOT_NULL_COMPUTATION_MANAGER_MESSAGE = "ComputationManager should not be null";
+    private static final String NOT_NULL_PARAMETERS_MESSAGE = "Short circuit parameters should not be null";
+    private static final String NOT_NULL_NETWORK_MESSAGE = "Network should not be null";
+
     private ShortCircuitAnalysis() {
         throw new AssertionError("Utility class should not been instantiated");
     }
 
     public static final class Runner implements Versionable {
         private final ShortCircuitAnalysisProvider provider;
-        private String nullNetworkMessage = "Network should not be null";
 
         private Runner(ShortCircuitAnalysisProvider provider) {
             this.provider = Objects.requireNonNull(provider);
@@ -43,9 +46,9 @@ public final class ShortCircuitAnalysis {
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager,
                                                                       Reporter reporter) {
-            Objects.requireNonNull(network, nullNetworkMessage);
-            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
-            Objects.requireNonNull(parameters, "Short circuit parameters should not be null");
+            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
+            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
+            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
             Objects.requireNonNull(reporter, "Reporter should not be null");
             return provider.run(network, parameters, computationManager, reporter);
         }
@@ -53,25 +56,25 @@ public final class ShortCircuitAnalysis {
         public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager) {
-            Objects.requireNonNull(network, nullNetworkMessage);
-            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
-            Objects.requireNonNull(parameters, "Short circuit parameters should not be null");
+            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
+            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
+            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
             return provider.run(network, parameters, computationManager);
         }
 
         public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager,
                                               Reporter reporter) {
-            Objects.requireNonNull(network, nullNetworkMessage);
-            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
-            Objects.requireNonNull(parameters, "Short circuit parameters should not be null");
+            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
+            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
+            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
             Objects.requireNonNull(reporter, "Reporter should not be null");
             return provider.run(network, parameters, computationManager, reporter).join();
         }
 
         public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
-            Objects.requireNonNull(network, nullNetworkMessage);
-            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
-            Objects.requireNonNull(parameters, "Short circuit parameters should not be null");
+            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
+            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
+            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
             return provider.run(network, parameters, computationManager).join();
         }
 
@@ -80,7 +83,7 @@ public final class ShortCircuitAnalysis {
         }
 
         public ShortCircuitAnalysisResult run(Network network) {
-            Objects.requireNonNull(network, nullNetworkMessage);
+            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
             return run(network, ShortCircuitParameters.load());
         }
 
