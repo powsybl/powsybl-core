@@ -147,7 +147,6 @@ public class CgmesConformity1ModifiedConversionTest {
         CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
 
         config.setConvertSvInjections(true);
-        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
         Conversion c = new Conversion(cgmes, config);
         Network n = c.convert();
 

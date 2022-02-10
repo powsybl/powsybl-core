@@ -103,7 +103,6 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SSH");
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
