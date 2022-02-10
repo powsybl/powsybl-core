@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
@@ -18,7 +17,6 @@ public class CgmesModelExtensionAdderImpl extends AbstractExtensionAdder<Network
         implements CgmesModelExtensionAdder {
 
     private CgmesModel cgmes;
-    private CgmesUpdate cgmesUpdate;
 
     protected CgmesModelExtensionAdderImpl(Network extendable) {
         super(extendable);
@@ -26,18 +24,12 @@ public class CgmesModelExtensionAdderImpl extends AbstractExtensionAdder<Network
 
     @Override
     protected CgmesModelExtension createExtension(Network extendable) {
-        return new CgmesModelExtensionImpl(cgmes, cgmesUpdate);
+        return new CgmesModelExtensionImpl(cgmes);
     }
 
     @Override
     public CgmesModelExtensionAdder withModel(CgmesModel cgmes) {
         this.cgmes = cgmes;
-        return this;
-    }
-
-    @Override
-    public CgmesModelExtensionAdder withUpdate(CgmesUpdate cgmesUpdate) {
-        this.cgmesUpdate = cgmesUpdate;
         return this;
     }
 }
