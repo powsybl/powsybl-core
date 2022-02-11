@@ -49,7 +49,6 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         ModuleConfig config = platformConfig.getOptionalModuleConfig("short-circuit-parameters").orElse(null);
         if (config != null) {
             parameters.setSubTransStudy(config.getBooleanProperty("subTransStudy", ShortCircuitConstants.SUBTRANS_STUDY));
-            // TODO: add a condition on systematic study
             parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", ShortCircuitConstants.WITH_FEEDER_RESULT));
 
         }

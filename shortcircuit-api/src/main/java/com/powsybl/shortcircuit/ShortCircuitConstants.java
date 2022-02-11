@@ -16,5 +16,5 @@ public final class ShortCircuitConstants {
 
     public static final boolean SUBTRANS_STUDY = false;
 
-    public static final boolean WITH_FEEDER_RESULT = true;
+    public static final boolean WITH_FEEDER_RESULT = false;
 }

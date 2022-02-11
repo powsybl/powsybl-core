@@ -27,7 +27,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final double threePhaseFaultCurrent;
 
-    private final List<FeederResult> feederResults; //in case of systematic study, optional
+    private final List<FeederResult> feederResults; // optional
 
     public FaultResult(String id, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
         this.id = Objects.requireNonNull(id);
