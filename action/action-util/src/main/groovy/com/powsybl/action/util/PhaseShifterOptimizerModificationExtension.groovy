@@ -9,6 +9,7 @@ package com.powsybl.action.util
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.iidm.modification.NetworkModification
+import com.powsybl.iidm.modification.PhaseShifterOptimizeTap
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.util;
 
+import com.powsybl.iidm.modification.ConnectGenerator;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +119,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         Terminal t = g.getTerminal();
         if (!t.isConnected()) {
-            GeneratorUtil.connectGenerator(g);
+            new ConnectGenerator(g.getId()).apply(n);
             LOGGER.info("Connecting {}", g.getId());
         }
 

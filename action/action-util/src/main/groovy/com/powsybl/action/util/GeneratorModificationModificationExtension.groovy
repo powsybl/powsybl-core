@@ -9,6 +9,7 @@ package com.powsybl.action.util
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.commons.PowsyblException
+import com.powsybl.iidm.modification.GeneratorModification
 import com.powsybl.iidm.modification.NetworkModification
 
 /**

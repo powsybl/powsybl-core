@@ -4,47 +4,43 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.util;
+package com.powsybl.iidm.modification;
 
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class GeneratorUtilTest {
+public class ConnectGeneratorTest {
     private Network network;
-    private Bus bus1;
-    private Generator g1;
     private Generator g2;
     private Generator g3;
 
     @Before
     public void setUp() {
-        network = createNetwork();
-        g1 = network.getGenerator("g1");
-        g2 = network.getGenerator("g2");
-        g3 = network.getGenerator("g3");
-        bus1 = network.getVoltageLevel("vl1").getBusBreakerView().getBus("bus1");
+        network = FourSubstationsNodeBreakerFactory.create();
+        Generator g1 = network.getGenerator("GH1");
+        g2 = network.getGenerator("GH2");
+        g3 = network.getGenerator("GH3");
         g1.setTargetV(11.);
         g2.setTargetV(22.);
         g3.setTargetV(33.);
         g1.getTerminal().disconnect();
         g2.getTerminal().disconnect();
-        bus1.setV(99.);
+        network.getVoltageLevel("S1VL2").getBusView().getBus("S1VL2_0").setV(99.);
     }
 
     @Test
     public void testConnectVoltageRegulatorOff() {
         g2.setVoltageRegulatorOn(false);
-        GeneratorUtil.connectGenerator(g2);
+        new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(22., g2.getTargetV(), 0.01);
     }
@@ -52,7 +48,7 @@ public class GeneratorUtilTest {
     @Test
     public void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
         g2.setVoltageRegulatorOn(true);
-        GeneratorUtil.connectGenerator(g2);
+        new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(33., g2.getTargetV(), 0.01);
     }
@@ -61,7 +57,7 @@ public class GeneratorUtilTest {
     public void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
         g2.setVoltageRegulatorOn(true);
-        GeneratorUtil.connectGenerator(g2);
+        new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(99., g2.getTargetV(), 0.01);
     }

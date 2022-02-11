@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.action.util.PhaseShifterShiftTap;
+import com.powsybl.iidm.modification.PhaseShifterShiftTap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;

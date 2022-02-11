@@ -8,6 +8,7 @@ package com.powsybl.action.util
 
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.spi.DslModificationExtension
+import com.powsybl.iidm.modification.CloseSwitch
 import com.powsybl.iidm.modification.NetworkModification
 
 /**

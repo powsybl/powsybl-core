@@ -1,28 +1,34 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.util;
+package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.modification.NetworkModification;
 
 import java.util.Objects;
 
-public class PhaseShifterSetAsFixedTap implements NetworkModification {
+/**
+ * @author Hamou AMROUN <hamou.amroun at rte-france.com>
+ */
+public class PhaseShifterShiftTap implements NetworkModification {
 
     private final String phaseShifterId;
-    private final int tapPosition;
+    private final int tapDelta;
 
-    public PhaseShifterSetAsFixedTap(String phaseShifterId, int tapPosition) {
+    public PhaseShifterShiftTap(String phaseShifterId, int tapDelta) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
-        this.tapPosition = tapPosition;
+        this.tapDelta = tapDelta;
+    }
+
+    public int getTapDelta() {
+        return tapDelta;
     }
 
     @Override
@@ -37,11 +43,17 @@ public class PhaseShifterSetAsFixedTap implements NetworkModification {
         if (phaseShifter == null) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
         }
-        if (!phaseShifter.hasPhaseTapChanger()) {
+        PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
+        if (phaseTapChanger == null) {
             throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
         }
-        phaseShifter.getPhaseTapChanger().setTapPosition(tapPosition);
-        phaseShifter.getPhaseTapChanger().setRegulating(false);
-        phaseShifter.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+        adjustTapPosition(phaseTapChanger);
+        phaseTapChanger.setRegulating(false);
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+    }
+
+    private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
+        phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
+                phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
     }
 }
