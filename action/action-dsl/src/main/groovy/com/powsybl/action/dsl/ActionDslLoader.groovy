@@ -88,6 +88,12 @@ class ActionDslLoader extends DslLoader {
             cloned.delegate = modificationsSpec
             cloned()
         }
+
+        void tasks(Closure<Void> closure) {
+            def cloned = closure.clone()
+            cloned.delegate = modificationsSpec
+            cloned()
+        }
     }
 
     ActionDslLoader(GroovyCodeSource dslSrc) {

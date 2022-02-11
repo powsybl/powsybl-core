@@ -10,6 +10,14 @@ rule ('Memoriser_Prise_Init_TD_Boutre') {
     apply 'someAction'
 }
 
+
+action ('backwardCompatibility') {
+    description 'backward compatibility'
+    tasks {
+        phaseShifterFixedTap('NGEN_NHV1', 2)
+    }
+}
+
 action ('someAction') {
     description 'asdf'
     modifications {
