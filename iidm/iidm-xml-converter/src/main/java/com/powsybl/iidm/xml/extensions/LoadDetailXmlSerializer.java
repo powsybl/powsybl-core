@@ -45,15 +45,15 @@ public class LoadDetailXmlSerializer extends AbstractExtensionXmlSerializer<Load
         if (Double.isNaN(fixedActivePower)) {
             fixedActivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad1ActivePower");
         }
-        double fixedReactivePower = XmlUtil.readDoubleAttribute(context.getReader(), "fixedReactivePower");
+        double fixedReactivePower = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fixedReactivePower");
         if (Double.isNaN(fixedReactivePower)) {
             fixedReactivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad1ReactivePower");
         }
-        double variableActivePower = XmlUtil.readDoubleAttribute(context.getReader(), "variableActivePower");
+        double variableActivePower = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "variableActivePower");
         if (Double.isNaN(variableActivePower)) {
             variableActivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad2ActivePower");
         }
-        double variableReactivePower = XmlUtil.readDoubleAttribute(context.getReader(), "variableReactivePower");
+        double variableReactivePower = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "variableReactivePower");
         if (Double.isNaN(variableReactivePower)) {
             variableReactivePower = XmlUtil.readDoubleAttribute(context.getReader(), "subLoad2ReactivePower");
         }
