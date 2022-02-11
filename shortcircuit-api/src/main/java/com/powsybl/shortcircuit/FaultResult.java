@@ -7,8 +7,6 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,8 +18,6 @@ import java.util.Objects;
  * @author Boubakeur Brahimi
  */
 public final class FaultResult extends AbstractExtendable<FaultResult> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FaultResult.class);
 
     private final String id;
 
