@@ -69,6 +69,7 @@
         <module>loadflow</module>
         <module>math</module>
         <module>matpower</module>
+        <module>powerfactory</module>
         <module>psse</module>
         <module>scripting</module>
         <module>security-analysis</module>
@@ -486,6 +487,21 @@
                 <artifactId>powsybl-matpower-model</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-powerfactory-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-powerfactory-dgs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-powerfactory-converter</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
