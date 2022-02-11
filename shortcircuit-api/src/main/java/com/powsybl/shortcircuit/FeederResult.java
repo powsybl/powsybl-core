@@ -6,6 +6,9 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 /**
@@ -23,11 +26,9 @@ public class FeederResult {
      */
     private final double feederThreePhaseCurrent;
 
-    public FeederResult() {
-        this("", 0);
-    }
-
-    public FeederResult(String connectableId, double feederThreePhaseCurrent) {
+    @JsonCreator
+    public FeederResult(@JsonProperty("connectableId") String connectableId,
+                        @JsonProperty("feederThreePhaseCurrent") double feederThreePhaseCurrent) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.feederThreePhaseCurrent = feederThreePhaseCurrent;
     }
