@@ -7,6 +7,7 @@
 package com.powsybl.shortcircuit;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
@@ -51,11 +52,15 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
         return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>(), new ArrayList<>()));
     }
 
-    public static ShortCircuitAnalysisResult runAsync(Network network) {
+    @Override
+    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+        reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
+        return run(network, parameters, computationManager);
+    }
+
+    public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
         FaultResult faultResult = new FaultResult("VLGEN", 10);
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
-        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
-
-        return result;
+        return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
     }
 }

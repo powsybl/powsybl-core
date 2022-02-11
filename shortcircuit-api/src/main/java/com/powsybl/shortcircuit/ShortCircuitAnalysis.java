@@ -64,18 +64,11 @@ public final class ShortCircuitAnalysis {
 
         public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager,
                                               Reporter reporter) {
-            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
-            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
-            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
-            Objects.requireNonNull(reporter, "Reporter should not be null");
-            return provider.run(network, parameters, computationManager, reporter).join();
+            return runAsync(network, parameters, computationManager, reporter).join();
         }
 
         public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
-            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
-            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
-            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
-            return provider.run(network, parameters, computationManager).join();
+            return runAsync(network, parameters, computationManager).join();
         }
 
         public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters) {
@@ -83,7 +76,6 @@ public final class ShortCircuitAnalysis {
         }
 
         public ShortCircuitAnalysisResult run(Network network) {
-            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
             return run(network, ShortCircuitParameters.load());
         }
 
@@ -122,6 +114,10 @@ public final class ShortCircuitAnalysis {
     public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, ShortCircuitParameters parameters,
                                                                          ComputationManager computationManager, Reporter reporter) {
         return find().runAsync(network, parameters, computationManager, reporter);
+    }
+
+    public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+        return find().run(network, parameters, computationManager, reporter);
     }
 
     public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
