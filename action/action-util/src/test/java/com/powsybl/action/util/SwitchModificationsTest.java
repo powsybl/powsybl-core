@@ -16,7 +16,7 @@ import org.junit.Test;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class SwitchTasksTest {
+public class SwitchModificationsTest {
 
     private final Network network = NetworkTest1Factory.create();
 
