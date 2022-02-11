@@ -30,6 +30,7 @@
         <module>iidm-extensions</module>
         <module>iidm-impl</module>
         <module>iidm-mergingview</module>
+        <module>iidm-modification</module>
         <module>iidm-reducer</module>
         <module>iidm-scripting</module>
         <module>iidm-tck</module>

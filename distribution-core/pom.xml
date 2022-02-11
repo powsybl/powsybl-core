@@ -312,7 +312,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-network-modification</artifactId>
+            <artifactId>powsybl-iidm-modification</artifactId>
             <version>${project.version}</version>
         </dependency>
 

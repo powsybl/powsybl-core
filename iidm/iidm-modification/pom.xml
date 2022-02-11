@@ -16,7 +16,7 @@
         <version>4.7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-network-modification</artifactId>
+    <artifactId>powsybl-iidm-modification</artifactId>
     <name>Network modifications</name>
     <description>The network modification API and a set of classes implementing it</description>
 

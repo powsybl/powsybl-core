@@ -79,7 +79,6 @@
         <module>tools</module>
         <module>triple-store</module>
         <module>ucte</module>
-        <module>network-modification</module>
     </modules>
 
     <properties>
@@ -392,6 +391,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-iidm-modification</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-reducer</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -502,11 +506,6 @@
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-powerfactory-converter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-network-modification</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

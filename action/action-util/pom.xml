@@ -75,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-network-modification</artifactId>
+            <artifactId>powsybl-iidm-modification</artifactId>
         </dependency>
         
         <!-- Test dependencies -->
