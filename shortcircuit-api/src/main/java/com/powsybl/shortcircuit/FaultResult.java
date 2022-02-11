@@ -58,17 +58,16 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
      * List of contributions to the three phase fault current of each connectable connected to the equipment
      */
     public List<FeederResult> getFeederResults() {
-        return feederResults;
+        return Collections.unmodifiableList(feederResults);
     }
 
     public double getFeederCurrent(String feederId) {
-        double current = 0;
         for (FeederResult feederResult : feederResults) {
             if (feederResult.getConnectableId().equals(feederId)) {
-                current = feederResult.getFeederThreePhaseCurrent();
+                return feederResult.getFeederThreePhaseCurrent();
             }
         }
-        return current;
+        return Double.NaN;
     }
 
 }

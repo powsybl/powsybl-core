@@ -40,7 +40,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
     @Override
     public FaultResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String id = "";
-        double threePhaseFaultCurrent = 0;
+        double threePhaseFaultCurrent = Double.NaN;
         List<Extension<FaultResult>> extensions = Collections.emptyList();
         List<FeederResult> feederResults = Collections.emptyList();
 

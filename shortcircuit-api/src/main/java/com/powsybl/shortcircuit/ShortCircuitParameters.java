@@ -27,7 +27,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     private boolean subTransStudy = ShortCircuitConstants.SUBTRANS_STUDY;
 
-    private boolean withFeederResult = ShortCircuitConstants.WITH_FEEDER_RESULT; //In case of systematic study only
+    private boolean withFeederResult = ShortCircuitConstants.WITH_FEEDER_RESULT;
 
     public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {

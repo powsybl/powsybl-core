@@ -6,6 +6,8 @@
  */
 package com.powsybl.shortcircuit;
 
+import java.util.Objects;
+
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -26,7 +28,7 @@ public class FeederResult {
     }
 
     public FeederResult(String connectableId, double feederThreePhaseCurrent) {
-        this.connectableId = connectableId;
+        this.connectableId = Objects.requireNonNull(connectableId);
         this.feederThreePhaseCurrent = feederThreePhaseCurrent;
     }
 

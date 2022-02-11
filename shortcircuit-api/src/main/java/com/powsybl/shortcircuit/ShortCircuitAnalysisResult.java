@@ -30,14 +30,12 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
 
     private final List<LimitViolation> limitViolations = new ArrayList<>();
 
-    private List<FeederResult> feederResults;
+    private List<FeederResult> feederResults = new ArrayList<>();
 
     public ShortCircuitAnalysisResult(List<FaultResult> faultResults, List<LimitViolation> limitViolations, List<FeederResult> feederResults) {
         this.faultResults.addAll(Objects.requireNonNull(faultResults));
         this.limitViolations.addAll(Objects.requireNonNull(limitViolations));
-        if (feederResults != null) {
-            this.feederResults = List.copyOf(feederResults);
-        }
+        this.feederResults.addAll(feederResults);
     }
 
     public ShortCircuitAnalysisResult(List<FaultResult> faultResults, List<LimitViolation> limitViolations) {
@@ -70,7 +68,7 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
     }
 
     public List<FeederResult> getFeederResults() {
-        return feederResults;
+        return Collections.unmodifiableList(feederResults);
     }
 
 }
