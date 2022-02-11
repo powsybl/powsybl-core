@@ -24,8 +24,8 @@ public final class Cim14SmallCasesNetworkCatalog {
     }
 
     public static Network smallcase1() {
-        String sGenGeoTag = "_SGR_1_";
-        String sInfGeoTag = "_SGR_1_";
+        String sGenGeoTag = "1 ";
+        String sInfGeoTag = "1 ";
         String genName = "GEN     ";
         String genInfName = "INF     ";
         Network network = Network.create("unknown", "no-format");
@@ -34,11 +34,13 @@ public final class Cim14SmallCasesNetworkCatalog {
             .setName("GEN     _SS")
             .setGeographicalTags(sGenGeoTag)
             .add();
+        sGen.setProperty("CGMES.regionId", "_SGR_1_");
         Substation sInf = network.newSubstation()
             .setId("_INF______SS")
             .setName("INF     _SS")
             .setGeographicalTags(sInfGeoTag)
             .add();
+        sInf.setProperty("CGMES.regionId", "_SGR_1_");
         VoltageLevel vlInf = sInf.newVoltageLevel()
             .setId("_INF______VL")
             .setName("INF     _VL")
