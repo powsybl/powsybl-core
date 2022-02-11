@@ -15,7 +15,7 @@ class PhaseShifterFixedTapModificationExtension implements DslModificationExtens
     @Override
     void addToSpec(MetaClass modificationsSpecMetaClass, List<NetworkModification> modifications, Binding binding) {
         modificationsSpecMetaClass.phaseShifterFixedTap = { String id, int position ->
-            modifications.add(new PhaseShifterSetTap(id, position))
+            modifications.add(new PhaseShifterSetAsFixedTap(id, position))
         }
     }
 }
