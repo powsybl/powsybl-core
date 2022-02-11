@@ -12,6 +12,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
@@ -77,10 +78,12 @@ public class CgmesConformity1ConversionTest {
     public void microGridBaseCaseBERoundtripBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
         ConversionTester t = new ConversionTester(
-            importParams,
+            importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig());
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -90,9 +93,11 @@ public class CgmesConformity1ConversionTest {
     public void microGridBaseCaseBERoundtrip() throws IOException {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
         // are recalculated and we need to increase the tolerance
-        ConversionTester t = new ConversionTester(
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        ConversionTester t = new ConversionTester(new Properties(), exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }
@@ -101,12 +106,14 @@ public class CgmesConformity1ConversionTest {
     public void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
         // are recalculated and we need to increase the tolerance
-        Properties properties = new Properties();
-        properties.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
         ConversionTester t = new ConversionTester(
-            properties,
+            importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }
