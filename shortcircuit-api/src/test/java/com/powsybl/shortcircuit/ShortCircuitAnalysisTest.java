@@ -65,6 +65,7 @@ public class ShortCircuitAnalysisTest {
 
         assertEquals(0, res.getFaultResults().size());
         assertEquals(0, res.getLimitViolations().size());
+        assertEquals(0, res.getFeederResults().size());
     }
 
     private static final String DEFAULT_PROVIDER_NAME = "ShortCircuitAnalysisMock";

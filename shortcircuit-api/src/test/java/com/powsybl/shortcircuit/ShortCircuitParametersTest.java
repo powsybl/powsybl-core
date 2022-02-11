@@ -85,6 +85,15 @@ public class ShortCircuitParametersTest {
     }
 
     @Test
+    public void testWithFeederResult() {
+        ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
+        assertTrue(parameters.isWithFeederResult());
+
+        parameters.setWithFeederResult(false);
+        assertFalse(parameters.isWithFeederResult());
+    }
+
+    @Test
     public void testConfigLoader() throws IOException {
         Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
         Path cfgFile = cfgDir.resolve("config.yml");
@@ -93,6 +102,7 @@ public class ShortCircuitParametersTest {
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
         assertTrue(parameters.isSubTransStudy());
+        assertFalse(parameters.isWithFeederResult());
     }
 
     private static class DummyExtension extends AbstractExtension<ShortCircuitParameters> {

@@ -30,9 +30,16 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
 
     private final List<LimitViolation> limitViolations = new ArrayList<>();
 
-    public ShortCircuitAnalysisResult(List<FaultResult> faultResults, List<LimitViolation> limitViolations) {
+    private List<FeederResult> feederResults = new ArrayList<>();
+
+    public ShortCircuitAnalysisResult(List<FaultResult> faultResults, List<LimitViolation> limitViolations, List<FeederResult> feederResults) {
         this.faultResults.addAll(Objects.requireNonNull(faultResults));
         this.limitViolations.addAll(Objects.requireNonNull(limitViolations));
+        this.feederResults.addAll(feederResults);
+    }
+
+    public ShortCircuitAnalysisResult(List<FaultResult> faultResults, List<LimitViolation> limitViolations) {
+        this(faultResults, limitViolations, Collections.emptyList());
     }
 
     /**
@@ -58,6 +65,10 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
     public ShortCircuitAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
         this.networkMetadata = networkMetadata;
         return this;
+    }
+
+    public List<FeederResult> getFeederResults() {
+        return Collections.unmodifiableList(feederResults);
     }
 
 }
