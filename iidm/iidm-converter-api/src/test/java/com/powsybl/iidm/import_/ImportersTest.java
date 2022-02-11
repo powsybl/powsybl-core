@@ -7,7 +7,9 @@
 package com.powsybl.iidm.import_;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.AbstractConvertersTest;
 import com.powsybl.iidm.network.LoadType;
@@ -19,6 +21,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,6 +87,26 @@ public class ImportersTest extends AbstractConvertersTest {
         Network network = importer.importData(null, NetworkFactory.findDefault(), null);
         assertNotNull(network);
         assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
+    }
+
+    @Test
+    public void getImporterWithImportConfigAndReporter() {
+        Importer importer = Importers.getImporter(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
+        ReporterModel reporter = new ReporterModel("testFunctionalLog", "testFunctionalLogs");
+        assertNotNull(importer);
+        Network network = importer.importData(null, NetworkFactory.findDefault(), null, reporter);
+        assertNotNull(network);
+        assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
+
+        // Check that the wrapped importer has received the functional logs reporter and produced report items
+        assertEquals(1, reporter.getReports().size());
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+        String actual = TestUtil.normalizeLineSeparator(sw.toString());
+        String expected = TestUtil.normalizeLineSeparator(
+                "+ testFunctionalLogs\n" +
+                "   Import model eurostagTutorialExample1\n");
+        assertEquals(expected, actual);
     }
 
     @Test

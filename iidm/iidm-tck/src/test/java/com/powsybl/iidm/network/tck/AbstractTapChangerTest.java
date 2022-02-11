@@ -304,7 +304,7 @@ public abstract class AbstractTapChangerTest {
         assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
     }
 
-    private void getTapPositionThrowsException(TapChanger tapChanger) {
+    private void getTapPositionThrowsException(TapChanger<?, ?> tapChanger) {
         try {
             tapChanger.getTapPosition();
             fail();
@@ -500,16 +500,6 @@ public abstract class AbstractTapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("bad target voltage");
         createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal);
-    }
-
-    @Test
-    public void negativeTargetVOnlyWarning() {
-        createRatioTapChangerWith3Steps(0, 1, false, true, -10.0, 1.0, terminal);
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        assertNotNull(rtc);
-        assertFalse(rtc.hasLoadTapChangingCapabilities());
-        assertTrue(rtc.isRegulating());
-        assertEquals(-10.0, rtc.getTargetV(), 0.0);
     }
 
     @Test

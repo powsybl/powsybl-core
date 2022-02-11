@@ -73,6 +73,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         generator =  Mockito.mock(Generator.class);
         Mockito.when(generator.getId()).thenReturn("gen");
         Mockito.when(generator.getTerminal()).thenReturn(genTerminal);
+        Mockito.when(generator.isVoltageRegulatorOn()).thenReturn(false);
         Mockito.when(generator.getTargetP()).thenReturn(targetP);
         Mockito.when(generator.getTargetQ()).thenReturn(targetQ);
         Mockito.when(generator.getTargetV()).thenReturn(targetV);
@@ -202,6 +203,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Generator generator1 =  Mockito.mock(Generator.class);
         Mockito.when(generator1.getId()).thenReturn("gen1");
         Mockito.when(generator1.getTerminal()).thenReturn(genTerminal1);
+        Mockito.when(generator1.isVoltageRegulatorOn()).thenReturn(false);
         Mockito.when(generator1.getTargetP()).thenReturn(targetP);
         Mockito.when(generator1.getTargetQ()).thenReturn(targetQ);
         Mockito.when(generator1.getTargetV()).thenReturn(targetV);
@@ -243,6 +245,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Generator generator2 =  Mockito.mock(Generator.class);
         Mockito.when(generator2.getId()).thenReturn("gen2");
         Mockito.when(generator2.getTerminal()).thenReturn(genTerminal2);
+        Mockito.when(generator2.isVoltageRegulatorOn()).thenReturn(false);
         Mockito.when(generator2.getTargetP()).thenReturn(155.107);
         Mockito.when(generator2.getTargetQ()).thenReturn(targetQ);
         Mockito.when(generator2.getTargetV()).thenReturn(targetV);

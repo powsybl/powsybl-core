@@ -26,14 +26,20 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
     private final XMLStreamWriter writer;
     private final ExportOptions options;
     private final BusFilter filter;
+    private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
         super(anonymizer, version);
         this.writer = writer;
         this.options = options;
         this.filter = filter;
+        this.valid = valid;
         this.exportedEquipments = new HashSet<>();
+    }
+
+    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
+        this(anonymizer, writer, options, filter, version, true);
     }
 
     NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
@@ -52,6 +58,10 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
 
     public BusFilter getFilter() {
         return filter;
+    }
+
+    public boolean isValid() {
+        return valid;
     }
 
     /**
