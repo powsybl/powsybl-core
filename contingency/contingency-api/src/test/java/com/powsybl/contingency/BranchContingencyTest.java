@@ -9,7 +9,7 @@ package com.powsybl.contingency;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.network.modification.tripping.BranchTripping;
+import com.powsybl.iidm.modification.tripping.BranchTripping;
 import org.junit.Test;
 
 import java.util.List;

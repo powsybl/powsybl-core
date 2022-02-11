@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
-import com.powsybl.network.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
 
 import java.util.Objects;
 

@@ -11,7 +11,7 @@ import com.powsybl.action.dsl.ActionDslException
 import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.computation.ComputationManager
 import com.powsybl.iidm.network.Network
-import com.powsybl.network.modification.NetworkModification
+import com.powsybl.iidm.modification.NetworkModification
 
 import static com.powsybl.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
 

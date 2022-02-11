@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.network.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

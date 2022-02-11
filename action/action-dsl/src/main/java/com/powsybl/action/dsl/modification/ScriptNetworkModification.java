@@ -8,7 +8,7 @@ package com.powsybl.action.dsl.modification;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.network.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
 import groovy.lang.Closure;
 
 import java.util.Objects;

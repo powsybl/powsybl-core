@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.Tripping;
-import com.powsybl.network.modification.tripping.TwoWindingsTransformerTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
+import com.powsybl.iidm.modification.tripping.TwoWindingsTransformerTripping;
 
 import java.util.Objects;
 

@@ -8,8 +8,8 @@ package com.powsybl.contingency;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.*;
-import com.powsybl.network.modification.NetworkModification;
-import com.powsybl.network.modification.NetworkModificationList;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationList;
 import org.junit.Test;
 
 import java.util.Arrays;

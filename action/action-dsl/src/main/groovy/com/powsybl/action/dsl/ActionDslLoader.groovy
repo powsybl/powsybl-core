@@ -9,7 +9,7 @@ package com.powsybl.action.dsl
 import com.powsybl.action.dsl.spi.DslModificationExtension
 import com.powsybl.contingency.Contingency
 import com.powsybl.contingency.dsl.ContingencyDslLoader
-import com.powsybl.network.modification.NetworkModification
+import com.powsybl.iidm.modification.NetworkModification
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode

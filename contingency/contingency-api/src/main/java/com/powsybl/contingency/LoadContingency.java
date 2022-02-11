@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.LoadTripping;
-import com.powsybl.network.modification.tripping.Tripping;
+import com.powsybl.iidm.modification.tripping.LoadTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
  * @author Hadrien Godard <hadrien.godard at artelys.com>

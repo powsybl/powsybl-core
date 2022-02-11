@@ -8,7 +8,7 @@ package com.powsybl.action.util
 
 import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.spi.DslModificationExtension
-import com.powsybl.network.modification.NetworkModification
+import com.powsybl.iidm.modification.NetworkModification
 
 @AutoService(DslModificationExtension.class)
 class PhaseShifterFixedTapModificationExtension implements DslModificationExtension {

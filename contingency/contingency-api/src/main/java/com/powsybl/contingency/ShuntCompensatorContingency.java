@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.ShuntCompensatorTripping;
-import com.powsybl.network.modification.tripping.Tripping;
+import com.powsybl.iidm.modification.tripping.ShuntCompensatorTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>

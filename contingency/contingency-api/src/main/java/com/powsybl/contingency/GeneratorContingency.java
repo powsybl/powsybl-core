@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.network.modification.tripping.GeneratorTripping;
-import com.powsybl.network.modification.tripping.Tripping;
+import com.powsybl.iidm.modification.tripping.GeneratorTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

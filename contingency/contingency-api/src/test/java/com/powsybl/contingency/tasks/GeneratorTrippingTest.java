@@ -9,7 +9,7 @@ package com.powsybl.contingency.tasks;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.network.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

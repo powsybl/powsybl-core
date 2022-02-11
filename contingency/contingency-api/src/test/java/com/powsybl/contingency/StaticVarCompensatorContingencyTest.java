@@ -9,7 +9,7 @@ package com.powsybl.contingency;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.network.modification.tripping.StaticVarCompensatorTripping;
+import com.powsybl.iidm.modification.tripping.StaticVarCompensatorTripping;
 import org.junit.Test;
 
 import java.util.List;

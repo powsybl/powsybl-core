@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl.spi;
 
-import com.powsybl.network.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
 import groovy.lang.Binding;
 import groovy.lang.MetaClass;
 
