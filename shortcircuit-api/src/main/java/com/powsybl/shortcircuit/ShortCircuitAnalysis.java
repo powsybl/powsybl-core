@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -26,13 +27,16 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class ShortCircuitAnalysis {
 
+    private static final String NOT_NULL_COMPUTATION_MANAGER_MESSAGE = "ComputationManager should not be null";
+    private static final String NOT_NULL_PARAMETERS_MESSAGE = "Short circuit parameters should not be null";
+    private static final String NOT_NULL_NETWORK_MESSAGE = "Network should not be null";
+
     private ShortCircuitAnalysis() {
         throw new AssertionError("Utility class should not been instantiated");
     }
 
     public static final class Runner implements Versionable {
         private final ShortCircuitAnalysisProvider provider;
-        private String nullNetworkMessage = "Network should not be null";
 
         private Runner(ShortCircuitAnalysisProvider provider) {
             this.provider = Objects.requireNonNull(provider);
@@ -40,18 +44,31 @@ public final class ShortCircuitAnalysis {
 
         public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
                                                                       ShortCircuitParameters parameters,
+                                                                      ComputationManager computationManager,
+                                                                      Reporter reporter) {
+            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
+            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
+            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
+            Objects.requireNonNull(reporter, "Reporter should not be null");
+            return provider.run(network, parameters, computationManager, reporter);
+        }
+
+        public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
+                                                                      ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager) {
-            Objects.requireNonNull(network, nullNetworkMessage);
-            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
-            Objects.requireNonNull(parameters, "Short circuit parameters should not be null");
+            Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
+            Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
+            Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
             return provider.run(network, parameters, computationManager);
         }
 
+        public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager,
+                                              Reporter reporter) {
+            return runAsync(network, parameters, computationManager, reporter).join();
+        }
+
         public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
-            Objects.requireNonNull(network, nullNetworkMessage);
-            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
-            Objects.requireNonNull(parameters, "Short circuit parameters should not be null");
-            return provider.run(network, parameters, computationManager).join();
+            return runAsync(network, parameters, computationManager).join();
         }
 
         public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters) {
@@ -59,7 +76,6 @@ public final class ShortCircuitAnalysis {
         }
 
         public ShortCircuitAnalysisResult run(Network network) {
-            Objects.requireNonNull(network, nullNetworkMessage);
             return run(network, ShortCircuitParameters.load());
         }
 
@@ -93,6 +109,15 @@ public final class ShortCircuitAnalysis {
     public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, ShortCircuitParameters parameters,
                                                                          ComputationManager computationManager) {
         return find().runAsync(network, parameters, computationManager);
+    }
+
+    public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, ShortCircuitParameters parameters,
+                                                                         ComputationManager computationManager, Reporter reporter) {
+        return find().runAsync(network, parameters, computationManager, reporter);
+    }
+
+    public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+        return find().run(network, parameters, computationManager, reporter);
     }
 
     public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
