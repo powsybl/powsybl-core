@@ -19,7 +19,18 @@ public final class ShortCircuitConstants {
         SELECTIVE_STUDY,
     }
 
+    public enum SelectiveStudyType {
+        BUS_STUDY,
+        BRANCH_STUDY,
+    }
+
+    public enum ImpedanceConnection {
+        SERIES,
+        PARALLEL,
+    }
+
     public static final boolean SUBTRANS_STUDY = false;
     public static final boolean WITH_FEEDER_RESULT = true;
     public static final StudyType DEFAULT_STUDY_TYPE = StudyType.SYSTEMATIC_STUDY;
+    public static final ImpedanceConnection DEFAULT_IMPEDANCE_CONNECTION = ImpedanceConnection.SERIES;
 }
