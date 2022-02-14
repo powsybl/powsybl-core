@@ -6,12 +6,12 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.modification.NetworkModification;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -34,8 +34,8 @@ public class HvdcLineTrippingTest {
 
         Contingency contingency = Contingency.hvdcLine("L");
 
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
+        NetworkModification modification = contingency.toModification();
+        modification.apply(network);
 
         assertFalse(terminal1.isConnected());
         assertFalse(terminal2.isConnected());
@@ -46,7 +46,7 @@ public class HvdcLineTrippingTest {
         assertTrue(terminal2.isConnected());
 
         contingency = Contingency.hvdcLine("L", "VL1");
-        contingency.toTask().modify(network, null);
+        contingency.toModification().apply(network);
 
         assertFalse(terminal1.isConnected());
         assertTrue(terminal2.isConnected());
@@ -57,25 +57,9 @@ public class HvdcLineTrippingTest {
         assertTrue(terminal2.isConnected());
 
         contingency = Contingency.hvdcLine("L", "VL2");
-        contingency.toTask().modify(network, null);
+        contingency.toModification().apply(network);
 
         assertTrue(terminal1.isConnected());
         assertFalse(terminal2.isConnected());
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void unknownHvdcLineTrippingTest() {
-        Network network = HvdcTestNetwork.createLcc();
-
-        HvdcLineTripping tripping = new HvdcLineTripping("unknownHvdcLine");
-        tripping.modify(network, null);
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void unknownVoltageLevelTrippingTest() {
-        Network network = HvdcTestNetwork.createLcc();
-
-        HvdcLineTripping tripping = new HvdcLineTripping("L", "unknownVoltageLevel");
-        tripping.modify(network, null);
     }
 }

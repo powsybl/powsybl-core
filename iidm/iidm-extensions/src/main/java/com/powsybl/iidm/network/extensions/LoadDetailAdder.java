@@ -19,11 +19,11 @@ public interface LoadDetailAdder extends ExtensionAdder<Load, LoadDetail> {
         return LoadDetail.class;
     }
 
-    LoadDetailAdder withFixedActivePower(float fixedActivePower);
+    LoadDetailAdder withFixedActivePower(double fixedActivePower);
 
-    LoadDetailAdder withFixedReactivePower(float fixedReactivePower);
+    LoadDetailAdder withFixedReactivePower(double fixedReactivePower);
 
-    LoadDetailAdder withVariableActivePower(float variableActivePower);
+    LoadDetailAdder withVariableActivePower(double variableActivePower);
 
-    LoadDetailAdder withVariableReactivePower(float variableReactivePower);
+    LoadDetailAdder withVariableReactivePower(double variableReactivePower);
 }

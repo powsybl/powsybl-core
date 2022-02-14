@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
-import com.powsybl.contingency.tasks.BranchTripping;
+import com.powsybl.iidm.modification.tripping.BranchTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 import java.util.Objects;
 
@@ -31,7 +31,7 @@ public class BranchContingency extends AbstractSidedContingency {
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public Tripping toModification() {
         return new BranchTripping(id, voltageLevelId);
     }
 

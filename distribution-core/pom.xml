@@ -312,12 +312,34 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-modification</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-psse-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-psse-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-converter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-dgs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-model</artifactId>
             <version>${project.version}</version>
         </dependency>
 

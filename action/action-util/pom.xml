@@ -73,7 +73,11 @@
             <artifactId>powsybl-loadflow-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-modification</artifactId>
+        </dependency>
+        
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.google.jimfs</groupId>

@@ -6,18 +6,19 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.modification.NetworkModification;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LoadTrippingTest extends AbstractTrippingTest {
+public class LoadTrippingTest {
 
     @Test
     public void loadTrippingTest() {
@@ -26,17 +27,9 @@ public class LoadTrippingTest extends AbstractTrippingTest {
 
         Contingency contingency = Contingency.load("LOAD");
 
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
+        NetworkModification modification = contingency.toModification();
+        modification.apply(network);
 
         assertFalse(network.getLoad("LOAD").getTerminal().isConnected());
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void unknownLoadTrippingTest() {
-        Network network = EurostagTutorialExample1Factory.create();
-
-        LoadTripping tripping = new LoadTripping("generator");
-        tripping.modify(network, null);
     }
 }

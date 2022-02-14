@@ -6,10 +6,10 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.modification.NetworkModification;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,15 +34,9 @@ public class ShuntCompensatorTrippingTest {
 
         Contingency contingency = Contingency.shuntCompensator("C1_Filter1");
 
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
+        NetworkModification modification = contingency.toModification();
+        modification.apply(network);
 
         assertFalse(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void unknownShuntCompensatorTest() {
-        ShuntCompensatorTripping tripping = new ShuntCompensatorTripping("C_Filter");
-        tripping.modify(network, null);
     }
 }

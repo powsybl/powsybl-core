@@ -23,7 +23,7 @@ rule('rule1') {
 }
 
 action('action') {
-    tasks {
+    modifications {
 
     }
 }
