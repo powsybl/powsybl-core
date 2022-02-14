@@ -148,8 +148,8 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
-        addCurrentLimits(line1.newCurrentLimits1(), line.getCurrentLimits1());
-        addCurrentLimits(line2.newCurrentLimits2(), line.getCurrentLimits2());
+        addLoadingLimits(line1, line, Branch.Side.ONE);
+        addLoadingLimits(line2, line, Branch.Side.TWO);
 
         // Remove the existing line
         line.remove();

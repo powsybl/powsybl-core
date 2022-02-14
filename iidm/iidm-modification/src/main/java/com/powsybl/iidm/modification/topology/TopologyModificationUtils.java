@@ -53,10 +53,22 @@ final class TopologyModificationUtils {
         }
     }
 
-    static void addCurrentLimits(CurrentLimitsAdder adder, CurrentLimits currentLimits) {
-        if (currentLimits != null) {
-            adder.setPermanentLimit(currentLimits.getPermanentLimit());
-            for (LoadingLimits.TemporaryLimit tl : currentLimits.getTemporaryLimits()) {
+    static void addLoadingLimits(Line created, Line original, Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            addLoadingLimits(created.newCurrentLimits1(), original.getCurrentLimits1());
+            addLoadingLimits(created.newActivePowerLimits1(), original.getActivePowerLimits1());
+            addLoadingLimits(created.newApparentPowerLimits1(), original.getApparentPowerLimits1());
+        } else {
+            addLoadingLimits(created.newCurrentLimits2(), original.getCurrentLimits2());
+            addLoadingLimits(created.newActivePowerLimits2(), original.getActivePowerLimits2());
+            addLoadingLimits(created.newApparentPowerLimits2(), original.getApparentPowerLimits2());
+        }
+    }
+
+    private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void addLoadingLimits(A adder, L limits) {
+        if (limits != null) {
+            adder.setPermanentLimit(limits.getPermanentLimit());
+            for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 adder.beginTemporaryLimit()
                         .setName(tl.getName())
                         .setAcceptableDuration(tl.getAcceptableDuration())

@@ -212,8 +212,8 @@ public class AttachNewLineOnLine implements NetworkModification {
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        addCurrentLimits(line1.newCurrentLimits1(), line.getCurrentLimits1());
-        addCurrentLimits(line2.newCurrentLimits2(), line.getCurrentLimits2());
+        addLoadingLimits(line1, line, Branch.Side.ONE);
+        addLoadingLimits(line2, line, Branch.Side.TWO);
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()
