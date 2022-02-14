@@ -267,4 +267,60 @@ public class AttachNewLineOnLine implements NetworkModification {
         // Remove the existing line
         line.remove();
     }
+
+    public String getVoltageLevelId() {
+        return voltageLevelId;
+    }
+
+    public String getBbsOrBusId() {
+        return bbsOrBusId;
+    }
+
+    public Line getLine() {
+        return line;
+    }
+
+    public LineAdder getLineAdder() {
+        return lineAdder;
+    }
+
+    public double getPercent() {
+        return percent;
+    }
+
+    public String getFictitiousVlId() {
+        return fictitiousVlId;
+    }
+
+    public String getFictitiousVlName() {
+        return fictitiousVlName;
+    }
+
+    public boolean isCreateFictSubstation() {
+        return createFictSubstation;
+    }
+
+    public String getFictitiousSubstationId() {
+        return fictitiousSubstationId;
+    }
+
+    public String getFictitiousSubstationName() {
+        return fictitiousSubstationName;
+    }
+
+    public String getLine1Id() {
+        return line1Id;
+    }
+
+    public String getLine1Name() {
+        return line1Name;
+    }
+
+    public String getLine2Id() {
+        return line2Id;
+    }
+
+    public String getLine2Name() {
+        return line2Name;
+    }
 }

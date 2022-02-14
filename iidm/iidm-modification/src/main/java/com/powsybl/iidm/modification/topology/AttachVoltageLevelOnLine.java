@@ -159,4 +159,36 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
     public void apply(Network network, ComputationManager computationManager) {
         apply(network);
     }
+
+    public String getVoltageLevelId() {
+        return voltageLevelId;
+    }
+
+    public String getBbsOrBusId() {
+        return bbsOrBusId;
+    }
+
+    public Line getLine() {
+        return line;
+    }
+
+    public double getPercent() {
+        return percent;
+    }
+
+    public String getLine1Id() {
+        return line1Id;
+    }
+
+    public String getLine1Name() {
+        return line1Name;
+    }
+
+    public String getLine2Id() {
+        return line2Id;
+    }
+
+    public String getLine2Name() {
+        return line2Name;
+    }
 }
