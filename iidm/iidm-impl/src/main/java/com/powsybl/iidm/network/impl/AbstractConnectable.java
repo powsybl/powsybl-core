@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -49,7 +50,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public NetworkImpl getNetwork() {
-        return networkRef.get();
+        return Optional.ofNullable(networkRef).map(Ref::get).orElse(null);
     }
 
     @Override
@@ -65,6 +66,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         network.getListeners().notifyAfterRemoval(id);
+        networkRef = null;
+        terminals.forEach(TerminalExt::remove);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
