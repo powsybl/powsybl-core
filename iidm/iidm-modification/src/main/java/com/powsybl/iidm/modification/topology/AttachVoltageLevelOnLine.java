@@ -111,10 +111,14 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
     @Override
     public void apply(Network network) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+
+        // Set parameters of the two lines replacing the existing line
         LineAdder adder1 = createLineAdder(percent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), voltageLevelId, network, line);
         LineAdder adder2 = createLineAdder(100 - percent, line2Id, line2Name, voltageLevelId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+
+        // Create the topology inside the existing voltage level
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
@@ -140,10 +144,14 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
         } else {
             throw new AssertionError();
         }
+
+        // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
         addCurrentLimits(line1.newCurrentLimits1(), line.getCurrentLimits1());
         addCurrentLimits(line2.newCurrentLimits2(), line.getCurrentLimits2());
+
+        // Remove the existing line
         line.remove();
     }
 

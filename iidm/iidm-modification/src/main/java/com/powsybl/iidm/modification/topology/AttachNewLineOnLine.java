@@ -44,7 +44,7 @@ public class AttachNewLineOnLine implements NetworkModification {
 
     /**
      * Constructor. <br>
-     *
+     * <p>
      * percent is 50. <br>
      * fictitiousVlId is line.getId() + "_VL". <br>
      * line1Id is line.getId() + "_1" <br>
@@ -59,7 +59,7 @@ public class AttachNewLineOnLine implements NetworkModification {
 
     /**
      * Constructor. <br>
-     *
+     * <p>
      * fictitiousVlName is null <br>
      * createFictitiousSubstation is false. <br>
      * fictitiousSubstationId is line.getId() + "_S" <br>
@@ -181,6 +181,7 @@ public class AttachNewLineOnLine implements NetworkModification {
 
     @Override
     public void apply(Network network) {
+        // Create the fictitious voltage Level at the attachment point
         VoltageLevel fictitiousVl;
         if (createFictSubstation) {
             fictitiousVl = network.newSubstation()
@@ -203,6 +204,8 @@ public class AttachNewLineOnLine implements NetworkModification {
                     .setNominalV(line.getTerminal1().getVoltageLevel().getNominalV())
                     .setTopologyKind(TopologyKind.NODE_BREAKER).add();
         }
+
+        // Create the two lines replacing the existing line
         LineAdder adder1 = createLineAdder(percent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), fictitiousVlId, network, line);
         LineAdder adder2 = createLineAdder(percent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
@@ -211,6 +214,8 @@ public class AttachNewLineOnLine implements NetworkModification {
         Line line2 = adder2.setNode1(2).add();
         addCurrentLimits(line1.newCurrentLimits1(), line.getCurrentLimits1());
         addCurrentLimits(line2.newCurrentLimits2(), line.getCurrentLimits2());
+
+        // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()
                 .newInternalConnection()
                 .setNode1(0)
@@ -226,7 +231,11 @@ public class AttachNewLineOnLine implements NetworkModification {
                 .setNode1(1)
                 .setNode2(3)
                 .add();
+
+        // Set the end points of the new line
         lineAdder.setNode1(3).setVoltageLevel1(fictitiousVlId).setVoltageLevel2(voltageLevelId);
+
+        // Create topology in the existing voltage level
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
@@ -251,7 +260,11 @@ public class AttachNewLineOnLine implements NetworkModification {
         } else {
             throw new AssertionError();
         }
+
+        // Create the new line
         lineAdder.add();
+
+        // Remove the existing line
         line.remove();
     }
 }
