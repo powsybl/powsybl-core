@@ -16,7 +16,10 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
- * Cut an existing line in two and link the attachment point and an existing voltage level with a new line created from a given line adder.
+ * Connect an existing voltage level (in practice a voltage level where we have some loads or generations) to a point of an
+ * existing line.
+ * This method cuts an existing line in two, creating a fictitious voltage level between them. Then it links an existing voltage level to
+ * this fictitious voltage level in creating a new line created from a given line adder.
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
@@ -80,22 +83,24 @@ public class AttachNewLineOnLine implements NetworkModification {
      * Constructor.
      *
      * @param percent                  When the existing line is cut, percent is equal to the ratio between the parameters of the first line
-     *                                 and the parameters of the second line multiplied by 100
-     * @param voltageLevelId           The created line will be between the attachment point and the voltage level with the given ID
-     * @param bbsOrBusId               The ID of the existing bus or bus bar section the created Line will be linked in the voltage level with the given ID.
-     *                                 Please note that there will be switches between this bus or bus bar section and the connection point of the created line.
-     * @param fictitiousVlId           ID of the created voltage level at the attachment point. Please note that this voltage level is fictitious.
-     * @param fictitiousVlName         Name of the created voltage level at the attachment point. Please note that this voltage level is fictitious.
+     *                                 and the parameters of the line that is cut multiplied by 100. 100 minus percent is equal to the ratio
+     *                                 between the parameters of the second line and the parameters of the line that is cut multiplied by 100.
+     * @param voltageLevelId           The voltage level with the given ID that we want to connect to the initial line.
+     * @param bbsOrBusId               The ID of the existing bus or bus bar section of the voltage level voltageLevelId where we want to connect the line
+     *                                 that will be between this voltage level and the fictitious voltage level.
+     *                                 Please note that there will be switches between this bus or bus bar section and the connection point of the line.
+     * @param fictitiousVlId           ID of the created voltage level at the attachment point of the initial line. Please note that this voltage level is fictitious.
+     * @param fictitiousVlName         Name of the created voltage level at the attachment point of the initial line. Please note that this voltage level is fictitious.
      * @param createFictSubstation     If true, a fictitious substation at the attachment point will be created. Else, the created voltage level
      *                                 will be contained directly in the network.
      * @param fictitiousSubstationId   If createFictSubstation is true, the fictitious substation is given a non-null given ID.
      * @param fictitiousSubstationName If createdFictSubstation is true, the fictitious substation is given a given name.
-     * @param line1Id                  When the existing line is cut, the line segment at side 1 has a non-null given ID.
-     * @param line1Name                When the existing line is cut, the line segment at side 1 has a given name.
-     * @param line2Id                  When the existing line is cut, the line segment at side 2 has a non-null given ID.
-     * @param line2Name                When the existing line is cut, the line segment at side 2 has a given name.
-     * @param line                     The existing line to be cut.
-     * @param lineAdder                The line adder from which the created line is created.
+     * @param line1Id                  When the initial line is cut, the line segment at side 1 has a non-null given ID.
+     * @param line1Name                When the initial line is cut, the line segment at side 1 has a given name.
+     * @param line2Id                  When the initial line is cut, the line segment at side 2 has a non-null given ID.
+     * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
+     * @param line                     The initial line to be cut.
+     * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
      */
     public AttachNewLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                                boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
@@ -207,7 +212,7 @@ public class AttachNewLineOnLine implements NetworkModification {
 
         // Create the two lines replacing the existing line
         LineAdder adder1 = createLineAdder(percent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), fictitiousVlId, network, line);
-        LineAdder adder2 = createLineAdder(percent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
+        LineAdder adder2 = createLineAdder(100 - percent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
         Line line1 = adder1.setNode2(0).add();

@@ -15,7 +15,9 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
- * Cut an existing line in to and attach an existing Voltage Level at the attachment point.
+ * This method cuts an existing line in two lines that will be created and attach an existing voltage level at the
+ * attachment point. The voltage level should be added to the network just before calling this method, and should contains
+ * at least a configured bus in bus/breaker topology or a bus bar section in node/breaker topology.
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
@@ -62,9 +64,10 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
      * Constructor.
      *
      * @param percent        When the existing line is cut, percent is equal to the ratio between the parameters of the first line
-     *                       and the parameters of the second line multiplied by 100.
+     *                       and the parameters of the line that is cut multiplied by 100. 100 minus percent is equal to the ratio
+     *                       between the parameters of the second line and the parameters of the line that is cut multiplied by 100.
      * @param voltageLevelId ID of the existing voltage level to be attached on the existing line.
-     * @param bbsOrBusId     The ID of the configured bus or busbar section to which the lines will be linked to at the attachment point.
+     * @param bbsOrBusId     The ID of the configured bus or bus bar section to which the lines will be linked to at the attachment point.
      * @param line1Id        The non-null ID of the line segment at side 1.
      * @param line1Name      The name of the line segment at side 1.
      * @param line2Id        The non-null ID of the line segment at side 2.
