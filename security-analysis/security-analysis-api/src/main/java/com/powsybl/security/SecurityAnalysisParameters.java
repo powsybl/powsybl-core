@@ -33,6 +33,8 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     public static interface ConfigLoader<E extends Extension<SecurityAnalysisParameters>> extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
     }
 
+    // VERSION = 1.0
+    // VERSION = 1.1 IncreasedViolationsParameters adding.
     public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =

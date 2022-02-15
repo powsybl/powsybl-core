@@ -46,24 +46,6 @@ public class SecurityAnalysisParametersTest {
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
-
-        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
-        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
-        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
-        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
-        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
-
-        parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.01);
-        parameters.getIncreasedViolationsParameters().setLowVoltageProportionalThreshold(0.1);
-        parameters.getIncreasedViolationsParameters().setHighVoltageProportionalThreshold(0.2);
-        parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(4.0);
-        parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(5.0);
-
-        assertEquals(0.01, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
-        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
-        assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
-        assertEquals(4.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
-        assertEquals(5.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
     }
 
     @Test
@@ -124,5 +106,28 @@ public class SecurityAnalysisParametersTest {
         assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
         assertEquals(20, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
         assertEquals(25, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+    }
+
+    @Test
+    public void testIncreasedViolationsParameters() {
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+
+        parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.01);
+        parameters.getIncreasedViolationsParameters().setLowVoltageProportionalThreshold(0.1);
+        parameters.getIncreasedViolationsParameters().setHighVoltageProportionalThreshold(0.2);
+        parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(4.0);
+        parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(5.0);
+
+        assertEquals(0.01, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(4.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(5.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
     }
 }
