@@ -42,19 +42,24 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     parser.nextToken();
                     break;
                 case "increasedFlowViolationsProportionalThreshold":
-                    parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(Double.parseDouble(parser.nextTextValue()));
+                    parser.nextToken();
+                    parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(parser.getDoubleValue());
                     break;
                 case "increasedLowVoltageViolationsProportionalThreshold":
-                    parameters.getIncreasedViolationsParameters().setLowVoltageProportionalThreshold(Double.parseDouble(parser.nextTextValue()));
+                    parser.nextToken();
+                    parameters.getIncreasedViolationsParameters().setLowVoltageProportionalThreshold(parser.getDoubleValue());
                     break;
                 case "increasedHighVoltageViolationsProportionalThreshold":
-                    parameters.getIncreasedViolationsParameters().setHighVoltageProportionalThreshold(Double.parseDouble(parser.nextTextValue()));
+                    parser.nextToken();
+                    parameters.getIncreasedViolationsParameters().setHighVoltageProportionalThreshold(parser.getDoubleValue());
                     break;
                 case "increasedLowVoltageViolationsAbsoluteThreshold":
-                    parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(Double.parseDouble(parser.nextTextValue()));
+                    parser.nextToken();
+                    parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(parser.getDoubleValue());
                     break;
                 case "increasedHighVoltageViolationsAbsoluteThreshold":
-                    parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(Double.parseDouble(parser.nextTextValue()));
+                    parser.nextToken();
+                    parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(parser.getDoubleValue());
                     break;
                 case "load-flow-parameters":
                     parser.nextToken();

@@ -6,7 +6,6 @@
  */
 package com.powsybl.security;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -16,6 +15,7 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Parameters for security analysis computation.
@@ -30,7 +30,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
      * A configuration loader interface for the SecurityAnalysisParameters extensions loaded from the platform configuration
      * @param <E> The extension class
      */
-    public static interface ConfigLoader<E extends Extension<SecurityAnalysisParameters>> extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
+    public interface ConfigLoader<E extends Extension<SecurityAnalysisParameters>> extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
     }
 
     // VERSION = 1.0
@@ -42,7 +42,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
-    public class IncreasedViolationsParameters {
+    public static class IncreasedViolationsParameters {
 
         static final double DEFAULT_FLOW_PROPORTIONAL_THRESHOLD = 0.1; // meaning 10.0 %
         static final double DEFAULT_LOW_VOLTAGE_PROPORTIONAL_THRESHOLD = 0.0; // meaning 0.0 %
@@ -55,19 +55,6 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         private double highVoltageAbsoluteThreshold = DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD;
         private double highVoltageProportionalThreshold = DEFAULT_HIGH_VOLTAGE_PROPORTIONAL_THRESHOLD;
         private double flowProportionalThreshold = DEFAULT_FLOW_PROPORTIONAL_THRESHOLD;
-
-        IncreasedViolationsParameters() {
-        }
-
-        IncreasedViolationsParameters(double lowVoltageAbsoluteThreshold, double lowVoltageProportionalThreshold,
-                                      double highVoltageAbsoluteThreshold, double highVoltageProportionalThreshold,
-                                      double flowProportionalThreshold) {
-            this.lowVoltageAbsoluteThreshold = lowVoltageAbsoluteThreshold;
-            this.lowVoltageProportionalThreshold = lowVoltageProportionalThreshold;
-            this.highVoltageAbsoluteThreshold = highVoltageAbsoluteThreshold;
-            this.highVoltageProportionalThreshold = highVoltageProportionalThreshold;
-            this.flowProportionalThreshold = flowProportionalThreshold;
-        }
 
         /**
          * After a contingency, only low voltage violations that are increased of more than the absolute threshold (in kV) compared to the pre-contingency state,
@@ -154,20 +141,6 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         Objects.requireNonNull(platformConfig);
 
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
-        parameters.readExtensions(platformConfig);
-
-        parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
-
-        return parameters;
-    }
-
-    protected static void load(SecurityAnalysisParameters parameters) {
-        load(parameters, PlatformConfig.defaultConfig());
-    }
-
-    protected static void load(SecurityAnalysisParameters parameters, PlatformConfig platformConfig) {
-        Objects.requireNonNull(parameters);
-        Objects.requireNonNull(platformConfig);
 
         platformConfig.getOptionalModuleConfig("security-analysis-default-parameters")
                 .ifPresent(config -> {
@@ -177,13 +150,12 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
                     parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(config.getDoubleProperty("increasedLowVoltageViolationsAbsoluteThreshold", IncreasedViolationsParameters.DEFAULT_LOW_VOLTAGE_ABSOLUTE_THRESHOLD));
                     parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(config.getDoubleProperty("increasedHighVoltageViolationsAbsoluteThreshold", IncreasedViolationsParameters.DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD));
                 });
-    }
 
-    public SecurityAnalysisParameters(IncreasedViolationsParameters increasedViolationsParameters) {
-        this.increasedViolationsParameters = new IncreasedViolationsParameters();
-    }
+        parameters.readExtensions(platformConfig);
 
-    public SecurityAnalysisParameters() {
+        parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
+
+        return parameters;
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
@@ -194,11 +166,6 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     public IncreasedViolationsParameters getIncreasedViolationsParameters() {
         return increasedViolationsParameters;
-    }
-
-    public SecurityAnalysisParameters setIncreasedViolationsParameters(IncreasedViolationsParameters increasedViolationsParameters) {
-        this.increasedViolationsParameters = Objects.requireNonNull(increasedViolationsParameters);
-        return this;
     }
 
     public LoadFlowParameters getLoadFlowParameters() {
