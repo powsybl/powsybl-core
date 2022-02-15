@@ -149,6 +149,7 @@ public abstract class AbstractBatteryTest {
         assertNull(terminal.getBusBreakerView().getBus());
         assertNull(terminal.getBusBreakerView().getConnectableBus());
         assertNull(terminal.getBusView().getBus());
+        assertNull(terminal.getBusView().getConnectableBus());
         assertNull(terminal.getVoltageLevel());
         try {
             terminal.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
@@ -156,14 +157,17 @@ public abstract class AbstractBatteryTest {
         } catch (PowsyblException e) {
             assertEquals("Associated equipment is removed", e.getMessage());
         }
+        Terminal.BusBreakerView bbView = terminal.getBusBreakerView();
+        assertNotNull(bbView);
         try {
-            terminal.getBusBreakerView().moveConnectable("BUS", true);
+            bbView.moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
             assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
         }
+        Terminal.NodeBreakerView nbView = terminal.getNodeBreakerView();
         try {
-            terminal.getNodeBreakerView().moveConnectable(0, "VL");
+            nbView.moveConnectable(0, "VL");
             fail();
         } catch (PowsyblException e) {
             assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
@@ -176,6 +180,12 @@ public abstract class AbstractBatteryTest {
         }
         try {
             terminal.setQ(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            bbView.setConnectableBus("TEST");
             fail();
         } catch (PowsyblException e) {
             assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
