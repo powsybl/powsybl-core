@@ -49,7 +49,9 @@ class BusTerminal extends AbstractTerminal {
 
         @Override
         public ConfiguredBus getConnectableBus() {
-            return ((BusBreakerVoltageLevel) voltageLevel).getBus(getConnectableBusId(), true);
+            return Optional.ofNullable(voltageLevel)
+                    .map(vl -> ((BusBreakerVoltageLevel) vl).getBus(getConnectableBusId(), true))
+                    .orElse(null);
         }
 
         @Override
