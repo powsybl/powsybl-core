@@ -114,6 +114,10 @@ public class ShortCircuitParametersTest {
         assertNotNull(parameters.getEquipment());
         assertEquals("id", parameters.getEquipment());
         assertFalse(parameters.isWithFeederResult());
+        assertEquals(ShortCircuitConstants.SelectiveStudyType.BUS_STUDY, parameters.getSelectiveStudyType());
+        assertEquals(0, parameters.getFaultResistance(), 0);
+        assertEquals(0, parameters.getFaultReactance(), 0);
+        assertEquals(5, parameters.getVoltageDropThreshold(), 0);
     }
 
     private static class DummyExtension extends AbstractExtension<ShortCircuitParameters> {
