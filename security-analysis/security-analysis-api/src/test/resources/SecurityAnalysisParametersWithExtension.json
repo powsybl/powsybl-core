@@ -1,5 +1,10 @@
 {
   "version" : "1.1",
+  "increasedFlowViolationsThreshold" : "0.1",
+  "increasedLowVoltageViolationsThreshold" : "0.0",
+  "increasedHighVoltageViolationsThreshold" : "0.0",
+  "increasedLowVoltageViolationsDelta" : "0.0",
+  "increasedHighVoltageViolationsDelta" : "0.0",
   "load-flow-parameters" : {
     "version" : "1.6",
     "voltageInitMode" : "UNIFORM_VALUES",

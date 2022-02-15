@@ -41,12 +41,25 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                 case "version":
                     parser.nextToken();
                     break;
-
+                case "increasedFlowViolationsThreshold":
+                    parameters.setIncreasedFlowViolationsThreshold(Double.parseDouble(parser.nextTextValue()));
+                    break;
+                case "increasedLowVoltageViolationsThreshold":
+                    parameters.setIncreasedLowVoltageViolationsThreshold(Double.parseDouble(parser.nextTextValue()));
+                    break;
+                case "increasedHighVoltageViolationsThreshold":
+                    parameters.setIncreasedHighVoltageViolationsThreshold(Double.parseDouble(parser.nextTextValue()));
+                    break;
+                case "increasedLowVoltageViolationsDelta":
+                    parameters.setIncreasedLowVoltageViolationsDelta(Double.parseDouble(parser.nextTextValue()));
+                    break;
+                case "increasedHighVoltageViolationsDelta":
+                    parameters.setIncreasedHighVoltageViolationsDelta(Double.parseDouble(parser.nextTextValue()));
+                    break;
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
-
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSecurityAnalysisParameters.getExtensionSerializers(), parameters);
