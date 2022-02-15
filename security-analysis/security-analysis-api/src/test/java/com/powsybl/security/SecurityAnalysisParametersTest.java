@@ -18,6 +18,8 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisParametersTest {
 
+    private static final double EPS = 10E-3;
+
     @Test
     public void testExtensions() {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
@@ -38,6 +40,18 @@ public class SecurityAnalysisParametersTest {
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+
+        assertEquals(0.1, parameters.getWorsenedFlowConstraintsThreshold(), EPS);
+        assertEquals(0.0, parameters.getWorsenedLowVoltageConstraintsDelta(), EPS);
+        assertEquals(0.0, parameters.getWorsenedHighVoltageConstraintsDelta(), EPS);
+
+        parameters.setWorsenedFlowConstraintsThreshold(0.01);
+        parameters.setWorsenedLowVoltageConstraintsDelta(4.0);
+        parameters.setWorsenedHighVoltageConstraintsDelta(5.0);
+
+        assertEquals(0.01, parameters.getWorsenedFlowConstraintsThreshold(), EPS);
+        assertEquals(4.0, parameters.getWorsenedLowVoltageConstraintsDelta(), EPS);
+        assertEquals(5.0, parameters.getWorsenedHighVoltageConstraintsDelta(), EPS);
     }
 
     @Test

@@ -35,6 +35,14 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     public static final String VERSION = "1.0";
 
+    static final double DEFAULT_WORSENED_FLOW_CONSTRAINTS_THRESHOLD = 0.1; // 10%
+    static final double DEFAULT_WORSENED_LOW_VOLTAGE_CONSTRAINTS_DELTA = 0.0; // 0.0 kV
+    static final double DEFAULT_WORSENED_HIGH_VOLTAGE_CONSTRAINTS_DELTA = 0.0; // 0.0 kV
+
+    private double worsenedFlowConstraintsThreshold = DEFAULT_WORSENED_FLOW_CONSTRAINTS_THRESHOLD;
+    private double worsenedLowVoltageConstraintsDelta = DEFAULT_WORSENED_LOW_VOLTAGE_CONSTRAINTS_DELTA;
+    private double worsenedHighVoltageConstraintsDelta = DEFAULT_WORSENED_HIGH_VOLTAGE_CONSTRAINTS_DELTA;
+
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "security-analysis-parameters"));
 
@@ -61,10 +69,80 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         return parameters;
     }
 
+    protected static void load(SecurityAnalysisParameters parameters) {
+        load(parameters, PlatformConfig.defaultConfig());
+    }
+
+    protected static void load(SecurityAnalysisParameters parameters, PlatformConfig platformConfig) {
+        Objects.requireNonNull(parameters);
+        Objects.requireNonNull(platformConfig);
+
+        platformConfig.getOptionalModuleConfig("security-analysis-default-parameters")
+                .ifPresent(config -> {
+                    parameters.setWorsenedFlowConstraintsThreshold(config.getDoubleProperty("worsenedFlowConstraintsThreshold", DEFAULT_WORSENED_FLOW_CONSTRAINTS_THRESHOLD));
+                    parameters.setWorsenedLowVoltageConstraintsDelta(config.getDoubleProperty("worsenedLowVoltageConstraintsDelta", DEFAULT_WORSENED_LOW_VOLTAGE_CONSTRAINTS_DELTA));
+                    parameters.setWorsenedHighVoltageConstraintsDelta(config.getDoubleProperty("worsenedHighVoltageConstraintsDelta", DEFAULT_WORSENED_HIGH_VOLTAGE_CONSTRAINTS_DELTA));
+                });
+    }
+
+    public SecurityAnalysisParameters(double worsenedFlowConstraintsThreshold, double worsenedLowVoltageConstraintsDelta,
+                                      double worsenedHighVoltageConstraintsDelta) {
+        this.worsenedFlowConstraintsThreshold = worsenedFlowConstraintsThreshold;
+        this.worsenedLowVoltageConstraintsDelta = worsenedLowVoltageConstraintsDelta;
+        this.worsenedHighVoltageConstraintsDelta = worsenedHighVoltageConstraintsDelta;
+    }
+
+    public SecurityAnalysisParameters() {
+        this(DEFAULT_WORSENED_FLOW_CONSTRAINTS_THRESHOLD, DEFAULT_WORSENED_LOW_VOLTAGE_CONSTRAINTS_DELTA, DEFAULT_WORSENED_HIGH_VOLTAGE_CONSTRAINTS_DELTA);
+    }
+
     private void readExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
+    }
+
+    /**
+     * After a contingency, only low voltage constraints that are worst than the delta value (in kV) compared to the pre-contingency state,
+     * are listed in the limit violations. This method gets the low voltage constraints delta value (in kV, should be positive).
+     * The default value is 0.0, meaning that only constraints that are worsened of more than 0.0 kV are listed in the limit violations.
+     */
+    public double getWorsenedLowVoltageConstraintsDelta() {
+        return worsenedLowVoltageConstraintsDelta;
+    }
+
+    public SecurityAnalysisParameters setWorsenedLowVoltageConstraintsDelta(double worsenedLowVoltageConstraintsDelta) {
+        this.worsenedLowVoltageConstraintsDelta = worsenedLowVoltageConstraintsDelta;
+        return this;
+    }
+
+    /**
+     * After a contingency, only high voltage constraints that are worst that the delta value (in kV) compared to the pre-contingency state,
+     * are listed in the limit violations. This method gets the high voltage constraints delta value (in kV, should be positive).
+     * The default value is 0.0, meaning that only constraints that are worsened of more than 0.0 kV are listed in the limit violations.
+     */
+    public double getWorsenedHighVoltageConstraintsDelta() {
+        return worsenedHighVoltageConstraintsDelta;
+    }
+
+    public SecurityAnalysisParameters setWorsenedHighVoltageConstraintsDelta(double worsenedHighVoltageConstraintsDelta) {
+        this.worsenedHighVoltageConstraintsDelta = worsenedHighVoltageConstraintsDelta;
+        return this;
+    }
+
+    /**
+     * After a contingency, only flow constraints (current, active power or apparent power constraints) that are worst, compared
+     * to the pre-contingency state, than the threshold value (without unit) are listed in the limit violations. This method
+     * gets the flow constraints threshold value (without unit). The default value is 0.1, meaning that only constraints that
+     * are worsened of more than 10% are listed in the limit violations.
+     */
+    public double getWorsenedFlowConstraintsThreshold() {
+        return worsenedFlowConstraintsThreshold;
+    }
+
+    public SecurityAnalysisParameters setWorsenedFlowConstraintsThreshold(double worsenedFlowConstraintsThreshold) {
+        this.worsenedFlowConstraintsThreshold = worsenedFlowConstraintsThreshold;
+        return this;
     }
 
     public LoadFlowParameters getLoadFlowParameters() {
