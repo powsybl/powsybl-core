@@ -435,34 +435,38 @@ public abstract class AbstractLineTest {
         int count = network.getLineCount();
         line.remove();
         assertNotNull(line);
-        assertNull(line.getTerminal1().getBusBreakerView().getBus());
-        assertNull(line.getTerminal1().getBusBreakerView().getConnectableBus());
-        assertNull(line.getTerminal1().getBusView().getBus());
-        assertNull(line.getTerminal1().getVoltageLevel());
-        assertNull(line.getTerminal2().getBusBreakerView().getBus());
-        assertNull(line.getTerminal2().getBusBreakerView().getConnectableBus());
-        assertNull(line.getTerminal2().getBusView().getBus());
-        assertNull(line.getTerminal2().getVoltageLevel());
+        Terminal t1 = line.getTerminal1();
+        Terminal t2 = line.getTerminal2();
+        assertNotNull(t1);
+        assertNotNull(t2);
+        assertNull(t1.getBusBreakerView().getBus());
+        assertNull(t1.getBusBreakerView().getConnectableBus());
+        assertNull(t1.getBusView().getBus());
+        assertNull(t1.getVoltageLevel());
+        assertNull(t2.getBusBreakerView().getBus());
+        assertNull(t2.getBusBreakerView().getConnectableBus());
+        assertNull(t2.getBusView().getBus());
+        assertNull(t2.getVoltageLevel());
         try {
-            line.getTerminal1().traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            t1.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
             fail();
         } catch (PowsyblException e) {
             assertEquals("Associated equipment is removed", e.getMessage());
         }
         try {
-            line.getTerminal2().traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            t2.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
             fail();
         } catch (PowsyblException e) {
             assertEquals("Associated equipment is removed", e.getMessage());
         }
         try {
-            line.getTerminal1().getBusBreakerView().moveConnectable("BUS", true);
+            t1.getBusBreakerView().moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
             assertEquals("Can not modify removed equipment", e.getMessage());
         }
         try {
-            line.getTerminal2().getBusBreakerView().moveConnectable("BUS", true);
+            t2.getBusBreakerView().moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
             assertEquals("Can not modify removed equipment", e.getMessage());

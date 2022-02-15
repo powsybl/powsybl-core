@@ -137,33 +137,48 @@ public abstract class AbstractBatteryTest {
 
     @Test
     public void testRemove() {
+        String unmodifiableRemovedEqMessage = "Can not modify removed equipment";
         createBattery(TO_REMOVE, 11.0, 12, 10, 20.0);
         int count = network.getBatteryCount();
         Battery battery = network.getBattery(TO_REMOVE);
         assertNotNull(battery);
         battery.remove();
         assertNotNull(battery);
-        assertNull(battery.getTerminal().getBusBreakerView().getBus());
-        assertNull(battery.getTerminal().getBusBreakerView().getConnectableBus());
-        assertNull(battery.getTerminal().getBusView().getBus());
-        assertNull(battery.getTerminal().getVoltageLevel());
+        Terminal terminal = battery.getTerminal();
+        assertNotNull(terminal);
+        assertNull(terminal.getBusBreakerView().getBus());
+        assertNull(terminal.getBusBreakerView().getConnectableBus());
+        assertNull(terminal.getBusView().getBus());
+        assertNull(terminal.getVoltageLevel());
         try {
-            battery.getTerminal().traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            terminal.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
             fail();
         } catch (PowsyblException e) {
             assertEquals("Associated equipment is removed", e.getMessage());
         }
         try {
-            battery.getTerminal().getBusBreakerView().moveConnectable("BUS", true);
+            terminal.getBusBreakerView().moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Can not modify removed equipment", e.getMessage());
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
         }
         try {
-            battery.getTerminal().getNodeBreakerView().moveConnectable(0, "VL");
+            terminal.getNodeBreakerView().moveConnectable(0, "VL");
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Can not modify removed equipment", e.getMessage());
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setP(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setQ(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
         }
         assertNull(battery.getNetwork());
         assertEquals(count - 1L, network.getBatteryCount());
