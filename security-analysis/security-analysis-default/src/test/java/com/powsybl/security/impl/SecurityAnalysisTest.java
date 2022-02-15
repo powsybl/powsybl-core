@@ -91,7 +91,7 @@ public class SecurityAnalysisTest {
                                              .addBranch("NHV1_NHV2_2")
                                              .build();
         Contingency contingencyMock = Mockito.spy(contingency);
-        Mockito.when(contingency.toModification()).thenReturn(new NetworkModification() {
+        Mockito.when(contingencyMock.toModification()).thenReturn(new NetworkModification() {
             @Override
             public void apply(Network network, ComputationManager computationManager) {
                 apply(network);
