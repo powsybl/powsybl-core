@@ -41,17 +41,23 @@ public class SecurityAnalysisParametersTest {
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
 
-        assertEquals(0.1, parameters.getWorsenedFlowConstraintsThreshold(), EPS);
-        assertEquals(0.0, parameters.getWorsenedLowVoltageConstraintsDelta(), EPS);
-        assertEquals(0.0, parameters.getWorsenedHighVoltageConstraintsDelta(), EPS);
+        assertEquals(0.1, parameters.getIncreasedFlowViolationsThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedLowVoltageViolationsThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedHighVoltageViolationsThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedLowVoltageViolationsDelta(), EPS);
+        assertEquals(0.0, parameters.getIncreasedHighVoltageViolationsDelta(), EPS);
 
-        parameters.setWorsenedFlowConstraintsThreshold(0.01);
-        parameters.setWorsenedLowVoltageConstraintsDelta(4.0);
-        parameters.setWorsenedHighVoltageConstraintsDelta(5.0);
+        parameters.setIncreasedFlowViolationsThreshold(0.01);
+        parameters.setIncreasedLowVoltageViolationsThreshold(0.1);
+        parameters.setIncreasedHighVoltageViolationsThreshold(0.1);
+        parameters.setIncreasedLowVoltageViolationsDelta(4.0);
+        parameters.setIncreasedHighVoltageViolationsDelta(5.0);
 
-        assertEquals(0.01, parameters.getWorsenedFlowConstraintsThreshold(), EPS);
-        assertEquals(4.0, parameters.getWorsenedLowVoltageConstraintsDelta(), EPS);
-        assertEquals(5.0, parameters.getWorsenedHighVoltageConstraintsDelta(), EPS);
+        assertEquals(0.01, parameters.getIncreasedFlowViolationsThreshold(), EPS);
+        assertEquals(0.1, parameters.getIncreasedLowVoltageViolationsThreshold(), EPS);
+        assertEquals(0.1, parameters.getIncreasedHighVoltageViolationsThreshold(), EPS);
+        assertEquals(4.0, parameters.getIncreasedLowVoltageViolationsDelta(), EPS);
+        assertEquals(5.0, parameters.getIncreasedHighVoltageViolationsDelta(), EPS);
     }
 
     @Test
