@@ -8,7 +8,6 @@ package com.powsybl.security;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
@@ -36,24 +35,108 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     public static final String VERSION = "1.1";
 
-    static final double DEFAULT_INCREASED_FLOW_VIOLATIONS_THRESHOLD = 0.1; // 10.0 %
-    static final double DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_THRESHOLD = 0.0; // 0.0 %
-    static final double DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_THRESHOLD = 0.0; // 0.0 %
-
-    static final double DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_DELTA = 0.0; // 0.0 kV
-    static final double DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_DELTA = 0.0; // 0.0 kV
-
-    private double increasedFlowViolationsThreshold = DEFAULT_INCREASED_FLOW_VIOLATIONS_THRESHOLD;
-    private double increasedLowVoltageViolationsThreshold = DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_THRESHOLD;
-    private double increasedHighVoltageViolationsThreshold = DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_THRESHOLD;
-
-    private double increasedLowVoltageViolationsDelta = DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_DELTA;
-    private double increasedHighVoltageViolationsDelta = DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_DELTA;
-
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "security-analysis-parameters"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "security-analysis-parameters"));
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+
+    public class IncreasedViolationsParameters {
+
+        static final double DEFAULT_FLOW_PROPORTIONAL_THRESHOLD = 0.1; // meaning 10.0 %
+        static final double DEFAULT_LOW_VOLTAGE_PROPORTIONAL_THRESHOLD = 0.0; // meaning 0.0 %
+        static final double DEFAULT_HIGH_VOLTAGE_PROPORTIONAL_THRESHOLD = 0.0; // meaning 0.0 %
+        static final double DEFAULT_LOW_VOLTAGE_ABSOLUTE_THRESHOLD = 0.0; // 0.0 kV
+        static final double DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD = 0.0; // 0.0 kV
+
+        private double lowVoltageAbsoluteThreshold = DEFAULT_LOW_VOLTAGE_ABSOLUTE_THRESHOLD;
+        private double lowVoltageProportionalThreshold = DEFAULT_LOW_VOLTAGE_PROPORTIONAL_THRESHOLD;
+        private double highVoltageAbsoluteThreshold = DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD;
+        private double highVoltageProportionalThreshold = DEFAULT_HIGH_VOLTAGE_PROPORTIONAL_THRESHOLD;
+        private double flowProportionalThreshold = DEFAULT_FLOW_PROPORTIONAL_THRESHOLD;
+
+        IncreasedViolationsParameters() {
+        }
+
+        IncreasedViolationsParameters(double lowVoltageAbsoluteThreshold, double lowVoltageProportionalThreshold,
+                                      double highVoltageAbsoluteThreshold, double highVoltageProportionalThreshold,
+                                      double flowProportionalThreshold) {
+            this.lowVoltageAbsoluteThreshold = lowVoltageAbsoluteThreshold;
+            this.lowVoltageProportionalThreshold = lowVoltageProportionalThreshold;
+            this.highVoltageAbsoluteThreshold = highVoltageAbsoluteThreshold;
+            this.highVoltageProportionalThreshold = highVoltageProportionalThreshold;
+            this.flowProportionalThreshold = flowProportionalThreshold;
+        }
+
+        /**
+         * After a contingency, only low voltage violations that are increased of more than the absolute threshold (in kV) compared to the pre-contingency state,
+         * are listed in the limit violations, the other ones are filtered. This method gets the low voltage violations absolute threshold (in kV, should be positive).
+         * The default value is 0.0, meaning that only violations that increase of more than 0.0 kV are listed in the limit violations (note that for low voltage violation,
+         * it means that the voltage in post-contingency state is lower than the voltage in pre-contingency state).
+         */
+        public double getLowVoltageAbsoluteThreshold() {
+            return lowVoltageAbsoluteThreshold;
+        }
+
+        /**
+         * After a contingency, only low voltage violations that are increased of more than the proportional threshold (without unit) compared to the pre-contingency state,
+         * are listed in the limit violations, the other ones are filtered. This method gets the low voltage violations proportional threshold (without unit, should be positive).
+         * The default value is 0.0, meaning that only violations that increase of more than 0.0 % are listed in the limit violations (note that for low voltage violation,
+         * it means that the voltage in post-contingency state is lower than the voltage in pre-contingency state).
+         */
+        public double getLowVoltageProportionalThreshold() {
+            return lowVoltageProportionalThreshold;
+        }
+
+        /**
+         * After a contingency, only high voltage violations that are increased of more than the absolute threshold (in kV) compared to the pre-contingency state,
+         * are listed in the limit violations, the other ones are filtered. This method gets the high voltage violations absolute threshold (in kV, should be positive).
+         * The default value is 0.0, meaning that only violations that increase of more than 0.0 kV are listed in the limit violations.
+         */
+        public double getHighVoltageAbsoluteThreshold() {
+            return highVoltageAbsoluteThreshold;
+        }
+
+        /**
+         * After a contingency, only high voltage violations that are increased of more than the proportional threshold (without unit) compared to the pre-contingency state,
+         * are listed in the limit violations, the other ones are filtered. This method gets the high voltage violations proportional threshold (without unit, should be positive).
+         * The default value is 0.0, meaning that only violations that increase of more than 0.0 % are listed in the limit violations.
+         */
+        public double getHighVoltageProportionalThreshold() {
+            return highVoltageProportionalThreshold;
+        }
+
+        /**
+         * After a contingency, only flow violations (either current, active power or apparent power violations) that are increased in proportion,
+         * compared to the pre-contingency state, than the threshold value (without unit, should be positive) are listed in the limit violations,
+         * the other ones are filtered. This method gets the flow violations proportional threshold. The default value is 0.1, meaning that only violations that
+         * increase of more than 10% are listed in the limit violations.
+         */
+        public double getFlowProportionalThreshold() {
+            return flowProportionalThreshold;
+        }
+
+        public void setLowVoltageAbsoluteThreshold(double lowVoltageAbsoluteThreshold) {
+            this.lowVoltageAbsoluteThreshold = lowVoltageAbsoluteThreshold;
+        }
+
+        public void setLowVoltageProportionalThreshold(double lowVoltageProportionalThreshold) {
+            this.lowVoltageProportionalThreshold = lowVoltageProportionalThreshold;
+        }
+
+        public void setHighVoltageAbsoluteThreshold(double highVoltageAbsoluteThreshold) {
+            this.highVoltageAbsoluteThreshold = highVoltageAbsoluteThreshold;
+        }
+
+        public void setHighVoltageProportionalThreshold(double highVoltageProportionalThreshold) {
+            this.highVoltageProportionalThreshold = highVoltageProportionalThreshold;
+        }
+
+        public void setFlowProportionalThreshold(double flowProportionalThreshold) {
+            this.flowProportionalThreshold = flowProportionalThreshold;
+        }
+    }
+
+    private IncreasedViolationsParameters increasedViolationsParameters = new IncreasedViolationsParameters();
 
     /**
      * Load parameters from platform default config.
@@ -86,26 +169,19 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
         platformConfig.getOptionalModuleConfig("security-analysis-default-parameters")
                 .ifPresent(config -> {
-                    parameters.setIncreasedFlowViolationsThreshold(config.getDoubleProperty("increasedFlowViolationsThreshold", DEFAULT_INCREASED_FLOW_VIOLATIONS_THRESHOLD));
-                    parameters.setIncreasedLowVoltageViolationsThreshold(config.getDoubleProperty("increasedLowVoltageViolationsThreshold", DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_THRESHOLD));
-                    parameters.setIncreasedHighVoltageViolationsThreshold(config.getDoubleProperty("increasedHighVoltageViolationsThreshold", DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_THRESHOLD));
-                    parameters.setIncreasedLowVoltageViolationsDelta(config.getDoubleProperty("increasedLowVoltageViolationsDelta", DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_DELTA));
-                    parameters.setIncreasedHighVoltageViolationsDelta(config.getDoubleProperty("increasedHighVoltageViolationsDelta", DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_DELTA));
+                    parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(config.getDoubleProperty("increasedFlowViolationsProportionalThreshold", IncreasedViolationsParameters.DEFAULT_FLOW_PROPORTIONAL_THRESHOLD));
+                    parameters.getIncreasedViolationsParameters().setLowVoltageProportionalThreshold(config.getDoubleProperty("increasedLowVoltageViolationsProportionalThreshold", IncreasedViolationsParameters.DEFAULT_LOW_VOLTAGE_PROPORTIONAL_THRESHOLD));
+                    parameters.getIncreasedViolationsParameters().setHighVoltageProportionalThreshold(config.getDoubleProperty("increasedHighVoltageViolationsProportionalThreshold", IncreasedViolationsParameters.DEFAULT_HIGH_VOLTAGE_PROPORTIONAL_THRESHOLD));
+                    parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(config.getDoubleProperty("increasedLowVoltageViolationsAbsoluteThreshold", IncreasedViolationsParameters.DEFAULT_LOW_VOLTAGE_ABSOLUTE_THRESHOLD));
+                    parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(config.getDoubleProperty("increasedHighVoltageViolationsAbsoluteThreshold", IncreasedViolationsParameters.DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD));
                 });
     }
 
-    public SecurityAnalysisParameters(double increasedFlowViolationsThreshold, double increasedLowVoltageViolationsThreshold, double increasedHighVoltageViolationsThreshold,
-                                      double increasedLowVoltageViolationsDelta, double increasedHighVoltageViolationsDelta) {
-        this.increasedFlowViolationsThreshold = increasedFlowViolationsThreshold;
-        this.increasedLowVoltageViolationsThreshold = increasedLowVoltageViolationsThreshold;
-        this.increasedHighVoltageViolationsThreshold = increasedHighVoltageViolationsThreshold;
-        this.increasedLowVoltageViolationsDelta = increasedLowVoltageViolationsDelta;
-        this.increasedHighVoltageViolationsDelta = increasedHighVoltageViolationsDelta;
+    public SecurityAnalysisParameters(IncreasedViolationsParameters increasedViolationsParameters) {
+        this.increasedViolationsParameters = new IncreasedViolationsParameters();
     }
 
     public SecurityAnalysisParameters() {
-        this(DEFAULT_INCREASED_FLOW_VIOLATIONS_THRESHOLD, DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_THRESHOLD, DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_THRESHOLD,
-                DEFAULT_INCREASED_LOW_VOLTAGE_VIOLATIONS_DELTA, DEFAULT_INCREASED_HIGH_VOLTAGE_VIOLATIONS_DELTA);
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
@@ -114,91 +190,12 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         }
     }
 
-    /**
-     * After a contingency, only low voltage violations that are increased of more than the delta value (in kV) compared to the pre-contingency state,
-     * are listed in the limit violations, the other ones are filtered. This method gets the low voltage violations delta value (in kV, should be positive).
-     * The default value is 0.0, meaning that only violations that are increased of more than 0.0 kV are listed in the limit violations (note that for low voltage violation,
-     * it means that the voltage in post-contingency state is lower than the voltage in pre-contingency state).
-     */
-    public double getIncreasedLowVoltageViolationsDelta() {
-        return increasedLowVoltageViolationsDelta;
+    public IncreasedViolationsParameters getIncreasedViolationsParameters() {
+        return increasedViolationsParameters;
     }
 
-    public SecurityAnalysisParameters setIncreasedLowVoltageViolationsDelta(double increasedLowVoltageViolationsDelta) {
-        if (increasedLowVoltageViolationsDelta < 0) {
-            throw new PowsyblException("Increased low voltage violations delta parameter should be positive");
-        }
-        this.increasedLowVoltageViolationsDelta = increasedLowVoltageViolationsDelta;
-        return this;
-    }
-
-    /**
-     * After a contingency, only low voltage violations that are increased of more than the threshold (without unit) compared to the pre-contingency state,
-     * are listed in the limit violations, the other ones are filtered. This method gets the low voltage violations threshold value (without unit, should be positive).
-     * The default value is 0.0, meaning that only violations that are increased of more than 0.0 % are listed in the limit violations (note that for low voltage violation,
-     * it means that the voltage in post-contingency state is lower than the voltage in pre-contingency state).
-     */
-    public double getIncreasedLowVoltageViolationsThreshold() {
-        return increasedLowVoltageViolationsThreshold;
-    }
-
-    public SecurityAnalysisParameters setIncreasedLowVoltageViolationsThreshold(double increasedLowVoltageViolationsThreshold) {
-        if (increasedLowVoltageViolationsThreshold < 0) {
-            throw new PowsyblException("Increased low voltage violations threshold parameter should be positive");
-        }
-        this.increasedLowVoltageViolationsThreshold = increasedLowVoltageViolationsThreshold;
-        return this;
-    }
-
-    /**
-     * After a contingency, only high voltage violations that are increased of more than the delta value (in kV) compared to the pre-contingency state,
-     * are listed in the limit violations, the other ones are filtered. This method gets the high voltage violations delta value (in kV, should be positive).
-     * The default value is 0.0, meaning that only violations that are increased of more than 0.0 kV are listed in the limit violations.
-     */
-    public double getIncreasedHighVoltageViolationsDelta() {
-        return increasedHighVoltageViolationsDelta;
-    }
-
-    public SecurityAnalysisParameters setIncreasedHighVoltageViolationsDelta(double increasedHighVoltageViolationsDelta) {
-        if (increasedHighVoltageViolationsDelta < 0) {
-            throw new PowsyblException("Increased high voltage violations delta parameter should be positive");
-        }
-        this.increasedHighVoltageViolationsDelta = increasedHighVoltageViolationsDelta;
-        return this;
-    }
-
-    /**
-     * After a contingency, only high voltage violations that are increased of more than the delta value (in kV) compared to the pre-contingency state,
-     * are listed in the limit violations, the other ones are filtered. This method gets the high voltage violations delta value (in kV, should be positive).
-     * The default value is 0.0, meaning that only violations that are increased of more than 0.0 kV are listed in the limit violations.
-     */
-    public double getIncreasedHighVoltageViolationsThreshold() {
-        return increasedHighVoltageViolationsThreshold;
-    }
-
-    public SecurityAnalysisParameters setIncreasedHighVoltageViolationsThreshold(double increasedHighVoltageViolationsThreshold) {
-        if (increasedHighVoltageViolationsThreshold < 0) {
-            throw new PowsyblException("Increased high voltage violations threshold parameter should be positive");
-        }
-        this.increasedHighVoltageViolationsThreshold = increasedHighVoltageViolationsThreshold;
-        return this;
-    }
-
-    /**
-     * After a contingency, only flow violations (either current, active power or apparent power violations) that are increased in absolute value,
-     * compared to the pre-contingency state, than the threshold value (without unit, should be positive) are listed in the limit violations,
-     * the other ones are filtered. This method gets the flow violations threshold value. The default value is 0.1, meaning that only violations that
-     * are increased of more than 10% are listed in the limit violations.
-     */
-    public double getIncreasedFlowViolationsThreshold() {
-        return increasedFlowViolationsThreshold;
-    }
-
-    public SecurityAnalysisParameters setIncreasedFlowViolationsThreshold(double increasedFlowViolationsThreshold) {
-        if (increasedFlowViolationsThreshold < 0) {
-            throw new PowsyblException("Increased flow violations threshold parameter should be positive");
-        }
-        this.increasedFlowViolationsThreshold = increasedFlowViolationsThreshold;
+    public SecurityAnalysisParameters setIncreasedViolationsParameters(IncreasedViolationsParameters increasedViolationsParameters) {
+        this.increasedViolationsParameters = Objects.requireNonNull(increasedViolationsParameters);
         return this;
     }
 

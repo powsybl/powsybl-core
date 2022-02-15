@@ -30,11 +30,11 @@ public class SecurityAnalysisParametersSerializer extends StdSerializer<Security
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("version", SecurityAnalysisParameters.VERSION);
-        jsonGenerator.writeStringField("increasedFlowViolationsThreshold", String.valueOf(parameters.getIncreasedFlowViolationsThreshold()));
-        jsonGenerator.writeStringField("increasedLowVoltageViolationsThreshold", String.valueOf(parameters.getIncreasedLowVoltageViolationsThreshold()));
-        jsonGenerator.writeStringField("increasedHighVoltageViolationsThreshold", String.valueOf(parameters.getIncreasedHighVoltageViolationsThreshold()));
-        jsonGenerator.writeStringField("increasedLowVoltageViolationsDelta", String.valueOf(parameters.getIncreasedLowVoltageViolationsDelta()));
-        jsonGenerator.writeStringField("increasedHighVoltageViolationsDelta", String.valueOf(parameters.getIncreasedHighVoltageViolationsDelta()));
+        jsonGenerator.writeStringField("increasedFlowViolationsProportionalThreshold", String.valueOf(parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold()));
+        jsonGenerator.writeStringField("increasedLowVoltageViolationsProportionalThreshold", String.valueOf(parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold()));
+        jsonGenerator.writeStringField("increasedHighVoltageViolationsProportionalThreshold", String.valueOf(parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold()));
+        jsonGenerator.writeStringField("increasedLowVoltageViolationsAbsoluteThreshold", String.valueOf(parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold()));
+        jsonGenerator.writeStringField("increasedHighVoltageViolationsAbsoluteThreshold", String.valueOf(parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold()));
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSecurityAnalysisParameters.getExtensionSerializers());

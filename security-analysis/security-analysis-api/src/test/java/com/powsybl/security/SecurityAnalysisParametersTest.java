@@ -47,23 +47,23 @@ public class SecurityAnalysisParametersTest {
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
         assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
 
-        assertEquals(0.1, parameters.getIncreasedFlowViolationsThreshold(), EPS);
-        assertEquals(0.0, parameters.getIncreasedLowVoltageViolationsThreshold(), EPS);
-        assertEquals(0.0, parameters.getIncreasedHighVoltageViolationsThreshold(), EPS);
-        assertEquals(0.0, parameters.getIncreasedLowVoltageViolationsDelta(), EPS);
-        assertEquals(0.0, parameters.getIncreasedHighVoltageViolationsDelta(), EPS);
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(0.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
 
-        parameters.setIncreasedFlowViolationsThreshold(0.01);
-        parameters.setIncreasedLowVoltageViolationsThreshold(0.1);
-        parameters.setIncreasedHighVoltageViolationsThreshold(0.1);
-        parameters.setIncreasedLowVoltageViolationsDelta(4.0);
-        parameters.setIncreasedHighVoltageViolationsDelta(5.0);
+        parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.01);
+        parameters.getIncreasedViolationsParameters().setLowVoltageProportionalThreshold(0.1);
+        parameters.getIncreasedViolationsParameters().setHighVoltageProportionalThreshold(0.2);
+        parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(4.0);
+        parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(5.0);
 
-        assertEquals(0.01, parameters.getIncreasedFlowViolationsThreshold(), EPS);
-        assertEquals(0.1, parameters.getIncreasedLowVoltageViolationsThreshold(), EPS);
-        assertEquals(0.1, parameters.getIncreasedHighVoltageViolationsThreshold(), EPS);
-        assertEquals(4.0, parameters.getIncreasedLowVoltageViolationsDelta(), EPS);
-        assertEquals(5.0, parameters.getIncreasedHighVoltageViolationsDelta(), EPS);
+        assertEquals(0.01, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(4.0, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(5.0, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
     }
 
     @Test
@@ -112,17 +112,17 @@ public class SecurityAnalysisParametersTest {
         FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("security-analysis-default-parameters");
-        moduleConfig.setStringProperty("increasedFlowViolationsThreshold", "0.3");
-        moduleConfig.setStringProperty("increasedLowVoltageViolationsThreshold", "0.4");
-        moduleConfig.setStringProperty("increasedHighVoltageViolationsThreshold", "0.2");
-        moduleConfig.setStringProperty("increasedLowVoltageViolationsDelta", "20");
-        moduleConfig.setStringProperty("increasedHighVoltageViolationsDelta", "25");
+        moduleConfig.setStringProperty("increasedFlowViolationsProportionalThreshold", "0.3");
+        moduleConfig.setStringProperty("increasedLowVoltageViolationsProportionalThreshold", "0.4");
+        moduleConfig.setStringProperty("increasedHighVoltageViolationsProportionalThreshold", "0.2");
+        moduleConfig.setStringProperty("increasedLowVoltageViolationsAbsoluteThreshold", "20");
+        moduleConfig.setStringProperty("increasedHighVoltageViolationsAbsoluteThreshold", "25");
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         SecurityAnalysisParameters.load(parameters, platformConfig);
-        assertEquals(0.3, parameters.getIncreasedFlowViolationsThreshold(), EPS);
-        assertEquals(0.4, parameters.getIncreasedLowVoltageViolationsThreshold(), EPS);
-        assertEquals(0.2, parameters.getIncreasedHighVoltageViolationsThreshold(), EPS);
-        assertEquals(20, parameters.getIncreasedLowVoltageViolationsDelta(), EPS);
-        assertEquals(25, parameters.getIncreasedHighVoltageViolationsDelta(), EPS);
+        assertEquals(0.3, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
+        assertEquals(0.4, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
+        assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
+        assertEquals(20, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
+        assertEquals(25, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
     }
 }
