@@ -17,12 +17,13 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.security.*;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.impl.interceptors.SecurityAnalysisInterceptorMock;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.results.BranchResult;
 import com.powsybl.security.results.BusResults;
@@ -90,10 +91,18 @@ public class SecurityAnalysisTest {
                                              .addBranch("NHV1_NHV2_2")
                                              .build();
         Contingency contingencyMock = Mockito.spy(contingency);
-        Mockito.when(contingencyMock.toTask()).thenReturn((network1, computationManager1) -> {
-            network1.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
-            network1.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
-            network1.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
+        Mockito.when(contingency.toModification()).thenReturn(new NetworkModification() {
+            @Override
+            public void apply(Network network, ComputationManager computationManager) {
+                apply(network);
+            }
+
+            @Override
+            public void apply(Network network) {
+                network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
+                network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
+                network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
+            }
         });
         ContingenciesProvider contingenciesProvider = n -> Collections.singletonList(contingencyMock);
 

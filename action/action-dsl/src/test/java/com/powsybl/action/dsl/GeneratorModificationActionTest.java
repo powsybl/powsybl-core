@@ -43,14 +43,14 @@ public class GeneratorModificationActionTest {
         Action action = actionDb.getAction("unknown generator");
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("Generator 'UNKNOWN' not found");
-        action.run(network, null);
+        action.run(network);
     }
 
     @Test
     public void testTargetVAndQWithVoltageRegulatorOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulator OFF");
-        action.run(network, null);
+        action.run(network);
         assertEquals(20., g.getMinP(), 0.1);
         assertEquals(60., g.getMaxP(), 0.1);
         assertEquals(50., g.getTargetP(), 0.1);
@@ -63,7 +63,7 @@ public class GeneratorModificationActionTest {
     public void testTargetVAndQWithVoltageRegulatorOn() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulator ON");
-        action.run(network, null);
+        action.run(network);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
         assertTrue(g.isVoltageRegulatorOn());
@@ -73,7 +73,7 @@ public class GeneratorModificationActionTest {
     public void testDeltaTargetPInBoundaries() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("deltaTargetP within boundaries");
-        action.run(network, null);
+        action.run(network);
         assertEquals(606., g.getTargetP(), 0.1);
     }
 
@@ -81,7 +81,7 @@ public class GeneratorModificationActionTest {
     public void testDeltaTargetPLowerBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("deltaTargetP lower boundary overflow");
-        action.run(network, null);
+        action.run(network);
         assertEquals(-9999.99, g.getTargetP(), 0.1);
     }
 
@@ -89,7 +89,7 @@ public class GeneratorModificationActionTest {
     public void testDeltaTargetPUpperBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("deltaTargetP upper boundary overflow");
-        action.run(network, null);
+        action.run(network);
         assertEquals(9999.99, g.getTargetP(), 0.1);
     }
 
@@ -97,7 +97,7 @@ public class GeneratorModificationActionTest {
     public void testTargetPLowerBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetP lower boundary overflow");
-        action.run(network, null);
+        action.run(network);
         assertEquals(-9999.99, g.getTargetP(), 0.1);
     }
 
@@ -105,7 +105,7 @@ public class GeneratorModificationActionTest {
     public void testTargetPUpperBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetP upper boundary overflow");
-        action.run(network, null);
+        action.run(network);
         assertEquals(9999.99, g.getTargetP(), 0.1);
     }
 
@@ -120,10 +120,10 @@ public class GeneratorModificationActionTest {
     public void testConnectionOnOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("disconnect");
-        action.run(network, null);
+        action.run(network);
         assertFalse(g.getTerminal().isConnected());
         action = actionDb.getAction("connect");
-        action.run(network, null);
+        action.run(network);
         assertTrue(g.getTerminal().isConnected());
     }
 
@@ -131,11 +131,11 @@ public class GeneratorModificationActionTest {
     public void testConnectionOnOffWithTargetPChange() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("disconnect with targetP change");
-        action.run(network, null);
+        action.run(network);
         assertFalse(g.getTerminal().isConnected());
         assertEquals(50.0, g.getTargetP(), 0.5);
         action = actionDb.getAction("connect with targetP change");
-        action.run(network, null);
+        action.run(network);
         assertTrue(g.getTerminal().isConnected());
         assertEquals(100.0, g.getTargetP(), 0.5);
     }
@@ -144,12 +144,12 @@ public class GeneratorModificationActionTest {
     public void testAlreadyAtTheConnectionStateAsked() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("connect");
-        action.run(network, null);
+        action.run(network);
         assertTrue(g.getTerminal().isConnected());
         action = actionDb.getAction("disconnect");
-        action.run(network, null);
+        action.run(network);
         assertFalse(g.getTerminal().isConnected());
-        action.run(network, null);
+        action.run(network);
         assertFalse(g.getTerminal().isConnected());
     }
 
@@ -157,11 +157,11 @@ public class GeneratorModificationActionTest {
     public void testConnectionOnOffWithTargetVChange() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("disconnect");
-        action.run(network, null);
+        action.run(network);
         assertFalse(g.getTerminal().isConnected());
         assertEquals(24.5, g.getTargetV(), 0.01);
         action = actionDb.getAction("connect with targetV change");
-        action.run(network, null);
+        action.run(network);
         assertTrue(g.getTerminal().isConnected());
         assertEquals(1234.56, g.getTargetV(), 0.01);
     }

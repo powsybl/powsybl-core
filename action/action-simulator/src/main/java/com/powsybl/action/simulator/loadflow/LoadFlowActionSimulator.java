@@ -129,7 +129,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 observers.forEach(o -> o.beforePostContingencyAnalysis(runningContext2));
 
                 LOGGER.info("Starting post-contingency analysis '{}'", contingency.getId());
-                contingency.toTask().modify(network2, computationManager);
+                contingency.toModification().apply(network2, computationManager);
 
                 observers.forEach(o -> o.postContingencyAnalysisNetworkLoaded(runningContext2));
 

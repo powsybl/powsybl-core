@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
-import com.powsybl.contingency.tasks.ShuntCompensatorTripping;
+import com.powsybl.iidm.modification.tripping.ShuntCompensatorTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -24,7 +24,7 @@ public class ShuntCompensatorContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public Tripping toModification() {
         return new ShuntCompensatorTripping(id);
     }
 }

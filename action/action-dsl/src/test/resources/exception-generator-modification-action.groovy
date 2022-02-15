@@ -6,7 +6,7 @@
  */
 
 action('both targetP and deltaTargetP') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             targetP 50.0
             deltaTargetP 1.0

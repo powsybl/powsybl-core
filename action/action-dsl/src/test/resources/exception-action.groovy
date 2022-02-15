@@ -19,13 +19,13 @@ rule('rule') {
 }
 
 action('action1') {
-    tasks {
+    modifications {
 
     }
 }
 
 action('action1') {
-    tasks {
+    modifications {
 
     }
 }

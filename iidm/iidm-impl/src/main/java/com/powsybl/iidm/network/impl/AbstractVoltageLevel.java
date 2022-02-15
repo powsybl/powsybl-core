@@ -130,7 +130,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
         // the fastest way to get the equipment is to look in the index
         // and then check if it is connected to this substation
-        T connectable = getConnectable(id, aClass, substation, networkRef);
+        T connectable = getNetwork().getIndex().get(id, aClass);
         if (connectable == null) {
             return null;
         } else if (connectable instanceof Injection) {
@@ -147,16 +147,6 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                     ? connectable : null;
         } else {
             throw new AssertionError();
-        }
-    }
-
-    private static <T extends Connectable> T getConnectable(String id, Class<T> aClass, SubstationImpl substation, Ref<NetworkImpl> networkRef) {
-        if (substation != null) {
-            return substation.getNetwork().getIndex().get(id, aClass);
-        } else if (networkRef != null) {
-            return networkRef.get().getIndex().get(id, aClass);
-        } else {
-            throw new PowsyblException(String.format("Voltage level %s has no container", id));
         }
     }
 
