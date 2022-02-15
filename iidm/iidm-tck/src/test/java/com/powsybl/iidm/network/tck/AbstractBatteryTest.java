@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -142,6 +143,29 @@ public abstract class AbstractBatteryTest {
         assertNotNull(battery);
         battery.remove();
         assertNotNull(battery);
+        assertNull(battery.getTerminal().getBusBreakerView().getBus());
+        assertNull(battery.getTerminal().getBusBreakerView().getConnectableBus());
+        assertNull(battery.getTerminal().getBusView().getBus());
+        assertNull(battery.getTerminal().getVoltageLevel());
+        try {
+            battery.getTerminal().traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment is removed", e.getMessage());
+        }
+        try {
+            battery.getTerminal().getBusBreakerView().moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Can not modify removed equipment", e.getMessage());
+        }
+        try {
+            battery.getTerminal().getNodeBreakerView().moveConnectable(0, "VL");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Can not modify removed equipment", e.getMessage());
+        }
+        assertNull(battery.getNetwork());
         assertEquals(count - 1L, network.getBatteryCount());
         assertNull(network.getBattery(TO_REMOVE));
     }
