@@ -459,14 +459,16 @@ public abstract class AbstractLineTest {
         } catch (PowsyblException e) {
             assertEquals("Associated equipment is removed", e.getMessage());
         }
+        Terminal.BusBreakerView bbView1 = t1.getBusBreakerView();
         try {
-            t1.getBusBreakerView().moveConnectable("BUS", true);
+            bbView1.moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
             assertEquals("Can not modify removed equipment", e.getMessage());
         }
+        Terminal.BusBreakerView bbView2 = t2.getBusBreakerView();
         try {
-            t2.getBusBreakerView().moveConnectable("BUS", true);
+            bbView2.moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
             assertEquals("Can not modify removed equipment", e.getMessage());
