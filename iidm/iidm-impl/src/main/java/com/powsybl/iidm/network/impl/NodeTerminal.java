@@ -23,6 +23,8 @@ import java.util.Set;
  */
 class NodeTerminal extends AbstractTerminal {
 
+    private static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Can not modify removed equipment";
+
     private int node;
 
     // attributes depending on the variant
@@ -45,7 +47,7 @@ class NodeTerminal extends AbstractTerminal {
         @Override
         public void moveConnectable(int node, String voltageLevelId) {
             if (network == null) {
-                throw new PowsyblException("Can not modify removed equipment");
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
             }
             getConnectable().move(NodeTerminal.this, getConnectionInfo(), node, voltageLevelId);
         }
@@ -77,7 +79,7 @@ class NodeTerminal extends AbstractTerminal {
         @Override
         public void moveConnectable(String busId, boolean connected) {
             if (network == null) {
-                throw new PowsyblException("Can not modify removed equipment");
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
             }
             getConnectable().move(NodeTerminal.this, getConnectionInfo(), busId, connected);
         }
@@ -140,7 +142,7 @@ class NodeTerminal extends AbstractTerminal {
 
     void setV(double v) {
         if (network == null) {
-            throw new PowsyblException("Can not modify removed equipment");
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
         }
         if (v < 0) {
             throw new ValidationException(connectable, "voltage cannot be < 0");
@@ -157,7 +159,7 @@ class NodeTerminal extends AbstractTerminal {
 
     void setAngle(double angle) {
         if (network == null) {
-            throw new PowsyblException("Can not modify removed equipment");
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
         }
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.angle.set(variantIndex, angle);
@@ -171,7 +173,7 @@ class NodeTerminal extends AbstractTerminal {
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
         if (network == null) {
-            throw new PowsyblException("Can not modify removed equipment");
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
         }
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
@@ -185,7 +187,7 @@ class NodeTerminal extends AbstractTerminal {
 
     void setSynchronousComponentNumber(int componentNumber) {
         if (network == null) {
-            throw new PowsyblException("Can not modify removed equipment");
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
         }
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.synchronousComponentNumber.set(variantIndex, componentNumber);

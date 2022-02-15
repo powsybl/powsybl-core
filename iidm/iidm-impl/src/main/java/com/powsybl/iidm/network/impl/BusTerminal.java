@@ -23,6 +23,8 @@ import java.util.Set;
  */
 class BusTerminal extends AbstractTerminal {
 
+    private static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Can not modify removed equipment";
+
     private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
         @Override
         public int getNode() {
@@ -32,7 +34,7 @@ class BusTerminal extends AbstractTerminal {
         @Override
         public void moveConnectable(int node, String voltageLevelId) {
             if (network == null) {
-                throw new PowsyblException("Can not modify removed equipment");
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
             }
             getConnectable().move(BusTerminal.this, getConnectionInfo(), node, voltageLevelId);
         }
@@ -53,7 +55,7 @@ class BusTerminal extends AbstractTerminal {
         @Override
         public void setConnectableBus(String busId) {
             if (network == null) {
-                throw new PowsyblException("Can not modify removed equipment");
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
             }
             Objects.requireNonNull(busId);
             BusBreakerVoltageLevel vl = (BusBreakerVoltageLevel) voltageLevel;
@@ -72,7 +74,7 @@ class BusTerminal extends AbstractTerminal {
         @Override
         public void moveConnectable(String busId, boolean connected) {
             if (network == null) {
-                throw new PowsyblException("Can not modify removed equipment");
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
             }
             getConnectable().move(BusTerminal.this, getConnectionInfo(), busId, connected);
         }
@@ -123,7 +125,7 @@ class BusTerminal extends AbstractTerminal {
 
     void setConnectableBusId(String connectableBusId) {
         if (network == null) {
-            throw new PowsyblException("Can not modify removed equipment");
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
         }
         int variantIndex = network.get().getVariantIndex();
         String oldValue = this.connectableBusId.set(variantIndex, connectableBusId);
@@ -137,7 +139,7 @@ class BusTerminal extends AbstractTerminal {
 
     void setConnected(boolean connected) {
         if (network == null) {
-            throw new PowsyblException("Can not modify removed equipment");
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
         }
         int variantIndex = network.get().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
