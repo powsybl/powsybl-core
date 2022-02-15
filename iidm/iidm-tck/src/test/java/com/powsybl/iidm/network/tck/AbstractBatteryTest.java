@@ -146,6 +146,7 @@ public abstract class AbstractBatteryTest {
         assertNotNull(battery);
         Terminal terminal = battery.getTerminal();
         assertNotNull(terminal);
+        assertFalse(terminal.isConnected());
         assertNull(terminal.getBusBreakerView().getBus());
         assertNull(terminal.getBusBreakerView().getConnectableBus());
         assertNull(terminal.getBusView().getBus());

@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -206,6 +207,7 @@ public abstract class AbstractGeneratorTest {
 
     @Test
     public void testRemove() {
+        String unmodifiableRemovedEqMessage = "Can not modify removed equipment";
         createGenerator(TO_REMOVE, EnergySource.HYDRO, 20.0, 11., 2.0,
                 15.0, 40.0, true, 2.0);
         int count = network.getGeneratorCount();
@@ -213,6 +215,49 @@ public abstract class AbstractGeneratorTest {
         assertNotNull(generator);
         generator.remove();
         assertNotNull(generator);
+        Terminal terminal = generator.getTerminal();
+        assertNotNull(terminal);
+        assertFalse(terminal.isConnected());
+        assertEquals(-1, terminal.getNodeBreakerView().getNode());
+        assertNull(terminal.getBusBreakerView().getBus());
+        assertNull(terminal.getBusBreakerView().getConnectableBus());
+        assertNull(terminal.getBusView().getBus());
+        assertNull(terminal.getBusView().getConnectableBus());
+        assertNull(terminal.getVoltageLevel());
+        try {
+            terminal.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment is removed", e.getMessage());
+        }
+        Terminal.BusBreakerView bbView = terminal.getBusBreakerView();
+        assertNotNull(bbView);
+        try {
+            bbView.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        Terminal.NodeBreakerView nbView = terminal.getNodeBreakerView();
+        try {
+            nbView.moveConnectable(0, "VL");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setP(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setQ(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        assertNull(generator.getNetwork());
         assertEquals(count - 1L, network.getGeneratorCount());
         assertNull(network.getGenerator(TO_REMOVE));
     }
