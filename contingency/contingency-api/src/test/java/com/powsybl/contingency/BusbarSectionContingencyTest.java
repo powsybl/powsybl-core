@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.BusbarSectionTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.modification.tripping.BusbarSectionTripping;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,8 +31,8 @@ public class BusbarSectionContingencyTest {
         assertEquals("id", bbsContingency.getId());
         assertEquals(ContingencyElementType.BUSBAR_SECTION, bbsContingency.getType());
 
-        assertNotNull(bbsContingency.toTask());
-        assertTrue(bbsContingency.toTask() instanceof BusbarSectionTripping);
+        assertNotNull(bbsContingency.toModification());
+        assertTrue(bbsContingency.toModification() instanceof BusbarSectionTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new BusbarSectionContingency("bbs1"), new BusbarSectionContingency("bbs1"))

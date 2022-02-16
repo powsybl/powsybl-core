@@ -122,7 +122,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             // is to accumulate the power flows of connected terminals at boundary node
             for (int k = 1; k <= numTerminals; k++) {
                 if (terminalConnected(k)) {
-                    context.boundary().addPowerFlowAtNode(nodeId(k), powerFlow(k));
+                    context.boundary().addPowerFlowAtNode(nodeId(k), powerFlowSV(k));
                 }
             }
         }
@@ -261,7 +261,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // do it and assign the result at the terminal of the dangling line
         if (context.config().computeFlowsAtBoundaryDanglingLines()
             && terminalConnected(modelSide)
-            && !powerFlow(modelSide).defined()
+            && !powerFlowSV(modelSide).defined()
             && context.boundary().hasVoltage(boundaryNode)) {
 
             if (isZ0(dl)) {
@@ -426,45 +426,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     PowerFlow powerFlow() {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
-            case SSH:
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                if (stateVariablesPowerFlow().defined()) {
-                    return stateVariablesPowerFlow();
-                }
-                break;
-            case SV:
-                if (stateVariablesPowerFlow().defined()) {
-                    return stateVariablesPowerFlow();
-                }
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                break;
+        if (steadyStateHypothesisPowerFlow().defined()) {
+            return steadyStateHypothesisPowerFlow();
         }
-        return PowerFlow.UNDEFINED;
-    }
-
-    PowerFlow powerFlow(int n) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
-            case SSH:
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                if (stateVariablesPowerFlow(n).defined()) {
-                    return stateVariablesPowerFlow(n);
-                }
-                break;
-            case SV:
-                if (stateVariablesPowerFlow(n).defined()) {
-                    return stateVariablesPowerFlow(n);
-                }
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                break;
+        if (stateVariablesPowerFlow().defined()) {
+            return stateVariablesPowerFlow();
         }
         return PowerFlow.UNDEFINED;
     }
@@ -688,7 +654,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             modelNode = iidmNode(modelEnd);
         }
-        PowerFlow modelPowerFlow = powerFlow(modelEnd);
+        PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
             modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
     }

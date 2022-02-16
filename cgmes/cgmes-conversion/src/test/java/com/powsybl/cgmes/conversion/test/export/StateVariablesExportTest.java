@@ -145,7 +145,6 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
     private static Network importNetwork(ReadOnlyDataSource ds) {
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         return new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
     }
@@ -185,7 +184,6 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     private void test(ReadOnlyDataSource dataSource, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 

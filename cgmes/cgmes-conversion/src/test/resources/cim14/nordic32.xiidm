@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="Nordic32" caseDate="2019-04-01T15:09:55.299+02:00" forecastDistance="0" sourceFormat="CIM1" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="_N1011____SS" name="N1011   _SS" country="NO" geographicalTags="_SGR_13">
+    <iidm:substation id="_N1011____SS" name="N1011   _SS" country="NO" geographicalTags="NO">
+        <iidm:property name="CGMES.regionId" value="_SGR_13"/>
         <iidm:voltageLevel id="_NG9______VL" name="NG9     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG9______TN" name="NG9" v="15.0" angle="0.0"/>
@@ -29,7 +30,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_N1012____SS" name="N1012   _SS" country="NO" geographicalTags="_SGR_13">
+    <iidm:substation id="_N1012____SS" name="N1012   _SS" country="NO" geographicalTags="NO">
+        <iidm:property name="CGMES.regionId" value="_SGR_13"/>
         <iidm:voltageLevel id="_NG1______VL" name="NG1     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG1______TN" name="NG1" v="16.025999069213867" angle="6.043698787689209"/>
@@ -73,7 +75,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_N1022____SS" name="N1022   _SS" country="NO" geographicalTags="_SGR_13">
+    <iidm:substation id="_N1022____SS" name="N1022   _SS" country="NO" geographicalTags="NO">
+        <iidm:property name="CGMES.regionId" value="_SGR_13"/>
         <iidm:voltageLevel id="_NG5______VL" name="NG5     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG5______TN" name="NG5" v="15.440999984741211" angle="-9.349656105041504"/>
@@ -105,7 +108,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_N1041____SS" name="N1041   _SS" country="NO" geographicalTags="_SGR_13">
+    <iidm:substation id="_N1041____SS" name="N1041   _SS" country="NO" geographicalTags="NO">
+        <iidm:property name="CGMES.regionId" value="_SGR_13"/>
         <iidm:voltageLevel id="_N1041____VL" name="N1041   _VL" nominalV="130.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N1041____TN" name="N1041" v="110.677001953125" angle="-94.36389923095703"/>
@@ -116,7 +120,8 @@
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_N1044____SS" name="N1044   _SS" country="NO" geographicalTags="_SGR_13">
+    <iidm:substation id="_N1044____SS" name="N1044   _SS" country="NO" geographicalTags="NO">
+        <iidm:property name="CGMES.regionId" value="_SGR_13"/>
         <iidm:voltageLevel id="_N4044____VL" name="N4044   _VL" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4044____TN" name="N4044" v="339.8810119628906" angle="-75.97722625732422"/>
@@ -140,7 +145,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_N1045____SS" name="N1045   _SS" country="NO" geographicalTags="_SGR_13">
+    <iidm:substation id="_N1045____SS" name="N1045   _SS" country="NO" geographicalTags="NO">
+        <iidm:property name="CGMES.regionId" value="_SGR_13"/>
         <iidm:voltageLevel id="_N4045____VL" name="N4045   _VL" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4045____TN" name="N4045" v="345.0270080566406" angle="-82.18965148925781"/>
@@ -164,7 +170,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_N2031____SS" name="N2031   _SS" country="BE" geographicalTags="_SGR_22">
+    <iidm:substation id="_N2031____SS" name="N2031   _SS" country="BE" geographicalTags="BE">
+        <iidm:property name="CGMES.regionId" value="_SGR_22"/>
         <iidm:voltageLevel id="_NG12_____VL" name="NG12    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG12_____TN" name="NG12" v="15.694499969482422" angle="-34.04362106323242"/>
@@ -193,14 +200,16 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_N4032____SS" name="N4032   _SS" country="DK" geographicalTags="_SGR_40">
+    <iidm:substation id="_N4032____SS" name="N4032   _SS" country="DK" geographicalTags="DK">
+        <iidm:property name="CGMES.regionId" value="_SGR_40"/>
         <iidm:voltageLevel id="_N4032____VL" name="N4032   _VL" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4032____TN" name="N4032" v="352.6319885253906" angle="-49.30524444580078"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_N4043____SS" name="N4043   _SS" country="DK" geographicalTags="_SGR_40">
+    <iidm:substation id="_N4043____SS" name="N4043   _SS" country="DK" geographicalTags="DK">
+        <iidm:property name="CGMES.regionId" value="_SGR_40"/>
         <iidm:voltageLevel id="_N4043____VL" name="N4043   _VL" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4043____TN" name="N4043" v="343.68499755859375" angle="-75.2749252319336"/>
@@ -211,7 +220,8 @@
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_N4046____SS" name="N4046   _SS" country="DK" geographicalTags="_SGR_40">
+    <iidm:substation id="_N4046____SS" name="N4046   _SS" country="DK" geographicalTags="DK">
+        <iidm:property name="CGMES.regionId" value="_SGR_40"/>
         <iidm:voltageLevel id="_N4046____VL" name="N4046   _VL" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4046____TN" name="N4046" v="346.0889892578125" angle="-76.19192504882812"/>
@@ -222,7 +232,8 @@
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_N4061____SS" name="N4061   _SS" country="DK" geographicalTags="_SGR_40">
+    <iidm:substation id="_N4061____SS" name="N4061   _SS" country="DK" geographicalTags="DK">
+        <iidm:property name="CGMES.regionId" value="_SGR_40"/>
         <iidm:voltageLevel id="_N4061____VL" name="N4061   _VL" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4061____TN" name="N4061" v="354.6520080566406" angle="-67.66624450683594"/>
@@ -230,7 +241,8 @@
             <iidm:load id="_N4061____EC" name="N4061   " loadType="UNDEFINED" p0="500.0" q0="149.0" bus="_N4061____TN" connectableBus="_N4061____TN" p="500.0" q="149.0"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_NG11_____SS" name="NG11    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG11_____SS" name="NG11    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG11_____VL" name="NG11    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG11_____TN" name="NG11" v="15.316499710083008" angle="-30.300371170043945"/>
@@ -249,7 +261,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG13_____SS" name="NG13    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG13_____SS" name="NG13    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG13_____VL" name="NG13    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG13_____TN" name="NG13" v="15.255000114440918" angle="-62.66741180419922"/>
@@ -272,7 +285,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG14_____SS" name="NG14    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG14_____SS" name="NG14    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG14_____VL" name="NG14    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG14_____TN" name="NG14" v="15.680999755859375" angle="-57.85282897949219"/>
@@ -292,7 +306,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG15_____SS" name="NG15    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG15_____SS" name="NG15    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG15_____VL" name="NG15    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG15_____TN" name="NG15" v="15.682499885559082" angle="-61.41239929199219"/>
@@ -312,7 +327,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG16_____SS" name="NG16    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG16_____SS" name="NG16    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG16_____VL" name="NG16    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG16_____TN" name="NG16" v="15.796500205993652" angle="-77.35078430175781"/>
@@ -335,7 +351,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG17_____SS" name="NG17    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG17_____SS" name="NG17    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG17_____VL" name="NG17    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG17_____TN" name="NG17" v="15.137999534606934" angle="-54.26876449584961"/>
@@ -355,7 +372,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG18_____SS" name="NG18    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG18_____SS" name="NG18    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG18_____VL" name="NG18    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG18_____TN" name="NG18" v="15.46049976348877" angle="-49.925662994384766"/>
@@ -375,7 +393,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG19_____SS" name="NG19    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG19_____SS" name="NG19    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG19_____VL" name="NG19    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG19_____TN" name="NG19" v="15.449999809265137" angle="3.17626690864563"/>
@@ -398,7 +417,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG20_____SS" name="NG20    _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG20_____SS" name="NG20    _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG20_____VL" name="NG20    _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG20_____TN" name="NG20" v="15.27750015258789" angle="3.315453052520752"/>
@@ -418,7 +438,8 @@
             <iidm:currentLimits2 permanentLimit="1443.3800048828125"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG2______SS" name="NG2     _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG2______SS" name="NG2     _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG2______VL" name="NG2     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG2______TN" name="NG2" v="15.84749984741211" angle="8.6207275390625"/>
@@ -438,7 +459,8 @@
             <iidm:currentLimits2 permanentLimit="4441.16015625"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG3______SS" name="NG3     _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG3______SS" name="NG3     _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG3______VL" name="NG3     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG3______TN" name="NG3" v="15.892499923706055" angle="13.968607902526855"/>
@@ -457,7 +479,8 @@
             <iidm:currentLimits2 permanentLimit="4441.16015625"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG4______SS" name="NG4     _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG4______SS" name="NG4     _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG4______VL" name="NG4     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG4______TN" name="NG4" v="15.508500099182129" angle="14.51465892791748"/>
@@ -476,7 +499,8 @@
             <iidm:currentLimits2 permanentLimit="4441.16015625"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG6______SS" name="NG6     _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG6______SS" name="NG6     _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG6______VL" name="NG6     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG6______TN" name="NG6" v="15.12600040435791" angle="-71.39446258544922"/>
@@ -496,7 +520,8 @@
             <iidm:currentLimits2 permanentLimit="4441.16015625"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG7______SS" name="NG7     _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG7______SS" name="NG7     _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG7______VL" name="NG7     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG7______TN" name="NG7" v="15.21150016784668" angle="-80.41766357421875"/>
@@ -519,7 +544,8 @@
             <iidm:currentLimits2 permanentLimit="4441.16015625"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_NG8______SS" name="NG8     _SS" country="FR" geographicalTags="_SGR_01">
+    <iidm:substation id="_NG8______SS" name="NG8     _SS" country="FR" geographicalTags="FR">
+        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_NG8______VL" name="NG8     _VL" nominalV="15.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG8______TN" name="NG8" v="15.746999740600586" angle="-14.407537460327148"/>
