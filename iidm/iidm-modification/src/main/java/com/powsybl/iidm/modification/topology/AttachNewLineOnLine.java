@@ -242,9 +242,15 @@ public class AttachNewLineOnLine implements NetworkModification {
 
         // Create topology in the existing voltage level
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+        }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
+            if (bus == null) {
+                throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
+            }
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
                     .setId(line.getId() + "_BUS")
@@ -258,6 +264,9 @@ public class AttachNewLineOnLine implements NetworkModification {
                     .add();
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            if (bbs == null) {
+                throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
+            }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             lineAdder.setNode2(firstAvailableNode);

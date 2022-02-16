@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -114,6 +115,9 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
     @Override
     public void apply(Network network) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+        }
 
         // Set parameters of the two lines replacing the existing line
         LineAdder adder1 = createLineAdder(percent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), voltageLevelId, network, line);
@@ -125,6 +129,9 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
+            if (bus == null) {
+                throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
+            }
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
                     .setId(line.getId() + "_BUS_1")
@@ -138,6 +145,9 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
             adder2.setBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            if (bbs == null) {
+                throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
+            }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", line.getId(), voltageLevel.getNodeBreakerView());
