@@ -23,17 +23,24 @@ import java.util.Objects;
  */
 public class ContingencyContext {
 
+    private static final ContingencyContext ALL = new ContingencyContext(null, ContingencyContextType.ALL);
+
+    private static final ContingencyContext NONE = new ContingencyContext(null, ContingencyContextType.NONE);
+
     private final String contingencyId;
 
     /**
-     * Define if informations needed are in N_Situation, N-k Situation or both
-     * if it is N_situation contingencyid is null
+     * Define if information is asked for pre-contingency state, post-contingency state or both
+     * For pre-contingency state only, contingency id is null
      */
     private final ContingencyContextType contextType;
 
     public ContingencyContext(@JsonProperty("contingencyId") String contingencyId,
                               @JsonProperty("contextType") ContingencyContextType contingencyContextType) {
         this.contextType = Objects.requireNonNull(contingencyContextType);
+        if (contingencyContextType == ContingencyContextType.SPECIFIC && contingencyId == null) {
+            throw new IllegalArgumentException("Contingency ID should not be null in case of specific contingency context");
+        }
         this.contingencyId = contingencyId;
     }
 
@@ -71,12 +78,26 @@ public class ContingencyContext {
             ')';
     }
 
+    public static ContingencyContext create(String contingencyId, ContingencyContextType contingencyContextType) {
+        Objects.requireNonNull(contingencyContextType);
+        switch (contingencyContextType) {
+            case ALL:
+                return ALL;
+            case NONE:
+                return NONE;
+            case SPECIFIC:
+                return specificContingency(contingencyId);
+            default:
+                throw new IllegalStateException("Unknown contingency context type: " + contingencyContextType);
+        }
+    }
+
     public static ContingencyContext all() {
-        return new ContingencyContext(null, ContingencyContextType.ALL);
+        return ALL;
     }
 
     public static ContingencyContext none() {
-        return new ContingencyContext(null, ContingencyContextType.NONE);
+        return NONE;
     }
 
     public static ContingencyContext specificContingency(String contingencyId) {
