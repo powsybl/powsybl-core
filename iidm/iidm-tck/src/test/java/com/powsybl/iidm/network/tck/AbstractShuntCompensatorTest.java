@@ -481,6 +481,10 @@ public abstract class AbstractShuntCompensatorTest {
         } catch (Exception ignored) {
             // ignore
         }
+
+        // check we delete a single variant's values
+        variantManager.setWorkingVariant("s3");
+        assertEquals(5, shunt.getSectionCount());
     }
 
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
