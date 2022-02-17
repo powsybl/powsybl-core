@@ -900,8 +900,16 @@ public interface Network extends Container<Network> {
 
     default Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
         if (validationLevel != ValidationLevel.STEADY_STATE_HYPOTHESIS) {
-            throw new UnsupportedOperationException("Validation level below LOADFLOW not supported");
+            throw new UnsupportedOperationException("Validation level below STEADY STATE HYPOTHESIS not supported");
         }
         return this;
+    }
+
+    default Network setAddersWithDefaultValues(boolean withDefaultValues) {
+        return this;
+    }
+
+    default boolean getAddersWithDefaultValues() {
+        return false;
     }
 }

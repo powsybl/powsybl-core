@@ -50,6 +50,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
+    private boolean addersWithDefaultValues = false;
+
     class BusBreakerViewImpl implements BusBreakerView {
 
         @Override
@@ -1174,6 +1176,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
         this.minValidationLevel = validationLevel;
         return this;
+    }
+
+    @Override
+    public Network setAddersWithDefaultValues(boolean withDefaultValues) {
+        this.addersWithDefaultValues = withDefaultValues;
+        return this;
+    }
+
+    @Override
+    public boolean getAddersWithDefaultValues() {
+        return this.addersWithDefaultValues;
     }
 
     ValidationLevel getMinValidationLevel() {

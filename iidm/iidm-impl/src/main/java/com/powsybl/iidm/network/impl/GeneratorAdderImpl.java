@@ -110,6 +110,10 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         }
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
+        if (network.getAddersWithDefaultValues()) {
+            minP = minP == Double.NaN ? -Double.MAX_VALUE : minP;
+            maxP = maxP == Double.NaN ? Double.MAX_VALUE : maxP;
+        }
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
