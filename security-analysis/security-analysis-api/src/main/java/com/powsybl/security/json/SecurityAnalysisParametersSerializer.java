@@ -26,22 +26,12 @@ public class SecurityAnalysisParametersSerializer extends StdSerializer<Security
 
     @Override
     public void serialize(SecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-
         jsonGenerator.writeStartObject();
-
         jsonGenerator.writeStringField("version", SecurityAnalysisParameters.VERSION);
-
-        jsonGenerator.writeNumberField("increasedFlowViolationsProportionalThreshold", parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold());
-        jsonGenerator.writeNumberField("increasedLowVoltageViolationsProportionalThreshold", parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold());
-        jsonGenerator.writeNumberField("increasedHighVoltageViolationsProportionalThreshold", parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold());
-        jsonGenerator.writeNumberField("increasedLowVoltageViolationsAbsoluteThreshold", parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold());
-        jsonGenerator.writeNumberField("increasedHighVoltageViolationsAbsoluteThreshold", parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold());
-
+        serializerProvider.defaultSerializeField("increased-violations-parameters", parameters.getIncreasedViolationsParameters(), jsonGenerator);
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
-
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSecurityAnalysisParameters.getExtensionSerializers());
-
         jsonGenerator.writeEndObject();
     }
 }

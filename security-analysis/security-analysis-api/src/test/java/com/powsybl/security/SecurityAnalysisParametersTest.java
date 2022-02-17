@@ -95,11 +95,11 @@ public class SecurityAnalysisParametersTest {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("security-analysis-default-parameters");
-            moduleConfig.setStringProperty("increasedFlowViolationsProportionalThreshold", "0.3");
-            moduleConfig.setStringProperty("increasedLowVoltageViolationsProportionalThreshold", "0.4");
-            moduleConfig.setStringProperty("increasedHighVoltageViolationsProportionalThreshold", "0.2");
-            moduleConfig.setStringProperty("increasedLowVoltageViolationsAbsoluteThreshold", "20");
-            moduleConfig.setStringProperty("increasedHighVoltageViolationsAbsoluteThreshold", "25");
+            moduleConfig.setStringProperty("increased-flow-violations-proportional-threshold", "0.3");
+            moduleConfig.setStringProperty("increased-low-voltage-violations-proportional-threshold", "0.4");
+            moduleConfig.setStringProperty("increased-high-voltage-violations-proportional-threshold", "0.2");
+            moduleConfig.setStringProperty("increased-low-voltage-violations-absolute-threshold", "20");
+            moduleConfig.setStringProperty("increased-high-voltage-violations-absolute-threshold", "25");
             SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(platformConfig);
             assertEquals(0.3, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
             assertEquals(0.4, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);

@@ -24,6 +24,8 @@ import java.util.List;
  */
 public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 
+    private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
+
     SecurityAnalysisParametersDeserializer() {
         super(SecurityAnalysisParameters.class);
     }
@@ -36,30 +38,17 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
     @Override
     public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws IOException {
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
+        String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
                     parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
-                case "increasedFlowViolationsProportionalThreshold":
+                case "increased-violations-parameters":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
                     parser.nextToken();
-                    parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(parser.getDoubleValue());
-                    break;
-                case "increasedLowVoltageViolationsProportionalThreshold":
-                    parser.nextToken();
-                    parameters.getIncreasedViolationsParameters().setLowVoltageProportionalThreshold(parser.getDoubleValue());
-                    break;
-                case "increasedHighVoltageViolationsProportionalThreshold":
-                    parser.nextToken();
-                    parameters.getIncreasedViolationsParameters().setHighVoltageProportionalThreshold(parser.getDoubleValue());
-                    break;
-                case "increasedLowVoltageViolationsAbsoluteThreshold":
-                    parser.nextToken();
-                    parameters.getIncreasedViolationsParameters().setLowVoltageAbsoluteThreshold(parser.getDoubleValue());
-                    break;
-                case "increasedHighVoltageViolationsAbsoluteThreshold":
-                    parser.nextToken();
-                    parameters.getIncreasedViolationsParameters().setHighVoltageAbsoluteThreshold(parser.getDoubleValue());
+                    parameters.setIncreasedViolationsParameters(parser.readValueAs(SecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
                 case "load-flow-parameters":
                     parser.nextToken();
