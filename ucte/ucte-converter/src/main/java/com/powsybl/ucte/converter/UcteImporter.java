@@ -245,6 +245,7 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(bus.getId())
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
                 .setTargetP(generatorP)
                 .setTargetQ(generatorQ)

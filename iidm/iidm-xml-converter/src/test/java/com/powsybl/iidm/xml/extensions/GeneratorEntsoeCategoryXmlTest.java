@@ -46,6 +46,7 @@ public class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
                 .setConnectableBus("B")
                 .setTargetP(100)
                 .setTargetV(380)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setMaxP(100)
                 .setMinP(0)

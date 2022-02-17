@@ -67,6 +67,7 @@ public abstract class AbstractRemoteReactivePowerControlTest {
                        .setMaxP(p)
                        .setTargetP(p)
                        .setTargetV(v)
+                       .useLocalRegulation(true)
                        .setVoltageRegulatorOn(true)
                        .add();
         g.getTerminal().setP(-p).setQ(0);

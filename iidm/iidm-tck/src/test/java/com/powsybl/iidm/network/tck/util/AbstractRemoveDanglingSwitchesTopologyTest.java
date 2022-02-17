@@ -86,6 +86,7 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
                 .setId("G")
                 .setNode(2)
                 .setTargetP(0)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(400)
                 .setMinP(0)

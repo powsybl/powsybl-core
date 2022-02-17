@@ -210,6 +210,7 @@ public final class ChangelogUpdateTest {
             .setEnergySource(EnergySource.NUCLEAR)
             .setMinP(200.0)
             .setMaxP(900.0)
+            .useLocalRegulation(true)
             .setVoltageRegulatorOn(true)
             .setTargetV(24.5)
             .setTargetP(607.0)
