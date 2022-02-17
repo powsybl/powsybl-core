@@ -100,6 +100,7 @@ public final class DanglingLineNetworkFactory {
                 .setId("G")
                 .setMinP(0.0)
                 .setMaxP(100.0)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(100.0)
                 .setTargetP(50.0)

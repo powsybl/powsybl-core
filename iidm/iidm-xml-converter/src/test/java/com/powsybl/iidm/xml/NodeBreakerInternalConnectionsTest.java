@@ -52,6 +52,7 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 .setMinP(0)
                 .setMaxP(100)
                 .setTargetP(10)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(400)
                 .add();

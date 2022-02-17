@@ -54,6 +54,7 @@ public final class SvcTestCaseFactory {
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setTargetP(100.0)
                 .setTargetV(400.0)
@@ -85,6 +86,7 @@ public final class SvcTestCaseFactory {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
+                .useLocalRegulation(true)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
                 .add();
@@ -119,6 +121,7 @@ public final class SvcTestCaseFactory {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
+                .useLocalRegulation(true)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
                 .setReactivePowerSetpoint(350)

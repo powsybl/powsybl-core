@@ -42,6 +42,7 @@ public class GeneratorAdapterTest {
         assertNotNull(generatorAdder);
         assertTrue(generatorAdder instanceof GeneratorAdderAdapter);
         final Generator generator = generatorAdder.setId(id)
+                                                  .useLocalRegulation(true)
                                                   .setVoltageRegulatorOn(true)
                                                   .setName(name)
                                                   .setNode(1)

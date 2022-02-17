@@ -45,6 +45,7 @@ public abstract class AbstractNodeBreakerTest {
                 .setMinP(50)
                 .setTargetP(100)
                 .setTargetV(400)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .add();
         vl.getNodeBreakerView().newDisconnector()

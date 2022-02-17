@@ -67,6 +67,7 @@ public class VoltageLevelAdapterTest {
                     .setBus("busA")
                     .setLossFactor(0.011f)
                     .setVoltageSetpoint(405.0)
+                    .useLocalRegulation(true)
                     .setVoltageRegulatorOn(true)
                     .setReactivePowerSetpoint(123)
                     .setEnsureIdUnicity(false)
@@ -97,7 +98,9 @@ public class VoltageLevelAdapterTest {
 
         // Generator
         vlActual.newGenerator()
-                    .setId("GEN").setVoltageRegulatorOn(true)
+                    .setId("GEN")
+                    .useLocalRegulation(true)
+                    .setVoltageRegulatorOn(true)
                     .setConnectableBus("busA")
                     .setBus("busA")
                     .setMaxP(9999.99)

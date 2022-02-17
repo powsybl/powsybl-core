@@ -59,6 +59,7 @@ public final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(1.0)
                 .add();
@@ -140,6 +141,7 @@ public final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(1.0)
                 .add();

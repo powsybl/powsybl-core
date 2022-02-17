@@ -107,6 +107,7 @@ public final class BatteryNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setTargetV(24.5)
                 .setTargetP(607.0)

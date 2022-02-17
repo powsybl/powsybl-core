@@ -76,6 +76,7 @@ public class IssuesTest {
             .setMaxP(1)
             .setTargetP(1)
             .setTargetQ(0)
+            .useLocalRegulation(true)
             .setVoltageRegulatorOn(true)
             .setTargetV(400)
             .add();

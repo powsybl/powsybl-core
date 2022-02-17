@@ -47,6 +47,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setMaxP(140)
                 .setTargetP(7.2)
                 .setTargetV(135)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .add();
 

@@ -79,6 +79,7 @@ public final class Cim14SmallCasesNetworkCatalog {
             .setTargetP(-0.0)
             .setTargetQ(-0.0)
             .setTargetV(21.0)
+            .useLocalRegulation(true)
             .setVoltageRegulatorOn(true)
             .add();
         gen.newMinMaxReactiveLimits()
@@ -87,7 +88,6 @@ public final class Cim14SmallCasesNetworkCatalog {
             .add();
         gen.getTerminal().setP(0);
         gen.getTerminal().setQ(0);
-        gen.setRegulatingTerminal(gen.getTerminal());
         Bus busInf = vlInf.getBusBreakerView().newBus()
             .setId("_INF______TN")
             .setName("INF")
@@ -104,6 +104,7 @@ public final class Cim14SmallCasesNetworkCatalog {
             .setTargetP(-0.0)
             .setTargetQ(-0.0)
             .setTargetV(419.0)
+            .useLocalRegulation(true)
             .setVoltageRegulatorOn(true)
             .add();
         genInf.newMinMaxReactiveLimits()
@@ -112,7 +113,6 @@ public final class Cim14SmallCasesNetworkCatalog {
             .add();
         genInf.getTerminal().setP(0);
         genInf.getTerminal().setQ(0);
-        genInf.setRegulatingTerminal(genInf.getTerminal());
         Line line = network.newLine()
             .setId("_GRID____-INF_____-1_AC")
             .setName("GRID    -INF     -1")

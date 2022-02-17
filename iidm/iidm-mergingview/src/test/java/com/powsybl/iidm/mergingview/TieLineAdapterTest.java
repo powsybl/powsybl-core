@@ -88,6 +88,7 @@ public class TieLineAdapterTest {
                 .setConnectableBus("b1")
                 .setTargetP(100.0)
                 .setTargetV(400.0)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setMinP(50.0)
                 .setMaxP(150.0)
