@@ -18,7 +18,10 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionProviders;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +47,49 @@ public final class JsonUtil {
                 .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
                 .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+    }
+
+    public static void writeJson(Path jsonFile, Object object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try (Writer writer = Files.newBufferedWriter(jsonFile, StandardCharsets.UTF_8)) {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(writer, object);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T readJson(Path jsonFile, Class<T> clazz, ObjectMapper objectMapper) {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(objectMapper);
+        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
+            return objectMapper.readValue(reader, clazz);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T readJsonAndUpdate(InputStream is, T object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(is);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try {
+            return objectMapper.readerForUpdating(object).readValue(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T readJsonAndUpdate(Path jsonFile, T object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
+            return objectMapper.readerForUpdating(object).readValue(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static JsonFactory createJsonFactory() {
