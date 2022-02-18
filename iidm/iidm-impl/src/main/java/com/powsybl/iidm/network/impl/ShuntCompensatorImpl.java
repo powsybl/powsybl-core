@@ -238,7 +238,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        List<Integer> tmpInt = new ArrayList<>(sectionCount.subList(0, number));
+        List<Integer> tmpInt = new ArrayList<>(sectionCount.subList(0, sectionCount.size() - number));
         sectionCount.clear();
         sectionCount.addAll(tmpInt);
         voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
