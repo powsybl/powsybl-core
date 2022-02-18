@@ -553,8 +553,8 @@ public final class Importers {
         ReadOnlyDataSource dataSource;
         if (filename.endsWith(".zip")) {
             ZipInputStream zipInputStream = new ZipInputStream(data);
-           dataSource = new ZipReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
-           ((ZipReadOnlyMemDataSource) dataSource).putData(filename, zipInputStream);
+            dataSource = new ZipReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+            ((ZipReadOnlyMemDataSource) dataSource).putData(filename, zipInputStream);
         } else {
             dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
             ((ReadOnlyMemDataSource) dataSource).putData(filename, data);
