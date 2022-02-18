@@ -286,6 +286,10 @@ public abstract class AbstractTapChangerTest {
         getTapPositionThrowsException(ratioTapChanger);
         getTapPositionThrowsException(ratioTapChangerInLeg2);
         getTapPositionThrowsException(ratioTapChangerInLeg3);
+
+        // check we delete a single variant's values
+        variantManager.setWorkingVariant("s3");
+        assertEquals(1, phaseTapChanger.getTapPosition());
     }
 
     private void assertKnownState(PhaseTapChanger phaseTapChanger, RatioTapChanger ratioTapChanger,
