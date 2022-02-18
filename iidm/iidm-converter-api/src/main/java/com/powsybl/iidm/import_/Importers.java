@@ -36,7 +36,6 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipInputStream;
 
 /**
  * A utility class to work with IIDM importers.
@@ -550,16 +549,7 @@ public final class Importers {
      * @return                   The loaded network
      */
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, Reporter reporter) {
-        ReadOnlyDataSource dataSource;
-        if (filename.endsWith(".zip")) {
-            ZipInputStream zipInputStream = new ZipInputStream(data);
-            dataSource = new ZipReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
-            ((ZipReadOnlyMemDataSource) dataSource).putData(filename, zipInputStream);
-        } else {
-            dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
-            ((ReadOnlyMemDataSource) dataSource).putData(filename, data);
-        }
-
+        ReadOnlyDataSource dataSource = DataSourceUtil.createDataSource(filename, data);
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             if (reporter == Reporter.NO_OP) {

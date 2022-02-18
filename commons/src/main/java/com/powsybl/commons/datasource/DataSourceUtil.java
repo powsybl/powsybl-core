@@ -6,10 +6,17 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.google.common.io.ByteStreams;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -70,6 +77,28 @@ public interface DataSourceUtil {
             return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
         } else {
             return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+        }
+    }
+
+    static ReadOnlyMemDataSource createDataSource(String filename, InputStream data) {
+        if (filename.endsWith(".zip")) {
+            ZipInputStream zipInputStream = new ZipInputStream(data);
+            ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+            try {
+                ZipEntry entry = zipInputStream.getNextEntry();
+                while (entry != null) {
+                    dataSource.putData(entry.getName(), ByteStreams.toByteArray(zipInputStream));
+                    entry = zipInputStream.getNextEntry();
+                }
+                zipInputStream.close();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            return dataSource;
+        } else {
+            ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+            dataSource.putData(filename, data);
+            return dataSource;
         }
     }
 }
