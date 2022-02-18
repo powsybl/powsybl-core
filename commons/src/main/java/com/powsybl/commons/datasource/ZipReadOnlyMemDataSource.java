@@ -1,8 +1,6 @@
 package com.powsybl.commons.datasource;
 
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.io.ForwardingInputStream;
-import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -43,9 +41,7 @@ public class ZipReadOnlyMemDataSource implements ReadOnlyDataSource {
         try {
             ZipEntry entry = data.getNextEntry();
             while (entry != null) {
-                String filename = entry.getName();
                 this.data.put(entry.getName(), ByteStreams.toByteArray(data));
-                double length = this.data.size();
                 entry = data.getNextEntry();
             }
         } catch (IOException e) {
@@ -95,23 +91,6 @@ public class ZipReadOnlyMemDataSource implements ReadOnlyDataSource {
         return data.keySet().stream()
                 .filter(name -> p.matcher(name).matches())
                 .collect(Collectors.toSet());
-    }
-
-    private static final class ZipEntryInputStream extends ForwardingInputStream<InputStream> {
-
-        private final ZipFile zipFile;
-
-        public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
-            super(zipFile.getInputStream(zipFile.getEntry(fileName)));
-            this.zipFile = zipFile;
-        }
-
-        @Override
-        public void close() throws IOException {
-            super.close();
-
-            zipFile.close();
-        }
     }
 
 }
