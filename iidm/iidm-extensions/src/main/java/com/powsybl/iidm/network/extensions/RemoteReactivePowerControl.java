@@ -38,4 +38,10 @@ public interface RemoteReactivePowerControl extends Extension<Generator> {
      * Says if the control is active or not.
      */
     boolean isEnabled();
+
+    RemoteReactivePowerControl setTargetQ(double targetQ);
+
+    RemoteReactivePowerControl setEnabled(boolean enabled);
+
+    RemoteReactivePowerControl setRegulatingTerminal(Terminal terminal);
 }

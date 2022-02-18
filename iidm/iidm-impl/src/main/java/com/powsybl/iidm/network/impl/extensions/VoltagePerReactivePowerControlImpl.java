@@ -7,30 +7,35 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
-public class VoltagePerReactivePowerControlImpl extends AbstractExtension<StaticVarCompensator> implements VoltagePerReactivePowerControl {
+public class VoltagePerReactivePowerControlImpl extends AbstractMultiVariantIdentifiableExtension<StaticVarCompensator> implements VoltagePerReactivePowerControl {
 
-    private double slope;
+    private TDoubleArrayList slope;
 
     public VoltagePerReactivePowerControlImpl(StaticVarCompensator svc, double slope) {
         super(svc);
-        this.slope = checkSlope(slope);
+        int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
+        this.slope = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.slope.add(checkSlope(slope));
+        }
     }
 
     @Override
     public double getSlope() {
-        return slope;
+        return slope.get(getVariantIndex());
     }
 
     public VoltagePerReactivePowerControl setSlope(double slope) {
-        this.slope = checkSlope(slope);
+        this.slope.set(getVariantIndex(), checkSlope(slope));
         return this;
     }
 
@@ -42,5 +47,30 @@ public class VoltagePerReactivePowerControlImpl extends AbstractExtension<Static
             throw new PowsyblException("Slope value of SVC " + getExtendable().getId() + " must be positive: " + slope);
         }
         return slope;
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        slope.ensureCapacity(slope.size() + number);
+        for (int i = 0; i < number; ++i) {
+            slope.add(slope.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        slope.remove(slope.size() - number, number);
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        // Does nothing
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        for (int index : indexes) {
+            slope.set(index, slope.get(sourceIndex));
+        }
     }
 }
