@@ -112,14 +112,14 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
             return false;
         }
         HvdcAngleDroopActivePowerControlImpl that = (HvdcAngleDroopActivePowerControlImpl) o;
-        return Float.compare(that.p0.get(that.getVariantManagerHolder().getVariantIndex()), p0.get(getVariantIndex())) == 0 &&
-                Float.compare(that.droop.get(that.getVariantManagerHolder().getVariantIndex()), droop.get(getVariantIndex())) == 0 &&
-                enabled.get(getVariantIndex()) == that.enabled.get(that.getVariantManagerHolder().getVariantIndex());
+        return Float.compare(that.getP0(), getP0()) == 0 &&
+                Float.compare(that.getDroop(), getDroop()) == 0 &&
+                isEnabled() == that.isEnabled();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(p0.get(getVariantIndex()), droop.get(getVariantIndex()), enabled.get(getVariantIndex()));
+        return Objects.hash(getP0(), getDroop(), isEnabled());
     }
 
     @Override

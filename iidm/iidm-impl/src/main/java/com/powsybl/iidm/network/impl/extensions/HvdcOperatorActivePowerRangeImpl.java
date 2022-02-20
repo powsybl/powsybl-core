@@ -84,15 +84,13 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdenti
             return false;
         }
         HvdcOperatorActivePowerRangeImpl that = (HvdcOperatorActivePowerRangeImpl) o;
-        return Float.compare(that.oprFromCS1toCS2.get(that.getVariantManagerHolder().getVariantIndex()),
-                oprFromCS1toCS2.get(getVariantIndex())) == 0 &&
-                Float.compare(that.oprFromCS2toCS1.get(that.getVariantManagerHolder().getVariantIndex()),
-                        oprFromCS2toCS1.get(getVariantIndex())) == 0;
+        return Float.compare(that.getOprFromCS1toCS2(), getOprFromCS1toCS2()) == 0 &&
+                Float.compare(that.getOprFromCS2toCS1(), getOprFromCS2toCS1()) == 0;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oprFromCS1toCS2.get(getVariantIndex()), oprFromCS2toCS1.get(getVariantIndex()));
+        return Objects.hash(getOprFromCS1toCS2(), getOprFromCS2toCS1());
     }
 
     @Override
