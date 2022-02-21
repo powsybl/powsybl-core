@@ -211,7 +211,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     @Override
     public void reduceVariantArraySize(int number) {
-        List<Integer> tmpInt = new ArrayList<>(tapPosition.subList(0, number));
+        List<Integer> tmpInt = new ArrayList<>(tapPosition.subList(0, tapPosition.size() - number));
         tapPosition.clear();
         tapPosition.addAll(tmpInt);
         regulating.remove(regulating.size() - number, number);
