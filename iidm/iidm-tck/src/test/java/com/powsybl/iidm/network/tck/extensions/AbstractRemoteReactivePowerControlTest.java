@@ -141,20 +141,16 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         variantManager.setWorkingVariant(variant1);
         assertEquals(200.0, control.getTargetQ(), 0);
         assertTrue(control.isEnabled());
-        assertEquals(l.getTerminal(Branch.Side.ONE), control.getRegulatingTerminal());
 
         // Testing setting different values in the cloned variant and going back to the initial one
         control.setTargetQ(210.0);
         control.setEnabled(false);
-        control.setRegulatingTerminal(l.getTerminal(Branch.Side.TWO));
         assertFalse(control.isEnabled());
         assertEquals(210.0, control.getTargetQ(), 0f);
-        assertEquals(l.getTerminal(Branch.Side.TWO), control.getRegulatingTerminal());
 
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         assertEquals(200.0f, control.getTargetQ(), 0f);
         assertTrue(control.isEnabled());
-        assertEquals(l.getTerminal(Branch.Side.ONE), control.getRegulatingTerminal());
 
         // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
         variantManager.removeVariant(variant1);
@@ -163,11 +159,9 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         variantManager.setWorkingVariant(variant1);
         assertEquals(200.0f, control.getTargetQ(), 0f);
         assertTrue(control.isEnabled());
-        assertEquals(l.getTerminal(Branch.Side.ONE), control.getRegulatingTerminal());
         variantManager.setWorkingVariant(variant3);
         assertEquals(200.0f, control.getTargetQ(), 0f);
         assertTrue(control.isEnabled());
-        assertEquals(l.getTerminal(Branch.Side.ONE), control.getRegulatingTerminal());
 
         // Test removing current variant
         variantManager.removeVariant(variant3);

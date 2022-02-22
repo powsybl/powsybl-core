@@ -13,8 +13,6 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.ArrayList;
-
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
@@ -22,7 +20,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     private TDoubleArrayList targetQ;
 
-    private final ArrayList<Terminal> regulatingTerminal;
+    private final Terminal regulatingTerminal;
 
     private TBooleanArrayList enabled;
 
@@ -30,12 +28,11 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         super(generator);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.targetQ = new TDoubleArrayList();
-        this.regulatingTerminal = new ArrayList<>();
+        this.regulatingTerminal = regulatingTerminal;
         this.enabled = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.targetQ.add(targetQ);
             this.enabled.add(enabled);
-            this.regulatingTerminal.add(regulatingTerminal);
         }
     }
 
@@ -57,14 +54,8 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     }
 
     @Override
-    public RemoteReactivePowerControl setRegulatingTerminal(Terminal terminal) {
-        this.regulatingTerminal.set(getVariantIndex(), terminal);
-        return null;
-    }
-
-    @Override
     public Terminal getRegulatingTerminal() {
-        return regulatingTerminal.get(getVariantIndex());
+        return regulatingTerminal;
     }
 
     @Override
@@ -74,11 +65,9 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        regulatingTerminal.ensureCapacity(regulatingTerminal.size() + number);
         enabled.ensureCapacity(enabled.size() + number);
         targetQ.ensureCapacity(targetQ.size() + number);
         for (int i = 0; i < number; ++i) {
-            regulatingTerminal.add(regulatingTerminal.get(sourceIndex));
             enabled.add(enabled.get(sourceIndex));
             targetQ.add(targetQ.get(sourceIndex));
         }
@@ -86,16 +75,13 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     @Override
     public void reduceVariantArraySize(int number) {
-        for (int i = 0; i < number; i++) {
-            regulatingTerminal.remove(regulatingTerminal.size() - 1);
-        }
         enabled.remove(enabled.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        regulatingTerminal.set(index, null);
+        // Does nothing
     }
 
     @Override
@@ -103,7 +89,6 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
         for (int index : indexes) {
             targetQ.set(index, targetQ.get(sourceIndex));
             enabled.set(index, enabled.get(sourceIndex));
-            regulatingTerminal.set(index, regulatingTerminal.get(sourceIndex));
         }
     }
 }
