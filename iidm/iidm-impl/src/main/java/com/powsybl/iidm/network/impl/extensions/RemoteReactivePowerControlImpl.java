@@ -50,7 +50,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     @Override
     public RemoteReactivePowerControl setEnabled(boolean enabled) {
         this.enabled.set(getVariantIndex(), enabled);
-        return null;
+        return this;
     }
 
     @Override
