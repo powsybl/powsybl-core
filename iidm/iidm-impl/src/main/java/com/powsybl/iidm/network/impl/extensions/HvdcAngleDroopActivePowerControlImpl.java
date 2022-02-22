@@ -71,13 +71,13 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
 
     @Override
     public HvdcAngleDroopActivePowerControl setP0(float p0) {
-        this.p0.set(getVariantIndex(), p0);
+        this.p0.set(getVariantIndex(), checkP0(p0));
         return this;
     }
 
     @Override
     public HvdcAngleDroopActivePowerControl setDroop(float droop) {
-        this.droop.set(getVariantIndex(), droop);
+        this.droop.set(getVariantIndex(), checkDroop(droop));
         return this;
     }
 
