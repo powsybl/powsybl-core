@@ -107,5 +107,14 @@ public abstract class AbstractHvdcOperatorActivePowerRangeTest {
         } catch (PowsyblException e) {
             assertEquals("Variant index not set", e.getMessage());
         }
+
+        // Test illegal arguments in set methods
+        variantManager.setWorkingVariant(variant1);
+        try {
+            hopc.setOprFromCS2toCS1(-1.0f);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("OPR from C1 to C2 must be greater than 0 (current value -1.0).", e.getMessage());
+        }
     }
 }

@@ -118,5 +118,20 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
         } catch (PowsyblException e) {
             assertEquals("Variant index not set", e.getMessage());
         }
+
+        // Test illegal arguments in set methods
+        variantManager.setWorkingVariant(variant1);
+        try {
+            hadpc.setP0(Float.NaN);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("p0 is not set", e.getMessage());
+        }
+        try {
+            hadpc.setDroop(Float.NaN);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("droop is not set", e.getMessage());
+        }
     }
 }
