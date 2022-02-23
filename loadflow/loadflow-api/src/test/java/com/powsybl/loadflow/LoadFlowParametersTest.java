@@ -6,30 +6,17 @@
  */
 package com.powsybl.loadflow;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.loadflow.json.JsonLoadFlowParameters;
-import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
+import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.HashSet;
 import java.util.Set;
@@ -137,8 +124,8 @@ public class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
-                    noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
+                dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
     }
 
     @Test
@@ -272,8 +259,8 @@ public class LoadFlowParametersTest {
                 .setBalanceType(balanceType);
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
-                    phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
+                phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
+                dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
     }
 
     @Test
@@ -293,8 +280,8 @@ public class LoadFlowParametersTest {
         Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
-                                                               noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                                                               dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
+                noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
+                dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
@@ -311,7 +298,7 @@ public class LoadFlowParametersTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
         assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
@@ -320,10 +307,9 @@ public class LoadFlowParametersTest {
         LoadFlowParameters parameters = new LoadFlowParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
-
         LoadFlowParameters copy = parameters.copy();
         assertEquals(1, copy.getExtensions().size());
-        Extension<LoadFlowParameters> copiedExt = copy.getExtensionByName("dummyExtension");
+        Extension<LoadFlowParameters> copiedExt = copy.getExtensionByName("dummy-extension");
         assertSame(parameters, dummyExtension.getExtendable());
         assertSame(copy, copiedExt.getExtendable());
     }
@@ -334,7 +320,7 @@ public class LoadFlowParametersTest {
 
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
-        assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertFalse(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
         assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
@@ -343,90 +329,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters parameters = LoadFlowParameters.load(platformConfig);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));
-    }
-
-    private static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
-
-        @Override
-        public String getName() {
-            return "dummyExtension";
-        }
-    }
-
-    @AutoService(LoadFlowParameters.ConfigLoader.class)
-    public static class DummyLoader implements LoadFlowParameters.ConfigLoader<DummyExtension> {
-
-        @Override
-        public DummyExtension load(PlatformConfig platformConfig) {
-            return new DummyExtension();
-        }
-
-        @Override
-        public String getExtensionName() {
-            return "dummyExtension";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "loadflow-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
-    }
-
-    @AutoService(JsonLoadFlowParameters.ExtensionSerializer.class)
-    public static class DummySerializer implements JsonLoadFlowParameters.ExtensionSerializer<DummyExtension> {
-
-        private interface SerializationSpec {
-            @JsonIgnore
-            String getName();
-
-            @JsonIgnore
-            LoadFlowParameters getExtendable();
-        }
-
-        private static ObjectMapper createMapper() {
-            return JsonUtil.createObjectMapper()
-                    .addMixIn(JsonLoadFlowParametersTest.DummyExtension.class, JsonLoadFlowParametersTest.DummySerializer.SerializationSpec.class);
-        }
-
-        @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeEndObject();
-        }
-
-        @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return new DummyExtension();
-        }
-
-        @Override
-        public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
-            ObjectMapper objectMapper = createMapper();
-            ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
-            return updatedParameters;
-        }
-
-        @Override
-        public String getExtensionName() {
-            return "dummyExtension";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "loadflow-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
     }
 }

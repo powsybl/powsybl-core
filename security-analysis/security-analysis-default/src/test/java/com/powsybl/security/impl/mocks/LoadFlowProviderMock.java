@@ -7,6 +7,9 @@
 package com.powsybl.security.impl.mocks;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -17,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -41,5 +45,15 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters) {
         LOGGER.warn("Running loadflow mock");
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+    }
+
+    @Override
+    public Optional<ExtensionJsonSerializer> getParametersExtensionSerializer() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.empty();
     }
 }

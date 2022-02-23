@@ -7,14 +7,11 @@
 package com.powsybl.loadflow;
 
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionConfigLoader;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
@@ -30,13 +27,6 @@ import java.util.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
-
-    /**
-     * A configuration loader interface for the LoadFlowParameters extensions loaded from the platform configuration
-     * @param <E> The extension class
-     */
-    public interface ConfigLoader<E extends Extension<LoadFlowParameters>> extends ExtensionConfigLoader<LoadFlowParameters, E> {
-    }
 
     public enum VoltageInitMode {
         UNIFORM_VALUES, // v=1pu, theta=0
@@ -79,9 +69,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT = true;
     public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = EnumSet.noneOf(Country.class);
     public static final ConnectedComponentMode DEFAULT_CONNECTED_COMPONENT_MODE = ConnectedComponentMode.MAIN;
-
-    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
+    List<LoadFlowProvider> providers = new ServiceLoaderCache<>(LoadFlowProvider.class).getServices();
 
     /**
      * Loads parameters from the default platform configuration.
@@ -438,8 +426,11 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     private void loadExtensions(PlatformConfig platformConfig) {
-        for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
-            addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+        for (LoadFlowProvider provider : providers) {
+            Optional<Extension<LoadFlowParameters>> optionalSpecificParameters = provider.loadSpecificParameters(platformConfig);
+            optionalSpecificParameters
+                    .ifPresent(loadFlowParametersExtension ->
+                            addExtension((Class) loadFlowParametersExtension.getClass(), loadFlowParametersExtension));
         }
     }
 }
