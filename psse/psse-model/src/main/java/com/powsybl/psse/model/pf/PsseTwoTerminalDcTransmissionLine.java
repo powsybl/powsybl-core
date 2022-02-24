@@ -181,7 +181,7 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
         return inverter;
     }
 
-    protected static class ConverterHeaderTransformer extends HeaderTransformer {
+    public static class ConverterHeaderTransformer extends HeaderTransformer {
         private final String converterChar;
 
         public ConverterHeaderTransformer(String... args) {
