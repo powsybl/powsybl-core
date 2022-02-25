@@ -7,7 +7,7 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.ThreeWindingsTransformerTripping;
+import com.powsybl.iidm.modification.tripping.ThreeWindingsTransformerTripping;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -23,8 +23,8 @@ public class ThreeWindingsTransformerContingencyTest {
         assertEquals("twt3", twt3Contingency.getId());
         assertEquals(ContingencyElementType.THREE_WINDINGS_TRANSFORMER, twt3Contingency.getType());
 
-        assertNotNull(twt3Contingency.toTask());
-        assertTrue(twt3Contingency.toTask() instanceof ThreeWindingsTransformerTripping);
+        assertNotNull(twt3Contingency.toModification());
+        assertTrue(twt3Contingency.toModification() instanceof ThreeWindingsTransformerTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new ThreeWindingsTransformerContingency("foo"), new ThreeWindingsTransformerContingency("foo"))

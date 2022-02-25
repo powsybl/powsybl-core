@@ -8,6 +8,7 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
@@ -26,5 +27,10 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
     default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters,
                                                               ComputationManager computationManager) {
         return ShortCircuitAnalysis.runAsync(network, parameters, computationManager);
+    }
+
+    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters,
+                                                              ComputationManager computationManager, Reporter reporter) {
+        return ShortCircuitAnalysis.runAsync(network, parameters, computationManager, reporter);
     }
 }

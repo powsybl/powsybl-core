@@ -218,7 +218,7 @@ public final class Importers {
 
         @Override
         public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
-            Network network = importer.importData(dataSource, networkFactory, parameters);
+            Network network = importer.importData(dataSource, networkFactory, parameters, reporter);
             for (String name : names) {
                 try {
                     getPostProcessor(loader, name).process(network, computationManager, reporter);
@@ -280,18 +280,32 @@ public final class Importers {
      * @param dataSource data source
      * @param parameters some properties to configure the import
      * @param computationManager computation manager to use for default post processors
+     * @param config the import configuration
+     * @param reporter the reporter used for functional logs
      * @return the model
      */
-    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
+    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config, Reporter reporter) {
         Importer importer = getImporter(loader, format, computationManager, config);
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
         }
-        return importer.importData(dataSource, NetworkFactory.findDefault(), parameters);
+        return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+    }
+
+    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
+        return importData(loader, format, dataSource, parameters, computationManager, config, Reporter.NO_OP);
+    }
+
+    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, Reporter reporter) {
+        return importData(LOADER.get(), format, dataSource, parameters, computationManager, CONFIG.get(), reporter);
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
-        return importData(LOADER.get(), format, dataSource, parameters, computationManager, CONFIG.get());
+        return importData(LOADER.get(), format, dataSource, parameters, computationManager, CONFIG.get(), Reporter.NO_OP);
+    }
+
+    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, Reporter reporter) {
+        return importData(LOADER.get(), format, dataSource, parameters, LocalComputationManager.getDefault(), CONFIG.get(), reporter);
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters) {

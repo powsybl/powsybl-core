@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.GeneratorTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.modification.tripping.GeneratorTripping;
 import org.junit.Test;
 
 import java.util.List;
@@ -32,8 +32,8 @@ public class GeneratorContingencyTest {
         assertEquals("id", genContingency.getId());
         assertEquals(ContingencyElementType.GENERATOR, genContingency.getType());
 
-        assertNotNull(genContingency.toTask());
-        assertTrue(genContingency.toTask() instanceof GeneratorTripping);
+        assertNotNull(genContingency.toModification());
+        assertTrue(genContingency.toModification() instanceof GeneratorTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new GeneratorContingency("g1"), new GeneratorContingency("g1"))

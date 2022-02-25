@@ -24,6 +24,8 @@ import java.util.List;
  */
 public class SecurityAnalysisParametersDeserializer extends StdDeserializer<SecurityAnalysisParameters> {
 
+    private static final String CONTEXT_NAME = "SecurityAnalysisParameters";
+
     SecurityAnalysisParametersDeserializer() {
         super(SecurityAnalysisParameters.class);
     }
@@ -36,17 +38,22 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
     @Override
     public SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SecurityAnalysisParameters parameters) throws IOException {
         List<Extension<SecurityAnalysisParameters>> extensions = Collections.emptyList();
+        String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
                     parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
-
+                case "increased-violations-parameters":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
+                    parser.nextToken();
+                    parameters.setIncreasedViolationsParameters(parser.readValueAs(SecurityAnalysisParameters.IncreasedViolationsParameters.class));
+                    break;
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
-
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSecurityAnalysisParameters.getExtensionSerializers(), parameters);

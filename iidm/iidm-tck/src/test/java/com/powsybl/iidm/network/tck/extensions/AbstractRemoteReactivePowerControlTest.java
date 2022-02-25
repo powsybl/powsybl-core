@@ -6,12 +6,17 @@
  */
 package com.powsybl.iidm.network.tck.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
+import static org.junit.Assert.*;
 
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
@@ -115,5 +120,57 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         assertEquals(200.0, control.getTargetQ(), 0.0);
         assertEquals(l.getTerminal(Branch.Side.ONE), control.getRegulatingTerminal());
         assertEquals(true, control.isEnabled());
+    }
+
+    @Test
+    public void variantsCloneTest() {
+        Network network = createNetwork();
+        Generator g = network.getGenerator("g4");
+        Line l = network.getLine("l34");
+        g.newExtension(RemoteReactivePowerControlAdder.class).withTargetQ(200.0)
+                .withRegulatingTerminal(l.getTerminal(Branch.Side.ONE)).withEnabled(true).add();
+        RemoteReactivePowerControl control = g.getExtension(RemoteReactivePowerControl.class);
+
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        String variant3 = "variant3";
+
+        // Testing variant cloning
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
+        variantManager.cloneVariant(variant1, variant2);
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(200.0, control.getTargetQ(), 0);
+        assertTrue(control.isEnabled());
+
+        // Testing setting different values in the cloned variant and going back to the initial one
+        control.setTargetQ(210.0);
+        control.setEnabled(false);
+        assertFalse(control.isEnabled());
+        assertEquals(210.0, control.getTargetQ(), 0f);
+
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(200.0f, control.getTargetQ(), 0f);
+        assertTrue(control.isEnabled());
+
+        // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
+        variantManager.removeVariant(variant1);
+        List<String> targetVariantIds = Arrays.asList(variant1, variant3);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(200.0f, control.getTargetQ(), 0f);
+        assertTrue(control.isEnabled());
+        variantManager.setWorkingVariant(variant3);
+        assertEquals(200.0f, control.getTargetQ(), 0f);
+        assertTrue(control.isEnabled());
+
+        // Test removing current variant
+        variantManager.removeVariant(variant3);
+        try {
+            control.getTargetQ();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Variant index not set", e.getMessage());
+        }
     }
 }
