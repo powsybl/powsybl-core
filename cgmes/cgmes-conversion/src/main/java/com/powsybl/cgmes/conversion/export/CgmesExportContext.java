@@ -7,8 +7,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.export.elements.ControlAreaEq;
-import com.powsybl.cgmes.conversion.export.elements.TieFlowEq;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -160,9 +158,9 @@ public class CgmesExportContext {
                 String regionId = CgmesExportUtil.getUniqueId();
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
             }
-            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "geoRegionId")) {
+            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
                 String geoRegionId = CgmesExportUtil.getUniqueId();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "geoRegionId", geoRegionId);
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", geoRegionId);
             }
         }
     }

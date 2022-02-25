@@ -173,10 +173,10 @@ public final class EquipmentExport {
         Map<String, String> geographicalRegionIds = new HashMap<>();
         BiMap<String, String> subGeographicalRegionIds = HashBiMap.create();
         for (Substation substation : network.getSubstations()) {
-            String geographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "geoRegionId");
+            String geographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
             String geoName = getGeographicalRegionName(substation, network);
             geographicalRegionIds.computeIfAbsent(geoName, name -> writeGeographicalRegion(geographicalRegionId, name, cimNamespace, writer));
-            String subGeographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
+            String subGeographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId");
             subGeographicalRegionIds.computeIfAbsent(subGeographicalRegionId, id -> writeSubGeographicalRegion(id, geoName, substation, geographicalRegionIds, cimNamespace, writer));
             SubstationEq.write(substation.getId(), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer);
         }

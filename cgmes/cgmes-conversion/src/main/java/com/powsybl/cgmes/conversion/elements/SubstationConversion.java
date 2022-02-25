@@ -60,13 +60,13 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         addAliasesAndProperties(s, p.getId("SubRegion"), p.getId("Region"));
     }
 
-    private void addAliasesAndProperties(Substation s, String regionId, String geoRegionId) {
+    private void addAliasesAndProperties(Substation s, String subRegionId, String regionId) {
         int index = 0;
         for (String mergedSub : context.substationIdMapping().mergedSubstations(s.getId())) {
             index++;
             s.addAlias(mergedSub, "MergedSubstation" + index, context.config().isEnsureIdAliasUnicity());
         }
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
-        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "geoRegionId", geoRegionId);
     }
 }
