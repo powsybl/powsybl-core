@@ -50,6 +50,8 @@ public final class Importers {
 
     private static final Supplier<ImportConfig> CONFIG = Suppliers.memoize(ImportConfig::load);
 
+    private static final String UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE = "Unsupported file format or invalid file.";
+
     private Importers() {
     }
 
@@ -469,7 +471,7 @@ public final class Importers {
         if (importer != null) {
             return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
         }
-        throw new PowsyblException("Unsupported file format or invalid file.");
+        throw new PowsyblException(UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
     /**
@@ -545,7 +547,7 @@ public final class Importers {
         if (importer != null) {
             return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
         }
-        throw new PowsyblException("Unsupported file format or invalid file.");
+        throw new PowsyblException(UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
     /**
@@ -644,7 +646,7 @@ public final class Importers {
         if (importer != null) {
             return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reporter);
         }
-        throw new PowsyblException("Unsupported file format or invalid file.");
+        throw new PowsyblException(UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
