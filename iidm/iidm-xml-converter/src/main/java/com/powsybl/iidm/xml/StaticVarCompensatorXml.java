@@ -33,7 +33,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected boolean hasSubElements(StaticVarCompensator svc) {
-        return !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable());
+        return svc.getRegulatingTerminal() != null;
     }
 
     @Override
@@ -58,9 +58,16 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
-        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()),
-                ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
-                IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+        // Remote regulatingTerminal has been written since 1.1, from 1.8 local regulatingTerminal is also written
+
+        if (svc.getRegulatingTerminal() != null) {
+            if (!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            } else {
+                //IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            }
+        }
     }
 
     @Override
@@ -84,8 +91,23 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
         String regulationModeStr = context.getReader().getAttributeValue(null, "regulationMode");
         StaticVarCompensator.RegulationMode regulationMode = regulationModeStr != null ? StaticVarCompensator.RegulationMode.valueOf(regulationModeStr) : null;
+
+        // The regulating terminal is local or remote in enabled controls and null, local or remote in disabled ones.
+        // As the regulating terminal is set after the equipment has been created (it is managed as a subElement),
+        // in enabled controls the regulating terminal is initially localized and overwritten later by the read one
+        // (a null regulating terminal is not allowed when the equipment is created).
+        // In disabled controls only the read regulation terminal is set (a null regulating terminal is allowed).
+        // Until version 1.8 there is an ambiguity reading disabled controls as only remote regulating terminals are written.
+        // Not written regulating terminals could be null or local. Ambiguity is solved by considering them null.
+
+        boolean useLocalRegulation = false;
+        if (regulationMode != StaticVarCompensator.RegulationMode.OFF) {
+            useLocalRegulation = true;
+        }
+
         adder.setBmin(bMin)
                 .setBmax(bMax)
+                .useLocalRegulation(useLocalRegulation)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
                 .setRegulationMode(regulationMode);

@@ -14,6 +14,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,7 +38,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected boolean hasSubElements(ShuntCompensator sc) {
-        return sc != sc.getRegulatingTerminal().getConnectable();
+        return sc.getRegulatingTerminal() != null;
     }
 
     @Override
@@ -74,9 +75,14 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected void writeSubElements(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> writeModel(sc, context));
-        if (sc != sc.getRegulatingTerminal().getConnectable()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+        // Remote regulatingTerminal has been written since 1.2, from 1.8 local regulatingTerminal is also written
+        if (sc.getRegulatingTerminal() != null) {
+            if (!Objects.equals(sc, sc.getRegulatingTerminal().getConnectable())) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            } else {
+                //IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            }
         }
     }
 
@@ -114,12 +120,26 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected void readElement(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
+            boolean voltageRegulatorOn = Boolean.parseBoolean(context.getReader().getAttributeValue(null, "voltageRegulatorOn"));
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
             double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
-            adder.setTargetV(targetV)
+
+            // The regulating terminal is local or remote in enabled controls and null, local or remote in disabled ones.
+            // As the regulating terminal is set after the equipment has been created (it is managed as a subElement),
+            // in enabled controls the regulating terminal is initially localized and overwritten later by the read one
+            // (a null regulating terminal is not allowed when the equipment is created).
+            // In disabled controls only the read regulation terminal is set (a null regulating terminal is allowed).
+            // Until version 1.8 there is an ambiguity reading disabled controls as only remote regulating terminals are written.
+            // Not written regulating terminals could be null or local. Ambiguity is solved by considering them null.
+
+            boolean useLocalRegulation = false;
+            if (voltageRegulatorOn) {
+                useLocalRegulation = true;
+            }
+            adder.useLocalRegulation(useLocalRegulation)
+                    .setTargetV(targetV)
                     .setTargetDeadband(targetDeadband)
-                    .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+                    .setVoltageRegulatorOn(voltageRegulatorOn);
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {

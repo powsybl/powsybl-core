@@ -190,6 +190,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setGPerSection(7.0e-6)
                     .setMaximumSectionCount(1)
                     .add()
+                .useLocalRegulation(true)
                 .setTargetV(380.0)
                 .setTargetDeadband(0.5)
                 .setVoltageRegulatorOn(false)
@@ -286,6 +287,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .add()
                 .add();
         shBrussels110.getTerminal().setQ(-330.75);
+        shBrussels110.setRegulatingTerminal(shBrussels110.getTerminal());
         shBrussels110.setTargetV(110.0);
         shBrussels110.setTargetDeadband(0.5);
         shBrussels110.setVoltageRegulatorOn(false);
@@ -310,6 +312,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setTargetP(-p)
                     .setTargetQ(targetQ)
                     .setTargetV(21.987)
+                    .useLocalRegulation(true)
                     .setVoltageRegulatorOn(true)
                     .setRatedS(300)
                     .add();
@@ -932,6 +935,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setConnectableBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
+                .useLocalRegulation(true)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(229.5)
                 .add();
@@ -1123,6 +1127,7 @@ public final class CgmesConformity1NetworkCatalog {
                             .setG(1.09E-5)
                         .endSection()
                     .add()
+                .useLocalRegulation(true)
                 .setTargetV(380.0)
                 .setTargetDeadband(0.5)
                 .setVoltageRegulatorOn(false)

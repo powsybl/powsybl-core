@@ -116,6 +116,7 @@ public final class ScadaNetworkFactory {
         vl2.newShuntCompensator()
                 .setId("shunt")
                 .setBus(bus2Id)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .newLinearModel()
                 .setBPerSection(10.0)
@@ -227,6 +228,7 @@ public final class ScadaNetworkFactory {
                 .setId("vcs")
                 .setBus(bus2Id)
                 .setLossFactor(80f)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .add();
         network.newHvdcLine()

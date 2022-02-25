@@ -161,9 +161,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork(), voltageRegulatorOn.get(variantIndex));
         Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         notifyUpdate("regulatingTerminal", oldValue, this.regulatingTerminal);
         return this;
     }
@@ -177,6 +178,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork(), voltageRegulatorOn);
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), n.getMinValidationLevel());
         ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, voltageRegulatorOn, targetDeadband.get(variantIndex), n.getMinValidationLevel());
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);

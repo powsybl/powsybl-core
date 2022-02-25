@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -91,7 +92,7 @@ public class RegulatingControlMappingForVscConverters {
         vscConverter
             .setVoltageSetpoint(rc.voltageSetpoint)
             .setReactivePowerSetpoint(0.0)
-            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
+            .setRegulatingTerminal(getRegulatingTerminal(rc, vscConverter))
             .setVoltageRegulatorOn(true);
     }
 
@@ -100,8 +101,17 @@ public class RegulatingControlMappingForVscConverters {
         vscConverter
             .setVoltageSetpoint(0.0)
             .setReactivePowerSetpoint(rc.reactivePowerSetpoint)
-            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
+            .setRegulatingTerminal(getRegulatingTerminal(rc, vscConverter))
             .setVoltageRegulatorOn(false);
+    }
+
+    // if pccTerminal is not defined the local terminal is considered
+    private Terminal getRegulatingTerminal(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
+        Terminal regulatingTerminal = vscConverter.getTerminal();
+        if (rc.pccTerminal != null) {
+            regulatingTerminal = parent.getRegulatingTerminal(rc.pccTerminal);
+        }
+        return regulatingTerminal;
     }
 
     private static class CgmesRegulatingControlForVscConverter {

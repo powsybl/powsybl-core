@@ -340,8 +340,8 @@ public class Comparison {
                 expected.getTargetDeadband(),
                 actual.getTargetDeadband());
         sameIdentifier("regulationTerminal",
-                expected.getRegulatingTerminal().getBusBreakerView().getBus(),
-                actual.getRegulatingTerminal().getBusBreakerView().getBus());
+                getRegulatingTerminalBus(expected.getRegulatingTerminal()),
+                getRegulatingTerminalBus(actual.getRegulatingTerminal()));
         compareShuntModels(expected, actual);
     }
 
@@ -443,12 +443,10 @@ public class Comparison {
         compare("isVoltageRegulatorOn",
                 expected.isVoltageRegulatorOn(),
                 actual.isVoltageRegulatorOn());
-        if (config.checkGeneratorRegulatingTerminal
-                && (expected.getRegulatingTerminal() != null
-                || actual.getRegulatingTerminal() != null)) {
+        if (config.checkGeneratorRegulatingTerminal) {
             sameIdentifier("RegulatingTerminalBus",
-                    expected.getRegulatingTerminal().getBusBreakerView().getBus(),
-                    actual.getRegulatingTerminal().getBusBreakerView().getBus());
+                getRegulatingTerminalBus(expected.getRegulatingTerminal()),
+                getRegulatingTerminalBus(actual.getRegulatingTerminal()));
         }
 
         compare("energySource", expected.getEnergySource(), actual.getEnergySource());
@@ -914,6 +912,13 @@ public class Comparison {
         }
         s = s.replace("Impl", "");
         return s;
+    }
+
+    private static Bus getRegulatingTerminalBus(Terminal regulatingTerminal) {
+        if (regulatingTerminal == null) {
+            return null;
+        }
+        return regulatingTerminal.getBusBreakerView().getBus();
     }
 
     private final Network expected;

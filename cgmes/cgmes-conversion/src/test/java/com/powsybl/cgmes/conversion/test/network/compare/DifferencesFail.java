@@ -80,8 +80,8 @@ public class DifferencesFail implements Differences {
                 Comparison.className(current),
                 context,
                 current.getId(),
-                expected.getId(),
-                actual.getId());
+                expected != null ? expected.getId() : "null",
+                actual != null ? actual.getId() : "null");
         fail();
     }
 

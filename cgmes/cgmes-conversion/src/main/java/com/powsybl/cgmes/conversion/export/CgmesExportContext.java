@@ -336,7 +336,8 @@ public class CgmesExportContext {
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && (generator.isVoltageRegulatorOn() ||
+                (generator.getRegulatingTerminal() != null && !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable())))) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }

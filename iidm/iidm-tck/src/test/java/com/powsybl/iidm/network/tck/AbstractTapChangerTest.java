@@ -198,10 +198,13 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidNullRegulatingTerminalPhase() {
+        PhaseTapChanger ptc = createPhaseTapChangerWith2Steps(1, 0, false,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null);
+        assertNull(ptc.getRegulationTerminal());
+
         thrown.expect(ValidationException.class);
         thrown.expectMessage("phase regulation is on and regulated terminal is not set");
-        createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null);
+        ptc.setRegulating(true);
     }
 
     @Test
@@ -313,10 +316,10 @@ public abstract class AbstractTapChangerTest {
         }
     }
 
-    private void createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean isRegulating,
+    private PhaseTapChanger createPhaseTapChangerWith2Steps(int tapPosition, int lowTap, boolean isRegulating,
                                                 PhaseTapChanger.RegulationMode mode, double value, double deadband,
                                                  Terminal terminal) {
-        twt.newPhaseTapChanger()
+        return twt.newPhaseTapChanger()
                 .setTapPosition(tapPosition)
                 .setLowTapPosition(lowTap)
                 .setRegulating(isRegulating)
@@ -511,9 +514,12 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void nullRegulatingTerminal() {
+        RatioTapChanger rtc = createRatioTapChangerWith3Steps(0, 1, true, false, 10.0, 1.0, null);
+        assertNull(rtc.getRegulationTerminal());
+
         thrown.expect(ValidationException.class);
         thrown.expectMessage("a regulation terminal has to be set for a regulating ratio tap changer");
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null);
+        rtc.setRegulating(true);
     }
 
     @Test
@@ -526,9 +532,9 @@ public abstract class AbstractTapChangerTest {
         assertNull(rtc.getRegulationTerminal());
     }
 
-    private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
+    private RatioTapChanger createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
                                                  double targetV, double deadband, Terminal terminal) {
-        twt.newRatioTapChanger()
+        return twt.newRatioTapChanger()
                 .setLowTapPosition(low)
                 .setTapPosition(tap)
                 .setLoadTapChangingCapabilities(load)

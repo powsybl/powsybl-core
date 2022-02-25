@@ -17,10 +17,12 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -115,11 +117,8 @@ public class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        // RegulatingTerminals of both networks are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
-        // Differences are associated with regulating cgmesTerminals defined for breakers
-        fixRegulatingTerminalsBeforeComparison(network);
-        fixRegulatingTerminalsBeforeComparison(networkwithoutTpSv);
+        fixRegulatingTerminalsBeforeComparison(network, networkwithoutTpSv);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
@@ -289,17 +288,14 @@ public class Cgmes3ConversionTest {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.svedala().dataSource(),
             NetworkFactory.findDefault(), null);
-
         Network networkwithoutTpSv = new CgmesImport().importData(
             Cgmes3Catalog.svedalaWithoutTpSv().dataSource(),
             NetworkFactory.findDefault(), null);
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        // regulatingTerminals of network are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
-        // Differences are associated with regulating cgmesTerminals defined for breakers
-        fixRegulatingTerminalsBeforeComparison(network);
+        fixRegulatingTerminalsBeforeComparison(network, networkwithoutTpSv);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
@@ -333,12 +329,32 @@ public class Cgmes3ConversionTest {
         });
     }
 
-    private static void fixRegulatingTerminalsBeforeComparison(Network network) {
+    // In nodeBreaker models the regulating terminal when it is associated to switches is defined
+    // by using topologicalNodes (defined in TP file) and will not be defined if the TP file is not read.
+    // These differences are eliminated before the comparison.
+    // This method must be deleted after fixing the regulating terminal assignment process.
+    private static void fixRegulatingTerminalsBeforeComparison(Network network, Network networkwithoutTpSv) {
         network.getGenerators().forEach(generator -> {
-            generator.setRegulatingTerminal(generator.getTerminal());
+            Generator genWithoutTp = networkwithoutTpSv.getGenerator(generator.getId());
+            if (genWithoutTp == null) {
+                return;
+            }
+            if (generator.getRegulatingTerminal() != null && genWithoutTp.getRegulatingTerminal() == null) {
+                generator.setRegulatingTerminal(generator.getTerminal());
+                generator.setVoltageRegulatorOn(false);
+                genWithoutTp.setRegulatingTerminal(genWithoutTp.getTerminal());
+            }
         });
         network.getShuntCompensators().forEach(shuntCompensator -> {
-            shuntCompensator.setRegulatingTerminal(shuntCompensator.getTerminal());
+            ShuntCompensator shuntCompensatorWithoutTp = networkwithoutTpSv.getShuntCompensator(shuntCompensator.getId());
+            if (shuntCompensatorWithoutTp == null) {
+                return;
+            }
+            if (shuntCompensator.getRegulatingTerminal() != null && shuntCompensatorWithoutTp.getRegulatingTerminal() == null) {
+                shuntCompensator.setRegulatingTerminal(shuntCompensator.getTerminal());
+                shuntCompensator.setVoltageRegulatorOn(false);
+                shuntCompensatorWithoutTp.setRegulatingTerminal(shuntCompensatorWithoutTp.getTerminal());
+            }
         });
     }
 }

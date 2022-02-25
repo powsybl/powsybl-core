@@ -223,7 +223,7 @@ public class CgmesConformity1ModifiedConversionTest {
         Generator generator1 = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
         assertFalse(generator1.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(generator1.getTargetV()));
-        assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
+        assertNull(generator1.getRegulatingTerminal());
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
@@ -240,7 +240,10 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(ptc.getRegulationTerminal());
 
         Generator generator2 = network.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
-        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getTargetV(), 0.0);
+        assertEquals(21.987, generator2.getTargetV(), 0.0);
+
+        PowsyblException e = assertThrows(PowsyblException.class, () -> generator2.setTargetV(0.0));
+        assertEquals("Generator '_550ebe0d-f2b2-48c1-991f-cebea43a21aa': invalid value (0.0) for voltage setpoint (voltage regulator is on)", e.getMessage());
     }
 
     @Test
@@ -255,7 +258,7 @@ public class CgmesConformity1ModifiedConversionTest {
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
         assertNotNull(rtc);
         assertTrue(rtc.hasLoadTapChangingCapabilities());
-        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertEquals(0.0, rtc.getTargetV(), 0.0);
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());
 
@@ -329,10 +332,10 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog
                         .microGridBaseCaseBEMissingShuntRegulatingControlId().dataSource(), NetworkFactory.findDefault(), null);
         ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
-        assertTrue(shunt.isVoltageRegulatorOn());
-        assertEquals(shunt.getTerminal().getBusView().getBus().getV(), shunt.getTargetV(), 0.0d);
-        assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
-        assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
+        assertFalse(shunt.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(shunt.getTargetV()));
+        assertTrue(Double.isNaN(shunt.getTargetDeadband()));
+        assertNull(shunt.getRegulatingTerminal());
     }
 
     @Test
@@ -596,8 +599,8 @@ public class CgmesConformity1ModifiedConversionTest {
         Network modified2 = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControl().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off2);
-        assertEquals(REACTIVE_POWER, off2.getRegulationMode());
-        assertEquals(0.0d, off2.getReactivePowerSetpoint(), 0.0d);
+        assertEquals(OFF, off2.getRegulationMode());
+        assertEquals(Double.NaN, off2.getReactivePowerSetpoint(), 0.0d);
     }
 
     @Test

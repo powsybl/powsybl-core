@@ -16,6 +16,14 @@ public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscC
 
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
+    /**
+     * To express local regulation. When the adder.add() method was invoked, the
+     * adder must set the regulating terminal to the terminal of the resulting vsc converter added to the Network.
+     */
+    default VscConverterStationAdder useLocalRegulation(boolean use) {
+        return this; // does nothing
+    }
+
     VscConverterStationAdder setVoltageSetpoint(double voltageSetpoint);
 
     VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint);

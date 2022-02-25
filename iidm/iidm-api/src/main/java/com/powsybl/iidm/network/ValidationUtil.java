@@ -29,6 +29,8 @@ public final class ValidationUtil {
     private static final String UNIQUE_REGULATING_TAP_CHANGER_MSG = "Only one regulating control enabled is allowed";
     private static final String VOLTAGE_REGULATOR_ON = "voltage regulator is on";
     private static final String VOLTAGE_SETPOINT = "voltage setpoint";
+    private static final String REACTIVE_POWER_REGULATOR_ON = "reactive power regulator is on";
+    private static final String REACTIVE_POWER_SETPOINT = "reactive power setpoint";
 
     private ValidationUtil() {
     }
@@ -240,10 +242,88 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * @deprecated
+     * Use
+     *     {@link #checkRegulatingTerminal(Validable, Terminal, Network, RegulationMode)} or
+     *     {@link #checkRegulatingTerminal(Validable, Terminal, Network, RegulationMode, boolean)} or
+     *     {@link #checkRegulatingTerminal(Validable, Terminal, Network, boolean)} or
+     *     {@link #checkRegulatingTerminal(Validable, Terminal, Network, boolean, boolean)} instead
+     */
+    @Deprecated(since = "4.6.1")
     public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network) {
         if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "regulating terminal is not part of the network");
         }
+    }
+
+    public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network,
+        StaticVarCompensator.RegulationMode regulationMode) {
+        checkRegulatingTerminal(validable, regulatingTerminal, network, regulationMode, true);
+    }
+
+    public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network,
+        StaticVarCompensator.RegulationMode regulationMode, boolean validateRegulatingControl) {
+
+        boolean enabled = regulationMode != StaticVarCompensator.RegulationMode.OFF;
+        checkRegulatingTerminal(validable, regulatingTerminal, network, enabled, validateRegulatingControl);
+    }
+
+    public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network, boolean regulatingControlOn) {
+        checkRegulatingTerminal(validable, regulatingTerminal, network, regulatingControlOn, true);
+    }
+
+    public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network, boolean regulatingControlOn,
+        boolean validateRegulatingControl) {
+        if (!validateRegulatingControl) {
+            return;
+        }
+        if (isSet(regulatingTerminal)) {
+            if (!validRegulatingTerminal(regulatingTerminal, network)) {
+                throw new ValidationException(validable, "regulating terminal is not part of the network");
+            }
+        } else {
+            if (regulatingControlOn) {
+                throw new ValidationException(validable, "regulating terminal has to be set");
+            }
+        }
+    }
+
+    public static ValidationLevel checkReactivePowerControl(Validable validable, boolean enabled, double reactivePowerSetpoint, ValidationLevel validationLevel) {
+        return checkReactivePowerControl(validable, enabled, reactivePowerSetpoint, validationLevel, Reporter.NO_OP);
+    }
+
+    public static ValidationLevel checkReactivePowerControl(Validable validable, boolean enabled, double reactivePowerSetpoint, ValidationLevel validationLevel, Reporter reporter) {
+        return checkReactivePowerControl(validable, enabled, reactivePowerSetpoint, validationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS, reporter);
+    }
+
+    public static ValidationLevel checkReactivePowerControl(Validable validable, boolean enabled, double reactivePowerSetpoint, boolean throwException, Reporter reporter) {
+        if (enabled) {
+            if (!isSet(reactivePowerSetpoint)) {
+                throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, REACTIVE_POWER_REGULATOR_ON, throwException, reporter);
+                return ValidationLevel.EQUIPMENT;
+            }
+            if (!validReactivePowerSetpoint(reactivePowerSetpoint)) {
+                throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, REACTIVE_POWER_REGULATOR_ON);
+            }
+        }
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    private static boolean validRegulatingTerminal(Terminal regulatingTerminal, Network network) {
+        return regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() == network;
+    }
+
+    private static boolean validReactivePowerSetpoint(double reactivePowerSetpoint) {
+        return !Double.isNaN(reactivePowerSetpoint);
+    }
+
+    private static boolean isSet(Terminal terminal) {
+        return terminal != null;
+    }
+
+    private static boolean isSet(double value) {
+        return !Double.isNaN(value);
     }
 
     public static void checkLoadType(Validable validable, LoadType loadType) {
@@ -459,7 +539,7 @@ public final class ValidationUtil {
 
             case REACTIVE_POWER:
                 if (Double.isNaN(reactivePowerSetpoint)) {
-                    throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", throwException, reporter);
+                    throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, throwException, reporter);
                     return ValidationLevel.EQUIPMENT;
                 }
                 break;

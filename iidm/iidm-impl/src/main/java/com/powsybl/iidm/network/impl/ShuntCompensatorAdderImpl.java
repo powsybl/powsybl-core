@@ -32,6 +32,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private boolean voltageRegulatorOn = false;
 
+    private boolean useLocalRegulation = false;
+
     ShuntCompensatorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
@@ -190,6 +192,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public ShuntCompensatorAdder useLocalRegulation(boolean useLocalRegulation) {
+        this.useLocalRegulation = useLocalRegulation;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
         return this;
@@ -217,15 +225,28 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
 
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        boolean validateRegulatingTerminal = true;
+        if (useLocalRegulation) {
+            regulatingTerminal = terminal;
+            validateRegulatingTerminal = false;
+        }
+
+        // The validation method of the regulating terminal (validation.validRegulatingTerminal)
+        // checks that the terminal is not null and its network is the same as the object being added.
+        // The network for the terminal is obtained from its voltage level but the terminal voltage level
+        // is set after the validation is performed by the method voltageLevel.attach(terminal, false).
+        // As we do not want to move the order of validation and terminal attachment
+        // we do not check the regulating terminal if useLocalRegulation is true.
+        // We assume the terminal will be ok since it will be the one of the equipment.
+
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network, voltageRegulatorOn, validateRegulatingTerminal);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel()));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(network.getRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
-                regulatingTerminal == null ? terminal : regulatingTerminal,
-                voltageRegulatorOn, targetV, targetDeadband);
+                regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband);
 
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

@@ -338,8 +338,12 @@ public abstract class AbstractShuntCompensatorTest {
         } catch (ValidationException ignored) {
             // ignore
         }
-        shuntCompensator.setRegulatingTerminal(null);
-        assertSame(shuntCompensator.getTerminal(), shuntCompensator.getRegulatingTerminal());
+        try {
+            shuntCompensator.setRegulatingTerminal(null);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
 
         // voltageRegulatorOn
         shuntCompensator.setVoltageRegulatorOn(false);
@@ -396,21 +400,28 @@ public abstract class AbstractShuntCompensatorTest {
     public void invalidTargetV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("invalid value (-10.0) for voltage setpoint");
-        createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, true, -10, 0);
+        createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, true, -10, 0);
+    }
+
+    @Test
+    public void unsetNanTargetV() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("invalid value (NaN) for voltage setpoint (voltage regulator is on)");
+        createLinearShunt(INVALID, INVALID, 5.0, 1.0, 6, 10, true, Double.NaN, 0);
     }
 
     @Test
     public void invalidNanTargetV() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("invalid value (NaN) for voltage setpoint (voltage regulator is on)");
-        createLinearShunt(INVALID, INVALID, 5.0, 1.0, 6, 10, null, true, Double.NaN, 0);
+        thrown.expectMessage("invalid value (-10.0) for voltage setpoint (voltage regulator is on)");
+        createLinearShunt(INVALID, INVALID, 5.0, 1.0, 6, 10, true, -10.0, 0);
     }
 
     @Test
     public void invalidTargetDeadband() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Unexpected value for target deadband of shunt compensator: -10.0");
-        createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, false, Double.NaN, -10);
+        createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, false, Double.NaN, -10);
     }
 
     @Test
@@ -493,6 +504,16 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
     }
 
+    private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+        return createShuntAdder(id, name, sectionCount, voltageRegulatorOn, targetV, targetDeadband)
+                .newLinearModel()
+                .setBPerSection(bPerSection)
+                .setGPerSection(gPerSection)
+                .setMaximumSectionCount(maxSectionCount)
+                .add()
+                .add();
+    }
+
     private ShuntCompensatorAdder createShuntAdder(String id, String name, int sectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return voltageLevel.newShuntCompensator()
                 .setId(id)
@@ -504,4 +525,17 @@ public abstract class AbstractShuntCompensatorTest {
                 .setTargetV(targetV)
                 .setTargetDeadband(targetDeadband);
     }
+
+    private ShuntCompensatorAdder createShuntAdder(String id, String name, int sectionCount, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
+        return voltageLevel.newShuntCompensator()
+                .setId(id)
+                .setName(name)
+                .setConnectableBus("busA")
+                .setSectionCount(sectionCount)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(voltageRegulatorOn)
+                .setTargetV(targetV)
+                .setTargetDeadband(targetDeadband);
+    }
+
 }

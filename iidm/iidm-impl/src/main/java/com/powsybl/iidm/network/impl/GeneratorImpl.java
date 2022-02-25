@@ -125,6 +125,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork(), voltageRegulatorOn);
         ValidationUtil.checkVoltageControl(this,
                 voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
                 n.getMinValidationLevel());
@@ -142,9 +143,10 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork(), voltageRegulatorOn.get(variantIndex));
         Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }

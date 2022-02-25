@@ -6,9 +6,8 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -129,29 +128,8 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.clear();
     }
 
-    Terminal findRegulatingTerminal(String cgmesTerminalId) {
-        return findRegulatingTerminal(cgmesTerminalId, false);
-    }
-
-    Terminal findRegulatingTerminal(String cgmesTerminalId, boolean canBeNull) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).filter(Terminal::isConnected)
-                .orElseGet(() -> {
-                    if (canBeNull) {
-                        return null;
-                    }
-                    CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-                    if (cgmesTerminal != null) {
-                        // Try to obtain Terminal from TopologicalNode
-                        String topologicalNode = cgmesTerminal.topologicalNode();
-                        context.invalid(REGULATING_TERMINAL, () -> String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
-                            "A connected terminal linked to the topological node %s is searched.",
-                            cgmesTerminalId, topologicalNode));
-                        return context.terminalMapping().findFromTopologicalNode(topologicalNode);
-                    } else {
-                        context.invalid(REGULATING_TERMINAL, "No CGMES terminal found with identifier " + cgmesTerminalId);
-                        return null;
-                    }
-                });
+    Terminal getRegulatingTerminal(String cgmesTerminalId) {
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).orElse(null);
     }
 
     static boolean isControlModeVoltage(String controlMode) {
@@ -166,18 +144,31 @@ public class RegulatingControlMapping {
         return p.getId(REGULATING_CONTROL);
     }
 
-    Terminal getRegulatingTerminal(Injection injection, String cgmesTerminal) {
-        // Will take default terminal ONLY if it has not been explicitly defined in CGMES
-        // the default terminal is the local terminal
-        Terminal terminal = injection.getTerminal();
-        if (cgmesTerminal != null) {
-            terminal = findRegulatingTerminal(cgmesTerminal);
-            // If terminal is null here it means that no IIDM terminal has been found
-            // from the initial CGMES terminal or topological node,
-            // we will consider the regulating control invalid,
-            // in this case we will not use the default terminal
-            // (no localization of regulating controls)
+    StaticVarCompensator.RegulationMode deactivateControlIfRegulatingTerminalIsUnset(String messageId,
+        Terminal regulatingTerminal, StaticVarCompensator.RegulationMode regulationMode) {
+        if (regulationMode == StaticVarCompensator.RegulationMode.OFF) {
+            return regulationMode;
         }
-        return terminal;
+        boolean regulating = true;
+        regulating = deactivateControlIfRegulatingTerminalIsUnset(messageId, regulatingTerminal, regulating);
+        if (!regulating) {
+            return StaticVarCompensator.RegulationMode.OFF;
+        }
+        return regulationMode;
+    }
+
+    boolean deactivateControlIfRegulatingTerminalIsUnset(String messageId, Terminal regulatingTerminal, boolean voltageRegulatorOn) {
+        if (!voltageRegulatorOn) {
+            return false;
+        }
+        boolean valid = true;
+        if (regulatingTerminal == null) {
+            valid = false;
+        }
+        if (!valid) {
+            context.fixed(REGULATING_CONTROL, "Control has been disabled as the regulating terminal is not set. " + messageId);
+            return false;
+        }
+        return true;
     }
 }

@@ -36,6 +36,14 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * To express local regulation. When the adder.add() method was invoked, the
+     * adder must set the regulating terminal to the terminal of the resulting shuntCompensator added to the Network.
+     */
+    default ShuntCompensatorAdder useLocalRegulation(boolean use) {
+        return this; // does nothing
+    }
+
     default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }

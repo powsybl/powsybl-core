@@ -106,10 +106,14 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc.setRegulatingTerminal(loadTerminal);
         assertEquals(loadTerminal, svc.getRegulatingTerminal());
 
-        svc.setRegulatingTerminal(null);
-        assertEquals(svc.getTerminal(), svc.getRegulatingTerminal());
+        try {
+            svc.setRegulatingTerminal(null);
+            fail();
+        } catch (Exception ignored) {
+            // ignore
+        }
 
-        StaticVarCompensator svc3 = createSvc("SVC3", null);
+        StaticVarCompensator svc3 = createSvcWithLocalRegulation("SVC3");
         assertEquals(svc3.getTerminal(), svc3.getRegulatingTerminal());
 
         svc3.remove();
@@ -120,7 +124,7 @@ public abstract class AbstractStaticVarCompensatorTest {
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createSvc("testMultiVariant", null);
+        createSvcWithLocalRegulation("testMultiVariant");
         StaticVarCompensator svc = network.getStaticVarCompensator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -162,9 +166,17 @@ public abstract class AbstractStaticVarCompensatorTest {
         }
     }
 
+    private StaticVarCompensator createSvcWithLocalRegulation(String id) {
+        return createSvc(id, null, true);
+    }
+
     private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal) {
+        return createSvc(id, regulatingTerminal, false);
+    }
+
+    private StaticVarCompensator createSvc(String id, Terminal regulatingTerminal, boolean useLocalRegulation) {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
-        return vl2.newStaticVarCompensator()
+        StaticVarCompensatorAdder adder = vl2.newStaticVarCompensator()
                 .setId(id)
                 .setConnectableBus("B2")
                 .setBus("B2")
@@ -172,8 +184,13 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390.0)
-                .setReactivePowerSetpoint(1.0)
-                .setRegulatingTerminal(regulatingTerminal)
-                .add();
+                .setReactivePowerSetpoint(1.0);
+        if (useLocalRegulation) {
+            adder.useLocalRegulation(true);
+        } else {
+            adder.setRegulatingTerminal(regulatingTerminal);
+        }
+
+        return adder.add();
     }
 }

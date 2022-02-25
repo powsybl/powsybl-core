@@ -93,8 +93,8 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
         shunt.setTargetV(targetV)
             .setTargetDeadband(targetDeadband)
-            .setVoltageRegulatorOn(voltageRegulatorOn)
-            .setRegulatingTerminal(regulatingTerminal);
+            .setRegulatingTerminal(regulatingTerminal)
+            .setVoltageRegulatorOn(voltageRegulatorOn);
     }
 
     private static boolean defineVoltageRegulatorOn(PsseSwitchedShunt psseSwitchedShunt) {

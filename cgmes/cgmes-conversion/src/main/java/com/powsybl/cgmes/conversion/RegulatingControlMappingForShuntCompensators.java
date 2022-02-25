@@ -8,14 +8,13 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -59,61 +58,37 @@ public class RegulatingControlMappingForShuntCompensators {
         }
         String rcId = cgmesRc.regulatingControlId;
 
-        // This equipment is not participating in its regulating control
-        // We will not create default regulation data
-        // But will try to store information about corresponding regulating control
-        if (!cgmesRc.controlEnabled) {
-            if (rcId != null) {
-                RegulatingControl rc = parent.cachedRegulatingControls().get(rcId);
-                if (rc != null) {
-                    setRegulatingControl(shuntCompensator, rcId, rc, cgmesRc.controlEnabled);
-                }
-            }
-            return;
-        }
-        // The equipment is participating in regulating control (cgmesRc.controlEnabled)
-        // But no regulating control information has been found
-        // We create default regulation data
         if (rcId == null) {
             context.missing("Regulating Control ID not defined");
-            setDefaultRegulatingControl(shuntCompensator);
             return;
         }
         RegulatingControl rc = parent.cachedRegulatingControls().get(rcId);
         if (rc == null) {
             context.missing(String.format("Regulating control %s", rcId));
-            setDefaultRegulatingControl(shuntCompensator);
             return;
         }
-        // Finally, equipment participates in it regulating control,
-        // and the regulating control information is present in the CGMES model
-        setRegulatingControl(shuntCompensator, rcId, rc, cgmesRc.controlEnabled);
+
+        setRegulatingControlVoltage(shuntCompensator, rcId, rc, cgmesRc.controlEnabled);
         rc.setCorrectlySet(true);
     }
 
-    private void setDefaultRegulatingControl(ShuntCompensator shuntCompensator) {
-        shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getTerminal().getBusView().getBus())
-                    .map(Bus::getV)
-                    .filter(v -> !Double.isNaN(v))
-                    .orElseGet(() -> shuntCompensator.getTerminal().getVoltageLevel().getNominalV()))
-                .setTargetDeadband(0.0)
-                .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
+    private void setRegulatingControlVoltage(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc, boolean controlEnabled) {
+
+        Terminal regulatingTerminal = parent.getRegulatingTerminal(rc.cgmesTerminal);
+        boolean voltageRegulatorOn = rc.enabled && controlEnabled;
+        voltageRegulatorOn = parent.deactivateControlIfRegulatingTerminalIsUnset(getMessageId(shuntCompensator.getId(), rcId), regulatingTerminal, voltageRegulatorOn);
+
+        shuntCompensator
+            .setRegulatingTerminal(regulatingTerminal)
+            .setTargetV(rc.targetValue)
+            .setTargetDeadband(rc.targetDeadband)
+            .setVoltageRegulatorOn(voltageRegulatorOn);
+
+        shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rcId);
     }
 
-    private void setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc, boolean controlEnabled) {
-        shuntCompensator.setTargetV(rc.targetValue)
-                .setTargetDeadband(rc.targetDeadband);
-        if (rc.targetValue > 0) {
-            // For the IIDM regulating control to be enabled
-            // both the equipment participation in the control and
-            // the regulating control itself should be enabled
-            shuntCompensator.setVoltageRegulatorOn(rc.enabled && controlEnabled);
-        } else  {
-            shuntCompensator.setVoltageRegulatorOn(false);
-        }
-        // Take default terminal if it has not been defined in CGMES files (it is never null)
-        shuntCompensator.setRegulatingTerminal(parent.getRegulatingTerminal(shuntCompensator, rc.cgmesTerminal));
-        shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rcId);
+    private static String getMessageId(String id, String controlId) {
+        return String.format("ShuntCompensator: %s ControlId: %s", id, controlId);
     }
 
     private static class CgmesRegulatingControlForShuntCompensator {

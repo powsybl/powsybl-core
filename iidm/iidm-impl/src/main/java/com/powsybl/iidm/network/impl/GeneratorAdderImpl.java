@@ -24,7 +24,9 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private Boolean voltageRegulatorOn;
+    private boolean voltageRegulatorOn = false;
+
+    private boolean useLocalRegulation = false;
 
     private double targetP = Double.NaN;
 
@@ -79,6 +81,12 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    public GeneratorAdder useLocalRegulation(boolean use) {
+        this.useLocalRegulation = use;
+        return this;
+    }
+
+    @Override
     public GeneratorAdderImpl setTargetP(double targetP) {
         this.targetP = targetP;
         return this;
@@ -105,16 +113,28 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public GeneratorImpl add() {
         NetworkImpl network = getNetwork();
-        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
-            voltageRegulatorOn = false;
-        }
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
+        boolean validateRegulatingTerminal = true;
+        if (useLocalRegulation) {
+            regulatingTerminal = terminal;
+            validateRegulatingTerminal = false;
+        }
+
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel()));
+
+        // The validation method of the regulating terminal (validation.validRegulatingTerminal)
+        // checks that the terminal is not null and its network is the same as the object being added.
+        // The network for the terminal is obtained from its voltage level but the terminal voltage level
+        // is set after the validation is performed by the method voltageLevel.attach(terminal, false).
+        // As we do not want to move the order of validation and terminal attachment
+        // we do not check the regulating terminal if useLocalRegulation is true.
+        // We assume the terminal will be ok since it will be the one of the equipment.
+
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network, voltageRegulatorOn, validateRegulatingTerminal);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, network.getMinValidationLevel()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
@@ -122,7 +142,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                 = new GeneratorImpl(network.getRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
+                                    voltageRegulatorOn, regulatingTerminal,
                                     targetP, targetQ, targetV,
                                     ratedS);
         generator.addTerminal(terminal);

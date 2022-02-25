@@ -71,6 +71,7 @@ public abstract class AbstractGeneratorTest {
 
         generator.setVoltageRegulatorOn(false);
         assertFalse(generator.isVoltageRegulatorOn());
+        generator.setRegulatingTerminal(generator.getTerminal());
         generator.setVoltageRegulatorOn(true);
         assertTrue(generator.isVoltageRegulatorOn());
 
@@ -181,6 +182,7 @@ public abstract class AbstractGeneratorTest {
     public void testAdder() {
         voltageLevel.newGenerator()
                 .setId(GEN_ID)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMaxP(100.0)
@@ -271,6 +273,7 @@ public abstract class AbstractGeneratorTest {
                                  double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
         return voltageLevel.newGenerator()
                 .setId(id)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(regulatorOn)
                 .setEnergySource(source)
                 .setMaxP(maxP)

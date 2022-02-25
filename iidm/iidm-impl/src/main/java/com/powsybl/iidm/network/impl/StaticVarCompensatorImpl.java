@@ -132,6 +132,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
         NetworkImpl n = getNetwork();
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork(), regulationMode);
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, n.getMinValidationLevel());
         int variantIndex = n.getVariantIndex();
         RegulationMode oldValue = RegulationMode.values()[this.regulationMode.set(variantIndex,
@@ -149,9 +150,9 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork(), getRegulationMode());
         Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }

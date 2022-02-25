@@ -25,7 +25,9 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private double reactivePowerSetpoint = Double.NaN;
 
-    private StaticVarCompensator.RegulationMode regulationMode;
+    private StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.OFF;
+
+    private boolean useLocalRegulation = false;
 
     private TerminalExt regulatingTerminal;
 
@@ -80,18 +82,39 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     }
 
     @Override
+    public StaticVarCompensatorAdderImpl useLocalRegulation(boolean use) {
+        this.useLocalRegulation = use;
+        return this;
+    }
+
+    @Override
     public StaticVarCompensatorImpl add() {
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
+
+        boolean validateRegulatingTerminal = true;
+        if (useLocalRegulation) {
+            regulatingTerminal = terminal;
+            validateRegulatingTerminal = false;
+        }
+
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+
+        // The validation method of the regulating terminal (validation.validRegulatingTerminal)
+        // checks that the terminal is not null and its network is the same as the object being added.
+        // The network for the terminal is obtained from its voltage level but the terminal voltage level
+        // is set after the validation is performed by the method voltageLevel.attach(terminal, false).
+        // As we do not want to move the order of validation and terminal attachment
+        // we do not check the regulating terminal if useLocalRegulation is true.
+        // We assume the terminal will be ok since it will be the one of the equipment.
+
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network, regulationMode, validateRegulatingTerminal);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode, network.getMinValidationLevel()));
         StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
-                regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
-                network.getRef());
+                regulationMode, regulatingTerminal, network.getRef());
         svc.addTerminal(terminal);
         vl.attach(terminal, false);
         network.getIndex().checkAndAdd(svc);

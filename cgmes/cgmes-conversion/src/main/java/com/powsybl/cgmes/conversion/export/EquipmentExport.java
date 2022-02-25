@@ -224,7 +224,8 @@ public final class EquipmentExport {
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            if (regulatingControlId != null || generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable())) {
+            if (regulatingControlId != null || generator.isVoltageRegulatorOn() ||
+                (generator.getRegulatingTerminal() != null && !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
                 if (regulatingControlId == null) {
                     regulatingControlId = CgmesExportUtil.getUniqueId();
                     generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);
@@ -605,7 +606,7 @@ public final class EquipmentExport {
     }
 
     private static String getConverterStationPccTerminal(HvdcConverterStation<?> converterStation, Map<Terminal, String> exportedTerminals) {
-        if (converterStation.getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)) {
+        if (converterStation.getHvdcType().equals(HvdcConverterStation.HvdcType.VSC) && ((VscConverterStation) converterStation).getRegulatingTerminal() != null) {
             return exportedTerminalId(exportedTerminals, ((VscConverterStation) converterStation).getRegulatingTerminal());
         }
         return null;

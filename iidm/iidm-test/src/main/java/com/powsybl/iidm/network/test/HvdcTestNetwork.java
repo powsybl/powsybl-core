@@ -105,6 +105,7 @@ public final class HvdcTestNetwork {
                 .setBus("B1")
                 .setLossFactor(1.1f)
                 .setVoltageSetpoint(405.0)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(true)
                 .add();
         cs1.getTerminal()
