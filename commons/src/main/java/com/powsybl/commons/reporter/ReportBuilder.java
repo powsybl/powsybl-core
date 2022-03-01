@@ -187,6 +187,9 @@ public class ReportBuilder {
      * @return a reference to this object
      */
     public ReportBuilder withSeverity(TypedValue severity) {
+        if (!severity.getType().equals(TypedValue.SEVERITY)) {
+            throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
+        }
         values.put(Report.REPORT_SEVERITY_KEY, severity);
         return this;
     }

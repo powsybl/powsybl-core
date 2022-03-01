@@ -6,16 +6,17 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -58,7 +59,7 @@ public final class ValidationUtil {
         reporter.report(Report.builder()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
-                .withSeverity(IidmReportConstants.ERROR_SEVERITY)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
         LOGGER.error("{}{}", validable.getMessageHeader(), message);
     }
@@ -494,7 +495,7 @@ public final class ValidationUtil {
         reporter.report(Report.builder()
                 .withKey(validable.getMessageHeader())
                 .withDefaultMessage(message)
-                .withSeverity(IidmReportConstants.WARN_SEVERITY)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
         LOGGER.warn("{}{}", validable.getMessageHeader(), message);
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
