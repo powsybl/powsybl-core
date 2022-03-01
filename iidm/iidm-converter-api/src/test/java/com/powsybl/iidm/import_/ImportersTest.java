@@ -9,6 +9,7 @@ package com.powsybl.iidm.import_;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.AbstractConvertersTest;
@@ -145,8 +146,8 @@ public class ImportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    public void importData() {
-        Network network = Importers.importData(loader, TEST_FORMAT, null, null, computationManager, importConfigMock);
+    public void importData() throws IOException {
+        Network network = Importers.loadNetwork((ReadOnlyDataSource) null);
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
     }

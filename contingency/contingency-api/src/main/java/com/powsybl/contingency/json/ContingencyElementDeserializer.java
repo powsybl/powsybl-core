@@ -81,6 +81,9 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case THREE_WINDINGS_TRANSFORMER:
                     return new ThreeWindingsTransformerContingency(id);
 
+                case LOAD:
+                    return new LoadContingency(id);
+
                 default:
                     throw new AssertionError("Unexpected ContingencyElementType value: " + type);
             }
