@@ -204,7 +204,7 @@ public final class ValidationUtil {
                 throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON);
             }
         } else if (Double.isNaN(reactivePowerSetpoint)) {
-            throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off", throwException, reporter);
+            throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, "voltage regulator is off", throwException, reporter);
             return ValidationLevel.EQUIPMENT;
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
