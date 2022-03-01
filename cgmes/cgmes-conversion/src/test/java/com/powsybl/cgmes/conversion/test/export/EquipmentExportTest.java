@@ -120,7 +120,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 .with("test_TP_BD.xml", Repackager::tpBd);
         r.zip(repackaged);
 
-        // Import with new SSH
+        // Import with new EQ
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         Network actual = Importers.loadNetwork(repackaged,
@@ -131,7 +131,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     private void testIidm(Network network) throws IOException, XMLStreamException {
         exportToCgmesEQ(network);
 
-        // Import with new SSH
+        // Import with new EQ
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), new Properties());
         compareNetworks(network, actual);
     }

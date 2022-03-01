@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6" id="m7buses" caseDate="2019-04-01T15:09:55.001+02:00" forecastDistance="0" sourceFormat="CIM1">
-    <iidm:substation id="_FP.AND11_SS" name="FP.AND11_SS" geographicalTags="_SGR_07">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="m7buses" caseDate="2019-04-01T15:09:55.001+02:00" forecastDistance="0" sourceFormat="CIM1" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="_FP.AND11_SS" name="FP.AND11_SS" geographicalTags="07">
+        <iidm:property name="CGMES.regionId" value="_SGR_07"/>
         <iidm:voltageLevel id="_FTDPRA11_VL" name="FTDPRA11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_FTDPRA12_TN" name="FTDPRA12" v="406.4447937011719" angle="-0.017328999936580658"/>
@@ -57,7 +58,8 @@
             <iidm:currentLimits2 permanentLimit="1000.0"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="_FS.BIS11_SS" name="FS.BIS11_SS" geographicalTags="_SGR_07">
+    <iidm:substation id="_FS.BIS11_SS" name="FS.BIS11_SS" geographicalTags="07">
+        <iidm:property name="CGMES.regionId" value="_SGR_07"/>
         <iidm:voltageLevel id="_FS.BIS11_VL" name="FS.BIS11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_FS.BIS12_TN" name="FS.BIS12" v="406.44244384765625" angle="-0.0034580000210553408"/>
@@ -67,7 +69,8 @@
             <iidm:load id="_FS.BIC11_EC" name="FS.BIC11" loadType="UNDEFINED" p0="240.0" q0="2.4000000953674316" bus="_FS.BIS11_TN" connectableBus="_FS.BIS11_TN" p="240.0" q="2.4000000953674316"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_FSSV.O11_SS" name="FSSV.O11_SS" geographicalTags="_SGR_07">
+    <iidm:substation id="_FSSV.O11_SS" name="FSSV.O11_SS" geographicalTags="07">
+        <iidm:property name="CGMES.regionId" value="_SGR_07"/>
         <iidm:voltageLevel id="_FSSV.O11_VL" name="FSSV.O11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_FSSV.O12_TN" name="FSSV.O12" v="406.45001220703125" angle="0.09358499944210052"/>
@@ -79,7 +82,8 @@
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_FTILL511_SS" name="FTILL511_SS" geographicalTags="_SGR_07">
+    <iidm:substation id="_FTILL511_SS" name="FTILL511_SS" geographicalTags="07">
+        <iidm:property name="CGMES.regionId" value="_SGR_07"/>
         <iidm:voltageLevel id="_FTILL511_VL" name="FTILL511_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_FTILL512_TN" name="FTILL512" v="406.4404602050781" angle="0.0034779999405145645"/>
@@ -89,7 +93,8 @@
             <iidm:load id="_FTILLC51_EC" name="FTILLC51" loadType="UNDEFINED" p0="480.0" q0="4.800000190734863" bus="_FTILL511_TN" connectableBus="_FTILL511_TN" p="480.0" q="4.800000190734863"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_FVALDI11_SS" name="FVALDI11_SS" geographicalTags="_SGR_07">
+    <iidm:substation id="_FVALDI11_SS" name="FVALDI11_SS" geographicalTags="07">
+        <iidm:property name="CGMES.regionId" value="_SGR_07"/>
         <iidm:voltageLevel id="_FVALDI11_VL" name="FVALDI11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_FVALDI12_TN" name="FVALDI12" v="406.45001220703125" angle="0.03119100071489811"/>
@@ -101,7 +106,8 @@
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="_FVERGE11_SS" name="FVERGE11_SS" geographicalTags="_SGR_07">
+    <iidm:substation id="_FVERGE11_SS" name="FVERGE11_SS" geographicalTags="07">
+        <iidm:property name="CGMES.regionId" value="_SGR_07"/>
         <iidm:voltageLevel id="_FVERGE11_VL" name="FVERGE11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_FVERGE12_TN" name="FVERGE12" v="406.45001220703125" angle="0.0"/>

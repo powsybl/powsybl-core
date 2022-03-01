@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
@@ -16,10 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -202,6 +201,28 @@ public abstract class AbstractNetworkTest {
         busCalc.setProperty(key, value);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
+
+        // validation
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.runValidationChecks();
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        voltageLevel1.newLoad()
+                .setId("unchecked")
+                .setP0(1.0)
+                .setQ0(1.0)
+                .setNode(3)
+                .add();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        Load unchecked2 = voltageLevel1.newLoad()
+                .setId("unchecked2")
+                .setNode(10)
+                .add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+        unchecked2.setP0(0.0).setQ0(0.0);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     @Test
@@ -540,6 +561,40 @@ public abstract class AbstractNetworkTest {
             fail();
         } catch (PowsyblException ignored) {
             // ignore
+        }
+    }
+
+    @Test
+    public void testScadaNetwork() {
+        Network network = ScadaNetworkFactory.create();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
+
+        ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
+        List<ReporterModel> subReporters = reporter.getSubReporters();
+        assertEquals(1, subReporters.size());
+        ReporterModel subReporter = subReporters.get(0);
+        assertEquals("IIDMValidation", subReporter.getTaskKey());
+        assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
+        Collection<Report> reports = subReporter.getReports();
+        assertFalse(reports.isEmpty());
+
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        try {
+            network.runValidationChecks();
+            fail();
+        } catch (ValidationException e) {
+            // Ignore
+        }
+
+        try {
+            network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            fail();
+        } catch (ValidationException e) {
+            // Ignore
         }
     }
 }

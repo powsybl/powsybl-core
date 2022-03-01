@@ -6,44 +6,54 @@
  */
 package com.powsybl.sensitivity;
 
-import org.junit.Rule;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.sensitivity.json.SensitivityJson;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.assertSame;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityFactorTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+public class SensitivityFactorTest extends AbstractConverterTest {
 
     @Test
-    public void checkNullFunctionThrows() {
-        exception.expect(NullPointerException.class);
-        new SensitivityFactor(null, Mockito.mock(SensitivityVariable.class));
+    public void test() {
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, "l",
+                                                         SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
+                                                         false, ContingencyContext.all());
+        assertEquals(ContingencyContext.all(), factor.getContingencyContext());
+        assertEquals("l", factor.getFunctionId());
+        assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER, factor.getFunctionType());
+        assertEquals("l", factor.getFunctionId());
+        assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, factor.getVariableType());
+        assertEquals("g", factor.getVariableId());
+        assertFalse(factor.isVariableSet());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
     }
 
     @Test
-    public void checkNullVariableThrows() {
-        exception.expect(NullPointerException.class);
-        new SensitivityFactor(Mockito.mock(SensitivityFunction.class), null);
+    public void testMatrix() {
+        List<SensitivityFactor> factors = SensitivityFactor.createMatrix(SensitivityFunctionType.BRANCH_ACTIVE_POWER, List.of("l12", "l13", "l23"),
+                                                                         SensitivityVariableType.HVDC_LINE_ACTIVE_POWER, List.of("hvdc34"),
+                                                                         false, ContingencyContext.all());
+        assertEquals(3, factors.size());
     }
 
     @Test
-    public void getFunction() {
-        SensitivityFunction function = Mockito.mock(SensitivityFunction.class);
-        SensitivityFactor factor = new SensitivityFactor(function, Mockito.mock(SensitivityVariable.class));
-        assertSame(function, factor.getFunction());
-    }
-
-    @Test
-    public void getVariable() {
-        SensitivityVariable variable = Mockito.mock(SensitivityVariable.class);
-        SensitivityFactor factor = new SensitivityFactor(Mockito.mock(SensitivityFunction.class), variable);
-        assertSame(variable, factor.getVariable());
+    public void testJson() throws IOException {
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, "l",
+                                                         SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
+                                                         false, ContingencyContext.all());
+        ObjectMapper objectMapper = SensitivityJson.createObjectMapper();
+        roundTripTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, objectMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityFactor.class, objectMapper), "/factorRef.json");
     }
 }

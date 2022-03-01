@@ -59,7 +59,6 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
         // Find the internal connections encountered before encountering a terminal
         InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);
-
         // If we stop traversal at terminals
         // some internal connections are expected to be missing
         InternalConnections expectedMissing = new InternalConnections().add(6, 3).add(9, 2).add(4, 3);

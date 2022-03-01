@@ -311,7 +311,6 @@ public class Cgmes3ConversionTest {
         CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
 
         config.setConvertSvInjections(true);
-        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
         Conversion c = new Conversion(cgmes, config);
         return c.convert();
     }
