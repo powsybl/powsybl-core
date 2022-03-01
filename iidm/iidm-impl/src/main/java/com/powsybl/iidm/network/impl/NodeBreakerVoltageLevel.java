@@ -151,6 +151,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (node2 == null) {
                 throw new ValidationException(this, "second connection node is not set");
             }
+            if (node1 == node2) {
+                throw new ValidationException(this, "same node at both ends");
+            }
             if (kind == null) {
                 throw new ValidationException(this, "kind is not set");
             }
