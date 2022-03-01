@@ -91,7 +91,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             if (busId2 == null) {
                 throw new ValidationException(this, "second connection bus is not set");
             }
-            if (busId1 != null && busId1.equals(busId2)) {
+            if (busId1.equals(busId2)) {
                 throw new ValidationException(this, "same bus at both ends");
             }
 
