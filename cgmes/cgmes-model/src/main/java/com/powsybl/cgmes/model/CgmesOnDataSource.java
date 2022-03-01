@@ -112,19 +112,11 @@ public class CgmesOnDataSource {
     }
 
     private final ReadOnlyDataSource dataSource;
-
-    private static final String REGEX_VALID_NAME_IDS = Stream.of(
-        Stream.of("ME"),
-        Arrays.stream(CgmesSubset.values()).map(CgmesSubset::getIdentifier))
-        .flatMap(s -> s)
-        .collect(Collectors.joining("|", "(", ")"));
     private static final String REGEX_VALID_NAME = ""
         // Ignore case
         + "(?i)"
         // Any number of characters from the start
         + "^.*"
-        // Contains one of the valid subset ids
-        + REGEX_VALID_NAME_IDS
-        // Any number of characters and ending with extension .xml
-        + ".*\\.XML$";
+        // Ending with extension .xml
+        + "\\.XML$";
 }
