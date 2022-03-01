@@ -205,7 +205,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
                 getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmXmlVersion.V_1_7);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmXmlVersion.V_1_8);
 
         Path path = tmpDir.resolve("test");
         NetworkXml.write(network, path);
