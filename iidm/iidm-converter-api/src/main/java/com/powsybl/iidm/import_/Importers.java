@@ -50,6 +50,8 @@ public final class Importers {
 
     private static final Supplier<ImportConfig> CONFIG = Suppliers.memoize(ImportConfig::load);
 
+    private static final String UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE = "Unsupported file format or invalid file.";
+
     private Importers() {
     }
 
@@ -331,7 +333,7 @@ public final class Importers {
             if (listener != null) {
                 listener.accept(dataSource);
             }
-            Network network = reporter == Reporter.NO_OP ? importer.importData(dataSource, NetworkFactory.findDefault(), parameters) : importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+            Network network = importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
             consumer.accept(network);
         } catch (Exception e) {
             LOGGER.error(e.toString(), e);
@@ -375,19 +377,12 @@ public final class Importers {
         if (parallel) {
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             try {
-                List<Future<?>> futures;
-                if (reporter == Reporter.NO_OP) {
-                    futures = dataSources.stream()
-                        .map(ds -> executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, reporter)))
-                        .collect(Collectors.toList());
-                } else {
-                    futures = dataSources.stream()
+                List<Future<?>> futures = dataSources.stream()
                         .map(ds -> {
                             Reporter child = createSubReporter(reporter, ds);
                             return executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, child));
                         })
                         .collect(Collectors.toList());
-                }
                 for (Future<?> future : futures) {
                     future.get();
                 }
@@ -396,11 +391,7 @@ public final class Importers {
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
-                if (reporter == Reporter.NO_OP) {
-                    doImport(dataSource, importer, parameters, consumer, listener, reporter);
-                } else {
-                    doImport(dataSource, importer, parameters, consumer, listener, createSubReporter(reporter, dataSource));
-                }
+                doImport(dataSource, importer, parameters, consumer, listener, createSubReporter(reporter, dataSource));
             }
         }
     }
@@ -459,6 +450,10 @@ public final class Importers {
         return findImporter(dataSource, LOADER.get(), computationManager, CONFIG.get());
     }
 
+    public static Importer findImporter(ReadOnlyDataSource dataSource) {
+        return findImporter(dataSource, LocalComputationManager.getDefault());
+    }
+
     /**
      * Loads a network from the specified file, trying to guess its format.
      *
@@ -474,13 +469,9 @@ public final class Importers {
         ReadOnlyDataSource dataSource = createDataSource(file);
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
-            if (reporter == Reporter.NO_OP) {
-                return importer.importData(dataSource, NetworkFactory.findDefault(), parameters);
-            } else {
-                return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
-            }
+            return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
         }
-        throw new PowsyblException("Unsupported file format or invalid file.");
+        throw new PowsyblException(UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
     /**
@@ -538,6 +529,7 @@ public final class Importers {
 
     /**
      * Loads a network from a raw input stream, trying to guess the format from the specified filename.
+     * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
@@ -553,17 +545,14 @@ public final class Importers {
         dataSource.putData(filename, data);
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
-            if (reporter == Reporter.NO_OP) {
-                return importer.importData(dataSource, NetworkFactory.findDefault(), parameters);
-            } else {
-                return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
-            }
+            return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
         }
-        throw new PowsyblException("Unsupported file format or invalid file.");
+        throw new PowsyblException(UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
     /**
      * Loads a network from a raw input stream, trying to guess the format from the specified filename.
+     * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
@@ -580,6 +569,7 @@ public final class Importers {
     /**
      * Loads a network from a raw input stream, trying to guess the format from the specified filename,
      * and using importers and post processors defined as services.
+     * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
@@ -597,6 +587,7 @@ public final class Importers {
      * and using importers and post processors defined as services.
      * Import will be performed using import configuration defined in default platform config,
      * and with no importer-specific parameters.
+     * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
@@ -614,6 +605,7 @@ public final class Importers {
      * and with no importer-specific parameters.
      * Post processors will use the default {@link LocalComputationManager}, as defined in
      * default platform config.
+     * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
@@ -630,6 +622,7 @@ public final class Importers {
      * and with no importer-specific parameters.
      * Post processors will use the default {@link LocalComputationManager}, as defined in
      * default platform config.
+     * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
@@ -638,6 +631,22 @@ public final class Importers {
      */
     public static Network loadNetwork(String filename, InputStream data, Reporter reporter) {
         return loadNetwork(filename, data, LocalComputationManager.getDefault(), CONFIG.get(), null, LOADER.get(), reporter);
+    }
+
+    public static Network loadNetwork(ReadOnlyDataSource dataSource) {
+        return loadNetwork(dataSource, null);
+    }
+
+    public static Network loadNetwork(ReadOnlyDataSource dataSource, Properties properties) {
+        return loadNetwork(dataSource, properties, Reporter.NO_OP);
+    }
+
+    public static Network loadNetwork(ReadOnlyDataSource dataSource, Properties properties, Reporter reporter) {
+        Importer importer = findImporter(dataSource);
+        if (importer != null) {
+            return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reporter);
+        }
+        throw new PowsyblException(UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
