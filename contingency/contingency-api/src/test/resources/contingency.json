@@ -38,6 +38,9 @@
   }, {
     "id" : "TWT3",
     "type" : "THREE_WINDINGS_TRANSFORMER"
+  }, {
+    "id" : "LOAD",
+    "type" : "LOAD"
   } ],
   "extensions" : {
     "dummy-extension" : { }
