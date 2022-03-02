@@ -44,7 +44,7 @@ public class CgmesExport implements Exporter {
     @Override
     public void export(Network network, Properties params, DataSource ds) {
         Objects.requireNonNull(network);
-        String baseName = baseName(network, params);
+        String baseName = baseName(params, ds, network);
         String filenameEq = baseName + "_EQ.xml";
         String filenameTp = baseName + "_TP.xml";
         String filenameSsh = baseName + "_SSH.xml";
@@ -52,6 +52,10 @@ public class CgmesExport implements Exporter {
         CgmesExportContext context = new CgmesExportContext(network)
                 .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER))
                 .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER));
+        int cimVersionParam = (int) ConversionParameters.readDoubleParameter(getFormat(), params, CIM_VERSION_PARAMETER);
+        if (cimVersionParam > 0) {
+            context.setCimVersion(cimVersionParam);
+        }
         try {
             List<String> profiles = ConversionParameters.readStringListParameter(getFormat(), params, PROFILES_PARAMETER);
             if (profiles.contains("EQ")) {
@@ -85,9 +89,14 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private String baseName(Network network, Properties params) {
+    private String baseName(Properties params, DataSource ds, Network network) {
         String baseName = ConversionParameters.readStringParameter(getFormat(), params, BASE_NAME_PARAMETER);
-        return baseName != null ? baseName : network.getNameOrId();
+        if (baseName != null) {
+            return baseName;
+        } else if (ds.getBaseName() != null) {
+            return ds.getBaseName();
+        }
+        return network.getNameOrId();
     }
 
     @Override
@@ -104,6 +113,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
+    public static final String CIM_VERSION = "iidm.export.cgmes.cim-version";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -125,6 +135,11 @@ public class CgmesExport implements Exporter {
             ParameterType.STRING_LIST,
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"));
+    private static final Parameter CIM_VERSION_PARAMETER = new Parameter(
+            CIM_VERSION,
+            ParameterType.DOUBLE,
+            "CIM version to export",
+            -1.0);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
