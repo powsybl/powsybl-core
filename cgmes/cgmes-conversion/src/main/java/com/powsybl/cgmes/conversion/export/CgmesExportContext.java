@@ -146,7 +146,7 @@ public class CgmesExportContext {
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsShuntCompensators(network);
-        addIidmMappingsTapChangers(network);
+        addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
     }
 
@@ -353,7 +353,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsTapChangers(Network network) {
+    private void addIidmMappingsEndsAndTapChangers(Network network) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
