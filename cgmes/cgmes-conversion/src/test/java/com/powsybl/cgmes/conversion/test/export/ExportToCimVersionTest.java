@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
 
 import java.io.IOException;
+
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
