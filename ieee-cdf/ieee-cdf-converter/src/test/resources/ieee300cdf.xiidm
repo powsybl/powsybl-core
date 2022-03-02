@@ -29,6 +29,7 @@
                 <iidm:bus id="B7001" name="1" v="14.49966" angle="10.79"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7001-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="467.0" targetV="14.49966" targetQ="0.0" bus="B7001" connectableBus="B7001">
+                <iidm:regulatingTerminal id="B7001-G"/>
                 <iidm:minMaxReactiveLimits minQ="-210.0" maxQ="210.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -37,6 +38,7 @@
                 <iidm:bus id="B7002" name="1" v="14.49966" angle="12.48"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7002-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="623.0" targetV="14.49966" targetQ="0.0" bus="B7002" connectableBus="B7002">
+                <iidm:regulatingTerminal id="B7002-G"/>
                 <iidm:minMaxReactiveLimits minQ="-280.0" maxQ="280.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -45,6 +47,7 @@
                 <iidm:bus id="B7003" name="1" v="14.245740000000001" angle="13.76"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7003-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="1210.0" targetV="14.245740000000001" targetQ="0.0" bus="B7003" connectableBus="B7003">
+                <iidm:regulatingTerminal id="B7003-G"/>
                 <iidm:minMaxReactiveLimits minQ="-420.0" maxQ="420.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -107,6 +110,7 @@
                 <iidm:bus id="B8" name="1" v="116.75950000000002" angle="2.4"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B8-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-5.0" targetV="116.75950000000002" targetQ="0.0" bus="B8" connectableBus="B8">
+                <iidm:regulatingTerminal id="B8-G"/>
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="10.0"/>
             </iidm:generator>
             <iidm:load id="B8-L" loadType="UNDEFINED" p0="58.0" q0="14.0" bus="B8" connectableBus="B8"/>
@@ -126,6 +130,7 @@
                 <iidm:bus id="B10" name="1" v="234.715" angle="1.35"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B10-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-5.0" targetV="234.715" targetQ="0.0" bus="B10" connectableBus="B10">
+                <iidm:regulatingTerminal id="B10-G"/>
                 <iidm:minMaxReactiveLimits minQ="-20.0" maxQ="20.0"/>
             </iidm:generator>
             <iidm:load id="B10-L" loadType="UNDEFINED" p0="148.0" q0="33.0" bus="B10" connectableBus="B10"/>
@@ -146,6 +151,7 @@
                 <iidm:bus id="B7011" name="1" v="14.0001" angle="4.99"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7011-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="234.0" targetV="14.0001" targetQ="0.0" bus="B7011" connectableBus="B7011">
+                <iidm:regulatingTerminal id="B7011-G"/>
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="100.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -154,6 +160,7 @@
                 <iidm:bus id="B7012" name="1" v="14.49966" angle="11.57"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7012-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="372.0" targetV="14.49966" targetQ="0.0" bus="B7012" connectableBus="B7012">
+                <iidm:regulatingTerminal id="B7012-G"/>
                 <iidm:minMaxReactiveLimits minQ="-224.0" maxQ="224.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -206,6 +213,7 @@
                 <iidm:bus id="B7017" name="1" v="14.49966" angle="-10.47"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7017-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="330.0" targetV="14.49966" targetQ="0.0" bus="B7017" connectableBus="B7017">
+                <iidm:regulatingTerminal id="B7017-G"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="350.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -236,6 +244,7 @@
                 <iidm:bus id="B20" name="1" v="115.11499999999998" angle="-2.46"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B20-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-10.0" targetV="115.11499999999998" targetQ="0.0" bus="B20" connectableBus="B20">
+                <iidm:regulatingTerminal id="B20-G"/>
                 <iidm:minMaxReactiveLimits minQ="-20.0" maxQ="20.0"/>
             </iidm:generator>
             <iidm:load id="B20-L" loadType="UNDEFINED" p0="595.0" q0="120.0" bus="B20" connectableBus="B20"/>
@@ -273,6 +282,7 @@
                 <iidm:bus id="B7023" name="1" v="14.49966" angle="6.15"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7023-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="185.0" targetV="14.49966" targetQ="0.0" bus="B7023" connectableBus="B7023">
+                <iidm:regulatingTerminal id="B7023-G"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="120.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -281,6 +291,7 @@
                 <iidm:bus id="B7024" name="1" v="14.200199999999999" angle="12.6"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7024-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="410.0" targetV="14.200199999999999" targetQ="0.0" bus="B7024" connectableBus="B7024">
+                <iidm:regulatingTerminal id="B7024-G"/>
                 <iidm:minMaxReactiveLimits minQ="-224.0" maxQ="224.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -409,6 +420,7 @@
                 <iidm:bus id="B7039" name="1" v="21.0" angle="2.11"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7039-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="500.0" targetV="21.0" targetQ="0.0" bus="B7039" connectableBus="B7039">
+                <iidm:regulatingTerminal id="B7039-G"/>
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -467,6 +479,7 @@
                 <iidm:bus id="B7044" name="1" v="14.0001" angle="-13.92"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7044-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="37.0" targetV="14.0001" targetQ="0.0" bus="B7044" connectableBus="B7044">
+                <iidm:regulatingTerminal id="B7044-G"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="42.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -512,6 +525,7 @@
                 <iidm:bus id="B7049" name="1" v="14.49966" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7049-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="14.49966" targetQ="0.0" bus="B7049" connectableBus="B7049">
+                <iidm:regulatingTerminal id="B7049-G"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -561,6 +575,7 @@
                 <iidm:bus id="B7055" name="1" v="13.754460000000002" angle="-7.5"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7055-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="45.0" targetV="13.754460000000002" targetQ="0.0" bus="B7055" connectableBus="B7055">
+                <iidm:regulatingTerminal id="B7055-G"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="25.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -578,6 +593,7 @@
                 <iidm:bus id="B7057" name="1" v="14.092560000000002" angle="-3.44"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7057-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="165.0" targetV="14.092560000000002" targetQ="0.0" bus="B7057" connectableBus="B7057">
+                <iidm:regulatingTerminal id="B7057-G"/>
                 <iidm:minMaxReactiveLimits minQ="-90.0" maxQ="90.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -623,6 +639,7 @@
                 <iidm:bus id="B7061" name="1" v="14.0001" angle="1.97"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7061-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="400.0" targetV="14.0001" targetQ="0.0" bus="B7061" connectableBus="B7061">
+                <iidm:regulatingTerminal id="B7061-G"/>
                 <iidm:minMaxReactiveLimits minQ="-150.0" maxQ="150.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -631,6 +648,7 @@
                 <iidm:bus id="B7062" name="1" v="13.82346" angle="5.8"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7062-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="400.0" targetV="13.82346" targetQ="0.0" bus="B7062" connectableBus="B7062">
+                <iidm:regulatingTerminal id="B7062-G"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="150.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -649,6 +667,7 @@
                 <iidm:bus id="B63" name="1" v="110.20450000000001" angle="-17.62"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B63-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="110.20450000000001" targetQ="0.0" bus="B63" connectableBus="B63">
+                <iidm:regulatingTerminal id="B63-G"/>
                 <iidm:minMaxReactiveLimits minQ="-25.0" maxQ="25.0"/>
             </iidm:generator>
             <iidm:load id="B63-L" loadType="UNDEFINED" p0="70.0" q0="30.0" bus="B63" connectableBus="B63"/>
@@ -704,6 +723,7 @@
                 <iidm:bus id="B7071" name="1" v="13.65234" angle="-25.35"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7071-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="116.0" targetV="13.65234" targetQ="0.0" bus="B7071" connectableBus="B7071">
+                <iidm:regulatingTerminal id="B7071-G"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="87.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -742,6 +762,7 @@
                 <iidm:bus id="B76" name="1" v="110.768" angle="-26.54"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B76-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="110.768" targetQ="0.0" bus="B76" connectableBus="B76">
+                <iidm:regulatingTerminal id="B76-G"/>
                 <iidm:minMaxReactiveLimits minQ="12.0" maxQ="35.0"/>
             </iidm:generator>
             <iidm:load id="B76-L" loadType="UNDEFINED" p0="208.0" q0="107.0" bus="B76" connectableBus="B76"/>
@@ -802,6 +823,7 @@
                 <iidm:bus id="B84" name="1" v="117.87499999999999" angle="-17.16"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B84-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="375.0" targetV="117.87499999999999" targetQ="0.0" bus="B84" connectableBus="B84">
+                <iidm:regulatingTerminal id="B84-G"/>
                 <iidm:minMaxReactiveLimits minQ="-240.0" maxQ="240.0"/>
             </iidm:generator>
             <iidm:load id="B84-L" loadType="UNDEFINED" p0="37.0" q0="13.0" bus="B84" connectableBus="B84"/>
@@ -886,6 +908,7 @@
                 <iidm:bus id="B91" name="1" v="120.98" angle="-9.4"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B91-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="155.0" targetV="120.98" targetQ="0.0" bus="B91" connectableBus="B91">
+                <iidm:regulatingTerminal id="B91-G"/>
                 <iidm:minMaxReactiveLimits minQ="-11.0" maxQ="96.0"/>
             </iidm:generator>
             <iidm:load id="B91-L" loadType="UNDEFINED" p0="17.4" q0="0.0" bus="B91" connectableBus="B91"/>
@@ -897,6 +920,7 @@
                 <iidm:bus id="B92" name="1" v="120.98" angle="-6.2"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B92-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="290.0" targetV="120.98" targetQ="0.0" bus="B92" connectableBus="B92">
+                <iidm:regulatingTerminal id="B92-G"/>
                 <iidm:minMaxReactiveLimits minQ="-153.0" maxQ="153.0"/>
             </iidm:generator>
             <iidm:load id="B92-L" loadType="UNDEFINED" p0="15.8" q0="0.0" bus="B92" connectableBus="B92"/>
@@ -916,6 +940,7 @@
                 <iidm:bus id="B98" name="1" v="115.0" angle="-14.6"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B98-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="68.0" targetV="115.0" targetQ="0.0" bus="B98" connectableBus="B98">
+                <iidm:regulatingTerminal id="B98-G"/>
                 <iidm:minMaxReactiveLimits minQ="-30.0" maxQ="56.0"/>
             </iidm:generator>
             <iidm:load id="B98-L" loadType="UNDEFINED" p0="66.7" q0="0.0" bus="B98" connectableBus="B98"/>
@@ -966,6 +991,7 @@
                 <iidm:bus id="B108" name="1" v="113.85" angle="-20.26"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B108-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="117.0" targetV="113.85" targetQ="0.0" bus="B108" connectableBus="B108">
+                <iidm:regulatingTerminal id="B108-G"/>
                 <iidm:minMaxReactiveLimits minQ="-24.0" maxQ="77.0"/>
             </iidm:generator>
             <iidm:load id="B108-L" loadType="UNDEFINED" p0="112.1" q0="0.0" bus="B108" connectableBus="B108"/>
@@ -1053,6 +1079,7 @@
                 <iidm:bus id="B124" name="2" v="117.6795" angle="-13.49"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B124-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="240.0" targetV="117.6795" targetQ="0.0" bus="B124" connectableBus="B124">
+                <iidm:regulatingTerminal id="B124-G"/>
                 <iidm:minMaxReactiveLimits minQ="-60.0" maxQ="120.0"/>
             </iidm:generator>
             <iidm:load id="B124-L" loadType="UNDEFINED" p0="276.4" q0="59.3" bus="B124" connectableBus="B124"/>
@@ -1101,6 +1128,7 @@
                 <iidm:bus id="B119" name="2" v="120.00250000000001" angle="5.17"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B119-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="1930.0" targetV="120.00250000000001" targetQ="0.0" bus="B119" connectableBus="B119">
+                <iidm:regulatingTerminal id="B119-G"/>
                 <iidm:minMaxReactiveLimits minQ="-500.0" maxQ="1500.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1174,6 +1202,7 @@
                 <iidm:bus id="B125" name="2" v="116.1845" angle="-18.43"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B125-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="116.1845" targetQ="0.0" bus="B125" connectableBus="B125">
+                <iidm:regulatingTerminal id="B125-G"/>
                 <iidm:minMaxReactiveLimits minQ="-25.0" maxQ="200.0"/>
             </iidm:generator>
             <iidm:load id="B125-L" loadType="UNDEFINED" p0="514.8" q0="82.7" bus="B125" connectableBus="B125"/>
@@ -1230,6 +1259,7 @@
                 <iidm:bus id="B7130" name="2" v="14.49966" angle="19.02"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7130-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="1292.0" targetV="14.49966" targetQ="0.0" bus="B7130" connectableBus="B7130">
+                <iidm:regulatingTerminal id="B7130-G"/>
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="600.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1263,6 +1293,7 @@
                 <iidm:bus id="B170" name="2" v="106.83500000000001" angle="0.09"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B170-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="205.0" targetV="106.83500000000001" targetQ="0.0" bus="B170" connectableBus="B170">
+                <iidm:regulatingTerminal id="B170-G"/>
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="90.0"/>
             </iidm:generator>
             <iidm:load id="B170-L" loadType="UNDEFINED" p0="481.8" q0="205.0" bus="B170" connectableBus="B170"/>
@@ -1326,6 +1357,7 @@
                 <iidm:bus id="B138" name="2" v="242.64999999999998" angle="-6.35"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B138-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-192.5" targetV="242.64999999999998" targetQ="0.0" bus="B138" connectableBus="B138">
+                <iidm:regulatingTerminal id="B138-G"/>
                 <iidm:minMaxReactiveLimits minQ="-125.0" maxQ="350.0"/>
             </iidm:generator>
             <iidm:load id="B138-L" loadType="UNDEFINED" p0="826.7" q0="135.2" bus="B138" connectableBus="B138"/>
@@ -1349,6 +1381,7 @@
                 <iidm:bus id="B7139" name="2" v="14.49966" angle="2.75"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7139-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="700.0" targetV="14.49966" targetQ="0.0" bus="B7139" connectableBus="B7139">
+                <iidm:regulatingTerminal id="B7139-G"/>
                 <iidm:minMaxReactiveLimits minQ="-125.0" maxQ="325.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1374,6 +1407,7 @@
                 <iidm:bus id="B141" name="2" v="241.73" angle="0.05"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B141-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="281.0" targetV="241.73" targetQ="0.0" bus="B141" connectableBus="B141">
+                <iidm:regulatingTerminal id="B141-G"/>
                 <iidm:minMaxReactiveLimits minQ="-50.0" maxQ="75.0"/>
             </iidm:generator>
             <iidm:load id="B141-L" loadType="UNDEFINED" p0="145.0" q0="58.0" bus="B141" connectableBus="B141"/>
@@ -1416,6 +1450,7 @@
                 <iidm:bus id="B143" name="2" v="240.00500000000002" angle="4.03"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B143-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="696.0" targetV="240.00500000000002" targetQ="0.0" bus="B143" connectableBus="B143">
+                <iidm:regulatingTerminal id="B143-G"/>
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="300.0"/>
             </iidm:generator>
             <iidm:load id="B143-L" loadType="UNDEFINED" p0="89.5" q0="35.5" bus="B143" connectableBus="B143"/>
@@ -1470,6 +1505,7 @@
                 <iidm:bus id="B146" name="2" v="242.14399999999998" angle="4.32"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B146-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="84.0" targetV="242.14399999999998" targetQ="0.0" bus="B146" connectableBus="B146">
+                <iidm:regulatingTerminal id="B146-G"/>
                 <iidm:minMaxReactiveLimits minQ="-15.0" maxQ="35.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1480,6 +1516,7 @@
                 <iidm:bus id="B147" name="2" v="242.14399999999998" angle="8.36"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B147-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="217.0" targetV="242.14399999999998" targetQ="0.0" bus="B147" connectableBus="B147">
+                <iidm:regulatingTerminal id="B147-G"/>
                 <iidm:minMaxReactiveLimits minQ="-50.0" maxQ="100.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1490,6 +1527,7 @@
                 <iidm:bus id="B149" name="2" v="246.90499999999997" angle="5.23"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B149-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="103.0" targetV="246.90499999999997" targetQ="0.0" bus="B149" connectableBus="B149">
+                <iidm:regulatingTerminal id="B149-G"/>
                 <iidm:minMaxReactiveLimits minQ="-25.0" maxQ="50.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1500,6 +1538,7 @@
                 <iidm:bus id="B152" name="2" v="242.30500000000004" angle="9.24"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B152-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="372.0" targetV="242.30500000000004" targetQ="0.0" bus="B152" connectableBus="B152">
+                <iidm:regulatingTerminal id="B152-G"/>
                 <iidm:minMaxReactiveLimits minQ="-50.0" maxQ="175.0"/>
             </iidm:generator>
             <iidm:load id="B152-L" loadType="UNDEFINED" p0="17.0" q0="9.0" bus="B152" connectableBus="B152"/>
@@ -1511,6 +1550,7 @@
                 <iidm:bus id="B153" name="2" v="240.00500000000002" angle="10.46"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B153-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="216.0" targetV="240.00500000000002" targetQ="0.0" bus="B153" connectableBus="B153">
+                <iidm:regulatingTerminal id="B153-G"/>
                 <iidm:minMaxReactiveLimits minQ="-50.0" maxQ="90.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1550,6 +1590,7 @@
                 <iidm:bus id="B156" name="2" v="110.74499999999999" angle="5.15"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B156-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="110.74499999999999" targetQ="0.0" bus="B156" connectableBus="B156">
+                <iidm:regulatingTerminal id="B156-G"/>
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="15.0"/>
             </iidm:generator>
             <iidm:load id="B156-L" loadType="UNDEFINED" p0="75.0" q0="50.0" bus="B156" connectableBus="B156"/>
@@ -1614,6 +1655,7 @@
                 <iidm:bus id="B7166" name="2" v="14.0001" angle="35.05"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B7166-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="553.0" targetV="14.0001" targetQ="0.0" bus="B7166" connectableBus="B7166">
+                <iidm:regulatingTerminal id="B7166-G"/>
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="300.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1647,6 +1689,7 @@
                 <iidm:bus id="B171" name="2" v="113.0335" angle="-9.94"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B171-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="113.0335" targetQ="0.0" bus="B171" connectableBus="B171">
+                <iidm:regulatingTerminal id="B171-G"/>
                 <iidm:minMaxReactiveLimits minQ="-50.0" maxQ="150.0"/>
             </iidm:generator>
             <iidm:load id="B171-L" loadType="UNDEFINED" p0="763.6" q0="291.1" bus="B171" connectableBus="B171"/>
@@ -1677,6 +1720,7 @@
                 <iidm:bus id="B176" name="2" v="121.003" angle="4.67"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B176-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="228.0" targetV="121.003" targetQ="0.0" bus="B176" connectableBus="B176">
+                <iidm:regulatingTerminal id="B176-G"/>
                 <iidm:minMaxReactiveLimits minQ="-45.0" maxQ="90.0"/>
             </iidm:generator>
             <iidm:load id="B176-L" loadType="UNDEFINED" p0="5.0" q0="4.0" bus="B176" connectableBus="B176"/>
@@ -1688,6 +1732,7 @@
                 <iidm:bus id="B177" name="2" v="115.88550000000001" angle="0.62"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B177-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="84.0" targetV="115.88550000000001" targetQ="0.0" bus="B177" connectableBus="B177">
+                <iidm:regulatingTerminal id="B177-G"/>
                 <iidm:minMaxReactiveLimits minQ="-15.0" maxQ="35.0"/>
             </iidm:generator>
             <iidm:load id="B177-L" loadType="UNDEFINED" p0="28.0" q0="12.0" bus="B177" connectableBus="B177"/>
@@ -1734,6 +1779,7 @@
                 <iidm:bus id="B185" name="2" v="242.006" angle="-4.33"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B185-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="200.0" targetV="242.006" targetQ="0.0" bus="B185" connectableBus="B185">
+                <iidm:regulatingTerminal id="B185-G"/>
                 <iidm:minMaxReactiveLimits minQ="-50.0" maxQ="80.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -1744,6 +1790,7 @@
                 <iidm:bus id="B186" name="2" v="244.95" angle="2.17"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B186-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="1200.0" targetV="244.95" targetQ="0.0" bus="B186" connectableBus="B186">
+                <iidm:regulatingTerminal id="B186-G"/>
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="400.0"/>
             </iidm:generator>
             <iidm:load id="B186-L" loadType="UNDEFINED" p0="59.8" q0="24.3" bus="B186" connectableBus="B186"/>
@@ -1755,6 +1802,7 @@
                 <iidm:bus id="B187" name="2" v="244.95" angle="1.4"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B187-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="1200.0" targetV="244.95" targetQ="0.0" bus="B187" connectableBus="B187">
+                <iidm:regulatingTerminal id="B187-G"/>
                 <iidm:minMaxReactiveLimits minQ="-100.0" maxQ="400.0"/>
             </iidm:generator>
             <iidm:load id="B187-L" loadType="UNDEFINED" p0="59.8" q0="24.3" bus="B187" connectableBus="B187"/>
@@ -1793,6 +1841,7 @@
                 <iidm:bus id="B190" name="3" v="364.0095" angle="-20.62"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B190-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="475.0" targetV="364.0095" targetQ="0.0" bus="B190" connectableBus="B190">
+                <iidm:regulatingTerminal id="B190-G"/>
                 <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
             </iidm:generator>
             <iidm:shunt id="B190-SH" sectionCount="1" voltageRegulatorOn="false" bus="B190" connectableBus="B190">
@@ -1806,6 +1855,7 @@
                 <iidm:bus id="B191" name="3" v="240.00500000000002" angle="12.25"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B191-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="1973.0" targetV="240.00500000000002" targetQ="0.0" bus="B191" connectableBus="B191">
+                <iidm:regulatingTerminal id="B191-G"/>
                 <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
             </iidm:generator>
             <iidm:load id="B191-L" loadType="UNDEFINED" p0="489.0" q0="53.0" bus="B191" connectableBus="B191"/>
@@ -1922,6 +1972,7 @@
                 <iidm:bus id="B198" name="3" v="116.725" angle="-20.58"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B198-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="424.0" targetV="116.725" targetQ="0.0" bus="B198" connectableBus="B198">
+                <iidm:regulatingTerminal id="B198-G"/>
                 <iidm:minMaxReactiveLimits minQ="-260.0" maxQ="260.0"/>
             </iidm:generator>
             <iidm:load id="B198-L" loadType="UNDEFINED" p0="64.0" q0="21.0" bus="B198" connectableBus="B198"/>
@@ -2003,6 +2054,7 @@
                 <iidm:bus id="B213" name="3" v="16.665" angle="-11.67"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B213-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="272.0" targetV="16.665" targetQ="0.0" bus="B213" connectableBus="B213">
+                <iidm:regulatingTerminal id="B213-G"/>
                 <iidm:minMaxReactiveLimits minQ="-150.0" maxQ="150.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2063,6 +2115,7 @@
                 <iidm:bus id="B220" name="3" v="139.104" angle="-21.73"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B220-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="100.0" targetV="139.104" targetQ="0.0" bus="B220" connectableBus="B220">
+                <iidm:regulatingTerminal id="B220-G"/>
                 <iidm:minMaxReactiveLimits minQ="-60.0" maxQ="60.0"/>
             </iidm:generator>
             <iidm:load id="B220-L" loadType="UNDEFINED" p0="285.0" q0="100.0" bus="B220" connectableBus="B220"/>
@@ -2074,6 +2127,7 @@
                 <iidm:bus id="B221" name="3" v="138.0" angle="-22.49"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B221-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="450.0" targetV="138.0" targetQ="0.0" bus="B221" connectableBus="B221">
+                <iidm:regulatingTerminal id="B221-G"/>
                 <iidm:minMaxReactiveLimits minQ="-320.0" maxQ="320.0"/>
             </iidm:generator>
             <iidm:load id="B221-L" loadType="UNDEFINED" p0="171.0" q0="70.0" bus="B221" connectableBus="B221"/>
@@ -2085,6 +2139,7 @@
                 <iidm:bus id="B222" name="3" v="21.0" angle="-23.17"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B222-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="250.0" targetV="21.0" targetQ="0.0" bus="B222" connectableBus="B222">
+                <iidm:regulatingTerminal id="B222-G"/>
                 <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
             </iidm:generator>
             <iidm:load id="B222-L" loadType="UNDEFINED" p0="328.0" q0="188.0" bus="B222" connectableBus="B222"/>
@@ -2099,6 +2154,7 @@
                 <iidm:bus id="B241" name="3" v="21.0" angle="-16.5"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B241-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="575.43" targetV="21.0" targetQ="0.0" bus="B241" connectableBus="B241">
+                <iidm:regulatingTerminal id="B241-G"/>
                 <iidm:minMaxReactiveLimits minQ="-600.0" maxQ="600.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2146,6 +2202,7 @@
                 <iidm:bus id="B227" name="3" v="27.0" angle="-27.22"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B227-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="303.0" targetV="27.0" targetQ="0.0" bus="B227" connectableBus="B227">
+                <iidm:regulatingTerminal id="B227-G"/>
                 <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
             </iidm:generator>
             <iidm:load id="B227-L" loadType="UNDEFINED" p0="538.0" q0="369.0" bus="B227" connectableBus="B227"/>
@@ -2181,6 +2238,7 @@
                 <iidm:bus id="B230" name="3" v="20.8" angle="-13.82"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B230-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="345.0" targetV="20.8" targetQ="0.0" bus="B230" connectableBus="B230">
+                <iidm:regulatingTerminal id="B230-G"/>
                 <iidm:minMaxReactiveLimits minQ="-250.0" maxQ="250.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2200,6 +2258,7 @@
                 <iidm:bus id="B233" name="3" v="66.0" angle="-25.9"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B233-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="300.0" targetV="66.0" targetQ="0.0" bus="B233" connectableBus="B233">
+                <iidm:regulatingTerminal id="B233-G"/>
                 <iidm:minMaxReactiveLimits minQ="-500.0" maxQ="500.0"/>
             </iidm:generator>
             <iidm:load id="B233-L" loadType="UNDEFINED" p0="404.0" q0="212.0" bus="B233" connectableBus="B233"/>
@@ -2217,6 +2276,7 @@
                 <iidm:bus id="B236" name="3" v="20.33" angle="-15.4"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B236-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="600.0" targetV="20.33" targetQ="0.0" bus="B236" connectableBus="B236">
+                <iidm:regulatingTerminal id="B236-G"/>
                 <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2236,6 +2296,7 @@
                 <iidm:bus id="B238" name="3" v="139.38" angle="-20.94"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B238-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="250.0" targetV="139.38" targetQ="0.0" bus="B238" connectableBus="B238">
+                <iidm:regulatingTerminal id="B238-G"/>
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
             </iidm:generator>
             <iidm:load id="B238-L" loadType="UNDEFINED" p0="255.0" q0="149.0" bus="B238" connectableBus="B238"/>
@@ -2248,6 +2309,7 @@
                 <iidm:bus id="B239" name="3" v="138.0" angle="-15.86"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B239-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="550.0" targetV="138.0" targetQ="0.0" bus="B239" connectableBus="B239">
+                <iidm:regulatingTerminal id="B239-G"/>
                 <iidm:minMaxReactiveLimits minQ="-400.0" maxQ="400.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2269,6 +2331,7 @@
                 <iidm:bus id="B242" name="3" v="137.034" angle="-17.53"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B242-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="170.0" targetV="137.034" targetQ="0.0" bus="B242" connectableBus="B242">
+                <iidm:regulatingTerminal id="B242-G"/>
                 <iidm:minMaxReactiveLimits minQ="40.0" maxQ="100.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2279,6 +2342,7 @@
                 <iidm:bus id="B243" name="3" v="66.66" angle="-19.27"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B243-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="84.0" targetV="66.66" targetQ="0.0" bus="B243" connectableBus="B243">
+                <iidm:regulatingTerminal id="B243-G"/>
                 <iidm:minMaxReactiveLimits minQ="40.0" maxQ="80.0"/>
             </iidm:generator>
             <iidm:load id="B243-L" loadType="UNDEFINED" p0="8.0" q0="3.0" bus="B243" connectableBus="B243"/>
@@ -2448,6 +2512,7 @@
                 <iidm:bus id="B9002" name="1" v="6.5637" angle="-18.86"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B9002-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-4.2" targetV="6.5637" targetQ="0.0" bus="B9002" connectableBus="B9002">
+                <iidm:regulatingTerminal id="B9002-G"/>
                 <iidm:minMaxReactiveLimits minQ="-2.0" maxQ="2.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2569,6 +2634,7 @@
                 <iidm:bus id="B9051" name="1" v="13.8" angle="-19.4"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B9051-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-35.81" targetV="13.8" targetQ="0.0" bus="B9051" connectableBus="B9051">
+                <iidm:regulatingTerminal id="B9051-G"/>
                 <iidm:minMaxReactiveLimits minQ="-17.35" maxQ="17.35"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2583,6 +2649,7 @@
                 <iidm:bus id="B9053" name="1" v="13.8" angle="-17.68"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B9053-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-26.48" targetV="13.8" targetQ="0.0" bus="B9053" connectableBus="B9053">
+                <iidm:regulatingTerminal id="B9053-G"/>
                 <iidm:minMaxReactiveLimits minQ="-12.8" maxQ="12.83"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2591,6 +2658,7 @@
                 <iidm:bus id="B9054" name="1" v="13.8" angle="-6.83"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B9054-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="50.0" targetV="13.8" targetQ="0.0" bus="B9054" connectableBus="B9054">
+                <iidm:regulatingTerminal id="B9054-G"/>
                 <iidm:minMaxReactiveLimits minQ="-38.0" maxQ="38.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -2599,6 +2667,7 @@
                 <iidm:bus id="B9055" name="1" v="13.8" angle="-7.54"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B9055-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="8.0" targetV="13.8" targetQ="0.0" bus="B9055" connectableBus="B9055">
+                <iidm:regulatingTerminal id="B9055-G"/>
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="6.0"/>
             </iidm:generator>
         </iidm:voltageLevel>

@@ -65,7 +65,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
                 IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
             } else {
-                //IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
             }
         }
     }

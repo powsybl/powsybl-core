@@ -24,7 +24,8 @@
                 </iidm:reactiveCapabilityCurve>
             </iidm:generator>
             <iidm:generator id="CD" energySource="HYDRO" minP="0.0" maxP="35.0" voltageRegulatorOn="true" targetP="21.789589" targetV="236.44736" targetQ="-20.701546" bus="N_0" connectableBus="N_0" p="-21.789589" q="20.693394">
-                <iidm:reactiveCapabilityCurve>
+                <iidm:regulatingTerminal id="CD"/>
+				<iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-20.6" maxQ="18.1"/>
                     <iidm:point p="35.0" minQ="-21.725" maxQ="6.3500004"/>
                 </iidm:reactiveCapabilityCurve>

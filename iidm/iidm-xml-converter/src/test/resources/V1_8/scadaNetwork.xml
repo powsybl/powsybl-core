@@ -6,6 +6,7 @@
                 <iidm:bus id="bus"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="generator" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" bus="bus" connectableBus="bus">
+                <iidm:regulatingTerminal id="generator"/>
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="0.0" maxQ="0.0"/>
                     <iidm:point p="10.0" minQ="5.0" maxQ="15.0"/>
@@ -26,10 +27,12 @@
             <iidm:load id="load" loadType="UNDEFINED" bus="bus2" connectableBus="bus2"/>
             <iidm:shunt id="shunt" voltageRegulatorOn="true" bus="bus2" connectableBus="bus2">
                 <iidm:shuntLinearModel bPerSection="10.0" maximumSectionCount="1"/>
+                <iidm:regulatingTerminal id="shunt"/>
             </iidm:shunt>
-            <iidm:staticVarCompensator id="svc" bMin="1.1" bMax="3.2" bus="bus2" connectableBus="bus2"/>
+            <iidm:staticVarCompensator id="svc" bMin="1.1" bMax="3.2" regulationMode="OFF" bus="bus2" connectableBus="bus2"/>
             <iidm:vscConverterStation id="vcs" voltageRegulatorOn="true" lossFactor="80.0" bus="bus2" connectableBus="bus2">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+                <iidm:regulatingTerminal id="vcs"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="vl3" nominalV="420.0" topologyKind="NODE_BREAKER">

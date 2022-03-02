@@ -10,6 +10,7 @@
                     <iidm:point p="5.0" minQ="0.0" maxQ="10.0"/>
                     <iidm:point p="10.0" minQ="0.0" maxQ="10.0"/>
                 </iidm:reactiveCapabilityCurve>
+				<iidm:regulatingTerminal id="C1"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>

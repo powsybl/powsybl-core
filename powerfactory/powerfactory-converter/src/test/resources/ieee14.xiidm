@@ -9,6 +9,7 @@
                 <iidm:switch id="VL0_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_1_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="146.27999210357666" targetQ="0.0" node="3">
+                <iidm:regulatingTerminal id="sym_1_1"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -81,6 +82,7 @@
                 <iidm:switch id="VL6_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_2_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="40.0" targetV="144.2099940776825" targetQ="0.0" node="6">
+                <iidm:regulatingTerminal id="sym_2_1"/>
                 <iidm:minMaxReactiveLimits minQ="-40.00001907348633" maxQ="49.99998092651367"/>
             </iidm:generator>
             <iidm:load id="lod_2_1" loadType="UNDEFINED" p0="21.700000762939453" q0="12.699999809265137" node="5"/>
@@ -96,6 +98,7 @@
                 <iidm:switch id="VL7_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_3_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="139.37999868392944" targetQ="0.0" node="4">
+                <iidm:regulatingTerminal id="sym_3_1"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="40.00001907348633"/>
             </iidm:generator>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="94.19999694824219" q0="19.0" node="3"/>
@@ -163,6 +166,7 @@
                 <iidm:switch id="VL10_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_6_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="147.66000723838806" targetQ="0.0" node="5">
+                <iidm:regulatingTerminal id="sym_6_1"/>
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
             <iidm:load id="lod_6_1" loadType="UNDEFINED" p0="11.199999809265137" q0="7.5" node="4"/>
@@ -177,6 +181,7 @@
                 <iidm:switch id="VL12_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_8_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="150.42000460624695" targetQ="0.0" node="2">
+                <iidm:regulatingTerminal id="sym_8_1"/>
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
         </iidm:voltageLevel>

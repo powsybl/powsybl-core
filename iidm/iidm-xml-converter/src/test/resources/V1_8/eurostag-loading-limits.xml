@@ -6,6 +6,7 @@
                 <iidm:bus id="NGEN"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
+                <iidm:regulatingTerminal id="GEN"/>
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
             </iidm:generator>
         </iidm:voltageLevel>
