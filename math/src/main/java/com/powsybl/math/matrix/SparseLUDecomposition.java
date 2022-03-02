@@ -7,7 +7,6 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.base.Stopwatch;
-import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ class SparseLUDecomposition implements LUDecomposition {
     SparseLUDecomposition(SparseMatrix matrix) {
         this.matrix = Objects.requireNonNull(matrix);
         if (matrix.getRowCount() != matrix.getColumnCount()) {
-            throw new IllegalArgumentException("matrix is not square");
+            throw new MatrixException("matrix is not square");
         }
         this.id = UUID.randomUUID().toString();
         init(id, matrix);
@@ -72,7 +71,7 @@ class SparseLUDecomposition implements LUDecomposition {
      */
     private void checkMatrixStructure() {
         if (getMatrixValueCount() != valueCount) {
-            throw new PowsyblException("Elements have been added to the sparse matrix since initial decomposition");
+            throw new MatrixException("Elements have been added to the sparse matrix since initial decomposition");
         }
     }
 
