@@ -22,6 +22,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -45,20 +47,40 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
 
     @Test
     public void testExportIEEE14Cim14ToCim16() {
+        testExportIEEE14Cim14ToCim(16, tempDir());
+    }
+
+    @Test
+    public void testExportIEEE14Cim14ToCim100() {
+        // Testing export to CGMES 3
+        // FIXME(Luma) verify that namespace in headers are correct
+        // FIXME(Luma) verify that all classes and attributes are valid against profiles (using CIMdesk)
+        testExportIEEE14Cim14ToCim(100, tempDir());
+    }
+
+    private void testExportIEEE14Cim14ToCim(int cimVersion, Path tempDir) {
         ReadOnlyDataSource dataSource = Cim14SmallCasesCatalog.ieee14().dataSource();
         Network networkCim14 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         CimCharacteristics cim14 = networkCim14.getExtension(CimCharacteristics.class);
 
         Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "16");
-        ZipFileDataSource zipIEEE14Cim16 = new ZipFileDataSource(tmpDir.resolve("."), "IEEE14");
-        new CgmesExport().export(networkCim14, params, zipIEEE14Cim16);
+        params.put(CgmesExport.CIM_VERSION, Integer.toString(cimVersion));
+        ZipFileDataSource zip = new ZipFileDataSource(tempDir.resolve("."), "IEEE14_CIM" + cimVersion);
+        new CgmesExport().export(networkCim14, params, zip);
 
-        Network networkCim16 = Importers.loadNetwork(tmpDir.resolve("IEEE14.zip"));
-        CimCharacteristics cim16 = networkCim16.getExtension(CimCharacteristics.class);
+        Network networkCimVersion = Importers.loadNetwork(tempDir.resolve("IEEE14_CIM" + cimVersion + ".zip"));
+        CimCharacteristics cim = networkCimVersion.getExtension(CimCharacteristics.class);
 
         assertEquals(14, cim14.getCimVersion());
-        assertEquals(16, cim16.getCimVersion());
+        assertEquals(cimVersion, cim.getCimVersion());
     }
 
+    private Path tempDir() {
+        boolean debug = true;
+        if (debug) {
+            return Paths.get("/Users/zamarrenolm/work/temp/cgmes3");
+        } else {
+            return tmpDir;
+        }
+    }
 }
