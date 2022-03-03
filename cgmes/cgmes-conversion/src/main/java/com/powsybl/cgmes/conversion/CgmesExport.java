@@ -52,9 +52,9 @@ public class CgmesExport implements Exporter {
         CgmesExportContext context = new CgmesExportContext(network)
                 .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER))
                 .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER));
-        int cimVersionParam = (int) ConversionParameters.readDoubleParameter(getFormat(), params, CIM_VERSION_PARAMETER);
-        if (cimVersionParam > 0) {
-            context.setCimVersion(cimVersionParam);
+        String cimVersionParam = ConversionParameters.readStringParameter(getFormat(), params, CIM_VERSION_PARAMETER);
+        if (cimVersionParam != null) {
+            context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
         try {
             List<String> profiles = ConversionParameters.readStringListParameter(getFormat(), params, PROFILES_PARAMETER);
@@ -93,7 +93,7 @@ public class CgmesExport implements Exporter {
         String baseName = ConversionParameters.readStringParameter(getFormat(), params, BASE_NAME_PARAMETER);
         if (baseName != null) {
             return baseName;
-        } else if (ds.getBaseName() != null) {
+        } else if (ds.getBaseName() != null && !ds.getBaseName().isEmpty()) {
             return ds.getBaseName();
         }
         return network.getNameOrId();
@@ -137,9 +137,9 @@ public class CgmesExport implements Exporter {
             List.of("EQ", "TP", "SSH", "SV"));
     private static final Parameter CIM_VERSION_PARAMETER = new Parameter(
             CIM_VERSION,
-            ParameterType.DOUBLE,
+            ParameterType.STRING,
             "CIM version to export",
-            -1.0);
+            null);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
