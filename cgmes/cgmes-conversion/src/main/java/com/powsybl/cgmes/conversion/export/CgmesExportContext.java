@@ -111,6 +111,11 @@ public class CgmesExportContext {
         public String getProfile() {
             return profile;
         }
+
+        public ModelDescription setProfile(String profile) {
+            this.profile = profile;
+            return this;
+        }
     }
 
     public CgmesExportContext(Network network) {
@@ -477,6 +482,10 @@ public class CgmesExportContext {
 
     public CgmesExportContext setCimVersion(int cimVersion) {
         this.cimVersion = cimVersion;
+        eqModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "EQ"));
+        tpModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "TP"));
+        svModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SV"));
+        sshModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SSH"));
         return this;
     }
 
