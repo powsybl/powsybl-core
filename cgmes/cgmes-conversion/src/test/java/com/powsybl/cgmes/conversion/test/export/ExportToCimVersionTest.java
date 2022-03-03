@@ -76,8 +76,8 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
     }
 
     private Path tempDir() {
-        boolean debug = true;
-        if (debug) {
+        boolean localEnvironment = false;
+        if (localEnvironment) {
             return Paths.get("/Users/zamarrenolm/work/temp/cgmes3");
         } else {
             return tmpDir;
