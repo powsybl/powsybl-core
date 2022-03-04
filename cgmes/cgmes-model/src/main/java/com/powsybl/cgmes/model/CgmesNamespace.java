@@ -79,6 +79,10 @@ public final class CgmesNamespace {
         throw new AssertionError("Unsupported CIM version " + cimVersion);
     }
 
+    public static boolean hasProfiles(int cimVersion) {
+        return PROFILES.containsKey(cimVersion);
+    }
+
     public static String getProfile(int cimVersion, String profile) {
         if (PROFILES.containsKey(cimVersion)) {
             return PROFILES.get(cimVersion).get(profile);

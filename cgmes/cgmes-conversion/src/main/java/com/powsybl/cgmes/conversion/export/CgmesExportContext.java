@@ -482,10 +482,12 @@ public class CgmesExportContext {
 
     public CgmesExportContext setCimVersion(int cimVersion) {
         this.cimVersion = cimVersion;
-        eqModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "EQ"));
-        tpModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "TP"));
-        svModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SV"));
-        sshModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SSH"));
+        if (CgmesNamespace.hasProfiles(cimVersion)) {
+            eqModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "EQ"));
+            tpModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "TP"));
+            svModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SV"));
+            sshModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SSH"));
+        }
         return this;
     }
 
