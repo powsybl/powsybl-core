@@ -9,8 +9,6 @@ package com.powsybl.matpower.converter;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -180,22 +178,7 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     private static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
-        for (Load l : network.getLoads()) {
-            if (Double.isNaN(l.getTerminal().getP())) {
-                l.getTerminal().setP(l.getP0());
-            }
-            if (Double.isNaN(l.getTerminal().getQ())) {
-                l.getTerminal().setQ(l.getQ0());
-            }
-        }
-        for (Generator g : network.getGenerators()) {
-            if (Double.isNaN(g.getTerminal().getP())) {
-                g.getTerminal().setP(-g.getTargetP());
-            }
-            if (Double.isNaN(g.getTerminal().getQ())) {
-                g.getTerminal().setQ(-g.getTargetQ());
-            }
-        }
+
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
             LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
