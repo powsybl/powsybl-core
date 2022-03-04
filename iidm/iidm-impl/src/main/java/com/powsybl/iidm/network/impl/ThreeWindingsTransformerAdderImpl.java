@@ -39,9 +39,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double x = Double.NaN;
 
-        protected double g = Double.NaN;
+        protected double g = 0.0;
 
-        protected double b = Double.NaN;
+        protected double b = 0.0;
 
         protected double ratedU = Double.NaN;
 
@@ -142,6 +142,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         public ThreeWindingsTransformerAdderImpl add() {
+            NetworkImpl network = getNetwork();
+            if (network.getAddersWithDefaultValues()) {
+                ratedU = Double.isNaN(ratedU) ? this.checkAndGetVoltageLevel().getNominalV() : ratedU;
+            }
             checkParams();
             switch (legNumber) {
                 case 1:
@@ -208,16 +212,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     @Override
     public LegAdder newLeg2() {
         LegAdderImpl legAdder = new LegAdderImpl(2);
-        legAdder.g = 0.0;
-        legAdder.b = 0.0;
         return legAdder;
     }
 
     @Override
     public LegAdder newLeg3() {
         LegAdderImpl legAdder = new LegAdderImpl(3);
-        legAdder.g = 0.0;
-        legAdder.b = 0.0;
         return legAdder;
     }
 
@@ -229,6 +229,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     @Override
     public ThreeWindingsTransformerImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
 
         ThreeWindingsTransformerImpl.LegImpl leg1;

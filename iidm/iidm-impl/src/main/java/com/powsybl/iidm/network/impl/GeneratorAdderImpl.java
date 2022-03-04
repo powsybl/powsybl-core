@@ -111,13 +111,15 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         if (network.getAddersWithDefaultValues()) {
-            minP = minP == Double.NaN ? -Double.MAX_VALUE : minP;
-            maxP = maxP == Double.NaN ? Double.MAX_VALUE : maxP;
+            minP = Double.isNaN(minP) ? -Double.MAX_VALUE : minP;
+            maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
         }
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        if (regulatingTerminal != terminal) {
+            ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, network.getMinValidationLevel()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);

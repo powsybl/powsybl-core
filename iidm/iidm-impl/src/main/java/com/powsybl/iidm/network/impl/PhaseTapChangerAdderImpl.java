@@ -94,6 +94,14 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         @Override
         public PhaseTapChangerAdder endStep() {
+            NetworkImpl network = getNetwork();
+            if (network.getAddersWithDefaultValues()) {
+                r = Double.isNaN(r) ? 0.0 : r;
+                x = Double.isNaN(x) ? 0.0 : x;
+                g = Double.isNaN(g) ? 0.0 : g;
+                b = Double.isNaN(b) ? 0.0 : b;
+                rho = Double.isNaN(rho) ? 1.0 : rho;
+            }
             if (Double.isNaN(alpha)) {
                 throw new ValidationException(parent, "step alpha is not set");
             }
@@ -177,6 +185,10 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     @Override
     public PhaseTapChanger add() {
         NetworkImpl network = getNetwork();
+        if (network.getAddersWithDefaultValues()) {
+            targetDeadband = Double.isNaN(targetDeadband) ? 0.0 : targetDeadband;
+            tapPosition = tapPosition == null ? getNeutralPosition(steps) : tapPosition;
+        }
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
@@ -213,4 +225,13 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         return tapChanger;
     }
 
+    private Integer getNeutralPosition(List<PhaseTapChangerStepImpl> steps) {
+        for (int i = 0; i < steps.size(); i++) {
+            PhaseTapChangerStepImpl step = steps.get(i);
+            if (Math.abs(step.getAlpha()) < 10E-3) {
+                return i + lowTapPosition;
+            }
+        }
+        return lowTapPosition;
+    }
 }

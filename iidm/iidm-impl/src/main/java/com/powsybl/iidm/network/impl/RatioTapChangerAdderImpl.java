@@ -86,6 +86,13 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
         @Override
         public RatioTapChangerAdder endStep() {
+            NetworkImpl network = getNetwork();
+            if (network.getAddersWithDefaultValues()) {
+                r = Double.isNaN(r) ? 0.0 : r;
+                x = Double.isNaN(x) ? 0.0 : x;
+                g = Double.isNaN(g) ? 0.0 : g;
+                b = Double.isNaN(b) ? 0.0 : b;
+            }
             if (Double.isNaN(rho)) {
                 throw new ValidationException(parent, "step rho is not set");
             }
@@ -166,6 +173,13 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     @Override
     public RatioTapChanger add() {
         NetworkImpl network = getNetwork();
+        if (network.getAddersWithDefaultValues()) {
+            targetDeadband = Double.isNaN(targetDeadband) ? 0.0 : targetDeadband;
+            tapPosition = tapPosition == null ? getNeutralPosition(steps) : tapPosition;
+            if (regulationTerminal != null && Double.isNaN(targetV)) {
+                targetV = regulationTerminal.getVoltageLevel().getNominalV();
+            }
+        }
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
@@ -203,4 +217,13 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         return tapChanger;
     }
 
+    private Integer getNeutralPosition(List<RatioTapChangerStepImpl> steps) {
+        for (int i = 0; i < steps.size(); i++) {
+            RatioTapChangerStepImpl step = steps.get(i);
+            if (step.getRho() == 1) {
+                return i + lowTapPosition;
+            }
+        }
+        return lowTapPosition;
+    }
 }

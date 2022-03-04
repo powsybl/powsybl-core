@@ -66,8 +66,9 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         public DanglingLineAdder add() {
             NetworkImpl network = getNetwork();
             if (network.getAddersWithDefaultValues()) {
-                minP = minP == Double.NaN ? -Double.MAX_VALUE : minP;
-                maxP = maxP == Double.NaN ? Double.MAX_VALUE : maxP;
+                minP = Double.isNaN(minP) ? -Double.MAX_VALUE : minP;
+                maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
+                targetP = Double.isNaN(targetP) ? 0.0 : targetP;
             }
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
             network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, network.getMinValidationLevel()));
@@ -92,9 +93,9 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double x = Double.NaN;
 
-    private double g = Double.NaN;
+    private double g = 0.0;
 
-    private double b = Double.NaN;
+    private double b = 0.0;
 
     private String ucteXnodeCode;
 
@@ -166,12 +167,9 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-
         if (network.getAddersWithDefaultValues()) {
-            g = g == Double.NaN ? 0.0 : g;
-            b = b == Double.NaN ? 0.0 : b;
+            q0 = Double.isNaN(q0) ? 0.0 : q0;
         }
-
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));
         ValidationUtil.checkR(this, r);

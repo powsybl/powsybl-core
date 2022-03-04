@@ -98,11 +98,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
-        ValidationUtil.checkR(this, r);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
-        ValidationUtil.checkNominalV(this, nominalV);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
-        ValidationUtil.checkHvdcMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = network.getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
             throw new PowsyblException("Side 1 converter station " + converterStationId1 + " not found");
@@ -111,6 +107,17 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         if (converterStation2 == null) {
             throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
         }
+        if (network.getAddersWithDefaultValues()) {
+            r = Double.isNaN(r) ? 0.0 : r;
+            maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
+            nominalV = Double.isNaN(nominalV) ? (convertersMode == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER ?
+                    converterStation1.getTerminal().getVoltageLevel().getNominalV() : converterStation2.getTerminal().getVoltageLevel().getNominalV()) : nominalV;
+        }
+        ValidationUtil.checkR(this, r);
+        ValidationUtil.checkNominalV(this, nominalV);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        ValidationUtil.checkHvdcMaxP(this, maxP);
+
         HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, isFictitious(), r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
         network.getIndex().checkAndAdd(hvdcLine);

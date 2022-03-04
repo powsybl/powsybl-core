@@ -21,13 +21,13 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private double x = Double.NaN;
 
-    private double g1 = Double.NaN;
+    private double g1 = 0.0;
 
-    private double b1 = Double.NaN;
+    private double b1 = 0.0;
 
-    private double g2 = Double.NaN;
+    private double g2 = 0.0;
 
-    private double b2 = Double.NaN;
+    private double b2 = 0.0;
 
     LineAdderImpl(NetworkImpl network) {
         this.network = network;
@@ -86,13 +86,6 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
-
-        if (network.getAddersWithDefaultValues()) {
-            g1 = g1 == Double.NaN ? 0.0 : g1;
-            g2 = g2 == Double.NaN ? 0.0 : g2;
-            b1 = b1 == Double.NaN ? 0.0 : b1;
-            b2 = b2 == Double.NaN ? 0.0 : b2;
-        }
 
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);

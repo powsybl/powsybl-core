@@ -35,9 +35,13 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
 
     @Override
     public LccConverterStation add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
+        if (network.getAddersWithDefaultValues()) {
+            powerFactor = Float.isNaN(powerFactor) ? 0.f : powerFactor;
+        }
         validate();
         LccConverterStationImpl converterStation
                 = new LccConverterStationImpl(getNetwork().getRef(), id, name, isFictitious(), getLossFactor(), powerFactor);

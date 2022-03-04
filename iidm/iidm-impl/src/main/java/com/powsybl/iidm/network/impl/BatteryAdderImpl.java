@@ -93,8 +93,10 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         if (network.getAddersWithDefaultValues()) {
-            minP = minP == Double.NaN ? -Double.MAX_VALUE : minP;
-            maxP = maxP == Double.NaN ? Double.MAX_VALUE : maxP;
+            minP = Double.isNaN(minP) ? -Double.MAX_VALUE : minP;
+            maxP = Double.isNaN(maxP) ? Double.MAX_VALUE : maxP;
+            p0 = Double.isNaN(p0) ? 0.0 : p0;
+            q0 = Double.isNaN(q0) ? 0.0 : q0;
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));

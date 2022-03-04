@@ -25,6 +25,8 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     private TerminalExt regulatingTerminal;
 
+    private TerminalExt terminal;
+
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
     }
@@ -64,9 +66,12 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
             voltageRegulatorOn = false;
         }
+        if (network.getAddersWithDefaultValues()) {
+            voltageRegulatorOn = voltageRegulatorOn == null ? false : voltageRegulatorOn;
+        }
         String id = checkAndGetUniqueId();
         String name = getName();
-        TerminalExt terminal = checkAndGetTerminal();
+        terminal = checkAndGetTerminal();
         validate();
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), network.getRef(), voltageRegulatorOn,
@@ -82,8 +87,10 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     protected void validate() {
         super.validate();
         NetworkImpl network = getNetwork();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
-                reactivePowerSetpoint, network.getMinValidationLevel()));
+        if (regulatingTerminal != terminal) {
+            network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
+                    reactivePowerSetpoint, network.getMinValidationLevel()));
+        }
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 

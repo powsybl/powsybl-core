@@ -87,6 +87,10 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         @Override
         public ShuntCompensatorAdder add() {
+            NetworkImpl network = getNetwork();
+            if (network.getAddersWithDefaultValues()) {
+                gPerSection = Double.isNaN(gPerSection) ? 0.0 : gPerSection;
+            }
             ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
             ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
 
@@ -212,12 +216,17 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
+        if (network.getAddersWithDefaultValues()) {
+            targetDeadband = Double.isNaN(targetDeadband) ? 0.0 : targetDeadband;
+        }
 
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
 
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        if (regulatingTerminal != terminal) {
+            ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel()));

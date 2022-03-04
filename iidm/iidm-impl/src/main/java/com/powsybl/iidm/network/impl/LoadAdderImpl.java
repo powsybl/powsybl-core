@@ -61,6 +61,11 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
+        if (network.getAddersWithDefaultValues()) {
+            p0 = Double.isNaN(p0) ? 0.0 : p0;
+            q0 = Double.isNaN(q0) ? 0.0 : q0;
+            loadType = loadType == null ? LoadType.UNDEFINED : loadType;
+        }
         ValidationUtil.checkLoadType(this, loadType);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));

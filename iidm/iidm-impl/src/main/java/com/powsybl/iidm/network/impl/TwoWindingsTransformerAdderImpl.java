@@ -24,9 +24,9 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private double x = Double.NaN;
 
-    private double g = Double.NaN;
+    private double g = 0.0;
 
-    private double b = Double.NaN;
+    private double b = 0.0;
 
     private double ratedU1 = Double.NaN;
 
@@ -102,6 +102,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     @Override
     public TwoWindingsTransformer add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
@@ -119,6 +120,11 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
+
+        if (network.getAddersWithDefaultValues()) {
+            ratedU1 = Double.isNaN(ratedU1) ? voltageLevel1.getNominalV() : ratedU1;
+            ratedU2 = Double.isNaN(ratedU2) ? voltageLevel2.getNominalV() : ratedU2;
+        }
 
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
