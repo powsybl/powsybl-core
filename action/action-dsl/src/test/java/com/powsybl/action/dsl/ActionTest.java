@@ -6,10 +6,10 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.contingency.tasks.GeneratorTripping;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.tripping.GeneratorTripping;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -26,17 +26,17 @@ public class ActionTest {
 
     @Test
     public void test() {
-        ModificationTask mock = Mockito.mock(ModificationTask.class);
-        List<ModificationTask> tasks = new ArrayList<>();
+        NetworkModification mock = Mockito.mock(NetworkModification.class);
+        List<NetworkModification> modifications = new ArrayList<>();
 
         Action action = new Action("id");
         assertEquals("id", action.getId());
-        assertEquals(0, action.getTasks().size());
+        assertEquals(0, action.getModifications().size());
 
-        action = new Action("id", tasks);
-        assertEquals(0, action.getTasks().size());
-        action.getTasks().add(mock);
-        assertEquals(1, action.getTasks().size());
+        action = new Action("id", modifications);
+        assertEquals(0, action.getModifications().size());
+        action.getModifications().add(mock);
+        assertEquals(1, action.getModifications().size());
 
         assertNull(action.getDescription());
         action.setDescription("description");
@@ -49,9 +49,9 @@ public class ActionTest {
         testInvalid("id", null);
     }
 
-    private void testInvalid(String id, List<ModificationTask> tasks) {
+    private void testInvalid(String id, List<NetworkModification> modifications) {
         try {
-            new Action(id, tasks);
+            new Action(id, modifications);
             fail();
         } catch (NullPointerException ignored) {
         }
@@ -62,9 +62,9 @@ public class ActionTest {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
 
-        ModificationTask task = new GeneratorTripping("GEN");
+        NetworkModification task = new GeneratorTripping("GEN");
         Action action = new Action("action", Collections.singletonList(task));
-        action.run(network, null);
+        action.run(network);
         assertFalse(network.getGenerator("GEN").getTerminal().isConnected());
     }
 }

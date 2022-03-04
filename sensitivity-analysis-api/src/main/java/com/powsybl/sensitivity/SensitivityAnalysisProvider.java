@@ -23,11 +23,11 @@ import java.util.concurrent.CompletableFuture;
  *     Sensitivity analysis is used to assess the impact of a small modification
  *     of a network variables on the value of network functions.
  *     This analysis can be assimilated to a partial derivative computed on a given
- *     network state and on that state modified based on a list of contingencies, if specified.
+ *     network variant and on that variant modified based on a list of contingencies, if specified.
  * </p>
  * <p>
  *     PTDFs used in Flowbased methodology for example are sensitivity analysis
- *     results. The sensitivity variables are the GSK shift and the sensitivity function
+ *     results. The sensitivity variables are the GSK shift and the function reference
  *     are the monitored lines/transformers flows.
  * </p>
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -35,50 +35,29 @@ import java.util.concurrent.CompletableFuture;
 public interface SensitivityAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
 
     /**
-     * Run an asynchronous single sensitivity analysis job.
-     * Factors will be computed by a {@code computationManager} on the {@code workingStateId} of the {@code network}
+     * Run a single sensitivity analysis.
+     * Factors are given by a {@code factorReader} on the {@code workingVariantId} of the {@code network}
      * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
      * {@code contingencies} according to the {@code parameters}.
      *
      * @param network IIDM network on which the sensitivity analysis will be performed
-     * @param workingStateId network variant ID on which the analysis will be performed
-     * @param factorsProvider provider of sensitivity factors to be computed
+     * @param workingVariantId network variant ID on which the analysis will be performed
+     * @param factorReader provider of sensitivity factors to be computed
+     * @param valueWriter provider of sensitivity values results
      * @param contingencies list of contingencies after which sensitivity factors will be computed
-     * @param parameters specific sensitivity analysis parameters
-     * @param computationManager a computation manager to external program execution
-     * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
-     */
-    default CompletableFuture<SensitivityAnalysisResult> run(Network network,
-                                                     String workingStateId,
-                                                     SensitivityFactorsProvider factorsProvider,
-                                                     List<Contingency> contingencies,
-                                                     SensitivityAnalysisParameters parameters,
-                                                     ComputationManager computationManager) {
-        return run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, Reporter.NO_OP);
-    }
-
-    /**
-     * Run an asynchronous single sensitivity analysis job.
-     * Factors will be computed by a {@code computationManager} on the {@code workingStateId} of the {@code network}
-     * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
-     * {@code contingencies} according to the {@code parameters}.
-     *
-     * @param network IIDM network on which the sensitivity analysis will be performed
-     * @param workingStateId network variant ID on which the analysis will be performed
-     * @param factorsProvider provider of sensitivity factors to be computed
-     * @param contingencies list of contingencies after which sensitivity factors will be computed
+     * @param variableSets list of variableSets
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
      * @param reporter a reporter for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    default CompletableFuture<SensitivityAnalysisResult> run(Network network,
-                                                     String workingStateId,
-                                                     SensitivityFactorsProvider factorsProvider,
-                                                     List<Contingency> contingencies,
-                                                     SensitivityAnalysisParameters parameters,
-                                                     ComputationManager computationManager,
-                                                     Reporter reporter) {
-        return run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager);
-    }
+    CompletableFuture<Void> run(Network network,
+                                String workingVariantId,
+                                SensitivityFactorReader factorReader,
+                                SensitivityValueWriter valueWriter,
+                                List<Contingency> contingencies,
+                                List<SensitivityVariableSet> variableSets,
+                                SensitivityAnalysisParameters parameters,
+                                ComputationManager computationManager,
+                                Reporter reporter);
 }

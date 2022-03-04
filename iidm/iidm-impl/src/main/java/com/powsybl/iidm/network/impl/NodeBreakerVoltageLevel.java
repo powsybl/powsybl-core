@@ -963,6 +963,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     "voltage level " + NodeBreakerVoltageLevel.this.id + " has a node/breaker topology"
                             + ", a node connection should be specified instead of a bus connection");
         }
+        int node = ((NodeTerminal) terminal).getNode();
+        graph.addVertexIfNotPresent(node);
+        if (graph.getVertexObject(node) != null) {
+            throw new ValidationException(terminal.getConnectable(),
+                    "an equipment (" + graph.getVertexObject(node).getConnectable().getId()
+                            + ") is already connected to node " + node + " of voltage level "
+                            + NodeBreakerVoltageLevel.this.id);
+        }
     }
 
     @Override
@@ -972,13 +980,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return;
         }
         int node = ((NodeTerminal) terminal).getNode();
-        graph.addVertexIfNotPresent(node);
-        if (graph.getVertexObject(node) != null) {
-            throw new ValidationException(terminal.getConnectable(),
-                    "an equipment (" + graph.getVertexObject(node).getConnectable().getId()
-                            + ") is already connected to node " + node + " of voltage level "
-                            + NodeBreakerVoltageLevel.this.id);
-        }
 
         // create the link terminal <-> voltage level
         terminal.setVoltageLevel(NodeBreakerVoltageLevel.this);
