@@ -105,7 +105,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
             CgmesExportContext context = new CgmesExportContext(network);
             EquipmentExport.write(network, writer, context);
         }
-        // Zip with new SSH
+        // Zip with exported EQ file
         Path repackaged = tmpDir.resolve("repackaged.zip");
         Repackager r = new Repackager(CgmesConformity1Catalog.microGridType4BE().dataSource())
                 .with("test_EQ.xml", exportedEq)
@@ -156,7 +156,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         return exportedEq;
     }
 
-    private void compareNetworks(Network expected, Network actual) throws IOException, XMLStreamException {
+    private void compareNetworks(Network expected, Network actual) throws IOException {
         Network expectedNetwork = prepareNetwork(expected);
         Network actualNetwork = prepareNetwork(actual);
 

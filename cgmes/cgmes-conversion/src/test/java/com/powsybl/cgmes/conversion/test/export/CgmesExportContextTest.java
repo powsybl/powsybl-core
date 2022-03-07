@@ -155,6 +155,17 @@ public class CgmesExportContextTest {
     }
 
     @Test
+    public void testBuildIidmMappingAndCreatingInternalConnection() {
+        Network n = buildIidmMapping();
+
+        // Create internal connection
+        n.getVoltageLevel("_04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
+
+        // Check that topology mapping has been invalidated
+        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
+    }
+
+    @Test
     public void testBuildIidmMappingAndDeletingSwitch() {
         Network n = buildIidmMapping();
 

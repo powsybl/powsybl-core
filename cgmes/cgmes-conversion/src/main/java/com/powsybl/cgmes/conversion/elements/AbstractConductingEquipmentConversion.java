@@ -34,7 +34,7 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context) {
@@ -45,7 +45,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context,
@@ -64,7 +64,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBags ps,
         Context context) {
@@ -626,7 +626,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
-        if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+        if (context.config().createCgmesExportMapping()) {
             CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
             mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
         }
@@ -636,6 +636,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         int cgmesTerminalNumber = terminalNumber;
         int iidmTerminalNumber = cgmesTerminalNumber;
         addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
+    }
+
+    protected static void addMappingForTopologicalNode(Context context, TieLine tl, int side, BoundaryLine boundaryLine) {
+        if (context.config().createCgmesExportMapping()) {
+            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+
+            String cgmesTerminalId = boundaryLine.getModelTerminalId();
+            CgmesTerminal t = context.cgmes().terminal(cgmesTerminalId);
+            mapping.putTopologicalNode(tl.getId(), side, t.topologicalNode());
+        }
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {
