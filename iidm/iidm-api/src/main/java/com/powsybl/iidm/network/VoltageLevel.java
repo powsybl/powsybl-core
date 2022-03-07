@@ -8,14 +8,13 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -409,6 +408,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         default NodeBreakerView setFictitiousQ0(int node, double q0) {
             // do nothing
             return this;
+        }
+
+        default Map<Integer, Pair<Double, Double>> getFictitiousInjectionsByNode() {
+            return Collections.emptyMap();
         }
 
         interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {

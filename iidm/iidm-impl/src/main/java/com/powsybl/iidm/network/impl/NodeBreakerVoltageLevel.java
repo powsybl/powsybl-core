@@ -21,6 +21,7 @@ import com.powsybl.math.graph.*;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import org.anarres.graphviz.builder.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -603,6 +604,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public NodeBreakerView setFictitiousP0(int node, double p0) {
+            if (Double.isNaN(p0)) {
+                throw new ValidationException(NodeBreakerVoltageLevel.this, "undefined value cannot be set as fictitious p0");
+            }
             TDoubleArrayList p0ByVariant = fictitiousP0ByNode.computeIfAbsent(node, n -> {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
                 TDoubleArrayList fictitiousP0 = new TDoubleArrayList(variantArraySize);
@@ -629,6 +633,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public NodeBreakerView setFictitiousQ0(int node, double q0) {
+            if (Double.isNaN(q0)) {
+                throw new ValidationException(NodeBreakerVoltageLevel.this, "undefined value cannot be set as fictitious q0");
+            }
             TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.computeIfAbsent(node, n -> {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
                 TDoubleArrayList fictitiousQ0 = new TDoubleArrayList(variantArraySize);
@@ -643,6 +650,18 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousP0", variantId, oldValue, q0);
             clearFictitiousInjections(fictitiousQ0ByNode);
             return this;
+        }
+
+        @Override
+        public Map<Integer, Pair<Double, Double>> getFictitiousInjectionsByNode() {
+            Set<Integer> nodesWithFictitiousInjections = new HashSet<>();
+            nodesWithFictitiousInjections.addAll(fictitiousP0ByNode.keySet());
+            nodesWithFictitiousInjections.addAll(fictitiousQ0ByNode.keySet());
+            Map<Integer, Pair<Double, Double>> fictInjByNode = new HashMap<>();
+            for (int node : nodesWithFictitiousInjections) {
+                fictInjByNode.put(node, Pair.of(getFictitiousP0(node), getFictitiousQ0(node)));
+            }
+            return fictInjByNode;
         }
 
         /**

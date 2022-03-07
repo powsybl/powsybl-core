@@ -139,6 +139,9 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     @Override
     public Bus setFictitiousP0(double p0) {
+        if (Double.isNaN(p0)) {
+            throw new ValidationException(this, "undefined value cannot be set as fictitious p0");
+        }
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.fictitiousP0.set(variantIndex, p0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -153,6 +156,9 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     @Override
     public Bus setFictitiousQ0(double q0) {
+        if (Double.isNaN(q0)) {
+            throw new ValidationException(this, "undefined value cannot be set as fictitious q0");
+        }
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.fictitiousQ0.set(variantIndex, q0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
