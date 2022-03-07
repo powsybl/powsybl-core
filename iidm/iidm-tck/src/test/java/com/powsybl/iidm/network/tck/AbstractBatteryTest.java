@@ -137,7 +137,7 @@ public abstract class AbstractBatteryTest {
 
     @Test
     public void testRemove() {
-        String unmodifiableRemovedEqMessage = "Can not modify removed equipment";
+        String unmodifiableRemovedEqMessage = "Cannot modify removed equipment";
         createBattery(TO_REMOVE, 11.0, 12, 10, 20.0);
         int count = network.getBatteryCount();
         Battery battery = network.getBattery(TO_REMOVE);

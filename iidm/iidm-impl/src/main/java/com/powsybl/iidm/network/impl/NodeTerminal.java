@@ -23,7 +23,7 @@ import java.util.Set;
  */
 class NodeTerminal extends AbstractTerminal {
 
-    private static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Can not modify removed equipment";
+    private static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment";
 
     private int node;
 

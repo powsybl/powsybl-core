@@ -207,7 +207,7 @@ public abstract class AbstractGeneratorTest {
 
     @Test
     public void testRemove() {
-        String unmodifiableRemovedEqMessage = "Can not modify removed equipment";
+        String unmodifiableRemovedEqMessage = "Cannot modify removed equipment";
         createGenerator(TO_REMOVE, EnergySource.HYDRO, 20.0, 11., 2.0,
                 15.0, 40.0, true, 2.0);
         int count = network.getGeneratorCount();

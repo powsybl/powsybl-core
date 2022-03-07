@@ -102,7 +102,7 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public Terminal setQ(double q) {
         if (network == null) {
-            throw new PowsyblException("Can not modify removed equipment");
+            throw new PowsyblException("Cannot modify removed equipment");
         }
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set reactive power on a busbar section");

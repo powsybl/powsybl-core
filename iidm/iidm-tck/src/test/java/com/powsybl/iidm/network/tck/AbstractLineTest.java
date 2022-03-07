@@ -464,14 +464,14 @@ public abstract class AbstractLineTest {
             bbView1.moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Can not modify removed equipment", e.getMessage());
+            assertEquals("Cannot modify removed equipment", e.getMessage());
         }
         Terminal.BusBreakerView bbView2 = t2.getBusBreakerView();
         try {
             bbView2.moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Can not modify removed equipment", e.getMessage());
+            assertEquals("Cannot modify removed equipment", e.getMessage());
         }
         assertNull(line.getNetwork());
         assertNull(network.getLine(TO_REMOVE));
