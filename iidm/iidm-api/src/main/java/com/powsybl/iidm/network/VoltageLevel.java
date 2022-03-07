@@ -394,7 +394,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     interface NodeBreakerView {
 
         default double getFictitiousP0(int node) {
-            return Double.NaN;
+            return 0.0;
         }
 
         default NodeBreakerView setFictitiousP0(int node, double p0) {
@@ -403,7 +403,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         default double getFictitiousQ0(int node) {
-            return Double.NaN;
+            return 0.0;
         }
 
         default NodeBreakerView setFictitiousQ0(int node, double q0) {
