@@ -350,9 +350,7 @@ public final class Networks {
      * @return the list of nodes (N/B topology) for each bus of a Bus view
      */
     public static Map<String, Set<Integer>> getNodesByBus(VoltageLevel voltageLevel) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
+        checkNodeBreakerVoltageLevel(voltageLevel);
 
         Map<String, Set<Integer>> nodesByBus = new TreeMap<>();
         for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
@@ -379,9 +377,7 @@ public final class Networks {
     }
 
     public static Set<Integer> getNodes(String busId, VoltageLevel voltageLevel, Function<Terminal, Bus> getBusFromTerminal) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
+        checkNodeBreakerVoltageLevel(voltageLevel);
         Set<Integer> nodes = new TreeSet<>();
         for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
             Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(i);
@@ -415,9 +411,7 @@ public final class Networks {
      * @return A terminal for the specified node or null.
      */
     public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
+        checkNodeBreakerVoltageLevel(voltageLevel);
 
         Terminal[] equivalentTerminal = new Terminal[1];
 
@@ -438,4 +432,9 @@ public final class Networks {
         return equivalentTerminal[0];
     }
 
+    private static void checkNodeBreakerVoltageLevel(VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
+        }
+    }
 }

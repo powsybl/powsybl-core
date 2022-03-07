@@ -888,10 +888,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static void clearFictitiousInjections(Map<Integer, TDoubleArrayList> fictitiousInjectionsByNode) {
         Set<Integer> toRemove = new HashSet<>(fictitiousInjectionsByNode.keySet());
-        for (Integer node : fictitiousInjectionsByNode.keySet()) {
-            fictitiousInjectionsByNode.get(node).forEach(inj -> {
+        for (Map.Entry<Integer, TDoubleArrayList> fictInjByNode : fictitiousInjectionsByNode.entrySet()) {
+            fictInjByNode.getValue().forEach(inj -> {
                 if (inj != 0.0) {
-                    toRemove.remove(node);
+                    toRemove.remove(fictInjByNode.getKey());
                 }
                 return true;
             });
