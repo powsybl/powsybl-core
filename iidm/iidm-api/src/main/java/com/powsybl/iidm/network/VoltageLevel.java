@@ -393,6 +393,24 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     interface NodeBreakerView {
 
+        default double getFictitiousP0(int node) {
+            return Double.NaN;
+        }
+
+        default NodeBreakerView setFictitiousP0(int node, double p0) {
+            // do nothing
+            return this;
+        }
+
+        default double getFictitiousQ0(int node) {
+            return Double.NaN;
+        }
+
+        default NodeBreakerView setFictitiousQ0(int node, double q0) {
+            // do nothing
+            return this;
+        }
+
         interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
 
             SwitchAdder setNode1(int node1);

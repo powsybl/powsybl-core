@@ -386,6 +386,26 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
         @Override
+        public double getFictitiousP0(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public NodeBreakerView setFictitiousP0(int node, double p0) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public double getFictitiousQ0(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public NodeBreakerView setFictitiousQ0(int node, double q0) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public int getMaximumNodeIndex() {
             throw createNotSupportedBusBreakerTopologyException();
         }

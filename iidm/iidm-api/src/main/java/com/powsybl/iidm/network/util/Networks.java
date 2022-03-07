@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -375,6 +376,33 @@ public final class Networks {
         }
 
         return nodesByBus;
+    }
+
+    public static Set<Integer> getNodes(String busId, VoltageLevel voltageLevel, Function<Terminal, Bus> getBusFromTerminal) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
+        }
+        Set<Integer> nodes = new TreeSet<>();
+        for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
+            Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(i);
+            if (terminal != null) {
+                Bus bus = getBusFromTerminal.apply(terminal);
+                if (bus != null && bus.getId().equals(busId)) {
+                    nodes.add(i);
+                }
+            } else {
+                // If there is no terminal for the current node, we try to find one traversing the topology
+                Terminal equivalentTerminal = Networks.getEquivalentTerminal(voltageLevel, i);
+
+                if (equivalentTerminal != null) {
+                    Bus bus = getBusFromTerminal.apply(equivalentTerminal);
+                    if (bus != null && bus.getId().equals(busId)) {
+                        nodes.add(i);
+                    }
+                }
+            }
+        }
+        return nodes;
     }
 
     /**

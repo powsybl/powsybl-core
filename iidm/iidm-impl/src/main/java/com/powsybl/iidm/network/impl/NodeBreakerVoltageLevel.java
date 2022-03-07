@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.*;
+import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import org.anarres.graphviz.builder.*;
 import org.slf4j.Logger;
@@ -267,7 +268,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
                 if (getBusChecker().isValid(graph, nodes, terminals)) {
                     String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
-                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals);
+                    Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
+                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals, getBusFromTerminal);
                     id2bus.put(busId, bus);
                     for (int i = 0; i < nodes.size(); i++) {
                         node2bus[nodes.getQuick(i)] = bus;
@@ -587,6 +589,62 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
+
+        private final Map<Integer, TDoubleArrayList> fictitiousP0ByNode = new HashMap<>();
+        private final Map<Integer, TDoubleArrayList> fictitiousQ0ByNode = new HashMap<>();
+
+        @Override
+        public double getFictitiousP0(int node) {
+            if (fictitiousP0ByNode.containsKey(node)) {
+                return fictitiousP0ByNode.get(node).get(getNetwork().getVariantIndex());
+            }
+            return 0.0;
+        }
+
+        @Override
+        public NodeBreakerView setFictitiousP0(int node, double p0) {
+            TDoubleArrayList p0ByVariant = fictitiousP0ByNode.computeIfAbsent(node, n -> {
+                int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
+                TDoubleArrayList fictitiousP0 = new TDoubleArrayList(variantArraySize);
+                for (int i = 0; i < variantArraySize; i++) {
+                    fictitiousP0.add(0.0);
+                }
+                return fictitiousP0;
+            });
+            int variantIndex = getNetwork().getVariantIndex();
+            double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
+            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+            getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousP0", variantId, oldValue, p0);
+            clearFictitiousInjections(fictitiousP0ByNode);
+            return this;
+        }
+
+        @Override
+        public double getFictitiousQ0(int node) {
+            if (fictitiousQ0ByNode.containsKey(node)) {
+                return fictitiousQ0ByNode.get(node).get(getNetwork().getVariantIndex());
+            }
+            return 0.0;
+        }
+
+        @Override
+        public NodeBreakerView setFictitiousQ0(int node, double q0) {
+            TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.computeIfAbsent(node, n -> {
+                int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
+                TDoubleArrayList fictitiousQ0 = new TDoubleArrayList(variantArraySize);
+                for (int i = 0; i < variantArraySize; i++) {
+                    fictitiousQ0.add(0.0);
+                }
+                return fictitiousQ0;
+            });
+            int variantIndex = getNetwork().getVariantIndex();
+            double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
+            String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+            getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousP0", variantId, oldValue, q0);
+            clearFictitiousInjections(fictitiousQ0ByNode);
+            return this;
+        }
+
         /**
          * @deprecated Use {@link #getMaximumNodeIndex()} instead.
          */
@@ -808,6 +866,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             graph.traverse(nodes, adapt(t));
         }
     };
+
+    private static void clearFictitiousInjections(Map<Integer, TDoubleArrayList> fictitiousInjectionsByNode) {
+        Set<Integer> toRemove = new HashSet<>(fictitiousInjectionsByNode.keySet());
+        for (Integer node : fictitiousInjectionsByNode.keySet()) {
+            fictitiousInjectionsByNode.get(node).forEach(inj -> {
+                if (inj != 0.0) {
+                    toRemove.remove(node);
+                }
+                return true;
+            });
+        }
+        toRemove.forEach(fictitiousInjectionsByNode::remove);
+    }
 
     @Override
     public NodeBreakerViewExt getNodeBreakerView() {

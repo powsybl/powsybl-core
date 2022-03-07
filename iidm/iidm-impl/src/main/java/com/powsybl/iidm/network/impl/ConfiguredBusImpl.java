@@ -30,6 +30,10 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     private final TDoubleArrayList angle;
 
+    private final TDoubleArrayList fictitiousP0;
+
+    private final TDoubleArrayList fictitiousQ0;
+
     private final TIntArrayList connectedComponentNumber;
 
     private final TIntArrayList synchronousComponentNumber;
@@ -41,12 +45,16 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         terminals = new ArrayList<>(variantArraySize);
         v = new TDoubleArrayList(variantArraySize);
         angle = new TDoubleArrayList(variantArraySize);
+        fictitiousP0 = new TDoubleArrayList(variantArraySize);
+        fictitiousQ0 = new TDoubleArrayList(variantArraySize);
         connectedComponentNumber = new TIntArrayList(variantArraySize);
         synchronousComponentNumber = new TIntArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             terminals.add(new ArrayList<>());
             v.add(Double.NaN);
             angle.add(Double.NaN);
+            fictitiousP0.add(0.0);
+            fictitiousQ0.add(0.0);
             connectedComponentNumber.add(-1);
             synchronousComponentNumber.add(-1);
         }
@@ -125,6 +133,34 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
     }
 
     @Override
+    public double getFictitiousP0() {
+        return fictitiousP0.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.fictitiousP0.set(variantIndex, p0);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("fictitiousP0", variantId, oldValue, p0);
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0() {
+        return fictitiousQ0.get(network.get().getVariantIndex());
+    }
+
+    @Override
+    public Bus setFictitiousQ0(double q0) {
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.fictitiousQ0.set(variantIndex, q0);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("fictitiousQ0", variantId, oldValue, q0);
+        return this;
+    }
+
+    @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
@@ -161,12 +197,16 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         terminals.ensureCapacity(terminals.size() + number);
         v.ensureCapacity(v.size() + number);
         angle.ensureCapacity(angle.size() + number);
+        fictitiousP0.ensureCapacity(fictitiousP0.size() + number);
+        fictitiousQ0.ensureCapacity(fictitiousQ0.size() + number);
         connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
         synchronousComponentNumber.ensureCapacity(synchronousComponentNumber.size() + number);
         for (int i = 0; i < number; i++) {
             terminals.add(new ArrayList<>(terminals.get(sourceIndex)));
             v.add(v.get(sourceIndex));
             angle.add(angle.get(sourceIndex));
+            fictitiousP0.add(fictitiousP0.get(sourceIndex));
+            fictitiousQ0.add(fictitiousQ0.get(sourceIndex));
             connectedComponentNumber.add(connectedComponentNumber.get(sourceIndex));
             synchronousComponentNumber.add(synchronousComponentNumber.get(sourceIndex));
         }
@@ -181,6 +221,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         }
         v.remove(v.size() - number, number);
         angle.remove(angle.size() - number, number);
+        fictitiousP0.remove(fictitiousP0.size() - number, number);
+        fictitiousQ0.remove(fictitiousQ0.size() - number, number);
         connectedComponentNumber.remove(connectedComponentNumber.size() - number, number);
         synchronousComponentNumber.remove(synchronousComponentNumber.size() - number, number);
     }
@@ -200,6 +242,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
             terminals.set(index, new ArrayList<>(terminals.get(sourceIndex)));
             v.set(index, v.get(sourceIndex));
             angle.set(index, angle.get(sourceIndex));
+            fictitiousP0.set(index, fictitiousP0.get(sourceIndex));
+            fictitiousQ0.set(index, fictitiousQ0.get(sourceIndex));
             connectedComponentNumber.set(index, connectedComponentNumber.get(sourceIndex));
             synchronousComponentNumber.set(index, synchronousComponentNumber.get(sourceIndex));
         }
