@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +104,14 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                         Set<Integer> nodes = nodesByBus.get(bus.getId());
                         writeCalculatedBus(bus, nodes, context);
                     });
+        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> {
+            for (Map.Entry<Integer, Pair<Double, Double>> fictInj : vl.getNodeBreakerView().getFictitiousInjectionsByNode().entrySet()) {
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "inj");
+                XmlUtil.writeInt("node", fictInj.getKey(), context.getWriter());
+                XmlUtil.writeOptionalDouble("fictitiousP0", fictInj.getValue().getLeft(), 0.0, context.getWriter());
+                XmlUtil.writeOptionalDouble("fictitiousQ0", fictInj.getValue().getRight(), 0.0, context.getWriter());
+            }
         });
         context.getWriter().writeEndElement();
     }
@@ -321,6 +330,10 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     readCalculatedBus(vl, context);
                     break;
 
+                case "inj":
+                    readFictitiousInjection(vl, context);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
             }
@@ -345,6 +358,19 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 }
             }
         });
+    }
+
+    private void readFictitiousInjection(VoltageLevel vl, NetworkXmlReaderContext context) {
+        IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "inj", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_8, context);
+        int node = XmlUtil.readIntAttribute(context.getReader(), "node");
+        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitiousP0");
+        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitiousQ0");
+        if (!Double.isNaN(p0)) {
+            vl.getNodeBreakerView().setFictitiousP0(node, p0);
+        }
+        if (!Double.isNaN(q0)) {
+            vl.getNodeBreakerView().setFictitiousQ0(node, q0);
+        }
     }
 
     private void readBusBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
