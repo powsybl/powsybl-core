@@ -152,7 +152,7 @@ public class CgmesExportContext {
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsShuntCompensators(network);
-        addIidmMappingsTapChangers(network);
+        addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
     }
 
@@ -350,18 +350,31 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsTapChangers(Network network) {
+    private static void addIidmMappingsEndsAndTapChangers(Network network) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            addIidmTransformerEnd(twt, 1);
+            addIidmTransformerEnd(twt, 2);
             addIidmPhaseTapChanger(twt, twt.getPhaseTapChanger());
             addIidmRatioTapChanger(twt, twt.getRatioTapChanger());
         }
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            addIidmTransformerEnd(twt, 1);
+            addIidmTransformerEnd(twt, 2);
+            addIidmTransformerEnd(twt, 3);
             addIidmPhaseTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), 1);
             addIidmRatioTapChanger(twt, twt.getLeg1().getRatioTapChanger(), 1);
             addIidmPhaseTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), 2);
             addIidmRatioTapChanger(twt, twt.getLeg2().getRatioTapChanger(), 2);
             addIidmPhaseTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), 3);
             addIidmRatioTapChanger(twt, twt.getLeg3().getRatioTapChanger(), 3);
+        }
+    }
+
+    private static void addIidmTransformerEnd(Identifiable<?> eq, int end) {
+        String endId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end).orElse(null);
+        if (endId == null) {
+            endId = CgmesExportUtil.getUniqueId();
+            eq.addAlias(endId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end);
         }
     }
 

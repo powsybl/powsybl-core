@@ -59,7 +59,7 @@ public final class CgmesExportUtil {
     }
 
     public static String getUniqueId() {
-        return UUID.randomUUID().toString();
+        return "_" + UUID.randomUUID();
     }
 
     public static void writeRdfRoot(int cimVersion, XMLStreamWriter writer) throws XMLStreamException {

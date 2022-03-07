@@ -8,7 +8,7 @@ package com.powsybl.ucte.network;
 
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.ucte.network.ext.UcteReportConstants;
+import com.powsybl.commons.reporter.TypedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -428,7 +428,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
                 .withKey("activePowerUndefined")
                 .withDefaultMessage("Node ${node}: active power is undefined, set value to 0")
                 .withValue("node", code.toString())
-                .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
             LOGGER.warn("Node {}: active power is undefined, set value to 0", code);
             activePowerGeneration = 0;
@@ -484,7 +484,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
                 .withDefaultMessage("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
                 .withValue("node", code.toString())
                 .withValue("voltageReference", voltageReference)
-                .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
             LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
                     code, voltageReference, UcteNodeTypeCode.PQ);
@@ -511,7 +511,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
                 .withKey("PqUndefinedReactivePower")
                 .withDefaultMessage("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
                 .withValue("node", code.toString())
-                .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
             LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to 0", code);
             reactivePowerGeneration = 0;
