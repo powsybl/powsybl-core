@@ -15,8 +15,8 @@
           "reportKey" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
-              "value" : "UCTE_ERROR",
-              "type" : "ERROR_LOGLEVEL"
+              "value" : "ERROR",
+              "type" : "SEVERITY"
             },
             "lineId" : {
               "value" : "FFFFFF11 XXXXXX11 1"
@@ -30,8 +30,8 @@
           "reportKey" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
-              "value" : "UCTE_ERROR",
-              "type" : "ERROR_LOGLEVEL"
+              "value" : "ERROR",
+              "type" : "SEVERITY"
             },
             "lineId" : {
               "value" : "FFFFFF11 XXXXXX12 1"
@@ -45,8 +45,8 @@
           "reportKey" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
-              "value" : "UCTE_ERROR",
-              "type" : "ERROR_LOGLEVEL"
+              "value" : "ERROR",
+              "type" : "SEVERITY"
             },
             "lineId" : {
               "value" : "FFFFFF13 XXXXXX13 1"
@@ -60,8 +60,8 @@
           "reportKey" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
-              "value" : "UCTE_ERROR",
-              "type" : "ERROR_LOGLEVEL"
+              "value" : "ERROR",
+              "type" : "SEVERITY"
             },
             "lineId" : {
               "value" : "FFFFFF13 XXXXXX14 1"
