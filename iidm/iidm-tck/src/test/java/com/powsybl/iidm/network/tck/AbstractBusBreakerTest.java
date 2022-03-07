@@ -172,6 +172,12 @@ public abstract class AbstractBusBreakerTest {
 
         assertEquals(p1 + p2, bus.getP(), 0.0);
         assertEquals(q1 + q2, bus.getQ(), 0.0);
+
+        assertEquals(0.0, bus.getFictitiousP0(), 0.0);
+        assertEquals(0.0, bus.getFictitiousQ0(), 0.0);
+        bus.setFictitiousP0(1.0).setFictitiousQ0(2.0);
+        assertEquals(1.0, bus.getFictitiousP0(), 0.0);
+        assertEquals(2.0, bus.getFictitiousQ0(), 0.0);
     }
 
     @Test

@@ -79,6 +79,13 @@ public abstract class AbstractNetworkTest {
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel1.getTopologyKind());
 
         NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+
+        assertEquals(0.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(0.0, topology1.getFictitiousQ0(0), 0.0);
+        topology1.setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
+        assertEquals(1.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
+
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
         assertEquals(2, topology1.getBusbarSectionCount());
