@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
+import java.util.Objects;
+
 import static org.junit.Assert.*;
 
 public abstract class AbstractBusBreakerTest {
@@ -178,6 +180,16 @@ public abstract class AbstractBusBreakerTest {
         bus.setFictitiousP0(1.0).setFictitiousQ0(2.0);
         assertEquals(1.0, bus.getFictitiousP0(), 0.0);
         assertEquals(2.0, bus.getFictitiousQ0(), 0.0);
+        assertEquals(1.0, bus.getConnectedTerminalStream()
+                .map(t -> t.getBusView().getBus())
+                .filter(Objects::nonNull)
+                .map(Bus::getFictitiousP0)
+                .findFirst().orElse(0.0), 0.0);
+        assertEquals(2.0, bus.getConnectedTerminalStream()
+                .map(t -> t.getBusView().getBus())
+                .filter(Objects::nonNull)
+                .map(Bus::getFictitiousQ0)
+                .findFirst().orElse(0.0), 0.0);
     }
 
     @Test
