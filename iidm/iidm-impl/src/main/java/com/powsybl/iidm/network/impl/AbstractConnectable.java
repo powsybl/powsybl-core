@@ -50,7 +50,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef).map(Ref::get).orElse(null);
+        return networkRef != null ? networkRef.get() : null;
     }
 
     @Override
