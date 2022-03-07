@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
