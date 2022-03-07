@@ -180,16 +180,14 @@ public abstract class AbstractBusBreakerTest {
         bus.setFictitiousP0(1.0).setFictitiousQ0(2.0);
         assertEquals(1.0, bus.getFictitiousP0(), 0.0);
         assertEquals(2.0, bus.getFictitiousQ0(), 0.0);
-        assertEquals(1.0, bus.getConnectedTerminalStream()
+        Bus busViewBus = bus.getConnectedTerminalStream()
                 .map(t -> t.getBusView().getBus())
-                .filter(Objects::nonNull)
-                .map(Bus::getFictitiousP0)
-                .findFirst().orElse(0.0), 0.0);
-        assertEquals(2.0, bus.getConnectedTerminalStream()
-                .map(t -> t.getBusView().getBus())
-                .filter(Objects::nonNull)
-                .map(Bus::getFictitiousQ0)
-                .findFirst().orElse(0.0), 0.0);
+                .filter(Objects::nonNull).findFirst().orElseThrow(AssertionError::new);
+        assertEquals(1.0, busViewBus.getFictitiousP0(), 0.0);
+        assertEquals(2.0, busViewBus.getFictitiousQ0(), 0.0);
+        busViewBus.setFictitiousP0(3.0).setFictitiousQ0(4.0);
+        assertEquals(3.0, bus.getFictitiousP0(), 0.0);
+        assertEquals(4.0, bus.getFictitiousQ0(), 0.0);
     }
 
     @Test
