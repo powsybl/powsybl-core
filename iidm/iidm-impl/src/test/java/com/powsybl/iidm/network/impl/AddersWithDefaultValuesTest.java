@@ -193,14 +193,16 @@ public class AddersWithDefaultValuesTest {
                 .beginStep()
                 .setRho(1.1)
                 .endStep()
+                .setTapPosition(2)
                 .setRegulating(true)
                 .setRegulationTerminal(t2wt.getTerminal2())
+                .setTargetV(33.0)
                 .add();
 
         assertEquals(140.0, t2wt.getRatedU1(), 0.0);
         assertEquals(33.0, t2wt.getRatedU2(), 0.0);
         assertEquals(33.0, t2wt.getRatioTapChanger().getTargetV(), 0.0);
-        assertEquals(1, t2wt.getRatioTapChanger().getTapPosition(), 0);
+        assertEquals(2, t2wt.getRatioTapChanger().getTapPosition(), 0);
         assertEquals(0, t2wt.getRatioTapChanger().getLowTapPosition(), 0);
         assertEquals(0.0, t2wt.getRatioTapChanger().getTargetDeadband(), 0);
         assertEquals(false, t2wt.getRatioTapChanger().hasLoadTapChangingCapabilities());
@@ -257,6 +259,7 @@ public class AddersWithDefaultValuesTest {
                 .setAlpha(5)
                 .endStep()
                 .setRegulating(false)
+                .setTapPosition(2)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setRegulationTerminal(t2wt.getTerminal2())
                 .add();
@@ -600,6 +603,7 @@ public class AddersWithDefaultValuesTest {
                 .beginStep()
                 .setRho(1.1)
                 .endStep()
+                .setTapPosition(1)
                 .setRegulating(true)
                 .setRegulationTerminal(t3wt.getLeg1().getTerminal())
                 .add();

@@ -175,10 +175,6 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         NetworkImpl network = getNetwork();
         if (network.getAddersWithDefaultValues()) {
             targetDeadband = Double.isNaN(targetDeadband) ? 0.0 : targetDeadband;
-            tapPosition = tapPosition == null ? getNeutralPosition(steps) : tapPosition;
-            if (regulationTerminal != null && Double.isNaN(targetV)) {
-                targetV = regulationTerminal.getVoltageLevel().getNominalV();
-            }
         }
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
@@ -215,15 +211,5 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;
-    }
-
-    private Integer getNeutralPosition(List<RatioTapChangerStepImpl> steps) {
-        for (int i = 0; i < steps.size(); i++) {
-            RatioTapChangerStepImpl step = steps.get(i);
-            if (step.getRho() == 1) {
-                return i + lowTapPosition;
-            }
-        }
-        return lowTapPosition;
     }
 }

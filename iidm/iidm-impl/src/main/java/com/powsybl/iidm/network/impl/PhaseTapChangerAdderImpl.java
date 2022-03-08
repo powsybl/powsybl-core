@@ -187,7 +187,6 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         NetworkImpl network = getNetwork();
         if (network.getAddersWithDefaultValues()) {
             targetDeadband = Double.isNaN(targetDeadband) ? 0.0 : targetDeadband;
-            tapPosition = tapPosition == null ? getNeutralPosition(steps) : tapPosition;
         }
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
@@ -223,15 +222,5 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;
-    }
-
-    private Integer getNeutralPosition(List<PhaseTapChangerStepImpl> steps) {
-        for (int i = 0; i < steps.size(); i++) {
-            PhaseTapChangerStepImpl step = steps.get(i);
-            if (Math.abs(step.getAlpha()) < 10E-3) {
-                return i + lowTapPosition;
-            }
-        }
-        return lowTapPosition;
     }
 }
