@@ -62,7 +62,6 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         if (network.getAddersWithDefaultValues()) {
-            p0 = Double.isNaN(p0) ? 0.0 : p0;
             q0 = Double.isNaN(q0) ? 0.0 : q0;
             loadType = loadType == null ? LoadType.UNDEFINED : loadType;
         }
