@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.ValidationLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,12 @@ public class Context {
         powerTransformerRatioTapChangers = new HashMap<>();
         powerTransformerPhaseTapChangers = new HashMap<>();
 
-        defaultValue = cgmes.hasOnlyEquipmentProfile() ? Double.NaN : 0.0;
+        if ((config.getMinimumValidationLevel() == null && cgmes.hasOnlyEquipmentProfile())
+                || config.getMinimumValidationLevel() == ValidationLevel.EQUIPMENT) {
+            defaultValue = Double.NaN;
+        } else {
+            defaultValue = 0.0;
+        }
     }
 
     public double defaultValue() {

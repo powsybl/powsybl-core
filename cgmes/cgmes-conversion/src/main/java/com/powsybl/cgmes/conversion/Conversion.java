@@ -138,7 +138,8 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        if (cgmes.hasOnlyEquipmentProfile()) {
+        if ((config.getMinimumValidationLevel() == null && cgmes.hasOnlyEquipmentProfile())
+                || config.getMinimumValidationLevel() == ValidationLevel.EQUIPMENT) {
             network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         }
         Context context = createContext(network);
@@ -856,6 +857,20 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public Config setMinimumValidationLevel(String validationLevel) {
+            if (validationLevel == null) {
+                minimumValidationLevel = null;
+            } else {
+                minimumValidationLevel = ValidationLevel.valueOf(validationLevel);
+            }
+            return this;
+        }
+
+        public ValidationLevel getMinimumValidationLevel() {
+            return minimumValidationLevel;
+        }
+
+        private ValidationLevel minimumValidationLevel = null;
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
