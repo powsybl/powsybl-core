@@ -40,46 +40,32 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private static void setLoadDetail(String type, Load load) {
-        float p0 = (float) load.getP0();
-        float q0 = (float) load.getQ0();
-        if (!Float.isNaN(p0) && !Float.isNaN(q0)) {
-            if (type.endsWith("#ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
-                load.newExtension(LoadDetailAdder.class)
-                        .withFixedActivePower(0)
-                        .withFixedReactivePower(0)
-                        .withVariableActivePower(p0)
-                        .withVariableReactivePower(q0)
-                        .add();
-            } else if (type.endsWith("#NonConformLoad")) { // does not participate in scaling
-                load.newExtension(LoadDetailAdder.class)
-                        .withFixedActivePower(p0)
-                        .withFixedReactivePower(q0)
-                        .withVariableActivePower(0)
-                        .withVariableReactivePower(0)
-                        .add();
-            }
-            // else: EnergyConsumer - undefined
+        if (type.endsWith("#ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
+            load.newExtension(LoadDetailAdder.class)
+                    .withFixedActivePower(0)
+                    .withFixedReactivePower(0)
+                    .withVariableActivePower((float) load.getP0())
+                    .withVariableReactivePower((float) load.getQ0())
+                    .add();
+        } else if (type.endsWith("#NonConformLoad")) { // does not participate in scaling
+            load.newExtension(LoadDetailAdder.class)
+                    .withFixedActivePower((float) load.getP0())
+                    .withFixedReactivePower((float) load.getQ0())
+                    .withVariableActivePower(0)
+                    .withVariableReactivePower(0)
+                    .add();
         }
+        // else: EnergyConsumer - undefined
     }
 
     @Override
     protected double p0() {
-        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", () -> {
-            if (context.cgmes().hasOnlyEquipmentProfile()) {
-                return Double.NaN;
-            }
-            return 0.0;
-        });
+        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", context.defaultValue());
     }
 
     @Override
     protected double q0() {
-        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", () -> {
-            if (context.cgmes().hasOnlyEquipmentProfile()) {
-                return Double.NaN;
-            }
-            return 0.0;
-        });
+        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", context.defaultValue());
     }
 
     private final String loadKind;

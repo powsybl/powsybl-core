@@ -62,6 +62,12 @@ public class Context {
         reactiveCapabilityCurveData = new HashMap<>();
         powerTransformerRatioTapChangers = new HashMap<>();
         powerTransformerPhaseTapChangers = new HashMap<>();
+
+        defaultValue = cgmes.hasOnlyEquipmentProfile() ? Double.NaN : 0.0;
+    }
+
+    public double defaultValue() {
+        return defaultValue;
     }
 
     public CgmesModel cgmes() {
@@ -275,6 +281,7 @@ public class Context {
     private final DcMapping dcMapping;
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
+    private final double defaultValue;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> phaseTapChangerTables;
