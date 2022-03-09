@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.ShuntCompensatorTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.modification.tripping.ShuntCompensatorTripping;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,8 +31,8 @@ public class ShuntCompensatorContingencyTest {
         assertEquals("id", scContingency.getId());
         assertEquals(ContingencyElementType.SHUNT_COMPENSATOR, scContingency.getType());
 
-        assertNotNull(scContingency.toTask());
-        assertTrue(scContingency.toTask() instanceof ShuntCompensatorTripping);
+        assertNotNull(scContingency.toModification());
+        assertTrue(scContingency.toModification() instanceof ShuntCompensatorTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new ShuntCompensatorContingency("sc1"), new ShuntCompensatorContingency("sc1"))

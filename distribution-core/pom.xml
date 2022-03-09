@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>4.7.0-SNAPSHOT</version>
+        <version>4.8.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -307,6 +307,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-matpower-converter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-modification</artifactId>
             <version>${project.version}</version>
         </dependency>
 

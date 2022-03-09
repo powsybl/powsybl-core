@@ -6,6 +6,7 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -21,8 +22,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
@@ -65,7 +65,6 @@ public class ShortCircuitAnalysisTest {
 
         assertEquals(0, res.getFaultResults().size());
         assertEquals(0, res.getLimitViolations().size());
-        assertEquals(0, res.getFeederResults().size());
     }
 
     private static final String DEFAULT_PROVIDER_NAME = "ShortCircuitAnalysisMock";
@@ -93,19 +92,19 @@ public class ShortCircuitAnalysisTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, new ShortCircuitParameters(), computationManager);
+        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, shortCircuitParameters, computationManager);
         assertNotNull(result.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, new ShortCircuitParameters(), computationManager);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutComputationManager() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, new ShortCircuitParameters());
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters);
         assertNotNull(result);
     }
 
@@ -116,10 +115,23 @@ public class ShortCircuitAnalysisTest {
     }
 
     @Test
+    public void testWithReporter() {
+        ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager, reporter);
+        assertNotNull(result);
+        List<ReporterModel> subReporters = reporter.getSubReporters();
+        assertEquals(1, subReporters.size());
+        ReporterModel subReporter = subReporters.get(0);
+        assertEquals("MockShortCircuit", subReporter.getTaskKey());
+        assertEquals("Running mock short circuit", subReporter.getDefaultName());
+        assertTrue(subReporter.getReports().isEmpty());
+    }
+
+    @Test
     public void testInterceptor() {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisInterceptorMock interceptorMock = new ShortCircuitAnalysisInterceptorMock();
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysisMock.runAsync(network);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisMock.runWithNonEmptyResult();
         assertNotNull(result);
 
         List<FaultResult> faultResult = result.getFaultResults();

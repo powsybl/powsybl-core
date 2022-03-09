@@ -49,7 +49,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public NetworkImpl getNetwork() {
-        return networkRef.get();
+        return networkRef != null ? networkRef.get() : null;
     }
 
     @Override
@@ -65,6 +65,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         network.getListeners().notifyAfterRemoval(id);
+        networkRef = null;
+        terminals.forEach(TerminalExt::remove);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {

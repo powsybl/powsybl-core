@@ -19,8 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractSubstationTest {
@@ -79,6 +78,11 @@ public abstract class AbstractSubstationTest {
                .onElementAdded(any(Substation.class), anyString(), anyString());
         // Remove observer
         network.removeListener(mockedListener);
+
+        // Remove
+        substation.remove();
+        assertNotNull(substation);
+        assertNull(substation.getNetwork());
     }
 
     @Test

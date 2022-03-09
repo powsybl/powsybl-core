@@ -140,12 +140,14 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setQ0(checkQ(terminal));
         fillNodeOrBus(dlAdder, terminal);
 
+        double p = terminal.getP();
+        double q = terminal.getQ();
         line.remove();
 
         DanglingLine dl = dlAdder.add();
         dl.getTerminal()
-                .setP(terminal.getP())
-                .setQ(terminal.getQ());
+                .setP(p)
+                .setQ(q);
 
         observers.forEach(o -> o.lineReplaced(line, dl));
     }
@@ -164,12 +166,14 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setQ0(checkQ(terminal));
         fillNodeOrBus(loadAdder, terminal);
 
+        double p = terminal.getP();
+        double q = terminal.getQ();
         branch.remove();
 
         Load load = loadAdder.add();
         load.getTerminal()
-                .setP(terminal.getP())
-                .setQ(terminal.getQ());
+                .setP(p)
+                .setQ(q);
 
         return load;
     }

@@ -17,7 +17,9 @@ import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -84,6 +86,9 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         LOGGER.info("LoadFlowResultsCompletionParameters={}", parameters);
         LOGGER.info("LoadFlowParameters={}", lfParameters);
 
+        network.getLoadStream().forEach(load -> completeTerminalData(load.getTerminal(), load));
+        network.getGeneratorStream().forEach(generator -> completeTerminalData(generator.getTerminal(), generator));
+
         network.getLineStream()
             // Do not try to compute flows on loops
             .filter(l -> l.getTerminal1().getBusView().getBus() != l.getTerminal2().getBusView().getBus())
@@ -146,6 +151,32 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
 
         Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
         z0FlowsCompletion.complete();
+    }
+
+    private void completeTerminalData(Terminal terminal, Load load) {
+        if (terminal.isConnected() && terminal.getBusView().getBus() != null && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+            if (Double.isNaN(terminal.getP())) {
+                LOGGER.debug("Load {}, setting p = {}", load.getId(), load.getP0());
+                terminal.setP(load.getP0());
+            }
+            if (Double.isNaN(terminal.getQ())) {
+                LOGGER.debug("Load {}, setting q = {}", load.getId(), load.getQ0());
+                terminal.setQ(load.getQ0());
+            }
+        }
+    }
+
+    private void completeTerminalData(Terminal terminal, Generator generator) {
+        if (terminal.isConnected() && terminal.getBusView().getBus() != null && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+            if (Double.isNaN(terminal.getP())) {
+                LOGGER.debug("Generator {}, setting p = {}", generator.getId(), -generator.getTargetP());
+                terminal.setP(-generator.getTargetP());
+            }
+            if (Double.isNaN(terminal.getQ())) {
+                LOGGER.debug("Generator {}, setting q = {}", generator.getId(), -generator.getTargetQ());
+                terminal.setQ(-generator.getTargetQ());
+            }
+        }
     }
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {
