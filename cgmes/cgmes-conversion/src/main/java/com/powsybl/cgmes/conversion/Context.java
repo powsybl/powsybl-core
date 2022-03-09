@@ -49,21 +49,6 @@ public class Context {
         // based on existing node-breaker info
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
-        namingStrategy = new NamingStrategy.Identity();
-        cgmesBoundary = new CgmesBoundary(cgmes);
-        substationIdMapping = new SubstationIdMapping(this);
-        terminalMapping = new TerminalMapping();
-        dcMapping = new DcMapping(this);
-        loadingLimitsMapping = new LoadingLimitsMapping(this);
-        regulatingControlMapping = new RegulatingControlMapping(this);
-        nodeMapping = new NodeMapping();
-
-        ratioTapChangerTables = new HashMap<>();
-        phaseTapChangerTables = new HashMap<>();
-        reactiveCapabilityCurveData = new HashMap<>();
-        powerTransformerRatioTapChangers = new HashMap<>();
-        powerTransformerPhaseTapChangers = new HashMap<>();
-
         if ((config.getMinimumValidationLevel() == null && cgmes.hasOnlyEquipmentProfile())
                 || config.getMinimumValidationLevel() == ValidationLevel.EQUIPMENT) {
             flowsDefaultValue = Double.NaN;
@@ -72,6 +57,21 @@ public class Context {
             flowsDefaultValue = 0.0;
             fixSsh = true;
         }
+
+        namingStrategy = new NamingStrategy.Identity();
+        cgmesBoundary = new CgmesBoundary(cgmes);
+        substationIdMapping = new SubstationIdMapping(this);
+        terminalMapping = new TerminalMapping();
+        dcMapping = new DcMapping(this);
+        loadingLimitsMapping = new LoadingLimitsMapping(this);
+        regulatingControlMapping = new RegulatingControlMapping(fixSsh, this);
+        nodeMapping = new NodeMapping();
+
+        ratioTapChangerTables = new HashMap<>();
+        phaseTapChangerTables = new HashMap<>();
+        reactiveCapabilityCurveData = new HashMap<>();
+        powerTransformerRatioTapChangers = new HashMap<>();
+        powerTransformerPhaseTapChangers = new HashMap<>();
     }
 
     public boolean fixSsh() {
