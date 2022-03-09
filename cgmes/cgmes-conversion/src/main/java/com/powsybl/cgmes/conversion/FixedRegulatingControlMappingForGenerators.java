@@ -31,13 +31,13 @@ public class FixedRegulatingControlMappingForGenerators extends AbstractRegulati
     protected boolean setRegulatingControlVoltage(String controlId,
                                                   RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
         boolean voltageRegulatorOn = control.enabled && eqControlEnabled;
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-        if (terminal == null) { // If regulating terminal null, regulation is disabled
-            context.invalid(controlId, () -> "Unmapped regulating terminal and impossible to find an equivalent terminal. Regulation is disabled.");
-            voltageRegulatorOn = false;
-        }
-
         double targetV = control.targetValue;
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
+        if (voltageRegulatorOn && terminal == null) { // If regulating terminal null, regulation is made local
+            context.fixed(controlId, () -> "Unmapped regulating terminal and impossible to find an equivalent terminal. Regulation is made local.");
+            terminal = gen.getTerminal();
+            targetV = terminal.getVoltageLevel().getNominalV();
+        }
         if (voltageRegulatorOn && (control.targetValue <= 0.0 || Double.isNaN(control.targetValue))) {
             targetV = terminal.getVoltageLevel().getNominalV();
             context.fixed(controlId, "Invalid value for regulating target value. Regulation value fixed as nominal voltage of regulating terminal.", control.targetValue, targetV);

@@ -295,7 +295,7 @@ public class Cgmes3ConversionTest {
         // regulatingTerminals of network are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
         // Differences are associated with regulating cgmesTerminals defined for breakers
-        fixRegulationStatusBeforeComparison(network, networkwithoutTpSv);
+        fixRegulationValuesBeforeComparison(network, networkwithoutTpSv);
         fixRegulatingTerminalsBeforeComparison(network);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
@@ -339,11 +339,11 @@ public class Cgmes3ConversionTest {
         });
     }
 
-    private static void fixRegulationStatusBeforeComparison(Network network, Network networkWithoutTp) {
+    private static void fixRegulationValuesBeforeComparison(Network network, Network networkWithoutTp) {
         network.getGeneratorStream().forEach(g -> {
             Generator genWithoutTp = networkWithoutTp.getGenerator(g.getId());
-            if (genWithoutTp.getRegulatingTerminal() == genWithoutTp.getTerminal() && !genWithoutTp.isVoltageRegulatorOn()) { // case where terminal is on switch => unmapped terminal => disabled regulation
-                g.setVoltageRegulatorOn(false);
+            if (genWithoutTp.getRegulatingTerminal() == genWithoutTp.getTerminal() && genWithoutTp.getTargetV() == genWithoutTp.getTerminal().getVoltageLevel().getNominalV()) {
+                g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
             }
         });
     }

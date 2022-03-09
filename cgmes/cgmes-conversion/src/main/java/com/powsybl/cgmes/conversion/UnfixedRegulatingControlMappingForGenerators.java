@@ -29,7 +29,9 @@ public class UnfixedRegulatingControlMappingForGenerators extends AbstractRegula
         boolean voltageRegulatorOn = control.enabled && eqControlEnabled;
         // Null terminal if it has not been defined in CGMES file
         Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-
+        if (terminal == null) {
+            context.invalid(() -> controlId, () -> "Unmapped regulating terminal.");
+        }
         double targetV = control.targetValue;
         if (control.targetValue <= 0.0) {
             targetV = Double.NaN;
