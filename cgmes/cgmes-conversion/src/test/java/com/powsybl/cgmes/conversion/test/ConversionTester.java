@@ -205,21 +205,22 @@ public class ConversionTester {
 
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
-        new CgmesExport().export(network, exportParams, new FileDataSource(path, "bar"));
+        String baseName = "bar";
+        new CgmesExport().export(network, exportParams, new FileDataSource(path, baseName));
 
         DataSource ds = new FileDataSource(path, "bar");
         String expected = originalDs.listNames(".*EQ.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain EQ profile"));
-        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(network.getNameOrId() + "_EQ.xml", false));
+        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_EQ.xml", false));
              InputStream in = originalDs.newInputStream(expected)) {
             ByteStreams.copy(in, out);
         }
         expected = originalDs.listNames(".*TP.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain TP profile"));
-        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(network.getNameOrId() + "_TP.xml", false));
+        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_TP.xml", false));
              InputStream in = originalDs.newInputStream(expected)) {
             ByteStreams.copy(in, out);
         }
         for (String boundary : originalDs.listNames(".*BD.*")) {
-            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(boundary, false));
+            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + boundary, false));
                  InputStream in = originalDs.newInputStream(boundary)) {
                 ByteStreams.copy(in, out);
             }
