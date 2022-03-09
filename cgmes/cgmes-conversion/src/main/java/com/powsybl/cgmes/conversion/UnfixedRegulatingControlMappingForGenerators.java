@@ -26,6 +26,7 @@ public class UnfixedRegulatingControlMappingForGenerators extends AbstractRegula
 
     @Override
     protected boolean setRegulatingControlVoltage(String controlId, RegulatingControlMapping.RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
+        boolean voltageRegulatorOn = control.enabled && eqControlEnabled;
         // Null terminal if it has not been defined in CGMES file
         Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
 
@@ -33,11 +34,10 @@ public class UnfixedRegulatingControlMappingForGenerators extends AbstractRegula
         if (control.targetValue <= 0.0) {
             targetV = Double.NaN;
         }
-        if (Double.isNaN(control.targetValue)) {
+        if (voltageRegulatorOn && Double.isNaN(control.targetValue)) {
             context.invalid(() -> controlId, () -> String.format("Invalid value %s for regulating target value", control.targetValue));
         }
 
-        boolean voltageRegulatorOn = control.enabled && eqControlEnabled;
         // Regulating control is enabled AND this equipment participates in regulating control
         setRegulatingControlVoltage(controlId, targetV, voltageRegulatorOn, terminal, qPercent, gen);
         return true;
