@@ -14,6 +14,9 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -45,11 +48,19 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
         });
         int node1 = XmlUtil.readIntAttribute(context.getReader(), "node1");
         int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
-        return adder.setKind(kind)
+        // Discard switches with same node at both ends
+        if (node1 == node2) {
+            LOGGER.info("Discard switch with same node at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+            return null;
+        } else {
+            return adder.setKind(kind)
                 .setRetained(retained)
                 .setOpen(open)
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
+        }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerViewSwitchXml.class);
 }

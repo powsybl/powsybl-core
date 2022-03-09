@@ -14,6 +14,9 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -45,9 +48,17 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
         });
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
-        return adder.setOpen(open)
+        // Discard switches with same bus at both ends
+        if (bus1 != null && bus1.equals(bus2)) {
+            LOGGER.info("Discard switch with same bus at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+            return null;
+        } else {
+            return adder.setOpen(open)
                 .setBus1(bus1)
                 .setBus2(bus2)
                 .add();
+        }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BusBreakerViewSwitchXml.class);
 }
