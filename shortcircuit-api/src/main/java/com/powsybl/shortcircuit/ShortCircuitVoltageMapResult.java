@@ -13,17 +13,74 @@ public class ShortCircuitVoltageMapResult {
     private String id;
     private double voltageValue;
     private double voltageAngle;
-    private double voltageValuePhase1;
-    private double voltageAnglePhase1;
-    private double voltageValuePhase2;
-    private double voltageAnglePhase2;
-    private double voltageValuePhase3;
-    private double voltageAnglePhase3;
-    private double phaseToNeutralVoltageDropPhase1; //in %
-    private double phaseToNeutralVoltageDropPhase2;
-    private double phaseToNeutralVoltageDropPhase3;
-    private double voltageDropPhase12;
-    private double voltageDropPhase23;
-    private double voltageDropPhase31;
+    private ValuesOnThreePhases voltageValuePerPhase;
+    private ValuesOnThreePhases voltageAnglePerPhase;
+    private ValuesOnThreePhases phaseToNeutralVoltageDropPerPhase; //in %
+    private ValuesOnThreePhases voltageDropPerPhase;
 
+    public ShortCircuitVoltageMapResult(String id, double voltageValue, double voltageAngle, ValuesOnThreePhases voltageValuePerPhase, ValuesOnThreePhases voltageAnglePerPhase, ValuesOnThreePhases phaseToNeutralVoltageDropPerPhase, ValuesOnThreePhases voltageDropPerPhase) {
+        this.id = id;
+        this.voltageValue = voltageValue;
+        this.voltageAngle = voltageAngle;
+        this.voltageValuePerPhase = voltageValuePerPhase;
+        this.voltageAnglePerPhase = voltageAnglePerPhase;
+        this.phaseToNeutralVoltageDropPerPhase = phaseToNeutralVoltageDropPerPhase;
+        this.voltageDropPerPhase = voltageDropPerPhase;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public double getVoltageValue() {
+        return voltageValue;
+    }
+
+    public void setVoltageValue(double voltageValue) {
+        this.voltageValue = voltageValue;
+    }
+
+    public double getVoltageAngle() {
+        return voltageAngle;
+    }
+
+    public void setVoltageAngle(double voltageAngle) {
+        this.voltageAngle = voltageAngle;
+    }
+
+    public ValuesOnThreePhases getVoltageValuePerPhase() {
+        return voltageValuePerPhase;
+    }
+
+    public void setVoltageValuePerPhase(ValuesOnThreePhases voltageValuePerPhase) {
+        this.voltageValuePerPhase = voltageValuePerPhase;
+    }
+
+    public ValuesOnThreePhases getVoltageAnglePerPhase() {
+        return voltageAnglePerPhase;
+    }
+
+    public void setVoltageAnglePerPhase(ValuesOnThreePhases voltageAnglePerPhase) {
+        this.voltageAnglePerPhase = voltageAnglePerPhase;
+    }
+
+    public ValuesOnThreePhases getPhaseToNeutralVoltageDropPerPhase() {
+        return phaseToNeutralVoltageDropPerPhase;
+    }
+
+    public void setPhaseToNeutralVoltageDropPerPhase(ValuesOnThreePhases phaseToNeutralVoltageDropPerPhase) {
+        this.phaseToNeutralVoltageDropPerPhase = phaseToNeutralVoltageDropPerPhase;
+    }
+
+    public ValuesOnThreePhases getVoltageDropPerPhase() {
+        return voltageDropPerPhase;
+    }
+
+    public void setVoltageDropPerPhase(ValuesOnThreePhases voltageDropPerPhase) {
+        this.voltageDropPerPhase = voltageDropPerPhase;
+    }
 }

@@ -37,6 +37,10 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
         this.limitViolations.addAll(Objects.requireNonNull(limitViolations));
     }
 
+    public ShortCircuitAnalysisResult(ShortCircuitBusResult busResult) {
+        this.busResult = busResult;
+    }
+
     /**
      * A list of results, for each fault which have been simulated.
      */
