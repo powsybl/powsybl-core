@@ -66,14 +66,20 @@ public class Context {
 
         if ((config.getMinimumValidationLevel() == null && cgmes.hasOnlyEquipmentProfile())
                 || config.getMinimumValidationLevel() == ValidationLevel.EQUIPMENT) {
-            defaultValue = Double.NaN;
+            flowsDefaultValue = Double.NaN;
+            fixSsh = false;
         } else {
-            defaultValue = 0.0;
+            flowsDefaultValue = 0.0;
+            fixSsh = true;
         }
     }
 
-    public double defaultValue() {
-        return defaultValue;
+    public boolean fixSsh() {
+        return fixSsh;
+    }
+
+    public double flowsDefaultValue() {
+        return flowsDefaultValue;
     }
 
     public CgmesModel cgmes() {
@@ -287,7 +293,10 @@ public class Context {
     private final DcMapping dcMapping;
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
-    private final double defaultValue;
+
+    // Parameters for minimum validation values
+    private final double flowsDefaultValue;
+    private final boolean fixSsh;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> phaseTapChangerTables;
