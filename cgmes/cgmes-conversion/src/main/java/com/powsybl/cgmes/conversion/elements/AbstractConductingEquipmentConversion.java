@@ -21,6 +21,8 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +36,7 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context) {
@@ -45,7 +47,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context,
@@ -64,7 +66,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBags ps,
         Context context) {
@@ -626,9 +628,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
-        if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+        if (context.config().createCgmesExportMapping()) {
             CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-            mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
+            String topologicalNode = terminals[cgmesTerminalNumber - 1].t.topologicalNode();
+            if (topologicalNode == null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Missing Topological Node for {} side {}", identifiable.getId(), iidmTerminalNumber);
+                }
+            } else {
+                mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, topologicalNode);
+            }
         }
     }
 
@@ -636,6 +645,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         int cgmesTerminalNumber = terminalNumber;
         int iidmTerminalNumber = cgmesTerminalNumber;
         addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
+    }
+
+    protected static void addMappingForTopologicalNode(Context context, TieLine tl, int side, BoundaryLine boundaryLine) {
+        if (context.config().createCgmesExportMapping()) {
+            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+
+            String cgmesTerminalId = boundaryLine.getModelTerminalId();
+            CgmesTerminal t = context.cgmes().terminal(cgmesTerminalId);
+            mapping.putTopologicalNode(tl.getId(), side, t.topologicalNode());
+        }
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {
@@ -669,4 +688,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private final TerminalData[] terminals;
     private final PowerFlow steadyStatePowerFlow;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractConductingEquipmentConversion.class);
 }

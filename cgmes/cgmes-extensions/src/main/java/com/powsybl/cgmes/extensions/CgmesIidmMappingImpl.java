@@ -133,6 +133,13 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
+    public void invalidateTopology() {
+        equipmentSideTopologicalNodeMap.clear();
+        busTopologicalNodeMap.clear();
+        unmappedTopologicalNodes.clear();
+    }
+
+    @Override
     public Map<Double, BaseVoltageSource> getBaseVoltages() {
         return Collections.unmodifiableMap(nominalVoltageBaseVoltageMap);
     }
@@ -169,6 +176,56 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     public Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap() {
         return new HashMap<>(nominalVoltageBaseVoltageMap);
+    }
+
+    @Override
+    public void addTopologyListener() {
+        getExtendable().addListener(new NetworkListener() {
+            @Override
+            public void onCreation(Identifiable identifiable) {
+                if (identifiable instanceof Switch || identifiable instanceof Bus) {
+                    invalidateTopology();
+                }
+            }
+
+            @Override
+            public void beforeRemoval(Identifiable identifiable) {
+                if (identifiable instanceof Switch || identifiable instanceof Bus) {
+                    invalidateTopology();
+                }
+            }
+
+            @Override
+            public void afterRemoval(String id) {
+                // do nothing
+            }
+
+            @Override
+            public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+                // do nothing
+            }
+
+            @Override
+            public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+                if (identifiable instanceof Switch && "open".equals(attribute)) {
+                    invalidateTopology();
+                }
+            }
+
+            @Override
+            public void onElementAdded(Identifiable identifiable, String attribute, Object newValue) {
+                if (identifiable instanceof VoltageLevel && "internalConnection".equals(attribute)) {
+                    invalidateTopology();
+                }
+            }
+
+            @Override
+            public void onElementRemoved(Identifiable identifiable, String attribute, Object oldValue) {
+                if (identifiable instanceof VoltageLevel && "internalConnection".equals(attribute)) {
+                    invalidateTopology();
+                }
+            }
+        });
     }
 
     private void calculate() {

@@ -505,25 +505,31 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
         graph.addListener(new DefaultUndirectedGraphListener<>() {
 
+            private static final String INTERNAL_CONNECTION = "internalConnection";
+
             @Override
             public void edgeAdded(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
-                    NetworkImpl network = getNetwork();
                     network.getIndex().checkAndAdd(aSwitch);
                     switches.put(aSwitch.getId(), e);
                     network.getListeners().notifyCreation(aSwitch);
+                } else {
+                    network.getListeners().notifyElementAdded(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
                 }
                 invalidateCache();
             }
 
             @Override
             public void edgeRemoved(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
-                    NetworkImpl network = getNetwork();
                     String switchId = aSwitch.getId();
                     network.getListeners().notifyBeforeRemoval(aSwitch);
                     network.getIndex().remove(aSwitch);
                     network.getListeners().notifyAfterRemoval(switchId);
+                } else {
+                    network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
                 }
             }
 
@@ -531,11 +537,15 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             public void allEdgesRemoved(Collection<SwitchImpl> aSwitches) {
                 NetworkImpl network = getNetwork();
                 aSwitches.forEach(ss -> {
-                    network.getListeners().notifyBeforeRemoval(ss);
-                    network.getIndex().remove(ss);
+                    if (ss != null) {
+                        network.getListeners().notifyBeforeRemoval(ss);
+                        network.getIndex().remove(ss);
+                    } else {
+                        network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
+                    }
                 });
                 switches.clear();
-                aSwitches.forEach(ss -> network.getListeners().notifyAfterRemoval(ss.getId()));
+                aSwitches.stream().filter(Objects::nonNull).forEach(ss -> network.getListeners().notifyAfterRemoval(ss.getId()));
             }
         });
     }
