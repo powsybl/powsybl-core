@@ -78,6 +78,9 @@ public class TopologyExportTest extends AbstractConverterTest {
         Network actual = Importers.loadNetwork(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
+        // Create topology mapping
+        CgmesExportContext.updateTopologicalNodesMapping(actual);
+
         // Export original and with new TP
         NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
         NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));

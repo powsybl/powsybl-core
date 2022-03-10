@@ -10,7 +10,6 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -29,9 +28,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
 
-    private final Ref<NetworkImpl> networkRef;
+    private Ref<NetworkImpl> networkRef;
 
-    private final SubstationImpl substation;
+    private SubstationImpl substation;
 
     private double nominalV;
 
@@ -77,7 +76,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                 .map(Ref::get)
                 .orElseGet(() -> Optional.ofNullable(substation)
                         .map(SubstationImpl::getNetwork)
-                        .orElseThrow(() -> new PowsyblException(String.format("Voltage level %s has no container", id))));
+                        .orElse(null));
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
@@ -462,6 +461,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
+        networkRef = null;
+        substation = null;
     }
 
     protected abstract void removeTopology();

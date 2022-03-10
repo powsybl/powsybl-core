@@ -21,7 +21,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -38,10 +38,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -54,7 +54,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCgmes(dataSource, network);
+        testExportReimport(network, dataSource);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCgmes(dataSource, network);
+        testExportReimport(network, dataSource);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCgmes(dataSource, network);
+        testExportReimport(network, dataSource);
     }
 
     @Test
@@ -81,38 +81,42 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridType4BE().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
-        testCgmes(dataSource, network);
+        testExportReimport(network, dataSource);
     }
 
     @Test
     public void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-        testIidm(network);
+        testExportReimport(network);
     }
 
     @Test
     public void bPerSectionTest() throws IOException, XMLStreamException {
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridType4BE().dataSource();
+
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), properties);
-        ShuntCompensatorLinearModel model = (ShuntCompensatorLinearModel) network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
-        model.setBPerSection(1E-14);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+        ShuntCompensatorLinearModel sh = (ShuntCompensatorLinearModel) network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
+        assertEquals(0.024793, sh.getBPerSection(), 0.0);
 
-        Path exportedEq = tmpDir.resolve("exportedEq.xml");
-        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
-            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network);
-            EquipmentExport.write(network, writer, context);
-        }
+        sh.setBPerSection(1E-14);
 
-        Network actual = prepareNetwork(new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), new Properties()));
-        model = (ShuntCompensatorLinearModel) actual.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
-        assertEquals(1E-14, model.getBPerSection(), 0.0);
+        Network reimported = exportReimport(network, ds);
+        sh = (ShuntCompensatorLinearModel) reimported.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
+        assertEquals(1E-14, sh.getBPerSection(), 0.0);
     }
 
-    private void testCgmes(ReadOnlyDataSource dataSource, Network network) throws IOException, XMLStreamException {
-        Path exportedEq = exportToCgmesEQ(network);
+    private void testExportReimport(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
+        Network actual = exportReimport(expected, dataSource);
+        compareNetworksEQdata(expected, actual);
+    }
+
+    private Network exportReimport(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
+        Path exportedEq = exportToCgmesEQ(expected);
+
+        // From reference data source we use only boundaries
         Path repackaged = tmpDir.resolve("repackaged.zip");
         Repackager r = new Repackager(dataSource)
                 .with("test_EQ.xml", exportedEq)
@@ -121,19 +125,18 @@ public class EquipmentExportTest extends AbstractConverterTest {
         r.zip(repackaged);
 
         // Import with new EQ
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
-        Network actual = Importers.loadNetwork(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
-        compareNetworks(network, actual);
+        // There is no need to create the IIDM-CGMES mappings
+        // We are reading only an EQ, we won't have TP data in the input
+        // And to compare the expected and actual networks we are dropping all IIDM-CGMES mapping context information
+        return Importers.loadNetwork(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
     }
 
-    private void testIidm(Network network) throws IOException, XMLStreamException {
+    private void testExportReimport(Network network) throws IOException, XMLStreamException {
         exportToCgmesEQ(network);
 
-        // Import with new EQ
-        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), new Properties());
-        compareNetworks(network, actual);
+        // Import just the EQ file, no additional information (boundaries) are required
+        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        compareNetworksEQdata(network, actual);
     }
 
     private Path exportToCgmesEQ(Network network) throws IOException, XMLStreamException {
@@ -148,9 +151,9 @@ public class EquipmentExportTest extends AbstractConverterTest {
         return exportedEq;
     }
 
-    private void compareNetworks(Network expected, Network actual) throws IOException, XMLStreamException {
-        Network expectedNetwork = prepareNetwork(expected);
-        Network actualNetwork = prepareNetwork(actual);
+    private void compareNetworksEQdata(Network expected, Network actual) throws IOException {
+        Network expectedNetwork = prepareNetworkForEQComparison(expected);
+        Network actualNetwork = prepareNetworkForEQComparison(actual);
 
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
@@ -165,14 +168,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringNonEQ));
 
-        compareTemporaryLimits(xiidm(tmpDir, "expected"), xiidm(tmpDir, "actual"));
-    }
-
-    private Network xiidm(Path basePath, String baseName) {
-        XMLImporter xmli = new XMLImporter();
-        ReadOnlyDataSource ds = new FileDataSource(basePath, baseName);
-        Network n = xmli.importData(ds, NetworkFactory.findDefault(), null);
-        return n;
+        compareTemporaryLimits(Importers.loadNetwork(tmpDir.resolve("expected.xml")), Importers.loadNetwork(tmpDir.resolve("actual.xml")));
     }
 
     private void compareTemporaryLimits(Network expected, Network actual) {
@@ -254,10 +250,8 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
     private void compareLoadingLimits(LoadingLimits expected, LoadingLimits actual) {
         if (!actual.getTemporaryLimits().isEmpty()) {
-            assertTrue(!expected.getTemporaryLimits().isEmpty());
-            Iterator<LoadingLimits.TemporaryLimit> iterator = actual.getTemporaryLimits().iterator();
-            while (iterator.hasNext()) {
-                LoadingLimits.TemporaryLimit temporaryLimit = iterator.next();
+            assertFalse(expected.getTemporaryLimits().isEmpty());
+            for (LoadingLimits.TemporaryLimit temporaryLimit : actual.getTemporaryLimits()) {
                 int acceptableDuration = temporaryLimit.getAcceptableDuration();
                 assertEquals(expected.getTemporaryLimit(acceptableDuration).getValue(), temporaryLimit.getValue(), 0.0);
             }
@@ -266,19 +260,21 @@ public class EquipmentExportTest extends AbstractConverterTest {
         }
     }
 
-    private Network prepareNetwork(Network network) {
-        network.getAliases().forEach(alias -> network.removeAlias(alias));
-        network.getIdentifiables().forEach(identifiable -> identifiable.getAliases().forEach(alias -> identifiable.removeAlias(alias)));
+    private Network prepareNetworkForEQComparison(Network network) {
+        network.getAliases().forEach(network::removeAlias);
+        network.getIdentifiables().forEach(identifiable -> identifiable.getAliases().forEach(identifiable::removeAlias));
 
-        network.getVoltageLevels().forEach(vl -> {
-            vl.getBusView().getBuses().forEach(bus -> {
-                bus.setV(Double.NaN);
-                bus.setAngle(Double.NaN);
-            });
-        });
+        network.getVoltageLevels().forEach(vl ->
+                vl.getBusView().getBuses().forEach(bus -> {
+                    bus.setV(Double.NaN);
+                    bus.setAngle(Double.NaN);
+                })
+        );
         network.getIdentifiables().forEach(identifiable -> {
             if (identifiable instanceof Bus) {
+                // Nothing to do
             } else if (identifiable instanceof BusbarSection) {
+                // Nothing to do
             } else if (identifiable instanceof ShuntCompensator) {
                 ShuntCompensator shuntCompensator = (ShuntCompensator) identifiable;
                 shuntCompensator.setVoltageRegulatorOn(false);

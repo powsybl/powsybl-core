@@ -141,6 +141,9 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         expected.removeExtension(CgmesControlAreas.class);
         actual.removeExtension(CgmesControlAreas.class);
 
+        // Create topology mapping
+        CgmesExportContext.updateTopologicalNodesMapping(actual);
+
         // Export original and with new SSH
         NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
         NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
