@@ -145,9 +145,7 @@ public class Conversion {
         addCimCharacteristics(network);
         if (context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
-            if (context.nodeBreaker()) {
-                cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
-            }
+            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
             cgmes.baseVoltages().forEach(bv -> mappingAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
             mappingAdder.add();
         }
@@ -511,9 +509,7 @@ public class Conversion {
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
-        Iterator<PropertyBag> k = cgmes.switches().iterator();
-        while (k.hasNext()) {
-            PropertyBag sw = k.next();
+        for (PropertyBag sw : cgmes.switches()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(sw.tabulateLocals("Switch"));
             }
@@ -531,9 +527,7 @@ public class Conversion {
     }
 
     private void convertEquivalentBranchesToLines(Context context, Set<String> delayedBoundaryNodes) {
-        Iterator<PropertyBag> k = cgmes.equivalentBranches().iterator();
-        while (k.hasNext()) {
-            PropertyBag equivalentBranch = k.next();
+        for (PropertyBag equivalentBranch : cgmes.equivalentBranches()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(equivalentBranch.tabulateLocals("EquivalentBranch"));
             }
