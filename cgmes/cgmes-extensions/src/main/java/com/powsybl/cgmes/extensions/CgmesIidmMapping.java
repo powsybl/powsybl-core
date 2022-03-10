@@ -112,6 +112,8 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
     Set<CgmesTopologicalNode> getUnmappedTopologicalNodes();
 
+    void invalidateTopology();
+
     Map<Double, BaseVoltageSource> getBaseVoltages();
 
     BaseVoltageSource getBaseVoltage(double nominalVoltage);
@@ -123,4 +125,6 @@ public interface CgmesIidmMapping extends Extension<Network> {
     CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source);
 
     Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap();
+
+    void addTopologyListener();
 }

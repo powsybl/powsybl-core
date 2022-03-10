@@ -29,9 +29,9 @@
     <xs:element name="cgmesIidmMapping">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="unmappedTopologicalNode" type="ci:TopologicalNode" minOccurs="1" maxOccurs="unbounded"/>
-                <xs:element name="link" type="ci:Link" minOccurs="1" maxOccurs="unbounded"/>
-                <xs:element name="baseVoltage" type="ci:BaseVoltage" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="unmappedTopologicalNode" type="ci:TopologicalNode" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="link" type="ci:Link" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="baseVoltage" type="ci:BaseVoltage" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
             <xs:attribute name="unmappedBaseVoltageIds" use="optional" type="xs:string"/>
         </xs:complexType>
