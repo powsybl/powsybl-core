@@ -93,7 +93,13 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     @Override
     public CgmesIidmMapping putTopologicalNode(String equipmentId, int side, String topologicalNodeId) {
-        equipmentSideTopologicalNodeMap.put(new EquipmentSide(equipmentId, side), topologicalNodeId);
+        if (topologicalNodeId == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Missing Topological Node for equipment {} side {}", equipmentId, side);
+            }
+        } else {
+            equipmentSideTopologicalNodeMap.put(new EquipmentSide(equipmentId, side), topologicalNodeId);
+        }
         return this;
     }
 
