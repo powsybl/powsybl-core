@@ -21,8 +21,6 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -631,13 +629,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.config().createCgmesExportMapping()) {
             CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
             String topologicalNode = terminals[cgmesTerminalNumber - 1].t.topologicalNode();
-            if (topologicalNode == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Missing Topological Node for {} side {}", identifiable.getId(), iidmTerminalNumber);
-                }
-            } else {
-                mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, topologicalNode);
-            }
+            mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, topologicalNode);
         }
     }
 
@@ -688,6 +680,4 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private final TerminalData[] terminals;
     private final PowerFlow steadyStatePowerFlow;
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractConductingEquipmentConversion.class);
 }
