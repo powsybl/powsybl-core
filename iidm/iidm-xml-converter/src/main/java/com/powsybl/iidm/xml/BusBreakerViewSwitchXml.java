@@ -60,7 +60,7 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
         String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
         // Discard switches with same bus at both ends
         if (bus1.equals(bus2)) {
-            LOGGER.info("Discard switch with same bus at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+            LOGGER.warn("Discard switch with same bus at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
             return null;
         } else {
             return adder.setOpen(open)
