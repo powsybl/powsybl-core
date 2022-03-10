@@ -25,6 +25,16 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
     static final BusBreakerViewSwitchXml INSTANCE = new BusBreakerViewSwitchXml();
 
     @Override
+    protected boolean isValid(Switch s, VoltageLevel vl) {
+        VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
+        if (v.getBus1(s.getId()).getId().equals(v.getBus2(s.getId()).getId())) {
+            LOGGER.warn("Discard switch with same bus at both ends. Id: {}", s.getId());
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
@@ -49,7 +59,7 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
         // Discard switches with same bus at both ends
-        if (bus1 != null && bus1.equals(bus2)) {
+        if (bus1.equals(bus2)) {
             LOGGER.info("Discard switch with same bus at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
             return null;
         } else {

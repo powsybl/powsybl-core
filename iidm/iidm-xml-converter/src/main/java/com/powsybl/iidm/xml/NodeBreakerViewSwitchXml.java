@@ -25,6 +25,16 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
     static final NodeBreakerViewSwitchXml INSTANCE = new NodeBreakerViewSwitchXml();
 
     @Override
+    protected boolean isValid(Switch s, VoltageLevel vl) {
+        VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
+        if (v.getNode1(s.getId()) == v.getNode2(s.getId())) {
+            LOGGER.warn("Discard switch with same node at both ends. Id: {}", s.getId());
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
@@ -50,7 +60,7 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
         int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
         // Discard switches with same node at both ends
         if (node1 == node2) {
-            LOGGER.info("Discard switch with same node at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+            LOGGER.warn("Discard switch with same node at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
             return null;
         } else {
             return adder.setKind(kind)
