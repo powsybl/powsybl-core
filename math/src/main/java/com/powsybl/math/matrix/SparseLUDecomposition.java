@@ -81,13 +81,14 @@ class SparseLUDecomposition implements LUDecomposition {
      * The structure of the matrix is not supposed to have changed, only non zero values.
      */
     @Override
-    public void update() {
+    public void update(boolean allowIncrementalUpdate) {
         checkMatrixStructure();
         Stopwatch stopwatch = Stopwatch.createStarted();
-        double rgrowth = update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), matrix.getRgrowthThreshold());
+        double rgrowthThreshold = allowIncrementalUpdate ? matrix.getRgrowthThreshold() : 0;
+        double rgrowth = update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), rgrowthThreshold);
         stopwatch.stop();
         LOGGER.debug("Sparse LU decomposition updated (rgrowth is {}, threshold is {}) in {} us",
-                rgrowth, matrix.getRgrowthThreshold(), stopwatch.elapsed(TimeUnit.MICROSECONDS));
+                rgrowth, rgrowthThreshold, stopwatch.elapsed(TimeUnit.MICROSECONDS));
     }
 
     @Override

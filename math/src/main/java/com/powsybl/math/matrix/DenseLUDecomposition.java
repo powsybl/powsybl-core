@@ -26,7 +26,7 @@ class DenseLUDecomposition implements LUDecomposition {
     }
 
     @Override
-    public void update() {
+    public void update(boolean allowIncrementalUpdate) {
         decomposition = null;
         transposedDecomposition = null;
     }
