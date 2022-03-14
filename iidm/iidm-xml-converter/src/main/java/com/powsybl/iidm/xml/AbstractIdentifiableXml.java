@@ -30,12 +30,19 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         return hasSubElements(identifiable);
     }
 
+    protected boolean isValid(T identifiable, P parent) {
+        return true;
+    }
+
     protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException;
 
     protected void writeSubElements(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
     }
 
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (!isValid(identifiable, parent)) {
+            return;
+        }
         boolean isNotEmptyElement = hasSubElements(identifiable, context) || identifiable.hasProperty() || identifiable.hasAliases();
         if (isNotEmptyElement) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
@@ -94,7 +101,9 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected void readElement(String id, A adder, NetworkXmlReaderContext context) throws XMLStreamException {
         T identifiable = readRootElementAttributes(adder, context);
-        readSubElements(identifiable, context);
+        if (identifiable != null) {
+            readSubElements(identifiable, context);
+        }
     }
 
     public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
