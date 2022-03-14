@@ -101,6 +101,7 @@ public class CgmesExport implements Exporter {
     }
 
     public static final String BASE_NAME = "iidm.export.cgmes.base-name";
+    public static final String CIM_VERSION = "iidm.export.cgmes.cim-version";
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
@@ -109,6 +110,11 @@ public class CgmesExport implements Exporter {
             BASE_NAME,
             ParameterType.STRING,
             "Basename for output files",
+            null);
+    private static final Parameter CIM_VERSION_PARAMETER = new Parameter(
+            CIM_VERSION,
+            ParameterType.STRING,
+            "CIM version to export",
             null);
     private static final Parameter EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER = new Parameter(
             EXPORT_BOUNDARY_POWER_FLOWS,
@@ -128,6 +134,7 @@ public class CgmesExport implements Exporter {
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
+            CIM_VERSION_PARAMETER,
             EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
             EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER,
             PROFILES_PARAMETER);
