@@ -151,6 +151,12 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setConnectedComponentMode(parser.readValueAs(LoadFlowParameters.ConnectedComponentMode.class));
                     break;
 
+                case "hvdcAcEmulation":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: hvdcAcEmulation" + parser.getCurrentName(), version, "1.7");
+                    parser.nextToken();
+                    parameters.setHvdcAcEmulation(parser.readValueAs(Boolean.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonLoadFlowParameters.getExtensionSerializers(), parameters);
