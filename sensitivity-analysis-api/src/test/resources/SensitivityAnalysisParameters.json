@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "load-flow-parameters" : {
-    "version" : "1.6",
+    "version" : "1.7",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
@@ -15,6 +15,7 @@
     "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
     "dcUseTransformerRatio" : true,
     "countriesToBalance" : [ ],
-    "connectedComponentMode" : "MAIN"
+    "connectedComponentMode" : "MAIN",
+    "hvdcAcEmulation" : true
   }
 }
