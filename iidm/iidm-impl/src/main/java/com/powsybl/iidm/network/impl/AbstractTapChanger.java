@@ -111,15 +111,17 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     protected abstract String getTapChangerAttribute();
 
     public C setTapPosition(int tapPosition) {
+        NetworkImpl n = getNetwork();
         if (tapPosition < lowTapPosition
                 || tapPosition > getHighTapPosition()) {
             throw new ValidationException(parent, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", "
                     + getHighTapPosition() + "]");
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = n.getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
         return (C) this;
     }
