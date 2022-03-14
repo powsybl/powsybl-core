@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 class ProportionalScalable extends AbstractCompoundScalable {
     private static final double EPSILON = 1e-2;
 
-    private final class ScalablePercentage {
+    private static final class ScalablePercentage {
         private final Scalable scalable;
         private final float percentage;
         private boolean saturated;
@@ -35,7 +35,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         private ScalablePercentage(Scalable scalable, float percentage) {
             this.scalable = scalable;
             this.percentage = percentage;
-            this.saturated = false;
+            this.saturated = percentage == 0;
             this.iterationPercentage = percentage;
         }
 
@@ -185,7 +185,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private void reinitIterationPercentage() {
         scalablePercentageList.forEach(scalablePercentage -> {
-            scalablePercentage.setSaturated(false);
+            scalablePercentage.setSaturated(scalablePercentage.getPercentage() == 0);
             scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage());
         });
     }
