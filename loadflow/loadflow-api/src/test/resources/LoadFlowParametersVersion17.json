@@ -6,13 +6,13 @@
   "noGeneratorReactiveLimits" : true,
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
-  "readSlackBus" : true,
+  "readSlackBus" : false,
   "writeSlackBus" : false,
   "dc" : false,
   "distributedSlack" : true,
   "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
   "dcUseTransformerRatio" : true,
-  "countriesToBalance" : [ ],
+  "countriesToBalance" : [ "FR" , "KI" ],
   "connectedComponentMode" : "MAIN",
   "hvdcAcEmulation" : true
 }
