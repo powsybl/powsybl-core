@@ -15,6 +15,8 @@ import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.DifferenceEvaluators;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -61,8 +63,14 @@ public class CgmesMappingTest extends AbstractConverterTest {
             files = walk.filter(Files::isRegularFile)
                     .collect(Collectors.toList());
         }
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringFullModelAbout,
+                ExportXmlCompare::ignoringCurrentLimitIds,
+                ExportXmlCompare::ignoringSVIds);
         for (Path file : files) {
-            ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()));
+            ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
         }
 
     }
