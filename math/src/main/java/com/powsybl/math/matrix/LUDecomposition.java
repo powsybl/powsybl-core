@@ -28,6 +28,10 @@ public interface LUDecomposition extends AutoCloseable {
      */
     void update(boolean allowIncrementalUpdate);
 
+    /**
+     * Method to call when matrix has been updated to refresh LU decomposition so that new data can be taken into
+     * account in next {@link #solve(double[])} or {@link #solve(DenseMatrix)}.
+     */
     default void update() {
         update(true);
     }
