@@ -11,8 +11,7 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
-import com.powsybl.iidm.network.util.HalfLineUtil;
-import com.powsybl.iidm.network.util.LinkData;
+import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Objects;
 
@@ -237,9 +236,7 @@ class TieLineImpl extends LineImpl implements TieLine {
     // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
-        // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail
-        return adm.y12().negate().reciprocal().getReal() + 0.0;
+        return TieLineUtil.getR(half1, half2);
     }
 
     private ValidationException createNotSupportedForTieLines() {
@@ -254,9 +251,7 @@ class TieLineImpl extends LineImpl implements TieLine {
     // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
-        // Add 0.0 to avoid negative zero, tests where the X value is compared as text, fail
-        return adm.y12().negate().reciprocal().getImaginary() + 0.0;
+        return TieLineUtil.getX(half1, half2);
     }
 
     @Override
@@ -266,8 +261,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG1() {
-        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
-        return adm.y11().add(adm.y12()).getReal();
+        return TieLineUtil.getG1(half1, half2);
     }
 
     @Override
@@ -277,8 +271,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB1() {
-        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
-        return adm.y11().add(adm.y12()).getImaginary();
+        return TieLineUtil.getB1(half1, half2);
     }
 
     @Override
@@ -288,8 +281,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG2() {
-        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
-        return adm.y22().add(adm.y21()).getReal();
+        return TieLineUtil.getG2(half1, half2);
     }
 
     @Override
@@ -299,8 +291,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB2() {
-        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
-        return adm.y22().add(adm.y21()).getImaginary();
+        return TieLineUtil.getB2(half1, half2);
     }
 
     @Override
