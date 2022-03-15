@@ -44,7 +44,7 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     }
 
     @Override
-    public Optional<ExtensionJsonSerializer> getParametersExtensionSerializer() {
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
         return Optional.empty();
     }
 

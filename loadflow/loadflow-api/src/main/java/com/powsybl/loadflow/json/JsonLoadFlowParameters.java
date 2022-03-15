@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -49,9 +50,9 @@ public final class JsonLoadFlowParameters {
     public static Map<String, ExtensionJsonSerializer> getExtensionSerializers() {
         List<LoadFlowProvider> providers = new ServiceLoaderCache<>(LoadFlowProvider.class).getServices();
         return providers.stream()
-            .filter(loadFlowProvider -> loadFlowProvider.getParametersExtensionSerializer().isPresent())
-            .collect(Collectors.toMap(loadFlowProvider -> loadFlowProvider.getParametersExtensionSerializer().get().getExtensionName(),
-                loadFlowProvider -> loadFlowProvider.getParametersExtensionSerializer().get()));
+            .filter(loadFlowProvider -> loadFlowProvider.getSpecificParametersSerializer().isPresent())
+                .flatMap(loadFlowProvider -> loadFlowProvider.getSpecificParametersSerializer().stream())
+            .collect(Collectors.toMap(ExtensionProvider::getExtensionName, loadFlowProvider -> loadFlowProvider));
     }
 
     /**

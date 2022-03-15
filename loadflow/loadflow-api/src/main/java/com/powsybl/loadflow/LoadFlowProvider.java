@@ -77,7 +77,9 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      *
      * @return The serializer for implementation-specific parameters.
      */
-    Optional<ExtensionJsonSerializer> getParametersExtensionSerializer();
+    default Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.empty();
+    }
 
     /**
      * Reads implementation-specific parameters from platform config, or return {@link Optional#empty()}
