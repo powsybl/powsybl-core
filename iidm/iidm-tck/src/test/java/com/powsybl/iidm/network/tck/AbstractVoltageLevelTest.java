@@ -63,6 +63,13 @@ public abstract class AbstractVoltageLevelTest {
         assertEquals(200.0, voltageLevel.getLowVoltageLimit(), 0.0);
         voltageLevel.setNominalV(500.0);
         assertEquals(500.0, voltageLevel.getNominalV(), 0.0);
+
+        // Remove
+        voltageLevel.remove();
+        assertNotNull(voltageLevel);
+        assertTrue(voltageLevel.getSubstation().isEmpty());
+        assertNull(voltageLevel.getNetwork());
+        assertNull(network.getVoltageLevel("bbVL"));
     }
 
     @Test

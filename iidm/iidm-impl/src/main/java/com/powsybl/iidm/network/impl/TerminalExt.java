@@ -54,4 +54,5 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     String getConnectionInfo();
 
+    void remove();
 }

@@ -7,13 +7,12 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
-import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.iidm.network.*;
-
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -86,6 +85,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         TieLine tl = (TieLine) mline;
         context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
         context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
+
+        addMappingForTopologicalNode(context, tl, 1, boundaryLine1);
+        addMappingForTopologicalNode(context, tl, 2, boundaryLine2);
     }
 
     private void convertLine() {
