@@ -306,7 +306,7 @@ public class CgmesImport implements Importer {
             MINIMUM_VALIDATION_LEVEL,
             ParameterType.STRING,
             "Set a minimum validation level, implying fixes if the original file does not comply",
-            null);
+            "STEADY_STATE_HYPOTHESIS");
     private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
             POST_PROCESSORS,
             ParameterType.STRING_LIST,

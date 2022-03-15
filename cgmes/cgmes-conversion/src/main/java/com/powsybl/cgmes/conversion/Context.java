@@ -49,8 +49,7 @@ public class Context {
         // based on existing node-breaker info
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
-        if ((config.getMinimumValidationLevel() == null && cgmes.hasOnlyEquipmentProfile())
-                || config.getMinimumValidationLevel() == ValidationLevel.EQUIPMENT) {
+        if (config.getMinimumValidationLevel() == ValidationLevel.EQUIPMENT) {
             flowsDefaultValue = Double.NaN;
             fixSsh = false;
         } else {

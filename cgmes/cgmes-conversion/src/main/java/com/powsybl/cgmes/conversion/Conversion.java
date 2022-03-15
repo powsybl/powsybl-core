@@ -857,11 +857,7 @@ public class Conversion {
         }
 
         public Config setMinimumValidationLevel(String validationLevel) {
-            if (validationLevel == null) {
-                minimumValidationLevel = null;
-            } else {
-                minimumValidationLevel = ValidationLevel.valueOf(validationLevel);
-            }
+            minimumValidationLevel = ValidationLevel.valueOf(validationLevel);
             return this;
         }
 
@@ -869,7 +865,7 @@ public class Conversion {
             return minimumValidationLevel;
         }
 
-        private ValidationLevel minimumValidationLevel = null;
+        private ValidationLevel minimumValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
