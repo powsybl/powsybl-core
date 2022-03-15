@@ -87,7 +87,7 @@ class SparseLUDecomposition implements LUDecomposition {
         double rgrowthThreshold = allowIncrementalUpdate ? matrix.getRgrowthThreshold() : 0;
         double rgrowth = update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), rgrowthThreshold);
         stopwatch.stop();
-        LOGGER.debug("Sparse LU decomposition updated (rgrowth is {}, threshold is {}) in {} us",
+        LOGGER.debug("Sparse LU decomposition updated (refactor rgrowth is {}, threshold is {}) in {} us",
                 rgrowth, rgrowthThreshold, stopwatch.elapsed(TimeUnit.MICROSECONDS));
     }
 
