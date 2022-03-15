@@ -123,6 +123,13 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void readJsonVersion17() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion17.json"));
+        assertTrue(parameters.isHvdcAcEmulation());
+    }
+
+    @Test
     public void readJsonVersion10Exception() {
         InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json");
         assertThrows("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0",

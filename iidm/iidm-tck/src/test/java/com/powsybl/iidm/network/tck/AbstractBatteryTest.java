@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -136,12 +137,61 @@ public abstract class AbstractBatteryTest {
 
     @Test
     public void testRemove() {
+        String unmodifiableRemovedEqMessage = "Cannot modify removed equipment";
         createBattery(TO_REMOVE, 11.0, 12, 10, 20.0);
         int count = network.getBatteryCount();
         Battery battery = network.getBattery(TO_REMOVE);
         assertNotNull(battery);
         battery.remove();
         assertNotNull(battery);
+        Terminal terminal = battery.getTerminal();
+        assertNotNull(terminal);
+        assertFalse(terminal.isConnected());
+        assertNull(terminal.getBusBreakerView().getBus());
+        assertNull(terminal.getBusBreakerView().getConnectableBus());
+        assertNull(terminal.getBusView().getBus());
+        assertNull(terminal.getBusView().getConnectableBus());
+        assertNull(terminal.getVoltageLevel());
+        try {
+            terminal.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment is removed", e.getMessage());
+        }
+        Terminal.BusBreakerView bbView = terminal.getBusBreakerView();
+        assertNotNull(bbView);
+        try {
+            bbView.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        Terminal.NodeBreakerView nbView = terminal.getNodeBreakerView();
+        try {
+            nbView.moveConnectable(0, "VL");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setP(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setQ(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            bbView.setConnectableBus("TEST");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        assertNull(battery.getNetwork());
         assertEquals(count - 1L, network.getBatteryCount());
         assertNull(network.getBattery(TO_REMOVE));
     }

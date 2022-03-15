@@ -46,6 +46,13 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
     }
 
     /**
+     * Return an input stream of the test resource IIDM-XML file with a given file name.
+     */
+    protected InputStream getNetworkAsStream(String fileName) {
+        return getClass().getResourceAsStream(fileName);
+    }
+
+    /**
      * Execute a round trip test on the test resource IIDM-XML file with a given file name for the given IIDM-XML versions.
      */
     protected void roundTripVersionedXmlTest(String file, IidmXmlVersion... versions) throws IOException {

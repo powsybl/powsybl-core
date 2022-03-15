@@ -53,7 +53,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.4 dc, distributedSlack, balanceType
     // VERSION = 1.5 dcUseTransformerRatio, countriesToBalance, computedConnectedComponentScope
     // VERSION = 1.6 shuntCompensatorVoltageControlOn instead of simulShunt
-    public static final String VERSION = "1.6";
+    // VERSION = 1.7 hvdcAcEmulation
+    public static final String VERSION = "1.7";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
@@ -69,6 +70,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT = true;
     public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = EnumSet.noneOf(Country.class);
     public static final ConnectedComponentMode DEFAULT_CONNECTED_COMPONENT_MODE = ConnectedComponentMode.MAIN;
+    public static final boolean DEFAULT_HVDC_AC_EMULATION_ON = true;
     List<LoadFlowProvider> providers = new ServiceLoaderCache<>(LoadFlowProvider.class).getServices();
 
     /**
@@ -116,6 +118,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
                 parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
                 parameters.setConnectedComponentMode(config.getEnumProperty("connectedComponentMode", ConnectedComponentMode.class, DEFAULT_CONNECTED_COMPONENT_MODE));
+                parameters.setHvdcAcEmulation(config.getBooleanProperty("hvdcAcEmulation", DEFAULT_HVDC_AC_EMULATION_ON));
             });
     }
 
@@ -147,11 +150,13 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private ConnectedComponentMode connectedComponentMode;
 
+    private boolean hvdcAcEmulation;
+
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
                               boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
                               boolean twtSplitShuntAdmittance, boolean shuntCompensatorVoltageControlOn, boolean readSlackBus, boolean writeSlackBus,
                               boolean dc, boolean distributedSlack, BalanceType balanceType, boolean dcUseTransformerRatio,
-                              Set<Country> countriesToBalance, ConnectedComponentMode connectedComponentMode) {
+                              Set<Country> countriesToBalance, ConnectedComponentMode connectedComponentMode, boolean hvdcAcEmulation) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
@@ -166,13 +171,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         this.dcUseTransformerRatio = dcUseTransformerRatio;
         this.countriesToBalance = countriesToBalance;
         this.connectedComponentMode = connectedComponentMode;
+        this.hvdcAcEmulation = hvdcAcEmulation;
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
         boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
         boolean twtSplitShuntAdmittance) {
         this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
-                DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE, DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, DEFAULT_COUNTRIES_TO_BALANCE, DEFAULT_CONNECTED_COMPONENT_MODE);
+                DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE, DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, DEFAULT_COUNTRIES_TO_BALANCE, DEFAULT_CONNECTED_COMPONENT_MODE, DEFAULT_HVDC_AC_EMULATION_ON);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
@@ -203,6 +209,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         dcUseTransformerRatio = other.dcUseTransformerRatio;
         countriesToBalance = other.countriesToBalance;
         connectedComponentMode = other.connectedComponentMode;
+        hvdcAcEmulation = other.hvdcAcEmulation;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -368,7 +375,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("balanceType", balanceType)
                 .put("dcUseTransformerRatio", dcUseTransformerRatio)
                 .put("countriesToBalance", countriesToBalance)
-                .put("computedConnectedComponentScope", connectedComponentMode);
+                .put("computedConnectedComponentScope", connectedComponentMode)
+                .put("hvdcAcEmulation", hvdcAcEmulation);
         return immutableMapBuilder.build();
     }
 
@@ -396,6 +404,15 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     public LoadFlowParameters setConnectedComponentMode(ConnectedComponentMode connectedComponentMode) {
         this.connectedComponentMode = connectedComponentMode;
+        return this;
+    }
+
+    public boolean isHvdcAcEmulation() {
+        return hvdcAcEmulation;
+    }
+
+    public LoadFlowParameters setHvdcAcEmulation(boolean hvdcAcEmulation) {
+        this.hvdcAcEmulation = hvdcAcEmulation;
         return this;
     }
 

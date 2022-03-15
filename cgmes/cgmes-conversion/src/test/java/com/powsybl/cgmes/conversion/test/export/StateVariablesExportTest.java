@@ -21,15 +21,8 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
-
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -42,11 +35,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -149,7 +142,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         return new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
     }
 
-    private String exportSvAsString(Network network, int svVersion) throws XMLStreamException, IOException {
+    private String exportSvAsString(Network network, int svVersion) throws XMLStreamException {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
@@ -181,19 +174,29 @@ public class StateVariablesExportTest extends AbstractConverterTest {
                 .with("test_SSH.xml", Repackager::ssh));
     }
 
+    private static void checkLineTNMappingOnSide(Line l, Branch.Side side, int numSide, CgmesIidmMapping iidmMapping) {
+        String lineSideTNId = iidmMapping.getTopologicalNode(l.getId(), numSide);
+        Set<CgmesIidmMapping.CgmesTopologicalNode> busSideTNs = iidmMapping.getTopologicalNodes(l.getTerminal(side).getBusView().getBus().getId());
+        Set<String> busSideTNIds = busSideTNs.stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet());
+        assertTrue(busSideTNIds.contains(lineSideTNId));
+    }
+
     private void test(ReadOnlyDataSource dataSource, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
+        // Ensure all information in IIDM mapping extensions is created
+        // Some of the mappings are not built until export is requested
+        new CgmesExportContext().addIidmMappings(expected0);
+
         // Check the information stored in the extension before it is serialized
         CgmesIidmMapping iidmMapping = expected0.getExtension(CgmesIidmMapping.class);
-        if (iidmMapping != null) {
-            for (Line l : expected0.getLines()) {
-                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal1().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(iidmMapping.getTopologicalNode(l.getId(), 1)));
-                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal2().getBusView().getBus().getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()).contains(iidmMapping.getTopologicalNode(l.getId(), 2)));
-            }
+        assertNotNull(iidmMapping);
+        for (Line l : expected0.getLines()) {
+            checkLineTNMappingOnSide(l, Branch.Side.ONE, 1, iidmMapping);
+            checkLineTNMappingOnSide(l, Branch.Side.TWO, 2, iidmMapping);
         }
 
         // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension

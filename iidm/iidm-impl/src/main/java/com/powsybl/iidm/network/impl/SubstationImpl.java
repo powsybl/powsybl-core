@@ -26,7 +26,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private String tso;
 
-    private final Ref<NetworkImpl> networkRef;
+    private Ref<NetworkImpl> networkRef;
 
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
@@ -77,7 +77,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public NetworkImpl getNetwork() {
-        return networkRef.get();
+        return Optional.ofNullable(networkRef).map(Ref::get).orElse(null);
     }
 
     void addVoltageLevel(VoltageLevelExt voltageLevel) {
@@ -197,6 +197,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
+        networkRef = null;
     }
 
     void remove(VoltageLevelExt voltageLevelExt) {
