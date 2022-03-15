@@ -19,7 +19,20 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * SPI for load implementations.
+ * Service Provider Interface for loadflow implementations.
+ *
+ * <p>A loadflow provider is required to implement the main method {@link #run}, in charge of actually
+ * running a loadflow and updating the network variant with computed physical values.
+ *
+ * <p>It may, additionally, provide methods to support implementation-specific parameters.
+ * Specific parameters should be implemented as an implementation of {@link Extension<LoadFlowParameters>}.
+ *
+ * <ul>
+ *     <li>In order to support JSON serialization for those specific parameters,
+ *     implementing {@link #getParametersExtensionSerializer()} is required.</li>
+ *     <li>In order to support loading specific parameters from platform configuration,
+ *     implementing {@link #loadSpecificParameters(PlatformConfig)} is required.</li>
+ * </ul>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -58,9 +71,19 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
         return run(network, computationManager, workingVariantId, parameters);
     }
 
-    // Defines the JSON serializer/deserializer to use
+    /**
+     * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation
+     * does not have any specific parameters, or does not support JSON serialization.
+     *
+     * @return The serializer for implementation-specific parameters.
+     */
     Optional<ExtensionJsonSerializer> getParametersExtensionSerializer();
 
-    // Load from platform config : will probably share code with the one above
+    /**
+     * Reads implementation-specific parameters from platform config, or return {@link Optional#empty()}
+     * if the implementation does not have any specific parameters, or does not support loading from config.
+     *
+     * @return The specific parameters read from platform config.
+     */
     <E extends Extension<LoadFlowParameters>> Optional<E> loadSpecificParameters(PlatformConfig config);
 }
