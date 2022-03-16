@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 
 public class DataObject {
 
+    private static final String NOT_FOUND = "' not found";
+
     private final long id;
 
     private DataObject parent;
@@ -151,15 +153,15 @@ public class DataObject {
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String name) {
-        return new PowerFactoryException("Attribute '" + name + "' not found");
+        return new PowerFactoryException("Attribute '" + name + NOT_FOUND);
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String type, String name) {
-        return new PowerFactoryException(type + " attribute '" + name + "' not found");
+        return new PowerFactoryException(type + " attribute '" + name + NOT_FOUND);
     }
 
     private static PowerFactoryException createReferenceNotFoundException(String type, String name) {
-        return new PowerFactoryException(type + " reference '" + name + "' not found");
+        return new PowerFactoryException(type + " reference '" + name + NOT_FOUND);
     }
 
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {

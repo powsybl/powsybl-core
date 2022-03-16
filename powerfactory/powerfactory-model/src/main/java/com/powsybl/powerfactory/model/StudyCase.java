@@ -53,7 +53,7 @@ public class StudyCase {
 
     public List<DataObject> getDataObjects() {
         List<DataObject> dataObjects = new ArrayList<>();
-        elmNets.forEach(elmNet -> dataObjects.add(elmNet));
+        elmNets.forEach(dataObjects::add);
 
         int index = 0;
         while (index < dataObjects.size()) {
@@ -71,9 +71,7 @@ public class StudyCase {
             index++;
         }
 
-        Collections.sort(dataObjects, (do1, do2) -> {
-            return ((Long) do1.getId()).compareTo((Long) do2.getId());
-        });
+        Collections.sort(dataObjects, (do1, do2) -> ((Long) do1.getId()).compareTo(do2.getId()));
 
         return dataObjects;
     }
