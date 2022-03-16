@@ -79,7 +79,7 @@ public class DgsReader {
                 type = DataAttributeType.FLOAT;
                 break;
             case 'p':
-                type = DataAttributeType.STRING;
+                type = DataAttributeType.INTEGER64;
                 break;
             default:
                 throw new AssertionError("Unexpected attribute type: " + attributeType);
@@ -168,6 +168,7 @@ public class DgsReader {
 
         @Override
         public void onObjectValue(String attributeName, long id) {
+            object.setLongAttributeValue(attributeName, id);
             toResolveList.add(new ToResolve(object, attributeName, id));
         }
     }

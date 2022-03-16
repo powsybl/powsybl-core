@@ -18,7 +18,7 @@
       "uknom" : 220.0,
       "iUsage" : 0,
       "loc_name" : "Busbar-A",
-      "fold_id" : "2"
+      "fold_id" : 2
     }
   }, {
     "id" : 4,
@@ -29,7 +29,7 @@
       "uknom" : 220.0,
       "iUsage" : 0,
       "loc_name" : "Busbar-B",
-      "fold_id" : "2"
+      "fold_id" : 2
     }
   }, {
     "id" : 5,
@@ -37,10 +37,10 @@
       "name" : "ElmLne"
     },
     "attributeValues" : {
-      "typ_id" : "10",
+      "typ_id" : 10,
       "loc_name" : "Line-A-B",
       "dline" : 1.0,
-      "fold_id" : "2"
+      "fold_id" : 2
     }
   }, {
     "id" : 6,
@@ -48,10 +48,10 @@
       "name" : "StaCubic"
     },
     "attributeValues" : {
-      "obj_id" : "5",
+      "obj_id" : 5,
       "obj_bus" : 0,
       "loc_name" : "Cub_1",
-      "fold_id" : "3"
+      "fold_id" : 3
     }
   }, {
     "id" : 7,
@@ -59,10 +59,10 @@
       "name" : "StaCubic"
     },
     "attributeValues" : {
-      "obj_id" : "5",
+      "obj_id" : 5,
       "obj_bus" : 1,
       "loc_name" : "Cub_1",
-      "fold_id" : "4"
+      "fold_id" : 4
     }
   }, {
     "id" : 8,
@@ -72,7 +72,7 @@
     "attributeValues" : {
       "loc_name" : "Switch",
       "on_off" : 1,
-      "fold_id" : "6",
+      "fold_id" : 6,
       "iUse" : 1
     }
   }, {
@@ -83,7 +83,7 @@
     "attributeValues" : {
       "loc_name" : "Switch",
       "on_off" : 1,
-      "fold_id" : "7",
+      "fold_id" : 7,
       "iUse" : 1
     }
   }, {

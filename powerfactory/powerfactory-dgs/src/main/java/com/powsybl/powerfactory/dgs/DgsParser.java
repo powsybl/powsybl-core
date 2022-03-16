@@ -90,7 +90,6 @@ public class DgsParser {
                     break;
 
                 case 'p':
-                    handler.onStringValue(attributeName, field);
                     handler.onObjectValue(attributeName, Long.parseLong(field));
                     break;
 
