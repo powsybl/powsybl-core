@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * <ul>
  *     <li>In order to support JSON serialization for those specific parameters,
- *     implementing {@link #getParametersExtensionSerializer()} is required.</li>
+ *     implementing {@link #getSpecificParametersSerializer()} is required.</li>
  *     <li>In order to support loading specific parameters from platform configuration,
  *     implementing {@link #loadSpecificParameters(PlatformConfig)} is required.</li>
  * </ul>
@@ -75,6 +75,9 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation
      * does not have any specific parameters, or does not support JSON serialization.
      *
+     * <p>Note that the actual serializer type should be {@code ExtensionJsonSerializer<LoadFlowParameters, MyParametersExtension>}
+     * where {@code MyParametersExtension} is the specific parameters class.
+     *
      * @return The serializer for implementation-specific parameters.
      */
     default Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
@@ -87,5 +90,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      *
      * @return The specific parameters read from platform config.
      */
-    <E extends Extension<LoadFlowParameters>> Optional<E> loadSpecificParameters(PlatformConfig config);
+    default Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.empty();
+    }
 }

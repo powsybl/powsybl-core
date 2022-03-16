@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -214,7 +215,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         assertNotEquals(oldExtension.getParameterString(), extension.getParameterString());
     }
 
-    public static class DummySerializer implements JsonLoadFlowParameters.ExtensionSerializer<DummyExtension> {
+    public static class DummySerializer implements ExtensionJsonSerializer<LoadFlowParameters, DummyExtension> {
 
         @Override
         public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
