@@ -16,18 +16,23 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DgsParser {
 
     private static final Pattern ATTR_DESCR_PATTERN = Pattern.compile("(.+)\\(([airp]+)(:\\d*)?\\)");
+    private static final Pattern LEGACY_TEXT_QUOTED = Pattern.compile("(\"[^\"]*\")");
 
     private static final class ParsingContext {
 
         private String[] attributesName;
 
         private char[] attributesType;
+
+        private String decimalSeparator = ".";
     }
 
     private static void readTableHeader(String trimmedLine, DgsHandler handler, ParsingContext context) {
@@ -60,7 +65,7 @@ public class DgsParser {
         Objects.requireNonNull(context.attributesName);
         Objects.requireNonNull(context.attributesType);
 
-        String[] fields = trimmedLine.split(";");
+        String[] fields = splitWithQuotedStrings(trimmedLine);
 
         for (int i = 0; i < fields.length; i++) {
             String field = fields[i];
@@ -81,10 +86,11 @@ public class DgsParser {
                     break;
 
                 case 'r':
-                    handler.onRealValue(attributeName, Float.parseFloat(field));
+                    handler.onRealValue(attributeName, parseFloat(field, context));
                     break;
 
                 case 'p':
+                    handler.onStringValue(attributeName, field);
                     handler.onObjectValue(attributeName, Long.parseLong(field));
                     break;
 
@@ -116,5 +122,35 @@ public class DgsParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static float parseFloat(String value, ParsingContext context) {
+        if (context.decimalSeparator.equals(",")) {
+            return Float.parseFloat(value.replace(',', '.'));
+        }
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException ex) {
+            context.decimalSeparator = ",";
+            return Float.parseFloat(value.replace(',', '.'));
+        }
+    }
+
+    // split a string considering quoted text fields
+    protected static String[] splitWithQuotedStrings(String line) {
+        Objects.requireNonNull(line);
+        String[] tokens = new String[] {};
+        Matcher m = LEGACY_TEXT_QUOTED.matcher(line);
+        int start = 0;
+        while (m.find()) {
+            tokens = ArrayUtils.addAll(tokens, line.substring(start, m.start() - 1).split(";"));
+            tokens = ArrayUtils.add(tokens, line.substring(m.start() + 1, m.end() - 1));
+            // Skip the delimiter
+            start = m.end() + 1;
+        }
+        if (start < line.length()) {
+            tokens = ArrayUtils.addAll(tokens, line.substring(start, line.length()).split(";"));
+        }
+        return tokens;
     }
 }

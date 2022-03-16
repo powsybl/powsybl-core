@@ -327,12 +327,12 @@ public class PowerFactoryImporter implements Importer {
                 .setMinP(pMinUc)
                 .setMaxP(pMaxUc)
                 .add();
-        elmSym.findObjectAttributeValue(TYP_ID).ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
+        elmSym.findObjectReferenceValue(TYP_ID).ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
     }
 
     private void createReactiveLimits(DataObject elmSym, DataObject typSym, Generator g) {
         if (typSym.getDataClassName().equals("TypSym")) {
-            DataObject pQlimType = elmSym.findObjectAttributeValue("pQlimType").orElse(null);
+            DataObject pQlimType = elmSym.findObjectReferenceValue("pQlimType").orElse(null);
             if (pQlimType != null) {
                 throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");
             } else {
@@ -366,7 +366,7 @@ public class PowerFactoryImporter implements Importer {
         NodeRef nodeRef1 = it.next();
         NodeRef nodeRef2 = it.next();
         float dline = elmLne.getFloatAttributeValue("dline");
-        DataObject typLne = elmLne.getObjectAttributeValue(TYP_ID);
+        DataObject typLne = elmLne.getObjectReferenceValue(TYP_ID);
         float rline = typLne.getFloatAttributeValue("rline");
         float xline = typLne.getFloatAttributeValue("xline");
         float bline = typLne.getFloatAttributeValue("bline");
@@ -403,7 +403,7 @@ public class PowerFactoryImporter implements Importer {
         VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
         VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
         Substation s = vl1.getSubstation().orElseThrow();
-        DataObject typTr2 = elmTr2.getObjectAttributeValue(TYP_ID);
+        DataObject typTr2 = elmTr2.getObjectReferenceValue(TYP_ID);
         float strn = typTr2.getFloatAttributeValue("strn");
         float utrnL = typTr2.getFloatAttributeValue("utrn_l");
         float utrnH = typTr2.getFloatAttributeValue("utrn_h");
@@ -526,7 +526,7 @@ public class PowerFactoryImporter implements Importer {
                     .add();
         }
         for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
-            DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id").orElse(null);
+            DataObject connectedObj = staCubic.findObjectReferenceValue("obj_id").orElse(null);
             if (connectedObj == null) {
                 importContext.cubiclesObjectNotFound.add(staCubic);
             } else {

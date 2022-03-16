@@ -7,12 +7,21 @@
 package com.powsybl.powerfactory.model;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
+@JsonIgnoreProperties({"time", "elmNets"})
+@JsonPropertyOrder({"name", "dataObjects"})
+
 public class StudyCase {
 
     private final String name;
@@ -40,5 +49,32 @@ public class StudyCase {
 
     public List<DataObject> getElmNets() {
         return elmNets;
+    }
+
+    public List<DataObject> getDataObjects() {
+        List<DataObject> dataObjects = new ArrayList<>();
+        elmNets.forEach(elmNet -> dataObjects.add(elmNet));
+
+        int index = 0;
+        while (index < dataObjects.size()) {
+            DataObject dataObject = dataObjects.get(index);
+            dataObject.getChildren().forEach(childrenDataObject -> {
+                if (!dataObjects.contains(childrenDataObject)) {
+                    dataObjects.add(childrenDataObject);
+                }
+            });
+            dataObject.getReferenceValues().values().forEach(referenceDataObject -> {
+                if (!dataObjects.contains(referenceDataObject)) {
+                    dataObjects.add(referenceDataObject);
+                }
+            });
+            index++;
+        }
+
+        Collections.sort(dataObjects, (do1, do2) -> {
+            return ((Long) do1.getId()).compareTo((Long) do2.getId());
+        });
+
+        return dataObjects;
     }
 }
