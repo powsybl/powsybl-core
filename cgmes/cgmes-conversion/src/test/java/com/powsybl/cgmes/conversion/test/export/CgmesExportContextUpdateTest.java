@@ -23,7 +23,6 @@ import static org.junit.Assert.*;
  */
 public class CgmesExportContextUpdateTest {
 
-
     @Test
     public void testBuildNodeBreakerIidmMappingAndChangingSwitchStatus() {
         Network n = buildNodeBreakerNetwork();
