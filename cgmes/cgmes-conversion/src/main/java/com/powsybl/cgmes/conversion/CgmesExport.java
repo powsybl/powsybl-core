@@ -63,7 +63,8 @@ public class CgmesExport implements Exporter {
         String filenameSv = baseName + "_SV.xml";
         CgmesExportContext context = new CgmesExportContext(network)
                 .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
-                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig));
+                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setNamingStrategy(NamingStrategyFactory.create(ConversionParameters.readStringParameter(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)));
         String cimVersionParam = ConversionParameters.readStringParameter(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
@@ -94,6 +95,7 @@ public class CgmesExport implements Exporter {
                     StateVariablesExport.write(network, writer, context);
                 }
             }
+            context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {
@@ -125,6 +127,7 @@ public class CgmesExport implements Exporter {
     public static final String CIM_VERSION = "iidm.export.cgmes.cim-version";
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
+    public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
@@ -147,6 +150,11 @@ public class CgmesExport implements Exporter {
             ParameterType.BOOLEAN,
             "Export power flows for switches",
             Boolean.FALSE);
+    private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
+            NAMING_STRATEGY,
+            ParameterType.STRING,
+            "Configure what type of naming strategy you want",
+            "identity");
     private static final Parameter PROFILES_PARAMETER = new Parameter(
             PROFILES,
             ParameterType.STRING_LIST,
@@ -158,5 +166,6 @@ public class CgmesExport implements Exporter {
             CIM_VERSION_PARAMETER,
             EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
             EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER,
+            NAMING_STRATEGY_PARAMETER,
             PROFILES_PARAMETER);
 }

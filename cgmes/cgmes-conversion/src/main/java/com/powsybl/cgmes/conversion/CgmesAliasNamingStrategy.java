@@ -31,6 +31,9 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
 
     private final BiMap<String, String> idByUuid = HashBiMap.create();
 
+    public CgmesAliasNamingStrategy() {
+    }
+
     public CgmesAliasNamingStrategy(Map<String, String> idByUuid) {
         this.idByUuid.putAll(Objects.requireNonNull(idByUuid));
     }
@@ -68,12 +71,13 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public String getCgmesId(Identifiable<?> identifiable, String type, String id) {
+    public String getCgmesId(Identifiable<?> identifiable) {
+        String id = identifiable.getId();
         if (idByUuid.containsValue(id)) {
             return idByUuid.inverse().get(id);
         }
         String uuid;
-        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type + ".ID");
+        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
         if (uuidFromAlias.isPresent()) {
             uuid = uuidFromAlias.get();
         } else if (CgmesExportUtil.correspondsToCgmesStandards(id)) {
@@ -97,7 +101,7 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
         }
         if (idByUuid.containsValue(identifiable.getId())) {
             String uuid = idByUuid.inverse().get(identifiable.getId());
-            identifiable.addAlias(uuid, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type + ".UUID");
+            identifiable.addAlias(uuid, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
         }
     }
 

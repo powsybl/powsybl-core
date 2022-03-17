@@ -214,9 +214,9 @@ public class CgmesImport implements Importer {
                                 defaultValueConfig));
         String idMappingFilePath = ConversionParameters.readStringParameter(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
-            config.setNamingStrategy(NamingStrategy.create(ds, ds.getBaseName() + "_id_mapping.csv"));
+            config.setNamingStrategy(NamingStrategyFactory.create(ds, ds.getBaseName() + "_id_mapping.csv"));
         } else {
-            config.setNamingStrategy(NamingStrategy.create(ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
+            config.setNamingStrategy(NamingStrategyFactory.create(ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
         }
         return config;
     }

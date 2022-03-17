@@ -8,13 +8,8 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Identifiable;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -26,7 +21,7 @@ public interface NamingStrategy {
 
     String getIidmId(String type, String id);
 
-    String getCgmesId(Identifiable<?> identifiable, String type, String id);
+    String getCgmesId(Identifiable<?> identifiable);
 
     String getName(String type, String name);
 
@@ -49,8 +44,8 @@ public interface NamingStrategy {
         }
 
         @Override
-        public String getCgmesId(Identifiable<?> identifiable, String type, String id) {
-            return id;
+        public String getCgmesId(Identifiable<?> identifiable) {
+            return identifiable.getId();
         }
 
         @Override
@@ -71,43 +66,6 @@ public interface NamingStrategy {
         @Override
         public void writeIdMapping(String mappingFileName, DataSource ds) {
             // do nothing
-        }
-    }
-
-    static NamingStrategy create(ReadOnlyDataSource ds, String mappingFileName, Path defaultPath) {
-        try {
-            if (ds.exists(mappingFileName)) {
-                try (InputStream is = ds.newInputStream(mappingFileName)) {
-                    return new CgmesAliasNamingStrategy(is);
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        if (defaultPath != null) {
-            return create(defaultPath);
-        }
-        return new Identity();
-    }
-
-    static NamingStrategy create(ReadOnlyDataSource ds, String mappingFileName) {
-        try {
-            if (ds.exists(mappingFileName)) {
-                try (InputStream is = ds.newInputStream(mappingFileName)) {
-                    return new CgmesAliasNamingStrategy(is);
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return new Identity();
-    }
-
-    static NamingStrategy create(Path path) {
-        try (InputStream is = Files.newInputStream(path)) {
-            return new CgmesAliasNamingStrategy(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 }
