@@ -7,7 +7,9 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.security.LimitViolation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -16,23 +18,49 @@ import java.util.Objects;
  * Results for one fault computation.
  *
  * @author Boubakeur Brahimi
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public final class FaultResult extends AbstractExtendable<FaultResult> {
+    // FIXME: direct resistance and reactance missing, zero resistance and reactance will be added for asymmetrical calculations.
 
     private final String id;
 
     private final double threePhaseFaultCurrent;
 
-    private final List<FeederResult> feederResults; // optional
+    private final double threePhaseFaultActivePower;
 
-    public FaultResult(String id, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
+    private DetailedShortCircuitValue voltage = null; // FIXME: could be optional.
+
+    private DetailedShortCircuitValue current = null; // FIXME: could be optional.
+
+    private final List<FeederResult> feederResults; // Could be optional.
+
+    private final List<LimitViolation> limitViolations = new ArrayList<>();
+
+    private final List<ShortCircuitBusResults> shortCircuitBusResults;
+
+    public FaultResult(String id, double threePhaseFaultCurrent, double threePhaseFaultActivePower, List<FeederResult> feederResults,
+                       DetailedShortCircuitValue voltage, DetailedShortCircuitValue current, List<ShortCircuitBusResults> shortCircuitBusResults) {
         this.id = Objects.requireNonNull(id);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
+        this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
+        this.voltage = voltage;
+        this.current = current;
+        this.shortCircuitBusResults = List.copyOf(shortCircuitBusResults);
     }
 
-    public FaultResult(String id, double threePhaseFaultCurrent) {
-        this(id, threePhaseFaultCurrent, Collections.emptyList());
+    public FaultResult(String id, double threePhaseFaultCurrent, double threePhaseFaultActivePower, List<LimitViolation> limitViolations, List<FeederResult> feederResults) {
+        this.id = Objects.requireNonNull(id);
+        this.threePhaseFaultCurrent = threePhaseFaultCurrent;
+        this.threePhaseFaultActivePower = threePhaseFaultActivePower;
+        this.limitViolations.addAll(Objects.requireNonNull(limitViolations));
+        this.feederResults = List.copyOf(feederResults);
+        this.shortCircuitBusResults = Collections.emptyList();
+    }
+
+    public FaultResult(String id, double threePhaseFaultCurrent, double threePhaseFaultActivePower, List<LimitViolation> limitViolations) {
+        this(id, threePhaseFaultCurrent, threePhaseFaultActivePower, limitViolations, Collections.emptyList());
     }
 
     /**
@@ -51,6 +79,15 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     /**
+     * The list of limit violations: for instance when the computed short-circuit current on a given equipment is higher
+     * than the maximum admissible value for that equipment. In general, the equipment ID can be completed by the side where
+     * the violation occurs. In a first simple approach, the equipment is a voltage level, and no side is needed.
+     */
+    public List<LimitViolation> getLimitViolations() {
+        return Collections.unmodifiableList(limitViolations);
+    }
+
+    /**
      * List of contributions to the three phase fault current of each connectable connected to the equipment
      */
     public List<FeederResult> getFeederResults() {
@@ -66,4 +103,19 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         return Double.NaN;
     }
 
+    public double getThreePhaseFaultActivePower() {
+        return threePhaseFaultActivePower;
+    }
+
+    public DetailedShortCircuitValue getVoltage() {
+        return voltage;
+    }
+
+    public DetailedShortCircuitValue getCurrent() {
+        return current;
+    }
+
+    public List<ShortCircuitBusResults> getShortCircuitBusResults() {
+        return Collections.unmodifiableList(shortCircuitBusResults);
+    }
 }
