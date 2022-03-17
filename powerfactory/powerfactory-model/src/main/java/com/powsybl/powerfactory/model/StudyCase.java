@@ -57,7 +57,7 @@ public class StudyCase {
         Set<DataObject> dataObjectsSet = new HashSet<>();
 
         for (DataObject elmNet : elmNets) {
-            elmNet.traverseAndReference(obj -> dataObjectsSet.add(obj));
+            elmNet.traverseAndReference(dataObjectsSet::add);
         }
         List<DataObject> dataObjects = new ArrayList<>();
         dataObjects.addAll(dataObjectsSet);
