@@ -9,6 +9,7 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +69,14 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
             calculate();
         }
         return busTopologicalNodeMap.get(busId);
+    }
+
+    private void invalidateBus(String busId) {
+        Set<CgmesTopologicalNode> cgmesTopologicalNodes = busTopologicalNodeMap.get(busId);
+        if (cgmesTopologicalNodes != null) {
+            busTopologicalNodeMap.remove(busId);
+            calculate();
+        }
     }
 
     @Override
@@ -140,9 +149,9 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     @Override
     public void invalidateTopology() {
-        equipmentSideTopologicalNodeMap.clear();
-        busTopologicalNodeMap.clear();
-        unmappedTopologicalNodes.clear();
+        //equipmentSideTopologicalNodeMap.clear();
+        //busTopologicalNodeMap.clear();
+        //unmappedTopologicalNodes.clear();
     }
 
     @Override
@@ -189,15 +198,21 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
         getExtendable().addListener(new NetworkListener() {
             @Override
             public void onCreation(Identifiable identifiable) {
-                if (identifiable instanceof Switch || identifiable instanceof Bus) {
-                    invalidateTopology();
+                if (identifiable instanceof Switch) {
+                    invalidateSwitch((Switch) identifiable);
+                } else if (identifiable instanceof BusbarSection) {
+                    invalidateBusbarSection((BusbarSection) identifiable);
+                } else if (identifiable instanceof Bus) {
+                    invalidateBus((Bus) identifiable);
                 }
             }
 
             @Override
             public void beforeRemoval(Identifiable identifiable) {
-                if (identifiable instanceof Switch || identifiable instanceof Bus) {
-                    invalidateTopology();
+                if (identifiable instanceof Switch) {
+                    invalidateVoltageLevel((Switch) identifiable);
+                } else if (identifiable instanceof BusbarSection) {
+                    invalidateBusbarSection((BusbarSection) identifiable);
                 }
             }
 
@@ -214,7 +229,7 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
             @Override
             public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
                 if (identifiable instanceof Switch && "open".equals(attribute)) {
-                    invalidateTopology();
+                    invalidateSwitch((Switch) identifiable);
                 }
             }
 
@@ -232,6 +247,65 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
                 }
             }
         });
+    }
+
+    private void invalidateVoltageLevel(Switch sw) {
+        VoltageLevel vl = sw.getVoltageLevel();
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            vl.getNodeBreakerView().getBusbarSections().forEach(busbarSection -> invalidateBusbarSection(busbarSection));
+        } else {
+            vl.getBusBreakerView().getBuses().forEach(bus -> invalidateBus(vl.getBusView().getMergedBus(bus.getId()).getId()));
+        }
+    }
+
+    private void invalidateSwitch(Switch sw) {
+        VoltageLevel vl = sw.getVoltageLevel();
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            invalidateNode(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
+            invalidateNode(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
+        } else {
+            invalidateBus(vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus1(sw.getId()).getId()).getId());
+            invalidateBus(vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus2(sw.getId()).getId()).getId());
+        }
+    }
+
+    private void invalidateNode(VoltageLevel vl, int node) {
+        Terminal terminal = getTerminal(vl, node);
+        if (terminal == null) {
+            return;
+        }
+        Bus bus = terminal.getBusBreakerView().getBus();
+        if (bus == null) {
+            return;
+        }
+        invalidateBus(bus.getId());
+    }
+
+    private Terminal getTerminal(VoltageLevel vl, int node) {
+        Terminal terminal = vl.getNodeBreakerView().getTerminal(node);
+        if (terminal == null) {
+            return Networks.getEquivalentTerminal(vl, node);
+        }
+        return terminal;
+    }
+
+    private void invalidateBusbarSection(BusbarSection busbarSection) {
+        busbarSection.getTerminals().forEach(terminal -> {
+            Bus bus = terminal.getBusView().getBus();
+            if (bus == null) {
+                return;
+            }
+            invalidateBus(bus.getId());
+        });
+    }
+
+    private void invalidateBus(Bus configuredBus) {
+        VoltageLevel vl = configuredBus.getVoltageLevel();
+        Bus bus = vl.getBusView().getMergedBus(configuredBus.getId());
+        if (bus == null) {
+            return;
+        }
+        invalidateBus(bus.getId());
     }
 
     private void calculate() {

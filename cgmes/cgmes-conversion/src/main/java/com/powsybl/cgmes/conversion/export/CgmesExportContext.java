@@ -175,19 +175,17 @@ public class CgmesExportContext {
     }
 
     private static void updateTopologicalNodesMapping(CgmesIidmMapping mapping, Network network) {
-        if (mapping.isTopologicalNodeEmpty()) {
-            // If we do not have an explicit mapping
-            // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
-            // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
-            // If we consider only connected terminals we would miss configured buses that only have connections through switches
-            // Switches do not add as terminals
-            // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
-            for (VoltageLevel vl : network.getVoltageLevels()) {
-                if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    updateBusBreakerTopologicalNodesMapping(mapping, vl);
-                } else {
-                    updateNodeBreakerTopologicalNodesMapping(mapping, vl);
-                }
+        // If we do not have an explicit mapping
+        // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
+        // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
+        // If we consider only connected terminals we would miss configured buses that only have connections through switches
+        // Switches do not add as terminals
+        // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                updateBusBreakerTopologicalNodesMapping(mapping, vl);
+            } else {
+                updateNodeBreakerTopologicalNodesMapping(mapping, vl);
             }
         }
     }
@@ -201,7 +199,7 @@ public class CgmesExportContext {
             topologicalNode = configuredBus.getId();
 
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
-            if (busViewBus != null && topologicalNode != null) {
+            if (busViewBus != null && topologicalNode != null && mapping.getTopologicalNodes(busViewBus.getId()) == null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
                 mapping.putTopologicalNode(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
             }
@@ -220,7 +218,7 @@ public class CgmesExportContext {
                 if (bus != null) {
                     topologicalNode = bus.getId();
                     busViewBus = terminal.getBusView().getBus();
-                    if (topologicalNode != null && busViewBus != null) {
+                    if (topologicalNode != null && busViewBus != null && mapping.getTopologicalNodes(busViewBus.getId()) == null) {
                         String topologicalNodeName = bus.getNameOrId();
                         mapping.putTopologicalNode(busViewBus.getId(), bus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
                     }
