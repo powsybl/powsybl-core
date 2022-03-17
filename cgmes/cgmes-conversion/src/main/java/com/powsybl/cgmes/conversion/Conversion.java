@@ -404,9 +404,9 @@ public class Conversion {
                                                               Supplier<String> terminalId2,
                                                               Map<String, VoltageLevel> nominalVoltageByLineContainerId,
                                                               Context context) {
-        String vlId = Optional.ofNullable(context.namingStrategy().getId("VoltageLevel",
+        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId("VoltageLevel",
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
-                .orElseGet(() -> context.namingStrategy().getId("VoltageLevel",
+                .orElseGet(() -> context.namingStrategy().getIidmId("VoltageLevel",
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId2.get()), context.nodeBreaker())));
         if (vlId != null) {
             VoltageLevel vl = context.network().getVoltageLevel(vlId);
@@ -466,7 +466,7 @@ public class Conversion {
         vldata.lineName = lineSegment.get("lineName");
         CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
         vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-        String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+        String vlId = context.namingStrategy().getIidmId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
         if (vlId != null) {
             vldata.vl = context.network().getVoltageLevel(vlId);
         } else {

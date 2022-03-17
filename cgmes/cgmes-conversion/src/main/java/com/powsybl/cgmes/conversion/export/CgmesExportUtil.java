@@ -25,6 +25,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
@@ -42,6 +43,8 @@ public final class CgmesExportUtil {
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", DOUBLE_FORMAT_SYMBOLS);
     private static final DecimalFormat SCIENFIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
 
+    private static final Pattern ID_PATTERN = Pattern.compile("_[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}");
+
     public static String format(double value) {
         return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
@@ -56,6 +59,10 @@ public final class CgmesExportUtil {
 
     public static String format(boolean value) {
         return String.valueOf(value);
+    }
+
+    public static boolean correspondsToCgmesStandards(String id) {
+        return ID_PATTERN.matcher(id).matches();
     }
 
     public static String getUniqueId() {
