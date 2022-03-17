@@ -618,7 +618,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         int i = 1;
         for (TerminalData td : terminals) {
             if (td == null) {
-                return;
+                break;
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             addMappingForTopologicalNode(identifiable, i);

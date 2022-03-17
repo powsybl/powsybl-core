@@ -71,12 +71,16 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (boundaryCountryCode() != null) {
             adder.setGeographicalTags(boundaryCountryCode().toString());
         }
-        return adder.add().newVoltageLevel()
+        Substation substation = adder.add();
+        context.namingStrategy().readIdMapping(substation, "Substation");
+        VoltageLevel vl = substation.newVoltageLevel()
             .setId(context.namingStrategy().getIidmId("VoltageLevel", vlId))
             .setName(vlName)
             .setNominalV(nominalVoltage)
             .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
             .add();
+        context.namingStrategy().readIdMapping(vl, "VoltageLevel");
+        return vl;
     }
 
     private Country boundaryCountryCode() {

@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
 import com.univocity.parsers.csv.*;
 
 import java.io.*;
@@ -96,9 +95,6 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
 
     @Override
     public void readIdMapping(Identifiable<?> identifiable, String type) {
-        if (identifiable instanceof Network) {
-            identifiable.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "idMapping", "true");
-        }
         if (idByUuid.containsValue(identifiable.getId())) {
             String uuid = idByUuid.inverse().get(identifiable.getId());
             identifiable.addAlias(uuid, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
