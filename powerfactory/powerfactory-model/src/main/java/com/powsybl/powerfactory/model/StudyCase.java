@@ -9,8 +9,10 @@ package com.powsybl.powerfactory.model;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -52,24 +54,13 @@ public class StudyCase {
     }
 
     public List<DataObject> getDataObjects() {
-        List<DataObject> dataObjects = new ArrayList<>();
-        elmNets.forEach(dataObjects::add);
+        Set<DataObject> dataObjectsSet = new HashSet<>();
 
-        int index = 0;
-        while (index < dataObjects.size()) {
-            DataObject dataObject = dataObjects.get(index);
-            dataObject.getChildren().forEach(childrenDataObject -> {
-                if (!dataObjects.contains(childrenDataObject)) {
-                    dataObjects.add(childrenDataObject);
-                }
-            });
-            dataObject.getReferenceValues().values().forEach(referenceDataObject -> {
-                if (!dataObjects.contains(referenceDataObject)) {
-                    dataObjects.add(referenceDataObject);
-                }
-            });
-            index++;
+        for (DataObject elmNet : elmNets) {
+            elmNet.traverseAndReference(obj -> dataObjectsSet.add(obj));
         }
+        List<DataObject> dataObjects = new ArrayList<>();
+        dataObjects.addAll(dataObjectsSet);
 
         Collections.sort(dataObjects, (do1, do2) -> ((Long) do1.getId()).compareTo(do2.getId()));
 

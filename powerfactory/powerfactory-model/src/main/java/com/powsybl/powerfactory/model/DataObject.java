@@ -415,6 +415,17 @@ public class DataObject {
         }
     }
 
+    public void traverseAndReference(Consumer<DataObject> handler) {
+        Objects.requireNonNull(handler);
+        handler.accept(this);
+        for (DataObject child : children) {
+            child.traverseAndReference(handler);
+        }
+        for (DataObject reference : referenceValues.values()) {
+            reference.traverseAndReference(handler);
+        }
+    }
+
     public List<DataObject> search(String regex) {
         List<DataObject> result = new ArrayList<>();
         traverse(object -> {
