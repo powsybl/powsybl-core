@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Identifiable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -73,6 +74,22 @@ public interface NamingStrategy {
         }
     }
 
+    static NamingStrategy create(ReadOnlyDataSource ds, String mappingFileName, Path defaultPath) {
+        try {
+            if (ds.exists(mappingFileName)) {
+                try (InputStream is = ds.newInputStream(mappingFileName)) {
+                    return new CgmesAliasNamingStrategy(is);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        if (defaultPath != null) {
+            return create(defaultPath);
+        }
+        return new Identity();
+    }
+
     static NamingStrategy create(ReadOnlyDataSource ds, String mappingFileName) {
         try {
             if (ds.exists(mappingFileName)) {
@@ -84,5 +101,13 @@ public interface NamingStrategy {
             throw new UncheckedIOException(e);
         }
         return new Identity();
+    }
+
+    static NamingStrategy create(Path path) {
+        try (InputStream is = Files.newInputStream(path)) {
+            return new CgmesAliasNamingStrategy(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

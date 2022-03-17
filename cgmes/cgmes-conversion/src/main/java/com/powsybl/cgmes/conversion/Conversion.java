@@ -805,6 +805,15 @@ public class Conversion {
             return this;
         }
 
+        public NamingStrategy getNamingStrategy() {
+            return namingStrategy;
+        }
+
+        public Config setNamingStrategy(NamingStrategy namingStrategy) {
+            this.namingStrategy = Objects.requireNonNull(namingStrategy);
+            return this;
+        }
+
         public Xfmr2RatioPhaseInterpretationAlternative getXfmr2RatioPhase() {
             return xfmr2RatioPhase;
         }
@@ -869,6 +878,8 @@ public class Conversion {
         private boolean importControlAreas = true;
 
         private boolean createCgmesExportMapping = false;
+
+        private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
