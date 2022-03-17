@@ -130,7 +130,7 @@
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
-        <powsyblmathnative.version>1.1.0</powsyblmathnative.version>
+        <powsyblmathnative.version>1.2.0</powsyblmathnative.version>
     </properties>
 
     <profiles>

@@ -107,6 +107,7 @@ public class FileDataSource implements DataSource {
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)
                     .map(Path::toString)
+                    .filter(name -> name.startsWith(baseName))
                     // Return names after removing the compression extension
                     .map(name -> name.replace(getCompressionExt(),  ""))
                     .filter(s -> p.matcher(s).matches())

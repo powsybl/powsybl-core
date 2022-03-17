@@ -76,17 +76,17 @@ public class DenseMatrix extends AbstractMatrix {
 
     public DenseMatrix(int rowCount, int columnCount, Supplier<ByteBuffer> bufferSupplier) {
         if (rowCount < 0) {
-            throw new IllegalArgumentException("row count has to be positive");
+            throw new MatrixException("row count has to be positive");
         }
         if (columnCount < 0) {
-            throw new IllegalArgumentException("column count has to be positive");
+            throw new MatrixException("column count has to be positive");
         }
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         Objects.requireNonNull(bufferSupplier);
         buffer = bufferSupplier.get();
         if (buffer.capacity() != rowCount * columnCount * Double.BYTES) {
-            throw new IllegalArgumentException("values size (" + buffer.capacity() +
+            throw new MatrixException("values size (" + buffer.capacity() +
                     ") is incorrect (should be " + rowCount * columnCount + ")");
         }
     }
@@ -150,7 +150,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     private void checkElementIndex(int index) {
         if (index < 0 || index >= rowCount * columnCount) {
-            throw new IllegalArgumentException("Element index out of bound [0, " + (rowCount * columnCount - 1) + "]");
+            throw new MatrixException("Element index out of bound [0, " + (rowCount * columnCount - 1) + "]");
         }
     }
 
@@ -203,7 +203,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     void setValues(double[] values) {
         if (values.length != rowCount * columnCount) {
-            throw new IllegalArgumentException("Incorrect values array size "
+            throw new MatrixException("Incorrect values array size "
                     + values.length + ", expected " + rowCount * columnCount);
         }
         for (int i = 0; i < values.length; i++) {
