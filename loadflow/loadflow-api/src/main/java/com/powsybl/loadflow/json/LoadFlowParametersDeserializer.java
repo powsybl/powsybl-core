@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.powsybl.loadflow.json.JsonLoadFlowParameters.*;
+
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
@@ -159,14 +161,14 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonLoadFlowParameters.getExtensionSerializers(), parameters);
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        JsonLoadFlowParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }
 }
