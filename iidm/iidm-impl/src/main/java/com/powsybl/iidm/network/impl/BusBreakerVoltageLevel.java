@@ -769,16 +769,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private void removeSwitch(String switchId) {
-        Integer e = switches.remove(switchId);
+        Integer e = switches.get(switchId);
         if (e == null) {
             throw new PowsyblException("Switch '" + switchId
                     + "' not found in voltage level '" + id + "'");
         }
         NetworkImpl network = getNetwork();
         SwitchImpl aSwitch = graph.getEdgeObject(e);
-
         network.getListeners().notifyBeforeRemoval(aSwitch);
 
+        switches.remove(switchId);
         graph.removeEdge(e);
         network.getIndex().remove(aSwitch);
 
