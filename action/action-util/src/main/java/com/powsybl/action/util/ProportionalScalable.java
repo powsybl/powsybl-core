@@ -29,13 +29,11 @@ class ProportionalScalable extends AbstractCompoundScalable {
     private static final class ScalablePercentage {
         private final Scalable scalable;
         private final float percentage;
-        private boolean saturated;
         private double iterationPercentage;
 
         private ScalablePercentage(Scalable scalable, float percentage) {
             this.scalable = scalable;
             this.percentage = percentage;
-            this.saturated = percentage == 0;
             this.iterationPercentage = percentage;
         }
 
@@ -48,15 +46,11 @@ class ProportionalScalable extends AbstractCompoundScalable {
         }
 
         boolean isSaturated() {
-            return saturated;
+            return iterationPercentage == 0.0;
         }
 
         boolean notSaturated() {
-            return !saturated;
-        }
-
-        void setSaturated(boolean saturated) {
-            this.saturated = saturated;
+            return iterationPercentage != 0.0;
         }
 
         double getIterationPercentage() {
@@ -116,9 +110,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     private void updateIterationPercentages() {
         double unsaturatedPercentagesSum = scalablePercentageList.stream().filter(ScalablePercentage::notSaturated).mapToDouble(ScalablePercentage::getIterationPercentage).sum();
         scalablePercentageList.forEach(scalablePercentage -> {
-            if (scalablePercentage.isSaturated()) {
-                scalablePercentage.setIterationPercentage(0);
-            } else {
+            if (!scalablePercentage.isSaturated()) {
                 scalablePercentage.setIterationPercentage(scalablePercentage.getIterationPercentage() / unsaturatedPercentagesSum * 100);
             }
         });
@@ -147,7 +139,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
                 doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
             }
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
-                scalablePercentage.setSaturated(true);
+                scalablePercentage.setIterationPercentage(0);
             }
             done += doneOnScalable;
         }
@@ -185,7 +177,6 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private void reinitIterationPercentage() {
         scalablePercentageList.forEach(scalablePercentage -> {
-            scalablePercentage.setSaturated(scalablePercentage.getPercentage() == 0);
             scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage());
         });
     }
