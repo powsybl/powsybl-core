@@ -20,8 +20,11 @@ import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.*;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 import org.anarres.graphviz.builder.*;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -591,13 +594,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
 
-        private final Map<Integer, TDoubleArrayList> fictitiousP0ByNode = new HashMap<>();
-        private final Map<Integer, TDoubleArrayList> fictitiousQ0ByNode = new HashMap<>();
+        private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = new TIntObjectHashMap<>();
+        private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = new TIntObjectHashMap<>();
 
         @Override
         public double getFictitiousP0(int node) {
-            if (fictitiousP0ByNode.containsKey(node)) {
-                return fictitiousP0ByNode.get(node).get(getNetwork().getVariantIndex());
+            TDoubleArrayList fictP0 = fictitiousP0ByNode.get(node);
+            if (fictP0 != null) {
+                return fictP0.get(getNetwork().getVariantIndex());
             }
             return 0.0;
         }
@@ -607,14 +611,15 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (Double.isNaN(p0)) {
                 throw new ValidationException(NodeBreakerVoltageLevel.this, "undefined value cannot be set as fictitious p0");
             }
-            TDoubleArrayList p0ByVariant = fictitiousP0ByNode.computeIfAbsent(node, n -> {
+            TDoubleArrayList p0ByVariant = fictitiousP0ByNode.get(node);
+            if (p0ByVariant == null) {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                TDoubleArrayList fictitiousP0 = new TDoubleArrayList(variantArraySize);
+                p0ByVariant = new TDoubleArrayList(variantArraySize);
                 for (int i = 0; i < variantArraySize; i++) {
-                    fictitiousP0.add(0.0);
+                    p0ByVariant.add(0.0);
                 }
-                return fictitiousP0;
-            });
+                fictitiousP0ByNode.put(node, p0ByVariant);
+            }
             int variantIndex = getNetwork().getVariantIndex();
             double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -625,8 +630,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public double getFictitiousQ0(int node) {
-            if (fictitiousQ0ByNode.containsKey(node)) {
-                return fictitiousQ0ByNode.get(node).get(getNetwork().getVariantIndex());
+            TDoubleArrayList fictQ0 = fictitiousQ0ByNode.get(node);
+            if (fictQ0 != null) {
+                return fictQ0.get(getNetwork().getVariantIndex());
             }
             return 0.0;
         }
@@ -636,32 +642,21 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (Double.isNaN(q0)) {
                 throw new ValidationException(NodeBreakerVoltageLevel.this, "undefined value cannot be set as fictitious q0");
             }
-            TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.computeIfAbsent(node, n -> {
+            TDoubleArrayList q0ByVariant = fictitiousQ0ByNode.get(node);
+            if (q0ByVariant == null) {
                 int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
-                TDoubleArrayList fictitiousQ0 = new TDoubleArrayList(variantArraySize);
+                q0ByVariant = new TDoubleArrayList(variantArraySize);
                 for (int i = 0; i < variantArraySize; i++) {
-                    fictitiousQ0.add(0.0);
+                    q0ByVariant.add(0.0);
                 }
-                return fictitiousQ0;
-            });
+                fictitiousQ0ByNode.put(node, q0ByVariant);
+            }
             int variantIndex = getNetwork().getVariantIndex();
             double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
             getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousP0", variantId, oldValue, q0);
             clearFictitiousInjections(fictitiousQ0ByNode);
             return this;
-        }
-
-        @Override
-        public Map<Integer, Pair<Double, Double>> getFictitiousInjectionsByNode() {
-            Set<Integer> nodesWithFictitiousInjections = new HashSet<>();
-            nodesWithFictitiousInjections.addAll(fictitiousP0ByNode.keySet());
-            nodesWithFictitiousInjections.addAll(fictitiousQ0ByNode.keySet());
-            Map<Integer, Pair<Double, Double>> fictInjByNode = new HashMap<>();
-            for (int node : nodesWithFictitiousInjections) {
-                fictInjByNode.put(node, Pair.of(getFictitiousP0(node), getFictitiousQ0(node)));
-            }
-            return fictInjByNode;
         }
 
         /**
@@ -886,17 +881,21 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     };
 
-    private static void clearFictitiousInjections(Map<Integer, TDoubleArrayList> fictitiousInjectionsByNode) {
-        Set<Integer> toRemove = new HashSet<>(fictitiousInjectionsByNode.keySet());
-        for (Map.Entry<Integer, TDoubleArrayList> fictInjByNode : fictitiousInjectionsByNode.entrySet()) {
-            fictInjByNode.getValue().forEach(inj -> {
+    private static void clearFictitiousInjections(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
+        TIntSet toRemove = new TIntHashSet(fictitiousInjectionsByNode.keySet());
+        fictitiousInjectionsByNode.forEachEntry((node, value) -> {
+            value.forEach(inj -> {
                 if (inj != 0.0) {
-                    toRemove.remove(fictInjByNode.getKey());
+                    toRemove.remove(node);
                 }
                 return true;
             });
-        }
-        toRemove.forEach(fictitiousInjectionsByNode::remove);
+            return true;
+        });
+        toRemove.forEach(node -> {
+            fictitiousInjectionsByNode.remove(node);
+            return true;
+        });
     }
 
     @Override

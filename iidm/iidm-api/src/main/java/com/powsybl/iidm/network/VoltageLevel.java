@@ -8,7 +8,6 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -408,10 +407,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         default NodeBreakerView setFictitiousQ0(int node, double q0) {
             // do nothing
             return this;
-        }
-
-        default Map<Integer, Pair<Double, Double>> getFictitiousInjectionsByNode() {
-            return Collections.emptyMap();
         }
 
         interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {

@@ -22,7 +22,6 @@ import org.anarres.graphviz.builder.GraphVizAttribute;
 import org.anarres.graphviz.builder.GraphVizEdge;
 import org.anarres.graphviz.builder.GraphVizGraph;
 import org.anarres.graphviz.builder.GraphVizScope;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -403,11 +402,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public NodeBreakerView setFictitiousQ0(int node, double q0) {
-            throw createNotSupportedBusBreakerTopologyException();
-        }
-
-        @Override
-        public Map<Integer, Pair<Double, Double>> getFictitiousInjectionsByNode() {
             throw createNotSupportedBusBreakerTopologyException();
         }
 

@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,11 +105,15 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     });
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> {
-            for (Map.Entry<Integer, Pair<Double, Double>> fictInj : vl.getNodeBreakerView().getFictitiousInjectionsByNode().entrySet()) {
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "inj");
-                XmlUtil.writeInt("node", fictInj.getKey(), context.getWriter());
-                XmlUtil.writeOptionalDouble("fictitiousP0", fictInj.getValue().getLeft(), 0.0, context.getWriter());
-                XmlUtil.writeOptionalDouble("fictitiousQ0", fictInj.getValue().getRight(), 0.0, context.getWriter());
+            for (int node : vl.getNodeBreakerView().getNodes()) {
+                double fictP0 = vl.getNodeBreakerView().getFictitiousP0(node);
+                double fictQ0 = vl.getNodeBreakerView().getFictitiousQ0(node);
+                if (fictP0 != 0.0 || fictQ0 != 0.0) {
+                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "inj");
+                    XmlUtil.writeInt("node", node, context.getWriter());
+                    XmlUtil.writeOptionalDouble("fictitiousP0", fictP0, 0.0, context.getWriter());
+                    XmlUtil.writeOptionalDouble("fictitiousQ0", fictQ0, 0.0, context.getWriter());
+                }
             }
         });
         context.getWriter().writeEndElement();
