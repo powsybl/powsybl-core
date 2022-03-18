@@ -18,6 +18,7 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.*;
+import gnu.trove.TCollections;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TIntObjectMap;
@@ -594,8 +595,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
 
-        private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = new TIntObjectHashMap<>();
-        private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = new TIntObjectHashMap<>();
+        private final TIntObjectMap<TDoubleArrayList> fictitiousP0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
+        private final TIntObjectMap<TDoubleArrayList> fictitiousQ0ByNode = TCollections.synchronizedMap(new TIntObjectHashMap<>());
 
         @Override
         public double getFictitiousP0(int node) {
@@ -618,7 +619,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 for (int i = 0; i < variantArraySize; i++) {
                     p0ByVariant.add(0.0);
                 }
-                fictitiousP0ByNode.put(node, p0ByVariant);
+                synchronized (fictitiousP0ByNode) {
+                    fictitiousP0ByNode.put(node, p0ByVariant);
+                }
             }
             int variantIndex = getNetwork().getVariantIndex();
             double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
@@ -649,7 +652,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 for (int i = 0; i < variantArraySize; i++) {
                     q0ByVariant.add(0.0);
                 }
-                fictitiousQ0ByNode.put(node, q0ByVariant);
+                synchronized (fictitiousQ0ByNode) {
+                    fictitiousQ0ByNode.put(node, q0ByVariant);
+                }
             }
             int variantIndex = getNetwork().getVariantIndex();
             double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
@@ -892,10 +897,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             });
             return true;
         });
-        toRemove.forEach(node -> {
-            fictitiousInjectionsByNode.remove(node);
-            return true;
-        });
+        synchronized (fictitiousInjectionsByNode) {
+            toRemove.forEach(node -> {
+                fictitiousInjectionsByNode.remove(node);
+                return true;
+            });
+        }
     }
 
     @Override
