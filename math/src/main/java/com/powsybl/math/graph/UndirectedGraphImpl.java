@@ -246,6 +246,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private E removeEdgeInternal(int e) {
         E obj = edges.get(e).getObject();
+        notifyEdgeBeforeRemoval(e, obj);
         if (e == edges.size() - 1) {
             edges.remove(e);
         } else {
@@ -267,6 +268,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public void removeAllEdges() {
         Collection<E> allEdges = edges.stream().map(Edge::getObject).collect(Collectors.toList());
+        // TODO(Luma) notify all edges before removal
         edges.clear();
         removedEdges.clear();
         invalidateAdjacencyList();
@@ -640,6 +642,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private void notifyEdgeRemoved(int e, E obj) {
         for (UndirectedGraphListener<V, E> l : listeners) {
             l.edgeRemoved(e, obj);
+        }
+    }
+
+    private void notifyEdgeBeforeRemoval(int e, E obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.edgeBeforeRemoval(e, obj);
         }
     }
 

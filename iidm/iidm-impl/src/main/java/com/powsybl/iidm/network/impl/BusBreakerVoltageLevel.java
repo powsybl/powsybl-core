@@ -351,6 +351,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void edgeBeforeRemoval(int e, SwitchImpl obj) {
+                // Nothing to do
+            }
+
+            @Override
             public void edgeRemoved(int e, SwitchImpl obj) {
                 invalidateCache();
             }

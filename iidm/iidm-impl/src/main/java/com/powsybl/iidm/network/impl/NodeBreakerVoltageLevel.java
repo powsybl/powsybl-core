@@ -524,10 +524,21 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void edgeBeforeRemoval(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
+                if (aSwitch != null) {
+                    network.getListeners().notifyBeforeRemoval(aSwitch);
+                }
+            }
+
+            @Override
             public void edgeRemoved(int e, SwitchImpl aSwitch) {
                 NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
+                    String switchId = aSwitch.getId();
                     network.getIndex().remove(aSwitch);
+                    switches.remove(switchId);
+                    network.getListeners().notifyAfterRemoval(switchId);
                 } else {
                     network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
                 }
@@ -538,7 +549,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 NetworkImpl network = getNetwork();
                 aSwitches.forEach(ss -> {
                     if (ss != null) {
-                        // TODO(Luma) This should be called before edges and local collection of switches have been removed
+                        // TODO(Luma) This should be called before edges have been removed from the graph
                         network.getListeners().notifyBeforeRemoval(ss);
                         network.getIndex().remove(ss);
                     } else {
@@ -776,14 +787,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new PowsyblException("Switch '" + switchId
                         + "' not found in voltage level '" + id + "'");
             }
-            NetworkImpl network = getNetwork();
-            network.getListeners().notifyBeforeRemoval(graph.getEdgeObject(e));
-
-            switches.remove(switchId);
             graph.removeEdge(e);
             graph.removeIsolatedVertices(false);
-
-            network.getListeners().notifyAfterRemoval(switchId);
         }
 
         @Override
@@ -1177,10 +1182,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     protected void removeTopology() {
-        // TODO(Luma) Should notify listeners before removing from local data structures
-        // network.getListeners().beforeRemoval()
-        // network.getListeners().afterRemoval()
-        // for all switches
         removeAllEdges();
     }
 

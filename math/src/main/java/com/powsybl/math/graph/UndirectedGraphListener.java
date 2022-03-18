@@ -24,6 +24,8 @@ public interface UndirectedGraphListener<V, E> {
 
     void edgeAdded(int e, E obj);
 
+    void edgeBeforeRemoval(int e, E obj);
+
     void edgeRemoved(int e, E obj);
 
     void allEdgesRemoved(Collection<E> obj);
