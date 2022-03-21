@@ -627,7 +627,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             double oldValue = p0ByVariant.set(getNetwork().getVariantIndex(), p0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
             getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousP0", variantId, oldValue, p0);
-            clearFictitiousInjections(fictitiousP0ByNode);
+            TIntSet toRemove = clearFictitiousInjections(fictitiousP0ByNode);
+            synchronized (fictitiousP0ByNode) {
+                toRemove.forEach(n -> {
+                    fictitiousP0ByNode.remove(n);
+                    return true;
+                });
+            }
             return this;
         }
 
@@ -659,8 +665,14 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             int variantIndex = getNetwork().getVariantIndex();
             double oldValue = q0ByVariant.set(getNetwork().getVariantIndex(), q0);
             String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-            getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousP0", variantId, oldValue, q0);
-            clearFictitiousInjections(fictitiousQ0ByNode);
+            getNetwork().getListeners().notifyUpdate(NodeBreakerVoltageLevel.this, "fictitiousQ0", variantId, oldValue, q0);
+            TIntSet toRemove = clearFictitiousInjections(fictitiousQ0ByNode);
+            synchronized (fictitiousQ0ByNode) {
+                toRemove.forEach(n -> {
+                    fictitiousQ0ByNode.remove(n);
+                    return true;
+                });
+            }
             return this;
         }
 
@@ -886,7 +898,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     };
 
-    private static void clearFictitiousInjections(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
+    private static TIntSet clearFictitiousInjections(TIntObjectMap<TDoubleArrayList> fictitiousInjectionsByNode) {
         TIntSet toRemove = new TIntHashSet(fictitiousInjectionsByNode.keySet());
         fictitiousInjectionsByNode.forEachEntry((node, value) -> {
             value.forEach(inj -> {
@@ -897,12 +909,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             });
             return true;
         });
-        synchronized (fictitiousInjectionsByNode) {
-            toRemove.forEach(node -> {
-                fictitiousInjectionsByNode.remove(node);
-                return true;
-            });
-        }
+        return toRemove;
     }
 
     @Override
