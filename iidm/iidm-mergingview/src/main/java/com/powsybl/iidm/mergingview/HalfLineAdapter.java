@@ -42,13 +42,10 @@ public class HalfLineAdapter implements TieLine.HalfLine {
 
     public HalfLineAdapter(DanglingLine danglingLine, Branch.Side side, MergingViewIndex index, boolean mustBeReoriented) {
 
-        // TODO(mathbagu): is it correct? should we initialize only b1/g1 (resp. b2/g2) like it's done in the destructive merge?
-
         // if mustBeReoriented is false then end1 and end2 of the halfLine correspond to end1 and end2 of the associated danglingLine
         // if mustBeReoriented is true then end1 and end2 of the halfLine correspond to end2 and end1 of the associated danglingLine
-        // As in the danglingLine only G (g1 + g2) is recorded we do not need to know if the danglingLine has been reoriented
         BranchReorientedParameters brp = new BranchReorientedParameters(danglingLine.getR(), danglingLine.getX(),
-            danglingLine.getG() / 2, danglingLine.getB() / 2, danglingLine.getG() / 2, danglingLine.getB() / 2, mustBeReoriented);
+            danglingLine.getG(), danglingLine.getB(), 0.0, 0.0, mustBeReoriented);
 
         this.index = Objects.requireNonNull(index);
         this.danglingLine = Objects.requireNonNull(danglingLine);

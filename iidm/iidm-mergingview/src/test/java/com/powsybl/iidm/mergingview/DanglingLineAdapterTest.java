@@ -112,8 +112,8 @@ public class DanglingLineAdapterTest {
     @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
-        double p10 = 0.11713527;
-        double q10 = -0.01301712;
+        double p10 = 0.11710908004064359;
+        double q10 = -0.012883304869602126;
         final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 0.01138, 0.05017, 0.0, 0.06280, p10, q10, "code", "busA");
         dl1.setProperty("keyTest", "test");
         assertNotNull(mergingView.getDanglingLine("dl1"));
@@ -211,12 +211,12 @@ public class DanglingLineAdapterTest {
         assertEquals("dl1 + dl2", mergedLine.getId());
         assertEquals("dl1 + dl2", mergedLine.getOptionalName().orElse(null));
         assertEquals("dl1 + dl2", mergedLine.getNameOrId());
-        assertEquals(0.021686754358239996, mergedLine.getR(), 0.0d);
-        assertEquals(0.0991807558009, mergedLine.getX(), 0.0d);
-        assertEquals(-2.423419112522751E-4, mergedLine.getG1(), 0.0d);
-        assertEquals(2.674109884810427E-4, mergedLine.getG2(), 0.0d);
-        assertEquals(0.06495963930323256, mergedLine.getB1(), 0.0d);
-        assertEquals(0.07075470166470588, mergedLine.getB2(), 0.0d);
+        assertEquals(0.02176, mergedLine.getR(), 1.0e-10);
+        assertEquals(0.09934, mergedLine.getX(), 1.0e-10);
+        assertEquals(0.0, mergedLine.getG1(), 1.0e-10);
+        assertEquals(0.0, mergedLine.getG2(), 1.0e-10);
+        assertEquals(0.06280, mergedLine.getB1(), 1.0e-10);
+        assertEquals(0.07280, mergedLine.getB2(), 1.0e-10);
         assertEquals(p10, dl1.getP0(), 0.0d);
         assertEquals(q10, dl1.getQ0(), 0.0d);
         assertEquals(p20, dl2.getP0(), 0.0d);
@@ -249,8 +249,8 @@ public class DanglingLineAdapterTest {
             assertNotNull(t);
         });
 
-        double p1 = 0.11729938;
-        double q1 = -0.08196614;
+        double p1 = 0.117273045626974;
+        double q1 = -0.081804351176928;
         double p2 = -0.11700000;
         double q2 = -0.06700000;
         final Terminal t1 = mergedLine.getTerminal("vl1");
@@ -274,8 +274,8 @@ public class DanglingLineAdapterTest {
         t2.setP(p2);
         t2.setQ(q2);
         // Update V & Angle
-        double v1 = 1.05279831;
-        double angle1 = Math.toDegrees(-0.01745197);
+        double v1 = 1.052585464510671;
+        double angle1 = Math.toDegrees(-0.017414259263883);
         double v2 = 1.05137589;
         double angle2 = Math.toDegrees(-0.02818192);
         t1.getBusView().getBus().setV(v1).setAngle(angle1);
