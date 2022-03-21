@@ -69,8 +69,6 @@ public final class CgmesDiscretePostProcessor {
                 .setType(type);
         if (type == TAP_POSITION) {
             setTapChanger(adder, identifiable);
-        } else {
-            adder.setType(OTHER);
         }
         DiscreteMeasurement measurement = adder.add();
         measurement.putProperty("cgmesType", measurementType);

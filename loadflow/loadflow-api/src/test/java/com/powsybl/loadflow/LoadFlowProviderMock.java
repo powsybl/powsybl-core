@@ -7,10 +7,16 @@
 package com.powsybl.loadflow;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummySerializer;
+import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,6 +28,16 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters) {
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
+    }
+
+    @Override
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.of(new DummySerializer());
+    }
+
+    @Override
+    public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.of(new DummyExtension());
     }
 
     @Override

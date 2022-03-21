@@ -91,6 +91,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             if (busId2 == null) {
                 throw new ValidationException(this, "second connection bus is not set");
             }
+            if (busId1.equals(busId2)) {
+                throw new ValidationException(this, "same bus at both ends");
+            }
 
             SwitchImpl aSwitch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), isFictitious(), SwitchKind.BREAKER, open, true);
             addSwitch(aSwitch, busId1, busId2);

@@ -176,6 +176,24 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
+                .setCreateCgmesExportMapping(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
+                                defaultValueConfig))
+                .setEnsureIdAliasUnicity(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                ENSURE_ID_ALIAS_UNICITY_PARAMETER,
+                                defaultValueConfig))
+                .setImportControlAreas(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                IMPORT_CONTROL_AREAS_PARAMETER,
+                                defaultValueConfig))
                 .setProfileForInitialValuesShuntSectionsTapPositions(
                         ConversionParameters.readStringParameter(
                                 getFormat(),
@@ -193,22 +211,7 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
-                                defaultValueConfig))
-                .setEnsureIdAliasUnicity(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                ENSURE_ID_ALIAS_UNICITY_PARAMETER,
-                                defaultValueConfig
-                        ))
-                .setCreateCgmesExportMapping(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
-                                defaultValueConfig
-                        )
-                );
+                                defaultValueConfig));
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
@@ -329,12 +332,13 @@ public class CgmesImport implements Importer {
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
-            CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+            CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
+            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
 

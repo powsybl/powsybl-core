@@ -109,6 +109,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                     throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <cgmesIidmMapping>");
             }
         });
+        mapping.addTopologyListener();
         return mapping;
     }
 
@@ -120,7 +121,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
      */
     @Override
     public boolean isSerializable(CgmesIidmMapping cgmesIidmMapping) {
-        return !cgmesIidmMapping.isTopologicalNodeEmpty();
+        return !cgmesIidmMapping.isTopologicalNodeEmpty() || !cgmesIidmMapping.isBaseVoltageEmpty();
     }
 
     private static void writeBusIdentification(Bus b, NetworkXmlWriterContext context) throws XMLStreamException {

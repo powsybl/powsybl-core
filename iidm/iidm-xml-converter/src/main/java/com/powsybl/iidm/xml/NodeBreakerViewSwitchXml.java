@@ -14,12 +14,25 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.NodeBreakerView.SwitchAdder> {
 
     static final NodeBreakerViewSwitchXml INSTANCE = new NodeBreakerViewSwitchXml();
+
+    @Override
+    protected boolean isValid(Switch s, VoltageLevel vl) {
+        VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
+        if (v.getNode1(s.getId()) == v.getNode2(s.getId())) {
+            LOGGER.warn("Discard switch with same node at both ends. Id: {}", s.getId());
+            return false;
+        }
+        return true;
+    }
 
     @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -45,11 +58,19 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
         });
         int node1 = XmlUtil.readIntAttribute(context.getReader(), "node1");
         int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
-        return adder.setKind(kind)
+        // Discard switches with same node at both ends
+        if (node1 == node2) {
+            LOGGER.warn("Discard switch with same node at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+            return null;
+        } else {
+            return adder.setKind(kind)
                 .setRetained(retained)
                 .setOpen(open)
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
+        }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerViewSwitchXml.class);
 }
