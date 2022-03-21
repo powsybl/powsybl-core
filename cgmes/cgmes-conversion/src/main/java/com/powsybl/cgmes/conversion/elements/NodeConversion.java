@@ -199,6 +199,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (checkValidVoltageAngle(bus)) {
             setVoltageAngle(bus);
         }
+        context.namingStrategy().readIdMapping(bus, "Bus");
     }
 
     private boolean checkValidVoltageAngle(Bus bus) {
