@@ -243,8 +243,8 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
-        if (mapping != null) {
+        if (context.config().createCgmesExportMapping) {
+            CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
             mapping.addTopologyListener();
         }
         return network;
