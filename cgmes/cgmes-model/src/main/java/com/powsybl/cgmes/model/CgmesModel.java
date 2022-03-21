@@ -9,6 +9,7 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
@@ -43,6 +44,16 @@ public interface CgmesModel {
     DateTime created();
 
     boolean isNodeBreaker();
+
+    default boolean hasOnlyEquipmentProfile() {
+        for (PropertyBag mp : modelProfiles()) {
+            String p = mp.get("profile");
+            if (p != null && !p.contains("Equipment") && !p.contains("Boundary")) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     boolean hasBoundary();
 

@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.Properties;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
@@ -51,6 +52,30 @@ public class CgmesConformity1ModifiedConversionTest {
     @After
     public void tearDown() throws IOException {
         fileSystem.close();
+    }
+
+    @Test
+    public void smallNodeBreakerOnlyEquipment() {
+        Properties p = new Properties();
+        p.put(CgmesImport.MINIMUM_VALIDATION_LEVEL, "EQUIPMENT");
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerOnlyEquipment().dataSource(),
+                NetworkFactory.findDefault(), p);
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+        Load load = network.getLoad("_0448d86a-c766-11e1-8775-005056c00008");
+        assertTrue(Double.isNaN(load.getP0()));
+        assertTrue(Double.isNaN(load.getQ0()));
+    }
+
+    @Test
+    public void smallNodeBreakerOnlyEquipmentWithFixedSsh() {
+        Properties p = new Properties();
+        p.put(CgmesImport.MINIMUM_VALIDATION_LEVEL, "STEADY_STATE_HYPOTHESIS");
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerOnlyEquipment().dataSource(),
+                NetworkFactory.findDefault(), p);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        Load load = network.getLoad("_0448d86a-c766-11e1-8775-005056c00008");
+        assertEquals(0.0, load.getP0(), 0.0);
+        assertEquals(0.0, load.getQ0(), 0.0);
     }
 
     @Test
@@ -482,6 +507,15 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(115.5, ext.getTargetQ(), 0.0);
         assertTrue(ext.isEnabled());
         assertSame(network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
+    }
+
+    @Test
+    public void microBEUndefinedLoad() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseUndefinedLoad().dataSource(), NetworkFactory.findDefault(), null);
+        Load load = network.getLoad("_cb459405-cc14-4215-a45c-416789205904");
+        assertNotNull(load);
+        assertEquals(0.0, load.getP0(), 0.0);
+        assertEquals(0.0, load.getQ0(), 0.0);
     }
 
     @Test

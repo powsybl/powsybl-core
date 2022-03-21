@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.ValidationLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +49,21 @@ public class Context {
         // based on existing node-breaker info
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
+        if (config.getMinimumValidationLevel() == ValidationLevel.EQUIPMENT) {
+            flowsDefaultValue = Double.NaN;
+            fixSsh = false;
+        } else {
+            flowsDefaultValue = 0.0;
+            fixSsh = true;
+        }
+
         namingStrategy = new NamingStrategy.Identity();
         cgmesBoundary = new CgmesBoundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
         dcMapping = new DcMapping(this);
         loadingLimitsMapping = new LoadingLimitsMapping(this);
-        regulatingControlMapping = new RegulatingControlMapping(this);
+        regulatingControlMapping = new RegulatingControlMapping(fixSsh, this);
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
@@ -62,6 +71,14 @@ public class Context {
         reactiveCapabilityCurveData = new HashMap<>();
         powerTransformerRatioTapChangers = new HashMap<>();
         powerTransformerPhaseTapChangers = new HashMap<>();
+    }
+
+    public boolean fixSsh() {
+        return fixSsh;
+    }
+
+    public double flowsDefaultValue() {
+        return flowsDefaultValue;
     }
 
     public CgmesModel cgmes() {
@@ -275,6 +292,10 @@ public class Context {
     private final DcMapping dcMapping;
     private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
+
+    // Parameters for minimum validation values
+    private final double flowsDefaultValue;
+    private final boolean fixSsh;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> phaseTapChangerTables;

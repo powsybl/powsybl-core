@@ -210,6 +210,24 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public boolean hasOnlyEquipmentProfile() {
+        if (onlyEquipment == null) {
+            onlyEquipment = computeIfContainsOnlyEquipment();
+        }
+        return onlyEquipment;
+    }
+
+    private boolean computeIfContainsOnlyEquipment() {
+        for (PropertyBag mp : modelProfiles()) {
+            String p = mp.get(PROFILE);
+            if (p != null && !p.contains("Equipment") && !p.contains("Boundary")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public PropertyBags fullModel(String cgmesProfile) {
         return namedQuery("fullModel", cgmesProfile);
     }
@@ -704,6 +722,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
     private Boolean nodeBreaker = null;
+    private Boolean onlyEquipment = null;
 
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";

@@ -207,7 +207,13 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
                                 defaultValueConfig
-                        )
+                        ))
+                .setMinimumValidationLevel(
+                        ConversionParameters.readStringParameter(
+                                getFormat(),
+                                p,
+                                MINIMUM_VALIDATION_LEVEL_PARAMETER,
+                                defaultValueConfig)
                 );
     }
 
@@ -246,6 +252,7 @@ public class CgmesImport implements Importer {
     public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
+    public static final String MINIMUM_VALIDATION_LEVEL = "iidm.import.cgmes.minimum-validation-level";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
     public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
@@ -295,6 +302,11 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Import control areas",
             Boolean.TRUE);
+    private static final Parameter MINIMUM_VALIDATION_LEVEL_PARAMETER = new Parameter(
+            MINIMUM_VALIDATION_LEVEL,
+            ParameterType.STRING,
+            "Set a minimum validation level, implying fixes if the original file does not comply",
+            "STEADY_STATE_HYPOTHESIS");
     private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
             POST_PROCESSORS,
             ParameterType.STRING_LIST,

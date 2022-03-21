@@ -17,12 +17,8 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 import java.io.IOException;
@@ -299,6 +295,7 @@ public class Cgmes3ConversionTest {
         // regulatingTerminals of network are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
         // Differences are associated with regulating cgmesTerminals defined for breakers
+        fixRegulationValuesBeforeComparison(network, networkwithoutTpSv);
         fixRegulatingTerminalsBeforeComparison(network);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
@@ -339,6 +336,15 @@ public class Cgmes3ConversionTest {
         });
         network.getShuntCompensators().forEach(shuntCompensator -> {
             shuntCompensator.setRegulatingTerminal(shuntCompensator.getTerminal());
+        });
+    }
+
+    private static void fixRegulationValuesBeforeComparison(Network network, Network networkWithoutTp) {
+        network.getGeneratorStream().forEach(g -> {
+            Generator genWithoutTp = networkWithoutTp.getGenerator(g.getId());
+            if (genWithoutTp.getRegulatingTerminal() == genWithoutTp.getTerminal() && genWithoutTp.getTargetV() == genWithoutTp.getTerminal().getVoltageLevel().getNominalV()) {
+                g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
+            }
         });
     }
 }

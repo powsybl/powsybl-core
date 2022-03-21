@@ -60,12 +60,12 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
 
     @Override
     protected double p0() {
-        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", 0.0);
+        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", context.flowsDefaultValue());
     }
 
     @Override
     protected double q0() {
-        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", 0.0);
+        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", context.flowsDefaultValue());
     }
 
     private final String loadKind;

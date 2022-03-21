@@ -35,9 +35,9 @@ public class RegulatingControlMapping {
     private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
     private final RegulatingControlMappingForVscConverters regulatingControlMappingForVscConverters;
 
-    RegulatingControlMapping(Context context) {
+    RegulatingControlMapping(boolean fixSsh, Context context) {
         this.context = context;
-        regulatingControlMappingForGenerators = new RegulatingControlMappingForGenerators(this, context);
+        regulatingControlMappingForGenerators = RegulatingControlMappingForGenerators.create(fixSsh, this, context);
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
         regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this, context);
         regulatingControlMappingForShuntCompensators = new RegulatingControlMappingForShuntCompensators(this, context);
@@ -130,13 +130,13 @@ public class RegulatingControlMapping {
     }
 
     Terminal findRegulatingTerminal(String cgmesTerminalId) {
-        return findRegulatingTerminal(cgmesTerminalId, false);
+        return findRegulatingTerminal(cgmesTerminalId, true);
     }
 
-    Terminal findRegulatingTerminal(String cgmesTerminalId, boolean canBeNull) {
+    Terminal findRegulatingTerminal(String cgmesTerminalId, boolean findFromTopologicalNode) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).filter(Terminal::isConnected)
                 .orElseGet(() -> {
-                    if (canBeNull) {
+                    if (!findFromTopologicalNode) {
                         return null;
                     }
                     CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);

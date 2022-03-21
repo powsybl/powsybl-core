@@ -139,6 +139,9 @@ public class Conversion {
         }
         Network network = createNetwork();
         Context context = createContext(network);
+        if (!context.fixSsh()) {
+            network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        }
         assignNetworkProperties(context);
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
@@ -853,6 +856,16 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public Config setMinimumValidationLevel(String validationLevel) {
+            minimumValidationLevel = ValidationLevel.valueOf(validationLevel);
+            return this;
+        }
+
+        public ValidationLevel getMinimumValidationLevel() {
+            return minimumValidationLevel;
+        }
+
+        private ValidationLevel minimumValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;

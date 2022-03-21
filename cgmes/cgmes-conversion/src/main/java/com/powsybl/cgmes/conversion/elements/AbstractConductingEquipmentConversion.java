@@ -671,11 +671,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected double p0() {
-        return powerFlow().defined() ? powerFlow().p() : 0.0;
+        return powerFlow().defined() ? powerFlow().p() : context.flowsDefaultValue();
     }
 
     protected double q0() {
-        return powerFlow().defined() ? powerFlow().q() : 0.0;
+        return powerFlow().defined() ? powerFlow().q() : context.flowsDefaultValue();
     }
 
     private final TerminalData[] terminals;
