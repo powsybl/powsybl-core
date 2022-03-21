@@ -35,11 +35,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
 
     @Test
     public void invalidBufferCapacity() {
-        try {
-            new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3));
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
+        assertThrows(MatrixException.class, () -> new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3)));
     }
 
     @Test

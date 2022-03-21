@@ -13,10 +13,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -156,7 +156,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         public boolean parameterBoolean;
         public String parameterString;
 
-        DummyExtension() {
+        public DummyExtension() {
             super();
         }
 
@@ -215,8 +215,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         assertNotEquals(oldExtension.getParameterString(), extension.getParameterString());
     }
 
-    @AutoService(JsonLoadFlowParameters.ExtensionSerializer.class)
-    public static class DummySerializer implements JsonLoadFlowParameters.ExtensionSerializer<DummyExtension> {
+    public static class DummySerializer implements ExtensionJsonSerializer<LoadFlowParameters, DummyExtension> {
 
         @Override
         public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
