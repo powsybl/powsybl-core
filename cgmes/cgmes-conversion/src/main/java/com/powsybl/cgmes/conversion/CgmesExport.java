@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
@@ -16,6 +17,7 @@ import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 
 import javax.xml.stream.XMLStreamException;
@@ -36,6 +38,16 @@ public class CgmesExport implements Exporter {
 
     private static final String INDENT = "    ";
 
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public CgmesExport(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
+
+    public CgmesExport() {
+        this(PlatformConfig.defaultConfig());
+    }
+
     @Override
     public List<Parameter> getParameters() {
         return STATIC_PARAMETERS;
@@ -50,9 +62,9 @@ public class CgmesExport implements Exporter {
         String filenameSsh = baseName + "_SSH.xml";
         String filenameSv = baseName + "_SV.xml";
         CgmesExportContext context = new CgmesExportContext(network)
-                .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER))
-                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER));
-        String cimVersionParam = ConversionParameters.readStringParameter(getFormat(), params, CIM_VERSION_PARAMETER);
+                .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
+                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig));
+        String cimVersionParam = ConversionParameters.readStringParameter(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
