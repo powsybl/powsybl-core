@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4" id="ieee57" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="SUB-39">
-        <iidm:voltageLevel id="VL-1" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-1" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-1" v="1.04" angle="0.0"/>
             </iidm:busBreakerTopology>
@@ -12,7 +12,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-40">
-        <iidm:voltageLevel id="VL-2" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-2" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-2" v="1.01" angle="-1.18"/>
             </iidm:busBreakerTopology>
@@ -23,7 +23,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-41">
-        <iidm:voltageLevel id="VL-3" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-3" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-3" v="0.985" angle="-5.97"/>
             </iidm:busBreakerTopology>
@@ -34,12 +34,12 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-20">
-        <iidm:voltageLevel id="VL-4" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-4" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-4" v="0.981" angle="-7.32"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-18" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-18" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-18" v="1.001" angle="-11.71"/>
             </iidm:busBreakerTopology>
@@ -52,7 +52,7 @@
         <iidm:twoWindingsTransformer id="TWT-4-18#0" r="0.0" x="0.0043" g="0.0" b="0.0" ratedU1="0.978" ratedU2="1.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-18" connectableBus2="BUS-18" voltageLevelId2="VL-18"/>
     </iidm:substation>
     <iidm:substation id="SUB-42">
-        <iidm:voltageLevel id="VL-5" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-5" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-5" v="0.976" angle="-8.52"/>
             </iidm:busBreakerTopology>
@@ -60,7 +60,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-43">
-        <iidm:voltageLevel id="VL-6" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-6" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-6" v="0.98" angle="-8.65"/>
             </iidm:busBreakerTopology>
@@ -71,12 +71,12 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-24">
-        <iidm:voltageLevel id="VL-7" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-7" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-7" v="0.984" angle="-7.58"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-29" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-29" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-29" v="1.01" angle="-9.75"/>
             </iidm:busBreakerTopology>
@@ -85,7 +85,7 @@
         <iidm:twoWindingsTransformer id="TWT-7-29" r="0.0" x="6.48E-4" g="0.0" b="0.0" ratedU1="0.967" ratedU2="1.0" bus1="BUS-7" connectableBus1="BUS-7" voltageLevelId1="VL-7" bus2="BUS-29" connectableBus2="BUS-29" voltageLevelId2="VL-29"/>
     </iidm:substation>
     <iidm:substation id="SUB-26">
-        <iidm:voltageLevel id="VL-8" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-8" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-8" v="1.005" angle="-4.45"/>
             </iidm:busBreakerTopology>
@@ -96,7 +96,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-25">
-        <iidm:voltageLevel id="VL-9" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-9" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-9" v="0.98" angle="-9.56"/>
             </iidm:busBreakerTopology>
@@ -105,7 +105,7 @@
             </iidm:generator>
             <iidm:load id="LOAD-9" loadType="UNDEFINED" p0="121.0" q0="26.0" bus="BUS-9" connectableBus="BUS-9"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-55" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-55" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-55" v="1.031" angle="-10.78"/>
             </iidm:busBreakerTopology>
@@ -114,13 +114,13 @@
         <iidm:twoWindingsTransformer id="TWT-9-55" r="0.0" x="0.001205" g="0.0" b="0.0" ratedU1="0.94" ratedU2="1.0" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-9" bus2="BUS-55" connectableBus2="BUS-55" voltageLevelId2="VL-55"/>
     </iidm:substation>
     <iidm:substation id="SUB-27">
-        <iidm:voltageLevel id="VL-10" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-10" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-10" v="0.986" angle="-11.43"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-10" loadType="UNDEFINED" p0="5.0" q0="2.0" bus="BUS-10" connectableBus="BUS-10"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-51" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-51" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-51" v="1.052" angle="-12.52"/>
             </iidm:busBreakerTopology>
@@ -129,18 +129,18 @@
         <iidm:twoWindingsTransformer id="TWT-10-51" r="0.0" x="7.12E-4" g="0.0" b="0.0" ratedU1="0.93" ratedU2="1.0" bus1="BUS-10" connectableBus1="BUS-10" voltageLevelId1="VL-10" bus2="BUS-51" connectableBus2="BUS-51" voltageLevelId2="VL-51"/>
     </iidm:substation>
     <iidm:substation id="SUB-16">
-        <iidm:voltageLevel id="VL-11" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-11" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-11" v="0.974" angle="-10.17"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-41" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-41" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-41" v="0.996" angle="-14.05"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-41" loadType="UNDEFINED" p0="6.3" q0="3.0" bus="BUS-41" connectableBus="BUS-41"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-43" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-43" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-43" v="1.01" angle="-11.33"/>
             </iidm:busBreakerTopology>
@@ -150,7 +150,7 @@
         <iidm:twoWindingsTransformer id="TWT-11-43" r="0.0" x="0.0015300000000000001" g="0.0" b="0.0" ratedU1="0.958" ratedU2="1.0" bus1="BUS-11" connectableBus1="BUS-11" voltageLevelId1="VL-11" bus2="BUS-43" connectableBus2="BUS-43" voltageLevelId2="VL-43"/>
     </iidm:substation>
     <iidm:substation id="SUB-23">
-        <iidm:voltageLevel id="VL-12" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-12" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-12" v="1.015" angle="-10.46"/>
             </iidm:busBreakerTopology>
@@ -161,13 +161,13 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-10">
-        <iidm:voltageLevel id="VL-13" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-13" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-13" v="0.979" angle="-9.79"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-13" loadType="UNDEFINED" p0="18.0" q0="2.3" bus="BUS-13" connectableBus="BUS-13"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-49" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-49" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-49" v="1.036" angle="-12.92"/>
             </iidm:busBreakerTopology>
@@ -176,13 +176,13 @@
         <iidm:twoWindingsTransformer id="TWT-13-49" r="0.0" x="0.00191" g="0.0" b="0.0" ratedU1="0.895" ratedU2="1.0" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId1="VL-13" bus2="BUS-49" connectableBus2="BUS-49" voltageLevelId2="VL-49"/>
     </iidm:substation>
     <iidm:substation id="SUB-13">
-        <iidm:voltageLevel id="VL-14" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-14" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-14" v="0.97" angle="-9.33"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-14" loadType="UNDEFINED" p0="10.5" q0="5.3" bus="BUS-14" connectableBus="BUS-14"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-46" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-46" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-46" v="1.05" angle="-11.89"/>
             </iidm:busBreakerTopology>
@@ -190,13 +190,13 @@
         <iidm:twoWindingsTransformer id="TWT-14-46" r="0.0" x="7.35E-4" g="0.0" b="0.0" ratedU1="0.9" ratedU2="1.0" bus1="BUS-14" connectableBus1="BUS-14" voltageLevelId1="VL-14" bus2="BUS-46" connectableBus2="BUS-46" voltageLevelId2="VL-46"/>
     </iidm:substation>
     <iidm:substation id="SUB-14">
-        <iidm:voltageLevel id="VL-15" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-15" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-15" v="0.988" angle="-7.18"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-15" loadType="UNDEFINED" p0="22.0" q0="5.0" bus="BUS-15" connectableBus="BUS-15"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-45" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-45" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-45" v="1.036" angle="-9.25"/>
             </iidm:busBreakerTopology>
@@ -204,7 +204,7 @@
         <iidm:twoWindingsTransformer id="TWT-15-45" r="0.0" x="0.001042" g="0.0" b="0.0" ratedU1="0.955" ratedU2="1.0" bus1="BUS-15" connectableBus1="BUS-15" voltageLevelId1="VL-15" bus2="BUS-45" connectableBus2="BUS-45" voltageLevelId2="VL-45"/>
     </iidm:substation>
     <iidm:substation id="SUB-22">
-        <iidm:voltageLevel id="VL-16" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-16" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-16" v="1.013" angle="-8.85"/>
             </iidm:busBreakerTopology>
@@ -212,7 +212,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-21">
-        <iidm:voltageLevel id="VL-17" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-17" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-17" v="1.017" angle="-5.39"/>
             </iidm:busBreakerTopology>
@@ -220,7 +220,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-19">
-        <iidm:voltageLevel id="VL-19" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-19" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-19" v="0.97" angle="-13.2"/>
             </iidm:busBreakerTopology>
@@ -228,13 +228,13 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-38">
-        <iidm:voltageLevel id="VL-20" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-20" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-20" v="0.964" angle="-13.41"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-20" loadType="UNDEFINED" p0="2.3" q0="1.0" bus="BUS-20" connectableBus="BUS-20"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-21" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-21" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-21" v="1.008" angle="-12.89"/>
             </iidm:busBreakerTopology>
@@ -242,14 +242,14 @@
         <iidm:twoWindingsTransformer id="TWT-21-20" r="0.0" x="0.007767" g="0.0" b="0.0" ratedU1="1.043" ratedU2="1.0" bus1="BUS-21" connectableBus1="BUS-21" voltageLevelId1="VL-21" bus2="BUS-20" connectableBus2="BUS-20" voltageLevelId2="VL-20"/>
     </iidm:substation>
     <iidm:substation id="SUB-37">
-        <iidm:voltageLevel id="VL-22" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-22" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-22" v="1.01" angle="-12.84"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-36">
-        <iidm:voltageLevel id="VL-23" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-23" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-23" v="1.008" angle="-12.91"/>
             </iidm:busBreakerTopology>
@@ -257,12 +257,12 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-34">
-        <iidm:voltageLevel id="VL-24" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-24" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-24" v="0.999" angle="-13.25"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-26" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-26" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-26" v="0.959" angle="-12.95"/>
             </iidm:busBreakerTopology>
@@ -270,7 +270,7 @@
         <iidm:twoWindingsTransformer id="TWT-24-26" r="0.0" x="4.73E-4" g="0.0" b="0.0" ratedU1="1.043" ratedU2="1.0" bus1="BUS-24" connectableBus1="BUS-24" voltageLevelId1="VL-24" bus2="BUS-26" connectableBus2="BUS-26" voltageLevelId2="VL-26"/>
     </iidm:substation>
     <iidm:substation id="SUB-35">
-        <iidm:voltageLevel id="VL-25" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-25" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-25" v="0.982" angle="-18.13"/>
             </iidm:busBreakerTopology>
@@ -281,7 +281,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-33">
-        <iidm:voltageLevel id="VL-27" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-27" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-27" v="0.982" angle="-11.48"/>
             </iidm:busBreakerTopology>
@@ -289,7 +289,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-32">
-        <iidm:voltageLevel id="VL-28" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-28" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-28" v="0.997" angle="-10.45"/>
             </iidm:busBreakerTopology>
@@ -297,7 +297,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-9">
-        <iidm:voltageLevel id="VL-30" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-30" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-30" v="0.962" angle="-18.68"/>
             </iidm:busBreakerTopology>
@@ -305,7 +305,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-8">
-        <iidm:voltageLevel id="VL-31" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-31" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-31" v="0.936" angle="-19.34"/>
             </iidm:busBreakerTopology>
@@ -313,13 +313,13 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-6">
-        <iidm:voltageLevel id="VL-32" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-32" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-32" v="0.949" angle="-18.46"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD-32" loadType="UNDEFINED" p0="1.6" q0="0.8" bus="BUS-32" connectableBus="BUS-32"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-34" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-34" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-34" v="0.959" angle="-14.1"/>
             </iidm:busBreakerTopology>
@@ -327,7 +327,7 @@
         <iidm:twoWindingsTransformer id="TWT-34-32" r="0.0" x="0.00953" g="0.0" b="0.0" ratedU1="0.975" ratedU2="1.0" bus1="BUS-34" connectableBus1="BUS-34" voltageLevelId1="VL-34" bus2="BUS-32" connectableBus2="BUS-32" voltageLevelId2="VL-32"/>
     </iidm:substation>
     <iidm:substation id="SUB-7">
-        <iidm:voltageLevel id="VL-33" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-33" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-33" v="0.947" angle="-18.5"/>
             </iidm:busBreakerTopology>
@@ -335,7 +335,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-5">
-        <iidm:voltageLevel id="VL-35" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-35" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-35" v="0.966" angle="-13.86"/>
             </iidm:busBreakerTopology>
@@ -343,21 +343,21 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-4">
-        <iidm:voltageLevel id="VL-36" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-36" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-36" v="0.976" angle="-13.59"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-3">
-        <iidm:voltageLevel id="VL-37" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-37" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-37" v="0.985" angle="-13.41"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-2">
-        <iidm:voltageLevel id="VL-38" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-38" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-38" v="1.013" angle="-12.71"/>
             </iidm:busBreakerTopology>
@@ -365,12 +365,12 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-1">
-        <iidm:voltageLevel id="VL-39" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-39" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-39" v="0.983" angle="-13.46"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-57" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-57" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-57" v="0.965" angle="-16.56"/>
             </iidm:busBreakerTopology>
@@ -379,12 +379,12 @@
         <iidm:twoWindingsTransformer id="TWT-39-57" r="0.0" x="0.01355" g="0.0" b="0.0" ratedU1="0.98" ratedU2="1.0" bus1="BUS-39" connectableBus1="BUS-39" voltageLevelId1="VL-39" bus2="BUS-57" connectableBus2="BUS-57" voltageLevelId2="VL-57"/>
     </iidm:substation>
     <iidm:substation id="SUB-18">
-        <iidm:voltageLevel id="VL-40" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-40" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-40" v="0.973" angle="-13.62"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL-56" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-56" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-56" v="0.968" angle="-16.04"/>
             </iidm:busBreakerTopology>
@@ -393,7 +393,7 @@
         <iidm:twoWindingsTransformer id="TWT-40-56" r="0.0" x="0.01195" g="0.0" b="0.0" ratedU1="0.958" ratedU2="1.0" bus1="BUS-40" connectableBus1="BUS-40" voltageLevelId1="VL-40" bus2="BUS-56" connectableBus2="BUS-56" voltageLevelId2="VL-56"/>
     </iidm:substation>
     <iidm:substation id="SUB-17">
-        <iidm:voltageLevel id="VL-42" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-42" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-42" v="0.966" angle="-15.5"/>
             </iidm:busBreakerTopology>
@@ -401,7 +401,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-15">
-        <iidm:voltageLevel id="VL-44" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-44" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-44" v="1.017" angle="-11.86"/>
             </iidm:busBreakerTopology>
@@ -409,7 +409,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-12">
-        <iidm:voltageLevel id="VL-47" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-47" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-47" v="1.033" angle="-12.49"/>
             </iidm:busBreakerTopology>
@@ -417,14 +417,14 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-11">
-        <iidm:voltageLevel id="VL-48" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-48" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-48" v="1.027" angle="-12.59"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-31">
-        <iidm:voltageLevel id="VL-50" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-50" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-50" v="1.023" angle="-13.39"/>
             </iidm:busBreakerTopology>
@@ -432,7 +432,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-30">
-        <iidm:voltageLevel id="VL-52" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-52" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-52" v="0.98" angle="-11.47"/>
             </iidm:busBreakerTopology>
@@ -440,7 +440,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-29">
-        <iidm:voltageLevel id="VL-53" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-53" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-53" v="0.971" angle="-12.23"/>
             </iidm:busBreakerTopology>
@@ -451,7 +451,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="SUB-28">
-        <iidm:voltageLevel id="VL-54" nominalV="1.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL-54" nominalV="1.0" lowVoltageLimit="0.94" highVoltageLimit="1.06" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-54" v="0.996" angle="-11.69"/>
             </iidm:busBreakerTopology>

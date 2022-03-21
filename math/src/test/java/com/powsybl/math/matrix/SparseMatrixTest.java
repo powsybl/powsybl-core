@@ -84,11 +84,7 @@ public class SparseMatrixTest extends AbstractMatrixTest {
 
             // error as an element has been added
             matrix.set(1, 1, 2);
-            try {
-                decomposition.update();
-                fail();
-            } catch (PowsyblException ignored) {
-            }
+            assertThrows(MatrixException.class, decomposition::update);
         }
     }
 }
