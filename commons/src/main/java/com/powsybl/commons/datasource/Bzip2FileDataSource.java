@@ -17,12 +17,12 @@ import java.nio.file.Path;
  */
 public class Bzip2FileDataSource extends FileDataSource {
 
-    public Bzip2FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
+    public Bzip2FileDataSource(Path directory, String fileName, DataSourceObserver observer) {
+        super(directory, fileName, observer);
     }
 
-    public Bzip2FileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
+    public Bzip2FileDataSource(Path directory, String fileName) {
+        super(directory, fileName);
     }
 
     @Override

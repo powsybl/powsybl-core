@@ -35,36 +35,25 @@ public class ZipFileDataSource implements DataSource {
 
     private final String zipFileName;
 
-    private final String baseName;
-
     private final DataSourceObserver observer;
 
-    public ZipFileDataSource(Path directory, String zipFileName, String baseName, DataSourceObserver observer) {
+    public ZipFileDataSource(Path directory, String zipFileName, DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.zipFileName = Objects.requireNonNull(zipFileName);
-        this.baseName = Objects.requireNonNull(baseName);
         this.observer = observer;
     }
 
-    public ZipFileDataSource(Path directory, String zipFileName, String baseName) {
-        this(directory, zipFileName, baseName, null);
-    }
-
-    public ZipFileDataSource(Path directory, String baseName) {
-        this(directory, baseName + ".zip", baseName, null);
-    }
-
-    public ZipFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        this(directory, baseName + ".zip", baseName, observer);
+    public ZipFileDataSource(Path directory, String zipFileName) {
+        this(directory, zipFileName, null);
     }
 
     public ZipFileDataSource(Path zipFile) {
-        this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()));
+        this(zipFile.getParent(), zipFile.getFileName().toString());
     }
 
     @Override
     public String getBaseName() {
-        return baseName;
+        return DataSourceUtil.getBaseName(zipFileName);
     }
 
     private Path getZipFilePath() {
@@ -73,7 +62,7 @@ public class ZipFileDataSource implements DataSource {
 
     @Override
     public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+        return zipFileName.endsWith((suffix == null ? "" : suffix) + "." + ext + ".zip") && exists(DataSourceUtil.getBaseName(zipFileName));
     }
 
     private static boolean entryExists(Path zipFilePath, String fileName) {
@@ -96,7 +85,7 @@ public class ZipFileDataSource implements DataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
+        return newInputStream(DataSourceUtil.getBaseName(zipFileName));
     }
 
     private static final class ZipEntryInputStream extends ForwardingInputStream<InputStream> {
@@ -197,7 +186,7 @@ public class ZipFileDataSource implements DataSource {
 
     @Override
     public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
-        return newOutputStream(DataSourceUtil.getFileName(baseName, suffix, ext), append);
+        return newOutputStream(DataSourceUtil.getFileName(DataSourceUtil.getBaseName(zipFileName), suffix, ext), append);
     }
 
     @Override

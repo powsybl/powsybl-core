@@ -18,12 +18,12 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GzFileDataSource extends FileDataSource {
 
-    public GzFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
+    public GzFileDataSource(Path directory, String fileName, DataSourceObserver observer) {
+        super(directory, fileName, observer);
     }
 
-    public GzFileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
+    public GzFileDataSource(Path directory, String fileName) {
+        super(directory, fileName);
     }
 
     @Override
