@@ -441,9 +441,10 @@ public final class StateVariablesExport {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
             double poleLoss;
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-                poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / (100 - converterStation.getLossFactor());
+                poleLoss = converterStation.getLossFactor() / 100 * converterStation.getHvdcLine().getActivePowerSetpoint();
             } else {
-                poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / 100;
+                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - getOtherConversionStation(converterStation).getLossFactor() / 100);
+                poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
             }
             writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
@@ -476,6 +477,11 @@ public final class StateVariablesExport {
             }
             writer.writeEndElement();
         }
+    }
+
+    private static HvdcConverterStation<?> getOtherConversionStation(HvdcConverterStation<?> station) {
+        HvdcLine line = station.getHvdcLine();
+        return line.getConverterStation1() == station ? line.getConverterStation2() : line.getConverterStation1();
     }
 
     private StateVariablesExport() {
