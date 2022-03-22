@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import com.powsybl.iidm.network.util.ReorientedBranchCaracteristics;
+import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -939,7 +939,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
             // Dangling line 2 must always be reoriented
             // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
-            ReorientedBranchCaracteristics brp2 = new ReorientedBranchCaracteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
+            ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
 
             MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();

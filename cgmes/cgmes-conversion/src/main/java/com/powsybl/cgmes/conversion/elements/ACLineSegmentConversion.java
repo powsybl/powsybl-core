@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.iidm.network.util.ReorientedBranchCaracteristics;
+import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -159,10 +159,10 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     // then the setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
     private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
 
-        ReorientedBranchCaracteristics brp1 = new ReorientedBranchCaracteristics(boundaryLine1.getR(), boundaryLine1.getX(),
+        ReorientedBranchCharacteristics brp1 = new ReorientedBranchCharacteristics(boundaryLine1.getR(), boundaryLine1.getX(),
             boundaryLine1.getG1(), boundaryLine1.getB1(), boundaryLine1.getG2(), boundaryLine1.getB2(),
             isLine1Reoriented(boundaryLine1.getBoundarySide()));
-        ReorientedBranchCaracteristics brp2 = new ReorientedBranchCaracteristics(boundaryLine2.getR(), boundaryLine2.getX(),
+        ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(boundaryLine2.getR(), boundaryLine2.getX(),
             boundaryLine2.getG1(), boundaryLine2.getB1(), boundaryLine2.getG2(), boundaryLine2.getB2(),
             isLine2Reoriented(boundaryLine2.getBoundarySide()));
 

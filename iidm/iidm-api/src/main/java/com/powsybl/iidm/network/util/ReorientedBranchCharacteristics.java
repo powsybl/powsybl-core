@@ -12,7 +12,7 @@ package com.powsybl.iidm.network.util;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class ReorientedBranchCaracteristics {
+public class ReorientedBranchCharacteristics {
 
     private final double r;
 
@@ -26,11 +26,11 @@ public class ReorientedBranchCaracteristics {
 
     private final double b2;
 
-    public ReorientedBranchCaracteristics(double r, double x, double g1, double b1, double g2, double b2) {
+    public ReorientedBranchCharacteristics(double r, double x, double g1, double b1, double g2, double b2) {
         this(r, x, g1, b1, g2, b2, true);
     }
 
-    public ReorientedBranchCaracteristics(double r, double x, double g1, double b1, double g2, double b2, boolean reorient) {
+    public ReorientedBranchCharacteristics(double r, double x, double g1, double b1, double g2, double b2, boolean reorient) {
         this.r = r;
         this.x = x;
         this.g1 = reorient ? g2 : g1;

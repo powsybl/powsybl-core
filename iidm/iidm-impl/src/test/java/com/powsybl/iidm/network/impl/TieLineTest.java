@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.ReorientedBranchCaracteristics;
+import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 import com.powsybl.iidm.network.util.SV;
 
 /**
@@ -216,8 +216,8 @@ public class TieLineTest {
 
         createBus(s2vl1, "S2VL1-BUS");
 
-        ReorientedBranchCaracteristics brp1 = new ReorientedBranchCaracteristics(0.019, 0.059, 0.02, 0.075, 0.03, 0.065, isLine1Reoriented(boundarySide1));
-        ReorientedBranchCaracteristics brp2 = new ReorientedBranchCaracteristics(0.038, 0.118, 0.015, 0.050, 0.025, 0.080, isLine2Reoriented(boundarySide2));
+        ReorientedBranchCharacteristics brp1 = new ReorientedBranchCharacteristics(0.019, 0.059, 0.02, 0.075, 0.03, 0.065, isLine1Reoriented(boundarySide1));
+        ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(0.038, 0.118, 0.015, 0.050, 0.025, 0.080, isLine2Reoriented(boundarySide2));
 
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
@@ -296,8 +296,8 @@ public class TieLineTest {
 
         createBus(s2vl1, "S2VL1-BUS");
 
-        ReorientedBranchCaracteristics brp1 = new ReorientedBranchCaracteristics(2.1672071999999996, 9.5543748, 0.0, 1.648813274522159E-4, 0.0, 1.648813274522159E-4, isLine1Reoriented(boundarySide1));
-        ReorientedBranchCaracteristics brp2 = new ReorientedBranchCaracteristics(3.1513680000000006, 14.928011999999999, 0.008044414674299755, -0.03791520949675112, -0.005046041932060755, 0.023978278075869598, isLine2Reoriented(boundarySide2));
+        ReorientedBranchCharacteristics brp1 = new ReorientedBranchCharacteristics(2.1672071999999996, 9.5543748, 0.0, 1.648813274522159E-4, 0.0, 1.648813274522159E-4, isLine1Reoriented(boundarySide1));
+        ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(3.1513680000000006, 14.928011999999999, 0.008044414674299755, -0.03791520949675112, -0.005046041932060755, 0.023978278075869598, isLine2Reoriented(boundarySide2));
 
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
