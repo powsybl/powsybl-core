@@ -165,8 +165,8 @@ public class CgmesExportContext {
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
             }
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
-                String geoRegionId = CgmesExportUtil.getUniqueId();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", geoRegionId);
+                String subRegionId = CgmesExportUtil.getUniqueId();
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
             }
         }
     }
