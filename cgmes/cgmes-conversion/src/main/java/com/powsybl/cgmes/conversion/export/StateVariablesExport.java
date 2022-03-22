@@ -443,7 +443,7 @@ public final class StateVariablesExport {
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 poleLoss = converterStation.getLossFactor() / 100 * converterStation.getHvdcLine().getActivePowerSetpoint();
             } else {
-                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - getOtherConversionStation(converterStation).getLossFactor() / 100);
+                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - converterStation.getOtherConverterStation().getLossFactor() / 100);
                 poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
             }
             writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
@@ -477,11 +477,6 @@ public final class StateVariablesExport {
             }
             writer.writeEndElement();
         }
-    }
-
-    private static HvdcConverterStation<?> getOtherConversionStation(HvdcConverterStation<?> station) {
-        HvdcLine line = station.getHvdcLine();
-        return line.getConverterStation1() == station ? line.getConverterStation2() : line.getConverterStation1();
     }
 
     private StateVariablesExport() {

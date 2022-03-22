@@ -50,6 +50,12 @@ public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends
      */
     T setLossFactor(float lossFactor);
 
+    /**
+     * Get the converter station at the other side of the hvdc line.
+     * @return the other converter station
+     */
+    HvdcConverterStation getOtherConverterStation();
+
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.HVDC_CONVERTER_STATION;

@@ -42,4 +42,14 @@ abstract class AbstractHvdcConverterStationAdapter<I extends HvdcConverterStatio
     public float getLossFactor() {
         return getDelegate().getLossFactor();
     }
+
+    @Override
+    public HvdcConverterStation getOtherConverterStation() {
+        HvdcLine hvdcLine = getHvdcLine();
+        if (hvdcLine != null) {
+            return hvdcLine.getConverterStation1() == this ? hvdcLine.getConverterStation2() : hvdcLine.getConverterStation1();
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
 }

@@ -504,7 +504,7 @@ public final class SteadyStateHypothesisExport {
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
             } else {
-                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - getOtherConversionStation(converterStation).getLossFactor() / 100);
+                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - converterStation.getOtherConverterStation().getLossFactor() / 100);
                 double poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
                 ppcc = -(pDCInverter - poleLoss);
             }
@@ -683,10 +683,5 @@ public final class SteadyStateHypothesisExport {
             this.targetValue = targetValue;
             this.targetValueUnitMultiplier = targetValueUnitMultiplier;
         }
-    }
-
-    private static HvdcConverterStation<?> getOtherConversionStation(HvdcConverterStation<?> station) {
-        HvdcLine line = station.getHvdcLine();
-        return line.getConverterStation1() == station ? line.getConverterStation2() : line.getConverterStation1();
     }
 }
