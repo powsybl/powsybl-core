@@ -502,11 +502,11 @@ public final class SteadyStateHypothesisExport {
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
             double ppcc;
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-                double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / (100 - converterStation.getLossFactor());
-                ppcc = converterStation.getHvdcLine().getActivePowerSetpoint() + poleLoss;
+                ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
             } else {
-                double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / 100;
-                ppcc = -(converterStation.getHvdcLine().getActivePowerSetpoint() - poleLoss);
+                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - getOtherConversionStation(converterStation).getLossFactor() / 100);
+                double poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
+                ppcc = -(pDCInverter - poleLoss);
             }
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
             writer.writeCharacters(CgmesExportUtil.format(ppcc));
@@ -683,5 +683,10 @@ public final class SteadyStateHypothesisExport {
             this.targetValue = targetValue;
             this.targetValueUnitMultiplier = targetValueUnitMultiplier;
         }
+    }
+
+    private static HvdcConverterStation<?> getOtherConversionStation(HvdcConverterStation<?> station) {
+        HvdcLine line = station.getHvdcLine();
+        return line.getConverterStation1() == station ? line.getConverterStation2() : line.getConverterStation1();
     }
 }
