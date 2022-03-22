@@ -545,12 +545,16 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void allEdgesBeforeRemoval(Collection<SwitchImpl> aSwitches) {
+                NetworkImpl network = getNetwork();
+                aSwitches.stream().filter(Objects::nonNull).forEach(ss -> network.getListeners().notifyBeforeRemoval(ss));
+            }
+
+            @Override
             public void allEdgesRemoved(Collection<SwitchImpl> aSwitches) {
                 NetworkImpl network = getNetwork();
                 aSwitches.forEach(ss -> {
                     if (ss != null) {
-                        // TODO(Luma) This should be called before edges have been removed from the graph
-                        network.getListeners().notifyBeforeRemoval(ss);
                         network.getIndex().remove(ss);
                     } else {
                         network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);

@@ -50,6 +50,11 @@ public class DefaultUndirectedGraphListener<V, E> implements UndirectedGraphList
     }
 
     @Override
+    public void allEdgesBeforeRemoval(Collection<E> obj) {
+        // nothing to do
+    }
+
+    @Override
     public void allEdgesRemoved(Collection<E> obj) {
         // nothing to do
     }
