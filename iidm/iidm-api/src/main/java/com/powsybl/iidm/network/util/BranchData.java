@@ -273,8 +273,8 @@ public class BranchData {
                 1 / rho1, angle1, 1 / rho2, angle2, new Complex(g1, b1), new Complex(g2, b2));
 
             if (connected1 && connected2) {
-                LinkData.Flow flow = LinkData.flowBothEnds(branchAdmittance.y11, branchAdmittance.y12,
-                    branchAdmittance.y21, branchAdmittance.y22, u1, theta1, u2, theta2);
+                LinkData.Flow flow = LinkData.flowBothEnds(branchAdmittance.y11(), branchAdmittance.y12(),
+                    branchAdmittance.y21(), branchAdmittance.y22(), u1, theta1, u2, theta2);
 
                 computedP1 = flow.fromTo.getReal();
                 computedQ1 = flow.fromTo.getImaginary();
@@ -282,8 +282,8 @@ public class BranchData {
                 computedQ2 = flow.toFrom.getImaginary();
             } else if (connected1) {
 
-                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
-                    branchAdmittance.y21, branchAdmittance.y22, false);
+                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11(), branchAdmittance.y12(),
+                    branchAdmittance.y21(), branchAdmittance.y22(), false);
                 Complex sFrom = LinkData.flowYshunt(ysh, u1, theta1);
 
                 computedP1 = sFrom.getReal();
@@ -291,8 +291,8 @@ public class BranchData {
                 computedP2 = 0.0;
                 computedQ2 = 0.0;
             } else {
-                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
-                    branchAdmittance.y21, branchAdmittance.y22, true);
+                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11(), branchAdmittance.y12(),
+                    branchAdmittance.y21(), branchAdmittance.y22(), true);
                 Complex sTo = LinkData.flowYshunt(ysh, u2, theta2);
 
                 computedP1 = 0.0;

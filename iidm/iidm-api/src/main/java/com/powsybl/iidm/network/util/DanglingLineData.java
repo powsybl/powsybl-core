@@ -64,7 +64,7 @@ public class DanglingLineData {
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
         if (p0 == 0.0 && q0 == 0.0) {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
-            vBoundaryBus = adm.y21.multiply(v1).negate().divide(adm.y22);
+            vBoundaryBus = adm.y21().multiply(v1).negate().divide(adm.y22());
         } else {
 
             // Two buses Loadflow
