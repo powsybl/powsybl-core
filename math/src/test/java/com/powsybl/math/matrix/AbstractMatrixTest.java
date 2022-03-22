@@ -40,49 +40,17 @@ public abstract class AbstractMatrixTest {
 
     @Test
     public void checkBoundsTest() {
-        try {
-            getMatrixFactory().create(-1, 1, 1);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            getMatrixFactory().create(1, -1, 1);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
+        MatrixFactory matrixFactory = getMatrixFactory();
+        assertThrows(MatrixException.class, () -> matrixFactory.create(-1, 1, 1));
+        assertThrows(MatrixException.class, () -> matrixFactory.create(1, -1, 1));
 
-        Matrix a = getMatrixFactory().create(1, 1, 1);
-        try {
-            a.set(-1, 0, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.set(0, -1, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.set(2, 0, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.set(0, 1, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.add(2, 0, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.add(0, 1, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-
+        Matrix a = matrixFactory.create(1, 1, 1);
+        assertThrows(MatrixException.class, () -> a.set(-1, 0, 0));
+        assertThrows(MatrixException.class, () -> a.set(0, -1, 0));
+        assertThrows(MatrixException.class, () -> a.set(2, 0, 0));
+        assertThrows(MatrixException.class, () -> a.set(0, 1, 0));
+        assertThrows(MatrixException.class, () -> a.add(2, 0, 0));
+        assertThrows(MatrixException.class, () -> a.add(0, 1, 0));
     }
 
     @Test
@@ -285,6 +253,16 @@ public abstract class AbstractMatrixTest {
         }
     }
 
+    @Test(expected = MatrixException.class)
+    public void testDecompositionFailure() {
+        Matrix matrix = getMatrixFactory().create(5, 5, 12);
+
+        try (LUDecomposition decomposition = matrix.decomposeLU()) {
+            double[] x = {0, 0, 0, 0, 0};
+            decomposition.solve(x);
+        }
+    }
+
     @Test
     public void testTransposedDecompose() {
         // 2  3  0  0  0
@@ -342,15 +320,15 @@ public abstract class AbstractMatrixTest {
         }
     }
 
+    private static void decomposeThenSolve(Matrix matrix, double[] b) {
+        LUDecomposition luDecomposition = matrix.decomposeLU();
+        luDecomposition.solve(b);
+    }
+
     @Test
     public void testDecomposeNonSquare() {
         Matrix matrix = getMatrixFactory().create(1, 2, 4);
-        try {
-            LUDecomposition luDecomposition = matrix.decomposeLU();
-            luDecomposition.solve(new double[] {});
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(MatrixException.class, () -> decomposeThenSolve(matrix, new double[] {}));
     }
 
     @Test
@@ -483,11 +461,7 @@ public abstract class AbstractMatrixTest {
         assertEquals(10d, a.toDense().get(2, 1), 0d);
         assertEquals(5d, a.toDense().get(0, 2), 0d);
 
-        try {
-            a.setAtIndex(10, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
+        assertThrows(MatrixException.class, () -> a.setAtIndex(10, 0));
     }
 
     @Test

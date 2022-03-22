@@ -13,10 +13,10 @@
             <pattern>%-5p %d{HH:mm:ss.SSS} %-20C{1} | %m%n</pattern>
         </encoder>
     </appender>
-    <root level="info">
+    <root level="error">
         <appender-ref ref="STDOUT" />
     </root>
-    <logger name="com.bigdata" level="warn" additivity="false">
+    <logger name="com.bigdata" level="error" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
 </configuration>
