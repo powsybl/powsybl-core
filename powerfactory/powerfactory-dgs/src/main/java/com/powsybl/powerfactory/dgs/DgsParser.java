@@ -7,6 +7,7 @@
 package com.powsybl.powerfactory.dgs;
 
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,15 +17,13 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DgsParser {
 
     private static final Pattern ATTR_DESCR_PATTERN = Pattern.compile("(.+)\\(([airp]+)(:\\d*)?\\)");
-    private static final Pattern LEGACY_TEXT_QUOTED = Pattern.compile("(\"[^\"]*\")");
+    private static final Pattern QUOTED_TEXT_PATTERN = Pattern.compile("(\"[^\"]*\")");
 
     private static final class ParsingContext {
 
@@ -32,7 +31,7 @@ public class DgsParser {
 
         private char[] attributesType;
 
-        private String decimalSeparator = ".";
+        private boolean decimalSeparatorIsComma = false;
     }
 
     private static void readTableHeader(String trimmedLine, DgsHandler handler, ParsingContext context) {
@@ -65,7 +64,7 @@ public class DgsParser {
         Objects.requireNonNull(context.attributesName);
         Objects.requireNonNull(context.attributesType);
 
-        String[] fields = splitWithQuotedStrings(trimmedLine);
+        String[] fields = splitConsideringQuotedText(trimmedLine);
 
         for (int i = 0; i < fields.length; i++) {
             String field = fields[i];
@@ -124,22 +123,26 @@ public class DgsParser {
     }
 
     private static float parseFloat(String value, ParsingContext context) {
-        if (context.decimalSeparator.equals(",")) {
+        if (context.decimalSeparatorIsComma) {
             return Float.parseFloat(value.replace(',', '.'));
         }
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException ex) {
-            context.decimalSeparator = ",";
-            return Float.parseFloat(value.replace(',', '.'));
+            try {
+                float v = Float.parseFloat(value.replace(',', '.'));
+                context.decimalSeparatorIsComma = true;
+                return v;
+            } catch (NumberFormatException ex2) {
+                throw new PowerFactoryException("Invalid real value [" + value + "]");
+            }
         }
     }
 
-    // split a string considering quoted text fields
-    protected static String[] splitWithQuotedStrings(String line) {
+    private static String[] splitConsideringQuotedText(String line) {
         Objects.requireNonNull(line);
         String[] tokens = new String[] {};
-        Matcher m = LEGACY_TEXT_QUOTED.matcher(line);
+        Matcher m = QUOTED_TEXT_PATTERN.matcher(line);
         int start = 0;
         while (m.find()) {
             tokens = ArrayUtils.addAll(tokens, line.substring(start, m.start() - 1).split(";"));
@@ -148,7 +151,7 @@ public class DgsParser {
             start = m.end() + 1;
         }
         if (start < line.length()) {
-            tokens = ArrayUtils.addAll(tokens, line.substring(start, line.length()).split(";"));
+            tokens = ArrayUtils.addAll(tokens, line.substring(start).split(";"));
         }
         return tokens;
     }
