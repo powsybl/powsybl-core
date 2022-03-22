@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.util.BranchReorientedParameters;
+import com.powsybl.iidm.network.util.ReorientedBranchCaracteristics;
 
 import java.util.Objects;
 
@@ -44,7 +44,7 @@ public class HalfLineAdapter implements TieLine.HalfLine {
 
         // if mustBeReoriented is false then end1 and end2 of the halfLine correspond to end1 and end2 of the associated danglingLine
         // if mustBeReoriented is true then end1 and end2 of the halfLine correspond to end2 and end1 of the associated danglingLine
-        BranchReorientedParameters brp = new BranchReorientedParameters(danglingLine.getR(), danglingLine.getX(),
+        ReorientedBranchCaracteristics brp = new ReorientedBranchCaracteristics(danglingLine.getR(), danglingLine.getX(),
             danglingLine.getG(), danglingLine.getB(), 0.0, 0.0, mustBeReoriented);
 
         this.index = Objects.requireNonNull(index);
