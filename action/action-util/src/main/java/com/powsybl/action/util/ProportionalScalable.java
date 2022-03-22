@@ -90,6 +90,12 @@ class ProportionalScalable extends AbstractCompoundScalable {
         if (scalables.size() != percentages.size()) {
             throw new IllegalArgumentException("percentage and scalable list must have the same size");
         }
+        if (scalables.isEmpty()) {
+            return;
+        }
+        if (percentages.stream().anyMatch(p -> Float.isNaN(p))) {
+            throw new IllegalArgumentException("There is at least one undefined percentage");
+        }
         double sum = percentages.stream().mapToDouble(Double::valueOf).sum();
         if (Math.abs(100 - sum) > EPSILON) {
             throw new IllegalArgumentException(String.format("Sum of percentages must be equals to 100 (%.2f)", sum));
