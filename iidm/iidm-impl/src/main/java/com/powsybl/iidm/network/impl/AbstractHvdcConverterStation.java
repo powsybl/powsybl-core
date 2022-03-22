@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -58,11 +60,11 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     }
 
     @Override
-    public HvdcConverterStation getOtherConverterStation() {
+    public Optional<HvdcConverterStation> getOtherConverterStation() {
         if (hvdcLine != null) {
-            return hvdcLine.getConverterStation1() == this ? hvdcLine.getConverterStation2() : hvdcLine.getConverterStation1();
+            return hvdcLine.getConverterStation1() == this ? Optional.ofNullable(hvdcLine.getConverterStation2()) : Optional.ofNullable(hvdcLine.getConverterStation1());
         } else {
-            throw new UnsupportedOperationException();
+            return null;
         }
     }
 

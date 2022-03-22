@@ -504,7 +504,8 @@ public final class SteadyStateHypothesisExport {
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
             } else {
-                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - converterStation.getOtherConverterStation().getLossFactor() / 100);
+                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().isPresent() ? converterStation.getOtherConverterStation().get().getLossFactor() : 0;
+                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
                 double poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
                 ppcc = -(pDCInverter - poleLoss);
             }

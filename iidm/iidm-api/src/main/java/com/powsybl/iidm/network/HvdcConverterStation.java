@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * HVDC converter station. This is the base class for VSC and LCC.
  * AC side of the converter is connected inside a substation.
@@ -54,7 +56,7 @@ public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends
      * Get the converter station at the other side of the hvdc line.
      * @return the other converter station
      */
-    HvdcConverterStation getOtherConverterStation();
+    Optional<HvdcConverterStation> getOtherConverterStation();
 
     @Override
     default IdentifiableType getType() {

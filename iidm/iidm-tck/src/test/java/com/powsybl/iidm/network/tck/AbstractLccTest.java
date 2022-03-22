@@ -16,6 +16,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 
 /**
@@ -78,6 +80,9 @@ public abstract class AbstractLccTest {
         assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
         assertSame(cs2, hvdcLine.getConverterStation2());
         assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
+
+        assertEquals(Optional.of(cs2), cs1.getOtherConverterStation());
+        assertEquals(Optional.of(cs1), cs2.getOtherConverterStation());
     }
 
     @Test
