@@ -427,7 +427,7 @@ public final class EurostagTutorialExample1Factory {
 
         Line line = network.getLine("NHV1_NHV2_1");
         line.getTerminal1().setP(560.0).setQ(550.0);
-        line.getTerminal2().setP(560.0).setQ(550.0);
+        line.getTerminal2().setP(-560.0).setQ(-550.0);
         line.newCurrentLimits1().setPermanentLimit(500).add();
         line.newCurrentLimits2()
                 .setPermanentLimit(1100)
@@ -450,7 +450,7 @@ public final class EurostagTutorialExample1Factory {
 
         line = network.getLine("NHV1_NHV2_2");
         line.getTerminal1().setP(560.0).setQ(550.0);
-        line.getTerminal2().setP(560.0).setQ(550.0);
+        line.getTerminal2().setP(-560.0).setQ(-550.0);
         line.newCurrentLimits1()
                 .setPermanentLimit(1100)
                 .beginTemporaryLimit()
