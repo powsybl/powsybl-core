@@ -112,16 +112,16 @@ public class DanglingLineAdapterTest {
     @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
-        double p10 = -606.2968572845882;
-        double q10 = -305.09371456918353;
-        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
+        double p10 = 0.11710908004064359;
+        double q10 = -0.012883304869602126;
+        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 0.01138, 0.05017, 0.0, 0.06280, p10, q10, "code", "busA");
         dl1.setProperty("keyTest", "test");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
-        double p20 = 598.4418282548444;
-        double q20 = 296.88365650968643;
-        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, p20, q20, "code", "busB");
+        double p20 = -0.11713527;
+        double q20 = 0.01301712;
+        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 0.01038, 0.04917, 0.0, 0.07280, p20, q20, "code", "busB");
         // Check no access to Dl1 & Dl2
         assertEquals(0, mergingView.getDanglingLineCount());
         assertNull(mergingView.getDanglingLine("dl1"));
@@ -211,18 +211,12 @@ public class DanglingLineAdapterTest {
         assertEquals("dl1 + dl2", mergedLine.getId());
         assertEquals("dl1 + dl2", mergedLine.getOptionalName().orElse(null));
         assertEquals("dl1 + dl2", mergedLine.getNameOrId());
-        assertSame(mergedLine, mergedLine.setR(1.0d));
-        assertEquals(dl1.getR() + dl2.getR(), mergedLine.getR(), 0.0d);
-        assertSame(mergedLine, mergedLine.setX(2.0d));
-        assertEquals(dl1.getX() + dl2.getX(), mergedLine.getX(), 0.0d);
-        assertSame(mergedLine, mergedLine.setG1(0.0d));
-        assertEquals(dl1.getG(), mergedLine.getG1(), 0.0d);
-        assertSame(mergedLine, mergedLine.setG2(0.0d));
-        assertEquals(dl2.getG(), mergedLine.getG2(), 0.0d);
-        assertSame(mergedLine, mergedLine.setB1(0.0d));
-        assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
-        assertSame(mergedLine, mergedLine.setB2(0.0d));
-        assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
+        assertEquals(0.02176, mergedLine.getR(), 1.0e-10);
+        assertEquals(0.09934, mergedLine.getX(), 1.0e-10);
+        assertEquals(0.0, mergedLine.getG1(), 1.0e-10);
+        assertEquals(0.0, mergedLine.getG2(), 1.0e-10);
+        assertEquals(0.06280, mergedLine.getB1(), 1.0e-10);
+        assertEquals(0.07280, mergedLine.getB2(), 1.0e-10);
         assertEquals(p10, dl1.getP0(), 0.0d);
         assertEquals(q10, dl1.getQ0(), 0.0d);
         assertEquals(p20, dl2.getP0(), 0.0d);
@@ -255,10 +249,10 @@ public class DanglingLineAdapterTest {
             assertNotNull(t);
         });
 
-        double p1 = -605.0;
-        double q1 = -302.5;
-        double p2 = 600.0;
-        double q2 = 300.0;
+        double p1 = 0.117273045626974;
+        double q1 = -0.081804351176928;
+        double p2 = -0.11700000;
+        double q2 = -0.06700000;
         final Terminal t1 = mergedLine.getTerminal("vl1");
         assertNotNull(t1);
         assertEquals(Branch.Side.ONE, mergedLine.getSide(t1));
@@ -280,33 +274,83 @@ public class DanglingLineAdapterTest {
         t2.setP(p2);
         t2.setQ(q2);
         // Update V & Angle
-        double v1 = 420.0;
-        double v2 = 380.0;
-        double angle1 = -1e-4;
-        double angle2 = -1.7e-3;
+        double v1 = 1.052585464510671;
+        double angle1 = Math.toDegrees(-0.017414259263883);
+        double v2 = 1.05137589;
+        double angle2 = Math.toDegrees(-0.02818192);
         t1.getBusView().getBus().setV(v1).setAngle(angle1);
         t2.getBusView().getBus().setV(v2).setAngle(angle2);
 
         // Check P & Q are computed by Listener
-        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(dl1, true);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
-        assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.getP(), mergedLine.getHalf1().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.getQ(), mergedLine.getHalf1().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.getP(), dl2.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.getP(), mergedLine.getHalf2().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getBoundary().getQ(), 0.0d);
+
+        SV expectedSVdl1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(dl1, true);
+        SV expectedSVdl2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
+
+        assertEquals(expectedSVdl1.getP(), dl1.getBoundary().getP(), 1.0e-8);
+        assertEquals(expectedSVdl1.getP(), mergedLine.getHalf1().getBoundary().getP(), 1.0e-8);
+        assertEquals(expectedSVdl1.getQ(), dl1.getBoundary().getQ(), 1.0e-8);
+        assertEquals(expectedSVdl1.getQ(), mergedLine.getHalf1().getBoundary().getQ(), 1.0e-8);
+        assertEquals(expectedSVdl2.getP(), dl2.getBoundary().getP(), 1.0e-8);
+        assertEquals(expectedSVdl2.getP(), mergedLine.getHalf2().getBoundary().getP(), 1.0e-8);
+        assertEquals(expectedSVdl2.getQ(), dl2.getBoundary().getQ(), 1.0e-8);
+        assertEquals(expectedSVdl2.getQ(), mergedLine.getHalf2().getBoundary().getQ(), 1.0e-8);
         // Check V & Angle are computed by Listener
-        assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 1.0e-8);
-        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 1.0e-8);
-        assertEquals(expectedSV1.getA(), mergedLine.getHalf1().getBoundary().getAngle(), 1.0e-8);
-        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 1.0e-8);
-        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 1.0e-8);
-        assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getBoundary().getV(), 1.0e-8);
-        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 1.0e-8);
-        assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 1.0e-8);
+        assertEquals(expectedSVdl1.getU(), mergedLine.getHalf1().getBoundary().getV(), 1.0e-7);
+        assertEquals(expectedSVdl1.getA(), dl1.getBoundary().getAngle(), 1.0e-7);
+        assertEquals(expectedSVdl1.getA(), mergedLine.getHalf1().getBoundary().getAngle(), 1.0e-7);
+        assertEquals(expectedSVdl1.getU(), dl1.getBoundary().getV(), 1.0e-7);
+        assertEquals(expectedSVdl2.getU(), dl2.getBoundary().getV(), 1.0e-7);
+        assertEquals(expectedSVdl2.getU(), mergedLine.getHalf2().getBoundary().getV(), 1.0e-7);
+        assertEquals(expectedSVdl2.getA(), dl2.getBoundary().getAngle(), 1.0e-7);
+        assertEquals(expectedSVdl2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 1.0e-7);
+
+        SV expectedSVmlEnd2 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(mergedLine);
+        assertEquals(p2, expectedSVmlEnd2.getP(), 1.0e-6);
+        assertEquals(q2, expectedSVmlEnd2.getQ(), 1.0e-6);
+        assertEquals(v2, expectedSVmlEnd2.getU(), 1.0e-6);
+        assertEquals(angle2, expectedSVmlEnd2.getA(), 1.0e-6);
+        SV expectedSVmlEnd1 = new SV(p2, q2, v2, angle2, Branch.Side.TWO).otherSide(mergedLine);
+        assertEquals(p1, expectedSVmlEnd1.getP(), 1.0e-6);
+        assertEquals(q1, expectedSVmlEnd1.getQ(), 1.0e-6);
+        assertEquals(v1, expectedSVmlEnd1.getU(), 1.0e-6);
+        assertEquals(angle1, expectedSVmlEnd1.getA(), 1.0e-6);
+
+        try {
+            mergedLine.setR(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setX(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setG1(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setB1(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setG2(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setB2(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());

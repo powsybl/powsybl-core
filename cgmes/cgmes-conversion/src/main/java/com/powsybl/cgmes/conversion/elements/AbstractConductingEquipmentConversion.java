@@ -667,7 +667,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, boundaryTerminalId, modelPowerFlow);
+            modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
+    }
+
+    private static Branch.Side getBoundarySide(int modelEnd) {
+        if (modelEnd == 1) {
+            return Branch.Side.TWO;
+        } else {
+            return Branch.Side.ONE;
+        }
     }
 
     protected double p0() {
