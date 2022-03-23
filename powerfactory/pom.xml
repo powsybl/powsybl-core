@@ -23,6 +23,7 @@
 
     <modules>
         <module>powerfactory-converter</module>
+        <module>powerfactory-db</module>
         <module>powerfactory-dgs</module>
         <module>powerfactory-model</module>
     </modules>
