@@ -133,11 +133,37 @@ public class CgmesExportContextUpdateTest {
         Network n = buildNodeBreakerNetwork();
         CgmesExportContext context = buildIidmMapping(n);
 
+        // Check that bus topology mapping exists again
+        assertNotNull(n.getExtension(CgmesIidmMapping.class).getTopologicalNodes("_04636548-c766-11e1-8775-005056c00008_0"));
+
         // Create internal connection
         n.getVoltageLevel("_04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
 
-        // Check that topology mapping has been invalidated
-        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
+        // Check that the bus topology mapping has been invalidated
+        assertNull(n.getExtension(CgmesIidmMapping.class).getTopologicalNodes("_04636548-c766-11e1-8775-005056c00008_0"));
+
+        // Check that bus topology mapping exists again
+        context.updateTopologicalNodesMapping(n);
+        assertNotNull(n.getExtension(CgmesIidmMapping.class).getTopologicalNodes("_04636548-c766-11e1-8775-005056c00008_0"));
+    }
+
+    @Test
+    public void testBuildNodeBreakerIidmMappingAndDeletingInternalConnection() {
+        Network n = buildNodeBreakerNetwork();
+        CgmesExportContext context = buildIidmMapping(n);
+
+        // Check that bus topology mapping exists again
+        assertNotNull(n.getExtension(CgmesIidmMapping.class).getTopologicalNodes("_04636548-c766-11e1-8775-005056c00008_0"));
+
+        // Delete internal connection
+        n.getVoltageLevel("_04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().removeInternalConnections(0, 10);
+
+        // Check that the bus topology mapping has been invalidated
+        assertNull(n.getExtension(CgmesIidmMapping.class).getTopologicalNodes("_04636548-c766-11e1-8775-005056c00008_0"));
+
+        // Check that bus topology mapping exists again
+        context.updateTopologicalNodesMapping(n);
+        assertNotNull(n.getExtension(CgmesIidmMapping.class).getTopologicalNodes("_04636548-c766-11e1-8775-005056c00008_0"));
     }
 
     @Test

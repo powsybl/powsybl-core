@@ -236,21 +236,24 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
             @Override
             public void onElementAdded(Identifiable identifiable, String attribute, Object newValue) {
                 if (identifiable instanceof VoltageLevel && "internalConnection".equals(attribute)) {
-                    invalidateTopology();
+                    invalidateVoltageLevel((VoltageLevel) identifiable);
                 }
             }
 
             @Override
             public void onElementRemoved(Identifiable identifiable, String attribute, Object oldValue) {
                 if (identifiable instanceof VoltageLevel && "internalConnection".equals(attribute)) {
-                    invalidateTopology();
+                    invalidateVoltageLevel((VoltageLevel) identifiable);
                 }
             }
         });
     }
 
     private void invalidateVoltageLevel(Switch sw) {
-        VoltageLevel vl = sw.getVoltageLevel();
+        invalidateVoltageLevel(sw.getVoltageLevel());
+    }
+
+    private void invalidateVoltageLevel(VoltageLevel vl) {
         if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             vl.getNodeBreakerView().getBusbarSections().forEach(busbarSection -> invalidateBusbarSection(busbarSection));
         } else {
