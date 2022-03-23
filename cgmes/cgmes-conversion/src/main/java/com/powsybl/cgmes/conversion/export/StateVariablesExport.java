@@ -439,18 +439,10 @@ public final class StateVariablesExport {
 
     private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            double poleLoss;
-            if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-                poleLoss = converterStation.getLossFactor() / 100 * converterStation.getHvdcLine().getActivePowerSetpoint();
-            } else {
-                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
-                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
-                poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
-            }
             writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
             writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
-            writer.writeCharacters(CgmesExportUtil.format(poleLoss));
+            writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation)));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "ACDCConverter.idc");
             writer.writeCharacters(CgmesExportUtil.format(0));
@@ -478,6 +470,27 @@ public final class StateVariablesExport {
             }
             writer.writeEndElement();
         }
+    }
+
+    private static double getPoleLossP(HvdcConverterStation<?> converterStation) {
+        double poleLoss;
+        if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
+            double p = converterStation.getTerminal().getP();
+            if (Double.isNaN(p)) {
+                p = converterStation.getHvdcLine().getActivePowerSetpoint();
+            }
+            poleLoss = converterStation.getLossFactor() / 100 * p;
+        } else {
+            double p = converterStation.getTerminal().getP();
+            if (Double.isNaN(p)) {
+                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
+                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
+                poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
+            } else {
+                poleLoss = converterStation.getLossFactor() * Math.abs(p) / (100 - converterStation.getLossFactor());
+            }
+        }
+        return poleLoss;
     }
 
     private StateVariablesExport() {
