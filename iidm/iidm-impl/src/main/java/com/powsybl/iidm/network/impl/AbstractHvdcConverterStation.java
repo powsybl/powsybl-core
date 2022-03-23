@@ -60,11 +60,11 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     }
 
     @Override
-    public Optional<HvdcConverterStation> getOtherConverterStation() {
+    public Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
         if (hvdcLine != null) {
             return hvdcLine.getConverterStation1() == this ? Optional.ofNullable(hvdcLine.getConverterStation2()) : Optional.ofNullable(hvdcLine.getConverterStation1());
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 

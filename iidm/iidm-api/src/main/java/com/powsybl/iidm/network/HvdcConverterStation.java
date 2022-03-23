@@ -56,7 +56,16 @@ public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends
      * Get the converter station at the other side of the hvdc line.
      * @return the other converter station
      */
-    Optional<HvdcConverterStation> getOtherConverterStation();
+    default Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
+        if (getHvdcLine() != null) {
+            HvdcLine hvdcLine = getHvdcLine();
+            if (this == hvdcLine.getConverterStation1()) {
+                return Optional.ofNullable(hvdcLine.getConverterStation2());
+            }
+            return Optional.ofNullable(hvdcLine.getConverterStation1());
+        }
+        return Optional.empty();
+    }
 
     @Override
     default IdentifiableType getType() {

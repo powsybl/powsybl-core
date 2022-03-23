@@ -46,12 +46,8 @@ abstract class AbstractHvdcConverterStationAdapter<I extends HvdcConverterStatio
     }
 
     @Override
-    public Optional<HvdcConverterStation> getOtherConverterStation() {
-        HvdcLine hvdcLine = getIndex().getHvdcLine(getDelegate().getHvdcLine());
-        if (hvdcLine != null) {
-            return hvdcLine.getConverterStation1() == this ? Optional.ofNullable(hvdcLine.getConverterStation2()) : Optional.ofNullable(hvdcLine.getConverterStation1());
-        } else {
-            return null;
-        }
+    public Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
+        return getDelegate().getOtherConverterStation()
+                .map(converterStation -> getIndex().getHvdcConverterStation(converterStation));
     }
 }
