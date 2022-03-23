@@ -371,7 +371,8 @@ public class Conversion {
     private void addProfileMetadata(String profile, CgmesMetadataAdder.ModelAdder adder, Context context) {
         PropertyBags p = cgmes.fullModel(profile);
         if (p != null && !p.isEmpty()) {
-            adder.setDescription(p.get(0).getId("description"))
+            adder.setId(p.get(0).getId("FullModel"))
+                    .setDescription(p.get(0).getId("description"))
                     .setVersion(readVersion(p, context))
                     .setModelingAuthoritySet(p.get(0).getId("modelingAuthoritySet"));
             p.pluckLocals("DependentOn").stream().filter(Objects::nonNull).forEach(adder::addDependency);

@@ -94,6 +94,11 @@ public class CgmesExportContext {
             return this;
         }
 
+        public ModelDescription removeDependency(String dependency) {
+            this.dependencies.remove(dependency);
+            return this;
+        }
+
         public ModelDescription clearDependencies() {
             this.dependencies.clear();
             return this;

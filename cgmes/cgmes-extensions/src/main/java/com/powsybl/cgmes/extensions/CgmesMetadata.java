@@ -21,6 +21,8 @@ public interface CgmesMetadata extends Extension<Network> {
 
     interface Model {
 
+        String getId();
+
         String getDescription();
 
         int getVersion();

@@ -48,7 +48,8 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffs);
+        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffs,
+                DifferenceEvaluators.chain(ExportXmlCompare::ignoringMetadataId));
     }
 
     @Test
@@ -58,7 +59,8 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffs);
+        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffs,
+                DifferenceEvaluators.chain(ExportXmlCompare::ignoringMetadataId));
     }
 
     @Test
@@ -67,7 +69,8 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffs);
+        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffs,
+                DifferenceEvaluators.chain(ExportXmlCompare::ignoringMetadataId));
     }
 
     @Test
@@ -79,7 +82,8 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringControlAreaNetInterchange));
+                ExportXmlCompare::ignoringControlAreaNetInterchange,
+                ExportXmlCompare::ignoringMetadataId));
     }
 
     @Test
@@ -92,7 +96,8 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
-                ExportXmlCompare::ignoringHvdcLinePmax));
+                ExportXmlCompare::ignoringHvdcLinePmax,
+                ExportXmlCompare::ignoringMetadataId));
     }
 
     private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffs) throws IOException, XMLStreamException {

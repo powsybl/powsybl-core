@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.extensions.CgmesMetadata;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -41,9 +42,17 @@ public final class EquipmentExport {
             CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
             String cimNamespace = context.getCimNamespace();
 
-            // TODO fill EQ Model Description
             if (context.getCimVersion() == 16) {
-                ModelDescriptionEq.write(writer, context.getEqModelDescription(), context);
+                String eqFullModelId = ModelDescriptionEq.write(writer, context.getEqModelDescription(), context);
+                CgmesMetadata metadata = network.getExtension(CgmesMetadata.class);
+                if (metadata != null) {
+                    context.getTpModelDescription().removeDependency(metadata.getEq().getId());
+                    context.getSshModelDescription().removeDependency(metadata.getEq().getId());
+                    context.getSvModelDescription().removeDependency(metadata.getEq().getId());
+                }
+                context.getTpModelDescription().addDependency(eqFullModelId);
+                context.getSshModelDescription().addDependency(eqFullModelId);
+                context.getSvModelDescription().addDependency(eqFullModelId);
             }
 
             Map <String, String> exportedNodes = new HashMap<>();

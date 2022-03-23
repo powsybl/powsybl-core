@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Network;
 public interface CgmesMetadataAdder extends ExtensionAdder<Network, CgmesMetadata> {
 
     interface ModelAdder {
+        ModelAdder setId(String id);
+
         ModelAdder setDescription(String description);
 
         ModelAdder setVersion(int sshVersion);

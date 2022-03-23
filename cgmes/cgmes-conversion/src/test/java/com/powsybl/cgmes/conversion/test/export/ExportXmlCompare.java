@@ -25,10 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -657,6 +654,19 @@ public final class ExportXmlCompare {
                 int vcontrol = Integer.valueOf(control.getTextContent());
                 int vtest = Integer.valueOf(test.getTextContent());
                 if (vtest == vcontrol + 1) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringMetadataId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Attr attr = (Attr) control;
+                if (attr.getLocalName().equals("id") && List.of("eq", "tp", "ssh", "sv").contains(attr.getOwnerElement().getLocalName())) {
                     return ComparisonResult.EQUAL;
                 }
             }

@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesMetadata;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -46,7 +47,12 @@ public final class SteadyStateHypothesisExport {
             CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
 
             if (context.getCimVersion() == 16) {
-                CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
+                String sshFullModelId = CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
+                CgmesMetadata metadata = network.getExtension(CgmesMetadata.class);
+                if (metadata != null) {
+                    metadata.getSsh().ifPresent(ssh -> context.getSvModelDescription().removeDependency(ssh.getId()));
+                }
+                context.getSvModelDescription().addDependency(sshFullModelId);
             }
 
             writeEnergyConsumers(network, cimNamespace, writer);

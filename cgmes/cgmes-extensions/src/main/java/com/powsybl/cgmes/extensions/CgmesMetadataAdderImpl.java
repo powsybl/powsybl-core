@@ -27,6 +27,7 @@ class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetada
 
         private final Type type;
 
+        private String id;
         private String description;
         private int version = 0;
         private final List<String> dependencies = new ArrayList<>();
@@ -34,6 +35,12 @@ class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetada
 
         ModelAdderImpl(Type type) {
             this.type = Objects.requireNonNull(type);
+        }
+
+        @Override
+        public ModelAdder setId(String id) {
+            this.id = id;
+            return this;
         }
 
         @Override
@@ -62,13 +69,16 @@ class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetada
 
         @Override
         public CgmesMetadataAdderImpl add() {
+            if (id == null) {
+                throw new PowsyblException(type + " id is undefined");
+            }
             if (type != Type.EQ && dependencies.isEmpty()) {
                 throw new PowsyblException(type + " dependencies must have at least one dependency");
             }
             if (modelingAuthoritySet == null) {
                 throw new PowsyblException(type + " modelingAuthoritySet is undefined");
             }
-            CgmesMetadataImpl.ModelImpl model = new CgmesMetadataImpl.ModelImpl(description, version, dependencies, modelingAuthoritySet);
+            CgmesMetadataImpl.ModelImpl model = new CgmesMetadataImpl.ModelImpl(id, description, version, dependencies, modelingAuthoritySet);
             switch (type) {
                 case EQ:
                     eq = model;

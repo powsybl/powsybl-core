@@ -74,10 +74,10 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
-        // TODO add uuid in dependencies if necessary
+    public static String writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
+        String fullModelId = "urn:uuid:" + getUniqueId();
+        writer.writeAttribute(RDF_NAMESPACE, "about", fullModelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();
@@ -103,6 +103,7 @@ public final class CgmesExportUtil {
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();
         writer.writeEndElement();
+        return fullModelId;
     }
 
     public static Complex complexVoltage(double r, double x, double g, double b,

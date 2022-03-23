@@ -24,7 +24,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class ModelDescriptionEq {
 
-    public static void write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
+    public static String write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         String eqId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
         context.getTpModelDescription().clearDependencies().addDependency(eqId);
         context.getSshModelDescription().clearDependencies().addDependency(eqId);
@@ -57,6 +57,7 @@ public final class ModelDescriptionEq {
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();
         writer.writeEndElement();
+        return eqId;
     }
 
     private ModelDescriptionEq() {

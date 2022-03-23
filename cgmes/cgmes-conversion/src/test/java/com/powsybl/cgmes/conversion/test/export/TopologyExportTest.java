@@ -88,6 +88,7 @@ public class TopologyExportTest extends AbstractConverterTest {
 
         // Compare
         ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"),
-                DifferenceEvaluators.chain(ExportXmlCompare::ensuringIncreasedMetadataVersion));
+                DifferenceEvaluators.chain(ExportXmlCompare::ensuringIncreasedMetadataVersion,
+                        ExportXmlCompare::ignoringMetadataId));
     }
 }

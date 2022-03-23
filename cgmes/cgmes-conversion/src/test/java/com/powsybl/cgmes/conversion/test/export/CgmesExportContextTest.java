@@ -59,10 +59,12 @@ public class CgmesExportContextTest {
             .add();
         network.newExtension(CgmesMetadataAdder.class)
                 .newEq()
+                .setId("EQ1")
                 .setDescription("EQ Model")
                 .setModelingAuthoritySet("powsybl.org")
                 .add()
                 .newSv()
+                .setId("SV1")
                 .setDescription("test")
                 .setVersion(2)
                 .addDependency("powsybl.test.org")

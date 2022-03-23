@@ -21,16 +21,23 @@ class CgmesMetadataImpl extends AbstractExtension<Network> implements CgmesMetad
 
     static class ModelImpl implements Model {
 
+        private final String id;
         private final String description;
         private final int version;
         private final List<String> dependencies = new ArrayList<>();
         private final String modelingAuthoritySet;
 
-        ModelImpl(String description, int version, List<String> dependencies, String modelingAuthoritySet) {
+        ModelImpl(String id, String description, int version, List<String> dependencies, String modelingAuthoritySet) {
+            this.id = id;
             this.description = description;
             this.version = version;
             this.dependencies.addAll(dependencies);
             this.modelingAuthoritySet = modelingAuthoritySet;
+        }
+
+        @Override
+        public String getId() {
+            return id;
         }
 
         @Override

@@ -64,6 +64,7 @@ public class CgmesMetadataXmlSerializer extends AbstractExtensionXmlSerializer<N
 
     private void writeModel(String type, CgmesMetadata.Model model, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(getNamespaceUri(), type);
+        writer.writeAttribute("id", model.getId());
         if (model.getDescription() != null) {
             writer.writeAttribute("description", model.getDescription());
         }
@@ -105,7 +106,8 @@ public class CgmesMetadataXmlSerializer extends AbstractExtensionXmlSerializer<N
     }
 
     private void readModel(String profile, CgmesMetadataAdder.ModelAdder adder, XMLStreamReader reader) throws XMLStreamException {
-        adder.setDescription(reader.getAttributeValue(null, "description"))
+        adder.setId(reader.getAttributeValue(null, "id"))
+                .setDescription(reader.getAttributeValue(null, "description"))
                 .setVersion(XmlUtil.readIntAttribute(reader, "version"))
                 .setModelingAuthoritySet(reader.getAttributeValue(null, "modelingAuthoritySet"));
         XmlUtil.readUntilEndElement(profile, reader, () -> {

@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.extensions.CgmesMetadata;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -38,7 +39,12 @@ public final class TopologyExport {
             String cimNamespace = context.getCimNamespace();
 
             if (context.getCimVersion() == 16) {
-                CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
+                String tpFullModelId = CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
+                CgmesMetadata metadata = network.getExtension(CgmesMetadata.class);
+                if (metadata != null) {
+                    metadata.getTp().ifPresent(tp -> context.getSvModelDescription().removeDependency(tp.getId()));
+                }
+                context.getSvModelDescription().addDependency(tpFullModelId);
             }
             writeTopologicalNodes(network, cimNamespace, writer, context);
             writeTerminals(network, cimNamespace, writer, context);

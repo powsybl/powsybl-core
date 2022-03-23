@@ -13,6 +13,7 @@
         <xs:sequence>
             <xs:element name="dependentOn" type="cm:nonEmptyString" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="id" use="required" type="cm:nonEmptyString"/>
         <xs:attribute name="description" use="optional" type="xs:string"/>
         <xs:attribute name="version" use="required" type="cm:nonEmptyString"/>
         <xs:attribute name="modelingAuthoritySet" use="required" type="cm:nonEmptyString"/>
