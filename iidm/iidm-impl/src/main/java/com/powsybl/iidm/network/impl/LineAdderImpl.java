@@ -94,15 +94,16 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         ValidationUtil.checkB1(this, b1);
         ValidationUtil.checkB2(this, b2);
 
-        // check that the line is attachable on both side
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
-
         LineImpl line = new LineImpl(network.getRef(), id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
+
+        // check that the line is attachable on both side
+        voltageLevel1.attach(terminal1, true);
+        voltageLevel2.attach(terminal2, true);
+
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
         network.getIndex().checkAndAdd(line);
