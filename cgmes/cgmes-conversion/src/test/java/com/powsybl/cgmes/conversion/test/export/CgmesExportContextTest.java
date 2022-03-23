@@ -10,10 +10,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
-import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -60,13 +57,19 @@ public class CgmesExportContextTest {
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .add();
-        network.newExtension(CgmesSvMetadataAdder.class)
-            .setDescription("test")
-            .setSvVersion(2)
-            .addDependency("powsybl.test.org")
-            .addDependency("cgmes")
-            .setModelingAuthoritySet("cgmes.org")
-            .add();
+        network.newExtension(CgmesMetadataAdder.class)
+                .newEq()
+                .setDescription("EQ Model")
+                .setModelingAuthoritySet("powsybl.org")
+                .add()
+                .newSv()
+                .setDescription("test")
+                .setVersion(2)
+                .addDependency("powsybl.test.org")
+                .addDependency("cgmes")
+                .setModelingAuthoritySet("cgmes.org")
+                .add()
+                .add();
 
         CgmesExportContext context2 = new CgmesExportContext(network);
 

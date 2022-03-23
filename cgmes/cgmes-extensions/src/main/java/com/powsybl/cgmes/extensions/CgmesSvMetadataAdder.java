@@ -11,7 +11,10 @@ import com.powsybl.iidm.network.Network;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ *
+ * @deprecated Use {@link CgmesMetadataAdder} instead.
  */
+@Deprecated(since = "4.8.0")
 public interface CgmesSvMetadataAdder extends ExtensionAdder<Network, CgmesSvMetadata> {
 
     CgmesSvMetadataAdder setDescription(String description);

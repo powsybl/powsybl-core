@@ -7,8 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadata;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
@@ -52,11 +51,8 @@ public class Comparison {
         // Compare CIM characteristics
         compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
-        // Compare SV metadata
-        compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
-
-        // Compare Ssh metadata
-        compareCgmesSshMetadata(expected.getExtension(CgmesSshMetadata.class), actual.getExtension(CgmesSshMetadata.class));
+        // Compare profile metadata
+        compareMetadata(expected.getExtension(CgmesMetadata.class), actual.getExtension(CgmesMetadata.class));
 
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
@@ -159,54 +155,59 @@ public class Comparison {
         }
     }
 
-    private void compareCgmesSvMetadata(CgmesSvMetadata expected, CgmesSvMetadata actual) {
+    private void compareMetadata(CgmesMetadata expected, CgmesMetadata actual) {
         if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSvMetadata_extension");
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_extension");
             return;
         }
         if (expected != null) {
             if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
+                diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_extension");
                 return;
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("svVersion", config.incremented ? expected.getSvVersion() + 1 : expected.getSvVersion(), actual.getSvVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
+            compareProfileMetadata("eq", expected.getEq(), actual.getEq());
+            if (expected.getTp().isPresent()) {
+                if (actual.getTp().isPresent()) {
+                    compareProfileMetadata("tp", expected.getTp().get(), actual.getTp().get());
+                } else {
+                    diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_tp");
                 }
+            } else if (actual.getTp().isPresent()) {
+                diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_tp");
             }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
+            if (expected.getSsh().isPresent()) {
+                if (actual.getSsh().isPresent()) {
+                    compareProfileMetadata("ssh", expected.getSsh().get(), actual.getSsh().get());
+                } else {
+                    diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_ssh");
                 }
+            } else if (actual.getSsh().isPresent()) {
+                diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_ssh");
+            }
+            if (expected.getSv().isPresent()) {
+                if (actual.getSv().isPresent()) {
+                    compareProfileMetadata("sv", expected.getSv().get(), actual.getSv().get());
+                } else {
+                    diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_sv");
+                }
+            } else if (actual.getSv().isPresent()) {
+                diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_sv");
             }
         }
     }
 
-    private void compareCgmesSshMetadata(CgmesSshMetadata expected, CgmesSshMetadata actual) {
-        if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSshMetadata_extension");
-            return;
+    private void compareProfileMetadata(String profile, CgmesMetadata.Model expected, CgmesMetadata.Model actual) {
+        compare(profile + ".description", expected.getDescription(), actual.getDescription());
+        compare(profile + ".version", config.incrementedProfiles.contains(profile) ? expected.getVersion() + 1 : expected.getVersion(), actual.getVersion());
+        compare(profile + ".modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+        for (String dep : expected.getDependencies()) {
+            if (!actual.getDependencies().contains(dep)) {
+                diff.missing(profile + ".dependentOn: " + dep);
+            }
         }
-        if (expected != null) {
-            if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSshMetadata_extension");
-                return;
-            }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("sshVersion", config.incremented ? expected.getSshVersion() + 1 : expected.getSshVersion(), actual.getSshVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
-                }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
-                }
+        for (String dep : actual.getDependencies()) {
+            if (!expected.getDependencies().contains(dep)) {
+                diff.unexpected(profile + ".dependentOn: " + dep);
             }
         }
     }

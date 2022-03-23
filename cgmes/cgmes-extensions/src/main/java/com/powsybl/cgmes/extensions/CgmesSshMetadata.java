@@ -14,7 +14,10 @@ import java.util.List;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
+ *
+ * @deprecated Use {@link CgmesMetadata} instead.
  */
+@Deprecated(since = "4.8.0")
 public interface CgmesSshMetadata extends Extension<Network> {
 
     String NAME = "cgmesSshMetadata";

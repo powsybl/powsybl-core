@@ -12,7 +12,10 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
+ *
+ * @deprecated Use {@link CgmesMetadataAdder} instead.
  */
+@Deprecated(since = "4.8.0")
 public interface CgmesSshMetadataAdder extends ExtensionAdder<Network, CgmesSshMetadata> {
 
     CgmesSshMetadataAdder setDescription(String description);

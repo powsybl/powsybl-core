@@ -12,8 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadata;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -325,8 +324,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         }
 
         network.removeExtension(CgmesModelExtension.class);
-        network.removeExtension(CgmesSshMetadata.class);
-        network.removeExtension(CgmesSvMetadata.class);
+        network.removeExtension(CgmesMetadata.class);
         network.removeExtension(CimCharacteristics.class);
 
         return network;

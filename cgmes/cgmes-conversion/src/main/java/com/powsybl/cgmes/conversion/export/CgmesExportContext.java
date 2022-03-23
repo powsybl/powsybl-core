@@ -120,23 +120,21 @@ public class CgmesExportContext {
             topologyKind = cimCharacteristics.getTopologyKind();
         }
         scenarioTime = network.getCaseDate();
-        // TODO CgmesSvMetadata and CgmesSshMetadata could be in fact same class
-        // Add multiple instances of CgmesMetadata to Network, one for each profile
-        CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
-        if (svMetadata != null) {
-            svModelDescription.setDescription(svMetadata.getDescription());
-            svModelDescription.setVersion(svMetadata.getSvVersion() + 1);
-            svModelDescription.addDependencies(svMetadata.getDependencies());
-            svModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
-        }
-        CgmesSshMetadata sshMetadata = network.getExtension(CgmesSshMetadata.class);
-        if (sshMetadata != null) {
-            sshModelDescription.setDescription(sshMetadata.getDescription());
-            sshModelDescription.setVersion(sshMetadata.getSshVersion() + 1);
-            sshModelDescription.addDependencies(sshMetadata.getDependencies());
-            sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
+        CgmesMetadata metadata = network.getExtension(CgmesMetadata.class);
+        if (metadata != null) {
+            setModel(eqModelDescription, metadata.getEq());
+            metadata.getTp().ifPresent(tp -> setModel(tpModelDescription, tp));
+            metadata.getSsh().ifPresent(ssh -> setModel(sshModelDescription, ssh));
+            metadata.getSv().ifPresent(sv -> setModel(svModelDescription, sv));
         }
         addIidmMappings(network);
+    }
+
+    private static void setModel(ModelDescription contextModel, CgmesMetadata.Model extModel) {
+        contextModel.setDescription(extModel.getDescription());
+        contextModel.setVersion(extModel.getVersion() + 1);
+        contextModel.addDependencies(extModel.getDependencies());
+        contextModel.setModelingAuthoritySet(extModel.getModelingAuthoritySet());
     }
 
     public void addIidmMappings(Network network) {

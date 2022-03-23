@@ -21,11 +21,11 @@ SELECT *
         md:Model.scenarioTime ?scenarioTime ;
         md:Model.created ?created ;
         md:Model.version ?version ;
-        md:Model.DependentOn ?DependentOn ;
         md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
         md:Model.profile ?profile .
-    FILTER (regex(?profile, "{0}", "i"))
+    FILTER (regex(?profile, "{0}/", "i"))
     OPTIONAL { ?FullModel md:Model.description ?description }
+    OPTIONAL { ?FullModel md:Model.DependentOn ?DependentOn }
 }}
 
 # query: modelIds

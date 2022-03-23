@@ -13,7 +13,10 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
+ *
+ * @deprecated Use {@link CgmesMetadataAdderImplProvider} instead.
  */
+@Deprecated(since = "4.8.0")
 @AutoService(ExtensionAdderProvider.class)
 public class CgmesSshMetadataAdderImplProvider implements
         ExtensionAdderProvider<Network, CgmesSshMetadata, CgmesSshMetadataAdderImpl> {

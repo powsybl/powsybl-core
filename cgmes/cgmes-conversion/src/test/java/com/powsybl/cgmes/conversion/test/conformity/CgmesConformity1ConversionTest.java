@@ -83,7 +83,7 @@ public class CgmesConformity1ConversionTest {
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles("ssh", "sv"));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -97,7 +97,7 @@ public class CgmesConformity1ConversionTest {
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
         ConversionTester t = new ConversionTester(new Properties(), exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles("ssh", "sv"));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }
@@ -113,7 +113,7 @@ public class CgmesConformity1ConversionTest {
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles("ssh", "sv"));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }

@@ -649,6 +649,21 @@ public final class ExportXmlCompare {
         return 1e-10;
     }
 
+    static ComparisonResult ensuringIncreasedMetadataVersion(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE && control.getLocalName().equals("version")) {
+                Node test = comparison.getTestDetails().getTarget();
+                int vcontrol = Integer.valueOf(control.getTextContent());
+                int vtest = Integer.valueOf(test.getTextContent());
+                if (vtest == vcontrol + 1) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     private static DiffBuilder diff(InputStream expected, InputStream actual, DifferenceEvaluator user) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();

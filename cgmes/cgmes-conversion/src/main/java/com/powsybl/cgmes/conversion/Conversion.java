@@ -140,8 +140,7 @@ public class Conversion {
         Network network = createNetwork();
         Context context = createContext(network);
         assignNetworkProperties(context);
-        addCgmesSvMetadata(network, context);
-        addCgmesSshMetadata(network, context);
+        addMetadata(network, context);
         addCimCharacteristics(network);
         if (context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
@@ -358,26 +357,24 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void addCgmesSvMetadata(Network network, Context context) {
-        PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
-        if (svDescription != null && !svDescription.isEmpty()) {
-            CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
-                    .setDescription(svDescription.get(0).getId("description"))
-                    .setSvVersion(readVersion(svDescription, context))
-                    .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
-            svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
+    private void addMetadata(Network network, Context context) {
+        if (cgmes instanceof CgmesModelTripleStore && ((CgmesModelTripleStore) cgmes).getCimVersion() == 16) {
+            CgmesMetadataAdder adder = network.newExtension(CgmesMetadataAdder.class);
+            addProfileMetadata(CgmesSubset.EQUIPMENT.getProfile(), adder.newEq(), context);
+            addProfileMetadata(CgmesSubset.TOPOLOGY.getProfile(), adder.newTp(), context);
+            addProfileMetadata(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile(), adder.newSsh(), context);
+            addProfileMetadata(CgmesSubset.STATE_VARIABLES.getProfile(), adder.newSv(), context);
             adder.add();
         }
     }
 
-    private void addCgmesSshMetadata(Network network, Context context) {
-        PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
-        if (sshDescription != null && !sshDescription.isEmpty()) {
-            CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
-                    .setDescription(sshDescription.get(0).getId("description"))
-                    .setSshVersion(readVersion(sshDescription, context))
-                    .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));
-            sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
+    private void addProfileMetadata(String profile, CgmesMetadataAdder.ModelAdder adder, Context context) {
+        PropertyBags p = cgmes.fullModel(profile);
+        if (p != null && !p.isEmpty()) {
+            adder.setDescription(p.get(0).getId("description"))
+                    .setVersion(readVersion(p, context))
+                    .setModelingAuthoritySet(p.get(0).getId("modelingAuthoritySet"));
+            p.pluckLocals("DependentOn").stream().filter(Objects::nonNull).forEach(adder::addDependency);
             adder.add();
         }
     }

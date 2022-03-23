@@ -23,7 +23,10 @@ import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ *
+ * @deprecated Use {@link CgmesMetadataXmlSerializer} instead.
  */
+@Deprecated(since = "4.8.0")
 @AutoService(ExtensionXmlSerializer.class)
 public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesSvMetadata> {
 

@@ -13,7 +13,10 @@ import java.util.List;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ *
+ * @deprecated Use {@link CgmesMetadata} instead.
  */
+@Deprecated(since = "4.8.0")
 public interface CgmesSvMetadata extends Extension<Network> {
 
     String NAME = "cgmesSvMetadata";

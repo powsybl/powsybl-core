@@ -7,6 +7,10 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -14,7 +18,7 @@ public final class ComparisonConfig {
 
     public ComparisonConfig() {
         checkNetworkId = true;
-        incremented = false;
+        incrementedProfiles = new HashSet<>();
         differences = new DifferencesFail();
         networkMappingFactory = NetworkMapping::new;
         checkVoltageLevelLimits = true;
@@ -29,8 +33,8 @@ public final class ComparisonConfig {
         return this;
     }
 
-    public ComparisonConfig incrementVersions(boolean incremented) {
-        this.incremented = incremented;
+    public ComparisonConfig incrementProfiles(String... profiles) {
+        this.incrementedProfiles.addAll(Arrays.asList(profiles));
         return this;
     }
 
@@ -72,7 +76,7 @@ public final class ComparisonConfig {
     }
 
     boolean checkNetworkId;
-    boolean incremented;
+    Set<String> incrementedProfiles;
     Differences differences;
     NetworkMappingFactory networkMappingFactory;
     boolean checkVoltageLevelLimits;

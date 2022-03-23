@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
+import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -86,6 +87,7 @@ public class TopologyExportTest extends AbstractConverterTest {
         NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"),
+                DifferenceEvaluators.chain(ExportXmlCompare::ensuringIncreasedMetadataVersion));
     }
 }
