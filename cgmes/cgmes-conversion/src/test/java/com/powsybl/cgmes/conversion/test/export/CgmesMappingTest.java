@@ -46,7 +46,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
     }
 
     @Test
-    public void compare2Exports() throws IOException {
+    public void compare2Exports() throws IOException, InterruptedException {
         String baseName = "nordic32";
         ReadOnlyDataSource dataSource = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -65,6 +65,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         }
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
+                ExportXmlCompare::ignoringCreatedTime,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringFullModelAbout,
                 ExportXmlCompare::ignoringCurrentLimitIds,
