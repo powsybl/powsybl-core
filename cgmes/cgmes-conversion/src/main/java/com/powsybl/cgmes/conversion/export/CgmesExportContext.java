@@ -141,6 +141,7 @@ public class CgmesExportContext {
 
     public void addIidmMappings(Network network) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
+        addIidmMappingsSubstations(network);
         CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
         if (mapping == null) {
             network.newExtension(CgmesIidmMappingAdder.class).add();
@@ -154,6 +155,20 @@ public class CgmesExportContext {
         addIidmMappingsShuntCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
+        addIidmMappingsControlArea(network);
+    }
+
+    private void addIidmMappingsSubstations(Network network) {
+        for (Substation substation : network.getSubstations()) {
+            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
+                String regionId = CgmesExportUtil.getUniqueId();
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
+            }
+            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
+                String subRegionId = CgmesExportUtil.getUniqueId();
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
+            }
+        }
     }
 
     private void addIidmMappingsTopologicalNodes(CgmesIidmMapping mapping, Network network) {
@@ -431,6 +446,24 @@ public class CgmesExportContext {
             if (topologicalNode == null) {
                 topologicalNode = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(topologicalNode, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            }
+        }
+    }
+
+    private void addIidmMappingsControlArea(Network network) {
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        if (cgmesControlAreas == null) {
+            network.newExtension(CgmesControlAreasAdder.class).add();
+            cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            String cgmesControlAreaId = CgmesExportUtil.getUniqueId();
+            cgmesControlAreas.newCgmesControlArea()
+                    .setId(cgmesControlAreaId)
+                    .setName("Network")
+                    .setEnergyIdentificationCodeEic("Network--1")
+                    .add();
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
+            for (DanglingLine danglingLine : network.getDanglingLines()) {
+                cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
     }
