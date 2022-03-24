@@ -46,7 +46,7 @@ public class CgmesExportContext {
     private final Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<CgmesIidmMapping.CgmesTopologicalNode> unmappedTopologicalNodes = new HashSet<>();
 
-    private final Map<Double, CgmesIidmMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
+    private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
     public static final class ModelDescription {
 
@@ -149,7 +149,12 @@ public class CgmesExportContext {
             mapping.addTopologyListener();
         }
         addIidmMappingsTopologicalNodes(mapping, network);
-        addIidmMappingsBaseVoltages(mapping, network);
+        BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
+        if (bvMapping == null) {
+            network.newExtension(BaseVoltageMappingAdder.class).add();
+            bvMapping = network.getExtension(BaseVoltageMapping.class);
+        }
+        addIidmMappingsBaseVoltages(bvMapping, network);
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsShuntCompensators(network);
@@ -218,7 +223,7 @@ public class CgmesExportContext {
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
             if (busViewBus != null && topologicalNode != null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
-                mapping.putTopologicalNode(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
+                mapping.putTopologicalNode(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, Source.IGM);
             }
         }
     }
@@ -237,22 +242,22 @@ public class CgmesExportContext {
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
                         String topologicalNodeName = bus.getNameOrId();
-                        mapping.putTopologicalNode(busViewBus.getId(), bus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
+                        mapping.putTopologicalNode(busViewBus.getId(), bus.getId(), topologicalNodeName, Source.IGM);
                     }
                 }
             }
         }
     }
 
-    private void addIidmMappingsBaseVoltages(CgmesIidmMapping mapping, Network network) {
+    private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
         if (mapping.isBaseVoltageEmpty()) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
                 String baseVoltageId = CgmesExportUtil.getUniqueId();
-                mapping.addBaseVoltage(nominalV, baseVoltageId, CgmesIidmMapping.Source.IGM);
+                mapping.addBaseVoltage(nominalV, baseVoltageId, Source.IGM);
             }
         }
-        Map<Double, CgmesIidmMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
+        Map<Double, BaseVoltageMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
         baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
@@ -548,7 +553,7 @@ public class CgmesExportContext {
         return unmappedTopologicalNodes.stream().filter(cgmesTopologicalNode -> cgmesTopologicalNode.getCgmesId().equals(topologicalNodeId)).findAny().orElse(null);
     }
 
-    public CgmesIidmMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
+    public BaseVoltageMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
     }
 }
