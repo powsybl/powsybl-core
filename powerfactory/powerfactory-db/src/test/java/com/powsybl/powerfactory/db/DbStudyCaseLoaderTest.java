@@ -6,6 +6,7 @@
  */
 package com.powsybl.powerfactory.db;
 
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.powerfactory.model.DataAttribute;
 import com.powsybl.powerfactory.model.DataAttributeType;
 import com.powsybl.powerfactory.model.StudyCase;
@@ -24,7 +25,7 @@ public class DbStudyCaseLoaderTest {
     private static class TestDatabaseReader implements DatabaseReader {
 
         @Override
-        public void read(String projectName, DataObjectBuilder builder) {
+        public void read(String powerFactoryHome, String projectName, DataObjectBuilder builder) {
             builder.createClass("ElmNet");
             builder.createAttribute("ElmNet", DataAttribute.LOC_NAME, DataAttributeType.STRING.ordinal(), "");
             builder.createObject(0L, "ElmNet", -1);
@@ -36,7 +37,7 @@ public class DbStudyCaseLoaderTest {
     public void test() {
         StudyCase studyCase = StudyCaseLoader.load("Test.IntPrj",
             () -> null,
-            List.of(new DbStudyCaseLoader(new TestDatabaseReader())))
+            List.of(new DbStudyCaseLoader(PlatformConfig.defaultConfig(), new TestDatabaseReader())))
                 .orElseThrow();
         assertEquals("???", studyCase.getName());
     }

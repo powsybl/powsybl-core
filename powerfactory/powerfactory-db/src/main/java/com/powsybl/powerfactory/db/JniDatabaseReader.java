@@ -24,5 +24,5 @@ public class JniDatabaseReader implements DatabaseReader {
         }
     }
 
-    public native void read(String projectName, DataObjectBuilder builder);
+    public native void read(String powerFactoryHome, String projectName, DataObjectBuilder builder);
 }
