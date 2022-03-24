@@ -1,0 +1,111 @@
+{
+  "name" : "TwoBuses",
+  "dataObjects" : [ {
+    "id" : 2,
+    "dataClass" : {
+      "name" : "ElmNet"
+    },
+    "attributeValues" : {
+      "frnom" : 50.0,
+      "loc_name" : "MS"
+    }
+  }, {
+    "id" : 3,
+    "dataClass" : {
+      "name" : "ElmTerm"
+    },
+    "attributeValues" : {
+      "uknom" : 220.0,
+      "iUsage" : 0,
+      "loc_name" : "Busbar-A",
+      "fold_id" : 2
+    }
+  }, {
+    "id" : 4,
+    "dataClass" : {
+      "name" : "ElmTerm"
+    },
+    "attributeValues" : {
+      "uknom" : 220.0,
+      "iUsage" : 0,
+      "loc_name" : "Busbar-B",
+      "fold_id" : 2
+    }
+  }, {
+    "id" : 5,
+    "dataClass" : {
+      "name" : "ElmLne"
+    },
+    "attributeValues" : {
+      "typ_id" : 10,
+      "loc_name" : "Line-A-B",
+      "dline" : 1.0,
+      "fold_id" : 2
+    }
+  }, {
+    "id" : 6,
+    "dataClass" : {
+      "name" : "StaCubic"
+    },
+    "attributeValues" : {
+      "obj_id" : 5,
+      "obj_bus" : 0,
+      "loc_name" : "Cub_1",
+      "fold_id" : 3
+    }
+  }, {
+    "id" : 7,
+    "dataClass" : {
+      "name" : "StaCubic"
+    },
+    "attributeValues" : {
+      "obj_id" : 5,
+      "obj_bus" : 1,
+      "loc_name" : "Cub_1",
+      "fold_id" : 4
+    }
+  }, {
+    "id" : 8,
+    "dataClass" : {
+      "name" : "StaSwitch"
+    },
+    "attributeValues" : {
+      "loc_name" : "Switch",
+      "on_off" : 1,
+      "fold_id" : 6,
+      "iUse" : 1
+    }
+  }, {
+    "id" : 9,
+    "dataClass" : {
+      "name" : "StaSwitch"
+    },
+    "attributeValues" : {
+      "loc_name" : "Switch",
+      "on_off" : 1,
+      "fold_id" : 7,
+      "iUse" : 1
+    }
+  }, {
+    "id" : 10,
+    "dataClass" : {
+      "name" : "TypLne"
+    },
+    "attributeValues" : {
+      "sline" : 1.0,
+      "xline" : 20.61956,
+      "rline0" : 0.0,
+      "aohl_" : "ohl",
+      "uline" : 220.0,
+      "cline0" : 0.0,
+      "xline0" : 0.0,
+      "chr_name" : "0",
+      "cline" : 0.482287,
+      "Ithr" : 0.0,
+      "loc_name" : "TypLne-A-B",
+      "rtemp" : 80.0,
+      "tline" : 0.0,
+      "rline" : 6.753542
+    }
+  } ]
+}

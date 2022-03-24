@@ -7,12 +7,23 @@
 package com.powsybl.powerfactory.model;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
+@JsonIgnoreProperties({"time", "elmNets"})
+@JsonPropertyOrder({"name", "dataObjects"})
+
 public class StudyCase {
 
     private final String name;
@@ -40,5 +51,19 @@ public class StudyCase {
 
     public List<DataObject> getElmNets() {
         return elmNets;
+    }
+
+    public List<DataObject> getDataObjects() {
+        Set<DataObject> dataObjectsSet = new HashSet<>();
+
+        for (DataObject elmNet : elmNets) {
+            elmNet.traverseAndReference(dataObjectsSet::add);
+        }
+        List<DataObject> dataObjects = new ArrayList<>();
+        dataObjects.addAll(dataObjectsSet);
+
+        Collections.sort(dataObjects, (do1, do2) -> ((Long) do1.getId()).compareTo(do2.getId()));
+
+        return dataObjects;
     }
 }
