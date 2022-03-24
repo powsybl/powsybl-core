@@ -6,11 +6,14 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.google.common.collect.Lists;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
@@ -33,8 +36,15 @@ public interface StudyCaseLoader {
     }
 
     static Optional<StudyCase> load(String fileName, Supplier<InputStream> inputStreamSupplier) {
+        return load(fileName, inputStreamSupplier, Lists.newArrayList(ServiceLoader.load(StudyCaseLoader.class)));
+    }
+
+    static Optional<StudyCase> load(String fileName, Supplier<InputStream> inputStreamSupplier,
+                                    Collection<StudyCaseLoader> studyCaseLoaders) {
+        Objects.requireNonNull(fileName);
         Objects.requireNonNull(inputStreamSupplier);
-        for (StudyCaseLoader studyCaseLoader : ServiceLoader.load(StudyCaseLoader.class)) {
+        Objects.requireNonNull(studyCaseLoaders);
+        for (StudyCaseLoader studyCaseLoader : studyCaseLoaders) {
             if (fileName.endsWith(studyCaseLoader.getExtension()) &&
                     studyCaseLoader.test(inputStreamSupplier.get())) {
                 return Optional.of(studyCaseLoader.doLoad(fileName, inputStreamSupplier.get()));

@@ -38,8 +38,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.scijava</groupId>
+            <artifactId>native-lib-loader</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-powerfactory-model</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

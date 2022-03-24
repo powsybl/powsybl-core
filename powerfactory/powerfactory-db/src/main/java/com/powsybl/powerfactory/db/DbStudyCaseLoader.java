@@ -15,6 +15,7 @@ import com.powsybl.powerfactory.model.StudyCaseLoader;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +25,16 @@ import java.util.stream.Collectors;
  */
 @AutoService(StudyCaseLoader.class)
 public class DbStudyCaseLoader implements StudyCaseLoader {
+
+    private final DatabaseReader dbReader;
+
+    public DbStudyCaseLoader() {
+        this(new JniDatabaseReader());
+    }
+
+    public DbStudyCaseLoader(DatabaseReader dbReader) {
+        this.dbReader = Objects.requireNonNull(dbReader);
+    }
 
     @Override
     public String getExtension() {
@@ -35,17 +46,16 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
         return true;
     }
 
-    private native void readDb(String studyCaseName, DataObjectsBuilder builder);
-
     @Override
     public StudyCase doLoad(String fileName, InputStream is) {
-        String studyCaseName = Files.getNameWithoutExtension(fileName);
+        String projectName = Files.getNameWithoutExtension(fileName);
 
         // read study cases objects from PowerFactory DB using C++ API
-        DataObjectsBuilder builder = new DataObjectsBuilder();
-        readDb(studyCaseName, builder);
+        DataObjectBuilder builder = new DataObjectBuilder();
+        dbReader.read(projectName, builder);
 
         Instant time = Instant.now(); // FIXME get from study case object
+        String studyCaseName = "???";
         List<DataObject> elmNets = builder.getObjects()
                 .stream()
                 .filter(obj -> obj.getDataClassName().equals("ElmNet"))
