@@ -34,13 +34,13 @@ public final class Cim14SmallCasesNetworkCatalog {
             .setName("GEN     _SS")
             .setGeographicalTags(sGenGeoTag)
             .add();
-        sGen.setProperty("CGMES.regionId", "_SGR_1_");
+        sGen.setProperty("CGMES.subRegionId", "_SGR_1_");
         Substation sInf = network.newSubstation()
             .setId("_INF______SS")
             .setName("INF     _SS")
             .setGeographicalTags(sInfGeoTag)
             .add();
-        sInf.setProperty("CGMES.regionId", "_SGR_1_");
+        sInf.setProperty("CGMES.subRegionId", "_SGR_1_");
         VoltageLevel vlInf = sInf.newVoltageLevel()
             .setId("_INF______VL")
             .setName("INF     _VL")
