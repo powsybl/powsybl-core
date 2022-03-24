@@ -18,7 +18,7 @@ public class JniDatabaseReader implements DatabaseReader {
 
     static {
         try {
-            NativeLoader.loadLibrary("powsybl-powerfactory-native");
+            NativeLoader.loadLibrary("powsybl-powerfactory-db-native");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
