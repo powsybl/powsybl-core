@@ -6,6 +6,8 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.primitives.Ints;
 import org.apache.commons.math3.linear.RealMatrix;
 
@@ -19,7 +21,13 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
+@JsonIgnoreProperties({"parent", "children", "studyCase", "referenceValues", "path", "fullName", "attributeNames", "locName", "dataClassName"})
+@JsonPropertyOrder({"id", "dataClass", "attributeValues"})
+
 public class DataObject {
+
+    private static final String NOT_FOUND = "' not found";
 
     private final long id;
 
@@ -32,6 +40,8 @@ public class DataObject {
     private StudyCase studyCase;
 
     private final Map<String, Object> attributeValues = new HashMap<>();
+
+    private final Map<String, DataObject> referenceValues = new HashMap<>();
 
     public DataObject(long id, DataClass dataClass) {
         this.id = id;
@@ -123,6 +133,10 @@ public class DataObject {
         return attributeValues;
     }
 
+    public Map<String, DataObject> getReferenceValues() {
+        return referenceValues;
+    }
+
     public Optional<Object> findAttributeValue(String name) {
         Objects.requireNonNull(name);
         return Optional.ofNullable(attributeValues.get(name));
@@ -139,11 +153,15 @@ public class DataObject {
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String name) {
-        return new PowerFactoryException("Attribute '" + name + "' not found");
+        return new PowerFactoryException("Attribute '" + name + NOT_FOUND);
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String type, String name) {
-        return new PowerFactoryException(type + " attribute '" + name + "' not found");
+        return new PowerFactoryException(type + " attribute '" + name + NOT_FOUND);
+    }
+
+    private static PowerFactoryException createReferenceNotFoundException(String type, String name) {
+        return new PowerFactoryException(type + " reference '" + name + NOT_FOUND);
     }
 
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
@@ -186,17 +204,13 @@ public class DataObject {
         return setStringAttributeValue(DataAttribute.LOC_NAME, locName);
     }
 
-    public Optional<DataObject> findObjectAttributeValue(String name) {
-        return findGenericAttributeValue(name, DataAttributeType.OBJECT);
+    public Optional<DataObject> findObjectReferenceValue(String name) {
+        Objects.requireNonNull(name);
+        return Optional.ofNullable(referenceValues.get(name));
     }
 
-    public DataObject getObjectAttributeValue(String name) {
-        return findObjectAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object", name));
-    }
-
-    public DataObject setObjectAttributeValue(String name, DataObject value) {
-        setGenericAttributeValue(name, DataAttributeType.OBJECT, value);
-        return this;
+    public DataObject getObjectReferenceValue(String name) {
+        return findObjectReferenceValue(name).orElseThrow(() -> createReferenceNotFoundException("Object", name));
     }
 
     public Optional<List<DataObject>> findObjectVectorAttributeValue(String name) {
@@ -398,6 +412,17 @@ public class DataObject {
         handler.accept(this);
         for (DataObject child : children) {
             child.traverse(handler);
+        }
+    }
+
+    public void traverseAndReference(Consumer<DataObject> handler) {
+        Objects.requireNonNull(handler);
+        handler.accept(this);
+        for (DataObject child : children) {
+            child.traverseAndReference(handler);
+        }
+        for (DataObject reference : referenceValues.values()) {
+            reference.traverseAndReference(handler);
         }
     }
 

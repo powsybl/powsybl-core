@@ -37,7 +37,7 @@ public class DgsReader {
 
     private final Map<String, String> general = new HashMap<>();
 
-    private DataObject elmNet;
+    private List<DataObject> elmNets = new ArrayList<>();
 
     public static StudyCase read(Path dgsFile) {
         return read(dgsFile, StandardCharsets.ISO_8859_1);
@@ -79,7 +79,7 @@ public class DgsReader {
                 type = DataAttributeType.FLOAT;
                 break;
             case 'p':
-                type = DataAttributeType.OBJECT;
+                type = DataAttributeType.INTEGER64;
                 break;
             default:
                 throw new AssertionError("Unexpected attribute type: " + attributeType);
@@ -87,25 +87,16 @@ public class DgsReader {
         return type;
     }
 
-    private void resolveLinks() {
+    private void resolveLinksAndBuildObjectsTree() {
         for (ToResolve toResolve : toResolveList) {
             DataObject obj = objectsById.get(toResolve.id);
             if (obj == null) {
                 throw new PowerFactoryException("Object '" + toResolve.id + "' not found");
             }
-            toResolve.obj.setObjectAttributeValue(toResolve.attributeName, obj);
-        }
-    }
-
-    private void buildObjectsTree() {
-        for (DataObject obj : objectsById.values()) {
-            DataObject folderObj = obj.findObjectAttributeValue(DataAttribute.FOLD_ID).orElse(null);
-            if (folderObj != null) {
-                obj.setParent(folderObj);
+            if (toResolve.attributeName.equals(DataAttribute.FOLD_ID)) {
+                toResolve.obj.setParent(obj);
             } else {
-                if (obj != elmNet && obj.getDataClassName().startsWith("Elm")) {
-                    obj.setParent(elmNet);
-                }
+                toResolve.obj.getReferenceValues().computeIfAbsent(toResolve.attributeName, k -> obj);
             }
         }
     }
@@ -151,7 +142,7 @@ public class DgsReader {
                     long id = Long.parseLong(value);
                     object = createDataObject(id, clazz);
                     if (clazz.getName().equals("ElmNet")) {
-                        elmNet = object;
+                        elmNets.add(object);
                     }
                 } else {
                     object.setStringAttributeValue(attributeName, value);
@@ -177,6 +168,7 @@ public class DgsReader {
 
         @Override
         public void onObjectValue(String attributeName, long id) {
+            object.setLongAttributeValue(attributeName, id);
             toResolveList.add(new ToResolve(object, attributeName, id));
         }
     }
@@ -188,18 +180,17 @@ public class DgsReader {
 
         new DgsParser().read(reader, new DgsHandlerImpl());
 
-        Objects.requireNonNull(elmNet, "ElmNet object is missing");
+        if (elmNets.isEmpty()) {
+            throw new PowerFactoryException("ElmNet object is missing");
+        }
 
         // resolve object attributes links
-        resolveLinks();
-
-        // build parent child link
-        buildObjectsTree();
+        resolveLinksAndBuildObjectsTree();
 
         stopwatch.stop();
         LOGGER.info("DGS file read in {} ms: {} data objects", stopwatch.elapsed(TimeUnit.MILLISECONDS), objectsById.size());
 
-        StudyCase studyCase = new StudyCase(studyCaseName, Instant.now(), List.of(elmNet));
+        StudyCase studyCase = new StudyCase(studyCaseName, Instant.now(), elmNets);
         for (DataObject obj : objectsById.values()) {
             obj.setStudyCase(studyCase);
         }

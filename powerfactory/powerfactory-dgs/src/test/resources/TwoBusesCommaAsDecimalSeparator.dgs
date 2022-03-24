@@ -1,0 +1,24 @@
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+ 1;Version;5.0
+
+$$ElmNet;ID(a:40);loc_name(a:40);fold_id(p);frnom(r)
+ 2;MS;;50
+
+$$ElmTerm;ID(a:40);loc_name(a:40);fold_id(p);iUsage(i);uknom(r)
+ 3;Busbar-A;2;0;220
+ 4;Busbar-B;2;0;220
+
+$$ElmLne;ID(a:40);loc_name(a:40);fold_id(p);typ_id(p);dline(r);chr_name(a:20)
+  5;Line-A-B;2;10;1;
+
+$$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);chr_name(a:20);obj_id(p);obj_bus(i)
+ 6;Cub_1;3;;5;0
+ 7;Cub_1;4;;5;1
+
+$$StaSwitch;ID(a:40);loc_name(a:40);fold_id(p);iUse(i);on_off(i)
+ 8;Switch;6;1;1
+ 9;Switch;7;1;1
+
+$$TypLne;ID(a:40);loc_name(a:40);fold_id(p);uline(r);sline(r);aohl_(a:3);rline(r);xline(r);cline(r);rline0(r);xline0(r);cline0(r);rtemp(r);Ithr(r);chr_name(a:20);tline(r);bline(r)
+  10;"TypLne-A;B";;220;1;ohl;6,753542;20,61956;0,482287;0;0;0;80;0;0;0;
+
