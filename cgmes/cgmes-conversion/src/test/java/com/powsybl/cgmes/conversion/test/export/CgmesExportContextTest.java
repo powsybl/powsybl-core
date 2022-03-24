@@ -196,7 +196,7 @@ public class CgmesExportContextTest {
         Properties ip = new Properties();
         ip.put("iidm.import.cgmes.create-cgmes-export-mapping", "false");
         Network n = new CgmesImport().importData(ds, NetworkFactory.findDefault(), ip);
-        CgmesExportContext context = new CgmesExportContext(n);
+        CgmesExportContext context = new CgmesExportContext(n, true);
         assertNotNull(n.getExtension(CgmesIidmMapping.class));
 
         for (Bus bus : n.getBusView().getBuses()) {

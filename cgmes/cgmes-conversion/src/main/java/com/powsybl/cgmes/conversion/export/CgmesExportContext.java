@@ -113,7 +113,18 @@ public class CgmesExportContext {
         }
     }
 
+    interface TopologicalConsumer {
+        void accept(String iidmId, String cgmesId, String cgmesName, Source source);
+    }
+
+    public CgmesExportContext() {
+    }
+
     public CgmesExportContext(Network network) {
+        this(network, false);
+    }
+
+    public CgmesExportContext(Network network, boolean keepTopologicalMapping) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
             cimVersion = cimCharacteristics.getCimVersion();
@@ -136,19 +147,27 @@ public class CgmesExportContext {
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
-        addIidmMappings(network);
+        addIidmMappings(network, keepTopologicalMapping);
     }
 
     public void addIidmMappings(Network network) {
+        addIidmMappings(network, false);
+    }
+
+    public void addIidmMappings(Network network, boolean keepTopologicalMapping) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
         addIidmMappingsSubstations(network);
-        CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
-        if (mapping == null) {
-            network.newExtension(CgmesIidmMappingAdder.class).add();
-            mapping = network.getExtension(CgmesIidmMapping.class);
-            mapping.addTopologyListener();
+        if (keepTopologicalMapping) {
+            CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
+            if (mapping == null) {
+                network.newExtension(CgmesIidmMappingAdder.class).add();
+                mapping = network.getExtension(CgmesIidmMapping.class);
+                mapping.addTopologyListener();
+            }
+            addIidmMappingsTopologicalNodes(mapping, network);
+        } else {
+            addIidmMappingsTopologicalNodes(network);
         }
-        addIidmMappingsTopologicalNodes(mapping, network);
         BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
         if (bvMapping == null) {
             network.newExtension(BaseVoltageMappingAdder.class).add();
@@ -204,15 +223,29 @@ public class CgmesExportContext {
             // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    updateBusBreakerTopologicalNodesMapping(mapping, vl);
+                    computeBusBreakerTopologicalNodeMapping(vl, mapping::putTopologicalNode);
                 } else {
-                    updateNodeBreakerTopologicalNodesMapping(mapping, vl);
+                    computeNodeBreakerTopologicalNodesMapping(vl, mapping::putTopologicalNode);
                 }
             }
         }
     }
 
-    private static void updateBusBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl) {
+    private void addIidmMappingsTopologicalNodes(Network network) {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                computeBusBreakerTopologicalNodeMapping(vl, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
+                        .computeIfAbsent(iidmId, key -> new HashSet<>())
+                        .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
+            } else {
+                computeNodeBreakerTopologicalNodesMapping(vl, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
+                        .computeIfAbsent(iidmId, key -> new HashSet<>())
+                        .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
+            }
+        }
+    }
+
+    private static void computeBusBreakerTopologicalNodeMapping(VoltageLevel vl, TopologicalConsumer addTnMapping) {
         for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
             Bus busViewBus;
             String topologicalNode;
@@ -223,12 +256,12 @@ public class CgmesExportContext {
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
             if (busViewBus != null && topologicalNode != null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
-                mapping.putTopologicalNode(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, Source.IGM);
+                addTnMapping.accept(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, Source.IGM);
             }
         }
     }
 
-    private static void updateNodeBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl) {
+    private static void computeNodeBreakerTopologicalNodesMapping(VoltageLevel vl, TopologicalConsumer addTnMapping) {
         for (int node : vl.getNodeBreakerView().getNodes()) {
             Bus busViewBus;
             String topologicalNode;
@@ -242,7 +275,7 @@ public class CgmesExportContext {
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
                         String topologicalNodeName = bus.getNameOrId();
-                        mapping.putTopologicalNode(busViewBus.getId(), bus.getId(), topologicalNodeName, Source.IGM);
+                        addTnMapping.accept(busViewBus.getId(), bus.getId(), topologicalNodeName, Source.IGM);
                     }
                 }
             }
@@ -471,9 +504,6 @@ public class CgmesExportContext {
                 cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
-    }
-
-    public CgmesExportContext() {
     }
 
     public int getCimVersion() {
