@@ -145,34 +145,37 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getFictitiousP0() {
         checkValidity();
-        Set<Integer> nodes = Networks.getNodes(id, voltageLevel, getBusFromTerminal);
-        return nodes.stream().map(n -> voltageLevel.getNodeBreakerView().getFictitiousP0(n))
+        return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousP0(n))
                 .reduce(0.0, Double::sum);
     }
 
     @Override
     public Bus setFictitiousP0(double p0) {
         checkValidity();
-        Set<Integer> nodes = Networks.getNodes(id, voltageLevel, getBusFromTerminal);
-        nodes.forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousP0(n, 0.0));
-        voltageLevel.getNodeBreakerView().setFictitiousP0(nodes.iterator().next(), p0);
+        Networks.getNodes(id, voltageLevel, getBusFromTerminal).forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousP0(n, 0.0));
+        voltageLevel.getNodeBreakerView().setFictitiousP0(Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
+                p0);
         return this;
     }
 
     @Override
     public double getFictitiousQ0() {
         checkValidity();
-        Set<Integer> nodes = Networks.getNodes(id, voltageLevel, getBusFromTerminal);
-        return nodes.stream().map(n -> voltageLevel.getNodeBreakerView().getFictitiousQ0(n))
+        return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousQ0(n))
                 .reduce(0.0, Double::sum);
     }
 
     @Override
     public Bus setFictitiousQ0(double q0) {
         checkValidity();
-        Set<Integer> nodes = Networks.getNodes(id, voltageLevel, getBusFromTerminal);
-        nodes.forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousQ0(n, 0.0));
-        voltageLevel.getNodeBreakerView().setFictitiousQ0(nodes.iterator().next(), q0);
+        Networks.getNodes(id, voltageLevel, getBusFromTerminal).forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousQ0(n, 0.0));
+        voltageLevel.getNodeBreakerView().setFictitiousQ0(Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")), q0);
         return this;
     }
 

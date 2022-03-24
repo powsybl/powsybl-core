@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -376,7 +377,7 @@ public final class Networks {
         return nodesByBus;
     }
 
-    public static Set<Integer> getNodes(String busId, VoltageLevel voltageLevel, Function<Terminal, Bus> getBusFromTerminal) {
+    public static IntStream getNodes(String busId, VoltageLevel voltageLevel, Function<Terminal, Bus> getBusFromTerminal) {
         checkNodeBreakerVoltageLevel(voltageLevel);
         Set<Integer> nodes = new TreeSet<>();
         for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
@@ -398,7 +399,7 @@ public final class Networks {
                 }
             }
         }
-        return nodes;
+        return nodes.stream().mapToInt(Integer::intValue);
     }
 
     /**
