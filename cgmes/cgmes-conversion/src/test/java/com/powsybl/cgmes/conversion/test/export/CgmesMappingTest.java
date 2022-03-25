@@ -65,6 +65,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         }
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
+                ExportXmlCompare::ignoringCreatedTime,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringFullModelAbout,
                 ExportXmlCompare::ignoringCurrentLimitIds,
