@@ -173,11 +173,21 @@ public final class EquipmentExport {
         Map<String, String> geographicalRegionIds = new HashMap<>();
         BiMap<String, String> subGeographicalRegionIds = HashBiMap.create();
         for (Substation substation : network.getSubstations()) {
+            String geographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
             String geoName = getGeographicalRegionName(substation, network);
-            geographicalRegionIds.computeIfAbsent(geoName, name -> writeGeographicalRegion(name, cimNamespace, writer));
-            String subGeographicalRegionId = getSubGeographicalRegionId(substation, subGeographicalRegionIds);
+            geographicalRegionIds.computeIfAbsent(geoName, name -> writeGeographicalRegion(geographicalRegionId, name, cimNamespace, writer));
+            String subGeographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId");
             subGeographicalRegionIds.computeIfAbsent(subGeographicalRegionId, id -> writeSubGeographicalRegion(id, geoName, substation, geographicalRegionIds, cimNamespace, writer));
             SubstationEq.write(substation.getId(), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer);
+        }
+    }
+
+    private static String writeGeographicalRegion(String geographicalRegionId, String geoName, String cimNamespace, XMLStreamWriter writer) {
+        try {
+            GeographicalRegionEq.write(geographicalRegionId, geoName, cimNamespace, writer);
+            return geographicalRegionId;
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
@@ -188,27 +198,6 @@ public final class EquipmentExport {
             geoName = country.get().toString();
         }
         return geoName;
-    }
-
-    private static String writeGeographicalRegion(String geoName, String cimNamespace, XMLStreamWriter writer) {
-        try {
-            String geographicalRegionId = CgmesExportUtil.getUniqueId();
-            GeographicalRegionEq.write(geographicalRegionId, geoName, cimNamespace, writer);
-            return geographicalRegionId;
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
-    }
-
-    private static String getSubGeographicalRegionId(Substation substation, BiMap<String, String> subGeographicalRegionIds) {
-        if (substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
-            return substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
-        } else if (substation.getGeographicalTags().size() == 1) {
-            return subGeographicalRegionIds.inverse().getOrDefault(substation.getGeographicalTags().iterator().next(),
-                    CgmesExportUtil.getUniqueId());
-        } else {
-            return CgmesExportUtil.getUniqueId();
-        }
     }
 
     private static String writeSubGeographicalRegion(String subGeographicalRegionId, String geoName, Substation substation, Map<String, String> geographicalRegionIds, String cimNamespace, XMLStreamWriter writer) {
@@ -664,16 +653,8 @@ public final class EquipmentExport {
 
     private static void writeControlAreas(Network network, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        if (cgmesControlAreas != null) {
-            for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-                writeControlArea(cgmesControlArea, exportedTerminals, danglingLineBoundaries, cimNamespace, writer);
-            }
-        } else {
-            String cgmesControlAreaId = CgmesExportUtil.getUniqueId();
-            ControlAreaEq.write(cgmesControlAreaId, "Network", "Network--1", cimNamespace, writer);
-            for (DanglingLine danglingLine : network.getDanglingLines()) {
-                TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlAreaId, exportedTerminalId(exportedTerminals, danglingLine.getTerminal()), cimNamespace, writer);
-            }
+        for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
+            writeControlArea(cgmesControlArea, exportedTerminals, danglingLineBoundaries, cimNamespace, writer);
         }
     }
 
