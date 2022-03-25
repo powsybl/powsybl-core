@@ -137,7 +137,7 @@ final class ContainersMappingHelper {
         for (DataObject elmTerm : elmTerms) {
             nodes.add(elmTerm);
             for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
-                DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id").orElse(null);
+                DataObject connectedObj = staCubic.findObjectReferenceValue("obj_id").orElse(null);
                 if (isBranch(connectedObj)) {
                     nodes.add(staCubic);
                     edges.add(new Edge(elmTerm, staCubic, null, false, 0, 0));
@@ -159,7 +159,7 @@ final class ContainersMappingHelper {
                         break;
                     case "ElmLne":
                         float dline = connectedObj.getFloatAttributeValue("dline");
-                        DataObject typLne = connectedObj.getObjectAttributeValue("typ_id");
+                        DataObject typLne = connectedObj.getObjectReferenceValue("typ_id");
                         float rline = typLne.getFloatAttributeValue("rline");
                         float xline = typLne.getFloatAttributeValue("xline");
                         double r = rline * dline;

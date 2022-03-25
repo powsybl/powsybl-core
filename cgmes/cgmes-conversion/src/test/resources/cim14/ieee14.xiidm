@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="ieee14bus" caseDate="2019-04-01T15:09:54.703+02:00" forecastDistance="0" sourceFormat="CIM1" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="_BUS___10_SS" name="BUS   10_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS___10_VL" name="BUS   10_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS___10_TN" name="BUS   10" v="14.524100303649902" angle="-15.113293647766113"/>
@@ -10,7 +10,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS___11_SS" name="BUS   11_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS___11_VL" name="BUS   11_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS___11_TN" name="BUS   11" v="14.59589958190918" angle="-14.809061050415039"/>
@@ -19,7 +19,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS___12_SS" name="BUS   12_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS___12_VL" name="BUS   12_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS___12_TN" name="BUS   12" v="14.563400268554688" angle="-15.092975616455078"/>
@@ -28,7 +28,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS___13_SS" name="BUS   13_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS___13_VL" name="BUS   13_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS___13_TN" name="BUS   13" v="14.49899959564209" angle="-15.174944877624512"/>
@@ -37,7 +37,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS___14_SS" name="BUS   14_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS___14_VL" name="BUS   14_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS___14_TN" name="BUS   14" v="14.30620002746582" angle="-16.048330307006836"/>
@@ -46,7 +46,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS____1_SS" name="BUS    1_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS____1_VL" name="BUS    1_VL" nominalV="69.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS____1_TN" name="BUS    1" v="73.13999938964844" angle="0.0"/>
@@ -57,7 +57,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS____2_SS" name="BUS    2_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS____2_VL" name="BUS    2_VL" nominalV="69.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS____2_TN" name="BUS    2" v="72.1050033569336" angle="-4.979506969451904"/>
@@ -69,7 +69,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS____3_SS" name="BUS    3_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS____3_VL" name="BUS    3_VL" nominalV="69.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS____3_TN" name="BUS    3" v="69.69000244140625" angle="-12.716755867004395"/>
@@ -81,7 +81,7 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="_BUS____4_SS" name="BUS    4_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS____9_VL" name="BUS    9_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS____9_TN" name="BUS    9" v="14.596500396728516" angle="-14.953522682189941"/>
@@ -138,7 +138,7 @@
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="_BUS____5_SS" name="BUS    5_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS____6_VL" name="BUS    6_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS____6_TN" name="BUS    6" v="14.765999794006348" angle="-14.239948272705078"/>
@@ -173,7 +173,7 @@
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="_BUS____8_SS" name="BUS    8_SS" geographicalTags="01">
-        <iidm:property name="CGMES.regionId" value="_SGR_01"/>
+        <iidm:property name="CGMES.subRegionId" value="_SGR_01"/>
         <iidm:voltageLevel id="_BUS____8_VL" name="BUS    8_VL" nominalV="13.800000190734863" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="_BUS____8_TN" name="BUS    8" v="15.041999816894531" angle="-13.3749361038208"/>
