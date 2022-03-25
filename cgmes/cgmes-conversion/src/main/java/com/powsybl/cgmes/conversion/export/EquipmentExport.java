@@ -13,7 +13,7 @@ import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
-import com.powsybl.cgmes.extensions.CgmesMetadata;
+import com.powsybl.cgmes.extensions.CgmesModelDescriptions;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -44,7 +44,7 @@ public final class EquipmentExport {
 
             if (context.getCimVersion() == 16) {
                 String eqFullModelId = ModelDescriptionEq.write(writer, context.getEqModelDescription(), context);
-                CgmesMetadata metadata = network.getExtension(CgmesMetadata.class);
+                CgmesModelDescriptions metadata = network.getExtension(CgmesModelDescriptions.class);
                 if (metadata != null) {
                     context.getTpModelDescription().removeDependency(metadata.getEq().getId());
                     context.getSshModelDescription().removeDependency(metadata.getEq().getId());

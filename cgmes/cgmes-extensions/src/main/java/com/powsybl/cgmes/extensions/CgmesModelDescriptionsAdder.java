@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesMetadataAdder extends ExtensionAdder<Network, CgmesMetadata> {
+public interface CgmesModelDescriptionsAdder extends ExtensionAdder<Network, CgmesModelDescriptions> {
 
     interface ModelAdder {
         ModelAdder setId(String id);
@@ -25,7 +25,7 @@ public interface CgmesMetadataAdder extends ExtensionAdder<Network, CgmesMetadat
 
         ModelAdder setModelingAuthoritySet(String modelingAuthoritySet);
 
-        CgmesMetadataAdder add();
+        CgmesModelDescriptionsAdder add();
     }
 
     ModelAdder newEq();
@@ -37,7 +37,7 @@ public interface CgmesMetadataAdder extends ExtensionAdder<Network, CgmesMetadat
     ModelAdder newSv();
 
     @Override
-    default Class<CgmesMetadata> getExtensionClass() {
-        return CgmesMetadata.class;
+    default Class<CgmesModelDescriptions> getExtensionClass() {
+        return CgmesModelDescriptions.class;
     }
 }

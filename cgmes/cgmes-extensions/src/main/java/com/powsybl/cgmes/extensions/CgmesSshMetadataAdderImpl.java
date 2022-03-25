@@ -18,7 +18,7 @@ import java.util.Objects;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  *
- * @deprecated Use {@link CgmesMetadataAdderImpl} instead.
+ * @deprecated Use {@link CgmesModelDescriptionsAdderImpl} instead.
  */
 @Deprecated(since = "4.8.0")
 class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSshMetadata> implements CgmesSshMetadataAdder {

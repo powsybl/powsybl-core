@@ -57,7 +57,7 @@ public class CgmesExportContextTest {
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .add();
-        network.newExtension(CgmesMetadataAdder.class)
+        network.newExtension(CgmesModelDescriptionsAdder.class)
                 .newEq()
                 .setId("EQ1")
                 .setDescription("EQ Model")

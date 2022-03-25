@@ -8,7 +8,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
-import com.powsybl.cgmes.extensions.CgmesMetadata;
+import com.powsybl.cgmes.extensions.CgmesModelDescriptions;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -40,7 +40,7 @@ public final class TopologyExport {
 
             if (context.getCimVersion() == 16) {
                 String tpFullModelId = CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
-                CgmesMetadata metadata = network.getExtension(CgmesMetadata.class);
+                CgmesModelDescriptions metadata = network.getExtension(CgmesModelDescriptions.class);
                 if (metadata != null) {
                     metadata.getTp().ifPresent(tp -> context.getSvModelDescription().removeDependency(tp.getId()));
                 }

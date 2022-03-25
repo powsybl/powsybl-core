@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  *
- * @deprecated Use {@link CgmesMetadataAdderImplProvider} instead.
+ * @deprecated Use {@link CgmesModelDescriptionsAdderImplProvider} instead.
  */
 @Deprecated(since = "4.8.0")
 @AutoService(ExtensionAdderProvider.class)

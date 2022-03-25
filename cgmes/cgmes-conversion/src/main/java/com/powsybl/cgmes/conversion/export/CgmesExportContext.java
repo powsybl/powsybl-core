@@ -125,7 +125,7 @@ public class CgmesExportContext {
             topologyKind = cimCharacteristics.getTopologyKind();
         }
         scenarioTime = network.getCaseDate();
-        CgmesMetadata metadata = network.getExtension(CgmesMetadata.class);
+        CgmesModelDescriptions metadata = network.getExtension(CgmesModelDescriptions.class);
         if (metadata != null) {
             setModel(eqModelDescription, metadata.getEq());
             metadata.getTp().ifPresent(tp -> setModel(tpModelDescription, tp));
@@ -135,7 +135,7 @@ public class CgmesExportContext {
         addIidmMappings(network);
     }
 
-    private static void setModel(ModelDescription contextModel, CgmesMetadata.Model extModel) {
+    private static void setModel(ModelDescription contextModel, CgmesModelDescriptions.Model extModel) {
         contextModel.setDescription(extModel.getDescription());
         contextModel.setVersion(extModel.getVersion() + 1);
         contextModel.addDependencies(extModel.getDependencies());

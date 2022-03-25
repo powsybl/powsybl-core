@@ -15,9 +15,9 @@ import java.util.Optional;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesMetadata extends Extension<Network> {
+public interface CgmesModelDescriptions extends Extension<Network> {
 
-    String NAME = "cgmesMetadata";
+    String NAME = "cgmesModelDescriptions";
 
     interface Model {
 

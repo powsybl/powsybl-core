@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetadata> implements CgmesMetadataAdder {
+class CgmesModelDescriptionsAdderImpl extends AbstractExtensionAdder<Network, CgmesModelDescriptions> implements CgmesModelDescriptionsAdder {
 
     enum Type {
         EQ, TP, SSH, SV
@@ -68,7 +68,7 @@ class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetada
         }
 
         @Override
-        public CgmesMetadataAdderImpl add() {
+        public CgmesModelDescriptionsAdderImpl add() {
             if (id == null) {
                 throw new PowsyblException(type + " id is undefined");
             }
@@ -78,7 +78,7 @@ class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetada
             if (modelingAuthoritySet == null) {
                 throw new PowsyblException(type + " modelingAuthoritySet is undefined");
             }
-            CgmesMetadataImpl.ModelImpl model = new CgmesMetadataImpl.ModelImpl(id, description, version, dependencies, modelingAuthoritySet);
+            CgmesModelDescriptionsImpl.ModelImpl model = new CgmesModelDescriptionsImpl.ModelImpl(id, description, version, dependencies, modelingAuthoritySet);
             switch (type) {
                 case EQ:
                     eq = model;
@@ -91,16 +91,16 @@ class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetada
                 case SV:
                     sv = model;
             }
-            return CgmesMetadataAdderImpl.this;
+            return CgmesModelDescriptionsAdderImpl.this;
         }
     }
 
-    private CgmesMetadataImpl.ModelImpl eq;
-    private CgmesMetadataImpl.ModelImpl tp;
-    private CgmesMetadataImpl.ModelImpl ssh;
-    private CgmesMetadataImpl.ModelImpl sv;
+    private CgmesModelDescriptionsImpl.ModelImpl eq;
+    private CgmesModelDescriptionsImpl.ModelImpl tp;
+    private CgmesModelDescriptionsImpl.ModelImpl ssh;
+    private CgmesModelDescriptionsImpl.ModelImpl sv;
 
-    CgmesMetadataAdderImpl(Network extendable) {
+    CgmesModelDescriptionsAdderImpl(Network extendable) {
         super(extendable);
     }
 
@@ -125,10 +125,10 @@ class CgmesMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesMetada
     }
 
     @Override
-    protected CgmesMetadata createExtension(Network extendable) {
+    protected CgmesModelDescriptions createExtension(Network extendable) {
         if (eq == null) {
             throw new PowsyblException("EQ metadata cannot be null");
         }
-        return new CgmesMetadataImpl(eq, tp, ssh, sv);
+        return new CgmesModelDescriptionsImpl(eq, tp, ssh, sv);
     }
 }

@@ -359,7 +359,7 @@ public class Conversion {
 
     private void addMetadata(Network network, Context context) {
         if (cgmes instanceof CgmesModelTripleStore && ((CgmesModelTripleStore) cgmes).getCimVersion() == 16) {
-            CgmesMetadataAdder adder = network.newExtension(CgmesMetadataAdder.class);
+            CgmesModelDescriptionsAdder adder = network.newExtension(CgmesModelDescriptionsAdder.class);
             addProfileMetadata(CgmesSubset.EQUIPMENT.getProfile(), adder.newEq(), context);
             addProfileMetadata(CgmesSubset.TOPOLOGY.getProfile(), adder.newTp(), context);
             addProfileMetadata(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile(), adder.newSsh(), context);
@@ -368,7 +368,7 @@ public class Conversion {
         }
     }
 
-    private void addProfileMetadata(String profile, CgmesMetadataAdder.ModelAdder adder, Context context) {
+    private void addProfileMetadata(String profile, CgmesModelDescriptionsAdder.ModelAdder adder, Context context) {
         PropertyBags p = cgmes.fullModel(profile);
         if (p != null && !p.isEmpty()) {
             adder.setId(p.get(0).getId("FullModel"))

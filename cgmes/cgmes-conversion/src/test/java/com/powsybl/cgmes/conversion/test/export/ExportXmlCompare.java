@@ -298,6 +298,19 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringDependentOn(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("Model.DependentOn")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();

@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-class CgmesMetadataImpl extends AbstractExtension<Network> implements CgmesMetadata {
+class CgmesModelDescriptionsImpl extends AbstractExtension<Network> implements CgmesModelDescriptions {
 
     static class ModelImpl implements Model {
 
@@ -66,7 +66,7 @@ class CgmesMetadataImpl extends AbstractExtension<Network> implements CgmesMetad
     private final Model ssh;
     private final Model sv;
 
-    CgmesMetadataImpl(Model eq, Model tp, Model ssh, Model sv) {
+    CgmesModelDescriptionsImpl(Model eq, Model tp, Model ssh, Model sv) {
         this.eq = eq;
         this.tp = tp;
         this.ssh = ssh;

@@ -14,7 +14,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
-import com.powsybl.cgmes.extensions.CgmesMetadata;
+import com.powsybl.cgmes.extensions.CgmesModelDescriptions;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -460,10 +460,10 @@ public class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         assertEquals(0, network.getForecastDistance());
         assertTrue(new Duration(DateTime.now(), network.getCaseDate()).getStandardMinutes() < 10);
-        CgmesMetadata cgmesMetadata = network.getExtension(CgmesMetadata.class);
-        assertNotNull(cgmesMetadata);
-        assertTrue(cgmesMetadata.getSv().isPresent());
-        assertEquals(1, (int) cgmesMetadata.getSv().map(CgmesMetadata.Model::getVersion).orElse(-1));
+        CgmesModelDescriptions cgmesModelDescriptions = network.getExtension(CgmesModelDescriptions.class);
+        assertNotNull(cgmesModelDescriptions);
+        assertTrue(cgmesModelDescriptions.getSv().isPresent());
+        assertEquals(1, (int) cgmesModelDescriptions.getSv().map(CgmesModelDescriptions.Model::getVersion).orElse(-1));
     }
 
     @Test

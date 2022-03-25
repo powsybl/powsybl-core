@@ -26,16 +26,16 @@ import javax.xml.stream.XMLStreamWriter;
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class CgmesMetadataXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesMetadata> {
+public class CgmesModelDescriptionsXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesModelDescriptions> {
 
-    public CgmesMetadataXmlSerializer() {
-        super(CgmesMetadata.NAME, "network", CgmesMetadata.class, true,
-                "cgmesMetadata.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_metadata/1_0",
+    public CgmesModelDescriptionsXmlSerializer() {
+        super(CgmesModelDescriptions.NAME, "network", CgmesModelDescriptions.class, true,
+                "cgmesModelDescriptions.xsd", "http://www.powsybl.org/schema/iidm/ext/cgmes_model_descriptions/1_0",
                 "cm");
     }
 
     @Override
-    public void write(CgmesMetadata extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesModelDescriptions extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
         writeModel("eq", extension.getEq(), writer);
@@ -62,7 +62,7 @@ public class CgmesMetadataXmlSerializer extends AbstractExtensionXmlSerializer<N
         });
     }
 
-    private void writeModel(String type, CgmesMetadata.Model model, XMLStreamWriter writer) throws XMLStreamException {
+    private void writeModel(String type, CgmesModelDescriptions.Model model, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(getNamespaceUri(), type);
         writer.writeAttribute("id", model.getId());
         if (model.getDescription() != null) {
@@ -79,10 +79,10 @@ public class CgmesMetadataXmlSerializer extends AbstractExtensionXmlSerializer<N
     }
 
     @Override
-    public CgmesMetadata read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesModelDescriptions read(Network extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XMLStreamReader reader = networkContext.getReader();
-        CgmesMetadataAdder adder = extendable.newExtension(CgmesMetadataAdder.class);
+        CgmesModelDescriptionsAdder adder = extendable.newExtension(CgmesModelDescriptionsAdder.class);
         XmlUtil.readUntilEndElement(getName(), reader, () -> {
             switch (reader.getLocalName()) {
                 case "eq":
@@ -98,14 +98,14 @@ public class CgmesMetadataXmlSerializer extends AbstractExtensionXmlSerializer<N
                     readModel("sv", adder.newSv(), reader);
                     break;
                 default:
-                    throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesMetadata>");
+                    throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesModelDescriptions>");
             }
         });
         adder.add();
-        return extendable.getExtension(CgmesMetadata.class);
+        return extendable.getExtension(CgmesModelDescriptions.class);
     }
 
-    private void readModel(String profile, CgmesMetadataAdder.ModelAdder adder, XMLStreamReader reader) throws XMLStreamException {
+    private void readModel(String profile, CgmesModelDescriptionsAdder.ModelAdder adder, XMLStreamReader reader) throws XMLStreamException {
         adder.setId(reader.getAttributeValue(null, "id"))
                 .setDescription(reader.getAttributeValue(null, "description"))
                 .setVersion(XmlUtil.readIntAttribute(reader, "version"))
@@ -114,7 +114,7 @@ public class CgmesMetadataXmlSerializer extends AbstractExtensionXmlSerializer<N
             if (reader.getLocalName().equals("dependentOn")) {
                 adder.addDependency(reader.getElementText());
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesMetadata>");
+                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesModelDescriptions>");
             }
         });
         adder.add();

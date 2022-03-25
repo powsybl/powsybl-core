@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.Network;
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesMetadataAdderImplProvider implements
-        ExtensionAdderProvider<Network, CgmesMetadata, CgmesMetadataAdderImpl> {
+public class CgmesModelDescriptionsAdderImplProvider implements
+        ExtensionAdderProvider<Network, CgmesModelDescriptions, CgmesModelDescriptionsAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -24,16 +24,16 @@ public class CgmesMetadataAdderImplProvider implements
 
     @Override
     public String getExtensionName() {
-        return CgmesMetadata.NAME;
+        return CgmesModelDescriptions.NAME;
     }
 
     @Override
-    public Class<? super CgmesMetadataAdderImpl> getAdderClass() {
-        return CgmesMetadataAdderImpl.class;
+    public Class<? super CgmesModelDescriptionsAdderImpl> getAdderClass() {
+        return CgmesModelDescriptionsAdderImpl.class;
     }
 
     @Override
-    public CgmesMetadataAdderImpl newAdder(Network extendable) {
-        return new CgmesMetadataAdderImpl(extendable);
+    public CgmesModelDescriptionsAdderImpl newAdder(Network extendable) {
+        return new CgmesModelDescriptionsAdderImpl(extendable);
     }
 }

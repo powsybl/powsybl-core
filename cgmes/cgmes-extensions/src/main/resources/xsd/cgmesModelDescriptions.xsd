@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:cm="http://www.powsybl.org/schema/iidm/ext/cgmes_metadata/1_0"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_metadata/1_0"
+           xmlns:cm="http://www.powsybl.org/schema/iidm/ext/cgmes_model_descriptions/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_model_descriptions/1_0"
            elementFormDefault="qualified">
     <xs:simpleType name='nonEmptyString'>
         <xs:restriction base='xs:string'>
@@ -18,7 +18,7 @@
         <xs:attribute name="version" use="required" type="cm:nonEmptyString"/>
         <xs:attribute name="modelingAuthoritySet" use="required" type="cm:nonEmptyString"/>
     </xs:complexType>
-    <xs:element name="cgmesMetadata">
+    <xs:element name="cgmesModelDescriptions">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="eq" type="cm:Model" minOccurs="1" maxOccurs="1"/>

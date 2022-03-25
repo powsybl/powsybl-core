@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.cgmes.extensions.CgmesMetadata;
+import com.powsybl.cgmes.extensions.CgmesModelDescriptions;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
@@ -52,7 +52,7 @@ public class Comparison {
         compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
         // Compare profile metadata
-        compareMetadata(expected.getExtension(CgmesMetadata.class), actual.getExtension(CgmesMetadata.class));
+        compareMetadata(expected.getExtension(CgmesModelDescriptions.class), actual.getExtension(CgmesModelDescriptions.class));
 
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
@@ -155,14 +155,14 @@ public class Comparison {
         }
     }
 
-    private void compareMetadata(CgmesMetadata expected, CgmesMetadata actual) {
+    private void compareMetadata(CgmesModelDescriptions expected, CgmesModelDescriptions actual) {
         if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_extension");
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesModelDescriptions_extension");
             return;
         }
         if (expected != null) {
             if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_extension");
+                diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_extension");
                 return;
             }
             compareProfileMetadata("eq", expected.getEq(), actual.getEq());
@@ -170,33 +170,33 @@ public class Comparison {
                 if (actual.getTp().isPresent()) {
                     compareProfileMetadata("tp", expected.getTp().get(), actual.getTp().get());
                 } else {
-                    diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_tp");
+                    diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_tp");
                 }
             } else if (actual.getTp().isPresent()) {
-                diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_tp");
+                diff.unexpected(actual.getExtendable().getId() + "_cgmesModelDescriptions_tp");
             }
             if (expected.getSsh().isPresent()) {
                 if (actual.getSsh().isPresent()) {
                     compareProfileMetadata("ssh", expected.getSsh().get(), actual.getSsh().get());
                 } else {
-                    diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_ssh");
+                    diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_ssh");
                 }
             } else if (actual.getSsh().isPresent()) {
-                diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_ssh");
+                diff.unexpected(actual.getExtendable().getId() + "_cgmesModelDescriptions_ssh");
             }
             if (expected.getSv().isPresent()) {
                 if (actual.getSv().isPresent()) {
                     compareProfileMetadata("sv", expected.getSv().get(), actual.getSv().get());
                 } else {
-                    diff.missing(expected.getExtendable().getId() + "_cgmesMetadata_sv");
+                    diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_sv");
                 }
             } else if (actual.getSv().isPresent()) {
-                diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadata_sv");
+                diff.unexpected(actual.getExtendable().getId() + "_cgmesModelDescriptions_sv");
             }
         }
     }
 
-    private void compareProfileMetadata(String profile, CgmesMetadata.Model expected, CgmesMetadata.Model actual) {
+    private void compareProfileMetadata(String profile, CgmesModelDescriptions.Model expected, CgmesModelDescriptions.Model actual) {
         compare(profile + ".description", expected.getDescription(), actual.getDescription());
         compare(profile + ".version", config.incrementedProfiles.contains(profile) ? expected.getVersion() + 1 : expected.getVersion(), actual.getVersion());
         compare(profile + ".modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());

@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  *
- * @deprecated Use {@link CgmesMetadataImpl} instead.
+ * @deprecated Use {@link CgmesModelDescriptionsImpl} instead.
  */
 @Deprecated(since = "4.8.0")
 class CgmesSvMetadataImpl extends AbstractExtension<Network> implements CgmesSvMetadata {
