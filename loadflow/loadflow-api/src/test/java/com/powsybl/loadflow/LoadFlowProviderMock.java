@@ -16,6 +16,8 @@ import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummySerializer;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,5 +50,15 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     @Override
     public String getVersion() {
         return "1.0";
+    }
+
+    @Override
+    public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(Map<String, String> properties) {
+        return Optional.of(new DummyExtension());
+    }
+
+    @Override
+    public List<String> getSpecificParametersNames() {
+        return Collections.singletonList("dummy-extension");
     }
 }
