@@ -124,7 +124,7 @@ public class CgmesExportContext {
         this(network, false);
     }
 
-    public CgmesExportContext(Network network, boolean keepTopologicalMapping) {
+    public CgmesExportContext(Network network, boolean withTopologicalMapping) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
             cimVersion = cimCharacteristics.getCimVersion();
@@ -147,17 +147,17 @@ public class CgmesExportContext {
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
-        addIidmMappings(network, keepTopologicalMapping);
+        addIidmMappings(network, withTopologicalMapping);
     }
 
     public void addIidmMappings(Network network) {
         addIidmMappings(network, false);
     }
 
-    public void addIidmMappings(Network network, boolean keepTopologicalMapping) {
+    public void addIidmMappings(Network network, boolean withTopologicalMapping) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
         addIidmMappingsSubstations(network);
-        if (keepTopologicalMapping) {
+        if (withTopologicalMapping) {
             CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
             if (mapping == null) {
                 network.newExtension(CgmesIidmMappingAdder.class).add();

@@ -61,7 +61,7 @@ public class CgmesExport implements Exporter {
         String filenameTp = baseName + "_TP.xml";
         String filenameSsh = baseName + "_SSH.xml";
         String filenameSv = baseName + "_SV.xml";
-        CgmesExportContext context = new CgmesExportContext(network, ConversionParameters.readBooleanParameter(getFormat(), params, KEEP_TOPOLOGICAL_MAPPING_PARAMETER, defaultValueConfig))
+        CgmesExportContext context = new CgmesExportContext(network, ConversionParameters.readBooleanParameter(getFormat(), params, WITH_TOPOLOGICAL_MAPPING_PARAMETER, defaultValueConfig))
                 .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig));
         String cimVersionParam = ConversionParameters.readStringParameter(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
@@ -125,8 +125,8 @@ public class CgmesExport implements Exporter {
     public static final String CIM_VERSION = "iidm.export.cgmes.cim-version";
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
-    public static final String KEEP_TOPOLOGICAL_MAPPING = "iidm.export.cgmes.keep-topological-mapping";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
+    public static final String WITH_TOPOLOGICAL_MAPPING = "iidm.export.cgmes.with-topological-mapping";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -148,21 +148,22 @@ public class CgmesExport implements Exporter {
             ParameterType.BOOLEAN,
             "Export power flows for switches",
             Boolean.FALSE);
-    private static final Parameter KEEP_TOPOLOGICAL_MAPPING_PARAMETER = new Parameter(
-            KEEP_TOPOLOGICAL_MAPPING,
-            ParameterType.BOOLEAN,
-            "Keep topological mapping (CGMES-IIDM) into CgmesIidmMapping extension",
-            Boolean.FALSE);
     private static final Parameter PROFILES_PARAMETER = new Parameter(
             PROFILES,
             ParameterType.STRING_LIST,
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"));
+    private static final Parameter WITH_TOPOLOGICAL_MAPPING_PARAMETER = new Parameter(
+            WITH_TOPOLOGICAL_MAPPING,
+            ParameterType.BOOLEAN,
+            "Take topological mapping (CGMES-IIDM) of CgmesIidmMapping extension into account or create one for CGMES export",
+            Boolean.FALSE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
             EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
             EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER,
-            PROFILES_PARAMETER);
+            PROFILES_PARAMETER,
+            WITH_TOPOLOGICAL_MAPPING_PARAMETER);
 }
