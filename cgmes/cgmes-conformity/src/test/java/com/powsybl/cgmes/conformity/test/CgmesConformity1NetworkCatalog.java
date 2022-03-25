@@ -31,14 +31,14 @@ public final class CgmesConformity1NetworkCatalog {
                 .setCountry(Country.BE)
                 .setGeographicalTags("ELIA-Brussels") // _c1d5bfc88f8011e08e4d00247eb1f55e
                 .add();
-        sBrussels.setProperty("CGMES.regionId", "_c1d5bfc88f8011e08e4d00247eb1f55e");
+        sBrussels.setProperty("CGMES.subRegionId", "_c1d5bfc88f8011e08e4d00247eb1f55e");
         Substation sAnvers = network.newSubstation()
                 .setId("_87f7002b-056f-4a6a-a872-1744eea757e3")
                 .setName("Anvers")
                 .setCountry(Country.BE)
                 .setGeographicalTags("ELIA-Anvers") // _c1d5c0378f8011e08e4d00247eb1f55e
                 .add();
-        sAnvers.setProperty("CGMES.regionId", "_c1d5c0378f8011e08e4d00247eb1f55e");
+        sAnvers.setProperty("CGMES.subRegionId", "_c1d5c0378f8011e08e4d00247eb1f55e");
         VoltageLevel vlBrussels21 = sBrussels.newVoltageLevel()
                 .setId("_929ba893-c9dc-44d7-b1fd-30834bd3ab85")
                 .setName("21.0")

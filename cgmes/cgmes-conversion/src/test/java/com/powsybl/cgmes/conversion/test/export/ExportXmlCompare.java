@@ -499,6 +499,57 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringFullModelAbout(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("FullModel")
+                        && control.getTarget().getLocalName().equals("about")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringCurrentLimitIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("CurrentLimit")
+                        && (control.getTarget().getLocalName().equals("ID") || control.getTarget().getLocalName().equals("resource"))) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("OperationalLimit")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSVIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("SvVoltage")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvPowerFlow")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvShuntCompensatorSections")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvStatus")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {
         // If both control and test nodes are text that can be converted to a number
         // check that they represent the same number
