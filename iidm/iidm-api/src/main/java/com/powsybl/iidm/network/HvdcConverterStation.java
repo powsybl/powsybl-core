@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * HVDC converter station. This is the base class for VSC and LCC.
  * AC side of the converter is connected inside a substation.
@@ -49,6 +51,21 @@ public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends
      * @return this station
      */
     T setLossFactor(float lossFactor);
+
+    /**
+     * Get the converter station at the other side of the hvdc line.
+     * @return the other converter station
+     */
+    default Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
+        if (getHvdcLine() != null) {
+            HvdcLine hvdcLine = getHvdcLine();
+            if (this == hvdcLine.getConverterStation1()) {
+                return Optional.ofNullable(hvdcLine.getConverterStation2());
+            }
+            return Optional.ofNullable(hvdcLine.getConverterStation1());
+        }
+        return Optional.empty();
+    }
 
     @Override
     default IdentifiableType getType() {
