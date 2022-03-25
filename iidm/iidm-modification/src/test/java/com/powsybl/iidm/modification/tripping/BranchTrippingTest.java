@@ -126,8 +126,10 @@ public class BranchTrippingTest extends AbstractTrippingTest {
 
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
-        tripping.traverse(network, switchesToOpen, terminalsToDisconnect);
-        assertEquals(switchIds, switchesToOpen.stream().map(Switch::getId).collect(Collectors.toSet()));
+        Set<Terminal> affectedTerminals = new HashSet<>();
+        tripping.traverse(network, switchesToOpen, terminalsToDisconnect, affectedTerminals);
+        assertEquals(affectedTerminals.stream().map(Terminal::getConnectable).map(Connectable::getId).collect(Collectors.toSet()),
+            Set.of("CI", "D", "CJ"));
         assertEquals(Collections.emptySet(), terminalsToDisconnect);
 
         tripping.apply(network);

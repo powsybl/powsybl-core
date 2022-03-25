@@ -26,10 +26,10 @@ public abstract class AbstractInjectionTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> affectedTerminals) {
         Objects.requireNonNull(network);
 
-        TrippingTopologyTraverser.traverse(getInjection(network).getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(getInjection(network).getTerminal(), switchesToOpen, terminalsToDisconnect, affectedTerminals);
     }
 
     protected abstract Injection<?> getInjection(Network network);

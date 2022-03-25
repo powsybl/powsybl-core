@@ -26,7 +26,7 @@ final class TrippingTopologyTraverser {
                 aSwitch.getKind() == SwitchKind.BREAKER;
     }
 
-    static void traverse(Terminal terminal, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    static void traverse(Terminal terminal, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> affectedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(switchesToOpen);
         Objects.requireNonNull(terminalsToDisconnect);
@@ -41,6 +41,8 @@ final class TrippingTopologyTraverser {
                         terminalsToDisconnect.add(terminal);
                     }
                     return TraverseResult.TERMINATE_PATH;
+                } else if (affectedTerminals != null) {
+                    affectedTerminals.add(terminal);
                 }
                 // in node/breaker topology propagation is decided only based on switch position
                 return TraverseResult.CONTINUE;
