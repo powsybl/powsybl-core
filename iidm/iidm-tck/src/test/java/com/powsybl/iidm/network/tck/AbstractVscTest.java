@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -88,8 +87,12 @@ public abstract class AbstractVscTest {
         assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getSize());
         assertTrue(hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBuses().iterator().hasNext());
 
-        assertEquals(Optional.of(cs2), cs1.getOtherConverterStation());
-        assertEquals(Optional.of(cs1), cs2.getOtherConverterStation());
+        if (cs1.getOtherConverterStation().isPresent()) {
+            assertEquals(cs2, cs1.getOtherConverterStation().get());
+        }
+        if (cs2.getOtherConverterStation().isPresent()) {
+            assertEquals(cs1, cs2.getOtherConverterStation().get());
+        }
     }
 
     @Test
