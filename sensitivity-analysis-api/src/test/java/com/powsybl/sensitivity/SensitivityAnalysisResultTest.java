@@ -21,10 +21,10 @@ public class SensitivityAnalysisResultTest {
 
     @Test
     public void test() {
-        SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, "l",
+        SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
                                                           SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                           false, ContingencyContext.all());
-        SensitivityFactor factor2 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, "l2",
+        SensitivityFactor factor2 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "l2",
                                                           SensitivityVariableType.INJECTION_ACTIVE_POWER, "g2",
                                                           false, ContingencyContext.none());
         List<SensitivityFactor> factors = List.of(factor1, factor2);
