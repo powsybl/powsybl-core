@@ -24,11 +24,15 @@ public interface UndirectedGraphListener<V, E> {
 
     void edgeAdded(int e, E obj);
 
-    void edgeBeforeRemoval(int e, E obj);
+    default void edgeBeforeRemoval(int e, E obj) {
+        // Do nothing
+    }
 
     void edgeRemoved(int e, E obj);
 
     void allEdgesBeforeRemoval(Collection<E> obj);
 
-    void allEdgesRemoved(Collection<E> obj);
+    default void allEdgesRemoved(Collection<E> obj) {
+        // Do nothing
+    }
 }
