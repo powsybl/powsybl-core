@@ -19,5 +19,9 @@ package com.powsybl.sensitivity;
 public enum SensitivityFunctionType {
     BRANCH_ACTIVE_POWER, // MW
     BRANCH_CURRENT, // A
+    BRANCH_ACTIVE_POWER_1, // MW
+    BRANCH_CURRENT_1, // A
+    BRANCH_ACTIVE_POWER_2, // MW
+    BRANCH_CURRENT_2, // A
     BUS_VOLTAGE // KV
 }
