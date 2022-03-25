@@ -35,11 +35,11 @@ public class SensitivityAnalysisResultTest {
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, values);
         assertEquals(2, result.getValues().size());
         assertEquals(1, result.getValues("NHV1_NHV2_2").size());
-        assertEquals(1d, result.getSensitivityValue("NHV1_NHV2_2", "g", "l"), 0d);
-        assertEquals(2d, result.getFunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
-        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue("NHV1_NHV2_2", "llll"));
-        assertThrows(PowsyblException.class, () -> result.getSensitivityValue("NHV1_NHV2_2", "g", "l1"));
-        assertEquals(3d, result.getSensitivityValue(null, "g2", "l2"), 0d);
+        assertEquals(1d, result.getSensitivityValue("NHV1_NHV2_2", "g", "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1), 0d);
+        assertEquals(2d, result.getFunctionReferenceValue("NHV1_NHV2_2", "l", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1), 0d);
+        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue("NHV1_NHV2_2", "llll", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
+        assertThrows(PowsyblException.class, () -> result.getSensitivityValue("NHV1_NHV2_2", "g", "l1", SensitivityFunctionType.BRANCH_ACTIVE_POWER_1));
+        assertEquals(3d, result.getSensitivityValue(null, "g2", "l2", SensitivityFunctionType.BRANCH_ACTIVE_POWER_2), 0d);
         assertEquals(1, result.getPreContingencyValues().size());
     }
 }

@@ -8,7 +8,6 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
-import org.jgrapht.alg.util.Pair;
 import org.jgrapht.alg.util.Triple;
 
 import java.util.*;
@@ -46,9 +45,9 @@ public class SensitivityAnalysisResult {
 
     private final Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
 
-    private final Map<Triple<String, String, String>, SensitivityValue> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
+    private final Map<SensitivityFunctionType, Map<Triple<String, String, String>, SensitivityValue>> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
 
-    private final Map<Pair<String, String>, Double> functionReferenceByContingencyAndFunctionId = new HashMap<>();
+    private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunctionId = new HashMap<>();
 
     /**
      * Sensitivity analysis result
@@ -66,8 +65,10 @@ public class SensitivityAnalysisResult {
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
-            valuesByContingencyIdAndFunctionIdAndVariableId.put(Triple.of(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
-            functionReferenceByContingencyAndFunctionId.put(Pair.of(contingencyId, factor.getFunctionId()), value.getFunctionReference());
+            Map<Triple<String, String, String>, SensitivityValue> store = valuesByContingencyIdAndFunctionIdAndVariableId.getOrDefault(factor.getFunctionType(), new HashMap<>());
+            store.put(Triple.of(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
+            valuesByContingencyIdAndFunctionIdAndVariableId.put(factor.getFunctionType(), store);
+            functionReferenceByContingencyAndFunctionId.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
     }
 
@@ -125,13 +126,16 @@ public class SensitivityAnalysisResult {
      * @param functionId the sensitivity function id.
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
-    public double getSensitivityValue(String contingencyId, String variableId, String functionId) {
-        SensitivityValue value = valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
-        if (value == null) {
-            throw new PowsyblException("Sensitivity value not found for contingency '" + contingencyId + "', function '"
-                    + functionId + "', variable '" + variableId + "'");
+    public double getSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityFunctionType functionType) {
+        Map<Triple<String, String, String>, SensitivityValue> store = valuesByContingencyIdAndFunctionIdAndVariableId.get(functionType);
+        if (store != null) {
+            SensitivityValue value = store.get(Triple.of(contingencyId, functionId, variableId));
+            if (value != null) {
+                return value.getValue();
+            }
         }
-        return value.getValue();
+        throw new PowsyblException("Sensitivity value not found for contingency '" + contingencyId + "', function '"
+                                   + functionId + "', variable '" + variableId + "'" + "', functionType '" + functionType);
     }
 
     /**
@@ -141,8 +145,8 @@ public class SensitivityAnalysisResult {
      * @param functionId the sensitivity function id.
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
-    public double getSensitivityValue(String variableId, String functionId) {
-        return getSensitivityValue(null, variableId, functionId);
+    public double getSensitivityValue(String variableId, String functionId, SensitivityFunctionType functionType) {
+        return getSensitivityValue(null, variableId, functionId, functionType);
     }
 
     /**
@@ -152,8 +156,8 @@ public class SensitivityAnalysisResult {
      * @param functionId sensitivity function id.
      * @return the function reference value
      */
-    public double getFunctionReferenceValue(String contingencyId, String functionId) {
-        Double value = functionReferenceByContingencyAndFunctionId.get(Pair.of(contingencyId, functionId));
+    public double getFunctionReferenceValue(String contingencyId, String functionId, SensitivityFunctionType functionType) {
+        Double value = functionReferenceByContingencyAndFunctionId.get(Triple.of(functionType, contingencyId, functionId));
         if (value == null) {
             throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + functionId + "'");
         }
@@ -166,7 +170,7 @@ public class SensitivityAnalysisResult {
      * @param functionId sensitivity function id.
      * @return the function reference value.
      */
-    public double getFunctionReferenceValue(String functionId) {
-        return getFunctionReferenceValue(null, functionId);
+    public double getFunctionReferenceValue(String functionId, SensitivityFunctionType functionType) {
+        return getFunctionReferenceValue(null, functionId, functionType);
     }
 }
