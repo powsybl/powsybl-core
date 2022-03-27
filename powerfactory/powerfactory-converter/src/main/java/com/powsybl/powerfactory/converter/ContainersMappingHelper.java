@@ -84,7 +84,7 @@ final class ContainersMappingHelper {
 
         public String getVoltageLevelId(Set<Integer> ids) {
             List<DataObject> objs = ids.stream()
-                    .flatMap(id -> index.getDataObject(id).stream())
+                    .flatMap(id -> index.getDataObjectById(id).stream())
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 

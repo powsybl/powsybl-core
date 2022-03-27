@@ -28,6 +28,6 @@ public class DataObjectRef {
     }
 
     public Optional<DataObject> resolve() {
-        return index.getDataObject(id);
+        return index.getDataObjectById(id);
     }
 }

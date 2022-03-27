@@ -146,9 +146,7 @@ public class PowerFactoryImporter implements Importer {
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
-        List<DataObject> elmNets = studyCase.getIndex().getDataObjects().stream()
-                .filter(object -> object.getDataClassName().equals("ElmNet"))
-                .collect(Collectors.toList());
+        List<DataObject> elmNets = studyCase.getIndex().getDataObjectsByClass("ElmNet");
         if (elmNets.isEmpty()) {
             throw new PowsyblException("No ElmNet object found");
         }
@@ -158,9 +156,7 @@ public class PowerFactoryImporter implements Importer {
         DateTime caseDate = new Instant(studyCase.getTime().toEpochMilli()).toDateTime();
         network.setCaseDate(caseDate);
 
-        List<DataObject> elmTerms = studyCase.getIndex().getDataObjects().stream()
-                .filter(obj -> obj.getDataClassName().equals("ElmTerm"))
-                .collect(Collectors.toList());
+        List<DataObject> elmTerms = studyCase.getIndex().getDataObjectsByClass("ElmTerm");
 
         LOGGER.info("Creating containers...");
 
