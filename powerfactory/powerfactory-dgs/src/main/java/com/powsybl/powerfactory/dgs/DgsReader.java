@@ -19,7 +19,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,8 +35,6 @@ public class DgsReader {
 
     private final Map<String, DataClass> classesByName = new HashMap<>();
 
-    private final List<ToResolve> toResolveList = new ArrayList<>();
-
     private final Map<String, String> general = new HashMap<>();
 
     public static StudyCase read(Path dgsFile) {
@@ -46,21 +46,6 @@ public class DgsReader {
             return new DgsReader().read(dgsFile.getFileName().toString(), reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private static final class ToResolve {
-
-        private final DataObject obj;
-
-        private final String attributeName;
-
-        private final long id;
-
-        private ToResolve(DataObject obj, String attributeName, long id) {
-            this.obj = obj;
-            this.attributeName = attributeName;
-            this.id = id;
         }
     }
 
@@ -149,7 +134,6 @@ public class DgsReader {
         @Override
         public void onObjectValue(String attributeName, long id) {
             object.setObjectAttributeValue(attributeName, id);
-            toResolveList.add(new ToResolve(object, attributeName, id));
         }
     }
 
