@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 
-@JsonIgnoreProperties({"parent", "children", "studyCase", "referenceValues", "path", "fullName", "attributeNames", "locName", "dataClassName"})
+@JsonIgnoreProperties({"parent", "children", "index", "path", "fullName", "attributeNames", "locName", "dataClassName"})
 @JsonPropertyOrder({"id", "dataClass", "attributeValues"})
 
 public class DataObject {
@@ -37,15 +37,15 @@ public class DataObject {
 
     private final DataClass dataClass;
 
-    private StudyCase studyCase;
+    private DataObjectIndex index;
 
     private final Map<String, Object> attributeValues = new HashMap<>();
 
-    private final Map<String, DataObject> referenceValues = new HashMap<>();
-
-    public DataObject(long id, DataClass dataClass) {
+    public DataObject(long id, DataClass dataClass, DataObjectIndex index) {
         this.id = id;
         this.dataClass = Objects.requireNonNull(dataClass);
+        this.index = Objects.requireNonNull(index);
+        index.addDataObject(this);
     }
 
     public long getId() {
@@ -114,15 +114,8 @@ public class DataObject {
         return dataClass.getName();
     }
 
-    public StudyCase getStudyCase() {
-        return studyCase;
-    }
-
-    public void setStudyCase(StudyCase studyCase) {
-        if (this.studyCase != null) {
-            throw new PowerFactoryException("Data object is already assigned to a study case");
-        }
-        this.studyCase = Objects.requireNonNull(studyCase);
+    public DataObjectIndex getIndex() {
+        return index;
     }
 
     public List<String> getAttributeNames() {
@@ -131,10 +124,6 @@ public class DataObject {
 
     public Map<String, Object> getAttributeValues() {
         return attributeValues;
-    }
-
-    public Map<String, DataObject> getReferenceValues() {
-        return referenceValues;
     }
 
     public Optional<Object> findAttributeValue(String name) {
@@ -158,10 +147,6 @@ public class DataObject {
 
     private static PowerFactoryException createAttributeNotFoundException(String type, String name) {
         return new PowerFactoryException(type + " attribute '" + name + NOT_FOUND);
-    }
-
-    private static PowerFactoryException createReferenceNotFoundException(String type, String name) {
-        return new PowerFactoryException(type + " reference '" + name + NOT_FOUND);
     }
 
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
@@ -204,24 +189,28 @@ public class DataObject {
         return setStringAttributeValue(DataAttribute.LOC_NAME, locName);
     }
 
-    public Optional<DataObject> findObjectReferenceValue(String name) {
-        Objects.requireNonNull(name);
-        return Optional.ofNullable(referenceValues.get(name));
+    public Optional<DataObjectRef> findObjectAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.OBJECT);
     }
 
-    public DataObject getObjectReferenceValue(String name) {
-        return findObjectReferenceValue(name).orElseThrow(() -> createReferenceNotFoundException("Object", name));
+    public DataObjectRef getObjectAttributeValue(String name) {
+        return findObjectAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object", name));
     }
 
-    public Optional<List<DataObject>> findObjectVectorAttributeValue(String name) {
+    public DataObject setObjectAttributeValue(String name, long id) {
+        setGenericAttributeValue(name, DataAttributeType.OBJECT, new DataObjectRef(id, index));
+        return this;
+    }
+
+    public Optional<List<DataObjectRef>> findObjectVectorAttributeValue(String name) {
         return findGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR);
     }
 
-    public List<DataObject> getObjectVectorAttributeValue(String name) {
+    public List<DataObjectRef> getObjectVectorAttributeValue(String name) {
         return findObjectVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object vector", name));
     }
 
-    public DataObject setObjectVectorAttributeValue(String name, List<DataObject> value) {
+    public DataObject setObjectVectorAttributeValue(String name, List<DataObjectRef> value) {
         setGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR, value);
         return this;
     }
@@ -420,9 +409,6 @@ public class DataObject {
         handler.accept(this);
         for (DataObject child : children) {
             child.traverseAndReference(handler);
-        }
-        for (DataObject reference : referenceValues.values()) {
-            reference.traverseAndReference(handler);
         }
     }
 
