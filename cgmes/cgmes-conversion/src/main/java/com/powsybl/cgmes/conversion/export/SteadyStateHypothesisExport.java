@@ -32,6 +32,7 @@ public final class SteadyStateHypothesisExport {
 
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
 
+    private static final String ABOUT = "about";
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
 
@@ -178,7 +179,7 @@ public final class SteadyStateHypothesisExport {
             }
             boolean controlEnabled = s.isVoltageRegulatorOn();
             writer.writeStartElement(cimNamespace, shuntType + "ShuntCompensator");
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + context.getNamingStrategy().getCgmesId(s));
+            writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + context.getNamingStrategy().getCgmesId(s));
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
@@ -206,7 +207,7 @@ public final class SteadyStateHypothesisExport {
         for (Generator g : network.getGenerators()) {
             boolean controlEnabled = g.isVoltageRegulatorOn();
             writer.writeStartElement(cimNamespace, "SynchronousMachine");
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + context.getNamingStrategy().getCgmesId(g));
+            writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + context.getNamingStrategy().getCgmesId(g));
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
@@ -247,7 +248,7 @@ public final class SteadyStateHypothesisExport {
             StaticVarCompensator.RegulationMode regulationMode = svc.getRegulationMode();
             boolean controlEnabled = regulationMode != StaticVarCompensator.RegulationMode.OFF;
             writer.writeStartElement(cimNamespace, "StaticVarCompensator");
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + context.getNamingStrategy().getCgmesId(svc));
+            writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + context.getNamingStrategy().getCgmesId(svc));
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
@@ -297,7 +298,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, type);
-        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
+        writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + id);
         writer.writeStartElement(cimNamespace, "TapChanger.controlEnabled");
         writer.writeCharacters(Boolean.toString(controlEnabled));
         writer.writeEndElement();
@@ -372,7 +373,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeRegulatingControl(RegulatingControlView rc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, regulatingControlClassname(rc.type));
-        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + rc.id);
+        writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + rc.id);
         writer.writeStartElement(cimNamespace, "RegulatingControl.discrete");
         writer.writeCharacters(Boolean.toString(rc.discrete));
         writer.writeEndElement();
@@ -401,7 +402,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeSwitch(Switch sw, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
             writer.writeStartElement(cimNamespace, switchClassname(sw.getKind()));
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + context.getNamingStrategy().getCgmesId(sw));
+            writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + context.getNamingStrategy().getCgmesId(sw));
             writer.writeStartElement(cimNamespace, "Switch.open");
             writer.writeCharacters(Boolean.toString(sw.isOpen()));
             writer.writeEndElement();
@@ -442,7 +443,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeTerminal(String terminalId, boolean connected, String cimNamespace, XMLStreamWriter writer) {
         try {
             writer.writeStartElement(cimNamespace, CgmesNames.TERMINAL);
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + terminalId);
+            writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + terminalId);
             writer.writeStartElement(cimNamespace, "ACDCTerminal.connected");
             writer.writeCharacters(Boolean.toString(connected));
             writer.writeEndElement();
@@ -456,7 +457,7 @@ public final class SteadyStateHypothesisExport {
         Optional<String> ei = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
         if (ei.isPresent()) {
             writer.writeStartElement(cimNamespace, "EquivalentInjection");
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + ei.get());
+            writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + ei.get());
             writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
             writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
             writer.writeEndElement();
@@ -489,7 +490,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, CgmesExportUtil.loadClassName(loadDetail));
-        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
+        writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + id);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -502,7 +503,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
             writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + context.getNamingStrategy().getCgmesId(converterStation));
+            writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + context.getNamingStrategy().getCgmesId(converterStation));
             double ppcc;
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
@@ -634,7 +635,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeGeneratingUnitParticipationFactor(GeneratingUnit gu, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, gu.className);
-        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + gu.id);
+        writer.writeAttribute(RDF_NAMESPACE, ABOUT, "#" + gu.id);
         writer.writeStartElement(cimNamespace, "GeneratingUnit.normalPF");
         writer.writeCharacters(CgmesExportUtil.format(gu.participationFactor));
         writer.writeEndElement();
