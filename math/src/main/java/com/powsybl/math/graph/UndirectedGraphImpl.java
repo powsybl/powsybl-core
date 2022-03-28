@@ -109,6 +109,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private final int vertexLimit;
 
     public UndirectedGraphImpl(int vertexLimit) {
+        if (vertexLimit < 1) {
+            throw new PowsyblException("Vertex limit should be positive");
+        }
         this.vertexLimit = vertexLimit;
     }
 
