@@ -45,7 +45,7 @@ public class SensitivityAnalysisResult {
 
     private final Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
 
-    private final Map<SensitivityFunctionType, Map<Triple<String, String, String>, SensitivityValue>> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
+    private final EnumMap<SensitivityFunctionType, Map<Triple<String, String, String>, SensitivityValue>> valuesByContingencyIdAndFunctionIdAndVariableId = new EnumMap<>(SensitivityFunctionType.class);
 
     private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunctionId = new HashMap<>();
 
