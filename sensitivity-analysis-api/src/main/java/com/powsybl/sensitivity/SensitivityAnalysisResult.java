@@ -119,11 +119,12 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get the sensitivity value associated to a given function and a given variable and for a specific contingency.
+     * Get the sensitivity value associated to a given function id and type and a given variable and for a specific contingency.
      *
      * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
      * @param variableId the sensitivity variable id.
      * @param functionId the sensitivity function id.
+     * @param functionType the sensitivity function type.
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityFunctionType functionType) {
@@ -139,10 +140,71 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get the sensitivity value associated to a given function and a given variable in pre-contingency state.
+     * Get the sensitivity value associated to a given function id and a given variable and for a specific contingency for function type BRANCH_ACTIVE_POWER_1.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable for a given contingency.
+     */
+    public double getBranchFlow1SensitivityValue(String contingencyId, String variableId, String functionId) {
+        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function id and a given variable and for a specific contingency for function type BRANCH_ACTIVE_POWER_2.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable for a given contingency.
+     */
+    public double getBranchFlow2SensitivityValue(String contingencyId, String variableId, String functionId) {
+        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function id and a given variable and for a specific contingency for function type BRANCH_CURRENT_1.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable for a given contingency.
+     */
+    public double getBranchCurrent1SensitivityValue(String contingencyId, String variableId, String functionId) {
+        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function id and a given variable and for a specific contingency for function type BRANCH_CURRENT_2.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable for a given contingency.
+     */
+    public double getBranchCurrent2SensitivityValue(String contingencyId, String variableId, String functionId) {
+        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function id and a given variable and for a specific contingency for function type BUS_VOLTAGE.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable for a given contingency.
+     */
+    public double getBusVoltageSensitivityValue(String contingencyId, String variableId, String functionId) {
+        return getSensitivityValue(contingencyId, variableId, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function id and type and a given variable in pre-contingency state.
      *
      * @param variableId the sensitivity variable id.
      * @param functionId the sensitivity function id.
+     * @param functionType sensitivity function type
      * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
      */
     public double getSensitivityValue(String variableId, String functionId, SensitivityFunctionType functionType) {
@@ -150,27 +212,190 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get the function reference associated to a given contingency Id and a given function.
+     * Get the sensitivity value associated to a given function and a given variable in pre-contingency state for function type BRANCH_ACTIVE_POWER_1.
+     *
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
+     */
+    public double getBranchFlow1SensitivityValue(String variableId, String functionId) {
+        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function and a given variable in pre-contingency state for function type BRANCH_ACTIVE_POWER_2.
+     *
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
+     */
+    public double getBranchFlow2SensitivityValue(String variableId, String functionId) {
+        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function and a given variable in pre-contingency state for function type BRANCH_CURRENT_1.
+     *
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
+     */
+    public double getBranchCurrent1SensitivityValue(String variableId, String functionId) {
+        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function and a given variable in pre-contingency state for function type BRANCH_CURRENT_2.
+     *
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
+     */
+    public double getBranchCurrent2SensitivityValue(String variableId, String functionId) {
+        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
+    }
+
+    /**
+     * Get the sensitivity value associated to a given function and a given variable in pre-contingency state for function type BUS_VOLTAGE.
+     *
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
+     */
+    public double getBusVoltageSensitivityValue(String variableId, String functionId) {
+        return getSensitivityValue(null, variableId, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+    }
+
+    /**
+     * Get the function reference associated to a given contingency Id and a given function id and type.
      *
      * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
      * @param functionId sensitivity function id.
+     * @param functionType sensitivity function type
      * @return the function reference value
      */
     public double getFunctionReferenceValue(String contingencyId, String functionId, SensitivityFunctionType functionType) {
         Double value = functionReferenceByContingencyAndFunctionId.get(Triple.of(functionType, contingencyId, functionId));
         if (value == null) {
-            throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + functionId + "'");
+            throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + functionId + "'"
+                                       + "', functionType '" + functionType);
         }
         return value;
     }
 
     /**
-     * Get the function reference associated to a given function in a pre-contingency state.
+     * Get the function reference associated to a given contingency Id and a given function id and function type BRANCH_ACTIVE_POWER_1.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
+     * @param functionId sensitivity function id.
+     * @return the function reference value
+     */
+    public double getBranchFlow1FunctionReferenceValue(String contingencyId, String functionId) {
+        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+    }
+
+    /**
+     * Get the function reference associated to a given contingency Id and a given function id and function type BRANCH_ACTIVE_POWER_2.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
+     * @param functionId sensitivity function id.
+     * @return the function reference value
+     */
+    public double getBranchFlow2FunctionReferenceValue(String contingencyId, String functionId) {
+        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+    }
+
+    /**
+     * Get the function reference associated to a given contingency Id and a given function id and function type BRANCH_CURRENT_1.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
+     * @param functionId sensitivity function id.
+     * @return the function reference value
+     */
+    public double getBranchCurrent1FunctionReferenceValue(String contingencyId, String functionId) {
+        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
+    }
+
+    /**
+     * Get the function reference associated to a given contingency Id and a given function id and function type BRANCH_CURRENT_2.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
+     * @param functionId sensitivity function id.
+     * @return the function reference value
+     */
+    public double getBranchCurrent2FunctionReferenceValue(String contingencyId, String functionId) {
+        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
+    }
+
+    /**
+     * Get the function reference associated to a given contingency Id and a given function id and function type BUS_VOLTAGE.
+     *
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
+     * @param functionId sensitivity function id.
+     * @return the function reference value
+     */
+    public double getBusVoltageFunctionReferenceValue(String contingencyId, String functionId) {
+        return getFunctionReferenceValue(contingencyId, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+    }
+
+    /**
+     * Get the function reference associated to a given function id and type in a pre-contingency state.
      *
      * @param functionId sensitivity function id.
+     * @param functionType sensitivity function type
      * @return the function reference value.
      */
     public double getFunctionReferenceValue(String functionId, SensitivityFunctionType functionType) {
         return getFunctionReferenceValue(null, functionId, functionType);
+    }
+
+    /**
+     * Get the function reference associated to a given function and function type BRANCH_ACTIVE_POWER_1 in a pre-contingency state.
+     *
+     * @param functionId sensitivity function id.
+     * @return the function reference value.
+     */
+    public double getBranchFlow1FunctionReferenceValue(String functionId) {
+        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_1);
+    }
+
+    /**
+     * Get the function reference associated to a given function and function type BRANCH_ACTIVE_POWER_2 in a pre-contingency state.
+     *
+     * @param functionId sensitivity function id.
+     * @return the function reference value.
+     */
+    public double getBranchFlow2FunctionReferenceValue(String functionId) {
+        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_ACTIVE_POWER_2);
+    }
+
+    /**
+     * Get the function reference associated to a given function and function type BRANCH_CURRENT_1 in a pre-contingency state.
+     *
+     * @param functionId sensitivity function id.
+     * @return the function reference value.
+     */
+    public double getBranchCurrent1FunctionReferenceValue(String functionId) {
+        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_CURRENT_1);
+    }
+
+    /**
+     * Get the function reference associated to a given function and function type BRANCH_CURRENT_2 in a pre-contingency state.
+     *
+     * @param functionId sensitivity function id.
+     * @return the function reference value.
+     */
+    public double getBranchCurrent2FunctionReferenceValue(String functionId) {
+        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BRANCH_CURRENT_2);
+    }
+
+    /**
+     * Get the function reference associated to a given function and function type BUS_VOLTAGE in a pre-contingency state.
+     *
+     * @param functionId sensitivity function id.
+     * @return the function reference value.
+     */
+    public double getBusVoltageFunctionReferenceValue(String functionId) {
+        return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BUS_VOLTAGE);
     }
 }
