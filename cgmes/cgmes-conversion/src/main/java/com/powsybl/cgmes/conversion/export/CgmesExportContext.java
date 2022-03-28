@@ -127,10 +127,10 @@ public class CgmesExportContext {
         scenarioTime = network.getCaseDate();
         CgmesModelDescriptions metadata = network.getExtension(CgmesModelDescriptions.class);
         if (metadata != null) {
-            setModel(eqModelDescription, metadata.getEq());
-            metadata.getTp().ifPresent(tp -> setModel(tpModelDescription, tp));
-            metadata.getSsh().ifPresent(ssh -> setModel(sshModelDescription, ssh));
-            metadata.getSv().ifPresent(sv -> setModel(svModelDescription, sv));
+            metadata.getModel(CgmesNamespace.EQ_PROFILE).ifPresent(eq -> setModel(eqModelDescription, eq));
+            metadata.getModel(CgmesNamespace.TP_PROFILE).ifPresent(tp -> setModel(tpModelDescription, tp));
+            metadata.getModel(CgmesNamespace.SSH_PROFILE).ifPresent(ssh -> setModel(sshModelDescription, ssh));
+            metadata.getModel(CgmesNamespace.SV_PROFILE).ifPresent(sv -> setModel(svModelDescription, sv));
         }
         addIidmMappings(network);
     }

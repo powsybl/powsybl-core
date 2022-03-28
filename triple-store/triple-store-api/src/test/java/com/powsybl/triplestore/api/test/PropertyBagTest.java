@@ -164,10 +164,10 @@ public class PropertyBagTest {
         assertEquals(-123, ints.asInt("value"));
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test
     public void testBadInt0() {
         ints.put("value", "bad0");
-        ints.asInt("value", -1);
+        assertEquals(-1, ints.asInt("value", -1));
     }
 
     @Test

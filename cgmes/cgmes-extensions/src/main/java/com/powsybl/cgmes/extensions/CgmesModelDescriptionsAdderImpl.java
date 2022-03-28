@@ -10,32 +10,21 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 class CgmesModelDescriptionsAdderImpl extends AbstractExtensionAdder<Network, CgmesModelDescriptions> implements CgmesModelDescriptionsAdder {
 
-    enum Type {
-        EQ, TP, SSH, SV
-    }
-
     class ModelAdderImpl implements ModelAdder {
-
-        private final Type type;
 
         private String id;
         private String description;
         private int version = 0;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet;
-
-        ModelAdderImpl(Type type) {
-            this.type = Objects.requireNonNull(type);
-        }
+        private final Set<String> profiles = new HashSet<>();
 
         @Override
         public ModelAdder setId(String id) {
@@ -68,67 +57,53 @@ class CgmesModelDescriptionsAdderImpl extends AbstractExtensionAdder<Network, Cg
         }
 
         @Override
+        public ModelAdder addProfile(String profile) {
+            profiles.add(Objects.requireNonNull(profile));
+            return this;
+        }
+
+        @Override
+        public ModelAdder addProfiles(Set<String> profiles) {
+            if (profiles.stream().anyMatch(Objects::isNull)) {
+                throw new PowsyblException("Profiles cannot be null");
+            }
+            this.profiles.addAll(Objects.requireNonNull(profiles));
+            return this;
+        }
+
+        @Override
         public CgmesModelDescriptionsAdderImpl add() {
             if (id == null) {
-                throw new PowsyblException(type + " id is undefined");
-            }
-            if (type != Type.EQ && dependencies.isEmpty()) {
-                throw new PowsyblException(type + " dependencies must have at least one dependency");
+                throw new PowsyblException("Model id is undefined");
             }
             if (modelingAuthoritySet == null) {
-                throw new PowsyblException(type + " modelingAuthoritySet is undefined");
+                throw new PowsyblException("Model modelingAuthoritySet is undefined");
             }
-            CgmesModelDescriptionsImpl.ModelImpl model = new CgmesModelDescriptionsImpl.ModelImpl(id, description, version, dependencies, modelingAuthoritySet);
-            switch (type) {
-                case EQ:
-                    eq = model;
-                    break;
-                case TP:
-                    tp = model;
-                    break;
-                case SSH:
-                    ssh = model;
-                case SV:
-                    sv = model;
+            if (profiles.isEmpty()) {
+                throw new PowsyblException("Model must contain at least one profile");
             }
+            CgmesModelDescriptionsImpl.ModelImpl model = new CgmesModelDescriptionsImpl.ModelImpl(id, description, version, dependencies, modelingAuthoritySet, profiles);
+            profiles.forEach(profile -> models.put(profile, model));
             return CgmesModelDescriptionsAdderImpl.this;
         }
     }
 
-    private CgmesModelDescriptionsImpl.ModelImpl eq;
-    private CgmesModelDescriptionsImpl.ModelImpl tp;
-    private CgmesModelDescriptionsImpl.ModelImpl ssh;
-    private CgmesModelDescriptionsImpl.ModelImpl sv;
+    private final Map<String, CgmesModelDescriptions.Model> models = new HashMap<>();
 
     CgmesModelDescriptionsAdderImpl(Network extendable) {
         super(extendable);
     }
 
     @Override
-    public ModelAdder newEq() {
-        return new ModelAdderImpl(Type.EQ);
-    }
-
-    @Override
-    public ModelAdder newTp() {
-        return new ModelAdderImpl(Type.TP);
-    }
-
-    @Override
-    public ModelAdder newSsh() {
-        return new ModelAdderImpl(Type.SSH);
-    }
-
-    @Override
-    public ModelAdder newSv() {
-        return new ModelAdderImpl(Type.SV);
+    public ModelAdder newModel() {
+        return new ModelAdderImpl();
     }
 
     @Override
     protected CgmesModelDescriptions createExtension(Network extendable) {
-        if (eq == null) {
-            throw new PowsyblException("EQ metadata cannot be null");
+        if (models.isEmpty()) {
+            throw new PowsyblException("Must contain at least one model");
         }
-        return new CgmesModelDescriptionsImpl(eq, tp, ssh, sv);
+        return new CgmesModelDescriptionsImpl(models);
     }
 }

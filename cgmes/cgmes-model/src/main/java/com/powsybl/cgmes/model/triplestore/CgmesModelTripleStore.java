@@ -215,6 +215,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags fullModels() {
+        return namedQuery("fullModel");
+    }
+
+    @Override
     public String modelId() {
         String modelId = "unknown";
         if (queryCatalog.containsKey("modelIds")) {

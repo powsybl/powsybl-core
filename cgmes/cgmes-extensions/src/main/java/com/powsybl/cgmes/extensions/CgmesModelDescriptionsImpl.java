@@ -9,10 +9,7 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -26,13 +23,15 @@ class CgmesModelDescriptionsImpl extends AbstractExtension<Network> implements C
         private final int version;
         private final List<String> dependencies = new ArrayList<>();
         private final String modelingAuthoritySet;
+        private final Set<String> profiles = new HashSet<>();
 
-        ModelImpl(String id, String description, int version, List<String> dependencies, String modelingAuthoritySet) {
+        ModelImpl(String id, String description, int version, List<String> dependencies, String modelingAuthoritySet, Set<String> profiles) {
             this.id = id;
             this.description = description;
             this.version = version;
             this.dependencies.addAll(dependencies);
             this.modelingAuthoritySet = modelingAuthoritySet;
+            this.profiles.addAll(profiles);
         }
 
         @Override
@@ -59,37 +58,27 @@ class CgmesModelDescriptionsImpl extends AbstractExtension<Network> implements C
         public String getModelingAuthoritySet() {
             return modelingAuthoritySet;
         }
+
+        @Override
+        public Set<String> getProfiles() {
+            return Collections.unmodifiableSet(profiles);
+        }
     }
 
-    private final Model eq;
-    private final Model tp;
-    private final Model ssh;
-    private final Model sv;
+    private final Map<String, Model> models = new HashMap<>();
 
-    CgmesModelDescriptionsImpl(Model eq, Model tp, Model ssh, Model sv) {
-        this.eq = eq;
-        this.tp = tp;
-        this.ssh = ssh;
-        this.sv = sv;
-    }
-
-    @Override
-    public Model getEq() {
-        return eq;
+    CgmesModelDescriptionsImpl(Map<String, Model> models) {
+        this.models.putAll(models);
     }
 
     @Override
-    public Optional<Model> getTp() {
-        return Optional.ofNullable(tp);
+    public Optional<Model> getModel(String profile) {
+        return Optional.ofNullable(models.get(profile));
     }
 
     @Override
-    public Optional<Model> getSsh() {
-        return Optional.ofNullable(ssh);
+    public Collection<Model> getModels() {
+        return Collections.unmodifiableCollection(new HashSet<>(models.values()));
     }
 
-    @Override
-    public Optional<Model> getSv() {
-        return Optional.ofNullable(sv);
-    }
 }

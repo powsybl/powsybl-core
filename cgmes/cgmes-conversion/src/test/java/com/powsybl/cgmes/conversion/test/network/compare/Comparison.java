@@ -165,49 +165,38 @@ public class Comparison {
                 diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_extension");
                 return;
             }
-            compareProfileMetadata("eq", expected.getEq(), actual.getEq());
-            if (expected.getTp().isPresent()) {
-                if (actual.getTp().isPresent()) {
-                    compareProfileMetadata("tp", expected.getTp().get(), actual.getTp().get());
-                } else {
-                    diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_tp");
-                }
-            } else if (actual.getTp().isPresent()) {
-                diff.unexpected(actual.getExtendable().getId() + "_cgmesModelDescriptions_tp");
-            }
-            if (expected.getSsh().isPresent()) {
-                if (actual.getSsh().isPresent()) {
-                    compareProfileMetadata("ssh", expected.getSsh().get(), actual.getSsh().get());
-                } else {
-                    diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_ssh");
-                }
-            } else if (actual.getSsh().isPresent()) {
-                diff.unexpected(actual.getExtendable().getId() + "_cgmesModelDescriptions_ssh");
-            }
-            if (expected.getSv().isPresent()) {
-                if (actual.getSv().isPresent()) {
-                    compareProfileMetadata("sv", expected.getSv().get(), actual.getSv().get());
-                } else {
-                    diff.missing(expected.getExtendable().getId() + "_cgmesModelDescriptions_sv");
-                }
-            } else if (actual.getSv().isPresent()) {
-                diff.unexpected(actual.getExtendable().getId() + "_cgmesModelDescriptions_sv");
-            }
+            Stream.concat(getProfiles(expected), getProfiles(actual)).distinct().forEach(profile -> compareProfileMetadata(profile,
+                    expected.getModel(profile).orElse(null),
+                    actual.getModel(profile).orElse(null)));
         }
     }
 
+    private static Stream<String> getProfiles(CgmesModelDescriptions extension) {
+        return extension.getModels().stream()
+                .map(CgmesModelDescriptions.Model::getProfiles)
+                .flatMap(Set::stream);
+    }
+
     private void compareProfileMetadata(String profile, CgmesModelDescriptions.Model expected, CgmesModelDescriptions.Model actual) {
-        compare(profile + ".description", expected.getDescription(), actual.getDescription());
-        compare(profile + ".version", config.incrementedProfiles.contains(profile) ? expected.getVersion() + 1 : expected.getVersion(), actual.getVersion());
-        compare(profile + ".modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+        if (expected == null) {
+            diff.unexpected("cgmesModelDescriptions_" + profile);
+            return;
+        }
+        if (actual == null) {
+            diff.missing("cgmesModelDescriptions_" + profile);
+            return;
+        }
+        compare(profile + " description", expected.getDescription(), actual.getDescription());
+        compare(profile + " version", config.incrementedProfiles.contains(profile) ? expected.getVersion() + 1 : expected.getVersion(), actual.getVersion());
+        compare(profile + " modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
         for (String dep : expected.getDependencies()) {
             if (!actual.getDependencies().contains(dep)) {
-                diff.missing(profile + ".dependentOn: " + dep);
+                diff.missing(profile + " dependentOn: " + dep);
             }
         }
         for (String dep : actual.getDependencies()) {
             if (!expected.getDependencies().contains(dep)) {
-                diff.unexpected(profile + ".dependentOn: " + dep);
+                diff.unexpected(profile + " dependentOn: " + dep);
             }
         }
     }

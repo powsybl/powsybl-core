@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.*;
@@ -83,7 +84,7 @@ public class CgmesConformity1ConversionTest {
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles("ssh", "sv"));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles(CgmesNamespace.SSH_PROFILE, CgmesNamespace.SV_PROFILE));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -97,7 +98,7 @@ public class CgmesConformity1ConversionTest {
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
         ConversionTester t = new ConversionTester(new Properties(), exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles("ssh", "sv"));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles(CgmesNamespace.SSH_PROFILE, CgmesNamespace.SV_PROFILE));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }
@@ -113,7 +114,7 @@ public class CgmesConformity1ConversionTest {
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles("ssh", "sv"));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementProfiles(CgmesNamespace.SSH_PROFILE, CgmesNamespace.SV_PROFILE));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }

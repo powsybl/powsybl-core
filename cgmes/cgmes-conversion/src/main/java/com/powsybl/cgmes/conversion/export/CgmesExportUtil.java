@@ -59,7 +59,11 @@ public final class CgmesExportUtil {
     }
 
     public static String getUniqueId() {
-        return "_" + UUID.randomUUID();
+        return getUniqueId(true);
+    }
+
+    public static String getUniqueId(boolean withUnderscore) {
+        return (withUnderscore ? "_" : "") + UUID.randomUUID();
     }
 
     public static void writeRdfRoot(int cimVersion, XMLStreamWriter writer) throws XMLStreamException {
@@ -76,7 +80,7 @@ public final class CgmesExportUtil {
 
     public static String writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        String fullModelId = "urn:uuid:" + getUniqueId();
+        String fullModelId = "urn:uuid:" + getUniqueId(false);
         writer.writeAttribute(RDF_NAMESPACE, "about", fullModelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));

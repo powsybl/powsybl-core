@@ -11,6 +11,7 @@ import com.powsybl.cgmes.extensions.CgmesModelDescriptions;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -50,7 +51,7 @@ public final class SteadyStateHypothesisExport {
                 String sshFullModelId = CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
                 CgmesModelDescriptions metadata = network.getExtension(CgmesModelDescriptions.class);
                 if (metadata != null) {
-                    metadata.getSsh().ifPresent(ssh -> context.getSvModelDescription().removeDependency(ssh.getId()));
+                    metadata.getModel(CgmesNamespace.SSH_PROFILE).ifPresent(ssh -> context.getSvModelDescription().removeDependency(ssh.getId()));
                 }
                 context.getSvModelDescription().addDependency(sshFullModelId);
             }

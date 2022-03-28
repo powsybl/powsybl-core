@@ -43,6 +43,13 @@ public class PropertyBags extends ArrayList<PropertyBag> {
                 .collect(Collectors.toList());
     }
 
+    public List<String> pluckIds(String property) {
+        return stream()
+                .map(r -> r.getId(property))
+                .sorted(Comparator.nullsLast(String::compareTo))
+                .collect(Collectors.toList());
+    }
+
     public PropertyBags pivot(
             String idProperty,
             String keyProperty,

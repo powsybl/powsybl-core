@@ -227,7 +227,7 @@ public final class ExportXmlCompare {
         return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de))));
     }
 
-    static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) throws IOException {
+    static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
@@ -674,15 +674,9 @@ public final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringMetadataId(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
-                Attr attr = (Attr) control;
-                if (attr.getLocalName().equals("id") && List.of("eq", "tp", "ssh", "sv").contains(attr.getOwnerElement().getLocalName())) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
+    static ComparisonResult ignoringModels(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getControlDetails().getParentXPath().contains("cgmesModelDescriptions")) {
+            return ComparisonResult.EQUAL;
         }
         return result;
     }

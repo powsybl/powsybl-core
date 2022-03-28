@@ -16,6 +16,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -49,7 +50,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffs,
-                DifferenceEvaluators.chain(ExportXmlCompare::ignoringMetadataId));
+                DifferenceEvaluators.chain(ExportXmlCompare::ignoringModels));
     }
 
     @Test
@@ -60,7 +61,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffs,
-                DifferenceEvaluators.chain(ExportXmlCompare::ignoringMetadataId));
+                DifferenceEvaluators.chain(ExportXmlCompare::ignoringModels));
     }
 
     @Test
@@ -70,7 +71,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffs,
-                DifferenceEvaluators.chain(ExportXmlCompare::ignoringMetadataId));
+                DifferenceEvaluators.chain(ExportXmlCompare::ignoringModels));
     }
 
     @Test
@@ -83,7 +84,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
-                ExportXmlCompare::ignoringMetadataId));
+                ExportXmlCompare::ignoringModels));
     }
 
     @Test
@@ -97,7 +98,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
                 ExportXmlCompare::ignoringHvdcLinePmax,
-                ExportXmlCompare::ignoringMetadataId));
+                ExportXmlCompare::ignoringModels));
     }
 
     private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffs) throws IOException, XMLStreamException {
@@ -136,6 +137,15 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 .with("test_SSH.xml", exportedSsh)
                 .with("test_EQ_BD.xml", Repackager::eqBd)
                 .with("test_TP_BD.xml", Repackager::tpBd);
+        if (!dataSource.listNames(".*DL.*").isEmpty()) {
+            r.with("test_DL.xml", Repackager::dl);
+        }
+        if (!dataSource.listNames(".*GL.*").isEmpty()) {
+            r.with("test_GL.xml", Repackager::gl);
+        }
+        if (!dataSource.listNames(".*DY.*").isEmpty()) {
+            r.with("test_DY.xml", Repackager::dy);
+        }
         r.zip(repackaged);
 
         // Import with new SSH
@@ -150,8 +160,9 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         CgmesExportContext.updateTopologicalNodesMapping(actual);
 
         // Export original and with new SSH
-        NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        ExportOptions options = new ExportOptions().setSorted(true);
+        NetworkXml.writeAndValidate(expected, options, tmpDir.resolve("expected.xml"));
+        NetworkXml.writeAndValidate(actual, options, tmpDir.resolve("actual.xml"));
 
         // Compare
         ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);

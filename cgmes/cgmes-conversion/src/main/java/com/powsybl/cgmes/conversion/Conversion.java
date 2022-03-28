@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformer
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.*;
@@ -140,7 +139,7 @@ public class Conversion {
         Network network = createNetwork();
         Context context = createContext(network);
         assignNetworkProperties(context);
-        addMetadata(network, context);
+        addModelDescriptions(network);
         addCimCharacteristics(network);
         if (context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
@@ -357,35 +356,33 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void addMetadata(Network network, Context context) {
+    private void addModelDescriptions(Network network) {
         if (cgmes instanceof CgmesModelTripleStore && ((CgmesModelTripleStore) cgmes).getCimVersion() == 16) {
             CgmesModelDescriptionsAdder adder = network.newExtension(CgmesModelDescriptionsAdder.class);
-            addProfileMetadata(CgmesSubset.EQUIPMENT.getProfile(), adder.newEq(), context);
-            addProfileMetadata(CgmesSubset.TOPOLOGY.getProfile(), adder.newTp(), context);
-            addProfileMetadata(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile(), adder.newSsh(), context);
-            addProfileMetadata(CgmesSubset.STATE_VARIABLES.getProfile(), adder.newSv(), context);
+            PropertyBags models = cgmes.fullModels();
+            for (String modelId : models.pluckIds("FullModel")) {
+                PropertyBag model = models.stream()
+                        .filter(m -> modelId.equals(m.getId("FullModel")))
+                        .findFirst()
+                        .orElseThrow(() -> new CgmesModelException("Should not happen: present model ID without model"));
+                CgmesModelDescriptionsAdder.ModelAdder modelAdder = adder.newModel();
+                modelAdder.setId(modelId)
+                        .setDescription(model.getId("description"))
+                        .setVersion(model.asInt("version", 1))
+                        .setModelingAuthoritySet(model.getId("modelingAuthoritySet"));
+                models.stream()
+                        .filter(m -> modelId.equals(m.getId("FullModel")))
+                        .map(m -> m.getLocal("DependentOn"))
+                        .filter(Objects::nonNull)
+                        .forEach(modelAdder::addDependency);
+                models.stream()
+                        .filter(m -> modelId.equals(m.getId("FullModel")))
+                        .map(m -> m.getLocal("profile"))
+                        .filter(Objects::nonNull)
+                        .forEach(modelAdder::addProfile);
+                modelAdder.add();
+            }
             adder.add();
-        }
-    }
-
-    private void addProfileMetadata(String profile, CgmesModelDescriptionsAdder.ModelAdder adder, Context context) {
-        PropertyBags p = cgmes.fullModel(profile);
-        if (p != null && !p.isEmpty()) {
-            adder.setId(p.get(0).getId("FullModel"))
-                    .setDescription(p.get(0).getId("description"))
-                    .setVersion(readVersion(p, context))
-                    .setModelingAuthoritySet(p.get(0).getId("modelingAuthoritySet"));
-            p.pluckLocals("DependentOn").stream().filter(Objects::nonNull).forEach(adder::addDependency);
-            adder.add();
-        }
-    }
-
-    private int readVersion(PropertyBags propertyBags, Context context) {
-        try {
-            return propertyBags.get(0).asInt("version");
-        } catch (NumberFormatException e) {
-            context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 1");
-            return 1;
         }
     }
 

@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -58,18 +59,14 @@ public class CgmesExportContextTest {
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .add();
         network.newExtension(CgmesModelDescriptionsAdder.class)
-                .newEq()
-                .setId("EQ1")
-                .setDescription("EQ Model")
-                .setModelingAuthoritySet("powsybl.org")
-                .add()
-                .newSv()
+                .newModel()
                 .setId("SV1")
                 .setDescription("test")
                 .setVersion(2)
                 .addDependency("powsybl.test.org")
                 .addDependency("cgmes")
                 .setModelingAuthoritySet("cgmes.org")
+                .addProfile(CgmesNamespace.SV_PROFILE)
                 .add()
                 .add();
 

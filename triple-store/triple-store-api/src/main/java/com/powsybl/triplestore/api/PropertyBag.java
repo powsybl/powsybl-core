@@ -105,7 +105,12 @@ public class PropertyBag extends HashMap<String, String> {
         if (!containsKey(property)) {
             return defaultValue;
         }
-        return Integer.parseInt(get(property));
+        try {
+            return Integer.parseInt(get(property));
+        } catch (NumberFormatException e) {
+            LOG.warn("Invalid value for property {} : {}", property, get(property));
+            return defaultValue;
+        }
     }
 
     public String tabulateLocals() {

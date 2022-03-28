@@ -17,6 +17,7 @@ import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesModelDescriptions;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
@@ -462,8 +463,8 @@ public class CgmesConformity1ModifiedConversionTest {
         assertTrue(new Duration(DateTime.now(), network.getCaseDate()).getStandardMinutes() < 10);
         CgmesModelDescriptions cgmesModelDescriptions = network.getExtension(CgmesModelDescriptions.class);
         assertNotNull(cgmesModelDescriptions);
-        assertTrue(cgmesModelDescriptions.getSv().isPresent());
-        assertEquals(1, (int) cgmesModelDescriptions.getSv().map(CgmesModelDescriptions.Model::getVersion).orElse(-1));
+        assertTrue(cgmesModelDescriptions.getModel(CgmesNamespace.SV_PROFILE).isPresent());
+        assertEquals(1, (int) cgmesModelDescriptions.getModel(CgmesNamespace.SV_PROFILE).map(CgmesModelDescriptions.Model::getVersion).orElse(-1));
     }
 
     @Test

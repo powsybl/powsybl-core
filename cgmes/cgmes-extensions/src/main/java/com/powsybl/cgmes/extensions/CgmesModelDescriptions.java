@@ -9,8 +9,10 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -30,15 +32,13 @@ public interface CgmesModelDescriptions extends Extension<Network> {
         List<String> getDependencies();
 
         String getModelingAuthoritySet();
+
+        Set<String> getProfiles();
     }
 
-    Model getEq();
+    Optional<Model> getModel(String profile);
 
-    Optional<Model> getTp();
-
-    Optional<Model> getSsh();
-
-    Optional<Model> getSv();
+    Collection<Model> getModels();
 
     @Override
     default String getName() {

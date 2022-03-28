@@ -8,7 +8,6 @@ package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -21,6 +20,9 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -38,44 +40,48 @@ public class CgmesModelDescriptionsXmlSerializer extends AbstractExtensionXmlSer
     public void write(CgmesModelDescriptions extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
-        writeModel("eq", extension.getEq(), writer);
-        extension.getTp().ifPresent(tp -> {
-            try {
-                writeModel("tp", tp, writer);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
-        extension.getSsh().ifPresent(ssh -> {
-            try {
-                writeModel("ssh", ssh, writer);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
-        extension.getSv().ifPresent(sv -> {
-            try {
-                writeModel("sv", sv, writer);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        for (CgmesModelDescriptions.Model model : sortedModels(extension.getModels(), networkContext)) {
+            writeModel(model, writer, networkContext);
+        }
     }
 
-    private void writeModel(String type, CgmesModelDescriptions.Model model, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(getNamespaceUri(), type);
+    private static Collection<CgmesModelDescriptions.Model> sortedModels(Collection<CgmesModelDescriptions.Model> models, NetworkXmlWriterContext context) {
+        if (!context.getOptions().isSorted()) {
+            return models;
+        }
+        return models.stream()
+                .sorted(Comparator.comparing(CgmesModelDescriptions.Model::getId))
+                .collect(Collectors.toList());
+    }
+
+    private void writeModel(CgmesModelDescriptions.Model model, XMLStreamWriter writer, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (model.getDependencies().isEmpty()) {
+            writer.writeEmptyElement(getNamespaceUri(), "model");
+        } else {
+            writer.writeStartElement(getNamespaceUri(), "model");
+        }
         writer.writeAttribute("id", model.getId());
         if (model.getDescription() != null) {
             writer.writeAttribute("description", model.getDescription());
         }
         XmlUtil.writeInt("version", model.getVersion(), writer);
         writer.writeAttribute("modelingAuthoritySet", model.getModelingAuthoritySet());
-        for (String dep : model.getDependencies()) {
+        writer.writeAttribute("profiles", String.join(",", model.getProfiles()));
+        for (String dep : sortedDependencies(model.getDependencies(), context)) {
             writer.writeStartElement(getNamespaceUri(), "dependentOn");
             writer.writeCharacters(dep);
             writer.writeEndElement();
         }
-        writer.writeEndElement();
+        if (!model.getDependencies().isEmpty()) {
+            writer.writeEndElement();
+        }
+    }
+
+    private static Collection<String> sortedDependencies(Collection<String> dependencies, NetworkXmlWriterContext context) {
+        if (!context.getOptions().isSorted()) {
+            return dependencies;
+        }
+        return dependencies.stream().sorted().collect(Collectors.toList());
     }
 
     @Override
@@ -84,33 +90,25 @@ public class CgmesModelDescriptionsXmlSerializer extends AbstractExtensionXmlSer
         XMLStreamReader reader = networkContext.getReader();
         CgmesModelDescriptionsAdder adder = extendable.newExtension(CgmesModelDescriptionsAdder.class);
         XmlUtil.readUntilEndElement(getName(), reader, () -> {
-            switch (reader.getLocalName()) {
-                case "eq":
-                    readModel("eq", adder.newEq(), reader);
-                    break;
-                case "tp":
-                    readModel("tp", adder.newTp(), reader);
-                    break;
-                case "ssh":
-                    readModel("ssh", adder.newSsh(), reader);
-                    break;
-                case "sv":
-                    readModel("sv", adder.newSv(), reader);
-                    break;
-                default:
-                    throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesModelDescriptions>");
+            if ("model".equals(reader.getLocalName())) {
+                readModel(adder.newModel(), reader);
+            } else {
+                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesModelDescriptions>");
             }
         });
         adder.add();
         return extendable.getExtension(CgmesModelDescriptions.class);
     }
 
-    private void readModel(String profile, CgmesModelDescriptionsAdder.ModelAdder adder, XMLStreamReader reader) throws XMLStreamException {
+    private static void readModel(CgmesModelDescriptionsAdder.ModelAdder adder, XMLStreamReader reader) throws XMLStreamException {
         adder.setId(reader.getAttributeValue(null, "id"))
                 .setDescription(reader.getAttributeValue(null, "description"))
                 .setVersion(XmlUtil.readIntAttribute(reader, "version"))
                 .setModelingAuthoritySet(reader.getAttributeValue(null, "modelingAuthoritySet"));
-        XmlUtil.readUntilEndElement(profile, reader, () -> {
+        for (String profile : reader.getAttributeValue(null, "profiles").split(",")) {
+            adder.addProfile(profile);
+        }
+        XmlUtil.readUntilEndElement("model", reader, () -> {
             if (reader.getLocalName().equals("dependentOn")) {
                 adder.addDependency(reader.getElementText());
             } else {

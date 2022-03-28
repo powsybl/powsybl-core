@@ -15,6 +15,7 @@ import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.extensions.CgmesModelDescriptions;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -46,9 +47,11 @@ public final class EquipmentExport {
                 String eqFullModelId = ModelDescriptionEq.write(writer, context.getEqModelDescription(), context);
                 CgmesModelDescriptions metadata = network.getExtension(CgmesModelDescriptions.class);
                 if (metadata != null) {
-                    context.getTpModelDescription().removeDependency(metadata.getEq().getId());
-                    context.getSshModelDescription().removeDependency(metadata.getEq().getId());
-                    context.getSvModelDescription().removeDependency(metadata.getEq().getId());
+                    metadata.getModel(CgmesNamespace.EQ_PROFILE).ifPresent(eq -> {
+                        context.getTpModelDescription().removeDependency(eq.getId());
+                        context.getSshModelDescription().removeDependency(eq.getId());
+                        context.getSvModelDescription().removeDependency(eq.getId());
+                    });
                 }
                 context.getTpModelDescription().addDependency(eqFullModelId);
                 context.getSshModelDescription().addDependency(eqFullModelId);

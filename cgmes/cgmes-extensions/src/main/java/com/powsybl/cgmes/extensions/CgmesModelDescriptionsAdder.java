@@ -9,6 +9,8 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Set;
+
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
@@ -25,16 +27,14 @@ public interface CgmesModelDescriptionsAdder extends ExtensionAdder<Network, Cgm
 
         ModelAdder setModelingAuthoritySet(String modelingAuthoritySet);
 
+        ModelAdder addProfile(String profile);
+
+        ModelAdder addProfiles(Set<String> profiles);
+
         CgmesModelDescriptionsAdder add();
     }
 
-    ModelAdder newEq();
-
-    ModelAdder newTp();
-
-    ModelAdder newSsh();
-
-    ModelAdder newSv();
+    ModelAdder newModel();
 
     @Override
     default Class<CgmesModelDescriptions> getExtensionClass() {

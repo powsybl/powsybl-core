@@ -92,6 +92,18 @@ public class Repackager {
         return name.contains("_TP") && name.contains("_BD");
     }
 
+    static boolean dl(String name) {
+        return name.contains("_DL");
+    }
+
+    static boolean gl(String name) {
+        return name.contains("_GL");
+    }
+
+    static boolean dy(String name) {
+        return name.contains("_DY");
+    }
+
     private static void zipFile(String entryName, InputStream toZip, ZipOutputStream zipOut) throws IOException {
         ZipEntry zipEntry = new ZipEntry(entryName);
         zipOut.putNextEntry(zipEntry);
