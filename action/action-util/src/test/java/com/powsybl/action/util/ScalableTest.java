@@ -83,7 +83,6 @@ public class ScalableTest {
         assertEquals(0., Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, l1)).initialValue(network), 1e-3);
 
         testInvalidProportionalScalable(Collections.singletonList(100.0f), Collections.emptyList());
-        testInvalidProportionalScalable(Collections.emptyList(), Collections.emptyList());
         testInvalidProportionalScalable(Arrays.asList(70.f, 20.f), Arrays.asList(g1, l1));
     }
 

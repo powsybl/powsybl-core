@@ -22,14 +22,14 @@ public class StudyCaseTest {
     @Test
     public void test() {
         DataClass clsFoo = DataClass.init("ElmFoo")
-                .addAttribute(new DataAttribute("ref", DataAttributeType.OBJECT));
+                .addAttribute(new DataAttribute("ref", DataAttributeType.INTEGER64));
         DataClass clsBar = DataClass.init("ElmBar");
 
         DataObject objBar = new DataObject(2L, clsBar)
                 .setLocName("bar");
         DataObject objFoo = new DataObject(1L, clsFoo)
                 .setLocName("foo")
-                .setObjectAttributeValue("ref", objBar);
+                .setLongAttributeValue("ref", objBar.getId());
         Instant time = Instant.parse("2021-10-30T09:35:25Z");
         DataObject elmNet = new DataObject(0L, new DataClass("ElmNet"));
         StudyCase studyCase = new StudyCase("test", time, List.of(elmNet));

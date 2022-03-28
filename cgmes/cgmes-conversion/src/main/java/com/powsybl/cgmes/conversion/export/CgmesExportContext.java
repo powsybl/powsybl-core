@@ -141,26 +141,56 @@ public class CgmesExportContext {
 
     public void addIidmMappings(Network network) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
-        addIidmMappingsTopologicalNodes(network);
-        addIidmMappingsBaseVoltages(network);
+        addIidmMappingsSubstations(network);
+        CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
+        if (mapping == null) {
+            network.newExtension(CgmesIidmMappingAdder.class).add();
+            mapping = network.getExtension(CgmesIidmMapping.class);
+            mapping.addTopologyListener();
+        }
+        addIidmMappingsTopologicalNodes(mapping, network);
+        addIidmMappingsBaseVoltages(mapping, network);
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsShuntCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
+        addIidmMappingsControlArea(network);
     }
 
-    private void addIidmMappingsTopologicalNodes(Network network) {
-        CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
-        if (cgmesIidmMapping != null) {
-            Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsByBus = cgmesIidmMapping.topologicalNodesByBusViewBusMap();
-            topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
-            unmappedTopologicalNodes.addAll(cgmesIidmMapping.getUnmappedTopologicalNodes());
+    private void addIidmMappingsSubstations(Network network) {
+        for (Substation substation : network.getSubstations()) {
+            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
+                String regionId = CgmesExportUtil.getUniqueId();
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
+            }
+            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
+                String subRegionId = CgmesExportUtil.getUniqueId();
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
+            }
+        }
+    }
 
-            // And remove from unmapped the currently mapped
-            // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
-            unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(Set::stream).collect(Collectors.toSet()));
-        } else {
+    private void addIidmMappingsTopologicalNodes(CgmesIidmMapping mapping, Network network) {
+        updateTopologicalNodesMapping(mapping, network);
+        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsByBus = mapping.topologicalNodesByBusViewBusMap();
+        topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
+        unmappedTopologicalNodes.addAll(mapping.getUnmappedTopologicalNodes());
+
+        // And remove from unmapped the currently mapped
+        // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
+        unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(Set::stream).collect(Collectors.toSet()));
+    }
+
+    public static void updateTopologicalNodesMapping(Network network) {
+        CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
+        if (mapping != null) {
+            updateTopologicalNodesMapping(mapping, network);
+        }
+    }
+
+    private static void updateTopologicalNodesMapping(CgmesIidmMapping mapping, Network network) {
+        if (mapping.isTopologicalNodeEmpty()) {
             // If we do not have an explicit mapping
             // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
             // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
@@ -169,38 +199,31 @@ public class CgmesExportContext {
             // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    addTopologicalNodeBusBreakerMappings(vl);
+                    updateBusBreakerTopologicalNodesMapping(mapping, vl);
                 } else {
-                    addTopologicalNodeNodeBreakerMappings(vl);
+                    updateNodeBreakerTopologicalNodesMapping(mapping, vl);
                 }
             }
         }
     }
 
-    private void addTopologicalNodeBusBreakerMappings(VoltageLevel vl) {
-        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsFromBusBreaker = new HashMap<>();
-        Set<CgmesIidmMapping.CgmesTopologicalNode> mappedTns = new HashSet<>();
+    private static void updateBusBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl) {
         for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
             Bus busViewBus;
             String topologicalNode;
             // Bus/breaker IIDM networks have been created from bus/branch CGMES data
             // CGMES Topological Nodes have been used as configured bus identifiers
             topologicalNode = configuredBus.getId();
+
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
             if (busViewBus != null && topologicalNode != null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
-                CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = new CgmesIidmMapping.CgmesTopologicalNode(topologicalNode, topologicalNodeName, CgmesIidmMapping.Source.IGM);
-                tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(cgmesTopologicalNode);
-                mappedTns.add(cgmesTopologicalNode);
+                mapping.putTopologicalNode(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
             }
         }
-        topologicalNodeByBusViewBusMapping.putAll(tnsFromBusBreaker);
-        unmappedTopologicalNodes.removeAll(mappedTns);
     }
 
-    private void addTopologicalNodeNodeBreakerMappings(VoltageLevel vl) {
-        Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsFromBusBreaker = new HashMap<>();
-        Set<CgmesIidmMapping.CgmesTopologicalNode> mappedTns = new HashSet<>();
+    private static void updateNodeBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl) {
         for (int node : vl.getNodeBreakerView().getNodes()) {
             Bus busViewBus;
             String topologicalNode;
@@ -214,37 +237,26 @@ public class CgmesExportContext {
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
                         String topologicalNodeName = bus.getNameOrId();
-                        CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = new CgmesIidmMapping.CgmesTopologicalNode(topologicalNode, topologicalNodeName, CgmesIidmMapping.Source.IGM);
-                        tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(cgmesTopologicalNode);
-                        mappedTns.add(cgmesTopologicalNode);
+                        mapping.putTopologicalNode(busViewBus.getId(), bus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
                     }
                 }
             }
         }
-        topologicalNodeByBusViewBusMapping.putAll(tnsFromBusBreaker);
-        unmappedTopologicalNodes.removeAll(mappedTns);
     }
 
-    private void addIidmMappingsBaseVoltages(Network network) {
-        CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
-        if (cgmesIidmMapping != null) {
-            Map<Double, CgmesIidmMapping.BaseVoltageSource> bvByNominalVoltage = cgmesIidmMapping.baseVoltagesByNominalVoltageMap();
-            baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
-        } else {
-            Map<Double, CgmesIidmMapping.BaseVoltageSource> bvsFromBusBreaker = new HashMap<>();
-            Set<String> mappedBvs = new HashSet<>();
+    private void addIidmMappingsBaseVoltages(CgmesIidmMapping mapping, Network network) {
+        if (mapping.isBaseVoltageEmpty()) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
                 String baseVoltageId = CgmesExportUtil.getUniqueId();
-                bvsFromBusBreaker.computeIfAbsent(nominalV, v -> new CgmesIidmMapping.BaseVoltageSource(baseVoltageId, nominalV, CgmesIidmMapping.Source.IGM));
-                mappedBvs.add(baseVoltageId);
+                mapping.addBaseVoltage(nominalV, baseVoltageId, CgmesIidmMapping.Source.IGM);
             }
-
-            baseVoltageByNominalVoltageMapping.putAll(bvsFromBusBreaker);
         }
+        Map<Double, CgmesIidmMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
+        baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
-    private void addIidmMappingsTerminals(Network network) {
+    private static void addIidmMappingsTerminals(Network network) {
         for (Connectable<?> c : network.getConnectables()) {
             for (Terminal t : c.getTerminals()) {
                 addIidmMappingsTerminal(t, c);
@@ -254,7 +266,7 @@ public class CgmesExportContext {
         addIidmMappingsHvdcTerminals(network);
     }
 
-    private void addIidmMappingsSwitchTerminals(Network network) {
+    private static void addIidmMappingsSwitchTerminals(Network network) {
         for (Switch sw : network.getSwitches()) {
             String terminal1Id = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1").orElse(null);
             if (terminal1Id == null) {
@@ -269,7 +281,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsHvdcTerminals(Network network) {
+    private static void addIidmMappingsHvdcTerminals(Network network) {
         for (HvdcLine line : network.getHvdcLines()) {
             String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + DCNODE + "1").orElse(null);
             if (dcNode1 == null) {
@@ -304,7 +316,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
+    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_NETWORK).orElse(null);
             if (terminalId == null) {
@@ -328,7 +340,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsGenerators(Network network) {
+    private static void addIidmMappingsGenerators(Network network) {
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
             if (generatingUnit == null) {
@@ -343,7 +355,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsShuntCompensators(Network network) {
+    private static void addIidmMappingsShuntCompensators(Network network) {
         for (ShuntCompensator shuntCompensator : network.getShuntCompensators()) {
             String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
             if (regulatingControlId == null) {
@@ -353,7 +365,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsEndsAndTapChangers(Network network) {
+    private static void addIidmMappingsEndsAndTapChangers(Network network) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
@@ -373,7 +385,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmTransformerEnd(Identifiable<?> eq, int end) {
+    private static void addIidmTransformerEnd(Identifiable<?> eq, int end) {
         String endId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + end).orElse(null);
         if (endId == null) {
             endId = CgmesExportUtil.getUniqueId();
@@ -381,7 +393,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc) {
+    private static void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc) {
         if (ptc != null) {
             String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
                     .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElse(null));
@@ -392,7 +404,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc) {
+    private static void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc) {
         if (rtc != null) {
             String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
                     .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElse(null));
@@ -403,7 +415,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc, int sequence) {
+    private static void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc, int sequence) {
         if (ptc != null) {
             String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + sequence).orElse(null);
             if (tapChangerId == null) {
@@ -413,7 +425,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc, int sequence) {
+    private static void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc, int sequence) {
         if (rtc != null) {
             String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + sequence).orElse(null);
             if (tapChangerId == null) {
@@ -423,7 +435,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsEquivalentInjection(Network network) {
+    private static void addIidmMappingsEquivalentInjection(Network network) {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
             String equivalentInjectionId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection").orElse(null);
             if (equivalentInjectionId == null) {
@@ -434,6 +446,24 @@ public class CgmesExportContext {
             if (topologicalNode == null) {
                 topologicalNode = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(topologicalNode, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            }
+        }
+    }
+
+    private void addIidmMappingsControlArea(Network network) {
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        if (cgmesControlAreas == null) {
+            network.newExtension(CgmesControlAreasAdder.class).add();
+            cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            String cgmesControlAreaId = CgmesExportUtil.getUniqueId();
+            cgmesControlAreas.newCgmesControlArea()
+                    .setId(cgmesControlAreaId)
+                    .setName("Network")
+                    .setEnergyIdentificationCodeEic("Network--1")
+                    .add();
+            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
+            for (DanglingLine danglingLine : network.getDanglingLines()) {
+                cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
     }

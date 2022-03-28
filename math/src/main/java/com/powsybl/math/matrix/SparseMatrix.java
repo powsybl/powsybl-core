@@ -6,7 +6,6 @@
  */
 package com.powsybl.math.matrix;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 import org.scijava.nativelib.NativeLoader;
@@ -25,7 +24,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SparseMatrix extends AbstractMatrix {
+public class SparseMatrix extends AbstractMatrix {
 
     private static native void nativeInit();
 
@@ -145,10 +144,10 @@ class SparseMatrix extends AbstractMatrix {
      */
     SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
         if (rowCount < 0) {
-            throw new IllegalArgumentException("row count has to be positive");
+            throw new MatrixException("row count has to be positive");
         }
         if (columnCount < 0) {
-            throw new IllegalArgumentException("column count has to be positive");
+            throw new MatrixException("column count has to be positive");
         }
         this.rowCount = rowCount;
         this.columnCount = columnCount;
@@ -160,11 +159,11 @@ class SparseMatrix extends AbstractMatrix {
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
     }
 
-    double getRgrowthThreshold() {
+    public double getRgrowthThreshold() {
         return rgrowthThreshold;
     }
 
-    void setRgrowthThreshold(double rgrowthThreshold) {
+    public void setRgrowthThreshold(double rgrowthThreshold) {
         this.rgrowthThreshold = rgrowthThreshold;
     }
 
@@ -221,7 +220,7 @@ class SparseMatrix extends AbstractMatrix {
      * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
      * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are filled in wrong order.
+     * @throws MatrixException if values are filled in wrong order.
      */
     @Override
     public void set(int i, int j, double value) {
@@ -235,7 +234,7 @@ class SparseMatrix extends AbstractMatrix {
             }
             currentColumn = j;
         } else {
-            throw new PowsyblException("Columns have to be filled in the right order");
+            throw new MatrixException("Columns have to be filled in the right order");
         }
         values.add(value);
         rowIndices.add(i);
@@ -257,7 +256,7 @@ class SparseMatrix extends AbstractMatrix {
      * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
      * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are filled in wrong order.
+     * @throws MatrixException if values are filled in wrong order.
      */
     @Override
     public void add(int i, int j, double value) {
@@ -271,7 +270,7 @@ class SparseMatrix extends AbstractMatrix {
             currentColumn = j;
             startNewColumn = true;
         } else {
-            throw new PowsyblException("Columns have to be filled in the right order");
+            throw new MatrixException("Columns have to be filled in the right order");
         }
         if (!startNewColumn && i == rowIndices.get(rowIndices.size() - 1)) {
             int vi = values.size() - 1;
@@ -291,7 +290,7 @@ class SparseMatrix extends AbstractMatrix {
      * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
      * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are filled in wrong order.
+     * @throws MatrixException if values are filled in wrong order.
      */
     @Override
     public Element addAndGetElement(int i, int j, double value) {
@@ -307,7 +306,7 @@ class SparseMatrix extends AbstractMatrix {
 
     private void checkElementIndex(int index) {
         if (index < 0 || index >= values.size()) {
-            throw new IllegalArgumentException("Element index out of bound [0, " + (values.size() - 1) + "]");
+            throw new MatrixException("Element index out of bound [0, " + (values.size() - 1) + "]");
         }
     }
 

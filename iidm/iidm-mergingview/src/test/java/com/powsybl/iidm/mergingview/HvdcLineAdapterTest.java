@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
@@ -75,6 +76,15 @@ public class HvdcLineAdapterTest {
 
         // Test not implemented !
         TestUtil.notImplemented(lineAdapted::remove);
+
+        LccConverterStation cs1 = mergingView.getLccConverterStation("C1");
+        LccConverterStation cs2 = mergingView.getLccConverterStation("C2");
+        if (cs1.getOtherConverterStation().isPresent()) {
+            assertEquals(cs2, cs1.getOtherConverterStation().get());
+        }
+        if (cs2.getOtherConverterStation().isPresent()) {
+            assertEquals(cs1, cs2.getOtherConverterStation().get());
+        }
     }
 
     @Test

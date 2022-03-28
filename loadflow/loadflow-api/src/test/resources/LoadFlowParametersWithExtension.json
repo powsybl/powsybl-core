@@ -1,5 +1,5 @@
 {
-  "version" : "1.6",
+  "version" : "1.7",
   "voltageInitMode" : "UNIFORM_VALUES",
   "transformerVoltageControlOn" : false,
   "phaseShifterRegulationOn" : false,
@@ -14,6 +14,7 @@
   "dcUseTransformerRatio" : true,
   "countriesToBalance" : [ ],
   "connectedComponentMode" : "MAIN",
+  "hvdcAcEmulation" : true,
   "extensions" : {
     "dummy-extension" : { }
   }

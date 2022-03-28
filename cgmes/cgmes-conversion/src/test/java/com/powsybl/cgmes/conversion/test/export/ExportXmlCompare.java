@@ -290,6 +290,17 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringCreatedTime(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            Node control = comparison.getControlDetails().getTarget();
+            Node test = comparison.getTestDetails().getTarget();
+            if (test != null && control != null && control.getParentNode().getLocalName().equals("Model.created")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
@@ -492,6 +503,57 @@ public final class ExportXmlCompare {
                 Comparison.Detail test = comparison.getTestDetails();
                 if (control.getTarget().getLocalName().equals("netInterchange")
                         && test.getTarget().getLocalName().equals("netInterchange")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringFullModelAbout(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("FullModel")
+                        && control.getTarget().getLocalName().equals("about")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringCurrentLimitIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("CurrentLimit")
+                        && (control.getTarget().getLocalName().equals("ID") || control.getTarget().getLocalName().equals("resource"))) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("OperationalLimit")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSVIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("SvVoltage")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvPowerFlow")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvShuntCompensatorSections")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvStatus")
+                        && control.getTarget().getLocalName().equals("ID")) {
                     return ComparisonResult.EQUAL;
                 }
             }

@@ -91,6 +91,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             if (busId2 == null) {
                 throw new ValidationException(this, "second connection bus is not set");
             }
+            if (busId1.equals(busId2)) {
+                throw new ValidationException(this, "same bus at both ends");
+            }
 
             SwitchImpl aSwitch = new SwitchImpl(BusBreakerVoltageLevel.this, id, getName(), isFictitious(), SwitchKind.BREAKER, open, true);
             addSwitch(aSwitch, busId1, busId2);
@@ -348,8 +351,18 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void edgeBeforeRemoval(int e, SwitchImpl obj) {
+                // Nothing to do, notifications are handled properly in removeSwitch
+            }
+
+            @Override
             public void edgeRemoved(int e, SwitchImpl obj) {
                 invalidateCache();
+            }
+
+            @Override
+            public void allEdgesBeforeRemoval(Collection<SwitchImpl> obj) {
+                // Nothing to do, notifications are handled properly in removeAllSwitches
             }
 
             @Override
@@ -766,16 +779,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private void removeSwitch(String switchId) {
-        Integer e = switches.remove(switchId);
+        Integer e = switches.get(switchId);
         if (e == null) {
             throw new PowsyblException("Switch '" + switchId
                     + "' not found in voltage level '" + id + "'");
         }
         NetworkImpl network = getNetwork();
         SwitchImpl aSwitch = graph.getEdgeObject(e);
-
         network.getListeners().notifyBeforeRemoval(aSwitch);
 
+        switches.remove(switchId);
         graph.removeEdge(e);
         network.getIndex().remove(aSwitch);
 
