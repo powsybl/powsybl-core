@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -55,6 +57,15 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
         this.lossFactor = lossFactor;
         notifyUpdate("lossFactor", oldValue, lossFactor);
         return (T) this;
+    }
+
+    @Override
+    public Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
+        if (hvdcLine != null) {
+            return hvdcLine.getConverterStation1() == this ? Optional.ofNullable(hvdcLine.getConverterStation2()) : Optional.ofNullable(hvdcLine.getConverterStation1());
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
