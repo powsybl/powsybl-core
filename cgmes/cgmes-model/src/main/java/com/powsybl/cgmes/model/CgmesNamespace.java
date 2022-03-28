@@ -62,10 +62,6 @@ public final class CgmesNamespace {
         return VALID_CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
     }
 
-    public static boolean isValidAny14(Set<String> namespaces) {
-        return namespaces.contains(CIM_14_NAMESPACE);
-    }
-
     public static String getCim(int cimVersion) {
         if (CIM_NAMESPACES.containsKey(cimVersion)) {
             return CIM_NAMESPACES.get(cimVersion);
