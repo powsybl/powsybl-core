@@ -309,11 +309,9 @@ public class Conversion {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
         if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
             Switch sw = network.getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw == null) {
-                Terminal t = context.terminalMapping().find(cgmesTerminalId);
-                return t != null ? Optional.of(t) : Optional.empty();
+            if (sw != null) {
+                return new SwitchTerminal(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getDanglingLineTerminalInSwitchesChain();
             }
-            return new SwitchTerminal(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getDanglingLineTerminalInSwitchesChain();
         }
         Terminal t = context.terminalMapping().find(cgmesTerminalId);
         return t != null ? Optional.of(t) : Optional.empty();

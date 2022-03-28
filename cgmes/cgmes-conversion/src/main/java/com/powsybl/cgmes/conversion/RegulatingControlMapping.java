@@ -141,14 +141,11 @@ public class RegulatingControlMapping {
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
         if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
             Switch sw = context.network().getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw == null) {
-                Optional<Terminal> ot1 = Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
-                trace1(cgmesTerminalId, ot1, "SwNull", context);
-                return ot1;
+            if (sw != null) {
+                Optional<Terminal> ot = new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInTopologicalNode();
+                trace1(cgmesTerminalId, ot, sw.getId(), context);
+                return ot;
             }
-            Optional<Terminal> ot = new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInTopologicalNode();
-            trace1(cgmesTerminalId, ot, sw.getId(), context);
-            return ot;
         }
         Optional<Terminal> ot = Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
         trace1(cgmesTerminalId, ot, "NoSW", context);
@@ -181,16 +178,12 @@ public class RegulatingControlMapping {
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
         if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
             Switch sw = context.network().getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw == null) {
-                Optional<Terminal> ot = Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
-                Optional<TerminalAndSign> ot1 =  ot.isPresent() ? Optional.of(new TerminalAndSign(ot.get(), 1)) : Optional.empty();
-                trace2(cgmesTerminalId, ot1, "SwNull", context);
-                return ot1;
+            if (sw != null) {
+                Branch.Side side = sequenceNumberToSide(cgmesTerminal.getSequenceNumber());
+                Optional<TerminalAndSign> ot = new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInSwitchesChain(side);
+                trace2(cgmesTerminalId, ot, sw.getId(), context);
+                return ot;
             }
-            Branch.Side side = sequenceNumberToSide(cgmesTerminal.getSequenceNumber());
-            Optional<TerminalAndSign> ot = new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInSwitchesChain(side);
-            trace2(cgmesTerminalId, ot, sw.getId(), context);
-            return ot;
         }
         Optional<Terminal> ot = Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
         Optional<TerminalAndSign> ot2 = ot.isPresent() ? Optional.of(new TerminalAndSign(ot.get(), 1)) : Optional.empty();
