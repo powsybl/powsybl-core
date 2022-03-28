@@ -29,8 +29,6 @@ import java.util.stream.Stream;
  */
 public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
-    private int vertexLimit;
-
     private static final int VERTICES_CAPACITY = 10;
 
     private static final int EDGES_CAPACITY = 15;
@@ -107,6 +105,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private final TIntLinkedList removedEdges = new TIntLinkedList();
 
     private final List<UndirectedGraphListener<V, E>> listeners = new CopyOnWriteArrayList<>();
+
+    private final int vertexLimit;
 
     public UndirectedGraphImpl(int vertexLimit) {
         this.vertexLimit = vertexLimit;
