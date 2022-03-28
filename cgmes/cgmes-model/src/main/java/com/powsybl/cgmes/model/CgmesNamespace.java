@@ -22,9 +22,9 @@ public final class CgmesNamespace {
     // It is used in this project to explore how to support future CGMES versions
     // We have sample models in cim14 and we use a different set of queries to obtain data
 
-    private static final String CIM_100_NAMESPACE = "http://iec.ch/TC57/CIM100#";
-    private static final String CIM_16_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
-    private static final String CIM_14_NAMESPACE = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
+    public static final String CIM_100_NAMESPACE = "http://iec.ch/TC57/CIM100#";
+    public static final String CIM_16_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
+    public static final String CIM_14_NAMESPACE = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
 
     private static final Map<Integer, String> CIM_NAMESPACES = Map.of(
             14, CIM_14_NAMESPACE,
@@ -60,12 +60,6 @@ public final class CgmesNamespace {
         // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
         // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
         return VALID_CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
-    }
-
-    public static boolean isValidAny(Set<String> namespaces) {
-        // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
-        // But I think we do not need to support 14 separately?
-        return namespaces.contains(CIM_16_NAMESPACE) || namespaces.contains(CIM_100_NAMESPACE);
     }
 
     public static boolean isValidAny14(Set<String> namespaces) {

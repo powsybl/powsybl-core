@@ -36,7 +36,9 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        return CgmesNamespace.isValidAny(foundNamespaces);
+        // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
+        // But I think we do not need to support 14 separately?
+        return foundNamespaces.contains(CIM_16_NAMESPACE) || foundNamespaces.contains(CIM_100_NAMESPACE);
     }
 
     public boolean existsCim14() {
@@ -45,7 +47,9 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        if (!CgmesNamespace.isValidAny14(foundNamespaces)) {
+        // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
+        // But I think we do not need to support 14 separately?
+        if (!foundNamespaces.contains(CIM_14_NAMESPACE)) {
             return false;
         }
 
@@ -72,14 +76,10 @@ public class CgmesOnDataSource {
         }
     }
 
-    private static boolean isCimNamespace(String ns) {
-        return CgmesNamespace.isValid(ns);
-    }
-
     private boolean containsValidNamespace(String name) {
         try (InputStream is = dataSource.newInputStream(name)) {
             Set<String> ns = NamespaceReader.namespaces1(is);
-            return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesOnDataSource::isCimNamespace);
+            return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
         } catch (XMLStreamException e) {
             return false;
         } catch (IOException x) {
@@ -102,7 +102,7 @@ public class CgmesOnDataSource {
     public String cimNamespace() {
         // If no cim namespace is found, return CIM16 namespace
         return namespaces().stream()
-            .filter(CgmesOnDataSource::isCimNamespace)
+            .filter(CgmesNamespace::isValid)
             .findFirst()
             .orElseThrow(() -> new CgmesModelException("CIM Namespace not found"));
     }
