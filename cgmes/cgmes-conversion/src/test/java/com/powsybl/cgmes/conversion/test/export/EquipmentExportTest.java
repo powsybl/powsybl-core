@@ -23,7 +23,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
@@ -39,7 +38,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -112,8 +110,6 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
     private void testExportReimport(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
         Network actual = exportReimport(expected, dataSource);
-        Exporters.export("XIIDM", expected, null, Paths.get("/home/ralambotianamio/tmp/expected.xiidm"));
-        Exporters.export("XIIDM", actual, null, Paths.get("/home/ralambotianamio/tmp/actual.xiidm"));
         compareNetworksEQdata(expected, actual);
     }
 
