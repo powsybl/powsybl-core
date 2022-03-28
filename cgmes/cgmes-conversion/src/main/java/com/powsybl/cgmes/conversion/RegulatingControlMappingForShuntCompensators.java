@@ -11,6 +11,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
@@ -112,7 +113,9 @@ public class RegulatingControlMappingForShuntCompensators {
             shuntCompensator.setVoltageRegulatorOn(false);
         }
         // Take default terminal if it has not been defined in CGMES files (it is never null)
-        shuntCompensator.setRegulatingTerminal(parent.getRegulatingTerminal(shuntCompensator, rc.cgmesTerminal));
+        Optional<Terminal> optionalTerminal = parent.getRegulatingTerminalVoltageControl(rc.cgmesTerminal);
+        Terminal terminal = optionalTerminal.isPresent() ? optionalTerminal.get() : shuntCompensator.getTerminal();
+        shuntCompensator.setRegulatingTerminal(terminal);
         shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rcId);
     }
 

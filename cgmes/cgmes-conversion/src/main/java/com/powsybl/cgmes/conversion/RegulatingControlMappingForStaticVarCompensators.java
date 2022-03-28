@@ -16,6 +16,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -90,7 +91,8 @@ public class RegulatingControlMappingForStaticVarCompensators {
     private boolean setRegulatingControl(CgmesRegulatingControlForStaticVarCompensator rc, RegulatingControl control, StaticVarCompensator svc) {
 
         // Take default terminal if it has not been defined in CGMES files (it is never null)
-        Terminal terminal = parent.getRegulatingTerminal(svc, control.cgmesTerminal);
+        Optional<Terminal> optionalTerminal = parent.getRegulatingTerminalVoltageControl(control.cgmesTerminal);
+        Terminal terminal = optionalTerminal.isPresent() ? optionalTerminal.get() : svc.getTerminal();
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;

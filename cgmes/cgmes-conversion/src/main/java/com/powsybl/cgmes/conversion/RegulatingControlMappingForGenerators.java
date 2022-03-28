@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
+import com.powsybl.cgmes.conversion.SwitchTerminal.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
@@ -18,6 +19,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -94,7 +96,8 @@ public class RegulatingControlMappingForGenerators {
                                                 RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
 
         // Take default terminal if it has not been defined in CGMES file (it is never null)
-        Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal);
+        Optional<Terminal> optionalTerminal = parent.getRegulatingTerminalVoltageControl(control.cgmesTerminal);
+        Terminal terminal = optionalTerminal.isPresent() ? optionalTerminal.get() : gen.getTerminal();
 
         double targetV;
         if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
@@ -128,7 +131,14 @@ public class RegulatingControlMappingForGenerators {
 
     private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
         // Ignore control if the terminal is not mapped.
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, true);
+        Optional<TerminalAndSign> optionalTerminal = parent.getRegulatingTerminalFlowControl(control.cgmesTerminal);
+        int sign = 1;
+        Terminal terminal = null;
+        if (optionalTerminal.isPresent()) {
+            sign = optionalTerminal.get().getSign();
+            terminal = optionalTerminal.get().getTerminal();
+        }
+
         if (terminal == null) {
             context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
             return false;
@@ -143,7 +153,7 @@ public class RegulatingControlMappingForGenerators {
         }
 
         gen.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(targetQ)
+                .withTargetQ(targetQ * sign)
                 .withRegulatingTerminal(terminal)
                 .withEnabled(control.enabled && eqControlEnabled)
                 .add();

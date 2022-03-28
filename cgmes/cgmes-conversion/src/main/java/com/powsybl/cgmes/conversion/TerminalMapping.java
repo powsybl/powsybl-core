@@ -14,7 +14,6 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 
 /**
@@ -50,27 +49,18 @@ public class TerminalMapping {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
+        System.err.printf("TerminalMapping.find cgmesTerminalId %s buscar en TopologicalNode %s foundedTerminal %s %n", cgmesTerminalId,
+            cgmesTerminalsMapping.get(cgmesTerminalId), findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId)));
+
         return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
     }
 
+    /**
+     * @deprecated Not used anymore.
+     */
+    @Deprecated(since = "4.8.0")
     public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network) {
-        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-
-        if (isSwitch(cgmesTerminal.conductingEquipmentType())) {
-            Switch sw = network.getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw == null) {
-                return find(cgmesTerminalId);
-            }
-            Terminal terminal = new SwitchesChain(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getBestTerminalChain();
-            if (terminal != null) {
-                return terminal;
-            }
-        }
-        return find(cgmesTerminalId);
-    }
-
-    private static boolean isSwitch(String conductingEquipmentType) {
-        return conductingEquipmentType.equals("Breaker") || conductingEquipmentType.equals("Disconnector");
+        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     public Boundary findBoundary(String cgmesTerminalId) {

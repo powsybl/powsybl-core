@@ -7,11 +7,13 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
+import com.powsybl.cgmes.conversion.SwitchTerminal.TerminalAndSign;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -181,7 +183,8 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
                                                    RatioTapChanger rtc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
+        Optional<Terminal> optionlTerminal = parent.getRegulatingTerminalVoltageControl(control.cgmesTerminal);
+        Terminal terminal = optionlTerminal.isPresent() ? optionlTerminal.get() : null;
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
@@ -237,7 +240,14 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
                                             RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
+        Optional<TerminalAndSign> optionalTerminal = parent.getRegulatingTerminalFlowControl(control.cgmesTerminal);
+        int sign = 1;
+        Terminal terminal = null;
+        if (optionalTerminal.isPresent()) {
+            sign = optionalTerminal.get().getSign();
+            terminal = optionalTerminal.get().getTerminal();
+        }
+
         if (terminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
@@ -251,7 +261,7 @@ public class RegulatingControlMappingForTransformers {
 
         // Order is important
         ptc.setRegulationTerminal(terminal)
-                .setRegulationValue(control.targetValue)
+                .setRegulationValue(control.targetValue * sign)
                 .setTargetDeadband(control.targetDeadband)
                 .setRegulationMode(regulationMode)
                 .setRegulating(fixedRegulating);

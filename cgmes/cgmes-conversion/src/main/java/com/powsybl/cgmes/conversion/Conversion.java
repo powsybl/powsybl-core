@@ -295,10 +295,28 @@ public class Conversion {
             cgmesControlArea.add(boundary);
             return;
         }
-        Terminal terminal = context.terminalMapping().find(terminalId, cgmesModel, network);
-        if (terminal != null) {
-            cgmesControlArea.add(terminal);
+        Optional<Terminal> terminal = getRegulatingTerminalTieFlow(terminalId, context, cgmesModel, network);
+        if (terminal.isPresent()) {
+            cgmesControlArea.add(terminal.get());
         }
+    }
+
+    private static Optional<Terminal> getRegulatingTerminalTieFlow(String cgmesTerminalId, Context context, CgmesModel cgmesModel, Network network) {
+        if (cgmesTerminalId == null) {
+            return Optional.empty();
+        }
+
+        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
+        if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
+            Switch sw = network.getSwitch(cgmesTerminal.conductingEquipment());
+            if (sw == null) {
+                Terminal t = context.terminalMapping().find(cgmesTerminalId);
+                return t != null ? Optional.of(t) : Optional.empty();
+            }
+            return new SwitchTerminal(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getDanglingLineTerminalInSwitchesChain();
+        }
+        Terminal t = context.terminalMapping().find(cgmesTerminalId);
+        return t != null ? Optional.of(t) : Optional.empty();
     }
 
     private void convert(

@@ -6,14 +6,17 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.SwitchTerminal.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -87,20 +90,28 @@ public class RegulatingControlMappingForVscConverters {
     }
 
     private void setRegulatingControlVoltage(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
-
+        Optional<Terminal> optionalTerminal = parent.getRegulatingTerminalVoltageControl(rc.pccTerminal);
+        Terminal terminal = optionalTerminal.isPresent() ? optionalTerminal.get() : vscConverter.getTerminal();
         vscConverter
             .setVoltageSetpoint(rc.voltageSetpoint)
             .setReactivePowerSetpoint(0.0)
-            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
+            .setRegulatingTerminal(terminal)
             .setVoltageRegulatorOn(true);
     }
 
     private void setRegulatingControlReactivePower(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
 
+        Optional<TerminalAndSign> optionalTerminal = parent.getRegulatingTerminalFlowControl(rc.pccTerminal);
+        int sign = 1;
+        Terminal terminal = vscConverter.getTerminal();
+        if (optionalTerminal.isPresent()) {
+            sign = optionalTerminal.get().getSign();
+            terminal = optionalTerminal.get().getTerminal();
+        }
         vscConverter
             .setVoltageSetpoint(0.0)
-            .setReactivePowerSetpoint(rc.reactivePowerSetpoint)
-            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
+            .setReactivePowerSetpoint(rc.reactivePowerSetpoint * sign)
+            .setRegulatingTerminal(terminal)
             .setVoltageRegulatorOn(false);
     }
 
