@@ -904,8 +904,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return true;
     }
 
-    void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {
-        traverse(terminal, traverser, new HashSet<>());
+    boolean traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {
+        return traverse(terminal, traverser, new HashSet<>());
     }
 
     /**

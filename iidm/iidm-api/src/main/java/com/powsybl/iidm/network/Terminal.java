@@ -172,7 +172,7 @@ public interface Terminal {
      * Traverse the full network topology graph.
      * @param traverser traversal handler
      */
-    void traverse(TopologyTraverser traverser);
+    boolean traverse(TopologyTraverser traverser);
 
     /**
      * Topology traversal handler

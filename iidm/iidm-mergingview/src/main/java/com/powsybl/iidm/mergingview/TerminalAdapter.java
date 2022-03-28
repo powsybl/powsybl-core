@@ -220,7 +220,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     @Override
-    public void traverse(final TopologyTraverser traverser) {
-        getDelegate().traverse(new TopologyTraverserAdapter(traverser, getIndex()));
+    public boolean traverse(final TopologyTraverser traverser) {
+        return getDelegate().traverse(new TopologyTraverserAdapter(traverser, getIndex()));
     }
 }

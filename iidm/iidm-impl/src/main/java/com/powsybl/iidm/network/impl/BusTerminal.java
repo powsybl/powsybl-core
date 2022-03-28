@@ -163,11 +163,11 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(TopologyTraverser traverser) {
+    public boolean traverse(TopologyTraverser traverser) {
         if (voltageLevel == null) {
             throw new PowsyblException("Associated equipment is removed");
         }
-        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
+        return ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 
     @Override
