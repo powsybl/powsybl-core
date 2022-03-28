@@ -210,7 +210,10 @@ public class DataObject {
         return findObjectVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object vector", name));
     }
 
-    public DataObject setObjectVectorAttributeValue(String name, List<DataObjectRef> value) {
+    public DataObject setObjectVectorAttributeValue(String name, List<Long> ids) {
+        List<DataObjectRef> value = Objects.requireNonNull(ids).stream()
+                .map(objId -> new DataObjectRef(objId, index))
+                .collect(Collectors.toList());
         setGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR, value);
         return this;
     }
