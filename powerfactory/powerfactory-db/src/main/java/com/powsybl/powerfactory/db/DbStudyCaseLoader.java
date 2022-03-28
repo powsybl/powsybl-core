@@ -11,13 +11,14 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.StudyCaseLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.Objects;
@@ -32,7 +33,9 @@ import java.util.regex.Pattern;
 @AutoService(StudyCaseLoader.class)
 public class DbStudyCaseLoader implements StudyCaseLoader {
 
-    private static final String DIG_SILENT_DEFAULT_DIR = "C:\\Program Files\\DIgSILENT";
+    private static final Logger LOGGER = LoggerFactory.getLogger(DbStudyCaseLoader.class);
+
+    static final String DIG_SILENT_DEFAULT_DIR = "C:\\Program Files\\DIgSILENT";
     private static final Pattern POWER_FACTORY_DIR_PATTERN = Pattern.compile("PowerFactory (\\d{4}) SP(\\d+)");
 
     private final PlatformConfig platformConfig;
@@ -63,8 +66,12 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
                 .flatMap(moduleConfig -> Optional.ofNullable(moduleConfig.getStringProperty("home-dir", null)));
     }
 
-    private static String findPowerFactoryHome() {
-        Path digSilentDir = Paths.get(DIG_SILENT_DEFAULT_DIR);
+    private Path getDigSilentDir() {
+        return platformConfig.getConfigDir().getFileSystem().getPath(DIG_SILENT_DEFAULT_DIR);
+    }
+
+    private String findPowerFactoryHome() {
+        Path digSilentDir = getDigSilentDir();
         try {
             if (Files.exists(digSilentDir)) {
                 try (var pathStream = Files.list(digSilentDir)) {
@@ -90,7 +97,9 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
 
         // first read from platform config, then try to autodetect
         String powerFactoryHome = readPowerFactoryHomeFromConfig(platformConfig)
-                .orElseGet(DbStudyCaseLoader::findPowerFactoryHome);
+                .orElseGet(this::findPowerFactoryHome);
+
+        LOGGER.info("Using PowerFactory installation '{}'", getDigSilentDir().resolve(powerFactoryHome));
 
         // read study cases objects from PowerFactory DB using C++ API
         DataObjectBuilder builder = new DataObjectBuilder();

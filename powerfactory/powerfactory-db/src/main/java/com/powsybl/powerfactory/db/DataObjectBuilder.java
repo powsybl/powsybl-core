@@ -8,7 +8,6 @@ package com.powsybl.powerfactory.db;
 
 import com.powsybl.powerfactory.model.*;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,14 +20,8 @@ public class DataObjectBuilder {
 
     private final Map<String, DataClass> classesByName = new HashMap<>();
 
-    private final Map<Long, DataObject> objectsById = new HashMap<>();
-
     public DataObjectIndex getIndex() {
         return index;
-    }
-
-    public Collection<DataObject> getObjects() {
-        return objectsById.values();
     }
 
     public void createClass(String name) {
@@ -56,15 +49,11 @@ public class DataObjectBuilder {
             DataObject parentObject = getObjectById(parentId);
             object.setParent(parentObject);
         }
-        objectsById.put(object.getId(), object);
     }
 
     private DataObject getObjectById(long id) {
-        DataObject object = objectsById.get(id);
-        if (object == null) {
-            throw new PowerFactoryException("Object '" + id + "' not found");
-        }
-        return object;
+        return index.getDataObjectById(id)
+                .orElseThrow(() -> new PowerFactoryException("Object '" + id + "' not found"));
     }
 
     public void setIntAttributeValue(long objectId, String attributeName, int value) {
