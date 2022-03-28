@@ -66,8 +66,8 @@ public class CgmesModelDescriptionsXmlSerializer extends AbstractExtensionXmlSer
         }
         XmlUtil.writeInt("version", model.getVersion(), writer);
         writer.writeAttribute("modelingAuthoritySet", model.getModelingAuthoritySet());
-        writer.writeAttribute("profiles", String.join(",", model.getProfiles()));
-        for (String dep : sortedDependencies(model.getDependencies(), context)) {
+        writer.writeAttribute("profiles", String.join(",", sorted(model.getProfiles(), context)));
+        for (String dep : sorted(model.getDependencies(), context)) {
             writer.writeStartElement(getNamespaceUri(), "dependentOn");
             writer.writeCharacters(dep);
             writer.writeEndElement();
@@ -77,11 +77,11 @@ public class CgmesModelDescriptionsXmlSerializer extends AbstractExtensionXmlSer
         }
     }
 
-    private static Collection<String> sortedDependencies(Collection<String> dependencies, NetworkXmlWriterContext context) {
+    private static Collection<String> sorted(Collection<String> strings, NetworkXmlWriterContext context) {
         if (!context.getOptions().isSorted()) {
-            return dependencies;
+            return strings;
         }
-        return dependencies.stream().sorted().collect(Collectors.toList());
+        return strings.stream().sorted().collect(Collectors.toList());
     }
 
     @Override
