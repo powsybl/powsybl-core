@@ -17,8 +17,14 @@ package com.powsybl.sensitivity;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum SensitivityFunctionType {
-    BRANCH_ACTIVE_POWER, // MW
-    BRANCH_CURRENT, // A
+    /**
+     * @deprecated Use {@link #BRANCH_ACTIVE_POWER_1} instead.
+     */
+    @Deprecated BRANCH_ACTIVE_POWER, // MW
+    /**
+     * @deprecated Use {@link #BRANCH_CURRENT_1} instead.
+     */
+    @Deprecated BRANCH_CURRENT, // A
     BRANCH_ACTIVE_POWER_1, // MW
     BRANCH_CURRENT_1, // A
     BRANCH_ACTIVE_POWER_2, // MW
