@@ -9,6 +9,8 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 
+import java.util.Optional;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -41,5 +43,11 @@ abstract class AbstractHvdcConverterStationAdapter<I extends HvdcConverterStatio
     @Override
     public float getLossFactor() {
         return getDelegate().getLossFactor();
+    }
+
+    @Override
+    public Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
+        return getDelegate().getOtherConverterStation()
+                .map(converterStation -> getIndex().getHvdcConverterStation(converterStation));
     }
 }

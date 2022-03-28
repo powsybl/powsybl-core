@@ -290,6 +290,17 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringCreatedTime(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            Node control = comparison.getControlDetails().getTarget();
+            Node test = comparison.getTestDetails().getTarget();
+            if (test != null && control != null && control.getParentNode().getLocalName().equals("Model.created")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();

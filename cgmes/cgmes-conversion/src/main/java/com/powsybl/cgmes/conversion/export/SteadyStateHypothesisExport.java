@@ -502,11 +502,12 @@ public final class SteadyStateHypothesisExport {
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
             double ppcc;
             if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
-                double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / (100 - converterStation.getLossFactor());
-                ppcc = converterStation.getHvdcLine().getActivePowerSetpoint() + poleLoss;
+                ppcc = converterStation.getHvdcLine().getActivePowerSetpoint();
             } else {
-                double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / 100;
-                ppcc = -(converterStation.getHvdcLine().getActivePowerSetpoint() - poleLoss);
+                double otherConverterStationLossFactor = converterStation.getOtherConverterStation().map(HvdcConverterStation::getLossFactor).orElse(0.0f);
+                double pDCInverter = converterStation.getHvdcLine().getActivePowerSetpoint() * (1 - otherConverterStationLossFactor / 100);
+                double poleLoss = converterStation.getLossFactor() / 100 * pDCInverter;
+                ppcc = -(pDCInverter - poleLoss);
             }
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
             writer.writeCharacters(CgmesExportUtil.format(ppcc));
