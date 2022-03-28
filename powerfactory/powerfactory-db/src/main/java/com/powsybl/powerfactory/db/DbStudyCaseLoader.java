@@ -8,7 +8,6 @@ package com.powsybl.powerfactory.db;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.StudyCaseLoader;
@@ -21,11 +20,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Study case loader that is able to connect to PowerFactory DB using C++ API.
@@ -101,10 +98,6 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
 
         Instant time = Instant.now(); // FIXME get from study case object
         String studyCaseName = "???";
-        List<DataObject> elmNets = builder.getObjects()
-                .stream()
-                .filter(obj -> obj.getDataClassName().equals("ElmNet"))
-                .collect(Collectors.toList());
-        return new StudyCase(studyCaseName, time, elmNets);
+        return new StudyCase(studyCaseName, time, builder.getIndex());
     }
 }

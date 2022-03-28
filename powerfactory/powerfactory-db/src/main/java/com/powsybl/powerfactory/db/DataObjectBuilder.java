@@ -17,9 +17,15 @@ import java.util.Map;
  */
 public class DataObjectBuilder {
 
+    private final DataObjectIndex index = new DataObjectIndex();
+
     private final Map<String, DataClass> classesByName = new HashMap<>();
 
     private final Map<Long, DataObject> objectsById = new HashMap<>();
+
+    public DataObjectIndex getIndex() {
+        return index;
+    }
 
     public Collection<DataObject> getObjects() {
         return objectsById.values();
@@ -45,7 +51,7 @@ public class DataObjectBuilder {
 
     public void createObject(long id, String className, long parentId) {
         DataClass dataClass = getClassByName(className);
-        DataObject object = new DataObject(id, dataClass);
+        DataObject object = new DataObject(id, dataClass, index);
         if (parentId >= 0) {
             DataObject parentObject = getObjectById(parentId);
             object.setParent(parentObject);
