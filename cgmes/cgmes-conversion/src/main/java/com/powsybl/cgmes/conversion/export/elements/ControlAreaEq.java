@@ -18,7 +18,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public final class ControlAreaEq {
-    private static final String CONTROL_AREA_TYPE = "http://iec.ch/TC57/2013/CIM-schema-cim16#ControlAreaTypeKind.Interchange";
+    private static final String CONTROL_AREA_TYPE = "ControlAreaTypeKind.Interchange";
 
     public static void write(String id, String controlAreaName, String energyIdentificationCodeEIC, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "ControlArea");
@@ -30,7 +30,7 @@ public final class ControlAreaEq {
         writer.writeCharacters(energyIdentificationCodeEIC);
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "ControlArea.type");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, CONTROL_AREA_TYPE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CONTROL_AREA_TYPE);
         writer.writeEndElement();
     }
 
