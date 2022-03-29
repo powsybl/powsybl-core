@@ -29,8 +29,6 @@ import java.util.stream.Stream;
  */
 public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
-    private int vertexLimit;
-
     private static final int VERTICES_CAPACITY = 10;
 
     private static final int EDGES_CAPACITY = 15;
@@ -108,7 +106,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final List<UndirectedGraphListener<V, E>> listeners = new CopyOnWriteArrayList<>();
 
+    private final int vertexLimit;
+
     public UndirectedGraphImpl(int vertexLimit) {
+        if (vertexLimit < 1) {
+            throw new PowsyblException("Vertex limit should be positive");
+        }
         this.vertexLimit = vertexLimit;
     }
 
@@ -246,6 +249,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private E removeEdgeInternal(int e) {
         E obj = edges.get(e).getObject();
+        notifyEdgeBeforeRemoval(e, obj);
         if (e == edges.size() - 1) {
             edges.remove(e);
         } else {
@@ -267,6 +271,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public void removeAllEdges() {
         Collection<E> allEdges = edges.stream().map(Edge::getObject).collect(Collectors.toList());
+        notifyAllEdgesBeforeRemoval(allEdges);
         edges.clear();
         removedEdges.clear();
         invalidateAdjacencyList();
@@ -640,6 +645,18 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     private void notifyEdgeRemoved(int e, E obj) {
         for (UndirectedGraphListener<V, E> l : listeners) {
             l.edgeRemoved(e, obj);
+        }
+    }
+
+    private void notifyEdgeBeforeRemoval(int e, E obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.edgeBeforeRemoval(e, obj);
+        }
+    }
+
+    private void notifyAllEdgesBeforeRemoval(Collection<E> obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.allEdgesBeforeRemoval(obj);
         }
     }
 

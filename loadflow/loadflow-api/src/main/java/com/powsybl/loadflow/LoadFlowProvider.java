@@ -15,7 +15,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -93,4 +93,24 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     default Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
         return Optional.empty();
     }
+
+    /**
+     * Reads implementation-specific parameters from a Map, or return {@link Optional#empty()}
+     * if the implementation does not have any specific parameters, or does not support loading from config.
+     *
+     * @return The specific parameters read from Map.
+     */
+    default Optional<Extension<LoadFlowParameters>> loadSpecificParameters(Map<String, String> properties) {
+        return Optional.empty();
+    }
+
+    /**
+     * get the list of the specific parameters names.
+     *
+     * @return the list of the specific parameters names.
+     */
+    default List<String> getSpecificParametersNames() {
+        return Collections.emptyList();
+    }
+
 }

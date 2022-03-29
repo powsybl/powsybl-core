@@ -79,6 +79,19 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
+    public void undefinedVoltageRegulatorOn() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("Generator 'GEN': voltage regulator status is not set");
+        voltageLevel.newGenerator()
+                .setId("GEN")
+                .setMaxP(Double.MAX_VALUE)
+                .setMinP(-Double.MAX_VALUE)
+                .setTargetP(30.0)
+                .setNode(1)
+                .add();
+    }
+
+    @Test
     public void invalidMaxP() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for maximum P");
