@@ -49,9 +49,6 @@ public class TerminalMapping {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
-        System.err.printf("TerminalMapping.find cgmesTerminalId %s buscar en TopologicalNode %s foundedTerminal %s %n", cgmesTerminalId,
-            cgmesTerminalsMapping.get(cgmesTerminalId), findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId)));
-
         return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
     }
 

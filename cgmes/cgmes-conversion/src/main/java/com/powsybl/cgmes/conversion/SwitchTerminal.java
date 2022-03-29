@@ -96,6 +96,13 @@ class SwitchTerminal {
         return bestTerminalInChain(terminalSide, terminalEnd1, terminalEnd2);
     }
 
+    // CgmesTerminal is defined at end1 of the switch and the terminal is obtained at the switchChain from end2 then same sign
+    // CgmesTerminal is defined at end2 of the switch and the terminal is obtained at the switchChain from end1 then same sign
+    //
+    // N1---sw---N2 N2---sw2---N3 N3---sw3---N4 ... Nn---swn---Nn+1 Nn+1--- 
+    // ct = cgmesTerminal defined at N1, t = terminal defined at Nn+1, ct and t same sign
+    //
+
     private static Optional<TerminalAndSign> bestTerminalInChain(Branch.Side terminalSide, Terminal terminalEnd1, Terminal terminalEnd2) {
         if (terminalSide == Branch.Side.ONE && terminalEnd2 != null) {
             return Optional.of(new TerminalAndSign(terminalEnd2, 1));

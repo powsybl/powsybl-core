@@ -10,7 +10,6 @@ import com.powsybl.cgmes.conversion.SwitchTerminal.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -142,32 +141,10 @@ public class RegulatingControlMapping {
         if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
             Switch sw = context.network().getSwitch(cgmesTerminal.conductingEquipment());
             if (sw != null) {
-                Optional<Terminal> ot = new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInTopologicalNode();
-                trace1(cgmesTerminalId, ot, sw.getId(), context);
-                return ot;
+                return new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInTopologicalNode();
             }
         }
-        Optional<Terminal> ot = Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
-        trace1(cgmesTerminalId, ot, "NoSW", context);
-        return ot;
-    }
-
-    // TODO delete trace1
-    private static void trace1(String cgmesTerminalId, Optional<Terminal> ot, String tag, Context context) {
-        if (ot.isPresent()) {
-            System.err.printf("TRACE-T getRegulatingTerminalVoltageControl  cgmesTerminalId %s SwitchTag %s terminal %s Eq %s Type %s %n",
-                cgmesTerminalId, tag, ot.get(), ot.get().getConnectable().getId(),
-                ot.get().getConnectable().getType());
-        } else {
-            CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-            if (cgmesTerminal != null) {
-                System.err.printf("TRACE-N getRegulatingTerminalVoltageControl  cgmesTerminalId %s SwitchTag %s terminal Null CEq %s Type %s %n",
-                    cgmesTerminalId, tag, cgmesTerminal.conductingEquipment(), cgmesTerminal.conductingEquipmentType());
-            } else {
-                System.err.printf("TRACE-N getRegulatingTerminalVoltageControl  cgmesTerminalId %s SwitchTag %s terminal Null cgmesTerminal Null %n",
-                    cgmesTerminalId, tag);
-            }
-        }
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
     }
 
     Optional<TerminalAndSign> getRegulatingTerminalFlowControl(String cgmesTerminalId) {
@@ -180,33 +157,11 @@ public class RegulatingControlMapping {
             Switch sw = context.network().getSwitch(cgmesTerminal.conductingEquipment());
             if (sw != null) {
                 Branch.Side side = sequenceNumberToSide(cgmesTerminal.getSequenceNumber());
-                Optional<TerminalAndSign> ot = new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInSwitchesChain(side);
-                trace2(cgmesTerminalId, ot, sw.getId(), context);
-                return ot;
+                return new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInSwitchesChain(side);
             }
         }
         Optional<Terminal> ot = Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
-        Optional<TerminalAndSign> ot2 = ot.isPresent() ? Optional.of(new TerminalAndSign(ot.get(), 1)) : Optional.empty();
-        trace2(cgmesTerminalId, ot2, "noSw", context);
-        return ot2;
-    }
-
-    // TODO delete trace2
-    private static void trace2(String cgmesTerminalId, Optional<TerminalAndSign> ot, String tag, Context context) {
-        if (ot.isPresent()) {
-            System.err.printf("TRACE-T getRegulatingTerminalFlowControl  cgmesTerminalId %s SwitchTag %s terminal %s sign %d Eq %s Type %s %n",
-                cgmesTerminalId, tag, ot.get().getTerminal(), ot.get().getSign(), ot.get().getTerminal().getConnectable().getId(),
-                ot.get().getTerminal().getConnectable().getType());
-        } else {
-            CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-            if (cgmesTerminal != null) {
-                System.err.printf("TRACE-N getRegulatingTerminalFlowControl  cgmesTerminalId %s SwitchTag %s terminal Null CEq %s Type %s %n",
-                    cgmesTerminalId, tag, cgmesTerminal.conductingEquipment(), cgmesTerminal.conductingEquipmentType());
-            } else {
-                System.err.printf("TRACE-N getRegulatingTerminalFlowControl  cgmesTerminalId %s SwitchTag %s terminal Null cgmesTerminal Null %n",
-                    cgmesTerminalId, tag);
-            }
-        }
+        return ot.isPresent() ? Optional.of(new TerminalAndSign(ot.get(), 1)) : Optional.empty();
     }
 
     private static Branch.Side sequenceNumberToSide(int sequenceNumber) {
@@ -219,32 +174,6 @@ public class RegulatingControlMapping {
         }
     }
 
-    // TODO delete
-    Terminal findRegulatingTerminalDelete(String cgmesTerminalId) {
-        return findRegulatingTerminalDelete(cgmesTerminalId, false);
-    }
-
-    Terminal findRegulatingTerminalDelete(String cgmesTerminalId, boolean canBeNull) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).filter(Terminal::isConnected)
-                .orElseGet(() -> {
-                    if (canBeNull) {
-                        return null;
-                    }
-                    CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-                    if (cgmesTerminal != null) {
-                        // Try to obtain Terminal from TopologicalNode
-                        String topologicalNode = cgmesTerminal.topologicalNode();
-                        context.invalid(REGULATING_TERMINAL, () -> String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
-                            "A connected terminal linked to the topological node %s is searched.",
-                            cgmesTerminalId, topologicalNode));
-                        return context.terminalMapping().findFromTopologicalNode(topologicalNode);
-                    } else {
-                        context.invalid(REGULATING_TERMINAL, "No CGMES terminal found with identifier " + cgmesTerminalId);
-                        return null;
-                    }
-                });
-    }
-
     static boolean isControlModeVoltage(String controlMode) {
         return controlMode != null && controlMode.endsWith(VOLTAGE);
     }
@@ -255,22 +184,5 @@ public class RegulatingControlMapping {
 
     static String getRegulatingControlId(PropertyBag p) {
         return p.getId(REGULATING_CONTROL);
-    }
-
-    Terminal getRegulatingTerminalDelete(Injection injection, String cgmesTerminal) {
-        // Will take default terminal ONLY if it has not been explicitly defined in CGMES
-        // the default terminal is the local terminal
-        Terminal terminal = injection.getTerminal();
-        System.err.printf("getRegulatingTerminalJAM cgmesTerminal %s terminal %s %n", cgmesTerminal, terminal);
-        if (cgmesTerminal != null) {
-            terminal = findRegulatingTerminalDelete(cgmesTerminal);
-            System.err.printf("getRegulatingTerminalJAM cgmesTerminal %s terminal find %s %n", cgmesTerminal, terminal);
-            // If terminal is null here it means that no IIDM terminal has been found
-            // from the initial CGMES terminal or topological node,
-            // we will consider the regulating control invalid,
-            // in this case we will not use the default terminal
-            // (no localization of regulating controls)
-        }
-        return terminal;
     }
 }
