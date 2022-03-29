@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.regex.Pattern;
 
 /**
@@ -53,12 +54,22 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
 
     @Override
     public String getExtension() {
-        return "IntPrj";
+        return "properties";
+    }
+
+    private static String readProjectName(InputStream is) {
+        try (is) {
+            var properties = new Properties();
+            properties.load(is);
+            return properties.getProperty("projectName");
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
     public boolean test(InputStream is) {
-        return true;
+        return readProjectName(is) != null;
     }
 
     private static Optional<String> readPowerFactoryHomeFromConfig(PlatformConfig platformConfig) {
@@ -93,17 +104,22 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
 
     @Override
     public StudyCase doLoad(String fileName, InputStream is) {
-        String projectName = com.google.common.io.Files.getNameWithoutExtension(fileName);
+        String projectName = readProjectName(is);
+        if (projectName == null) {
+            throw new PowerFactoryException("Project name not found in property file '" + fileName + "'");
+        }
+        LOGGER.info("Working on project '{}'", projectName);
 
         // first read from platform config, then try to autodetect
         String powerFactoryHome = readPowerFactoryHomeFromConfig(platformConfig)
                 .orElseGet(this::findPowerFactoryHome);
+        Path powerFactoryHomeDir = getDigSilentDir().resolve(powerFactoryHome).toAbsolutePath();
 
-        LOGGER.info("Using PowerFactory installation '{}'", getDigSilentDir().resolve(powerFactoryHome));
+        LOGGER.info("Using PowerFactory installation '{}'", powerFactoryHomeDir);
 
         // read study cases objects from PowerFactory DB using C++ API
         DataObjectBuilder builder = new DataObjectBuilder();
-        dbReader.read(powerFactoryHome, projectName, builder);
+        dbReader.read(powerFactoryHomeDir.toString(), projectName, builder);
 
         Instant time = Instant.now(); // FIXME get from study case object
         String studyCaseName = "???";

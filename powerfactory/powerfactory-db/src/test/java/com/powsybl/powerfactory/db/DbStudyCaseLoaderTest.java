@@ -16,17 +16,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DbStudyCaseLoaderTest {
+
+    public static final String TEST_PROPERTIES = "test.properties";
 
     private static class TestDatabaseReader implements DatabaseReader {
 
@@ -45,9 +49,13 @@ public class DbStudyCaseLoaderTest {
 
     private FileSystem fileSystem;
 
+    private Path testProperties;
+
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.windows());
+        testProperties = fileSystem.getPath(TEST_PROPERTIES);
+        Files.writeString(testProperties, "projectName=Foo");
     }
 
     @After
@@ -56,8 +64,14 @@ public class DbStudyCaseLoaderTest {
     }
 
     private StudyCase loadStudy(PlatformConfig platformConfig) {
-        return StudyCaseLoader.load("Test.IntPrj",
-            () -> null,
+        return StudyCaseLoader.load("test.properties",
+            () -> {
+                try {
+                    return Files.newInputStream(testProperties);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            },
             List.of(new DbStudyCaseLoader(platformConfig, new TestDatabaseReader())))
                 .orElseThrow();
     }

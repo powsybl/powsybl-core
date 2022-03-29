@@ -11,8 +11,7 @@ import com.google.common.io.Files;
 import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.StudyCaseLoader;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,12 +26,21 @@ public class DgsStudyCaseLoader implements StudyCaseLoader {
 
     @Override
     public boolean test(InputStream is) {
+        try {
+            is.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         return true;
     }
 
     @Override
     public StudyCase doLoad(String fileName, InputStream is) {
         String studyCaseName = Files.getNameWithoutExtension(fileName);
-        return new DgsReader().read(studyCaseName, new InputStreamReader(is));
+        try (Reader reader = new InputStreamReader(is)) {
+            return new DgsReader().read(studyCaseName, reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }
