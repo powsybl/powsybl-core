@@ -75,7 +75,7 @@ public class SensitivityAnalysisResult {
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
-            valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(factor.getFunctionType(), contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
+            valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType()), value);
             functionReferenceByContingencyAndFunction.put(new FunctionReferenceKey(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
     }
@@ -136,7 +136,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityFunctionType functionType) {
-        SensitivityValue value = valuesByContingencyIdAndFunctionAndVariableId.get(new SensitivityValueKey(functionType, contingencyId, functionId, variableId));
+        SensitivityValue value = valuesByContingencyIdAndFunctionAndVariableId.get(new SensitivityValueKey(contingencyId, variableId, functionId, functionType));
         if (value != null) {
             return value.getValue();
         }

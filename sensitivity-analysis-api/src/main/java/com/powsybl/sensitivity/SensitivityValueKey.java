@@ -1,35 +1,38 @@
 package com.powsybl.sensitivity;
 
+import java.util.Objects;
+
+
 /*
  * Key type for sensitivity value when stored by function type, contingency, function and variable id
  */
 public class SensitivityValueKey {
 
-    private SensitivityFunctionType functionType;
-    private String contingencyId;
-    private String functionId;
-    private String variableId;
+    private final SensitivityFunctionType functionType;
+    private final String contingencyId;
+    private final String functionId;
+    private final String variableId;
 
-    public SensitivityValueKey(final SensitivityFunctionType functionType, final String contingencyId, final String functionId, final String variableId) {
-        this.functionType = functionType;
+    public SensitivityValueKey(final String contingencyId, final String variableId, final String functionId, final SensitivityFunctionType functionType) {
         this.contingencyId = contingencyId;
-        this.functionId = functionId;
         this.variableId = variableId;
+        this.functionId = functionId;
+        this.functionType = functionType;
     }
 
-    SensitivityFunctionType getFunctionType() {
+    public SensitivityFunctionType getFunctionType() {
         return functionType;
     }
 
-    String getContingencyId() {
+    public String getContingencyId() {
         return contingencyId;
     }
 
-    String getFunctionId() {
+    public String getFunctionId() {
         return functionId;
     }
 
-    String getVariableId() {
+    public String getVariableId() {
         return variableId;
     }
 
@@ -52,11 +55,6 @@ public class SensitivityValueKey {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = prime + functionType.hashCode();
-        result = prime * result + functionId.hashCode();
-        result = contingencyId != null ? prime * result + contingencyId.hashCode() : prime * result;
-        result = prime * result + variableId.hashCode();
-        return result;
+        return Objects.hash(functionType, functionId, contingencyId, variableId);
     }
 }

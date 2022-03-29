@@ -111,9 +111,9 @@ public class SensitivityAnalysisResultTest {
 
     @Test
     public void testCompareSensivitiyValueKeysEqualsNotEquals() {
-        SensitivityValueKey key1 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_1, null, "l1", "g1");
-        SensitivityValueKey key2 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_1, "c1", "l1", "g1");
-        SensitivityValueKey key3 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_2, null, "l1", "g1");
+        SensitivityValueKey key1 = new SensitivityValueKey(null, "l1", "g1", SensitivityFunctionType.BRANCH_CURRENT_1);
+        SensitivityValueKey key2 = new SensitivityValueKey("c1", "l1", "g1", SensitivityFunctionType.BRANCH_CURRENT_1);
+        SensitivityValueKey key3 = new SensitivityValueKey(null, "l1", "g1", SensitivityFunctionType.BRANCH_CURRENT_2);
 
         assertEquals(key1, key1);
         assertNotEquals(key1, key2);
