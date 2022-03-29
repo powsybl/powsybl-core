@@ -50,7 +50,7 @@ public class BranchTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> affectedTerminals) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
         Branch<?> branch = supplier.apply(network, branchId);
@@ -59,15 +59,15 @@ public class BranchTripping extends AbstractTripping {
         }
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, affectedTerminals);
+                TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
             } else if (voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, affectedTerminals);
+                TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
             } else {
                 throw createNotConnectedException();
             }
         } else {
-            TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, affectedTerminals);
-            TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, affectedTerminals);
+            TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
+            TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
         }
     }
 
