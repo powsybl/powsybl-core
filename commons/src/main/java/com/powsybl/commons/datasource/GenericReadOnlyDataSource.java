@@ -30,6 +30,13 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
         };
     }
 
+    /**
+     * The data source contains all files inside the given directory.
+     */
+    public GenericReadOnlyDataSource(Path directory) {
+        this(directory, "");
+    }
+
     public GenericReadOnlyDataSource(Path directory, String baseName) {
         this(directory, baseName, null);
     }
