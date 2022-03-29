@@ -110,7 +110,7 @@ public class SensitivityAnalysisResultTest {
     }
 
     @Test
-    public void testCompareSensivitiyValueKeys() {
+    public void testCompareSensivitiyValueKeys_equals_notequals() {
         SensitivityValueKey key1 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_1, null, "l1", "g1");
         SensitivityValueKey key2 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_1, "c1", "l1", "g1");
         SensitivityValueKey key3 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_2, null, "l1", "g1");
