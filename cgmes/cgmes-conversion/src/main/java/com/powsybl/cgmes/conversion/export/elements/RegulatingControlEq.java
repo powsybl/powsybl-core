@@ -18,7 +18,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class RegulatingControlEq {
 
-    public static final String REGULATING_CONTROL_VOLTAGE = "http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage";
+    public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
 
     public static void write(String id, String regulatingControlName, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "RegulatingControl");
@@ -29,7 +29,7 @@ public final class RegulatingControlEq {
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.Terminal");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminalId);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, REGULATING_CONTROL_VOLTAGE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + REGULATING_CONTROL_VOLTAGE);
         writer.writeEndElement();
     }
 

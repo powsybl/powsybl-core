@@ -35,10 +35,10 @@ public class CgmesExportContext {
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
-    private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.EQ_PROFILE);
-    private ModelDescription tpModelDescription = new ModelDescription("TP Model", CgmesNamespace.TP_PROFILE);
-    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
-    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
+    private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.getProfile(cimVersion, "EQ"));
+    private ModelDescription tpModelDescription = new ModelDescription("TP Model", CgmesNamespace.getProfile(cimVersion, "TP"));
+    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.getProfile(cimVersion, "SV"));
+    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.getProfile(cimVersion, "SSH"));
 
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
@@ -110,6 +110,11 @@ public class CgmesExportContext {
 
         public String getProfile() {
             return profile;
+        }
+
+        public ModelDescription setProfile(String profile) {
+            this.profile = profile;
+            return this;
         }
     }
 
@@ -512,6 +517,12 @@ public class CgmesExportContext {
 
     public CgmesExportContext setCimVersion(int cimVersion) {
         this.cimVersion = cimVersion;
+        if (CgmesNamespace.hasProfiles(cimVersion)) {
+            eqModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "EQ"));
+            tpModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "TP"));
+            svModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SV"));
+            sshModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SSH"));
+        }
         return this;
     }
 
@@ -568,7 +579,7 @@ public class CgmesExportContext {
     }
 
     public String getCimNamespace() {
-        return CgmesNamespace.getCimNamespace(cimVersion);
+        return CgmesNamespace.getCim(cimVersion);
     }
 
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {

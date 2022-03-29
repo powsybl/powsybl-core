@@ -40,7 +40,7 @@ public final class EquipmentExport {
             String cimNamespace = context.getCimNamespace();
 
             // TODO fill EQ Model Description
-            if (context.getCimVersion() == 16) {
+            if (context.getCimVersion() >= 16) {
                 ModelDescriptionEq.write(writer, context.getEqModelDescription(), context);
             }
 
