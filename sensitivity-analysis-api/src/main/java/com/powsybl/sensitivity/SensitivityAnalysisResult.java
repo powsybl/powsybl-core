@@ -37,6 +37,26 @@ import java.util.*;
  */
 public class SensitivityAnalysisResult {
 
+    /*
+     * Key type for sensitivity value when stored by contingency, function and variable id
+     */
+    private class SensitivityValueKey extends Triple<String, String, String> {
+
+        public SensitivityValueKey(final String s, final String s2, final String s3) {
+            super(s, s2, s3);
+        }
+    }
+
+    /*
+     * Key type for function reference value when stored function type, contingency and function id
+     */
+    private class FunctionReferenceKey extends Triple<SensitivityFunctionType, String, String> {
+
+        public FunctionReferenceKey(final SensitivityFunctionType sensitivityFunctionType, final String s, final String s2) {
+            super(sensitivityFunctionType, s, s2);
+        }
+    }
+
     private final List<SensitivityFactor> factors;
 
     private final List<Contingency> contingencies;
@@ -45,9 +65,9 @@ public class SensitivityAnalysisResult {
 
     private final Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
 
-    private final EnumMap<SensitivityFunctionType, Map<Triple<String, String, String>, SensitivityValue>> valuesByContingencyIdAndFunctionIdAndVariableId = new EnumMap<>(SensitivityFunctionType.class);
+    private final EnumMap<SensitivityFunctionType, Map<SensitivityValueKey, SensitivityValue>> valuesByContingencyIdAndFunctionAndVariableId = new EnumMap<>(SensitivityFunctionType.class);
 
-    private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunctionId = new HashMap<>();
+    private final Map<FunctionReferenceKey, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
     /**
      * Sensitivity analysis result
@@ -65,9 +85,9 @@ public class SensitivityAnalysisResult {
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
-            Map<Triple<String, String, String>, SensitivityValue> store = valuesByContingencyIdAndFunctionIdAndVariableId.computeIfAbsent(factor.getFunctionType(), k -> new HashMap<>());
-            store.put(Triple.of(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
-            functionReferenceByContingencyAndFunctionId.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
+            Map<SensitivityValueKey, SensitivityValue> store = valuesByContingencyIdAndFunctionAndVariableId.computeIfAbsent(factor.getFunctionType(), k -> new HashMap<>());
+            store.put(new SensitivityValueKey(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
+            functionReferenceByContingencyAndFunction.put(new FunctionReferenceKey(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
     }
 
@@ -127,9 +147,9 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityFunctionType functionType) {
-        Map<Triple<String, String, String>, SensitivityValue> store = valuesByContingencyIdAndFunctionIdAndVariableId.get(functionType);
+        Map<SensitivityValueKey, SensitivityValue> store = valuesByContingencyIdAndFunctionAndVariableId.get(functionType);
         if (store != null) {
-            SensitivityValue value = store.get(Triple.of(contingencyId, functionId, variableId));
+            SensitivityValue value = store.get(new SensitivityValueKey(contingencyId, functionId, variableId));
             if (value != null) {
                 return value.getValue();
             }
@@ -274,7 +294,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getFunctionReferenceValue(String contingencyId, String functionId, SensitivityFunctionType functionType) {
-        Double value = functionReferenceByContingencyAndFunctionId.get(Triple.of(functionType, contingencyId, functionId));
+        Double value = functionReferenceByContingencyAndFunction.get(new FunctionReferenceKey(functionType, contingencyId, functionId));
         if (value == null) {
             throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + functionId + "'"
                                        + "', functionType '" + functionType);
