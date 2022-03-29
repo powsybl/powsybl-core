@@ -144,13 +144,6 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeBuses(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
-        for (Bus bus : vl.getBusBreakerView().getBuses()) {
-            ConnectivityNodeEq.write(bus.getId(), bus.getNameOrId(), vl.getId(), cimNamespace, writer);
-            exportedNodes.put(bus.getId(), bus.getId());
-        }
-    }
-
     private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
