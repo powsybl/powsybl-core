@@ -176,11 +176,12 @@ public class SensitivityFactor {
         String fieldName = parser.getCurrentName();
         switch (fieldName) {
             case "functionType":
-                context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
                 if (context.functionType.equals(SensitivityFunctionType.BRANCH_ACTIVE_POWER)) {
                     context.functionType = SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
                 } else if (context.functionType.equals(SensitivityFunctionType.BRANCH_CURRENT)) {
                     context.functionType = SensitivityFunctionType.BRANCH_CURRENT_1;
+                } else {
+                    context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
                 }
                 break;
             case "functionId":
