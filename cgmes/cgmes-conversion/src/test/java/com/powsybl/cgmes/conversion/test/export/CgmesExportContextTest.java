@@ -38,7 +38,7 @@ public class CgmesExportContextTest {
     public void testExporter() {
         var exporter = new CgmesExport();
         assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
-        assertEquals(5, exporter.getParameters().size());
+        assertEquals(6, exporter.getParameters().size());
     }
 
     @Test
@@ -196,7 +196,7 @@ public class CgmesExportContextTest {
         Properties ip = new Properties();
         ip.put("iidm.import.cgmes.create-cgmes-export-mapping", "false");
         Network n = new CgmesImport().importData(ds, NetworkFactory.findDefault(), ip);
-        CgmesExportContext context = new CgmesExportContext(n);
+        CgmesExportContext context = new CgmesExportContext(n, true);
         assertNotNull(n.getExtension(CgmesIidmMapping.class));
 
         for (Bus bus : n.getBusView().getBuses()) {
