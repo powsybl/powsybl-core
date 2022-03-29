@@ -82,7 +82,7 @@ public final class TopologyExport {
     }
 
     private static String topologicalNodeFromIidmBus(Bus b, CgmesExportContext context) {
-        return context.getTopologicalNodesByBusViewBus(b.getId()).stream().findFirst().orElseThrow(PowsyblException::new).getCgmesId();
+        return b != null ? context.getTopologicalNodesByBusViewBus(b.getId()).stream().findFirst().orElseThrow(PowsyblException::new).getCgmesId() : null;
     }
 
     private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -102,9 +102,20 @@ public final class TopologyExport {
             String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
             String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
 
-            writeTerminal(cgmesTerminal1, topologicalNodeFromIidmBus(bus1, context), cimNamespace, writer);
-            writeTerminal(cgmesTerminal2, topologicalNodeFromIidmBus(bus2, context), cimNamespace, writer);
+            writeSwitchTerminal(bus1, sw.getVoltageLevel(), cgmesTerminal1, cimNamespace, writer, context);
+            writeSwitchTerminal(bus2, sw.getVoltageLevel(), cgmesTerminal2, cimNamespace, writer, context);
         }
+    }
+
+    private static void writeSwitchTerminal(Bus bus, VoltageLevel voltageLevel, String cgmesTerminal, String cimNamespace,
+                                            XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String tn = topologicalNodeFromIidmBus(bus, context);
+        if (tn == null) {
+            tn = CgmesExportUtil.getUniqueId();
+            writeTopologicalNode(tn, tn, voltageLevel.getId(),
+                    context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId(), cimNamespace, writer);
+        }
+        writeTerminal(cgmesTerminal, tn, cimNamespace, writer);
     }
 
     private static void writeHvdcTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
