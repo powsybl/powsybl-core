@@ -14,13 +14,14 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -46,7 +48,6 @@ public class TopologyExportTest extends AbstractConverterTest {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource());
     }
 
-    @Ignore
     @Test
     public void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
@@ -81,11 +82,31 @@ public class TopologyExportTest extends AbstractConverterTest {
         Network actual = Importers.loadNetwork(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
+        Network expectedNetwork = prepareNetworkForComparison(expected);
+        Network actualNetwork = prepareNetworkForComparison(actual);
+
         // Export original and with new TP
-        NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setSorted(true);
+        NetworkXml.writeAndValidate(expectedNetwork, tmpDir.resolve("expected.xml"));
+        NetworkXml.writeAndValidate(actualNetwork, tmpDir.resolve("actual.xml"));
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringBus));
+    }
+
+    private Network prepareNetworkForComparison(Network network) {
+        network.getAliases().forEach(network::removeAlias);
+        network.getIdentifiables().forEach(identifiable -> {
+            identifiable.getAliases().forEach(identifiable::removeAlias);
+            identifiable.removeProperty("v");
+            identifiable.removeProperty("angle");
+        });
+
+        return network;
     }
 }

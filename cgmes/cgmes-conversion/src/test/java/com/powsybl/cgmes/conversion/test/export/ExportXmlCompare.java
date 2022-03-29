@@ -379,6 +379,22 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringBus(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+                if (control != null && control.getLocalName().equals("nodeBreakerTopology")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.CHILD_LOOKUP) {
+                if (control != null && control.getLocalName().equals("bus")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringNonEQ(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();

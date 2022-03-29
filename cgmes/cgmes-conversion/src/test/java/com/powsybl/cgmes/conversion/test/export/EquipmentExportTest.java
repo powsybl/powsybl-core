@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
+import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
@@ -28,7 +29,6 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlunit.diff.DifferenceEvaluators;
 
@@ -89,15 +89,15 @@ public class EquipmentExportTest extends AbstractConverterTest {
         compareNetworksEQdata(expected, actual);
     }
 
-    @Ignore
     @Test
     public void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         exportToCgmesEQ(network);
+        exportToCgmesTP(network);
 
-        // Import just the EQ file, no additional information (boundaries) are required
-        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        // Import EQ & TP file, no additional information (boundaries) are required
+        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
         compareNetworksEQdata(network, actual);
     }
 
@@ -165,6 +165,18 @@ public class EquipmentExportTest extends AbstractConverterTest {
         }
 
         return exportedEq;
+    }
+
+    private Path exportToCgmesTP(Network network) throws IOException, XMLStreamException {
+        // Export CGMES EQ file
+        Path exportedTp = tmpDir.resolve("exportedTp.xml");
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedTp))) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+            CgmesExportContext context = new CgmesExportContext(network);
+            TopologyExport.write(network, writer, context);
+        }
+
+        return exportedTp;
     }
 
     private void compareNetworksEQdata(Network expected, Network actual) throws IOException {
