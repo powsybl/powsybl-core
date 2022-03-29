@@ -99,7 +99,7 @@ class SwitchTerminal {
     // CgmesTerminal is defined at end1 of the switch and the terminal is obtained at the switchChain from end2 then same sign
     // CgmesTerminal is defined at end2 of the switch and the terminal is obtained at the switchChain from end1 then same sign
     //
-    // N1---sw---N2 N2---sw2---N3 N3---sw3---N4 ... Nn---swn---Nn+1 Nn+1--- 
+    // N1---sw---N2 N2---sw2---N3 N3---sw3---N4 ... Nn---swn---Nn+1 Nn+1---
     // ct = cgmesTerminal defined at N1, t = terminal defined at Nn+1, ct and t same sign
     //
 
