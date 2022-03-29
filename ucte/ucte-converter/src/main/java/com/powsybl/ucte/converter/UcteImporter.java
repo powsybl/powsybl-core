@@ -511,7 +511,7 @@ public class UcteImporter implements Importer {
             ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                     .setTargetDeadband(0.0)
                     .setRegulationTerminal(transformer.getTerminal1())
-                    .setRegulating(true);
+                    .setRegulating(false); // should be set to true but many divergence on files are observed.
         }
 
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
