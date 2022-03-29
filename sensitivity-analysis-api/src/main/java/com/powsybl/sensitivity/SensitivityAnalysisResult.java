@@ -38,12 +38,62 @@ import java.util.*;
 public class SensitivityAnalysisResult {
 
     /*
-     * Key type for sensitivity value when stored by contingency, function and variable id
+     * Key type for sensitivity value when stored by function type, contingency, function and variable id
      */
-    private class SensitivityValueKey extends Triple<String, String, String> {
+    private class SensitivityValueKey {
 
-        public SensitivityValueKey(final String s, final String s2, final String s3) {
-            super(s, s2, s3);
+        private SensitivityFunctionType functionType;
+        private String contingencyId;
+        private String functionId;
+        private String variableId;
+
+        public SensitivityValueKey(final SensitivityFunctionType functionType, final String contingencyId, final String functionId, final String variableId) {
+            this.functionType = functionType;
+            this.contingencyId = contingencyId;
+            this.functionId = functionId;
+            this.variableId = variableId;
+        }
+
+        SensitivityFunctionType getFunctionType() {
+            return functionType;
+        }
+
+        String getContingencyId() {
+            return contingencyId;
+        }
+
+        String getFunctionId() {
+            return functionId;
+        }
+
+        String getVariableId() {
+            return variableId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+
+            if (!(o instanceof  SensitivityValueKey)) {
+                return false;
+            }
+
+            SensitivityValueKey c = (SensitivityValueKey) o;
+
+            return c.getFunctionType().equals(functionType) && c.getFunctionId().equals(functionId)
+                   && c.getContingencyId().equals(contingencyId) && c.getVariableId().equals(variableId);
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = prime + functionType.hashCode();
+            result = prime * result + functionId.hashCode();
+            result = prime * result + contingencyId.hashCode();
+            result = prime * result + variableId.hashCode();
+            return result;
         }
     }
 
@@ -65,7 +115,7 @@ public class SensitivityAnalysisResult {
 
     private final Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
 
-    private final EnumMap<SensitivityFunctionType, Map<SensitivityValueKey, SensitivityValue>> valuesByContingencyIdAndFunctionAndVariableId = new EnumMap<>(SensitivityFunctionType.class);
+    private final Map<SensitivityValueKey, SensitivityValue> valuesByContingencyIdAndFunctionAndVariableId = new HashMap<>();
 
     private final Map<FunctionReferenceKey, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
@@ -85,8 +135,7 @@ public class SensitivityAnalysisResult {
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
-            Map<SensitivityValueKey, SensitivityValue> store = valuesByContingencyIdAndFunctionAndVariableId.computeIfAbsent(factor.getFunctionType(), k -> new HashMap<>());
-            store.put(new SensitivityValueKey(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
+            valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(factor.getFunctionType(), contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
             functionReferenceByContingencyAndFunction.put(new FunctionReferenceKey(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
     }
@@ -147,12 +196,9 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityFunctionType functionType) {
-        Map<SensitivityValueKey, SensitivityValue> store = valuesByContingencyIdAndFunctionAndVariableId.get(functionType);
-        if (store != null) {
-            SensitivityValue value = store.get(new SensitivityValueKey(contingencyId, functionId, variableId));
-            if (value != null) {
-                return value.getValue();
-            }
+        SensitivityValue value = valuesByContingencyIdAndFunctionAndVariableId.get(new SensitivityValueKey(functionType, contingencyId, functionId, variableId));
+        if (value != null) {
+            return value.getValue();
         }
         throw new PowsyblException("Sensitivity value not found for contingency '" + contingencyId + "', function '"
                                    + functionId + "', variable '" + variableId + "'" + "', functionType '" + functionType);
