@@ -108,4 +108,18 @@ public class SensitivityAnalysisResultTest {
         assertEquals(4d, result.getBranchCurrent2FunctionReferenceValue("l2"), 0d);
         assertEquals(2, result.getPreContingencyValues().size());
     }
+
+    @Test
+    public void testCompareSensivitiyValueKeys() {
+        SensitivityValueKey key1 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_1, null, "l1", "g1");
+        SensitivityValueKey key2 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_1, "c1", "l1", "g1");
+        SensitivityValueKey key3 = new SensitivityValueKey(SensitivityFunctionType.BRANCH_CURRENT_2, null, "l1", "g1");
+
+        assertEquals(key1, key1);
+        assertNotEquals(key1, key2);
+        assertNotEquals(key2, key3);
+
+        String dummy = "dummy";
+        assertNotEquals(key1, dummy);
+    }
 }
