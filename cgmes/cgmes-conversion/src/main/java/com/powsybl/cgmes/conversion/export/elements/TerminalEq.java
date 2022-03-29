@@ -24,8 +24,10 @@ public final class TerminalEq {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeEmptyElement(cimNamespace, "Terminal.ConductingEquipment");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
-        writer.writeEmptyElement(cimNamespace, "Terminal.ConnectivityNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + connectivityNodeId);
+        if (connectivityNodeId != null) {
+            writer.writeEmptyElement(cimNamespace, "Terminal.ConnectivityNode");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + connectivityNodeId);
+        }
         writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));
         writer.writeEndElement();

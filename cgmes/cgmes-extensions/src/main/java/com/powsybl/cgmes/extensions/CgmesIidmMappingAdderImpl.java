@@ -17,7 +17,6 @@ import java.util.Set;
  */
 public class CgmesIidmMappingAdderImpl extends AbstractExtensionAdder<Network, CgmesIidmMapping> implements CgmesIidmMappingAdder {
 
-    private Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = new HashSet<>();
     private Set<CgmesIidmMapping.BaseVoltageSource> baseVoltages = new HashSet<>();
 
     public CgmesIidmMappingAdderImpl(Network extendable) {
@@ -26,13 +25,7 @@ public class CgmesIidmMappingAdderImpl extends AbstractExtensionAdder<Network, C
 
     @Override
     protected CgmesIidmMapping createExtension(Network extendable) {
-        return new CgmesIidmMappingImpl(topologicalNodes, baseVoltages);
-    }
-
-    @Override
-    public CgmesIidmMappingAdder addTopologicalNode(String topologicalNodeId, String topologicalNodeName, CgmesIidmMapping.Source source) {
-        topologicalNodes.add(new CgmesIidmMapping.CgmesTopologicalNode(topologicalNodeId, topologicalNodeName, source));
-        return this;
+        return new CgmesIidmMappingImpl(baseVoltages);
     }
 
     @Override
