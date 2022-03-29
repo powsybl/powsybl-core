@@ -77,10 +77,14 @@ class BaseVoltageMappingImpl extends AbstractExtension<Network> implements BaseV
     public BaseVoltageMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source) {
         if (nominalVoltageBaseVoltageMap.containsKey(nominalVoltage)) {
             if (nominalVoltageBaseVoltageMap.get(nominalVoltage).getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
-                LOGGER.info("Nominal voltage {} is already mapped with an {} base voltage. Replaced by a {} base voltage", nominalVoltage, Source.IGM.name(), Source.BOUNDARY.name());
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Nominal voltage {} is already mapped with an {} base voltage. Replaced by a {} base voltage", nominalVoltage, Source.IGM.name(), Source.BOUNDARY.name());
+                }
                 nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSourceImpl(baseVoltageId, nominalVoltage, source));
             } else {
-                LOGGER.info("Nominal voltage {} is already mapped and not to the given base voltage {} from {}", nominalVoltage, baseVoltageId, source.name());
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Nominal voltage {} is already mapped and not to the given base voltage {} from {}", nominalVoltage, baseVoltageId, source.name());
+                }
             }
         } else {
             nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSourceImpl(baseVoltageId, nominalVoltage, source));
