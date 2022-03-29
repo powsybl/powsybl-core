@@ -66,7 +66,7 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
     }
 
     /**
-     *   L(1)   G(2)
+     *   LD(1)   G(2)
      *   |       |
      *   B1      B2
      *   |       |
@@ -134,5 +134,166 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
         assertNotNull(network.getBusbarSection("BBS"));
         assertNotNull(network.getSwitch("B2"));
         assertNotNull(network.getSwitch("D"));
+    }
+
+    /**
+     *        LD(3)      G(4)
+     *        |          |
+     *        B1         |
+     *        |          |
+     *   -----2-----     B2
+     *   |         |     |
+     *   D         D2    |
+     *   |         |     |
+     *   |         -------
+     *   |            |
+     *   BBS(0)       BBS2(1)
+     */
+    private static Network createNetworkWithDoubleBusbarConnection() {
+        Network network = Network.create("test", "test");
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS")
+                .setNode(0)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS2")
+                .setNode(1)
+                .add();
+        vl.newLoad()
+                .setId("LD")
+                .setNode(3)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(2)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newDisconnector()
+                .setId("D")
+                .setNode1(0)
+                .setNode2(2)
+                .add();
+        vl.getNodeBreakerView().newDisconnector()
+                .setId("D2")
+                .setNode1(1)
+                .setNode2(2)
+                .add();
+        vl.newGenerator()
+                .setId("G")
+                .setNode(4)
+                .setTargetP(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(400)
+                .setMinP(0)
+                .setMaxP(10)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B2")
+                .setNode1(1)
+                .setNode2(4)
+                .add();
+        return network;
+    }
+
+    @Test
+    public void testRemoveAndCleanWithDoubleBusbarConnection() {
+        Network network = createNetworkWithDoubleBusbarConnection();
+        addListener(network);
+        Load ld = network.getLoad("LD");
+        ld.remove(true);
+        assertEquals(Set.of("B1", "LD", "D", "D2"), beforeRemovalObjects);
+        assertEquals(Set.of("B1", "LD", "D", "D2"), removedObjects);
+        assertNull(network.getLoad("LD"));
+        assertNull(network.getSwitch("B1"));
+        assertNull(network.getSwitch("D"));
+        assertNull(network.getSwitch("D2"));
+        assertNotNull(network.getGenerator("G"));
+        assertNotNull(network.getBusbarSection("BBS"));
+        assertNotNull(network.getBusbarSection("BBS2"));
+        assertNotNull(network.getSwitch("B2"));
+    }
+
+    /**
+     *    LD(1)     G(2)
+     *    |         |
+     * (3)|----D----|(4)
+     *    |         |
+     *    B1        B2
+     *    |         |
+     *    ----------- BBS(0)
+     */
+    private static Network createNetworkWithBridge() {
+        Network network = Network.create("test", "test");
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS")
+                .setNode(0)
+                .add();
+        vl.newLoad()
+                .setId("LD")
+                .setNode(1)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl.newGenerator()
+                .setId("G")
+                .setNode(2)
+                .setTargetP(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(400)
+                .setMinP(0)
+                .setMaxP(10)
+                .add();
+        vl.getNodeBreakerView().newInternalConnection()
+                .setNode1(1)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newInternalConnection()
+                .setNode1(3)
+                .setNode2(4)
+                .add();
+        vl.getNodeBreakerView().newDisconnector()
+                .setId("D")
+                .setNode1(0)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(0)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B2")
+                .setNode1(0)
+                .setNode2(4)
+                .add();
+        return network;
+    }
+
+    @Test
+    public void testRemoveAndCleanWithBridge() {
+        Network network = createNetworkWithBridge();
+        addListener(network);
+        Load ld = network.getLoad("LD");
+        ld.remove(true);
+        assertEquals(Set.of("B1", "LD", "D"), beforeRemovalObjects);
+        assertEquals(Set.of("B1", "LD", "D"), removedObjects);
+        assertNull(network.getLoad("LD"));
+        assertNull(network.getSwitch("B1"));
+        assertNull(network.getSwitch("D"));
+        assertNotNull(network.getGenerator("G"));
+        assertNotNull(network.getBusbarSection("BBS"));
+        assertNotNull(network.getSwitch("B2"));
     }
 }
