@@ -2,7 +2,6 @@ package com.powsybl.sensitivity;
 
 import java.util.Objects;
 
-
 /*
  * Key type for sensitivity value when stored by function type, contingency, function and variable id
  */
