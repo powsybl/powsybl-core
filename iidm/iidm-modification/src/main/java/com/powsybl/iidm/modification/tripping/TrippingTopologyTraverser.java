@@ -39,9 +39,12 @@ final class TrippingTopologyTraverser {
                     // so to keep things simple we do not propagate the fault
                     if (connected) {
                         terminalsToDisconnect.add(terminal);
+                        if (traversedTerminals != null) {
+                            traversedTerminals.add(terminal);
+                        }
                     }
                     return TraverseResult.TERMINATE_PATH;
-                } else if (traversedTerminals != null && terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                } else if (traversedTerminals != null) {
                     traversedTerminals.add(terminal);
                 }
                 // in node/breaker topology propagation is decided only based on switch position
