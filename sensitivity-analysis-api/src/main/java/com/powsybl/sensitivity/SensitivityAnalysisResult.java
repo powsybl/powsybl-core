@@ -83,7 +83,8 @@ public class SensitivityAnalysisResult {
             SensitivityValueKey c = (SensitivityValueKey) o;
 
             return c.getFunctionType().equals(functionType) && c.getFunctionId().equals(functionId)
-                   && c.getContingencyId().equals(contingencyId) && c.getVariableId().equals(variableId);
+                   && (c.getContingencyId() != null ? c.getContingencyId().equals(contingencyId) : contingencyId == null)
+                   && c.getVariableId().equals(variableId);
         }
 
         @Override
@@ -91,7 +92,7 @@ public class SensitivityAnalysisResult {
             final int prime = 31;
             int result = prime + functionType.hashCode();
             result = prime * result + functionId.hashCode();
-            result = prime * result + contingencyId.hashCode();
+            result = contingencyId != null ? prime * result + contingencyId.hashCode() : prime * result;
             result = prime * result + variableId.hashCode();
             return result;
         }
