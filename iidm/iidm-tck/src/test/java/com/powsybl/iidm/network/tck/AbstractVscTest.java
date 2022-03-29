@@ -71,7 +71,7 @@ public abstract class AbstractVscTest {
         assertTrue(l.getConverterStation1().getTerminal().getBusView().getBus().isInMainConnectedComponent());
         assertTrue(l.getConverterStation2().getTerminal().getBusView().getBus().isInMainConnectedComponent());
         assertNotEquals(l.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getNum(),
-                        l.getConverterStation2().getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
+                l.getConverterStation2().getTerminal().getBusView().getBus().getSynchronousComponent().getNum());
 
         assertSame(hvdcLine, cs1.getHvdcLine());
         assertSame(hvdcLine, cs2.getHvdcLine());
@@ -86,6 +86,13 @@ public abstract class AbstractVscTest {
         assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBusStream().count());
         assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getSize());
         assertTrue(hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBuses().iterator().hasNext());
+
+        if (cs1.getOtherConverterStation().isPresent()) {
+            assertEquals(cs2, cs1.getOtherConverterStation().get());
+        }
+        if (cs2.getOtherConverterStation().isPresent()) {
+            assertEquals(cs1, cs2.getOtherConverterStation().get());
+        }
     }
 
     @Test
@@ -152,5 +159,35 @@ public abstract class AbstractVscTest {
         } catch (Exception ignored) {
             // ignore
         }
+    }
+
+    @Test
+    public void testRegulatingTerminal() {
+        Terminal cs2Terminal = cs2.getTerminal();
+        assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
+        cs1.setRegulatingTerminal(cs2Terminal);
+        assertEquals(cs2Terminal, cs1.getRegulatingTerminal());
+        cs1.setRegulatingTerminal(null);
+        assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
+    }
+
+    @Test
+    public void testVscConverterStationAdder() {
+        VscConverterStationAdder adder = network.getVoltageLevel("VL1").newVscConverterStation();
+        adder.setId("C3")
+                .setReactivePowerSetpoint(123)
+                .setVoltageSetpoint(405)
+                .setVoltageRegulatorOn(true)
+                .setRegulatingTerminal(cs2.getTerminal())
+                .setConnectableBus("B1")
+                .setLossFactor((float) 1.1)
+                .add();
+
+        assertEquals(123, network.getVscConverterStation("C3").getReactivePowerSetpoint(), 0);
+        assertEquals(405, network.getVscConverterStation("C3").getVoltageSetpoint(), 0);
+        assertTrue(network.getVscConverterStation("C3").isVoltageRegulatorOn());
+        assertEquals(1.1, network.getVscConverterStation("C3").getLossFactor(), 0.01);
+        assertEquals(cs2.getTerminal(), network.getVscConverterStation("C3").getRegulatingTerminal());
+
     }
 }

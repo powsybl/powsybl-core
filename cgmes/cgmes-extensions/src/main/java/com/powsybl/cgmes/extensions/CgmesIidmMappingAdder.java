@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesIidmMappingAdder extends ExtensionAdder<Network, CgmesIidmMapping> {
 
-    CgmesIidmMappingAdder addTopologicalNode(String topologicalNode);
+    CgmesIidmMappingAdder addTopologicalNode(String topologicalNodeId, String topologicalNodeName, Source source);
 
     @Override
     default Class<CgmesIidmMapping> getExtensionClass() {

@@ -35,8 +35,9 @@ public class ThreeWindingsTransformerAdapterTest {
         assertTrue(twt instanceof ThreeWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
 
-        assertNotNull(twt.getSubstation());
-        assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, twt.getType());
+        assertTrue(twt.getSubstation().isPresent());
+        assertNotNull(twt.getNullableSubstation());
+        assertEquals(IdentifiableType.THREE_WINDINGS_TRANSFORMER, twt.getType());
 
         assertEquals(twt.getLeg1().getTerminal(), twt.getTerminal(Side.ONE));
         assertEquals(Side.ONE, twt.getSide(twt.getLeg1().getTerminal()));
@@ -113,6 +114,7 @@ public class ThreeWindingsTransformerAdapterTest {
                     .setTapPosition(1)
                     .setLowTapPosition(0)
                     .setRegulating(false)
+                    .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                     .beginStep()
                         .setR(1.0)
                         .setX(2.0)

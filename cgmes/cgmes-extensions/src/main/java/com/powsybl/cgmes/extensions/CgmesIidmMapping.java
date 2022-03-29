@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -19,24 +20,69 @@ import java.util.Set;
  */
 public interface CgmesIidmMapping extends Extension<Network> {
 
-    @Override
-    default String getName() {
-        return "cgmesIidmMapping";
+    class CgmesTopologicalNode {
+        private final String cgmesId;
+        private final String name;
+        private final Source source;
+
+        public CgmesTopologicalNode(String cgmesId, String name, Source source) {
+            this.cgmesId = Objects.requireNonNull(cgmesId);
+            this.name = Objects.requireNonNull(name);
+            this.source = Objects.requireNonNull(source);
+        }
+
+        public String getCgmesId() {
+            return cgmesId;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Source getSource() {
+            return source;
+        }
+
+        @Override
+        public int hashCode() {
+            return cgmesId.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof CgmesTopologicalNode)) {
+                return false;
+            }
+
+            CgmesTopologicalNode node = (CgmesTopologicalNode) o;
+            return cgmesId.equals(node.getCgmesId());
+        }
     }
 
-    Set<String> getTopologicalNodes(String busId);
+    String NAME = "cgmesIidmMapping";
+
+    @Override
+    default String getName() {
+        return NAME;
+    }
+
+    Set<CgmesTopologicalNode> getTopologicalNodes(String busId);
 
     String getTopologicalNode(String equipmentId, int side);
 
-    boolean isMapped(String busId);
+    boolean isTopologicalNodeMapped(String busId);
 
-    boolean isEmpty();
+    boolean isTopologicalNodeEmpty();
 
-    CgmesIidmMapping put(String equipmentId, int side, String topologicalNodeId);
+    CgmesIidmMapping putTopologicalNode(String equipmentId, int side, String topologicalNodeId);
 
-    CgmesIidmMapping put(String busId, String topologicalNodeId);
+    CgmesIidmMapping putTopologicalNode(String busId, String topologicalNodeId, String topologicalNodeName, Source source);
 
-    Map<String, Set<String>> topologicalNodesByBusViewBusMap();
+    CgmesIidmMapping putUnmappedTopologicalNode(String topologicalNodeId, String topologicalNodeName, Source source);
 
-    Set<String> getUnmappedTopologicalNodes();
+    Map<String, Set<CgmesTopologicalNode>> topologicalNodesByBusViewBusMap();
+
+    Set<CgmesTopologicalNode> getUnmappedTopologicalNodes();
+
+    void addTopologyListener();
 }

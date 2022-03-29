@@ -10,18 +10,13 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -68,13 +63,15 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         String vlId = Context.boundaryVoltageLevelId(this.id);
         String substationName = "boundary";
         String vlName = "boundary";
-        return context.network()
+        SubstationAdder adder = context.network()
             .newSubstation()
             .setId(context.namingStrategy().getId("Substation", substationId))
             .setName(substationName)
-            .setCountry(boundaryCountryCode())
-            .add()
-            .newVoltageLevel()
+            .setCountry(boundaryCountryCode());
+        if (boundaryCountryCode() != null) {
+            adder.setGeographicalTags(boundaryCountryCode().toString());
+        }
+        return adder.add().newVoltageLevel()
             .setId(context.namingStrategy().getId("VoltageLevel", vlId))
             .setName(vlName)
             .setNominalV(nominalVoltage)
@@ -212,9 +209,9 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 id);
             Supplier<String> location = () -> bus == null
                 ? "No bus"
-                : String.format("Bus %s, Substation %s, Voltage level %s",
+                : String.format("Bus %s, %sVoltage level %s",
                     bus.getId(),
-                    bus.getVoltageLevel().getSubstation().getNameOrId(),
+                    bus.getVoltageLevel().getSubstation().map(s -> "Substation " + s.getNameOrId() + ", ").orElse(""),
                     bus.getVoltageLevel().getNameOrId());
             Supplier<String> message = () -> reason.get() + ". " + location.get();
             context.invalid("SvVoltage", message);

@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevelAdder, Substation> {
+class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevelAdder, Container<? extends Identifiable<?>>> {
 
     static final VoltageLevelXml INSTANCE = new VoltageLevelXml();
 
@@ -45,7 +45,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     @Override
-    protected void writeRootElementAttributes(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("nominalV", vl.getNominalV(), context.getWriter());
         XmlUtil.writeDouble("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
         XmlUtil.writeDouble("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
@@ -55,7 +55,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     @Override
-    protected void writeSubElements(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
             case NODE_BREAKER:
@@ -85,7 +85,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
         IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmXmlVersion.V_1_1, context);
         for (BusbarSection bs : IidmXmlUtil.sorted(vl.getNodeBreakerView().getBusbarSections(), context.getOptions())) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
@@ -109,7 +109,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private static void writeCalculatedBus(Bus bus, Set<Integer> nodes, NetworkXmlWriterContext context) {
         try {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "bus");
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "bus");
             XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
             XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
             context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
@@ -125,7 +125,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
         for (Bus b : IidmXmlUtil.sorted(vl.getBusBreakerView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
@@ -133,8 +133,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             BusXml.INSTANCE.write(b, null, context);
         }
         for (Switch sw : IidmXmlUtil.sorted(vl.getBusBreakerView().getSwitches(), context.getOptions())) {
-            Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
-            Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
+            Bus b1 = vl.getBusBreakerView().getBus1(sw.getId());
+            Bus b2 = vl.getBusBreakerView().getBus2(sw.getId());
             if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
                 continue;
             }
@@ -144,7 +144,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBusBranchTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
         for (Bus b : IidmXmlUtil.sorted(vl.getBusView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
@@ -227,8 +227,14 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     @Override
-    protected VoltageLevelAdder createAdder(Substation s) {
-        return s.newVoltageLevel();
+    protected VoltageLevelAdder createAdder(Container<? extends Identifiable<?>> c) {
+        if (c instanceof Network) {
+            return ((Network) c).newVoltageLevel();
+        }
+        if (c instanceof Substation) {
+            return ((Substation) c).newVoltageLevel();
+        }
+        throw new AssertionError();
     }
 
     @Override

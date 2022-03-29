@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Injection;
  */
 public interface ActivePowerControl<I extends Injection<I>> extends Extension<I> {
 
+    String NAME = "activePowerControl";
+
     @Override
     default String getName() {
-        return "activePowerControl";
+        return NAME;
     }
 
     boolean isParticipate();

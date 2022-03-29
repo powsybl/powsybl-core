@@ -35,14 +35,18 @@ public class DanglingLineData {
     double boundaryBusTheta;
 
     public DanglingLineData(DanglingLine danglingLine) {
+        this(danglingLine, true);
+    }
+
+    public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
 
         id = danglingLine.getId();
         r = danglingLine.getR();
         x = danglingLine.getX();
-        g1 = danglingLine.getG() / 2.0;
-        b1 = danglingLine.getB() / 2.0;
-        g2 = danglingLine.getG() / 2.0;
-        b2 = danglingLine.getB() / 2.0;
+        g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
+        b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
+        g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
+        b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
         p0 = danglingLine.getP0();
         q0 = danglingLine.getQ0();
 
@@ -51,13 +55,16 @@ public class DanglingLineData {
 
         boundaryBusU = Double.NaN;
         boundaryBusTheta = Double.NaN;
+        if (!valid(u1, theta1)) {
+            return;
+        }
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
         if (p0 == 0.0 && q0 == 0.0) {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
-            vBoundaryBus = adm.y21.multiply(v1).negate().divide(adm.y22);
+            vBoundaryBus = adm.y21().multiply(v1).negate().divide(adm.y22());
         } else {
 
             // Two buses Loadflow
@@ -89,6 +96,13 @@ public class DanglingLineData {
         return danglingLine.getTerminal().isConnected()
             ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
             : Double.NaN;
+    }
+
+    private static boolean valid(double v, double theta) {
+        if (Double.isNaN(v) || v <= 0.0) {
+            return false;
+        }
+        return !Double.isNaN(theta);
     }
 
     public String getId() {

@@ -11,7 +11,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +27,6 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
@@ -52,7 +51,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
@@ -71,7 +70,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49261084, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49019608, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 101.5, 122.39999999999999));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 102.0, 122.39999999999999));
     }
 
     @Test
@@ -90,7 +89,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.5, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.5025126, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 99.5, 120.0));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 100.0, 120.0));
     }
 
     @Test
@@ -109,7 +108,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49751243, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.4950495, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 100.5, 120.0));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 101.0, 120.0));
     }
 
     @Test
@@ -128,13 +127,13 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 0.0, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 0.0, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
     public void smallNodeBrokerHvdcMissingDCLineSegment() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingDCLineSegment(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment(), config);
 
         assertEquals(0, n.getHvdcConverterStationCount());
         assertEquals(0, n.getHvdcLineCount());
@@ -143,7 +142,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcMissingAcDcConverters() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingAcDcConverters(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingAcDcConverters(), config);
 
         assertEquals(0, n.getHvdcConverterStationCount());
         assertEquals(0, n.getHvdcLineCount());
@@ -152,7 +151,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcNanTargetPpcc() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc(), config);
 
         assertEquals(4, n.getHvdcConverterStationCount());
         assertEquals(2, n.getHvdcLineCount());
@@ -171,7 +170,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcTwoDcLineSegments() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcTwoDcLineSegments(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoDcLineSegments(), config);
 
         assertEquals(4, n.getHvdcConverterStationCount());
         assertEquals(2, n.getHvdcLineCount());
@@ -184,13 +183,13 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
     public void smallNodeBrokerHvdcTwoAcDcConvertersOneDcLineSegments() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcTwoAcDcConvertersOneDcLineSegments(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoAcDcConvertersOneDcLineSegments(), config);
 
         assertEquals(6, n.getHvdcConverterStationCount());
         assertEquals(3, n.getHvdcLineCount());
@@ -202,20 +201,20 @@ public class HvdcConversionTest {
         assertTrue(containsLccConverter(n, "_9793118e-5ba1-4a9c-b2e0-db1d15be5913", "Conv2b", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0-1", 0.0, -0.75741));
 
         assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
-        assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0-1", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
-            "_7393a68f-c4e6-48dd-9347-543858363fdb", "_9793118e-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 2 * 12.3, 63.8, 76.55999999999999));
+        assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0-1", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine-1",
+            "_7393a68f-c4e6-48dd-9347-543858363fdb", "_9793118e-5ba1-4a9c-b2e0-db1d15be5913", 2 * 12.3, 63.8, 76.55999999999999));
 
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
     public void smallNodeBrokerHvdcWithTransformers() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcWithTransformers(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithTransformers(), config);
 
         assertEquals(4, n.getHvdcConverterStationCount());
         assertEquals(2, n.getHvdcLineCount());
@@ -228,7 +227,47 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcWithDifferentConverterTypes() throws IOException {
+        Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithDifferentConverterTypes(), config);
+
+        assertEquals(2, n.getHvdcConverterStationCount());
+        assertEquals(1, n.getHvdcLineCount());
+
+        // The other HVDC link has been discarded as the converters have different type
+
+        assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
+        assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
+        assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
+            "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcWithVsCapabilityCurve() throws IOException {
+        Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve(), config);
+
+        assertEquals(4, n.getHvdcConverterStationCount());
+        assertEquals(2, n.getHvdcLineCount());
+
+        assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
+        assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
+        assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
+                "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
+
+        assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
+        assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
+        assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
+                "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
+
+        assertTrue(containsVsCapabilityCurve(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", ReactiveLimitsKind.CURVE, 3,
+                Collections.unmodifiableList(Arrays.asList(-100.0, 0.0, 100.0)),
+                Collections.unmodifiableList(Arrays.asList(-200.0, -300.0, -200.0)),
+                Collections.unmodifiableList(Arrays.asList(200.0, 300.0, 200.0))));
     }
 
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
@@ -239,7 +278,6 @@ public class HvdcConversionTest {
         CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
 
         config.setConvertSvInjections(true);
-        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
         Conversion c = new Conversion(cgmes, config);
         Network n = c.convert();
 
@@ -320,6 +358,39 @@ public class HvdcConversionTest {
         if (Math.abs(referenceConverter.reactivePowerSetpoint - vscConverter.getReactivePowerSetpoint()) > tolerance) {
             LOG.info("Different reactivePowerSetpoint {} reference {}", vscConverter.getReactivePowerSetpoint(), referenceConverter.reactivePowerSetpoint);
             return false;
+        }
+        return true;
+    }
+
+    private boolean containsVsCapabilityCurve(Network n, String id, ReactiveLimitsKind type, int values, List<Double> xValues, List<Double> y1Values, List<Double> y2Values) {
+        ReferenceVsCapabilityCurve referenceVsCapabilityCurve = new ReferenceVsCapabilityCurve(type, values, xValues, y1Values, y2Values);
+        return containsVsCapabilityCurve(n, id, referenceVsCapabilityCurve);
+    }
+
+    private boolean containsVsCapabilityCurve(Network n, String id, ReferenceVsCapabilityCurve referenceVsCapabilityCurve) {
+        VscConverterStation vscConverter = n.getVscConverterStation(id);
+        if (vscConverter.getReactiveLimits().getKind() != referenceVsCapabilityCurve.type) {
+            return false;
+        }
+        ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
+        if (curve == null) {
+            return false;
+        }
+        if (curve.getPointCount() != referenceVsCapabilityCurve.num) {
+            return false;
+        }
+        int i = 0;
+        for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
+            if (referenceVsCapabilityCurve.xValues.get(i) != point.getP()) {
+                return false;
+            }
+            if (referenceVsCapabilityCurve.y1Values.get(i) != point.getMinQ()) {
+                return false;
+            }
+            if (referenceVsCapabilityCurve.y2Values.get(i) != point.getMaxQ()) {
+                return false;
+            }
+            i++;
         }
         return true;
     }
@@ -458,6 +529,22 @@ public class HvdcConversionTest {
             this.r = r;
             this.activePowerSetpoint = activePowerSetpoint;
             this.maxP = maxP;
+        }
+    }
+
+    static class ReferenceVsCapabilityCurve {
+        ReactiveLimitsKind type;
+        int num;
+        List<Double> xValues;
+        List<Double> y1Values;
+        List<Double> y2Values;
+
+        ReferenceVsCapabilityCurve(ReactiveLimitsKind type, int num, List<Double> xValues, List<Double> y1Values, List<Double> y2Values) {
+            this.type = type;
+            this.num = num;
+            this.xValues = xValues;
+            this.y1Values = y1Values;
+            this.y2Values = y2Values;
         }
     }
 

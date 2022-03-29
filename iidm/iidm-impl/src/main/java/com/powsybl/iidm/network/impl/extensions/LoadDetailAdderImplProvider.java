@@ -23,6 +23,11 @@ public class LoadDetailAdderImplProvider implements ExtensionAdderProvider<Load,
     }
 
     @Override
+    public String getExtensionName() {
+        return LoadDetail.NAME;
+    }
+
+    @Override
     public Class<LoadDetailAdderImpl> getAdderClass() {
         return LoadDetailAdderImpl.class;
     }

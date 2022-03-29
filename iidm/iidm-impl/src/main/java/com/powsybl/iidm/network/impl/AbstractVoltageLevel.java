@@ -9,10 +9,13 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -21,7 +24,13 @@ import java.util.stream.Stream;
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
-    private final SubstationImpl substation;
+    private static final int DEFAULT_NODE_INDEX_LIMIT = 1000;
+
+    public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
+
+    private Ref<NetworkImpl> networkRef;
+
+    private SubstationImpl substation;
 
     private double nominalV;
 
@@ -29,13 +38,21 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
-    AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
+    AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
                          double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, fictitious);
         this.substation = substation;
+        this.networkRef = networkRef;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
+    }
+
+    protected static int loadNodeIndexLimit(PlatformConfig platformConfig) {
+        return platformConfig
+            .getOptionalModuleConfig("iidm")
+            .map(moduleConfig -> moduleConfig.getIntProperty("node-index-limit", DEFAULT_NODE_INDEX_LIMIT))
+            .orElse(DEFAULT_NODE_INDEX_LIMIT);
     }
 
     @Override
@@ -44,13 +61,22 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public SubstationImpl getSubstation() {
+    public Optional<Substation> getSubstation() {
+        return Optional.ofNullable(substation);
+    }
+
+    @Override
+    public Substation getNullableSubstation() {
         return substation;
     }
 
     @Override
     public NetworkImpl getNetwork() {
-        return substation.getNetwork();
+        return Optional.ofNullable(networkRef)
+                .map(Ref::get)
+                .orElseGet(() -> Optional.ofNullable(substation)
+                        .map(SubstationImpl::getNetwork)
+                        .orElse(null));
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
@@ -103,7 +129,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
         // the fastest way to get the equipment is to look in the index
         // and then check if it is connected to this substation
-        T connectable = substation.getNetwork().getIndex().get(id, aClass);
+        T connectable = getNetwork().getIndex().get(id, aClass);
         if (connectable == null) {
             return null;
         } else if (connectable instanceof Injection) {
@@ -326,6 +352,51 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public int getLineCount() {
+        return getConnectableCount(Line.class);
+    }
+
+    @Override
+    public Iterable<Line> getLines() {
+        return getConnectables(Line.class);
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return getConnectableStream(Line.class);
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return getConnectableCount(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return getConnectables(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getConnectableStream(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return getConnectableCount(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return getConnectables(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getConnectableStream(ThreeWindingsTransformer.class);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }
@@ -373,6 +444,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public void remove() {
         VoltageLevels.checkRemovability(this);
 
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+
         // Remove all connectables
         List<Connectable> connectables = Lists.newArrayList(getConnectables());
         for (Connectable connectable : connectables) {
@@ -383,10 +457,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         removeTopology();
 
         // Remove this voltage level from the network
-        getSubstation().remove(this);
-        getNetwork().getIndex().remove(this);
+        getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
+        network.getIndex().remove(this);
 
-        getNetwork().getListeners().notifyRemoval(this);
+        network.getListeners().notifyAfterRemoval(id);
+        networkRef = null;
+        substation = null;
     }
 
     protected abstract void removeTopology();

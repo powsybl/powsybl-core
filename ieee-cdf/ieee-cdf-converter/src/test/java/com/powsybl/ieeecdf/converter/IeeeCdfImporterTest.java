@@ -21,8 +21,6 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -86,16 +84,7 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
     }
 
     public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
-        for (Load l : network.getLoads()) {
-            l.getTerminal().setP(l.getP0());
-            l.getTerminal().setQ(l.getQ0());
-        }
-        for (Generator g : network.getGenerators()) {
-            g.getTerminal().setP(-g.getTargetP());
-            if (Double.isNaN(g.getTerminal().getQ())) {
-                g.getTerminal().setQ(-g.getTargetQ());
-            }
-        }
+
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
             LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,

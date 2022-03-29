@@ -170,7 +170,7 @@ public class Comparison {
                 return;
             }
             compare("description", expected.getDescription(), actual.getDescription());
-            compare("svVersion", expected.getSvVersion(), actual.getSvVersion());
+            compare("svVersion", config.incremented ? expected.getSvVersion() + 1 : expected.getSvVersion(), actual.getSvVersion());
             compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
             for (String dep : expected.getDependencies()) {
                 if (!actual.getDependencies().contains(dep)) {
@@ -196,7 +196,7 @@ public class Comparison {
                 return;
             }
             compare("description", expected.getDescription(), actual.getDescription());
-            compare("sshVersion", expected.getSshVersion(), actual.getSshVersion());
+            compare("sshVersion", config.incremented ? expected.getSshVersion() + 1 : expected.getSshVersion(), actual.getSshVersion());
             compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
             for (String dep : expected.getDependencies()) {
                 if (!actual.getDependencies().contains(dep)) {
@@ -258,7 +258,7 @@ public class Comparison {
     }
 
     private void compareVoltageLevels(VoltageLevel expected, VoltageLevel actual) {
-        equivalent("Substation", expected.getSubstation(), actual.getSubstation());
+        equivalent("Substation", expected.getSubstation().orElse(null), actual.getSubstation().orElse(null));
         compare("nominalV", expected.getNominalV(), actual.getNominalV());
         if (config.checkVoltageLevelLimits) {
             compare("lowVoltageLimit",

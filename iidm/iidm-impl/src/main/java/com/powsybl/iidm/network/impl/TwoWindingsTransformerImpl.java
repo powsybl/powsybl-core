@@ -55,12 +55,12 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.TWO_WINDINGS_TRANSFORMER;
+    public Optional<Substation> getSubstation() {
+        return Optional.ofNullable(substation);
     }
 
     @Override
-    public SubstationImpl getSubstation() {
+    public Substation getNullableSubstation() {
         return substation;
     }
 
@@ -193,8 +193,8 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public Set<TapChanger> getAllTapChangers() {
-        Set<TapChanger> tapChangers = new HashSet<>();
+    public Set<TapChanger<?, ?>> getAllTapChangers() {
+        Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
         if (ratioTapChanger != null) {
             tapChangers.add(ratioTapChanger);
         }

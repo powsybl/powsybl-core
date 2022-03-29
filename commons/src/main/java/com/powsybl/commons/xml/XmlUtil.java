@@ -13,8 +13,11 @@ import javanet.staxutils.IndentingXMLStreamWriter;
 
 import javax.xml.stream.*;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -185,6 +188,12 @@ public final class XmlUtil {
         }
     }
 
+    public static <E extends Enum<E>> void writeOptionalEnum(String name, E value, XMLStreamWriter writer) throws XMLStreamException {
+        if (value != null) {
+            writer.writeAttribute(name, value.name());
+        }
+    }
+
     public static int readIntAttribute(XMLStreamReader reader, String attributeName) {
         return Integer.parseInt(reader.getAttributeValue(null, attributeName));
     }
@@ -234,15 +243,45 @@ public final class XmlUtil {
         return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
     }
 
-    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
-        XMLStreamWriter writer;
-        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
-        if (indent) {
-            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
-            indentingWriter.setIndent(indentString);
-            writer = indentingWriter;
+    public static <E extends Enum<E>> E readOptionalEnum(XMLStreamReader reader, String attributeName, Class<E> enumClass) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        return attributeValue != null ? Enum.valueOf(enumClass, attributeValue) : null;
+    }
+
+    public static void consumeOptionalBoolAttribute(XMLStreamReader reader, String attributeName, Consumer<Boolean> consumer) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        if (attributeValue != null) {
+            consumer.accept(Boolean.parseBoolean(attributeValue));
         }
-        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
-        return writer;
+    }
+
+    public static void consumeOptionalIntAttribute(XMLStreamReader reader, String attributeName, IntConsumer consumer) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        if (attributeValue != null) {
+            consumer.accept(Integer.parseInt(attributeValue));
+        }
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
+        XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        return initializeWriter(indent, indentString, writer);
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, Writer writer) throws XMLStreamException {
+        XMLStreamWriter xmlWriter = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(writer);
+        return initializeWriter(indent, indentString, xmlWriter);
+    }
+
+    private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter) throws XMLStreamException {
+        XMLStreamWriter xmlWriter;
+        if (indent) {
+            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(initialXmlWriter);
+            indentingWriter.setIndent(indentString);
+            xmlWriter = indentingWriter;
+        } else {
+            xmlWriter = initialXmlWriter;
+        }
+        xmlWriter.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        return xmlWriter;
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2" id="IEEE_24_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4" id="IEEE_24_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S13">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -284,15 +284,15 @@
         <iidm:currentLimits1 permanentLimit="732.1470804940907"/>
         <iidm:currentLimits2 permanentLimit="732.1470804940907"/>
     </iidm:line>
-    <iidm:line id="L-7-8-1 " r="8.53806" x="32.28487" g1="0.0" b1="1.6918714555765597E-5" g2="0.0" b2="1.6918714555765597E-5" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B8" connectableBus2="B8" voltageLevelId2="VL8">
+    <iidm:line id="L-7-8-1 " r="5.122836000000001" x="19.370922" g1="0.008506668949420213" b1="-0.03211917494509699" g2="-0.005104001369652128" b2="0.0193166215392069" bus1="B7" connectableBus1="B7" voltageLevelId1="VL7" bus2="B8" connectableBus2="B8" voltageLevelId2="VL8">
         <iidm:currentLimits1 permanentLimit="732.1470804940907"/>
         <iidm:currentLimits2 permanentLimit="439.2882482964544"/>
     </iidm:line>
-    <iidm:line id="L-8-9-1 " r="8.063229600000001" x="31.388320799999995" g1="0.0" b1="1.254988447805083E-4" g2="0.0" b2="1.254988447805083E-4" bus1="B8" connectableBus1="B8" voltageLevelId1="VL8" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9">
+    <iidm:line id="L-8-9-1 " r="13.438716000000001" x="52.313868" g1="-0.0018425986118471849" b1="0.007217997326318739" g2="0.0030709976864119752" b2="-0.011829197392215753" bus1="B8" connectableBus1="B8" voltageLevelId1="VL8" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9">
         <iidm:currentLimits1 permanentLimit="439.2882482964544"/>
         <iidm:currentLimits2 permanentLimit="732.1470804940907"/>
     </iidm:line>
-    <iidm:line id="L-8-10-1 " r="8.063229600000001" x="31.388320799999995" g1="0.0" b1="1.254988447805083E-4" g2="0.0" b2="1.254988447805083E-4" bus1="B8" connectableBus1="B8" voltageLevelId1="VL8" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10">
+    <iidm:line id="L-8-10-1 " r="13.438716000000001" x="52.313868" g1="-0.0018425986118471849" b1="0.007217997326318739" g2="0.0030709976864119752" b2="-0.011829197392215753" bus1="B8" connectableBus1="B8" voltageLevelId1="VL8" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10">
         <iidm:currentLimits1 permanentLimit="439.2882482964544"/>
         <iidm:currentLimits2 permanentLimit="732.1470804940907"/>
     </iidm:line>

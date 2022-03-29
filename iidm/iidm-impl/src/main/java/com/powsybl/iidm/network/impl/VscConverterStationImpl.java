@@ -7,9 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.VscConverterStation;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -29,8 +27,10 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final TDoubleArrayList voltageSetpoint;
 
+    private TerminalExt regulatingTerminal;
+
     VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
-                            boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
+                            boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint, TerminalExt regulatingTerminal) {
         super(ref, id, name, fictitious, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
@@ -40,6 +40,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+        this.regulatingTerminal = regulatingTerminal;
     }
 
     @Override
@@ -59,11 +60,13 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex));
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), n.getMinValidationLevel());
         boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
         this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
@@ -75,10 +78,12 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex));
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex), n.getMinValidationLevel());
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
@@ -90,10 +95,12 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint);
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint, n.getMinValidationLevel());
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
@@ -134,7 +141,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         voltageSetpoint.fill(initVariantArraySize, initVariantArraySize + number, voltageSetpoint.get(sourceIndex));
 
         voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
-        voltageRegulatorOn.fill(initVariantArraySize, initVariantArraySize + number, voltageRegulatorOn.get(sourceIndex));
+        for (int i = 0; i < number; i++) {
+            voltageRegulatorOn.add(voltageRegulatorOn.get(sourceIndex));
+        }
     }
 
     @Override
@@ -153,5 +162,19 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
             reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));
             voltageSetpoint.set(index, voltageSetpoint.get(sourceIndex));
         }
+    }
+
+    @Override
+    public TerminalExt getRegulatingTerminal() {
+        return regulatingTerminal;
+    }
+
+    @Override
+    public VscConverterStationImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        Terminal oldValue = this.regulatingTerminal;
+        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
+        return this;
     }
 }

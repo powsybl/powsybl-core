@@ -7,22 +7,16 @@
 
 package com.powsybl.cgmes.model;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_14_NAMESPACE;
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.xml.stream.XMLStreamException;
-
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -42,10 +36,9 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        if (!foundNamespaces.contains(CIM_16_NAMESPACE)) {
-            return false;
-        }
-        return names().stream().anyMatch(CgmesSubset.EQUIPMENT::isValidName);
+        // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
+        // But I think we do not need to support 14 separately?
+        return foundNamespaces.contains(CIM_16_NAMESPACE) || foundNamespaces.contains(CIM_100_NAMESPACE);
     }
 
     public boolean existsCim14() {
@@ -54,9 +47,12 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
+        // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
+        // But I think we do not need to support 14 separately?
         if (!foundNamespaces.contains(CIM_14_NAMESPACE)) {
             return false;
         }
+
         return names().stream().anyMatch(CgmesSubset.EQUIPMENT::isValidName);
     }
 
@@ -83,7 +79,7 @@ public class CgmesOnDataSource {
     private boolean containsValidNamespace(String name) {
         try (InputStream is = dataSource.newInputStream(name)) {
             Set<String> ns = NamespaceReader.namespaces1(is);
-            return ns.contains(RDF_NAMESPACE) && (ns.contains(CIM_16_NAMESPACE) || ns.contains(CIM_14_NAMESPACE));
+            return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesNamespace::isValid);
         } catch (XMLStreamException e) {
             return false;
         } catch (IOException x) {
@@ -104,28 +100,19 @@ public class CgmesOnDataSource {
     }
 
     public String cimNamespace() {
-        // Return the first namespace that contains the string "CIM-schema-cim"
-        // If no namespace is found, return CIM16 namespace
-        Set<String> foundNamespaces = namespaces();
-        return foundNamespaces.stream()
-            .filter(ns -> ns.contains("CIM-schema-cim"))
-            .findFirst().orElse(CIM_16_NAMESPACE);
+        // If no cim namespace is found, return CIM16 namespace
+        return namespaces().stream()
+            .filter(CgmesNamespace::isValid)
+            .findFirst()
+            .orElseThrow(() -> new CgmesModelException("CIM Namespace not found"));
     }
 
     private final ReadOnlyDataSource dataSource;
-
-    private static final String REGEX_VALID_NAME_IDS = Stream.of(
-        Stream.of("ME"),
-        Arrays.stream(CgmesSubset.values()).map(CgmesSubset::getIdentifier))
-        .flatMap(s -> s)
-        .collect(Collectors.joining("|", "(", ")"));
     private static final String REGEX_VALID_NAME = ""
         // Ignore case
         + "(?i)"
         // Any number of characters from the start
         + "^.*"
-        // Contains one of the valid subset ids
-        + REGEX_VALID_NAME_IDS
-        // Any number of characters and ending with extension .xml
-        + ".*\\.XML$";
+        // Ending with extension .xml
+        + "\\.XML$";
 }

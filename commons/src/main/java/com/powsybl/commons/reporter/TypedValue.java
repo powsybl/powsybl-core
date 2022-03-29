@@ -11,9 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import java.util.Objects;
 
 /**
- * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
- *
- * <p>A class associating a value with a type.
+ * A class associating a value with a type.
  * The value should be an instance of any of the following classes: Integer, Long, Float, Double, Boolean or String.
  * The type is given by a string. Some generic types are provided by public constants of current class.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -21,11 +19,9 @@ import java.util.Objects;
 public class TypedValue {
 
     public static final String UNTYPED = "UNTYPED";
-    public static final String TRACE_LOGLEVEL = "TRACE_LOGLEVEL";
-    public static final String DEBUG_LOGLEVEL = "DEBUG_LOGLEVEL";
-    public static final String INFO_LOGLEVEL = "INFO_LOGLEVEL";
-    public static final String WARN_LOGLEVEL = "WARN_LOGLEVEL";
-    public static final String ERROR_LOGLEVEL = "ERROR_LOGLEVEL";
+    public static final String SEVERITY = "SEVERITY";
+    public static final String ACTIVE_POWER = "ACTIVE_POWER";
+    public static final String REACTIVE_POWER = "REACTIVE_POWER";
     public static final String RESISTANCE = "RESISTANCE";
     public static final String REACTANCE = "REACTANCE";
     public static final String IMPEDANCE = "IMPEDANCE";
@@ -33,6 +29,12 @@ public class TypedValue {
     public static final String SUBSTATION = "SUBSTATION";
     public static final String VOLTAGE_LEVEL = "VOLTAGE_LEVEL";
     public static final String FILENAME = "FILENAME";
+
+    public static final TypedValue TRACE_SEVERITY = new TypedValue("TRACE", TypedValue.SEVERITY);
+    public static final TypedValue DEBUG_SEVERITY = new TypedValue("DEBUG", TypedValue.SEVERITY);
+    public static final TypedValue INFO_SEVERITY = new TypedValue("INFO", TypedValue.SEVERITY);
+    public static final TypedValue WARN_SEVERITY = new TypedValue("WARN", TypedValue.SEVERITY);
+    public static final TypedValue ERROR_SEVERITY = new TypedValue("ERROR", TypedValue.SEVERITY);
 
     private final Object value;
     private final String type;

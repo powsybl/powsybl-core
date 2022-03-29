@@ -65,6 +65,7 @@ public final class NetworkXml {
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
+    private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
 
     // cache to improve performance
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
@@ -223,7 +224,7 @@ public final class NetworkXml {
                     .filter(e -> getExtensionXmlSerializer(options, e) != null)
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
                 context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
                 for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
                     writeExtension(extension, context);
@@ -243,9 +244,11 @@ public final class NetworkXml {
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os);
-        writer.setPrefix(IIDM_PREFIX, version.getNamespaceURI());
-        writer.writeStartElement(version.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME);
-        writer.writeNamespace(IIDM_PREFIX, version.getNamespaceURI());
+        String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        writer.setPrefix(IIDM_PREFIX, namespaceUri);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
+        writer.writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+        writer.writeNamespace(IIDM_PREFIX, namespaceUri);
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, options, writer);
         }
@@ -257,16 +260,58 @@ public final class NetworkXml {
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version);
+        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> writer.writeAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel().toString()));
+
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
 
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
-        for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
-            SubstationXml.INSTANCE.write(s, null, context);
+        writeVoltageLevels(n, context);
+        writeSubstations(n, context);
+        writeTransformers(filter, n, context);
+        writeLines(filter, n, context);
+        writeHvdcLines(filter, n, context);
+        return context;
+    }
+
+    private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
+            if (voltageLevel.getSubstation().isEmpty()) {
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                VoltageLevelXml.INSTANCE.write(voltageLevel, n, context);
+            }
         }
+    }
+
+    private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
+            SubstationXml.INSTANCE.write(s, n, context);
+        }
+    }
+
+    private static void writeTransformers(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
+            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
+                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                TwoWindingsTransformerXml.INSTANCE.write(twt, n, context);
+            }
+        }
+        for (ThreeWindingsTransformer twt : IidmXmlUtil.sorted(n.getThreeWindingsTransformers(), context.getOptions())) {
+            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
+                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                ThreeWindingsTransformerXml.INSTANCE.write(twt, n, context);
+            }
+        }
+    }
+
+    private static void writeLines(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
             if (!filter.test(l)) {
                 continue;
@@ -277,13 +322,15 @@ public final class NetworkXml {
                 LineXml.INSTANCE.write(l, n, context);
             }
         }
+    }
+
+    private static void writeHvdcLines(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
             if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                 continue;
             }
             HvdcLineXml.INSTANCE.write(l, n, context);
         }
-        return context;
     }
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
@@ -368,6 +415,13 @@ public final class NetworkXml {
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
+            ValidationLevel[] minValidationLevel = new ValidationLevel[1];
+            minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> minValidationLevel[0] = ValidationLevel.valueOf(reader.getAttributeValue(null, MINIMUM_VALIDATION_LEVEL)));
+
+            IidmXmlUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
+            network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
+
             if (!config.withNoExtension()) {
                 context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
             }
@@ -385,8 +439,26 @@ public final class NetworkXml {
                         PropertiesXml.read(network, context);
                         break;
 
+                    case VoltageLevelXml.ROOT_ELEMENT_NAME:
+                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                        VoltageLevelXml.INSTANCE.read(network, context);
+                        break;
+
                     case SubstationXml.ROOT_ELEMENT_NAME:
                         SubstationXml.INSTANCE.read(network, context);
+                        break;
+
+                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
+                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
+                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                        TwoWindingsTransformerXml.INSTANCE.read(network, context);
+                        break;
+
+                    case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
+                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
+                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                        ThreeWindingsTransformerXml.INSTANCE.read(network, context);
                         break;
 
                     case LineXml.ROOT_ELEMENT_NAME:

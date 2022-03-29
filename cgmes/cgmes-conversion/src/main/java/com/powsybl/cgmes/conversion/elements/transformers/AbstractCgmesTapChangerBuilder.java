@@ -13,7 +13,9 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -24,6 +26,9 @@ abstract class AbstractCgmesTapChangerBuilder {
     protected final Context context;
     protected final PropertyBag p;
     protected final TapChanger tapChanger;
+
+    protected int lowStep;
+    protected int highStep;
 
     AbstractCgmesTapChangerBuilder(PropertyBag p, Context context) {
         Objects.requireNonNull(p);
@@ -42,19 +47,20 @@ abstract class AbstractCgmesTapChangerBuilder {
     }
 
     protected int initialTapPosition(int defaultStep) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
+        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
             case SSH:
                 return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
             case SV:
                 return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
             default:
-                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
+                throw new CgmesModelException("Unexpected profile used for initial values: " + context.config().getProfileForInitialValuesShuntSectionsTapPositions());
         }
     }
 
     protected TapChanger build() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
+        lowStep = p.asInt(CgmesNames.LOW_STEP);
+        highStep = p.asInt(CgmesNames.HIGH_STEP);
+        addSteps();
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
         int position = initialTapPosition(normalStep);
@@ -71,8 +77,21 @@ abstract class AbstractCgmesTapChangerBuilder {
         }
 
         addRegulationData();
-        addSteps();
         return tapChanger;
+    }
+
+    protected boolean isTableValid(String tableId, PropertyBags table) {
+        int min = table.stream().map(step -> step.asInt(CgmesNames.STEP)).min(Integer::compareTo).orElseThrow(() -> new PowsyblException("Should at least contain one step"));
+        for (int i = min; i < min + table.size(); i++) {
+            int index = i;
+            if (table.stream().noneMatch(step -> step.asInt(CgmesNames.STEP) == index)) {
+                context.ignored("TapChanger table", () -> String.format("There is at least one missing step (%s) in table %s. Tap changer considered linear", index, tableId));
+                return false;
+            }
+        }
+        lowStep = min;
+        highStep = min + table.size() - 1;
+        return true;
     }
 
     protected abstract void addRegulationData();

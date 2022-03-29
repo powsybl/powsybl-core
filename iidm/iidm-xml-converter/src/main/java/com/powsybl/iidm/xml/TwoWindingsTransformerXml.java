@@ -38,7 +38,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("r", twt.getR(), context.getWriter());
         XmlUtil.writeDouble("x", twt.getX(), context.getWriter());
         XmlUtil.writeDouble("g", twt.getG(), context.getWriter());
@@ -55,7 +55,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
             writeRatioTapChanger("ratioTapChanger", rtc, context);
@@ -66,31 +66,39 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         }
         if (twt.getActivePowerLimits1() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, twt.getActivePowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, twt.getActivePowerLimits1(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getApparentPowerLimits1() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, twt.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, twt.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
+            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
         if (twt.getActivePowerLimits2() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, twt.getActivePowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, twt.getActivePowerLimits2(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getApparentPowerLimits2() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, twt.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, twt.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
+            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 
     @Override
-    protected TwoWindingsTransformerAdder createAdder(Substation s) {
-        return s.newTwoWindingsTransformer();
+    protected TwoWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
+        if (c instanceof Network) {
+            return ((Network) c).newTwoWindingsTransformer();
+        }
+        if (c instanceof Substation) {
+            return ((Substation) c).newTwoWindingsTransformer();
+        }
+        throw new AssertionError();
     }
 
     @Override

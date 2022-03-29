@@ -20,11 +20,6 @@ class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements Bu
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.BUSBAR_SECTION;
-    }
-
-    @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
     }

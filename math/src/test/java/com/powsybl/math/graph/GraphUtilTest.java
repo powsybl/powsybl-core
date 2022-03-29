@@ -1,38 +1,39 @@
 /**
- * Copyright (c) 2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.math.graph;
 
+import gnu.trove.list.array.TIntArrayList;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class GraphUtilTest {
 
     @Test
-    public void removeIsolatedVertices() throws Exception {
-        UndirectedGraph<Object, Object> graph = new UndirectedGraphImpl<>();
+    public void testComputeConnectedComponents() {
+        TIntArrayList[] adjacencyList = new TIntArrayList[100000];
+        for (int i = 0; i < adjacencyList.length; i++) {
+            adjacencyList[i] = new TIntArrayList();
+        }
+        for (int i = 2; i < adjacencyList.length - 1; i++) {
+            adjacencyList[i].add(i + 1);
+        }
 
-        graph.addVertex();
-        graph.addVertex();
-        graph.addVertex();
-        graph.addEdge(1, 2, null);
-        graph.setVertexObject(0, new Object());
-
-        assertEquals(3, graph.getVertexCount());
-        // Vertex 0 is isolated but has an associated object: it must not be removed.
-        GraphUtil.removeIsolatedVertices(graph);
-        assertEquals(3, graph.getVertexCount());
-        graph.setVertexObject(0, null);
-        // Now vertex 0 must be removed.
-        GraphUtil.removeIsolatedVertices(graph);
-        assertEquals(2, graph.getVertexCount());
+        GraphUtil.ConnectedComponentsComputationResult result = GraphUtil.computeConnectedComponents(adjacencyList);
+        assertEquals(3, result.getComponentSize().length);
+        assertEquals(adjacencyList.length - 2, result.getComponentSize()[0]);
+        assertEquals(1, result.getComponentSize()[1]);
+        assertEquals(1, result.getComponentSize()[2]);
+        assertEquals(0, result.getComponentNumber()[40000]);
+        assertEquals(1, result.getComponentNumber()[0]);
+        assertEquals(2, result.getComponentNumber()[1]);
     }
 
 }

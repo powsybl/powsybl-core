@@ -63,7 +63,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
         ShuntCompensator shuntCompensator = adder.add();
 
-        assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
+        assertEquals(IdentifiableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(6, shuntCompensator.getSectionCount());
@@ -220,7 +220,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
         ShuntCompensator shuntCompensator = adder.add();
 
-        assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
+        assertEquals(IdentifiableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals("shuntName", shuntCompensator.getNameOrId());
         assertEquals(SHUNT, shuntCompensator.getId());
@@ -481,6 +481,10 @@ public abstract class AbstractShuntCompensatorTest {
         } catch (Exception ignored) {
             // ignore
         }
+
+        // check we delete a single variant's values
+        variantManager.setWorkingVariant("s3");
+        assertEquals(5, shunt.getSectionCount());
     }
 
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {

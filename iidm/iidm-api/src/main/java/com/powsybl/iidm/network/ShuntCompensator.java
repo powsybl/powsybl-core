@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.OptionalInt;
+
 /**
  * A shunt compensator.
  *
@@ -120,6 +122,17 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     int getSectionCount();
 
     /**
+     * Get the count of sections in service if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSectionCount() {
+        return OptionalInt.of(getSectionCount());
+    }
+
+    /**
      * Get the maximum number of sections that can be in service
      */
     int getMaximumSectionCount();
@@ -135,6 +148,14 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @return the shunt compensator to chain method calls.
      */
     ShuntCompensator setSectionCount(int sectionCount);
+
+    /**
+     * Unset the count of sections in service.
+     * Note: this can be done <b>only</b> in SCADA validation level.
+     */
+    default ShuntCompensator unsetSectionCount() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
 
     /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
@@ -207,9 +228,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default boolean isVoltageRegulatorOn() {
-        throw new UnsupportedOperationException();
-    }
+    boolean isVoltageRegulatorOn();
 
     /**
      * Set the shunt compensator's regulating status.
@@ -261,5 +280,10 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     default ShuntCompensator setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.SHUNT_COMPENSATOR;
     }
 }

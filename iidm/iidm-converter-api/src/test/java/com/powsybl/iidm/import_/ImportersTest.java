@@ -7,15 +7,22 @@
 package com.powsybl.iidm.import_;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.AbstractConvertersTest;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
-import org.junit.*;
+import com.powsybl.iidm.network.NetworkFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,9 +85,29 @@ public class ImportersTest extends AbstractConvertersTest {
     public void getImporterWithImportConfig() {
         Importer importer = Importers.getImporter(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
         assertNotNull(importer);
-        Network network = importer.importData(null, null);
+        Network network = importer.importData(null, NetworkFactory.findDefault(), null);
         assertNotNull(network);
         assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
+    }
+
+    @Test
+    public void getImporterWithImportConfigAndReporter() {
+        Importer importer = Importers.getImporter(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
+        ReporterModel reporter = new ReporterModel("testFunctionalLog", "testFunctionalLogs");
+        assertNotNull(importer);
+        Network network = importer.importData(null, NetworkFactory.findDefault(), null, reporter);
+        assertNotNull(network);
+        assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
+
+        // Check that the wrapped importer has received the functional logs reporter and produced report items
+        assertEquals(1, reporter.getReports().size());
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+        String actual = TestUtil.normalizeLineSeparator(sw.toString());
+        String expected = TestUtil.normalizeLineSeparator(
+                "+ testFunctionalLogs\n" +
+                "   Import model eurostagTutorialExample1\n");
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -100,12 +127,12 @@ public class ImportersTest extends AbstractConvertersTest {
     @Test
     public void addAndRemovePostProcessor() {
         Importer importer1 = Importers.addPostProcessors(loader, testImporter, computationManager, "test");
-        Network network1 = importer1.importData(null, null);
+        Network network1 = importer1.importData(null, NetworkFactory.findDefault(), null);
         assertNotNull(network1);
         assertEquals(LoadType.FICTITIOUS, network1.getLoad("LOAD").getLoadType());
 
         Importer importer2 = Importers.removePostProcessors(importer1);
-        Network network2 = importer2.importData(null, null);
+        Network network2 = importer2.importData(null, NetworkFactory.findDefault(), null);
         assertNotNull(network2);
         assertEquals(LoadType.UNDEFINED, network2.getLoad("LOAD").getLoadType());
     }
@@ -113,14 +140,14 @@ public class ImportersTest extends AbstractConvertersTest {
     @Test
     public void setPostProcessor() {
         Importer importer = Importers.setPostProcessors(loader, testImporter, computationManager, "test");
-        Network network = importer.importData(null, null);
+        Network network = importer.importData(null, NetworkFactory.findDefault(), null);
         assertNotNull(network);
         assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
     }
 
     @Test
-    public void importData() {
-        Network network = Importers.importData(loader, TEST_FORMAT, null, null, computationManager, importConfigMock);
+    public void importData() throws IOException {
+        Network network = Importers.loadNetwork((ReadOnlyDataSource) null);
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
     }
@@ -209,3 +236,4 @@ public class ImportersTest extends AbstractConvertersTest {
         isLoadPresent.forEach(Assert::assertTrue);
     }
 }
+

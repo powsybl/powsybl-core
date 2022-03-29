@@ -7,7 +7,8 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.PowsyblException;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
@@ -86,8 +88,11 @@ public class ParallelLoadFlowActionSimulator {
         try {
             SecurityAnalysisResult result = future.get();
             resultHandlers.forEach(h -> h.accept(result));
-        } catch (Exception e) {
-            throw new PowsyblException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new UncheckedInterruptedException(e);
+        } catch (ExecutionException e) {
+            throw new UncheckedExecutionException(e);
         }
     }
 

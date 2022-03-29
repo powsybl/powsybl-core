@@ -6,10 +6,10 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.modification.NetworkModification;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineTrippingTest extends AbstractTrippingTest {
+public class DanglingLineTrippingTest {
 
     private Network network;
 
@@ -34,15 +34,9 @@ public class DanglingLineTrippingTest extends AbstractTrippingTest {
 
         Contingency contingency = Contingency.danglingLine("DL");
 
-        ModificationTask task = contingency.toTask();
-        task.modify(network, null);
+        NetworkModification task = contingency.toModification();
+        task.apply(network);
 
         assertFalse(network.getDanglingLine("DL").getTerminal().isConnected());
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void unknownDlTest() {
-        DanglingLineTripping tripping = new DanglingLineTripping("DL_THAT_DO_NOT_EXIST");
-        tripping.modify(network, null);
     }
 }

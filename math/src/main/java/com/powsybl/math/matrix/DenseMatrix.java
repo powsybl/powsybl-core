@@ -76,17 +76,17 @@ public class DenseMatrix extends AbstractMatrix {
 
     public DenseMatrix(int rowCount, int columnCount, Supplier<ByteBuffer> bufferSupplier) {
         if (rowCount < 0) {
-            throw new IllegalArgumentException("row count has to be positive");
+            throw new MatrixException("row count has to be positive");
         }
         if (columnCount < 0) {
-            throw new IllegalArgumentException("column count has to be positive");
+            throw new MatrixException("column count has to be positive");
         }
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         Objects.requireNonNull(bufferSupplier);
         buffer = bufferSupplier.get();
         if (buffer.capacity() != rowCount * columnCount * Double.BYTES) {
-            throw new IllegalArgumentException("values size (" + buffer.capacity() +
+            throw new MatrixException("values size (" + buffer.capacity() +
                     ") is incorrect (should be " + rowCount * columnCount + ")");
         }
     }
@@ -115,23 +115,69 @@ public class DenseMatrix extends AbstractMatrix {
         return get(i, j);
     }
 
+    private void setUnsafe(int i, int j, double value) {
+        buffer.putDouble(j * Double.BYTES * rowCount + i * Double.BYTES, value);
+    }
+
     @Override
     public void set(int i, int j, double value) {
         checkBounds(i, j);
-        buffer.putDouble(j * Double.BYTES * rowCount + i * Double.BYTES, value);
+        setUnsafe(i, j, value);
+    }
+
+    private void addUnsafe(int i, int j, double value) {
+        int index = j * Double.BYTES * rowCount + i * Double.BYTES;
+        buffer.putDouble(index, buffer.getDouble(index) + value);
     }
 
     @Override
     public void add(int i, int j, double value) {
         checkBounds(i, j);
-        int index = j * Double.BYTES * rowCount + i * Double.BYTES;
-        buffer.putDouble(index, buffer.getDouble(index) + value);
+        addUnsafe(i, j, value);
     }
 
     @Override
     public Element addAndGetElement(int i, int j, double value) {
         add(i, j, value);
         return new DenseElement(i, j);
+    }
+
+    @Override
+    public int addAndGetIndex(int i, int j, double value) {
+        add(i, j, value);
+        return j * rowCount + i;
+    }
+
+    private void checkElementIndex(int index) {
+        if (index < 0 || index >= rowCount * columnCount) {
+            throw new MatrixException("Element index out of bound [0, " + (rowCount * columnCount - 1) + "]");
+        }
+    }
+
+    @Override
+    public void setAtIndex(int index, double value) {
+        checkElementIndex(index);
+        setQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void setQuickAtIndex(int index, double value) {
+        int i = index % rowCount;
+        int j = index / rowCount;
+        setUnsafe(i, j, value);
+    }
+
+    @Override
+    public void addAtIndex(int index, double value) {
+        checkElementIndex(index);
+        addQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void addQuickAtIndex(int index, double value) {
+        int i = index % rowCount;
+        int j = index / rowCount;
+        addUnsafe(i, j, value);
     }
 
     @Override
@@ -157,7 +203,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     void setValues(double[] values) {
         if (values.length != rowCount * columnCount) {
-            throw new IllegalArgumentException("Incorrect values array size "
+            throw new MatrixException("Incorrect values array size "
                     + values.length + ", expected " + rowCount * columnCount);
         }
         for (int i = 0; i < values.length; i++) {
@@ -188,6 +234,11 @@ public class DenseMatrix extends AbstractMatrix {
     @Override
     public Matrix times(Matrix other) {
         return new DenseMatrix(toJamaMatrix().times(other.toDense().toJamaMatrix()));
+    }
+
+    @Override
+    public Matrix add(Matrix other, double alpha, double beta) {
+        return new DenseMatrix(toJamaMatrix().times(alpha).plus(other.toDense().toJamaMatrix().times(beta)));
     }
 
     @Override
@@ -230,6 +281,20 @@ public class DenseMatrix extends AbstractMatrix {
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return getRowCount() * getColumnCount();
+    }
+
+    @Override
+    public DenseMatrix transpose() {
+        int transposedRowCount = columnCount;
+        int transposedColumnCount = rowCount;
+        ByteBuffer transposedBuffer = createBuffer(transposedRowCount, transposedColumnCount);
+        for (int i = 0; i < rowCount; i++) {
+            for (int j = 0; j < columnCount; j++) {
+                double value = this.buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
+                transposedBuffer.putDouble(i * Double.BYTES * transposedRowCount + j * Double.BYTES, value);
+            }
+        }
+        return new DenseMatrix(transposedRowCount, transposedColumnCount, () -> transposedBuffer);
     }
 
     @Override

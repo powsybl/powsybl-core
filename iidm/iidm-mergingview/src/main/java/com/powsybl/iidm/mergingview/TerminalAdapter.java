@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +37,11 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         @Override
         public void setConnectableBus(final String busId) {
             getDelegate().setConnectableBus(busId);
+        }
+
+        @Override
+        public void moveConnectable(String busId, boolean connected) {
+            throw new PowsyblException("Not implemented");
         }
 
         private Bus getBus(Bus bus) {
@@ -81,6 +86,11 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         @Override
         public int getNode() {
             return getDelegate().getNode();
+        }
+
+        @Override
+        public void moveConnectable(int node, String voltageLevelId) {
+            throw new PowsyblException("Not implemented");
         }
     }
 

@@ -30,10 +30,10 @@ public abstract class AbstractMatrix implements Matrix {
      */
     protected void checkBounds(int i, int j) {
         if (i < 0 || i >= getRowCount()) {
-            throw new IllegalArgumentException("Row index out of bound [0, " + (getRowCount() - 1) + "]");
+            throw new MatrixException("Row index out of bound [0, " + (getRowCount() - 1) + "]");
         }
         if (j < 0 || j >= getColumnCount()) {
-            throw new IllegalArgumentException("Column index out of bound [0, " + (getColumnCount() - 1) + "]");
+            throw new MatrixException("Column index out of bound [0, " + (getColumnCount() - 1) + "]");
         }
     }
 
@@ -46,5 +46,10 @@ public abstract class AbstractMatrix implements Matrix {
         Matrix matrix = factory.create(getRowCount(), getColumnCount(), getEstimatedNonZeroValueCount());
         iterateNonZeroValue(matrix::set);
         return matrix;
+    }
+
+    @Override
+    public Matrix add(Matrix other) {
+        return add(other, 1d, 1d);
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/identifiable_short_circuit/1_0"
+           elementFormDefault="qualified">
+    <xs:element name="identifiableShortCircuit">
+        <xs:complexType>
+            <xs:attribute name="ipMax" use="required" type="xs:double"/>
+            <xs:attribute name="ipMin" use="optional" type="xs:double"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

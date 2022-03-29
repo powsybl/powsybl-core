@@ -84,20 +84,7 @@ public class SparseMatrixTest extends AbstractMatrixTest {
 
             // error as an element has been added
             matrix.set(1, 1, 2);
-            try {
-                decomposition.update();
-                fail();
-            } catch (PowsyblException ignored) {
-            }
-        }
-    }
-
-    @Test
-    public void timeToDenseNotSupportedTest() {
-        try {
-            new SparseMatrix(2, 2, 2).times(new DenseMatrix(2, 2));
-            fail();
-        } catch (PowsyblException ignored) {
+            assertThrows(MatrixException.class, decomposition::update);
         }
     }
 }

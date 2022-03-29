@@ -31,13 +31,13 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
+        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
             case SSH:
                 return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
             case SV:
                 return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
             default:
-                throw new PowsyblException("Unexpected profile used for initial state values");
+                throw new PowsyblException("Unexpected profile used for initial values");
         }
     }
 
@@ -81,7 +81,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         addAliasesAndProperties(shunt);
 
         // At a shunt terminal, only Q can be set
-        PowerFlow f = powerFlow();
+        PowerFlow f = powerFlowSV();
         if (f.defined()) {
             double q = f.q();
             if (context.config().changeSignForShuntReactivePowerFlowInitialState()) {

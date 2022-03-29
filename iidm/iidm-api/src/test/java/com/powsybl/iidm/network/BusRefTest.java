@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -97,7 +98,7 @@ public class BusRefTest {
     public void testBranch() throws JsonProcessingException {
         Network network = mock(Network.class);
         Branch branch = mock(Branch.class);
-        when(network.getBranch(eq("branchId"))).thenReturn(branch);
+        when(network.getIdentifiable("branchId")).thenReturn(branch);
         Terminal terminal = mock(Terminal.class);
         Terminal.BusView bv = mock(Terminal.BusView.class);
         when(branch.getTerminal1()).thenReturn(terminal);
@@ -121,5 +122,15 @@ public class BusRefTest {
         assertEquals(busRef, deserialized);
 
         assertEquals(busRef, new IdBasedBusRef("branchId", Branch.Side.ONE));
+    }
+
+    @Test
+    public void testInvalidBranch() {
+        Network network = mock(Network.class);
+        when(network.getBranch("branchId")).thenReturn(null);
+
+        BusRef busRef = new IdBasedBusRef("branchId", Branch.Side.TWO);
+        Optional<Bus> bus = busRef.resolve(network, TopologyLevel.BUS_BRANCH);
+        assertTrue(bus.isEmpty());
     }
 }

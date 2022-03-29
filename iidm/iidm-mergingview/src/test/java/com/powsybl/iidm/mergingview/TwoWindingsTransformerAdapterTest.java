@@ -53,8 +53,9 @@ public class TwoWindingsTransformerAdapterTest {
         assertTrue(twt instanceof TwoWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
 
-        assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twt.getType());
-        assertSame(substation, twt.getSubstation());
+        assertEquals(IdentifiableType.TWO_WINDINGS_TRANSFORMER, twt.getType());
+        assertSame(substation, twt.getSubstation().orElse(null));
+        assertSame(substation, twt.getNullableSubstation());
         assertEquals(7.0, twt.getRatedS(), 0.0);
 
         final RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()

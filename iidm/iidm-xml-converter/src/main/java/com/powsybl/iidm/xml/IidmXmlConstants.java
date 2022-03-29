@@ -13,7 +13,7 @@ public final class IidmXmlConstants {
 
     public static final String INDENT = "    ";
 
-    public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_5;
+    public static final IidmXmlVersion CURRENT_IIDM_XML_VERSION = IidmXmlVersion.V_1_7;
 
     public static final String IIDM_PREFIX = "iidm";
 

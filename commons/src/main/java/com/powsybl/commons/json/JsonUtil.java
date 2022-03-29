@@ -18,7 +18,10 @@ import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionProviders;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +47,49 @@ public final class JsonUtil {
                 .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)
                 .enable(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS);
+    }
+
+    public static void writeJson(Path jsonFile, Object object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try (Writer writer = Files.newBufferedWriter(jsonFile, StandardCharsets.UTF_8)) {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(writer, object);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T readJson(Path jsonFile, Class<T> clazz, ObjectMapper objectMapper) {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(objectMapper);
+        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
+            return objectMapper.readValue(reader, clazz);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T readJsonAndUpdate(InputStream is, T object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(is);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try {
+            return objectMapper.readerForUpdating(object).readValue(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T readJsonAndUpdate(Path jsonFile, T object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
+            return objectMapper.readerForUpdating(object).readValue(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static JsonFactory createJsonFactory() {
@@ -185,8 +231,24 @@ public final class JsonUtil {
     }
 
     public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+                                                  SerializerProvider serializerProvider,
+                                                  SerializerSupplier supplier) throws IOException {
+        return writeExtensions(extendable, jsonGenerator, true, serializerProvider, supplier);
+    }
+
+    public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
                                                   boolean headerWanted, SerializerProvider serializerProvider,
                                                   ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+        return writeExtensions(extendable, jsonGenerator, headerWanted, serializerProvider, supplier::findProvider);
+    }
+
+    public interface SerializerSupplier {
+        ExtensionJsonSerializer getSerializer(String name);
+    }
+
+    public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+                                                  boolean headerWanted, SerializerProvider serializerProvider,
+                                                  SerializerSupplier supplier) throws IOException {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(serializerProvider);
@@ -197,7 +259,7 @@ public final class JsonUtil {
 
         if (!extendable.getExtensions().isEmpty()) {
             for (Extension<T> extension : extendable.getExtensions()) {
-                ExtensionJsonSerializer serializer = supplier.findProvider(extension.getName());
+                ExtensionJsonSerializer serializer = supplier.getSerializer(extension.getName());
                 if (serializer != null) {
                     if (!headerDone && headerWanted) {
                         jsonGenerator.writeFieldName("extensions");
@@ -236,13 +298,22 @@ public final class JsonUtil {
         return updateExtensions(parser, context, supplier, null, extendable);
     }
 
-    /**
-     * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
-     *
-     * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
-     */
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
+                                                                             SerializerSupplier supplier, T extendable) throws IOException {
+        return updateExtensions(parser, context, supplier, null, extendable);
+    }
+
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context,
                                                                              ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+        return updateExtensions(parser, context, supplier::findProvider, extensionsNotFound, extendable);
+    }
+
+        /**
+         * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
+         *
+         * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
+         */
+    public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -262,9 +333,9 @@ public final class JsonUtil {
     }
 
     private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser, DeserializationContext context,
-                                                                                    ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
+                                                                                    SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
         String extensionName = parser.getCurrentName();
-        ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.findProvider(extensionName);
+        ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.getSerializer(extensionName);
         if (extensionJsonSerializer != null) {
             parser.nextToken();
             if (extendable != null && extendable.getExtensionByName(extensionName) != null) {
@@ -314,7 +385,7 @@ public final class JsonUtil {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
-        return updateExtension(parser, context, supplier, extensionsNotFound, null);
+        return updateExtension(parser, context, supplier::findProvider, extensionsNotFound, null);
     }
 
     /**

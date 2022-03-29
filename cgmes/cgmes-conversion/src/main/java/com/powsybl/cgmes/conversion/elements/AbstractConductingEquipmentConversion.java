@@ -34,7 +34,7 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context) {
@@ -45,7 +45,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context,
@@ -64,7 +64,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBags ps,
         Context context) {
@@ -122,7 +122,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             // is to accumulate the power flows of connected terminals at boundary node
             for (int k = 1; k <= numTerminals; k++) {
                 if (terminalConnected(k)) {
-                    context.boundary().addPowerFlowAtNode(nodeId(k), powerFlow(k));
+                    context.boundary().addPowerFlowAtNode(nodeId(k), powerFlowSV(k));
                 }
             }
         }
@@ -254,13 +254,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
         addMappingForTopologicalNode(dl, modelSide, 1);
-        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+        // We do not have SSH values at the model side, it is a line flow. We take directly SV values
+        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlowSV(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
         if (context.config().computeFlowsAtBoundaryDanglingLines()
             && terminalConnected(modelSide)
-            && !powerFlow(modelSide).defined()
+            && !powerFlowSV(modelSide).defined()
             && context.boundary().hasVoltage(boundaryNode)) {
 
             if (isZ0(dl)) {
@@ -272,6 +273,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             } else {
                 setDanglingLineModelSideFlow(dl, boundaryNode);
             }
+        }
+    }
+
+    public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl) {
+        double v = dl.getBoundary().getV();
+        double angle = dl.getBoundary().getAngle();
+
+        if (!Double.isNaN(v) && !Double.isNaN(angle)) {
+            dl.setProperty("v", Double.toString(v));
+            dl.setProperty("angle", Double.toString(angle));
         }
     }
 
@@ -398,8 +409,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected Substation substation() {
-        return (terminals[0].voltageLevel != null) ? terminals[0].voltageLevel.getSubstation() : null;
+    protected Optional<Substation> substation() {
+        return (terminals[0].voltageLevel != null) ? terminals[0].voltageLevel.getSubstation() : Optional.empty();
     }
 
     private PowerFlow stateVariablesPowerFlow() {
@@ -415,45 +426,25 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     PowerFlow powerFlow() {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
-            case SSH:
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                if (stateVariablesPowerFlow().defined()) {
-                    return stateVariablesPowerFlow();
-                }
-                break;
-            case SV:
-                if (stateVariablesPowerFlow().defined()) {
-                    return stateVariablesPowerFlow();
-                }
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                break;
+        if (steadyStateHypothesisPowerFlow().defined()) {
+            return steadyStateHypothesisPowerFlow();
+        }
+        if (stateVariablesPowerFlow().defined()) {
+            return stateVariablesPowerFlow();
         }
         return PowerFlow.UNDEFINED;
     }
 
-    PowerFlow powerFlow(int n) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
-            case SSH:
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                if (stateVariablesPowerFlow(n).defined()) {
-                    return stateVariablesPowerFlow(n);
-                }
-                break;
-            case SV:
-                if (stateVariablesPowerFlow(n).defined()) {
-                    return stateVariablesPowerFlow(n);
-                }
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                break;
+    PowerFlow powerFlowSV() {
+        if (stateVariablesPowerFlow().defined()) {
+            return stateVariablesPowerFlow();
+        }
+        return PowerFlow.UNDEFINED;
+    }
+
+    PowerFlow powerFlowSV(int n) {
+        if (stateVariablesPowerFlow(n).defined()) {
+            return stateVariablesPowerFlow(n);
         }
         return PowerFlow.UNDEFINED;
     }
@@ -465,7 +456,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
-            context.convertedTerminal(terminalId(n), t, n, powerFlow(n));
+            context.convertedTerminal(terminalId(n), t, n, powerFlowSV(n));
         }
     }
 
@@ -495,8 +486,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
-                iidmVoltageLevelId = null;
-                voltageLevel = null;
+                // if terminal is contained in a Line Container, a fictitious voltage level is created,
+                // its ID is composed by its connectivity node ID + '_VL' sufix
+                voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
+                if (voltageLevel != null) {
+                    iidmVoltageLevelId = t.connectivityNode() + "_VL";
+                } else {
+                    iidmVoltageLevelId = null;
+                }
             }
         }
     }
@@ -629,9 +626,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
-        if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+        if (context.config().createCgmesExportMapping()) {
             CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-            mapping.put(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
+            String topologicalNode = terminals[cgmesTerminalNumber - 1].t.topologicalNode();
+            mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, topologicalNode);
         }
     }
 
@@ -639,6 +637,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         int cgmesTerminalNumber = terminalNumber;
         int iidmTerminalNumber = cgmesTerminalNumber;
         addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
+    }
+
+    protected static void addMappingForTopologicalNode(Context context, TieLine tl, int side, BoundaryLine boundaryLine) {
+        if (context.config().createCgmesExportMapping()) {
+            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+
+            String cgmesTerminalId = boundaryLine.getModelTerminalId();
+            CgmesTerminal t = context.cgmes().terminal(cgmesTerminalId);
+            mapping.putTopologicalNode(tl.getId(), side, t.topologicalNode());
+        }
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {
@@ -657,9 +665,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             modelNode = iidmNode(modelEnd);
         }
-        PowerFlow modelPowerFlow = powerFlow(modelEnd);
+        PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, boundaryTerminalId, modelPowerFlow);
+            modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
+    }
+
+    private static Branch.Side getBoundarySide(int modelEnd) {
+        if (modelEnd == 1) {
+            return Branch.Side.TWO;
+        } else {
+            return Branch.Side.ONE;
+        }
     }
 
     protected double p0() {

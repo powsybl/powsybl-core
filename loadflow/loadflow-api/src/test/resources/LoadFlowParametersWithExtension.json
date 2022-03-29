@@ -1,12 +1,12 @@
 {
-  "version" : "1.5",
+  "version" : "1.7",
   "voltageInitMode" : "UNIFORM_VALUES",
   "transformerVoltageControlOn" : false,
   "phaseShifterRegulationOn" : false,
   "noGeneratorReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
-  "simulShunt" : false,
-  "readSlackBus" : false,
+  "shuntCompensatorVoltageControlOn" : false,
+  "readSlackBus" : true,
   "writeSlackBus" : false,
   "dc" : false,
   "distributedSlack" : true,
@@ -14,6 +14,7 @@
   "dcUseTransformerRatio" : true,
   "countriesToBalance" : [ ],
   "connectedComponentMode" : "MAIN",
+  "hvdcAcEmulation" : true,
   "extensions" : {
     "dummy-extension" : { }
   }

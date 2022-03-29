@@ -17,12 +17,12 @@ PowSyBl is part of the LF Energy Foundation, a project of The Linux Foundation t
 within the energy and electricity sectors.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/powsybl/powsybl-gse/master/gse-spi/src/main/resources/images/logo_lfe_powsybl.svg?sanitize=true" alt="PowSyBl Logo" width="50%"/>
+<img src="https://raw.githubusercontent.com/powsybl/powsybl-gse/main/gse-spi/src/main/resources/images/logo_lfe_powsybl.svg?sanitize=true" alt="PowSyBl Logo" width="50%"/>
 </p>
 
 Read more at https://www.powsybl.org !
 
-This project and everyone participating in it is governed by the [PowSyBl Code of Conduct](https://github.com/powsybl/.github/blob/master/CODE_OF_CONDUCT.md).
+This project and everyone participating in it is governed by the [PowSyBl Code of Conduct](https://github.com/powsybl/.github/blob/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable behavior to [powsybl-tsc@lists.lfenergy.org](mailto:powsybl-tsc@lists.lfenergy.org).
 
 ## PowSyBl vs PowSyBl Core
@@ -54,7 +54,7 @@ Modify some existing tests or create your own new tests to experiment with the f
 the project in an IDE and use the IDE to launch your own main classes. If you know java and maven and want to do things
 manually, you can also use maven directly to compute the classpath of all the project jars and run anything you want with it.
 
-Read [Contributing.md](https://github.com/powsybl/.github/blob/master/CONTRIBUTING.md) for more in-depth explanations
+Read [Contributing.md](https://github.com/powsybl/.github/blob/main/CONTRIBUTING.md) for more in-depth explanations
 on how to run code.
 
 Read [Install](#install) to generate an installed iTools distribution, a standalone external folder that contains all

@@ -36,8 +36,6 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     @Override BusViewExt getBusView();
 
-    @Override SubstationImpl getSubstation();
-
     NetworkImpl getNetwork();
 
     /**
@@ -48,7 +46,7 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
     /**
      * Detach an equipment from the topology.
      */
-    void detach(TerminalExt terminal);
+    void detach(TerminalExt terminal, boolean removeDanglingSwitches);
 
     boolean connect(TerminalExt terminal);
 

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
@@ -302,6 +303,19 @@ public interface Network extends Container<Network> {
     Substation getSubstation(String id);
 
     /**
+     * Get a builder to create a new voltage level (without substation).
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
+    default VoltageLevelAdder newVoltageLevel() {
+        return newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newVoltageLevel();
+    }
+
+    /**
      * Get all substation voltage levels.
      */
     Iterable<VoltageLevel> getVoltageLevels();
@@ -377,6 +391,21 @@ public interface Network extends Container<Network> {
     TieLineAdder newTieLine();
 
     /**
+     * Get a builder to create a two windings transformer.
+     * Only use if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newTwoWindingsTransformer()}.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
+    default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
+        return newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newTwoWindingsTransformer();
+    }
+
+    /**
      * Get all two windings transformers.
      */
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
@@ -397,6 +426,21 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the two windings transformer
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
+
+    /**
+     * Get a builder to create a three windings transformer.
+     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newThreeWindingsTransformer()}.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
+    default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
+        return newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newThreeWindingsTransformer();
+    }
 
     /**
      * Get all 3 windings transformers.
@@ -811,4 +855,53 @@ public interface Network extends Container<Network> {
     void addListener(NetworkListener listener);
 
     void removeListener(NetworkListener listener);
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.NETWORK;
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationLevel runValidationChecks() {
+        return runValidationChecks(true);
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationLevel runValidationChecks(boolean throwsException) {
+        return runValidationChecks(throwsException, Reporter.NO_OP);
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    /**
+     * Return the network validation status. Do <b>not</b> run any validation check.
+     */
+    default ValidationLevel getValidationLevel() {
+        return ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    }
+
+    default Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
+        if (validationLevel != ValidationLevel.STEADY_STATE_HYPOTHESIS) {
+            throw new UnsupportedOperationException("Validation level below LOADFLOW not supported");
+        }
+        return this;
+    }
 }

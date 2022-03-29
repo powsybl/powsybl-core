@@ -10,7 +10,6 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -18,7 +17,7 @@ import java.util.Set;
  */
 public class CgmesIidmMappingAdderImpl extends AbstractExtensionAdder<Network, CgmesIidmMapping> implements CgmesIidmMappingAdder {
 
-    private Set<String> topologicalNodes = new HashSet<>();
+    private Set<CgmesIidmMapping.CgmesTopologicalNode> topologicalNodes = new HashSet<>();
 
     public CgmesIidmMappingAdderImpl(Network extendable) {
         super(extendable);
@@ -30,8 +29,8 @@ public class CgmesIidmMappingAdderImpl extends AbstractExtensionAdder<Network, C
     }
 
     @Override
-    public CgmesIidmMappingAdder addTopologicalNode(String topologicalNode) {
-        topologicalNodes.add(Objects.requireNonNull(topologicalNode));
+    public CgmesIidmMappingAdder addTopologicalNode(String topologicalNodeId, String topologicalNodeName, Source source) {
+        topologicalNodes.add(new CgmesIidmMapping.CgmesTopologicalNode(topologicalNodeId, topologicalNodeName, source));
         return this;
     }
 }

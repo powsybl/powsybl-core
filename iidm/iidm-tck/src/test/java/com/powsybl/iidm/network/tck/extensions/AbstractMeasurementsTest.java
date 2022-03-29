@@ -52,7 +52,8 @@ public abstract class AbstractMeasurementsTest {
                 .add();
         twt.getExtension(Measurements.class)
                 .newMeasurement()
-                .setId("MEAS_TWT_Q_1")
+                .setId("MEAS_TWT_Q_2")
+                .setEnsureIdUnicity(true)
                 .setType(Measurement.Type.REACTIVE_POWER)
                 .setSide(Measurement.Side.ONE)
                 .setValue(605.2)
@@ -84,9 +85,9 @@ public abstract class AbstractMeasurementsTest {
         Measurements<TwoWindingsTransformer> twtMeasurements = twt.getExtension(Measurements.class);
         assertNotNull(twtMeasurements);
         assertEquals(2, twtMeasurements.getMeasurements().size());
-        Measurement twtQ1 = twtMeasurements.getMeasurement("MEAS_TWT_Q_1");
+        Measurement twtQ1 = twtMeasurements.getMeasurement("MEAS_TWT_Q_2#0");
         assertNotNull(twtQ1);
-        assertEquals("MEAS_TWT_Q_1", twtQ1.getId());
+        assertEquals("MEAS_TWT_Q_2#0", twtQ1.getId());
         assertEquals(Measurement.Type.REACTIVE_POWER, twtQ1.getType());
         assertEquals(Measurement.Side.ONE, twtQ1.getSide());
         assertEquals(605.2, twtQ1.getValue(), 0.0);
