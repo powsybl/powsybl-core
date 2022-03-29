@@ -65,9 +65,8 @@ public class SensitivityAnalysisResult {
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
-            Map<Triple<String, String, String>, SensitivityValue> store = valuesByContingencyIdAndFunctionIdAndVariableId.getOrDefault(factor.getFunctionType(), new HashMap<>());
+            Map<Triple<String, String, String>, SensitivityValue> store = valuesByContingencyIdAndFunctionIdAndVariableId.computeIfAbsent(factor.getFunctionType(), k -> new HashMap<>());
             store.put(Triple.of(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
-            valuesByContingencyIdAndFunctionIdAndVariableId.put(factor.getFunctionType(), store);
             functionReferenceByContingencyAndFunctionId.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
     }
