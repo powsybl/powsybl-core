@@ -279,12 +279,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                             + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
         }
 
-        // check that the 3 windings transformer is attachable on the 3 sides (only
-        // verify)
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
-        voltageLevel3.attach(terminal3, true);
-
         // Define ratedU0 equal to ratedU1 if it has not been defined
         if (Double.isNaN(ratedU0)) {
             ratedU0 = leg1.getRatedU();
@@ -293,15 +287,22 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(), leg1, leg2, leg3,
             ratedU0);
+        transformer.addTerminal(terminal1);
+        transformer.addTerminal(terminal2);
+        transformer.addTerminal(terminal3);
+
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);
         terminal1.setNum(1);
         terminal2.setNum(2);
         terminal3.setNum(3);
-        transformer.addTerminal(terminal1);
-        transformer.addTerminal(terminal2);
-        transformer.addTerminal(terminal3);
+
+        // check that the 3 windings transformer is attachable on the 3 sides (only
+        // verify)
+        voltageLevel1.attach(terminal1, true);
+        voltageLevel2.attach(terminal2, true);
+        voltageLevel3.attach(terminal3, true);
 
         // do attach
         voltageLevel1.attach(terminal1, false);

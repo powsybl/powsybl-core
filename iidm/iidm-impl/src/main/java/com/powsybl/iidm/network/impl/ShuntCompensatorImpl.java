@@ -89,13 +89,15 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setSectionCount(int sectionCount) {
+        NetworkImpl n = getNetwork();
         ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), getNetwork().getMinValidationLevel());
         if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = n.getVariantIndex();
         Integer oldValue = this.sectionCount.set(variantIndex, sectionCount);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
         notifyUpdate("sectionCount", variantId, oldValue, sectionCount);
         return this;
     }

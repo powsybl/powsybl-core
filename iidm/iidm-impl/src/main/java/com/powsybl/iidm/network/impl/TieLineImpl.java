@@ -11,11 +11,15 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Objects;
 
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 class TieLineImpl extends LineImpl implements TieLine {
 
@@ -229,9 +233,10 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
     }
 
+    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        return half1.getR() + half2.getR();
+        return TieLineUtil.getR(half1, half2);
     }
 
     private ValidationException createNotSupportedForTieLines() {
@@ -243,9 +248,10 @@ class TieLineImpl extends LineImpl implements TieLine {
         throw createNotSupportedForTieLines();
     }
 
+    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        return half1.getX() + half2.getX();
+        return TieLineUtil.getX(half1, half2);
     }
 
     @Override
@@ -255,7 +261,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG1() {
-        return half1.getG1() + half1.getG2();
+        return TieLineUtil.getG1(half1, half2);
     }
 
     @Override
@@ -265,7 +271,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB1() {
-        return half1.getB1() + half1.getB2();
+        return TieLineUtil.getB1(half1, half2);
     }
 
     @Override
@@ -275,7 +281,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG2() {
-        return half2.getG1() + half2.getG2();
+        return TieLineUtil.getG2(half1, half2);
     }
 
     @Override
@@ -285,7 +291,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB2() {
-        return half2.getB1() + half2.getB2();
+        return TieLineUtil.getB2(half1, half2);
     }
 
     @Override

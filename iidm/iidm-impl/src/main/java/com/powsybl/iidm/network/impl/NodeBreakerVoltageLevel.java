@@ -151,6 +151,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (node2 == null) {
                 throw new ValidationException(this, "second connection node is not set");
             }
+            if (node1.equals(node2)) {
+                throw new ValidationException(this, "same node at both ends");
+            }
             if (kind == null) {
                 throw new ValidationException(this, "kind is not set");
             }
@@ -505,37 +508,60 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
         graph.addListener(new DefaultUndirectedGraphListener<>() {
 
+            private static final String INTERNAL_CONNECTION = "internalConnection";
+
             @Override
             public void edgeAdded(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
-                    NetworkImpl network = getNetwork();
                     network.getIndex().checkAndAdd(aSwitch);
                     switches.put(aSwitch.getId(), e);
                     network.getListeners().notifyCreation(aSwitch);
+                } else {
+                    network.getListeners().notifyElementAdded(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
                 }
                 invalidateCache();
             }
 
             @Override
-            public void edgeRemoved(int e, SwitchImpl aSwitch) {
+            public void edgeBeforeRemoval(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
-                    NetworkImpl network = getNetwork();
-                    String switchId = aSwitch.getId();
                     network.getListeners().notifyBeforeRemoval(aSwitch);
-                    network.getIndex().remove(aSwitch);
-                    network.getListeners().notifyAfterRemoval(switchId);
                 }
+            }
+
+            @Override
+            public void edgeRemoved(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
+                if (aSwitch != null) {
+                    String switchId = aSwitch.getId();
+                    network.getIndex().remove(aSwitch);
+                    switches.remove(switchId);
+                    network.getListeners().notifyAfterRemoval(switchId);
+                } else {
+                    network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
+                }
+            }
+
+            @Override
+            public void allEdgesBeforeRemoval(Collection<SwitchImpl> aSwitches) {
+                NetworkImpl network = getNetwork();
+                aSwitches.stream().filter(Objects::nonNull).forEach(ss -> network.getListeners().notifyBeforeRemoval(ss));
             }
 
             @Override
             public void allEdgesRemoved(Collection<SwitchImpl> aSwitches) {
                 NetworkImpl network = getNetwork();
                 aSwitches.forEach(ss -> {
-                    network.getListeners().notifyBeforeRemoval(ss);
-                    network.getIndex().remove(ss);
+                    if (ss != null) {
+                        network.getIndex().remove(ss);
+                    } else {
+                        network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
+                    }
                 });
                 switches.clear();
-                aSwitches.forEach(ss -> network.getListeners().notifyAfterRemoval(ss.getId()));
+                aSwitches.stream().filter(Objects::nonNull).forEach(ss -> network.getListeners().notifyAfterRemoval(ss.getId()));
             }
         });
     }
@@ -760,7 +786,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void removeSwitch(String switchId) {
-            Integer e = switches.remove(switchId);
+            Integer e = switches.get(switchId);
             if (e == null) {
                 throw new PowsyblException("Switch '" + switchId
                         + "' not found in voltage level '" + id + "'");

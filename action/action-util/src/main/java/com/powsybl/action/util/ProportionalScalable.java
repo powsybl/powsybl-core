@@ -26,16 +26,14 @@ import java.util.stream.Collectors;
 class ProportionalScalable extends AbstractCompoundScalable {
     private static final double EPSILON = 1e-2;
 
-    private final class ScalablePercentage {
+    private static final class ScalablePercentage {
         private final Scalable scalable;
         private final float percentage;
-        private boolean saturated;
         private double iterationPercentage;
 
         private ScalablePercentage(Scalable scalable, float percentage) {
             this.scalable = scalable;
             this.percentage = percentage;
-            this.saturated = false;
             this.iterationPercentage = percentage;
         }
 
@@ -48,15 +46,11 @@ class ProportionalScalable extends AbstractCompoundScalable {
         }
 
         boolean isSaturated() {
-            return saturated;
+            return iterationPercentage == 0.0;
         }
 
         boolean notSaturated() {
-            return !saturated;
-        }
-
-        void setSaturated(boolean saturated) {
-            this.saturated = saturated;
+            return iterationPercentage != 0.0;
         }
 
         double getIterationPercentage() {
@@ -96,6 +90,12 @@ class ProportionalScalable extends AbstractCompoundScalable {
         if (scalables.size() != percentages.size()) {
             throw new IllegalArgumentException("percentage and scalable list must have the same size");
         }
+        if (scalables.isEmpty()) {
+            return;
+        }
+        if (percentages.stream().anyMatch(p -> Float.isNaN(p))) {
+            throw new IllegalArgumentException("There is at least one undefined percentage");
+        }
         double sum = percentages.stream().mapToDouble(Double::valueOf).sum();
         if (Math.abs(100 - sum) > EPSILON) {
             throw new IllegalArgumentException(String.format("Sum of percentages must be equals to 100 (%.2f)", sum));
@@ -116,9 +116,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     private void updateIterationPercentages() {
         double unsaturatedPercentagesSum = scalablePercentageList.stream().filter(ScalablePercentage::notSaturated).mapToDouble(ScalablePercentage::getIterationPercentage).sum();
         scalablePercentageList.forEach(scalablePercentage -> {
-            if (scalablePercentage.isSaturated()) {
-                scalablePercentage.setIterationPercentage(0);
-            } else {
+            if (!scalablePercentage.isSaturated()) {
                 scalablePercentage.setIterationPercentage(scalablePercentage.getIterationPercentage() / unsaturatedPercentagesSum * 100);
             }
         });
@@ -147,7 +145,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
                 doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
             }
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
-                scalablePercentage.setSaturated(true);
+                scalablePercentage.setIterationPercentage(0);
             }
             done += doneOnScalable;
         }
@@ -185,7 +183,6 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private void reinitIterationPercentage() {
         scalablePercentageList.forEach(scalablePercentage -> {
-            scalablePercentage.setSaturated(false);
             scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage());
         });
     }

@@ -17,10 +17,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.powerfactory.model.DataObject;
-import com.powsybl.powerfactory.model.PowerFactoryException;
-import com.powsybl.powerfactory.model.StudyCase;
-import com.powsybl.powerfactory.model.StudyCaseLoader;
+import com.powsybl.powerfactory.model.*;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
@@ -149,7 +146,7 @@ public class PowerFactoryImporter implements Importer {
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
-        List<DataObject> elmNets = studyCase.getElmNets();
+        List<DataObject> elmNets = studyCase.getIndex().getDataObjectsByClass("ElmNet");
         if (elmNets.isEmpty()) {
             throw new PowsyblException("No ElmNet object found");
         }
@@ -159,19 +156,11 @@ public class PowerFactoryImporter implements Importer {
         DateTime caseDate = new Instant(studyCase.getTime().toEpochMilli()).toDateTime();
         network.setCaseDate(caseDate);
 
-        // index objects by id
-        Map<Long, DataObject> objsById = new HashMap<>();
-        for (DataObject elmNet : elmNets) {
-            elmNet.traverse(obj -> objsById.put(obj.getId(), obj));
-        }
-
-        List<DataObject> elmTerms = objsById.values().stream()
-                .filter(obj -> obj.getDataClassName().equals("ElmTerm"))
-                .collect(Collectors.toList());
+        List<DataObject> elmTerms = studyCase.getIndex().getDataObjectsByClass("ElmTerm");
 
         LOGGER.info("Creating containers...");
 
-        ContainersMapping containerMapping = ContainersMappingHelper.create(objsById, elmTerms);
+        ContainersMapping containerMapping = ContainersMappingHelper.create(studyCase.getIndex(), elmTerms);
         ImportContext importContext = new ImportContext(containerMapping);
 
         LOGGER.info("Creating topology graphs...");
@@ -190,7 +179,7 @@ public class PowerFactoryImporter implements Importer {
 
         LOGGER.info("Creating equipments...");
 
-        for (DataObject obj : objsById.values()) {
+        for (DataObject obj : studyCase.getIndex().getDataObjects()) {
             switch (obj.getDataClassName()) {
                 case "ElmCoup":
                     createSwitch(network, importContext, obj);
@@ -327,12 +316,16 @@ public class PowerFactoryImporter implements Importer {
                 .setMinP(pMinUc)
                 .setMaxP(pMaxUc)
                 .add();
-        elmSym.findObjectAttributeValue(TYP_ID).ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
+        elmSym.findObjectAttributeValue(TYP_ID)
+                .flatMap(DataObjectRef::resolve)
+                .ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
     }
 
     private void createReactiveLimits(DataObject elmSym, DataObject typSym, Generator g) {
         if (typSym.getDataClassName().equals("TypSym")) {
-            DataObject pQlimType = elmSym.findObjectAttributeValue("pQlimType").orElse(null);
+            DataObject pQlimType = elmSym.findObjectAttributeValue("pQlimType")
+                    .flatMap(DataObjectRef::resolve)
+                    .orElse(null);
             if (pQlimType != null) {
                 throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");
             } else {
@@ -366,7 +359,9 @@ public class PowerFactoryImporter implements Importer {
         NodeRef nodeRef1 = it.next();
         NodeRef nodeRef2 = it.next();
         float dline = elmLne.getFloatAttributeValue("dline");
-        DataObject typLne = elmLne.getObjectAttributeValue(TYP_ID);
+        DataObject typLne = elmLne.getObjectAttributeValue(TYP_ID)
+                .resolve()
+                .orElseThrow();
         float rline = typLne.getFloatAttributeValue("rline");
         float xline = typLne.getFloatAttributeValue("xline");
         float bline = typLne.getFloatAttributeValue("bline");
@@ -403,7 +398,9 @@ public class PowerFactoryImporter implements Importer {
         VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
         VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
         Substation s = vl1.getSubstation().orElseThrow();
-        DataObject typTr2 = elmTr2.getObjectAttributeValue(TYP_ID);
+        DataObject typTr2 = elmTr2.getObjectAttributeValue(TYP_ID)
+                .resolve()
+                .orElseThrow();
         float strn = typTr2.getFloatAttributeValue("strn");
         float utrnL = typTr2.getFloatAttributeValue("utrn_l");
         float utrnH = typTr2.getFloatAttributeValue("utrn_h");
@@ -526,7 +523,9 @@ public class PowerFactoryImporter implements Importer {
                     .add();
         }
         for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
-            DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id").orElse(null);
+            DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
+                    .flatMap(DataObjectRef::resolve)
+                    .orElse(null);
             if (connectedObj == null) {
                 importContext.cubiclesObjectNotFound.add(staCubic);
             } else {

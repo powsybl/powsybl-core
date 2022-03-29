@@ -8,10 +8,12 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.extensions.Source;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -49,6 +51,7 @@ public final class TopologyExport {
 
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeBusTerminals(network, cimNamespace, writer, context);
+        writeSwitchesTerminals(network, cimNamespace, writer, context);
         writeHvdcTerminals(network, cimNamespace, writer, context);
     }
 
@@ -59,15 +62,48 @@ public final class TopologyExport {
                 String terminalId;
                 if (c instanceof DanglingLine) {
                     writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer);
-                    terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network").orElseThrow(PowsyblException::new);
+                    terminalId = cgmesTerminalFromAlias(c, "Terminal_Network");
                 } else {
-                    int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
-                    terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElseThrow(PowsyblException::new);
+                    int side = CgmesExportUtil.getTerminalSide(t, c);
+                    terminalId = cgmesTerminalFromAlias(c, CgmesNames.TERMINAL + side);
                 }
-                for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
-                    writeTerminal(terminalId, topologicalNode.getCgmesId(), cimNamespace, writer);
-                }
+                writeTerminal(terminalId, topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
             }
+        }
+    }
+
+    private static String cgmesTerminalFromAlias(Identifiable<?> i, String aliasType0) {
+        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasType0;
+        Optional<String> cgmesTerminalId = i.getAliasFromType(aliasType);
+        if (cgmesTerminalId.isEmpty()) {
+            throw new PowsyblException("Missing CGMES terminal in aliases of " + i.getId() + ", aliasType " + aliasType);
+        }
+        return cgmesTerminalId.get();
+    }
+
+    private static String topologicalNodeFromIidmBus(Bus b, CgmesExportContext context) {
+        return context.getTopologicalNodesByBusViewBus(b.getId()).stream().findFirst().orElseThrow(PowsyblException::new).getCgmesId();
+    }
+
+    private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Switch sw : network.getSwitches()) {
+            VoltageLevel vl = sw.getVoltageLevel();
+
+            Bus bus1;
+            Bus bus2;
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                bus1 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId())).getBusView().getBus();
+                bus2 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId())).getBusView().getBus();
+            } else {
+                bus1 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus1(sw.getId()).getId());
+                bus2 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus2(sw.getId()).getId());
+            }
+
+            String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
+            String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
+
+            writeTerminal(cgmesTerminal1, topologicalNodeFromIidmBus(bus1, context), cimNamespace, writer);
+            writeTerminal(cgmesTerminal2, topologicalNodeFromIidmBus(bus2, context), cimNamespace, writer);
         }
     }
 
@@ -148,8 +184,8 @@ public final class TopologyExport {
     private static void writeBusTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
             for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
-                if (topologicalNode.getSource().equals(CgmesIidmMapping.Source.IGM)) {
-                    String baseVoltage = context.getBaseVoltageByNominalVoltage(b.getVoltageLevel().getNominalV()).getCgmesId();
+                if (topologicalNode.getSource().equals(Source.IGM)) {
+                    String baseVoltage = context.getBaseVoltageByNominalVoltage(b.getVoltageLevel().getNominalV()).getId();
                     writeTopologicalNode(topologicalNode.getCgmesId(), topologicalNode.getName(), b.getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
                 }
             }
@@ -161,8 +197,8 @@ public final class TopologyExport {
             Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNodeId.isPresent()) {
                 CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = context.getUnmappedTopologicalNode(topologicalNodeId.get());
-                if (cgmesTopologicalNode != null && cgmesTopologicalNode.getSource().equals(CgmesIidmMapping.Source.IGM)) {
-                    String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getBoundary().getVoltageLevel().getNominalV()).getCgmesId();
+                if (cgmesTopologicalNode != null && cgmesTopologicalNode.getSource().equals(Source.IGM)) {
+                    String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getBoundary().getVoltageLevel().getNominalV()).getId();
                     writeTopologicalNode(cgmesTopologicalNode.getCgmesId(), dl.getNameOrId(), dl.getBoundary().getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
                 }
             }

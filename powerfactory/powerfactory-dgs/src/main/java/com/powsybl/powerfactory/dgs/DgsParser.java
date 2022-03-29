@@ -7,6 +7,7 @@
 package com.powsybl.powerfactory.dgs;
 
 import com.powsybl.powerfactory.model.PowerFactoryException;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,12 +23,15 @@ import java.util.regex.Pattern;
 public class DgsParser {
 
     private static final Pattern ATTR_DESCR_PATTERN = Pattern.compile("(.+)\\(([airp]+)(:\\d*)?\\)");
+    private static final Pattern QUOTED_TEXT_PATTERN = Pattern.compile("(\"[^\"]*\")");
 
     private static final class ParsingContext {
 
         private String[] attributesName;
 
         private char[] attributesType;
+
+        private boolean decimalSeparatorIsComma = false;
     }
 
     private static void readTableHeader(String trimmedLine, DgsHandler handler, ParsingContext context) {
@@ -60,7 +64,7 @@ public class DgsParser {
         Objects.requireNonNull(context.attributesName);
         Objects.requireNonNull(context.attributesType);
 
-        String[] fields = trimmedLine.split(";");
+        String[] fields = splitConsideringQuotedText(trimmedLine);
 
         for (int i = 0; i < fields.length; i++) {
             String field = fields[i];
@@ -81,7 +85,7 @@ public class DgsParser {
                     break;
 
                 case 'r':
-                    handler.onRealValue(attributeName, Float.parseFloat(field));
+                    handler.onRealValue(attributeName, parseFloat(field, context));
                     break;
 
                 case 'p':
@@ -116,5 +120,39 @@ public class DgsParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static float parseFloat(String value, ParsingContext context) {
+        if (context.decimalSeparatorIsComma) {
+            return Float.parseFloat(value.replace(',', '.'));
+        }
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException ex) {
+            try {
+                float v = Float.parseFloat(value.replace(',', '.'));
+                context.decimalSeparatorIsComma = true;
+                return v;
+            } catch (NumberFormatException ex2) {
+                throw new PowerFactoryException("Invalid real value [" + value + "]");
+            }
+        }
+    }
+
+    private static String[] splitConsideringQuotedText(String line) {
+        Objects.requireNonNull(line);
+        String[] tokens = new String[] {};
+        Matcher m = QUOTED_TEXT_PATTERN.matcher(line);
+        int start = 0;
+        while (m.find()) {
+            tokens = ArrayUtils.addAll(tokens, line.substring(start, m.start() - 1).split(";"));
+            tokens = ArrayUtils.add(tokens, line.substring(m.start() + 1, m.end() - 1));
+            // Skip the delimiter
+            start = m.end() + 1;
+        }
+        if (start < line.length()) {
+            tokens = ArrayUtils.addAll(tokens, line.substring(start).split(";"));
+        }
+        return tokens;
     }
 }

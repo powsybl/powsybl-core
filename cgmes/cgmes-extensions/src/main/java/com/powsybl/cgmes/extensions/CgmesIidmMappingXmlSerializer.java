@@ -20,10 +20,7 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -65,20 +62,6 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                         throw new UncheckedXmlStreamException(e);
                     }
                 });
-        Map<Double, CgmesIidmMapping.BaseVoltageSource> sortedBaseVoltages = extension.getBaseVoltages().entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                    (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        sortedBaseVoltages.forEach((nominalV, baseVoltageSource) -> {
-            try {
-                context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
-                context.getWriter().writeAttribute("nominalVoltage", Double.toString(nominalV));
-                context.getWriter().writeAttribute(SOURCE, baseVoltageSource.getSource().name());
-                context.getWriter().writeAttribute("id", baseVoltageSource.getCgmesId());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
     }
 
     @Override
@@ -93,22 +76,17 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                     String busId = readBusIdentification(extendable, networkContext);
                     readTopologicalNodes(context, mapping, busId);
                     break;
-                case "baseVoltage":
-                    double nominalV = Double.parseDouble(context.getReader().getAttributeValue(null, "nominalVoltage"));
-                    String sourceBV = context.getReader().getAttributeValue(null, SOURCE);
-                    String baseVoltageId = context.getReader().getAttributeValue(null, "id");
-                    mapping.addBaseVoltage(nominalV, baseVoltageId, CgmesIidmMapping.Source.valueOf(sourceBV));
-                    break;
                 case "unmappedTopologicalNode":
                     String name = context.getReader().getAttributeValue(null, "name");
                     String id = context.getReader().getAttributeValue(null, "id");
                     String sourceTN = context.getReader().getAttributeValue(null, SOURCE);
-                    mapping.putUnmappedTopologicalNode(id, name, CgmesIidmMapping.Source.valueOf(sourceTN));
+                    mapping.putUnmappedTopologicalNode(id, name, Source.valueOf(sourceTN));
                     break;
                 default:
                     throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <cgmesIidmMapping>");
             }
         });
+        mapping.addTopologyListener();
         return mapping;
     }
 
@@ -170,7 +148,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                     String name = context.getReader().getAttributeValue(null, "name");
                     String id = context.getReader().getAttributeValue(null, "id");
                     String sourceTN = context.getReader().getAttributeValue(null, SOURCE);
-                    mapping.putTopologicalNode(busId, id, name, CgmesIidmMapping.Source.valueOf(sourceTN));
+                    mapping.putTopologicalNode(busId, id, name, Source.valueOf(sourceTN));
                     break;
                 default:
                     throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <cgmesIidmMapping>");
