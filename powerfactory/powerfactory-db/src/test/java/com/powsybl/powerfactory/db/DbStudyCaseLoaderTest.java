@@ -39,11 +39,14 @@ public class DbStudyCaseLoaderTest {
             builder.createClass("ElmNet");
             builder.createAttribute("ElmNet", DataAttribute.LOC_NAME, DataAttributeType.STRING.ordinal(), "");
             builder.createAttribute("ElmNet", "aInt", DataAttributeType.INTEGER.ordinal(), "");
-            builder.createObject(0L, "ElmNet", -1);
+            builder.createAttribute("ElmNet", "aDouble", DataAttributeType.DOUBLE.ordinal(), "");
+            builder.createObject(0L, "ElmNet");
             builder.setStringAttributeValue(0L, DataAttribute.LOC_NAME, "TestGrid");
+            builder.setDoubleAttributeValue(0L, "aDouble", 3.34d);
             builder.setIntAttributeValue(0L, "aInt", 3);
             builder.createClass("ElmSubstat");
-            builder.createObject(1L, "ElmSubstat", 0L);
+            builder.createObject(1L, "ElmSubstat");
+            builder.setObjectParent(1L, 0L);
         }
     }
 
