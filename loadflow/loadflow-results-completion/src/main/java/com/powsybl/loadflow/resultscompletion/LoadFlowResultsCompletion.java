@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.DanglingLineData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
@@ -149,6 +150,11 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
         });
 
+        network.getDanglingLineStream().forEach(danglingLine -> {
+            DanglingLineData danglingLineData = new DanglingLineData(danglingLine, true);
+            completeTerminalData(danglingLine.getTerminal(), danglingLineData);
+        });
+
         Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
         z0FlowsCompletion.complete();
     }
@@ -201,6 +207,19 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             if (Double.isNaN(terminal.getQ())) {
                 LOGGER.debug("Twt {}, Side {}: setting q = {}", twtData.getId(), side, twtData.getComputedQ(side));
                 terminal.setQ(twtData.getComputedQ(side));
+            }
+        }
+    }
+
+    private void completeTerminalData(Terminal terminal, DanglingLineData danglingLineData) {
+        if (terminal.isConnected() && terminal.getBusView().getBus() != null && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+            if (Double.isNaN(terminal.getP())) {
+                LOGGER.debug("DanglingLine {}: setting p = {}", danglingLineData.getId(), danglingLineData.getP());
+                terminal.setP(danglingLineData.getP());
+            }
+            if (Double.isNaN(terminal.getQ())) {
+                LOGGER.debug("danglingLine {}: setting q = {}", danglingLineData.getId(), danglingLineData.getQ());
+                terminal.setQ(danglingLineData.getQ());
             }
         }
     }
