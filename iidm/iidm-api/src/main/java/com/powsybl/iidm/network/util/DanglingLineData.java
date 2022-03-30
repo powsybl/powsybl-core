@@ -77,7 +77,6 @@ public class DanglingLineData {
         boundaryBusU = Double.NaN;
         boundaryBusTheta = Double.NaN;
         if (!valid(u1, theta1)) {
-            System.err.printf("Voltage no valid %s %n", id);
             return;
         }
 
@@ -113,17 +112,14 @@ public class DanglingLineData {
         if (!Double.isNaN(danglingLine.getTerminal().getP()) && !Double.isNaN(danglingLine.getTerminal().getQ())) {
             p = danglingLine.getTerminal().getP();
             q = danglingLine.getTerminal().getQ();
-            System.err.printf("DanglingLine %s P and Q from terminal %n", id);
         } else if (isZ0(danglingLine)) {
             p = -boundaryP;
             q = -boundaryQ;
-            System.err.printf("DanglingLine %s P and Q from z0 %n", id);
         } else {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
             Complex s1 = adm.y11().multiply(v1).add(adm.y12().multiply(vBoundaryBus)).multiply(v1.conjugate()).conjugate();
             p = s1.getReal();
             q = s1.getImaginary();
-            System.err.printf("DanglingLine %s P and Q from calculated %f %f %n", id, boundaryP, boundaryQ);
         }
     }
 
