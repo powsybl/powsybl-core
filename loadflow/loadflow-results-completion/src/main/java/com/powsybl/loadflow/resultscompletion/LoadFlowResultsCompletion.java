@@ -218,7 +218,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                 terminal.setP(danglingLineData.getP());
             }
             if (Double.isNaN(terminal.getQ())) {
-                LOGGER.debug("danglingLine {}: setting q = {}", danglingLineData.getId(), danglingLineData.getQ());
+                LOGGER.debug("DanglingLine {}: setting q = {}", danglingLineData.getId(), danglingLineData.getQ());
                 terminal.setQ(danglingLineData.getQ());
             }
         }
