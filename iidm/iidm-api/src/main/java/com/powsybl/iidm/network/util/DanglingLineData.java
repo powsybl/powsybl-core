@@ -81,9 +81,20 @@ public class DanglingLineData {
         }
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
+        boolean isZ0 = isZ0(danglingLine);
 
+        Complex vBoundaryBus = boundaryVoltageAndAngle(v1, isZ0);
+        boundaryBusU = vBoundaryBus.abs();
+        boundaryBusTheta = vBoundaryBus.getArgument();
+
+        Complex pq = networkPQ(danglingLine, v1, vBoundaryBus, isZ0);
+        p = pq.getReal();
+        q = pq.getImaginary();
+    }
+
+    private Complex boundaryVoltageAndAngle(Complex v1, boolean isZ0) {
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
-        if (isZ0(danglingLine)) {
+        if (isZ0) {
             vBoundaryBus = v1;
         } else if (boundaryP == 0.0 && boundaryQ == 0.0) {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
@@ -105,22 +116,26 @@ public class DanglingLineData {
                 vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigma.getImaginary()).multiply(v0);
             }
         }
+        return vBoundaryBus;
+    }
 
-        boundaryBusU = vBoundaryBus.abs();
-        boundaryBusTheta = vBoundaryBus.getArgument();
+    private Complex networkPQ(DanglingLine danglingLine, Complex vNetwork, Complex vBoundary, boolean isZ0) {
+        double networkP;
+        double networkQ;
 
         if (!Double.isNaN(danglingLine.getTerminal().getP()) && !Double.isNaN(danglingLine.getTerminal().getQ())) {
-            p = danglingLine.getTerminal().getP();
-            q = danglingLine.getTerminal().getQ();
-        } else if (isZ0(danglingLine)) {
-            p = -boundaryP;
-            q = -boundaryQ;
+            networkP = danglingLine.getTerminal().getP();
+            networkQ = danglingLine.getTerminal().getQ();
+        } else if (isZ0) {
+            networkP = -boundaryP;
+            networkQ = -boundaryQ;
         } else {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
-            Complex s1 = adm.y11().multiply(v1).add(adm.y12().multiply(vBoundaryBus)).multiply(v1.conjugate()).conjugate();
-            p = s1.getReal();
-            q = s1.getImaginary();
+            Complex s1 = adm.y11().multiply(vNetwork).add(adm.y12().multiply(vBoundary)).multiply(vNetwork.conjugate()).conjugate();
+            networkP = s1.getReal();
+            networkQ = s1.getImaginary();
         }
+        return new Complex(networkP, networkQ);
     }
 
     private static boolean isZ0(DanglingLine dl) {
