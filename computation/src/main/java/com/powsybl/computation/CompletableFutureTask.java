@@ -88,4 +88,17 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
         return super.cancel(mayInterruptIfRunning) && future.cancel(mayInterruptIfRunning);
     }
 
+    /**
+     * Helps propagate back cancellation from one future to another,
+     * typically from a future exposed to the user, to an inner future which is
+     * actually linked to an actual task.
+     */
+    public static <T> CompletableFuture<T> propagateCancel(CompletableFuture<T> from, CompletableFuture<?> to) {
+        from.whenComplete((res, exc) -> {
+            if (exc instanceof CancellationException) {
+                to.cancel(true);
+            }
+        });
+        return from;
+    }
 }

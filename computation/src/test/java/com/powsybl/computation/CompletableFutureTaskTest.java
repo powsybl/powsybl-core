@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -142,6 +143,44 @@ public class CompletableFutureTaskTest {
         boolean cancelled = task.cancel(true);
         assertFalse(cancelled);
         assertSame(res, task.get());
+    }
+
+    @Test
+    public void testPropagateCancel() throws Exception {
+        CountDownLatch waitForStart = new CountDownLatch(1);
+        CountDownLatch waitIndefinitely = new CountDownLatch(1);
+        CountDownLatch waitForInterruption = new CountDownLatch(1);
+
+        AtomicBoolean interrupted = new AtomicBoolean(false);
+        CompletableFutureTask<Integer> task1 = CompletableFutureTask.runAsync(() -> {
+            waitForStart.countDown();
+            try {
+                waitIndefinitely.await();
+                fail();
+            } catch (InterruptedException exc) {
+                interrupted.set(true);
+                waitForInterruption.countDown();
+            }
+            return null;
+        }, executor);
+        CompletableFuture<Integer> task2 = task1.thenApply(Function.identity());
+
+        CompletableFuture<Integer> task = CompletableFutureTask.propagateCancel(task2, task1);
+
+        //Cancel after task has actually started
+        waitForStart.await();
+        boolean cancelled = task.cancel(true);
+        assertTrue(cancelled);
+
+        try {
+            task.get();
+            fail("Should not happen: task has been cancelled");
+        } catch (CancellationException exc) {
+            //ignored
+        }
+
+        waitForInterruption.await();
+        assertTrue(interrupted.get());
     }
 
 }
