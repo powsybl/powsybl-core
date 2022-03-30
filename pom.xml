@@ -131,6 +131,7 @@
         <xmlunit.version>2.3.0</xmlunit.version>
 
         <powsyblmathnative.version>1.2.0</powsyblmathnative.version>
+        <powsybl-powerfactory-db-native.version>1.0.0-SNAPSHOT</powsybl-powerfactory-db-native.version>
     </properties>
 
     <profiles>
@@ -715,6 +716,11 @@
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-math-native</artifactId>
                 <version>${powsyblmathnative.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-powerfactory-db-native</artifactId>
+                <version>${powsybl-powerfactory-db-native.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.univocity</groupId>

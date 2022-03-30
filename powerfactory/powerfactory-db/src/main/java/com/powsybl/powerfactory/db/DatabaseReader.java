@@ -11,5 +11,5 @@ package com.powsybl.powerfactory.db;
  */
 public interface DatabaseReader {
 
-    void read(String powerFactoryHome, String projectName, DataObjectBuilder builder);
+    void read(String powerFactoryHomeDir, String projectName, DataObjectBuilder builder);
 }

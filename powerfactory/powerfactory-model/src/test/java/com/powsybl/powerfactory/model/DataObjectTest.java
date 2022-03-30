@@ -32,7 +32,7 @@ public class DataObjectTest {
                 .addAttribute(new DataAttribute("iv", DataAttributeType.INTEGER_VECTOR))
                 .addAttribute(new DataAttribute("fv", DataAttributeType.FLOAT_VECTOR))
                 .addAttribute(new DataAttribute("dv", DataAttributeType.DOUBLE_VECTOR))
-                .addAttribute(new DataAttribute("m", DataAttributeType.MATRIX));
+                .addAttribute(new DataAttribute("m", DataAttributeType.DOUBLE_MATRIX));
     }
 
     @Test
@@ -209,13 +209,13 @@ public class DataObjectTest {
         DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
         DataObject objFoo = new DataObject(0L, clsFoo, index);
-        assertFalse(objFoo.findMatrixAttributeValue("m").isPresent());
-        objFoo.setMatrixAttributeValue("m", new BlockRealMatrix(2, 2));
-        assertTrue(objFoo.findMatrixAttributeValue("m").isPresent());
-        assertEquals(new BlockRealMatrix(2, 2), objFoo.findMatrixAttributeValue("m").orElseThrow());
-        assertFalse(objFoo.findMatrixAttributeValue("mm").isPresent());
-        assertThrows(PowerFactoryException.class, () -> objFoo.getMatrixAttributeValue("mm"));
-        assertEquals(new BlockRealMatrix(2, 2), objFoo.getMatrixAttributeValue("m"));
+        assertFalse(objFoo.findDoubleMatrixAttributeValue("m").isPresent());
+        objFoo.setDoubleMatrixAttributeValue("m", new BlockRealMatrix(2, 2));
+        assertTrue(objFoo.findDoubleMatrixAttributeValue("m").isPresent());
+        assertEquals(new BlockRealMatrix(2, 2), objFoo.findDoubleMatrixAttributeValue("m").orElseThrow());
+        assertFalse(objFoo.findDoubleMatrixAttributeValue("mm").isPresent());
+        assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleMatrixAttributeValue("mm"));
+        assertEquals(new BlockRealMatrix(2, 2), objFoo.getDoubleMatrixAttributeValue("m"));
     }
 
     @Test

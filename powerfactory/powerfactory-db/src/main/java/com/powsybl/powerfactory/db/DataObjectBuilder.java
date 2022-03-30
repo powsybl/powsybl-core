@@ -24,17 +24,19 @@ public class DataObjectBuilder {
         return index;
     }
 
-    public boolean createClass(String name) {
+    public void createClass(String name) {
         if (classesByName.containsKey(name)) {
-            return false;
+            return;
         }
         DataClass dataClass = new DataClass(name);
         classesByName.put(dataClass.getName(), dataClass);
-        return true;
     }
 
     public void createAttribute(String className, String attributeName, int type, String description) {
         DataClass dataClass = getClassByName(className);
+        if (dataClass.getAttributeByName(attributeName) != null) {
+            return;
+        }
         dataClass.addAttribute(new DataAttribute(attributeName, DataAttributeType.values()[type], description));
     }
 
@@ -46,13 +48,15 @@ public class DataObjectBuilder {
         return dataClass;
     }
 
-    public void createObject(long id, String className, long parentId) {
+    public void createObject(long id, String className) {
         DataClass dataClass = getClassByName(className);
-        DataObject object = new DataObject(id, dataClass, index);
-        if (parentId >= 0) {
-            DataObject parentObject = getObjectById(parentId);
-            object.setParent(parentObject);
-        }
+        new DataObject(id, dataClass, index);
+    }
+
+    public void setObjectParent(long id, long parentId) {
+        DataObject object = getObjectById(id);
+        DataObject parentObject = getObjectById(parentId);
+        object.setParent(parentObject);
     }
 
     private DataObject getObjectById(long id) {
@@ -63,6 +67,11 @@ public class DataObjectBuilder {
     public void setIntAttributeValue(long objectId, String attributeName, int value) {
         DataObject object = getObjectById(objectId);
         object.setIntAttributeValue(attributeName, value);
+    }
+
+    public void setDoubleAttributeValue(long objectId, String attributeName, double value) {
+        DataObject object = getObjectById(objectId);
+        object.setDoubleAttributeValue(attributeName, value);
     }
 
     public void setStringAttributeValue(long objectId, String attributeName, String value) {
