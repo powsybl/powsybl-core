@@ -89,16 +89,32 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
     }
 
     /**
-     * Helps propagate back cancellation from one future to another,
-     * typically from a future exposed to the user, to an inner future which is
-     * actually linked to an actual task.
+     * A CompletableFuture that remembers the original CompletableFutureTask that created it
+     * and propagates the cancel to it. It will also return the return value from the source
+     * for cancel() if it has to cancel it. This means that a second cancel will return false,
+     * unlike for regular CompletableFutures for which all cancels return true (if actually canceled).
+     * @author Jon Harper <jon.harper at rte-france.com>
      */
-    public static <T> CompletableFuture<T> propagateCancel(CompletableFuture<T> from, CompletableFuture<?> to) {
-        from.whenComplete((res, exc) -> {
-            if (exc instanceof CancellationException) {
-                to.cancel(true);
-            }
-        });
-        return from;
+    static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
+        CompletableFuture<?> source;
+
+        public SourceCancelingCompletableFuture(CompletableFuture<?> source) {
+            this.source = source;
+        }
+
+        @Override
+        public <U> CompletableFuture<U> newIncompleteFuture() {
+            return new SourceCancelingCompletableFuture<>(source);
+        }
+
+        @Override
+        public boolean cancel(boolean interruptIfRunning) {
+            return super.cancel(interruptIfRunning) && source.cancel(interruptIfRunning);
+        }
+    }
+
+    @Override
+    public <U> CompletableFuture<U> newIncompleteFuture() {
+        return new SourceCancelingCompletableFuture<>(this);
     }
 }

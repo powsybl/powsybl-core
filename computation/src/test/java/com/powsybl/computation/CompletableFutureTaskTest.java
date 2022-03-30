@@ -92,15 +92,13 @@ public class CompletableFutureTaskTest {
         task.get();
     }
 
-    @Test
-    public void whenCancelDuringExecutionThenThrowAndInterrupt() throws Exception {
-
+    private void testEffectiveInterrupt(boolean addDependant) throws Exception {
         CountDownLatch waitForStart = new CountDownLatch(1);
         CountDownLatch waitIndefinitely = new CountDownLatch(1);
         CountDownLatch waitForInterruption = new CountDownLatch(1);
 
         AtomicBoolean interrupted = new AtomicBoolean(false);
-        CompletableFutureTask<Integer> task = CompletableFutureTask.runAsync(() -> {
+        CompletableFuture<Integer> task = CompletableFutureTask.runAsync(() -> {
             waitForStart.countDown();
             try {
                 waitIndefinitely.await();
@@ -111,6 +109,9 @@ public class CompletableFutureTaskTest {
             }
             return null;
         }, executor);
+        if (addDependant) {
+            task = task.thenApply(Function.identity());
+        }
 
         //Cancel after task has actually started
         waitForStart.await();
@@ -133,6 +134,16 @@ public class CompletableFutureTaskTest {
     }
 
     @Test
+    public void whenCancelDuringExecutionThenThrowAndInterruptDirect() throws Exception {
+        testEffectiveInterrupt(false);
+    }
+
+    @Test
+    public void whenCancelDuringExecutionThenThrowAndInterruptDependant() throws Exception {
+        testEffectiveInterrupt(true);
+    }
+
+    @Test
     public void cancelAfterExecutionShouldDoNothing() throws Exception {
 
         Object res = new Object();
@@ -143,44 +154,6 @@ public class CompletableFutureTaskTest {
         boolean cancelled = task.cancel(true);
         assertFalse(cancelled);
         assertSame(res, task.get());
-    }
-
-    @Test
-    public void testPropagateCancel() throws Exception {
-        CountDownLatch waitForStart = new CountDownLatch(1);
-        CountDownLatch waitIndefinitely = new CountDownLatch(1);
-        CountDownLatch waitForInterruption = new CountDownLatch(1);
-
-        AtomicBoolean interrupted = new AtomicBoolean(false);
-        CompletableFutureTask<Integer> task1 = CompletableFutureTask.runAsync(() -> {
-            waitForStart.countDown();
-            try {
-                waitIndefinitely.await();
-                fail();
-            } catch (InterruptedException exc) {
-                interrupted.set(true);
-                waitForInterruption.countDown();
-            }
-            return null;
-        }, executor);
-        CompletableFuture<Integer> task2 = task1.thenApply(Function.identity());
-
-        CompletableFuture<Integer> task = CompletableFutureTask.propagateCancel(task2, task1);
-
-        //Cancel after task has actually started
-        waitForStart.await();
-        boolean cancelled = task.cancel(true);
-        assertTrue(cancelled);
-
-        try {
-            task.get();
-            fail("Should not happen: task has been cancelled");
-        } catch (CancellationException exc) {
-            //ignored
-        }
-
-        waitForInterruption.await();
-        assertTrue(interrupted.get());
     }
 
 }
