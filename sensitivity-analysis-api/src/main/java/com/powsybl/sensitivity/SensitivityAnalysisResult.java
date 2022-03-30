@@ -37,16 +37,6 @@ import java.util.*;
  */
 public class SensitivityAnalysisResult {
 
-    /*
-     * Key type for function reference value when stored function type, contingency and function id
-     */
-    private class FunctionReferenceKey extends Triple<SensitivityFunctionType, String, String> {
-
-        public FunctionReferenceKey(final SensitivityFunctionType sensitivityFunctionType, final String s, final String s2) {
-            super(sensitivityFunctionType, s, s2);
-        }
-    }
-
     private final List<SensitivityFactor> factors;
 
     private final List<Contingency> contingencies;
@@ -57,7 +47,7 @@ public class SensitivityAnalysisResult {
 
     private final Map<SensitivityValueKey, SensitivityValue> valuesByContingencyIdAndFunctionAndVariableId = new HashMap<>();
 
-    private final Map<FunctionReferenceKey, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
+    private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
     /**
      * Sensitivity analysis result
@@ -76,7 +66,7 @@ public class SensitivityAnalysisResult {
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
             valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType()), value);
-            functionReferenceByContingencyAndFunction.put(new FunctionReferenceKey(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
+            functionReferenceByContingencyAndFunction.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
     }
 
@@ -280,7 +270,7 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getFunctionReferenceValue(String contingencyId, String functionId, SensitivityFunctionType functionType) {
-        Double value = functionReferenceByContingencyAndFunction.get(new FunctionReferenceKey(functionType, contingencyId, functionId));
+        Double value = functionReferenceByContingencyAndFunction.get(Triple.of(functionType, contingencyId, functionId));
         if (value == null) {
             throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + functionId + "'"
                                        + "', functionType '" + functionType);
