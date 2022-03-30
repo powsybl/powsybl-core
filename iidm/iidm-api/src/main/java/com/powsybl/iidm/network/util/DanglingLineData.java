@@ -68,8 +68,9 @@ public class DanglingLineData {
             targetP = 0.0;
             targetQ = 0.0;
         }
-        boundaryP = p0 - targetP;
-        boundaryQ = q0 - targetQ;
+        // Flow at the boundary side
+        boundaryP = -(p0 - targetP);
+        boundaryQ = -(q0 - targetQ);
 
         u1 = getV(danglingLine);
         theta1 = getTheta(danglingLine);
@@ -102,7 +103,7 @@ public class DanglingLineData {
         } else {
 
             // Two buses Loadflow
-            Complex sBoundary = new Complex(-boundaryP, -boundaryQ);
+            Complex sBoundary = new Complex(boundaryP, boundaryQ);
             Complex ytr = new Complex(r, x).reciprocal();
             Complex ysh2 = new Complex(g2, b2);
             Complex zt = ytr.add(ysh2).reciprocal();

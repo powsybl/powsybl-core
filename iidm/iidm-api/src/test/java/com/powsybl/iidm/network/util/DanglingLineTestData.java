@@ -31,14 +31,12 @@ class DanglingLineTestData {
     public static double P0 = -367.40;
     public static double Q0 = 63.73;
 
-    public static double BOUNDARY_BUS_U = 406.63;
-    public static double BOUNDARY_BUS_ANGLE = -8.57;
-
     private Bus bus;
     private BusView busView;
     private BusBreakerView busBreakerView;
     private Terminal terminal;
     private DanglingLine danglingLine;
+    private DanglingLine.Generation generation;
 
     DanglingLineTestData() {
         bus = Mockito.mock(Bus.class);
@@ -57,6 +55,13 @@ class DanglingLineTestData {
         Mockito.when(terminal.isConnected()).thenReturn(true);
         Mockito.when(terminal.getBusView()).thenReturn(busView);
         Mockito.when(terminal.getBusBreakerView()).thenReturn(busBreakerView);
+        Mockito.when(terminal.getP()).thenReturn(Double.NaN);
+        Mockito.when(terminal.getQ()).thenReturn(Double.NaN);
+
+        generation = Mockito.mock(DanglingLine.Generation.class);
+        Mockito.when(danglingLine.getGeneration()).thenReturn(generation);
+        Mockito.when(generation.getTargetP()).thenReturn(0.0);
+        Mockito.when(generation.getTargetQ()).thenReturn(0.0);
 
         Mockito.when(danglingLine.getR()).thenReturn(r);
         Mockito.when(danglingLine.getX()).thenReturn(x);
@@ -76,5 +81,22 @@ class DanglingLineTestData {
 
     public void setQ0Zero() {
         Mockito.when(danglingLine.getQ0()).thenReturn(0.0);
+    }
+
+    public void setTargetPHalfP0() {
+        Mockito.when(danglingLine.getP0()).thenReturn(P0 * 0.5);
+        Mockito.when(generation.getTargetP()).thenReturn(-P0 * 0.5);
+    }
+
+    public void setTargetQHalfQ0() {
+        Mockito.when(danglingLine.getQ0()).thenReturn(Q0 * 0.5);
+        Mockito.when(generation.getTargetQ()).thenReturn(-Q0 * 0.5);
+    }
+
+    public void setZ0() {
+        Mockito.when(danglingLine.getR()).thenReturn(0.0);
+        Mockito.when(danglingLine.getX()).thenReturn(0.0);
+        Mockito.when(danglingLine.getG()).thenReturn(0.0);
+        Mockito.when(danglingLine.getB()).thenReturn(0.0);
     }
 }
