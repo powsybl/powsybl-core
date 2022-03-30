@@ -6,8 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.*;
@@ -50,7 +48,7 @@ public final class EquipmentExport {
             writeTerminals(network, exportedTerminals, exportedNodes, cimNamespace, writer);
             writeSwitches(network, cimNamespace, writer);
 
-            writeSubstations(network, cimNamespace, writer);
+            writeSubstations(network, cimNamespace, writer, context);
             writeVoltageLevels(network, cimNamespace, writer, context);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, cimNamespace, writer);
@@ -167,47 +165,33 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeSubstations(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        Map<String, String> geographicalRegionIds = new HashMap<>();
-        BiMap<String, String> subGeographicalRegionIds = HashBiMap.create();
+    private static void writeSubstations(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (String geographicalRegionId : context.getRegionsIds()) {
+            writeGeographicalRegion(geographicalRegionId, context.getRegionName(geographicalRegionId), cimNamespace, writer);
+        }
+        List<String> writtenSubRegions = new ArrayList<>();
         for (Substation substation : network.getSubstations()) {
-            String geographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
-            String geoName = getGeographicalRegionName(substation, network);
-            geographicalRegionIds.computeIfAbsent(geoName, name -> writeGeographicalRegion(geographicalRegionId, name, cimNamespace, writer));
             String subGeographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId");
-            subGeographicalRegionIds.computeIfAbsent(subGeographicalRegionId, id -> writeSubGeographicalRegion(id, geoName, substation, geographicalRegionIds, cimNamespace, writer));
+            String geographicalRegionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
+            if (!writtenSubRegions.contains(subGeographicalRegionId)) {
+                writeSubGeographicalRegion(subGeographicalRegionId, context.getSubRegionName(subGeographicalRegionId), geographicalRegionId, cimNamespace, writer);
+                writtenSubRegions.add(subGeographicalRegionId);
+            }
             SubstationEq.write(substation.getId(), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer);
         }
     }
 
-    private static String writeGeographicalRegion(String geographicalRegionId, String geoName, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeGeographicalRegion(String geographicalRegionId, String geoName, String cimNamespace, XMLStreamWriter writer) {
         try {
             GeographicalRegionEq.write(geographicalRegionId, geoName, cimNamespace, writer);
-            return geographicalRegionId;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    private static String getGeographicalRegionName(Substation substation, Network network) {
-        String geoName = network.getNameOrId();
-        Optional<Country> country = substation.getCountry();
-        if (country.isPresent()) {
-            geoName = country.get().toString();
-        }
-        return geoName;
-    }
-
-    private static String writeSubGeographicalRegion(String subGeographicalRegionId, String geoName, Substation substation, Map<String, String> geographicalRegionIds, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeSubGeographicalRegion(String subGeographicalRegionId, String subGeographicalRegionName, String geographicalRegionId, String cimNamespace, XMLStreamWriter writer) {
         try {
-            String subGeoName;
-            if (substation.getGeographicalTags().size() == 1) {
-                subGeoName = substation.getGeographicalTags().iterator().next();
-            } else {
-                subGeoName = geoName;
-            }
-            SubGeographicalRegionEq.write(subGeographicalRegionId, subGeoName, geographicalRegionIds.get(geoName), cimNamespace, writer);
-            return subGeoName;
+            SubGeographicalRegionEq.write(subGeographicalRegionId, subGeographicalRegionName, geographicalRegionId, cimNamespace, writer);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

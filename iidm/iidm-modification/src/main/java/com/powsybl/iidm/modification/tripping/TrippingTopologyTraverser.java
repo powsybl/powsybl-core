@@ -26,7 +26,7 @@ final class TrippingTopologyTraverser {
                 aSwitch.getKind() == SwitchKind.BREAKER;
     }
 
-    static void traverse(Terminal terminal, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    static void traverse(Terminal terminal, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(switchesToOpen);
         Objects.requireNonNull(terminalsToDisconnect);
@@ -39,8 +39,13 @@ final class TrippingTopologyTraverser {
                     // so to keep things simple we do not propagate the fault
                     if (connected) {
                         terminalsToDisconnect.add(terminal);
+                        if (traversedTerminals != null) {
+                            traversedTerminals.add(terminal);
+                        }
                     }
                     return TraverseResult.TERMINATE_PATH;
+                } else if (traversedTerminals != null) {
+                    traversedTerminals.add(terminal);
                 }
                 // in node/breaker topology propagation is decided only based on switch position
                 return TraverseResult.CONTINUE;
