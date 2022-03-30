@@ -37,7 +37,6 @@ import java.util.Properties;
  */
 public class TopologyExportTest extends AbstractConverterTest {
 
-    @Ignore
     @Test
     public void smallGridHVDC() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource());
