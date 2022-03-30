@@ -339,16 +339,16 @@ public class DataObject {
         return this;
     }
 
-    public Optional<RealMatrix> findMatrixAttributeValue(String name) {
-        return findGenericAttributeValue(name, DataAttributeType.MATRIX);
+    public Optional<RealMatrix> findDoubleMatrixAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
     }
 
-    public RealMatrix getMatrixAttributeValue(String name) {
-        return findMatrixAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Matrix", name));
+    public RealMatrix getDoubleMatrixAttributeValue(String name) {
+        return findDoubleMatrixAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Matrix", name));
     }
 
-    public DataObject setMatrixAttributeValue(String name, RealMatrix value) {
-        setGenericAttributeValue(name, DataAttributeType.MATRIX, value);
+    public DataObject setDoubleMatrixAttributeValue(String name, RealMatrix value) {
+        setGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX, value);
         return this;
     }
 

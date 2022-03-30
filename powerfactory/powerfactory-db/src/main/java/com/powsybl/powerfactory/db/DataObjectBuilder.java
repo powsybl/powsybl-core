@@ -33,9 +33,13 @@ public class DataObjectBuilder {
         return true;
     }
 
-    public void createAttribute(String className, String attributeName, int type, String description) {
+    public boolean createAttribute(String className, String attributeName, int type, String description) {
         DataClass dataClass = getClassByName(className);
+        if (dataClass.getAttributeByName(attributeName) != null) {
+            return false;
+        }
         dataClass.addAttribute(new DataAttribute(attributeName, DataAttributeType.values()[type], description));
+        return true;
     }
 
     private DataClass getClassByName(String className) {
