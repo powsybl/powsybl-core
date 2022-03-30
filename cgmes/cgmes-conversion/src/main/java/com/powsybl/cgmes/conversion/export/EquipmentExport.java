@@ -10,9 +10,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.*;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -42,7 +40,7 @@ public final class EquipmentExport {
             String cimNamespace = context.getCimNamespace();
 
             // TODO fill EQ Model Description
-            if (context.getCimVersion() == 16) {
+            if (context.getCimVersion() >= 16) {
                 ModelDescriptionEq.write(writer, context.getEqModelDescription(), context);
             }
 
@@ -219,18 +217,18 @@ public final class EquipmentExport {
         Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
-            CgmesIidmMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
-            if (!exportedBaseVoltagesByNominalV.contains(nominalV) && baseVoltage.getSource().equals(CgmesIidmMapping.Source.IGM)) {
-                BaseVoltageEq.write(baseVoltage.getCgmesId(), nominalV, cimNamespace, writer);
+            BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
+            if (!exportedBaseVoltagesByNominalV.contains(nominalV) && baseVoltage.getSource().equals(Source.IGM)) {
+                BaseVoltageEq.write(baseVoltage.getId(), nominalV, cimNamespace, writer);
                 exportedBaseVoltagesByNominalV.add(nominalV);
             }
-            VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(), voltageLevel.getNullableSubstation().getId(), baseVoltage.getCgmesId(), cimNamespace, writer);
+            VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(), voltageLevel.getNullableSubstation().getId(), baseVoltage.getId(), cimNamespace, writer);
         }
     }
 
     private static void writeBusbarSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (BusbarSection bus : network.getBusbarSections()) {
-            BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), context.getBaseVoltageByNominalVoltage(bus.getTerminal().getVoltageLevel().getNominalV()).getCgmesId(), cimNamespace, writer);
+            BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), context.getBaseVoltageByNominalVoltage(bus.getTerminal().getVoltageLevel().getNominalV()).getId(), cimNamespace, writer);
         }
     }
 
@@ -481,12 +479,12 @@ public final class EquipmentExport {
 
     private static String writeDanglingLineBaseVoltage(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         double nominalV = danglingLine.getTerminal().getVoltageLevel().getNominalV();
-        CgmesIidmMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
-        if (baseVoltage.getSource().equals(CgmesIidmMapping.Source.IGM)) {
-            BaseVoltageEq.write(baseVoltage.getCgmesId(), nominalV, cimNamespace, writer);
+        BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
+        if (baseVoltage.getSource().equals(Source.IGM)) {
+            BaseVoltageEq.write(baseVoltage.getId(), nominalV, cimNamespace, writer);
         }
 
-        return baseVoltage.getCgmesId();
+        return baseVoltage.getId();
     }
 
     private static String writeDanglingLineVoltageLevel(DanglingLine danglingLine, String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
