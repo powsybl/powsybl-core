@@ -24,22 +24,20 @@ public class DataObjectBuilder {
         return index;
     }
 
-    public boolean createClass(String name) {
+    public void createClass(String name) {
         if (classesByName.containsKey(name)) {
-            return false;
+            return;
         }
         DataClass dataClass = new DataClass(name);
         classesByName.put(dataClass.getName(), dataClass);
-        return true;
     }
 
-    public boolean createAttribute(String className, String attributeName, int type, String description) {
+    public void createAttribute(String className, String attributeName, int type, String description) {
         DataClass dataClass = getClassByName(className);
         if (dataClass.getAttributeByName(attributeName) != null) {
-            return false;
+            return;
         }
         dataClass.addAttribute(new DataAttribute(attributeName, DataAttributeType.values()[type], description));
-        return true;
     }
 
     private DataClass getClassByName(String className) {
