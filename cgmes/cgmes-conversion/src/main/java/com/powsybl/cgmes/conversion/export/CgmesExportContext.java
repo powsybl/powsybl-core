@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -47,6 +49,9 @@ public class CgmesExportContext {
     private final Set<CgmesIidmMapping.CgmesTopologicalNode> unmappedTopologicalNodes = new HashSet<>();
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
+
+    private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
+    private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
 
     public static final class ModelDescription {
 
@@ -189,13 +194,24 @@ public class CgmesExportContext {
 
     private void addIidmMappingsSubstations(Network network) {
         for (Substation substation : network.getSubstations()) {
+            String country = substation.getCountry().map(Country::name).orElseGet(network::getNameOrId);
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
-                String regionId = CgmesExportUtil.getUniqueId();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
+                String id = regionsIdsByRegionName.computeIfAbsent(country, k -> CgmesExportUtil.getUniqueId());
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", id);
+            } else {
+                regionsIdsByRegionName.computeIfAbsent(country, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId"));
+            }
+            String geoTag;
+            if (substation.getGeographicalTags().size() == 1) {
+                geoTag = substation.getGeographicalTags().iterator().next();
+            } else {
+                geoTag = country;
             }
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
-                String subRegionId = CgmesExportUtil.getUniqueId();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
+                String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> CgmesExportUtil.getUniqueId());
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", id);
+            } else {
+                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId"));
             }
         }
     }
@@ -596,5 +612,17 @@ public class CgmesExportContext {
 
     public BaseVoltageMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
+    }
+
+    public Collection<String> getRegionsIds() {
+        return Collections.unmodifiableSet(regionsIdsByRegionName.values());
+    }
+
+    public String getRegionName(String regionId) {
+        return regionsIdsByRegionName.inverse().get(regionId);
+    }
+
+    public String getSubRegionName(String subRegionId) {
+        return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
 }
