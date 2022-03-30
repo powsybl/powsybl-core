@@ -27,7 +27,7 @@ public class BusbarSectionTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
         BusbarSection busbarSection = network.getBusbarSection(busbarSectionId);
@@ -35,6 +35,6 @@ public class BusbarSectionTripping extends AbstractTripping {
             throw new PowsyblException("Busbar section '" + busbarSectionId + "' not found");
         }
 
-        TrippingTopologyTraverser.traverse(busbarSection.getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(busbarSection.getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
     }
 }
