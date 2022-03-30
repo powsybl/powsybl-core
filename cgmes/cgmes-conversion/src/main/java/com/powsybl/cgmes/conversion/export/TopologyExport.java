@@ -92,8 +92,8 @@ public final class TopologyExport {
             Bus bus1;
             Bus bus2;
             if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                bus1 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId())).getBusView().getBus();
-                bus2 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId())).getBusView().getBus();
+                bus1 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
+                bus2 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
             } else {
                 bus1 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus1(sw.getId()).getId());
                 bus2 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus2(sw.getId()).getId());
