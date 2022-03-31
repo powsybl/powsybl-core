@@ -18,5 +18,9 @@ import java.util.Set;
  */
 public interface Tripping extends NetworkModification {
 
-    void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect);
+    void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals);
+
+    default void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+        traverse(network, switchesToOpen, terminalsToDisconnect, null);
+    }
 }

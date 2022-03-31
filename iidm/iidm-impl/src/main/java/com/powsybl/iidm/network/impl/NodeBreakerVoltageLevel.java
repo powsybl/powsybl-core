@@ -524,12 +524,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void edgeBeforeRemoval(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
+                if (aSwitch != null) {
+                    network.getListeners().notifyBeforeRemoval(aSwitch);
+                }
+            }
+
+            @Override
             public void edgeRemoved(int e, SwitchImpl aSwitch) {
                 NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
                     String switchId = aSwitch.getId();
-                    network.getListeners().notifyBeforeRemoval(aSwitch);
                     network.getIndex().remove(aSwitch);
+                    switches.remove(switchId);
                     network.getListeners().notifyAfterRemoval(switchId);
                 } else {
                     network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
@@ -537,11 +545,16 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void allEdgesBeforeRemoval(Collection<SwitchImpl> aSwitches) {
+                NetworkImpl network = getNetwork();
+                aSwitches.stream().filter(Objects::nonNull).forEach(ss -> network.getListeners().notifyBeforeRemoval(ss));
+            }
+
+            @Override
             public void allEdgesRemoved(Collection<SwitchImpl> aSwitches) {
                 NetworkImpl network = getNetwork();
                 aSwitches.forEach(ss -> {
                     if (ss != null) {
-                        network.getListeners().notifyBeforeRemoval(ss);
                         network.getIndex().remove(ss);
                     } else {
                         network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
@@ -773,7 +786,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void removeSwitch(String switchId) {
-            Integer e = switches.remove(switchId);
+            Integer e = switches.get(switchId);
             if (e == null) {
                 throw new PowsyblException("Switch '" + switchId
                         + "' not found in voltage level '" + id + "'");

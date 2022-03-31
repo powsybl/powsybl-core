@@ -86,6 +86,13 @@ public abstract class AbstractVscTest {
         assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBusStream().count());
         assertEquals(1, hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getSize());
         assertTrue(hvdcLine.getConverterStation1().getTerminal().getBusView().getBus().getSynchronousComponent().getBuses().iterator().hasNext());
+
+        if (cs1.getOtherConverterStation().isPresent()) {
+            assertEquals(cs2, cs1.getOtherConverterStation().get());
+        }
+        if (cs2.getOtherConverterStation().isPresent()) {
+            assertEquals(cs1, cs2.getOtherConverterStation().get());
+        }
     }
 
     @Test

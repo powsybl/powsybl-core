@@ -51,7 +51,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49261084, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49019608, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 101.5, 122.39999999999999));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 102.0, 122.39999999999999));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.5, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.5025126, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 99.5, 120.0));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 100.0, 120.0));
     }
 
     @Test
@@ -108,7 +108,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.49751243, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.4950495, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 100.5, 120.0));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 101.0, 120.0));
     }
 
     @Test
@@ -127,7 +127,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 0.0, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 0.0, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
@@ -183,7 +183,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
@@ -208,7 +208,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
@@ -227,7 +227,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+            "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
     @Test
@@ -262,7 +262,7 @@ public class HvdcConversionTest {
         assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
         assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
         assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
-                "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+                "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
 
         assertTrue(containsVsCapabilityCurve(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", ReactiveLimitsKind.CURVE, 3,
                 Collections.unmodifiableList(Arrays.asList(-100.0, 0.0, 100.0)),

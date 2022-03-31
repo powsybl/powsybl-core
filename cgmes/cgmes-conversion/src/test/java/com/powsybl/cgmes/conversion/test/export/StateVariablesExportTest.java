@@ -204,7 +204,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
 
         // Export SV
-        CgmesExportContext context = new CgmesExportContext(expected);
+        CgmesExportContext context = new CgmesExportContext(expected, true);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

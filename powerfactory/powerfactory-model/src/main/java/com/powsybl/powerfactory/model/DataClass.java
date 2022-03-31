@@ -8,9 +8,16 @@ package com.powsybl.powerfactory.model;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
+@JsonIgnoreProperties({"attributes", "attributeByName"})
+@JsonPropertyOrder({"name"})
+
 public class DataClass {
 
     private final String name;

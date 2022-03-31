@@ -42,7 +42,7 @@ public class SensitivityAnalysisTest {
     public void setUp() {
         network = EurostagTutorialExample1Factory.create();
         computationManager = Mockito.mock(ComputationManager.class);
-        factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER,
+        factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
                 "NHV1_NHV2_1",
                 SensitivityVariableType.INJECTION_ACTIVE_POWER,
                 "GEN",
