@@ -70,7 +70,7 @@ public class TopologyExportTest extends AbstractConverterTest {
         Path exportedTp = tmpDir.resolve("exportedTp.xml");
         try (OutputStream os = Files.newOutputStream(exportedTp)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(expected, true);
+            CgmesExportContext context = new CgmesExportContext(expected);
             TopologyExport.write(expected, writer, context);
         }
 

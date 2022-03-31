@@ -51,11 +51,8 @@ public final class StateVariablesExport {
                 // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
             }
 
-            writeVoltagesForTopologicalNodes(network, cimNamespace, writer, context);
+            writeVoltagesForTopologicalNodes(network, cimNamespace, writer);
             writeVoltagesForBoundaryNodes(network, cimNamespace, writer);
-            //for (CgmesIidmMapping.CgmesTopologicalNode tn : context.getUnmappedTopologicalNodes()) {
-                //writeVoltage(tn.getCgmesId(), 0.0, 0.0, cimNamespace, writer);
-            //}
             writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer);
             writeTapSteps(network, cimNamespace, writer);
@@ -145,7 +142,7 @@ public final class StateVariablesExport {
         return islands;
     }
 
-    private static void writeVoltagesForTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeVoltagesForTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Bus b : network.getBusBreakerView().getBuses()) {
             writeVoltage(b.getId(), b.getV(), b.getAngle(), cimNamespace, writer);
         }
@@ -195,11 +192,11 @@ public final class StateVariablesExport {
     }
 
     private static void writePowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getLoadStream);
-        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getGeneratorStream);
-        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getShuntCompensatorStream);
-        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getStaticVarCompensatorStream);
-        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getLoadStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getGeneratorStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getShuntCompensatorStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getStaticVarCompensatorStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getBatteryStream);
 
         network.getDanglingLineStream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
@@ -258,16 +255,16 @@ public final class StateVariablesExport {
         }
     }
 
-    private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
-        getInjectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), cimNamespace, writer, context));
+    private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, Function<Network, Stream<I>> getInjectionStream) {
+        getInjectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), cimNamespace, writer));
     }
 
-    private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
             writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ(), cimNamespace, writer);
         } else if (terminal.getConnectable() instanceof Load && terminal.getConnectable().isFictitious()) {
-            writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer, context);
+            writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer);
         } else {
             LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());
         }
@@ -292,8 +289,7 @@ public final class StateVariablesExport {
         return p;
     }
 
-    private static void writeFictitiousLoadPowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer,
-        CgmesExportContext context) {
+    private static void writeFictitiousLoadPowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer) {
         // Fictitious loads are created in IIDM to keep track of mismatches in the input case,
         // These mismatches are given by SvInjection CGMES objects
         // These loads have been taken into account as inputs for potential power flow analysis

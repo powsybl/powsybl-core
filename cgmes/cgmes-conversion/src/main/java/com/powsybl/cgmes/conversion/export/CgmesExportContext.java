@@ -119,18 +119,10 @@ public class CgmesExportContext {
         }
     }
 
-    interface TopologicalConsumer {
-        void accept(String iidmId, String cgmesId, String cgmesName, Source source);
-    }
-
     public CgmesExportContext() {
     }
 
     public CgmesExportContext(Network network) {
-        this(network, false);
-    }
-
-    public CgmesExportContext(Network network, boolean withTopologicalMapping) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
             cimVersion = cimCharacteristics.getCimVersion();
@@ -153,14 +145,10 @@ public class CgmesExportContext {
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
-        addIidmMappings(network, withTopologicalMapping);
+        addIidmMappings(network);
     }
 
     public void addIidmMappings(Network network) {
-        addIidmMappings(network, false);
-    }
-
-    public void addIidmMappings(Network network, boolean withTopologicalMapping) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
         addIidmMappingsSubstations(network);
         BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
