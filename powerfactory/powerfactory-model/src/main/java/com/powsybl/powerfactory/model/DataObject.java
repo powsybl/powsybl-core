@@ -136,7 +136,9 @@ public class DataObject {
     }
 
     private static void checkAttributeType(DataAttribute attribute, DataAttributeType type) {
-        if (attribute.getType() != type) {
+        if (attribute.getType() != type
+                // hack to handle float attributes considered as double in C++ API
+                && !(attribute.getType() == DataAttributeType.DOUBLE && type == DataAttributeType.FLOAT)) {
             throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
         }
     }
@@ -219,7 +221,8 @@ public class DataObject {
     }
 
     public Optional<Float> findFloatAttributeValue(String name) {
-        return findGenericAttributeValue(name, DataAttributeType.FLOAT);
+        return this.<Number>findGenericAttributeValue(name, DataAttributeType.FLOAT)
+                .map(Number::floatValue);
     }
 
     public float getFloatAttributeValue(String name) {
