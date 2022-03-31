@@ -72,6 +72,11 @@ public class DanglingLineData {
         boundaryP = -(p0 - targetP);
         boundaryQ = -(q0 - targetQ);
 
+        boolean isZ0 = isZ0(danglingLine);
+        Complex pq = networkPQZ0(danglingLine, isZ0);
+        p = pq.getReal();
+        q = pq.getImaginary();
+
         u1 = getV(danglingLine);
         theta1 = getTheta(danglingLine);
 
@@ -82,13 +87,12 @@ public class DanglingLineData {
         }
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
-        boolean isZ0 = isZ0(danglingLine);
 
         Complex vBoundaryBus = boundaryVoltageAndAngle(v1, isZ0);
         boundaryBusU = vBoundaryBus.abs();
         boundaryBusTheta = vBoundaryBus.getArgument();
 
-        Complex pq = networkPQ(danglingLine, v1, vBoundaryBus, isZ0);
+        pq = networkPQ(danglingLine, v1, vBoundaryBus, isZ0);
         p = pq.getReal();
         q = pq.getImaginary();
     }
@@ -120,9 +124,9 @@ public class DanglingLineData {
         return vBoundaryBus;
     }
 
-    private Complex networkPQ(DanglingLine danglingLine, Complex vNetwork, Complex vBoundary, boolean isZ0) {
-        double networkP;
-        double networkQ;
+    private Complex networkPQZ0(DanglingLine danglingLine, boolean isZ0) {
+        double networkP = Double.NaN;
+        double networkQ = Double.NaN;
 
         if (!Double.isNaN(danglingLine.getTerminal().getP()) && !Double.isNaN(danglingLine.getTerminal().getQ())) {
             networkP = danglingLine.getTerminal().getP();
@@ -130,7 +134,15 @@ public class DanglingLineData {
         } else if (isZ0) {
             networkP = -boundaryP;
             networkQ = -boundaryQ;
-        } else {
+        }
+        return new Complex(networkP, networkQ);
+    }
+
+    private Complex networkPQ(DanglingLine danglingLine, Complex vNetwork, Complex vBoundary, boolean isZ0) {
+        double networkP = Double.NaN;
+        double networkQ = Double.NaN;
+
+        if ((Double.isNaN(danglingLine.getTerminal().getP()) || Double.isNaN(danglingLine.getTerminal().getQ())) && !isZ0) {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
             Complex s1 = adm.y11().multiply(vNetwork).add(adm.y12().multiply(vBoundary)).multiply(vNetwork.conjugate()).conjugate();
             networkP = s1.getReal();

@@ -213,11 +213,11 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
 
     private void completeTerminalData(Terminal terminal, DanglingLineData danglingLineData) {
         if (terminal.isConnected() && terminal.getBusView().getBus() != null && terminal.getBusView().getBus().isInMainConnectedComponent()) {
-            if (Double.isNaN(terminal.getP())) {
+            if (Double.isNaN(terminal.getP()) && !Double.isNaN(danglingLineData.getP())) {
                 LOGGER.debug("DanglingLine {}: setting p = {}", danglingLineData.getId(), danglingLineData.getP());
                 terminal.setP(danglingLineData.getP());
             }
-            if (Double.isNaN(terminal.getQ())) {
+            if (Double.isNaN(terminal.getQ()) && !Double.isNaN(danglingLineData.getQ())) {
                 LOGGER.debug("DanglingLine {}: setting q = {}", danglingLineData.getId(), danglingLineData.getQ());
                 terminal.setQ(danglingLineData.getQ());
             }
