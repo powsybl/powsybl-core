@@ -6,6 +6,7 @@
  */
 package com.powsybl.computation;
 
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -96,10 +97,10 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
      * @author Jon Harper <jon.harper at rte-france.com>
      */
     static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
-        CompletableFuture<?> source;
+        private final CompletableFuture<?> source;
 
         public SourceCancelingCompletableFuture(CompletableFuture<?> source) {
-            this.source = source;
+            this.source = Objects.requireNonNull(source);
         }
 
         @Override
