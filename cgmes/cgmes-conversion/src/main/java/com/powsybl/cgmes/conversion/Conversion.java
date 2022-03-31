@@ -143,11 +143,9 @@ public class Conversion {
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
         addCimCharacteristics(network);
-        if (context.config().createCgmesExportMapping) {
-            CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
-            cgmes.baseVoltages().forEach(bv -> mappingAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
-            mappingAdder.add();
-        }
+        BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
+        cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
+        bvAdder.add();
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -245,14 +243,9 @@ public class Conversion {
         return network;
     }
 
-    private CgmesIidmMapping.Source isBoundaryTopologicalNode(String graph) {
-        //There are unit tests where the boundary file contains the sequence "TPBD" and others "TP_BD"
-        return graph.contains("TP") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
-    }
-
-    private CgmesIidmMapping.Source isBoundaryBaseVoltage(String graph) {
+    private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
-        return graph.contains("EQ") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+        return graph.contains("EQ") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {

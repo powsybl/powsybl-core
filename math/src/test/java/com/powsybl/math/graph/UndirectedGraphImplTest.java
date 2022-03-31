@@ -70,6 +70,8 @@ public class UndirectedGraphImplTest {
     public void testConstructor() {
         assertEquals(0, graph.getVertexCount());
         assertEquals(0, graph.getEdgeCount());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new UndirectedGraphImpl<>(0));
+        assertEquals("Vertex limit should be positive", e.getMessage());
     }
 
     @Test

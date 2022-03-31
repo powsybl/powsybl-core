@@ -48,7 +48,7 @@ public final class ModelDescriptionEq {
         writer.writeEndElement();
         if (isNodeBreaker) {
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-            writer.writeCharacters(CgmesNamespace.EQ_OPERATION_PROFILE);
+            writer.writeCharacters(CgmesNamespace.getProfile(context.getCimVersion(), "EQ_OP"));
             writer.writeEndElement();
         }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);

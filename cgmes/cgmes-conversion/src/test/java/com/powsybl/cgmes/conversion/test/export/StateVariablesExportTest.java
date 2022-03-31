@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -185,16 +184,12 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Some of the mappings are not built until export is requested
         new CgmesExportContext().addIidmMappings(expected0);
 
-        // Check the information stored in the extension before it is serialized
-        CgmesIidmMapping iidmMapping = expected0.getExtension(CgmesIidmMapping.class);
-        assertNotNull(iidmMapping);
-
         // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension
         NetworkXml.write(expected0, tmpDir.resolve("temp.xiidm"));
         Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
 
         // Export SV
-        CgmesExportContext context = new CgmesExportContext(expected);
+        CgmesExportContext context = new CgmesExportContext(expected, true);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

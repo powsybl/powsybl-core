@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -11,10 +11,10 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Network;
 
 /**
- * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesIidmMappingAdderImplProvider implements ExtensionAdderProvider<Network, CgmesIidmMapping, CgmesIidmMappingAdderImpl> {
+public class BaseVoltageMappingAdderImplProvider implements ExtensionAdderProvider<Network, BaseVoltageMapping, BaseVoltageMappingAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -23,16 +23,16 @@ public class CgmesIidmMappingAdderImplProvider implements ExtensionAdderProvider
 
     @Override
     public String getExtensionName() {
-        return CgmesIidmMapping.NAME;
+        return BaseVoltageMapping.NAME;
     }
 
     @Override
-    public Class<? super CgmesIidmMappingAdderImpl> getAdderClass() {
-        return CgmesIidmMappingAdderImpl.class;
+    public Class<? super BaseVoltageMappingAdderImpl> getAdderClass() {
+        return BaseVoltageMappingAdderImpl.class;
     }
 
     @Override
-    public CgmesIidmMappingAdderImpl newAdder(Network extendable) {
-        return new CgmesIidmMappingAdderImpl(extendable);
+    public BaseVoltageMappingAdderImpl newAdder(Network extendable) {
+        return new BaseVoltageMappingAdderImpl(extendable);
     }
 }

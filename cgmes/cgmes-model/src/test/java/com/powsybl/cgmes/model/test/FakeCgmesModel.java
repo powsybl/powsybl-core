@@ -322,8 +322,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags baseVoltages() {
-        // No need to support base voltages in FakeCgmesModel
-        return null;
+        return new PropertyBags();
     }
 
     @Override
