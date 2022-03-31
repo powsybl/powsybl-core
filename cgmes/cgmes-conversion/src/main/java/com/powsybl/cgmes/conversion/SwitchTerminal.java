@@ -60,9 +60,16 @@ class SwitchTerminal {
         return bestTerminalInTopologicalNode(terminals);
     }
 
-    // First busbarSections
+    // First busbarSections, then voltage control equipment
     private static Optional<Terminal> bestTerminalInTopologicalNode(List<Terminal> terminals) {
         Optional<Terminal> ot = terminals.stream().filter(t -> t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION).findFirst();
+        if (ot.isPresent()) {
+            return ot;
+        }
+        ot = terminals.stream().filter(t -> t.getConnectable().getType() == IdentifiableType.GENERATOR
+            || t.getConnectable().getType() == IdentifiableType.SHUNT_COMPENSATOR
+            || t.getConnectable().getType() == IdentifiableType.STATIC_VAR_COMPENSATOR
+            || t.getConnectable().getType() == IdentifiableType.HVDC_CONVERTER_STATION).findFirst();
         if (ot.isPresent()) {
             return ot;
         }
