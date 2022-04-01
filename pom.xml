@@ -105,7 +105,7 @@
         <groovy.version>3.0.9</groovy.version>
         <guava.version>30.0-jre</guava.version>
         <jackson.version>2.11.2</jackson.version>
-        <jackson-databind.version>2.10.5.1</jackson-databind.version>
+        <jackson-databind.version>2.12.6.1</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
         <jena.version>3.0.0</jena.version>
         <jgrapht.version>1.4.0</jgrapht.version>
