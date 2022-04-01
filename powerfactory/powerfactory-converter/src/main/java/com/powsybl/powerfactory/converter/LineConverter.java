@@ -48,9 +48,6 @@ class LineConverter extends AbstractConverter {
             .add();
     }
 
-    void createFromElmTow(DataObject elmTwo) {
-    }
-
     static class LineModel {
         private final double r;
         private final double x;
