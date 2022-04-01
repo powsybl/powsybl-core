@@ -61,7 +61,7 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 
-    private void importAndCompareXml(String id) {
+    private boolean importAndCompareXml(String id) {
         Network network = new PowerFactoryImporter()
                 .importData(new ResourceDataSource(id, new ResourceSet("/", id + ".dgs")),
                         NetworkFactory.findDefault(),
@@ -74,30 +74,31 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        return true;
     }
 
     @Test
     public void ieee14Test() {
-        importAndCompareXml("ieee14");
+        assertTrue(importAndCompareXml("ieee14"));
     }
 
     @Test
     public void twoBusesLineWithBTest() {
-        importAndCompareXml("TwoBusesLineWithB");
+        assertTrue(importAndCompareXml("TwoBusesLineWithB"));
     }
 
     @Test
     public void twoBusesLineWithGandBTest() {
-        importAndCompareXml("TwoBusesLineWithGandB");
+        assertTrue(importAndCompareXml("TwoBusesLineWithGandB"));
     }
 
     @Test
     public void twoBusesLineWithTandBTest() {
-        importAndCompareXml("TwoBusesLineWithTandB");
+        assertTrue(importAndCompareXml("TwoBusesLineWithTandB"));
     }
 
     @Test
     public void twoBusesLineWithCTest() {
-        importAndCompareXml("TwoBusesLineWithC");
+        assertTrue(importAndCompareXml("TwoBusesLineWithC"));
     }
 }

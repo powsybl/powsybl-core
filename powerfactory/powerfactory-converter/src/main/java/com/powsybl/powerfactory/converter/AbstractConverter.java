@@ -30,10 +30,6 @@ public abstract class AbstractConverter {
         this.network = Objects.requireNonNull(network);
     }
 
-    ImportContext getImportContext() {
-        return importContext;
-    }
-
     Network getNetwork() {
         return network;
     }
@@ -53,15 +49,6 @@ public abstract class AbstractConverter {
                     + ") of connection for '" + obj + "'");
         }
         return new TwoNodeRefs(nodeRefs.get(0), nodeRefs.get(1));
-    }
-
-    List<NodeRef> checkAndGetNodes(DataObject obj, int connections) {
-        List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
-        if (nodeRefs == null || nodeRefs.size() != connections) {
-            throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
-                    + ") of connection for '" + obj + "'");
-        }
-        return nodeRefs;
     }
 
     static class TwoNodeRefs {
