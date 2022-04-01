@@ -39,11 +39,11 @@ public abstract class AbstractConverter {
     }
 
     static double microFaradToSiemens(double frnom, double capacitance) {
-        return 2 * Math.PI * frnom * capacitance * 10e-6;
+        return 2 * Math.PI * frnom * capacitance * 1.0e-6;
     }
 
     static double microSiemensToSiemens(double susceptance) {
-        return susceptance * 10e-6;
+        return susceptance * 1.0e-6;
     }
 
     TwoNodeRefs checkAndGetTwoNodeRefs(DataObject obj) {

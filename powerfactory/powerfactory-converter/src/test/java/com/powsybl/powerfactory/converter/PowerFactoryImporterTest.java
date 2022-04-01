@@ -30,6 +30,8 @@ import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class PowerFactoryImporterTest extends AbstractConverterTest {
 
@@ -77,5 +79,25 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void ieee14Test() {
         importAndCompareXml("ieee14");
+    }
+
+    @Test
+    public void twoBusesLineWithBTest() {
+        importAndCompareXml("TwoBusesLineWithB");
+    }
+
+    @Test
+    public void twoBusesLineWithGandBTest() {
+        importAndCompareXml("TwoBusesLineWithGandB");
+    }
+
+    @Test
+    public void twoBusesLineWithTandBTest() {
+        importAndCompareXml("TwoBusesLineWithTandB");
+    }
+
+    @Test
+    public void twoBusesLineWithCTest() {
+        importAndCompareXml("TwoBusesLineWithC");
     }
 }
