@@ -6,6 +6,7 @@
  */
 package com.powsybl.powerfactory.db;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.scijava.nativelib.NativeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +24,15 @@ public class JniDatabaseReader implements DatabaseReader {
 
     private static void init() {
         if (ok == null) {
-            try {
-                NativeLoader.loadLibrary("powsybl-powerfactory-db-native");
-                ok = true;
-            } catch (IOException e) {
-                LOGGER.warn(e.getMessage());
+            if (SystemUtils.IS_OS_WINDOWS) { // PowerFactory is only available on Windows
+                try {
+                    NativeLoader.loadLibrary("powsybl-powerfactory-db-native");
+                    ok = true;
+                } catch (IOException e) {
+                    LOGGER.warn(e.getMessage());
+                    ok = false;
+                }
+            } else {
                 ok = false;
             }
         }
