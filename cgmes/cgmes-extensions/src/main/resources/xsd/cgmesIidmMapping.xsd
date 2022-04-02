@@ -21,19 +21,12 @@
         <xs:attribute name="equipmentId" use="required" type="ci:nonEmptyString"/>
         <xs:attribute name="side" use="required" type="xs:int"/>
     </xs:complexType>
-    <xs:complexType name="BaseVoltage">
-        <xs:attribute name="nominalVoltage" use="required" type="xs:double"/>
-        <xs:attribute name="source" use="required" type="ci:nonEmptyString"/>
-        <xs:attribute name="id" use="required" type="ci:nonEmptyString"/>
-    </xs:complexType>
     <xs:element name="cgmesIidmMapping">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="unmappedTopologicalNode" type="ci:TopologicalNode" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="link" type="ci:Link" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="baseVoltage" type="ci:BaseVoltage" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
-            <xs:attribute name="unmappedBaseVoltageIds" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

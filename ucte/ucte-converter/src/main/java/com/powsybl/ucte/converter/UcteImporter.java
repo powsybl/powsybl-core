@@ -507,6 +507,13 @@ public class UcteImporter implements Importer {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .setRegulating(false);
 
+        if (!Double.isNaN(ucteAngleRegulation.getP())) {
+            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                    .setTargetDeadband(0.0)
+                    .setRegulationTerminal(transformer.getTerminal1())
+                    .setRegulating(false); // should be set to true but many divergence on files are observed.
+        }
+
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             double rho;
             double alpha;

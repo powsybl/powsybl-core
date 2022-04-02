@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.model;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -22,31 +23,59 @@ public final class CgmesNamespace {
     // We have sample models in cim14 and we use a different set of queries to obtain data
 
     public static final String CIM_100_NAMESPACE = "http://iec.ch/TC57/CIM100#";
-    public static final Pattern CIM_100_PLUS_NAMESPACE_PATTERN = Pattern.compile(".*/CIM[0-9]+#$");
     public static final String CIM_16_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
     public static final String CIM_14_NAMESPACE = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
+
+    private static final Map<Integer, String> CIM_NAMESPACES = Map.of(
+            14, CIM_14_NAMESPACE,
+            16, CIM_16_NAMESPACE,
+            100, CIM_100_NAMESPACE);
+
+    private static final Set<String> VALID_CIM_NAMESPACES = Set.of(CIM_14_NAMESPACE, CIM_16_NAMESPACE, CIM_100_NAMESPACE);
+    private static final Pattern CIM_100_PLUS_NAMESPACE_PATTERN = Pattern.compile(".*/CIM[0-9]+#$");
+
     public static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
     public static final String EU_NAMESPACE = "http://iec.ch/TC57/CIM100-European#";
     public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 
-    public static final String EQ_PROFILE = "http://entsoe.eu/CIM/EquipmentCore/3/1";
-    public static final String EQ_OPERATION_PROFILE = "http://entsoe.eu/CIM/EquipmentOperation/3/1";
-    public static final String TP_PROFILE = "http://entsoe.eu/CIM/Topology/4/1";
-    public static final String SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
-    public static final String SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
+    private static final String CIM_16_EQ_PROFILE = "http://entsoe.eu/CIM/EquipmentCore/3/1";
+    private static final String CIM_16_EQ_OPERATION_PROFILE = "http://entsoe.eu/CIM/EquipmentOperation/3/1";
+    private static final String CIM_16_TP_PROFILE = "http://entsoe.eu/CIM/Topology/4/1";
+    private static final String CIM_16_SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
+    private static final String CIM_16_SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
 
-    public static final Set<String> CIM_NAMESPACES = Set.of(CIM_14_NAMESPACE, CIM_16_NAMESPACE, CIM_100_NAMESPACE);
+    private static final String CIM_100_EQ_PROFILE = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0";
+    private static final String CIM_100_EQ_OPERATION_PROFILE = "http://iec.ch/TC57/ns/CIM/Operation-EU/3.0";
+    private static final String CIM_100_TP_PROFILE = "http://iec.ch/TC57/ns/CIM/Topology-EU/3.0";
+    private static final String CIM_100_SV_PROFILE = "http://iec.ch/TC57/ns/CIM/StateVariables-EU/3.0";
+    private static final String CIM_100_SSH_PROFILE = "http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0";
 
-    public static String getCimNamespace(int cimVersion) {
-        if (cimVersion == 14) {
-            return CIM_14_NAMESPACE;
+    private static final Map<Integer, Map<String, String>> PROFILES = Map.of(
+            16, Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP", CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV", CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE),
+            100, Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE, "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE)
+    );
+
+    public static boolean isValid(String ns) {
+        // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
+        // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
+        return VALID_CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
+    }
+
+    public static String getCim(int cimVersion) {
+        if (CIM_NAMESPACES.containsKey(cimVersion)) {
+            return CIM_NAMESPACES.get(cimVersion);
         }
-        if (cimVersion == 16) {
-            return CIM_16_NAMESPACE;
-        }
-        if (cimVersion == 100) {
-            return CIM_100_NAMESPACE;
+        throw new AssertionError("Unsupported CIM version " + cimVersion);
+    }
+
+    public static boolean hasProfiles(int cimVersion) {
+        return PROFILES.containsKey(cimVersion);
+    }
+
+    public static String getProfile(int cimVersion, String profile) {
+        if (PROFILES.containsKey(cimVersion)) {
+            return PROFILES.get(cimVersion).get(profile);
         }
         throw new AssertionError("Unsupported CIM version " + cimVersion);
     }
