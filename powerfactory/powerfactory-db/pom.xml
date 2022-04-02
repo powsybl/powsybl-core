@@ -51,10 +51,6 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-powerfactory-db-native</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-powerfactory-model</artifactId>
         </dependency>
 

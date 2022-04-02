@@ -35,6 +35,11 @@ public class DbStudyCaseLoaderTest {
     private static class TestDatabaseReader implements DatabaseReader {
 
         @Override
+        public boolean isOk() {
+            return true;
+        }
+
+        @Override
         public void read(String powerFactoryHome, String projectName, DataObjectBuilder builder) {
             builder.createClass("ElmNet");
             builder.createAttribute("ElmNet", DataAttribute.LOC_NAME, DataAttributeType.STRING.ordinal(), "");

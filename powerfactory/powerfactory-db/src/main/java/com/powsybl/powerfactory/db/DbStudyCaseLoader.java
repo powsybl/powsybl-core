@@ -69,7 +69,7 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
 
     @Override
     public boolean test(InputStream is) {
-        return readProjectName(is) != null;
+        return dbReader.isOk() && readProjectName(is) != null;
     }
 
     private static Optional<String> readPowerFactoryHomeFromConfig(PlatformConfig platformConfig) {
