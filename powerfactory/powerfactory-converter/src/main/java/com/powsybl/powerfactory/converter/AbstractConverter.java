@@ -50,22 +50,4 @@ public abstract class AbstractConverter {
         }
         return nodeRefs;
     }
-
-    static class TwoNodeRefs {
-        private final NodeRef end1;
-        private final NodeRef end2;
-
-        TwoNodeRefs(NodeRef end1, NodeRef end2) {
-            this.end1 = end1;
-            this.end2 = end2;
-        }
-
-        NodeRef getEnd1() {
-            return end1;
-        }
-
-        NodeRef getEnd2() {
-            return end2;
-        }
-    }
 }
