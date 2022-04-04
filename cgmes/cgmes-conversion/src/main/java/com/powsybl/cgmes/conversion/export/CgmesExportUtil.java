@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
@@ -65,12 +66,12 @@ public final class CgmesExportUtil {
     public static void writeRdfRoot(int cimVersion, XMLStreamWriter writer) throws XMLStreamException {
         writer.setPrefix("entsoe", ENTSOE_NAMESPACE);
         writer.setPrefix("rdf", RDF_NAMESPACE);
-        writer.setPrefix("cim", getCimNamespace(cimVersion));
+        writer.setPrefix("cim", CgmesNamespace.getCim(cimVersion));
         writer.setPrefix("md", MD_NAMESPACE);
         writer.writeStartElement(RDF_NAMESPACE, "RDF");
         writer.writeNamespace("entsoe", ENTSOE_NAMESPACE);
         writer.writeNamespace("rdf", RDF_NAMESPACE);
-        writer.writeNamespace("cim", getCimNamespace(cimVersion));
+        writer.writeNamespace("cim", CgmesNamespace.getCim(cimVersion));
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
