@@ -6,14 +6,14 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -42,13 +42,13 @@ public abstract class AbstractConverter {
         return susceptance * 1.0e-6;
     }
 
-    TwoNodeRefs checkAndGetTwoNodeRefs(DataObject obj) {
+    List<NodeRef> checkNodes(DataObject obj, int connections) {
         List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
-        if (nodeRefs == null || nodeRefs.size() != 2) {
+        if (nodeRefs == null || nodeRefs.size() != connections) {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
-                    + ") of connection for '" + obj + "'");
+                    + ") of connections for '" + obj + "'");
         }
-        return new TwoNodeRefs(nodeRefs.get(0), nodeRefs.get(1));
+        return nodeRefs;
     }
 
     static class TwoNodeRefs {

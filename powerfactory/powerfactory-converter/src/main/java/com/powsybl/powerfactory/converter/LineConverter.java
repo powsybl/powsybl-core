@@ -6,11 +6,13 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.Optional;
-
 import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
+import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -26,19 +28,21 @@ class LineConverter extends AbstractConverter {
     }
 
     void createFromElmLne(DataObject elmLne) {
-        TwoNodeRefs nodeRefs = checkAndGetTwoNodeRefs(elmLne);
+        List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
         Optional<LineModel> lineModel = LineModel.createFromTypLne(elmLne);
         if (lineModel.isEmpty()) {
             return;
         }
+        NodeRef end1 = nodeRefs.get(0);
+        NodeRef end2 = nodeRefs.get(1);
 
         getNetwork().newLine()
             .setId(elmLne.getLocName())
             .setEnsureIdUnicity(true)
-            .setVoltageLevel1(nodeRefs.getEnd1().voltageLevelId)
-            .setVoltageLevel2(nodeRefs.getEnd2().voltageLevelId)
-            .setNode1(nodeRefs.getEnd1().node)
-            .setNode2(nodeRefs.getEnd2().node)
+            .setVoltageLevel1(end1.voltageLevelId)
+            .setVoltageLevel2(end2.voltageLevelId)
+            .setNode1(end1.node)
+            .setNode2(end2.node)
             .setR(lineModel.get().r)
             .setX(lineModel.get().x)
             .setG1(lineModel.get().g1)
@@ -66,11 +70,7 @@ class LineConverter extends AbstractConverter {
         }
 
         static Optional<LineModel> createFromTypLne(DataObject elmLne) {
-            Optional<DataObject> typLne = elmLne.getObjectAttributeValue(TYP_ID).resolve();
-            if (typLne.isPresent()) {
-                return Optional.of(typeLneModel(elmLne, typLne.get()));
-            }
-            return Optional.empty();
+            return elmLne.getObjectAttributeValue(TYP_ID).resolve().map(typLne -> typeLneModel(elmLne, typLne));
         }
 
         private static LineModel typeLneModel(DataObject elmLne, DataObject typLne) {
