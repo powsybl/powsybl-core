@@ -6,6 +6,7 @@
  */
 package com.powsybl.computation;
 
+import java.util.Objects;
 import java.util.concurrent.*;
 
 /**
@@ -88,4 +89,33 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
         return super.cancel(mayInterruptIfRunning) && future.cancel(mayInterruptIfRunning);
     }
 
+    /**
+     * A CompletableFuture that remembers the original CompletableFutureTask that created it
+     * and propagates the cancel to it. It will also return the return value from the source
+     * for cancel() if it has to cancel it. This means that a second cancel will return false,
+     * unlike for regular CompletableFutures for which all cancels return true (if actually canceled).
+     * @author Jon Harper <jon.harper at rte-france.com>
+     */
+    static class SourceCancelingCompletableFuture<T> extends CompletableFuture<T> {
+        private final CompletableFuture<?> source;
+
+        public SourceCancelingCompletableFuture(CompletableFuture<?> source) {
+            this.source = Objects.requireNonNull(source);
+        }
+
+        @Override
+        public <U> CompletableFuture<U> newIncompleteFuture() {
+            return new SourceCancelingCompletableFuture<>(source);
+        }
+
+        @Override
+        public boolean cancel(boolean interruptIfRunning) {
+            return super.cancel(interruptIfRunning) && source.cancel(interruptIfRunning);
+        }
+    }
+
+    @Override
+    public <U> CompletableFuture<U> newIncompleteFuture() {
+        return new SourceCancelingCompletableFuture<>(this);
+    }
 }
