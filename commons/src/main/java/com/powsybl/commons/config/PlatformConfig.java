@@ -66,8 +66,8 @@ public class PlatformConfig {
         if (defaultConfig == null) {
             List<PlatformConfigProvider> providers = Lists.newArrayList(ServiceLoader.load(PlatformConfigProvider.class, PlatformConfig.class.getClassLoader()));
             if (providers.isEmpty()) {
-                LOGGER.error("Platform configuration provider not found. For tests, consider using TestPlatformConfigProvider in powsybl-config-test. Otherwise, consider using ClassicPlatformConfigProvider from powsybl-config-classic.");
-                throw new PowsyblException("Platform configuration provider not found");
+                LOGGER.warn("Platform configuration provider not found. In order to customize the platform configuration, consider using powsybl-config-classic artifact, or powsybl-config-test for tests.");
+                defaultConfig = new PlatformConfig(new EmptyModuleConfigRepository(), null);
             }
             if (providers.size() > 1) {
                 LOGGER.error("Multiple platform configuration providers found: {}", providers);
@@ -86,11 +86,16 @@ public class PlatformConfig {
 
     protected PlatformConfig(Supplier<ModuleConfigRepository> repositorySupplier, Path configDir) {
         this.repositorySupplier = Suppliers.memoize(Objects.requireNonNull(repositorySupplier));
-        this.configDir = FileUtil.createDirectory(configDir);
+        this.configDir = configDir != null ? FileUtil.createDirectory(configDir) : null;
     }
 
+    @Deprecated
     public Path getConfigDir() {
         return configDir;
+    }
+
+    public Optional<Path> getOptionalConfigDir() {
+        return Optional.ofNullable(configDir);
     }
 
     protected ModuleConfigRepository getRepository() {
@@ -109,4 +114,15 @@ public class PlatformConfig {
         return getRepository().getModuleConfig(name);
     }
 
+    private static class EmptyModuleConfigRepository implements ModuleConfigRepository {
+        @Override
+        public boolean moduleExists(String name) {
+            return false;
+        }
+
+        @Override
+        public Optional<ModuleConfig> getModuleConfig(String name) {
+            return Optional.empty();
+        }
+    }
 }

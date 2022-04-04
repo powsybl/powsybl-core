@@ -13,6 +13,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
@@ -48,6 +49,9 @@ public class CgmesImport implements Importer {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
+        Path boundary = platformConfig.getOptionalConfigDir()
+                .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
+                .orElseThrow(() -> new PowsyblException("Cannot resolve boundary files loaction as configuration directory is not defined in platform config"));
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
@@ -55,7 +59,7 @@ public class CgmesImport implements Importer {
                 BOUNDARY_LOCATION,
                 ParameterType.STRING,
                 "The location of boundary files",
-                platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
+                boundary.toString());
     }
 
     public CgmesImport(PlatformConfig platformConfig) {

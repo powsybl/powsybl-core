@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.scripting;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportPostProcessor;
@@ -51,12 +52,10 @@ public class GroovyScriptPostProcessor implements ImportPostProcessor {
 
     private static Path getConfiguredScript(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-
-        Path defaultScript = platformConfig.getConfigDir().resolve(DEFAULT_SCRIPT_NAME);
-
         return platformConfig.getOptionalModuleConfig("groovy-post-processor")
-                .map(config -> config.getPathProperty("script", defaultScript))
-                .orElse(defaultScript);
+                .flatMap(config -> config.getOptionalPathProperty("script"))
+                .or(() -> platformConfig.getOptionalConfigDir().map(dir -> dir.resolve(DEFAULT_SCRIPT_NAME)))
+                .orElseThrow(() -> new PowsyblException("No script path nor configuration directory defined in platform config"));
     }
 
     @Override
