@@ -64,12 +64,12 @@ public final class CgmesExportUtil {
     }
 
     public static void writeRdfRoot(int cimVersion, XMLStreamWriter writer) throws XMLStreamException {
-        writer.setPrefix("entsoe", ENTSOE_NAMESPACE);
+        writer.setPrefix(CgmesNamespace.getEuPrefix(cimVersion), CgmesNamespace.getEu(cimVersion));
         writer.setPrefix("rdf", RDF_NAMESPACE);
         writer.setPrefix("cim", CgmesNamespace.getCim(cimVersion));
         writer.setPrefix("md", MD_NAMESPACE);
         writer.writeStartElement(RDF_NAMESPACE, "RDF");
-        writer.writeNamespace("entsoe", ENTSOE_NAMESPACE);
+        writer.writeNamespace(CgmesNamespace.getEuPrefix(cimVersion), CgmesNamespace.getEu(cimVersion));
         writer.writeNamespace("rdf", RDF_NAMESPACE);
         writer.writeNamespace("cim", CgmesNamespace.getCim(cimVersion));
         writer.writeNamespace("md", MD_NAMESPACE);

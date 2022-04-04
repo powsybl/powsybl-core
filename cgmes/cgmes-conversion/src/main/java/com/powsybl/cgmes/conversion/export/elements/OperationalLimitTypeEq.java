@@ -19,31 +19,31 @@ import static com.powsybl.cgmes.model.CgmesNamespace.*;
  */
 public final class OperationalLimitTypeEq {
 
-    public static final String ABSOLUTEVALUE_LIMITDIRECTION = "http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue";
-    public static final String PATL_LIMITTYPE = "http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl";
-    public static final String TATL_LIMITTYPE = "http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tatl";
+    public static final String ABSOLUTEVALUE_LIMITDIRECTION = "OperationalLimitDirectionKind.absoluteValue";
+    public static final String PATL_LIMITTYPE = "LimitTypeKind.patl";
+    public static final String TATL_LIMITTYPE = "LimitTypeKind.tatl";
 
-    public static void writePatl(String id, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writePatl(String id, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "OperationalLimitType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters("PATL");
         writer.writeEndElement();
-        writer.writeEmptyElement(ENTSOE_NAMESPACE, "OperationalLimitType.limitType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, PATL_LIMITTYPE);
+        writer.writeEmptyElement(euNamespace, "OperationalLimitType.limitType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, euNamespace + PATL_LIMITTYPE);
         writer.writeEndElement();
     }
 
-    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "OperationalLimitType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(name);
         writer.writeEndElement();
-        writer.writeEmptyElement(ENTSOE_NAMESPACE, "OperationalLimitType.direction");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, ABSOLUTEVALUE_LIMITDIRECTION);
-        writer.writeEmptyElement(ENTSOE_NAMESPACE, "OperationalLimitType.limitType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, TATL_LIMITTYPE);
+        writer.writeEmptyElement(euNamespace, "OperationalLimitType.direction");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + ABSOLUTEVALUE_LIMITDIRECTION);
+        writer.writeEmptyElement(euNamespace, "OperationalLimitType.limitType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, euNamespace + TATL_LIMITTYPE);
         writer.writeStartElement(cimNamespace, "OperationalLimitType.acceptableDuration");
         writer.writeCharacters(CgmesExportUtil.format(acceptableDuration));
         writer.writeEndElement();

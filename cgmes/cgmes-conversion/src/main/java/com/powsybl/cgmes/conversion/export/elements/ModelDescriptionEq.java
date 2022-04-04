@@ -46,9 +46,12 @@ public final class ModelDescriptionEq {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-        writer.writeCharacters(CgmesNamespace.getProfile(context.getCimVersion(), "EQ_OP"));
-        writer.writeEndElement();
+        if (context.getCimVersion() < 100) {
+            // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
+            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+            writer.writeCharacters(CgmesNamespace.getProfile(context.getCimVersion(), "EQ_OP"));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();

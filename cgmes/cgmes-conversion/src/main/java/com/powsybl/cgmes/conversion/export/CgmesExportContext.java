@@ -598,6 +598,14 @@ public class CgmesExportContext {
         return CgmesNamespace.getCim(cimVersion);
     }
 
+    public String getEuNamespace() {
+        return CgmesNamespace.getEu(cimVersion);
+    }
+
+    public String getLimitValueAttributeName() {
+        return CgmesNamespace.getLimitValueAttributeName(cimVersion);
+    }
+
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {
         return topologicalNodeByBusViewBusMapping.get(busId);
     }

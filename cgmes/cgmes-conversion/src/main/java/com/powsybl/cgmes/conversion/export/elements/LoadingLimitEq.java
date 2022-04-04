@@ -20,13 +20,13 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class LoadingLimitEq {
 
-    public static void write(String id, Class<? extends LoadingLimits> loadingLimitClass, String name, double value, String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, Class<? extends LoadingLimits> loadingLimitClass, String name, double value, String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, String valueAttributeName, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, loadingLimitClassName(loadingLimitClass));
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(name);
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, loadingLimitClassName(loadingLimitClass) + ".value");
+        writer.writeStartElement(cimNamespace, loadingLimitClassName(loadingLimitClass) + "." + valueAttributeName);
         writer.writeCharacters(CgmesExportUtil.format(value));
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "OperationalLimit.OperationalLimitSet");

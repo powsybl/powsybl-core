@@ -69,6 +69,33 @@ public final class CgmesNamespace {
         throw new AssertionError("Unsupported CIM version " + cimVersion);
     }
 
+    public static String getEu(int cimVersion) {
+        if (cimVersion == 16) {
+            return ENTSOE_NAMESPACE;
+        } else if (cimVersion == 100) {
+            return EU_NAMESPACE;
+        }
+        return "err-eu-namespace";
+    }
+
+    public static String getEuPrefix(int cimVersion) {
+        if (cimVersion == 16) {
+            return "entsoe";
+        } else if (cimVersion == 100) {
+            return "eu";
+        }
+        return "err-eu-prefix";
+    }
+
+    public static String getLimitValueAttributeName(int cimVersion) {
+        if (cimVersion == 16) {
+            return "value";
+        } else if (cimVersion == 100) {
+            return "normalValue";
+        }
+        return "err-limit-value-attr-name";
+    }
+
     public static boolean hasProfiles(int cimVersion) {
         return PROFILES.containsKey(cimVersion);
     }
