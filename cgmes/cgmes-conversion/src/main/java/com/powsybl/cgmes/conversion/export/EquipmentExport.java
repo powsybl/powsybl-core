@@ -40,7 +40,8 @@ public final class EquipmentExport {
             String limitValueAttributeName = context.getLimitValueAttributeName();
             String limitTypeAttributeName = context.getLimitTypeAttributeName();
             String limitKindClassName = context.getLimitKindClassName();
-            boolean writeInfiniteDuration = context.isWriteInfiniteDuration();
+            boolean writeInfiniteDuration = context.isWriteLimitInfiniteDuration();
+            boolean writeInitialP = context.isWriteGeneratingUnitInitialP();
 
             // TODO fill EQ Model Description
             if (context.getCimVersion() >= 16) {
@@ -57,7 +58,7 @@ public final class EquipmentExport {
             writeVoltageLevels(network, cimNamespace, writer, context);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, cimNamespace, writer);
-            writeGenerators(network, exportedTerminals, cimNamespace, writer);
+            writeGenerators(network, exportedTerminals, cimNamespace, writeInitialP, writer);
             writeShuntCompensators(network, cimNamespace, writer);
             writeStaticVarCompensators(network, exportedTerminals, cimNamespace, writer);
             writeLines(network, exportedTerminals, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
@@ -227,7 +228,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeGenerators(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeGenerators(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, boolean writeInitialP, XMLStreamWriter writer) throws XMLStreamException {
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
             if (generatingUnit == null) {
@@ -267,7 +268,7 @@ public final class EquipmentExport {
             }
             SynchronousMachineEq.write(generator.getId(), generator.getNameOrId(), generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, generator.getRatedS(), cimNamespace, writer);
             String generatingUnitName = "GEN_" + generator.getNameOrId();
-            GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writer);
+            GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writeInitialP, writer);
         }
     }
 

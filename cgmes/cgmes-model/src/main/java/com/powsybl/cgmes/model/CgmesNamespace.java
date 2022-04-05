@@ -114,11 +114,19 @@ public final class CgmesNamespace {
         return "err-limit-kind-class-name";
     }
 
-    public static boolean isWriteInfiniteDuration(int cimVersion) {
+    public static boolean isWriteLimitInfiniteDuration(int cimVersion) {
         if (cimVersion == 16) {
             return false;
         } else {
             return cimVersion >= 100;
+        }
+    }
+
+    public static boolean isWriteGeneratingUnitInitialP(int cimVersion) {
+        if (cimVersion >= 100) {
+            return false;
+        } else {
+            return cimVersion == 16;
         }
     }
 

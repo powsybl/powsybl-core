@@ -24,7 +24,7 @@ public final class GeneratingUnitEq {
     private static final String EQ_GENERATINGUNIT_MAXP = "GeneratingUnit.maxOperatingP";
     private static final String EQ_GENERATINGUNIT_INITIALP = "GeneratingUnit.initialP";
 
-    public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String generatingUnitName, EnergySource energySource, double minP, double maxP, double initialP, String cimNamespace, boolean writeInitialP, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, generatingUnitClassName(energySource));
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
@@ -36,9 +36,11 @@ public final class GeneratingUnitEq {
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MAXP);
         writer.writeCharacters(CgmesExportUtil.format(maxP));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_INITIALP);
-        writer.writeCharacters(CgmesExportUtil.format(initialP));
-        writer.writeEndElement();
+        if (writeInitialP) {
+            writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_INITIALP);
+            writer.writeCharacters(CgmesExportUtil.format(initialP));
+            writer.writeEndElement();
+        }
         writer.writeEndElement();
     }
 

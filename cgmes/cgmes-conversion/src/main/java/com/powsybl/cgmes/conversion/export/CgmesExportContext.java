@@ -614,8 +614,12 @@ public class CgmesExportContext {
         return CgmesNamespace.getLimitKindClassName(cimVersion);
     }
 
-    public boolean isWriteInfiniteDuration() {
-        return CgmesNamespace.isWriteInfiniteDuration(cimVersion);
+    public boolean isWriteLimitInfiniteDuration() {
+        return CgmesNamespace.isWriteLimitInfiniteDuration(cimVersion);
+    }
+
+    public boolean isWriteGeneratingUnitInitialP() {
+        return CgmesNamespace.isWriteGeneratingUnitInitialP(cimVersion);
     }
 
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {
