@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2022, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:sp="http://www.powsybl.org/schema/iidm/ext/substation_position/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/substation_position/1_0"
+           elementFormDefault="qualified">
+    <xs:complexType name="Coordinate">
+        <xs:attribute name="longitude" use="required" type="xs:float"/>
+        <xs:attribute name="latitude" use="required" type="xs:float"/>
+    </xs:complexType>
+    <xs:element name="substation-position">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="coordinate" type="sp:Coordinate" minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
