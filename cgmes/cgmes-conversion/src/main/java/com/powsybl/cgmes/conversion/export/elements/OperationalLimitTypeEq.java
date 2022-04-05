@@ -24,9 +24,7 @@ public final class OperationalLimitTypeEq {
     private static final String TATL = "tatl";
 
     public static void writePatl(String id, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "OperationalLimitType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writeName("PATL", cimNamespace, writer);
+        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, "PATL", cimNamespace, writer);
         writeDirection(cimNamespace, writer);
         writeKind(PATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
         if (writeInfiniteDuration) {
@@ -36,9 +34,7 @@ public final class OperationalLimitTypeEq {
     }
 
     public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "OperationalLimitType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writeName(name, cimNamespace, writer);
+        CgmesExportUtil.writeStartIdName("OperationalLimitType", id, name, cimNamespace, writer);
         writeDirection(cimNamespace, writer);
         writeKind(TATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
         if (writeInfiniteDuration) {
@@ -47,12 +43,6 @@ public final class OperationalLimitTypeEq {
         writer.writeStartElement(cimNamespace, "OperationalLimitType.acceptableDuration");
         writer.writeCharacters(CgmesExportUtil.format(acceptableDuration));
         writer.writeEndElement();
-        writer.writeEndElement();
-    }
-
-    private static void writeName(String name, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name);
         writer.writeEndElement();
     }
 

@@ -105,6 +105,42 @@ public final class CgmesExportUtil {
         writer.writeEndElement();
     }
 
+    private static String toRdfId(String id) {
+        // FIXME(Luma) handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
+        // FIXME(Luma) we have to be careful with resource and about references, apply the same conversions
+        // FIXME(Luma) references as "resource" have been solved, references using "about" are pending
+        return id.startsWith("_") ? id : "_" + id;
+    }
+
+    private static String toMasterResourceId(String id) {
+        return id.startsWith("_") ? id.substring(1) : id;
+    }
+
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, className);
+        // Writing mRID was optional in CIM 16, but is required since CIM 100
+        // Only classes extending IdentifiedObject have an mRID
+        // points of tables and curve data objects do not have mRID, although they have an RDF:ID
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id));
+        if (writeMasterResourceId) {
+            writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
+            writer.writeCharacters(toMasterResourceId(id));
+            writer.writeEndElement();
+        }
+    }
+
+    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(cimNamespace, refName);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
+    }
+
+    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+        writeStartId(className, id, true, cimNamespace, writer);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(name);
+        writer.writeEndElement();
+    }
+
     public static Complex complexVoltage(double r, double x, double g, double b,
                                          double v, double angle, double p, double q) {
         LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,

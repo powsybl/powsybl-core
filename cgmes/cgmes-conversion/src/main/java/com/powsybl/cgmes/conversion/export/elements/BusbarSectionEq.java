@@ -6,12 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
-import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -19,15 +17,9 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class BusbarSectionEq {
 
     public static void write(String id, String busName, String voltageLevelId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "BusbarSection");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(busName);
-        writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "Equipment.EquipmentContainer");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + voltageLevelId);
-        writer.writeEmptyElement(cimNamespace, "ConductingEquipment.BaseVoltage");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + baseVoltageId);
+        CgmesExportUtil.writeStartIdName("BusbarSection", id, busName, cimNamespace, writer);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", voltageLevelId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, cimNamespace, writer);
         writer.writeEndElement();
     }
 

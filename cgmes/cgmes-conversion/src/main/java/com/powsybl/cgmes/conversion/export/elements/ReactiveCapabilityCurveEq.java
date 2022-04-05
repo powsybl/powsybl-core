@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
@@ -22,16 +23,13 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class ReactiveCapabilityCurveEq {
 
+    // FIXME(Luma) Use namespaces depending on CIM version being exported
     public static final String CURVE_STYLE_CONSTANTYVALUE = "http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.constantYValue";
     public static final String UNITSYMBOL_W = "http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W";
     public static final String UNITSYMBOL_VAR = "http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr";
 
     public static void write(String id, String reactiveCapabilityCurveName, ReactiveLimitsHolder holder, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, holderClassName(holder));
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(reactiveCapabilityCurveName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName(holderClassName(holder), id, reactiveCapabilityCurveName, cimNamespace, writer);
         writer.writeEmptyElement(cimNamespace, "Curve.curveStyle");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, CURVE_STYLE_CONSTANTYVALUE);
         writer.writeEmptyElement(cimNamespace, "Curve.xUnit");
