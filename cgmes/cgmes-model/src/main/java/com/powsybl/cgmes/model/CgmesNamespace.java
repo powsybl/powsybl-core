@@ -96,6 +96,24 @@ public final class CgmesNamespace {
         return "err-limit-value-attr-name";
     }
 
+    public static String getLimitTypeAttributeName(int cimVersion) {
+        if (cimVersion == 16) {
+            return "OperationalLimitType.limitType";
+        } else if (cimVersion == 100) {
+            return  "OperationalLimitType.kind";
+        }
+        return "err-limit-type-attr-name";
+    }
+
+    public static String getLimitKindClassName(int cimVersion) {
+        if (cimVersion == 16) {
+            return "LimitTypeKind";
+        } else if (cimVersion == 100) {
+            return  "LimitKind";
+        }
+        return "err-limit-kind-class-name";
+    }
+
     public static boolean hasProfiles(int cimVersion) {
         return PROFILES.containsKey(cimVersion);
     }

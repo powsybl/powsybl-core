@@ -606,6 +606,14 @@ public class CgmesExportContext {
         return CgmesNamespace.getLimitValueAttributeName(cimVersion);
     }
 
+    public String getLimitTypeAttributeName() {
+        return CgmesNamespace.getLimitTypeAttributeName(cimVersion);
+    }
+
+    public String getLimitKindClassName() {
+        return CgmesNamespace.getLimitKindClassName(cimVersion);
+    }
+
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {
         return topologicalNodeByBusViewBusMapping.get(busId);
     }
