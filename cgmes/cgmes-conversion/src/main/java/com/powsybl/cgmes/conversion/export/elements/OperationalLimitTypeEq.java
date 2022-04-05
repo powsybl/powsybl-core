@@ -35,7 +35,7 @@ public final class OperationalLimitTypeEq {
         writer.writeEndElement();
     }
 
-    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace, String limitKindClassName, String limitTypeAttributeName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "OperationalLimitType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writeName(name, cimNamespace, writer);
