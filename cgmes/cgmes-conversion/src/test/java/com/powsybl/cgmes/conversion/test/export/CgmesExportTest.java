@@ -31,7 +31,7 @@ import static org.junit.Assert.assertNull;
 public class CgmesExportTest {
 
     @Test
-    public void testFromIidm() throws IOException {
+    public void testFromIidm() throws IOException { // Test from IIDM with configuration that does not exist in CGMES (disconnected node)
         Network network = FictitiousSwitchFactory.create();
         network.getVoltageLevel("C").getNodeBreakerView().newSwitch().setId("TEST_SW")
                 .setKind(SwitchKind.DISCONNECTOR)
