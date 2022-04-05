@@ -72,7 +72,7 @@ public final class CgmesNamespace {
     public static String getEu(int cimVersion) {
         if (cimVersion == 16) {
             return ENTSOE_NAMESPACE;
-        } else if (cimVersion == 100) {
+        } else if (cimVersion >= 100) {
             return EU_NAMESPACE;
         }
         return "err-eu-namespace";
@@ -81,7 +81,7 @@ public final class CgmesNamespace {
     public static String getEuPrefix(int cimVersion) {
         if (cimVersion == 16) {
             return "entsoe";
-        } else if (cimVersion == 100) {
+        } else if (cimVersion >= 100) {
             return "eu";
         }
         return "err-eu-prefix";
@@ -90,7 +90,7 @@ public final class CgmesNamespace {
     public static String getLimitValueAttributeName(int cimVersion) {
         if (cimVersion == 16) {
             return "value";
-        } else if (cimVersion == 100) {
+        } else if (cimVersion >= 100) {
             return "normalValue";
         }
         return "err-limit-value-attr-name";
@@ -99,7 +99,7 @@ public final class CgmesNamespace {
     public static String getLimitTypeAttributeName(int cimVersion) {
         if (cimVersion == 16) {
             return "OperationalLimitType.limitType";
-        } else if (cimVersion == 100) {
+        } else if (cimVersion >= 100) {
             return  "OperationalLimitType.kind";
         }
         return "err-limit-type-attr-name";
@@ -108,10 +108,18 @@ public final class CgmesNamespace {
     public static String getLimitKindClassName(int cimVersion) {
         if (cimVersion == 16) {
             return "LimitTypeKind";
-        } else if (cimVersion == 100) {
+        } else if (cimVersion >= 100) {
             return  "LimitKind";
         }
         return "err-limit-kind-class-name";
+    }
+
+    public static boolean isWriteInfiniteDuration(int cimVersion) {
+        if (cimVersion == 16) {
+            return false;
+        } else {
+            return cimVersion >= 100;
+        }
     }
 
     public static boolean hasProfiles(int cimVersion) {

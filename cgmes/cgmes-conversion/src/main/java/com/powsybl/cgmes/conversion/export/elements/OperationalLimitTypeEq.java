@@ -12,7 +12,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -23,30 +23,52 @@ public final class OperationalLimitTypeEq {
     private static final String PATL = "patl";
     private static final String TATL = "tatl";
 
-    public static void writePatl(String id, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writePatl(String id, String cimNamespace, String euNamespace, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "OperationalLimitType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters("PATL");
-        writer.writeEndElement();
-        writer.writeEmptyElement(euNamespace, limitTypeAttributeName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, limitKindClassName, PATL));
+        writeName("PATL", cimNamespace, writer);
+        writeDirection(cimNamespace, writer);
+        writeKind(PATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
+        if (writeInfiniteDuration) {
+            writeInfiniteDuration(true, cimNamespace, writer);
+        }
         writer.writeEndElement();
     }
 
-    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace, String limitKindClassName, String limitTypeAttributeName, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTatl(String id, String name, int acceptableDuration, String cimNamespace, String euNamespace, String limitKindClassName, String limitTypeAttributeName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "OperationalLimitType");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name);
-        writer.writeEndElement();
-        writer.writeEmptyElement(euNamespace, "OperationalLimitType.direction");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + ABSOLUTEVALUE_LIMITDIRECTION);
-        writer.writeEmptyElement(euNamespace, limitTypeAttributeName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, limitKindClassName, TATL));
+        writeName(name, cimNamespace, writer);
+        writeDirection(cimNamespace, writer);
+        writeKind(TATL, euNamespace, limitTypeAttributeName, limitKindClassName, writer);
+        if (writeInfiniteDuration) {
+            writeInfiniteDuration(false, cimNamespace, writer);
+        }
         writer.writeStartElement(cimNamespace, "OperationalLimitType.acceptableDuration");
         writer.writeCharacters(CgmesExportUtil.format(acceptableDuration));
         writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeName(String name, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(name);
+        writer.writeEndElement();
+    }
+
+    private static void writeDirection(String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(cimNamespace, "OperationalLimitType.direction");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + ABSOLUTEVALUE_LIMITDIRECTION);
+    }
+
+    private static void writeKind(String kind, String euNamespace, String limitTypeAttributeName, String limitKindClassName, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(euNamespace, limitTypeAttributeName);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", euNamespace, limitKindClassName, kind));
+    }
+
+    private static void writeInfiniteDuration(boolean infiniteDuration, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "OperationalLimitType.isInfiniteDuration");
+        writer.writeCharacters(Boolean.toString(infiniteDuration));
         writer.writeEndElement();
     }
 
