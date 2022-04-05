@@ -19,13 +19,12 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class DCConverterUnitEq {
 
-    // FIXME(Luma) use namespace depending on cim version being exported
-    private static final String OPERATION_MODE = "http://iec.ch/TC57/2013/CIM-schema-cim16#DCConverterOperatingModeKind.monopolarGroundReturn";
+    private static final String MONOPOLAR_GROUND_RETURN = "DCConverterOperatingModeKind.monopolarGroundReturn";
 
     public static void write(String id, String dcConverterUnitName, String substationId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("DCConverterUnit", id, dcConverterUnitName, cimNamespace, writer);
         writer.writeEmptyElement(cimNamespace, "DCConverterUnit.operationMode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, OPERATION_MODE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + MONOPOLAR_GROUND_RETURN);
         CgmesExportUtil.writeReference("DCConverterUnit.Substation", substationId, cimNamespace, writer);
         writer.writeEndElement();
     }

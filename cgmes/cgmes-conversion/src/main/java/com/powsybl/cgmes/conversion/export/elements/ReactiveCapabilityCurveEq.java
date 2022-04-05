@@ -23,21 +23,20 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class ReactiveCapabilityCurveEq {
 
-    // FIXME(Luma) Use namespaces depending on CIM version being exported
-    public static final String CURVE_STYLE_CONSTANTYVALUE = "http://iec.ch/TC57/2013/CIM-schema-cim16#CurveStyle.constantYValue";
-    public static final String UNITSYMBOL_W = "http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.W";
-    public static final String UNITSYMBOL_VAR = "http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.VAr";
+    public static final String CURVE_STYLE_CONSTANTYVALUE = "CurveStyle.constantYValue";
+    public static final String UNITSYMBOL_W = "UnitSymbol.W";
+    public static final String UNITSYMBOL_VAR = "UnitSymbol.VAr";
 
     public static void write(String id, String reactiveCapabilityCurveName, ReactiveLimitsHolder holder, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(holderClassName(holder), id, reactiveCapabilityCurveName, cimNamespace, writer);
         writer.writeEmptyElement(cimNamespace, "Curve.curveStyle");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, CURVE_STYLE_CONSTANTYVALUE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CURVE_STYLE_CONSTANTYVALUE);
         writer.writeEmptyElement(cimNamespace, "Curve.xUnit");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, UNITSYMBOL_W);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + UNITSYMBOL_W);
         writer.writeEmptyElement(cimNamespace, "Curve.y1Unit");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, UNITSYMBOL_VAR);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + UNITSYMBOL_VAR);
         writer.writeEmptyElement(cimNamespace, "Curve.y2Unit");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, UNITSYMBOL_VAR);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + UNITSYMBOL_VAR);
         writer.writeEndElement();
     }
 

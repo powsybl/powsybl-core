@@ -7,11 +7,14 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -42,9 +45,8 @@ public final class StaticVarCompensatorEq {
             writer.writeCharacters(CgmesExportUtil.format(0.0));
         }
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
-        writer.writeCharacters(regulationMode(svcControlMode));
-        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + regulationMode(svcControlMode));
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT);
         writer.writeCharacters(CgmesExportUtil.format(voltageSetPoint));
         writer.writeEndElement();
@@ -52,11 +54,10 @@ public final class StaticVarCompensatorEq {
     }
 
     private static String regulationMode(StaticVarCompensator.RegulationMode svcControlMode) {
-        // FIXME(Luma) use proper CIM Namespace (version-dependant)
         if (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svcControlMode)) {
-            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.voltage";
+            return "SVCControlMode.voltage";
         } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
-            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.reactivePower";
+            return "SVCControlMode.reactivePower";
         }
         return "";
     }
