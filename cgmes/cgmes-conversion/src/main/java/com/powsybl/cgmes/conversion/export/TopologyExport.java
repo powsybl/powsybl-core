@@ -130,22 +130,19 @@ public final class TopologyExport {
     }
 
     private static void writeDCNode(String dcNode, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + dcNode);
+        CgmesExportUtil.writeStartAbout("DCNode", dcNode, cimNamespace, writer);
         CgmesExportUtil.writeReference("DCNode.DCTopologicalNode", dcTopologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     private static void writeAcdcConverterDCTerminal(String acdcConverterDcTerminal, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "ACDCConverterDCTerminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + acdcConverterDcTerminal);
+        CgmesExportUtil.writeStartAbout("ACDCConverterDCTerminal", acdcConverterDcTerminal, cimNamespace, writer);
         CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     private static void writeDCTerminal(String dcTerminal, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCTerminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + dcTerminal);
+        CgmesExportUtil.writeStartAbout("DCTerminal", dcTerminal, cimNamespace, writer);
         CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
@@ -165,8 +162,7 @@ public final class TopologyExport {
     }
 
     private static void writeTerminal(String terminalId, String topologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "Terminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + terminalId);
+        CgmesExportUtil.writeStartAbout("Terminal", terminalId, cimNamespace, writer);
         CgmesExportUtil.writeReference("Terminal.TopologicalNode", topologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }

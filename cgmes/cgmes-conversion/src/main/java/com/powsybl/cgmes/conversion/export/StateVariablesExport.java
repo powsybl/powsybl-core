@@ -431,8 +431,7 @@ public final class StateVariablesExport {
 
     private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
+            CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), converterStation.getId(), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
             writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation)));
             writer.writeEndElement();

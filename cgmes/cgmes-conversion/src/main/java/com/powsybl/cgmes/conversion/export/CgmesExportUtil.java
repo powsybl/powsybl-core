@@ -77,7 +77,7 @@ public final class CgmesExportUtil {
 
     public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "urn:uuid:" + getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();
@@ -106,13 +106,13 @@ public final class CgmesExportUtil {
     }
 
     private static String toRdfId(String id) {
-        // FIXME(Luma) handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
-        // FIXME(Luma) we have to be careful with resource and about references, apply the same conversions
-        // FIXME(Luma) references as "resource" have been solved, references using "about" are pending
+        // Handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
+        // We have to be careful with "resource" and "about" references, and apply the same conversions
         return id.startsWith("_") ? id : "_" + id;
     }
 
     private static String toMasterResourceId(String id) {
+        // Handling ids: if received id is prefixed by "_", remove it. Assuming it was added to comply with URN rules
         return id.startsWith("_") ? id.substring(1) : id;
     }
 
@@ -129,16 +129,21 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeEmptyElement(cimNamespace, refName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
-    }
-
     public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
         writeStartId(className, id, true, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(name);
         writer.writeEndElement();
+    }
+
+    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(cimNamespace, refName);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
+    }
+
+    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, className);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id));
     }
 
     public static Complex complexVoltage(double r, double x, double g, double b,
