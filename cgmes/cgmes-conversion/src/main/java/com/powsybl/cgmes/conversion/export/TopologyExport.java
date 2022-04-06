@@ -40,16 +40,16 @@ public final class TopologyExport {
                 CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
             }
             writeTopologicalNodes(network, cimNamespace, writer, context);
-            writeTerminals(network, cimNamespace, writer);
+            writeTerminals(network, cimNamespace, writer, context);
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeBusTerminals(network, cimNamespace, writer);
-        writeSwitchesTerminals(network, cimNamespace, writer);
+        writeSwitchesTerminals(network, cimNamespace, writer, context);
         writeHvdcTerminals(network, cimNamespace, writer);
     }
 
@@ -80,18 +80,18 @@ public final class TopologyExport {
     }
 
     private static String topologicalNodeFromIidmBus(Bus b) {
-        return b.getId();
+        return b != null ? b.getId() : null;
     }
 
-    private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
 
             Bus bus1;
             Bus bus2;
             if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                bus1 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId())).getBusView().getBus();
-                bus2 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId())).getBusView().getBus();
+                bus1 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
+                bus2 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
             } else {
                 bus1 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus1(sw.getId()).getId());
                 bus2 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus2(sw.getId()).getId());
@@ -100,9 +100,20 @@ public final class TopologyExport {
             String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
             String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
 
-            writeTerminal(cgmesTerminal1, topologicalNodeFromIidmBus(bus1), cimNamespace, writer);
-            writeTerminal(cgmesTerminal2, topologicalNodeFromIidmBus(bus2), cimNamespace, writer);
+            writeSwitchTerminal(bus1, sw.getVoltageLevel(), cgmesTerminal1, cimNamespace, writer, context);
+            writeSwitchTerminal(bus2, sw.getVoltageLevel(), cgmesTerminal2, cimNamespace, writer, context);
         }
+    }
+
+    private static void writeSwitchTerminal(Bus bus, VoltageLevel voltageLevel, String cgmesTerminal, String cimNamespace,
+                                            XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String tn = topologicalNodeFromIidmBus(bus);
+        if (tn == null) {
+            tn = CgmesExportUtil.getUniqueId();
+            writeTopologicalNode(tn, tn, voltageLevel.getId(),
+                    context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId(), cimNamespace, writer);
+        }
+        writeTerminal(cgmesTerminal, tn, cimNamespace, writer);
     }
 
     private static void writeHvdcTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {

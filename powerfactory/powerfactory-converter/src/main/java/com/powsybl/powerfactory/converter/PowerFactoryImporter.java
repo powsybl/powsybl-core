@@ -200,7 +200,7 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmLne":
-                    createLine(network, importContext, obj);
+                    new LineConverter(importContext, network).createFromElmLne(obj);
                     break;
 
                 case "ElmTr2":
@@ -351,43 +351,6 @@ public class PowerFactoryImporter implements Importer {
         } else {
             // TODO
         }
-    }
-
-    private void createLine(Network network, ImportContext importContext, DataObject elmLne) {
-        Collection<NodeRef> nodeRefs = checkNodes(elmLne, importContext.objIdToNode, 2);
-        Iterator<NodeRef> it = nodeRefs.iterator();
-        NodeRef nodeRef1 = it.next();
-        NodeRef nodeRef2 = it.next();
-        float dline = elmLne.getFloatAttributeValue("dline");
-        DataObject typLne = elmLne.getObjectAttributeValue(TYP_ID)
-                .resolve()
-                .orElseThrow();
-        float rline = typLne.getFloatAttributeValue("rline");
-        float xline = typLne.getFloatAttributeValue("xline");
-        float bline = typLne.getFloatAttributeValue("bline");
-        float tline = typLne.getFloatAttributeValue("tline");
-        double r = rline * dline;
-        double x = xline * dline;
-        double g = tline * dline * 10e-6;
-        double b = bline * dline * 10e-6;
-        double g1 = g / 2;
-        double g2 = g / 2;
-        double b1 = b / 2;
-        double b2 = b / 2;
-        network.newLine()
-                .setId(elmLne.getLocName())
-                .setEnsureIdUnicity(true)
-                .setVoltageLevel1(nodeRef1.voltageLevelId)
-                .setVoltageLevel2(nodeRef2.voltageLevelId)
-                .setNode1(nodeRef1.node)
-                .setNode2(nodeRef2.node)
-                .setR(r)
-                .setX(x)
-                .setG1(g1)
-                .setG2(g2)
-                .setB1(b1)
-                .setB2(b2)
-                .add();
     }
 
     private void create2wTransformer(Network network, ImportContext importContext, DataObject elmTr2) {
