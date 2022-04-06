@@ -21,6 +21,8 @@ import java.util.Objects;
  */
 public abstract class AbstractConverter {
 
+    static final String TYP_ID = "typ_id";
+
     private final ImportContext importContext;
 
     private final Network network;

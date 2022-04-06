@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.DataObjectRef;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,13 +22,11 @@ import java.util.Optional;
 
 class LineConverter extends AbstractConverter {
 
-    private static final String TYP_ID = "typ_id";
-
     LineConverter(ImportContext importContext, Network network) {
         super(importContext, network);
     }
 
-    void createFromElmLne(DataObject elmLne) {
+    void create(DataObject elmLne) {
         List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
         Optional<LineModel> lineModel = LineModel.createFromTypLne(elmLne);
         if (lineModel.isEmpty()) {
@@ -70,7 +69,7 @@ class LineConverter extends AbstractConverter {
         }
 
         static Optional<LineModel> createFromTypLne(DataObject elmLne) {
-            return elmLne.getObjectAttributeValue(TYP_ID).resolve().map(typLne -> typeLneModel(elmLne, typLne));
+            return elmLne.findObjectAttributeValue(TYP_ID).flatMap(DataObjectRef::resolve).map(typLne -> typeLneModel(elmLne, typLne));
         }
 
         private static LineModel typeLneModel(DataObject elmLne, DataObject typLne) {
