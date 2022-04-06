@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -91,15 +92,13 @@ public class CompletableFutureTaskTest {
         task.get();
     }
 
-    @Test
-    public void whenCancelDuringExecutionThenThrowAndInterrupt() throws Exception {
-
+    private void testEffectiveInterrupt(boolean addDependant) throws Exception {
         CountDownLatch waitForStart = new CountDownLatch(1);
         CountDownLatch waitIndefinitely = new CountDownLatch(1);
         CountDownLatch waitForInterruption = new CountDownLatch(1);
 
         AtomicBoolean interrupted = new AtomicBoolean(false);
-        CompletableFutureTask<Integer> task = CompletableFutureTask.runAsync(() -> {
+        CompletableFuture<Integer> task = CompletableFutureTask.runAsync(() -> {
             waitForStart.countDown();
             try {
                 waitIndefinitely.await();
@@ -110,6 +109,9 @@ public class CompletableFutureTaskTest {
             }
             return null;
         }, executor);
+        if (addDependant) {
+            task = task.thenApply(Function.identity());
+        }
 
         //Cancel after task has actually started
         waitForStart.await();
@@ -129,6 +131,16 @@ public class CompletableFutureTaskTest {
         //Second call to cancel should return false
         cancelled = task.cancel(true);
         assertFalse(cancelled);
+    }
+
+    @Test
+    public void whenCancelDuringExecutionThenThrowAndInterruptDirect() throws Exception {
+        testEffectiveInterrupt(false);
+    }
+
+    @Test
+    public void whenCancelDuringExecutionThenThrowAndInterruptDependant() throws Exception {
+        testEffectiveInterrupt(true);
     }
 
     @Test

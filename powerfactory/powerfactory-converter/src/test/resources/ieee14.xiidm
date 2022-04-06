@@ -184,12 +184,12 @@
     <iidm:line id="lne_10_11_1" r="15.62559986114502" x="36.57780075073242" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL1" node2="1" voltageLevelId2="VL2"/>
     <iidm:line id="lne_12_13_1" r="42.071998596191406" x="38.065101623535156" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL3" node2="1" voltageLevelId2="VL4"/>
     <iidm:line id="lne_13_14_1" r="32.55189895629883" x="66.27690124511719" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL4" node2="1" voltageLevelId2="VL5"/>
-    <iidm:line id="lne_1_2_1" r="3.690730094909668" x="11.26830005645752" g1="0.0" b1="0.0013862649536132813" g2="0.0" b2="0.0013862649536132813" node1="1" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL6"/>
-    <iidm:line id="lne_1_5_1" r="10.28950023651123" x="42.47570037841797" g1="0.0" b1="0.0012917449951171877" g2="0.0" b2="0.0012917449951171877" node1="2" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL9"/>
-    <iidm:line id="lne_2_3_1" r="8.948780059814453" x="37.70140075683594" g1="0.0" b1="0.0011499700164794922" g2="0.0" b2="0.0011499700164794922" node1="2" voltageLevelId1="VL6" node2="1" voltageLevelId2="VL7"/>
-    <iidm:line id="lne_2_4_1" r="11.066499710083008" x="33.578399658203125" g1="0.0" b1="8.926699829101563E-4" g2="0.0" b2="8.926699829101563E-4" node1="3" voltageLevelId1="VL6" node2="1" voltageLevelId2="VL8"/>
-    <iidm:line id="lne_2_5_1" r="10.845600128173828" x="33.11370086669922" g1="0.0" b1="9.084249877929689E-4" g2="0.0" b2="9.084249877929689E-4" node1="4" voltageLevelId1="VL6" node2="2" voltageLevelId2="VL9"/>
-    <iidm:line id="lne_3_4_1" r="12.76140022277832" x="32.57099914550781" g1="0.0" b1="3.3606399536132813E-4" g2="0.0" b2="3.3606399536132813E-4" node1="2" voltageLevelId1="VL7" node2="2" voltageLevelId2="VL8"/>
+    <iidm:line id="lne_1_2_1" r="3.690730094909668" x="11.26830005645752" g1="0.0" b1="1.386264953613281E-4" g2="0.0" b2="1.386264953613281E-4" node1="1" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL6"/>
+    <iidm:line id="lne_1_5_1" r="10.28950023651123" x="42.47570037841797" g1="0.0" b1="1.2917449951171874E-4" g2="0.0" b2="1.2917449951171874E-4" node1="2" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL9"/>
+    <iidm:line id="lne_2_3_1" r="8.948780059814453" x="37.70140075683594" g1="0.0" b1="1.1499700164794922E-4" g2="0.0" b2="1.1499700164794922E-4" node1="2" voltageLevelId1="VL6" node2="1" voltageLevelId2="VL7"/>
+    <iidm:line id="lne_2_4_1" r="11.066499710083008" x="33.578399658203125" g1="0.0" b1="8.926699829101562E-5" g2="0.0" b2="8.926699829101562E-5" node1="3" voltageLevelId1="VL6" node2="1" voltageLevelId2="VL8"/>
+    <iidm:line id="lne_2_5_1" r="10.845600128173828" x="33.11370086669922" g1="0.0" b1="9.084249877929687E-5" g2="0.0" b2="9.084249877929687E-5" node1="4" voltageLevelId1="VL6" node2="2" voltageLevelId2="VL9"/>
+    <iidm:line id="lne_3_4_1" r="12.76140022277832" x="32.57099914550781" g1="0.0" b1="3.360639953613281E-5" g2="0.0" b2="3.360639953613281E-5" node1="2" voltageLevelId1="VL7" node2="2" voltageLevelId2="VL8"/>
     <iidm:line id="lne_4_5_1" r="2.542370080947876" x="8.019430160522461" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="3" voltageLevelId1="VL8" node2="3" voltageLevelId2="VL9"/>
     <iidm:line id="lne_6_11_1" r="18.08799934387207" x="37.878501892089844" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL2" node2="1" voltageLevelId2="VL10"/>
     <iidm:line id="lne_6_12_1" r="23.406999588012695" x="48.71649932861328" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL3" node2="2" voltageLevelId2="VL10"/>

@@ -23,7 +23,7 @@ public class BaseVoltageMappingAdderImplProvider implements ExtensionAdderProvid
 
     @Override
     public String getExtensionName() {
-        return CgmesIidmMapping.NAME;
+        return BaseVoltageMapping.NAME;
     }
 
     @Override
