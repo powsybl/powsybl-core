@@ -131,4 +131,19 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     public void twoBusesGeneratorWithoutIqtypeTest() {
         assertTrue(importAndCompareXml("TwoBusesGeneratorWithoutIqtype"));
     }
+
+    @Test
+    public void twoBusesGeneratorElmReactiveLimits() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorElmReactiveLimits"));
+    }
+
+    @Test
+    public void twoBusesGeneratorTypReactiveLimits() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorTypReactiveLimits"));
+    }
+
+    @Test
+    public void twoBusesGeneratorTypMvarReactiveLimits() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorTypMvarReactiveLimits"));
+    }
 }
