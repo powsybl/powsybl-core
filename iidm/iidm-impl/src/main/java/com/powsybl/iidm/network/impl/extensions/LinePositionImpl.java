@@ -23,7 +23,7 @@ public class LinePositionImpl<T extends Identifiable<T>> extends AbstractExtensi
 
     private final List<Coordinate> coordinates;
 
-    public LinePositionImpl(T line, List<Coordinate> coordinates) {
+    LinePositionImpl(T line, List<Coordinate> coordinates) {
         super(line);
         this.coordinates = Objects.requireNonNull(coordinates);
     }
