@@ -30,6 +30,8 @@ import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class PowerFactoryImporterTest extends AbstractConverterTest {
 
@@ -59,7 +61,7 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 
-    private void importAndCompareXml(String id) {
+    private boolean importAndCompareXml(String id) {
         Network network = new PowerFactoryImporter()
                 .importData(new ResourceDataSource(id, new ResourceSet("/", id + ".dgs")),
                         NetworkFactory.findDefault(),
@@ -72,10 +74,31 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        return true;
     }
 
     @Test
     public void ieee14Test() {
-        importAndCompareXml("ieee14");
+        assertTrue(importAndCompareXml("ieee14"));
+    }
+
+    @Test
+    public void twoBusesLineWithBTest() {
+        assertTrue(importAndCompareXml("TwoBusesLineWithB"));
+    }
+
+    @Test
+    public void twoBusesLineWithGandBTest() {
+        assertTrue(importAndCompareXml("TwoBusesLineWithGandB"));
+    }
+
+    @Test
+    public void twoBusesLineWithTandBTest() {
+        assertTrue(importAndCompareXml("TwoBusesLineWithTandB"));
+    }
+
+    @Test
+    public void twoBusesLineWithCTest() {
+        assertTrue(importAndCompareXml("TwoBusesLineWithC"));
     }
 }
