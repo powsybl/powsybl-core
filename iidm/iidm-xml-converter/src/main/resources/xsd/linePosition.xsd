@@ -12,10 +12,10 @@
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/line_position/1_0"
            elementFormDefault="qualified">
     <xs:complexType name="Coordinate">
-        <xs:attribute name="longitude" use="required" type="xs:float"/>
-        <xs:attribute name="latitude" use="required" type="xs:float"/>
+        <xs:attribute name="longitude" use="required" type="xs:double"/>
+        <xs:attribute name="latitude" use="required" type="xs:double"/>
     </xs:complexType>
-    <xs:element name="line-position">
+    <xs:element name="linePosition">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="coordinate" type="lp:Coordinate" minOccurs="2" maxOccurs="unbounded"/>

@@ -48,7 +48,7 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
         substation.newExtension(SubstationPositionAdder.class)
                 .withCoordinate(coordinate[0])
                 .add();
-        return substation.getExtension(SubstationPositionAdder.class);
+        return substation.getExtension(SubstationPosition.class);
     }
 
 }

@@ -12,10 +12,10 @@
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/substation_position/1_0"
            elementFormDefault="qualified">
     <xs:complexType name="Coordinate">
-        <xs:attribute name="longitude" use="required" type="xs:float"/>
-        <xs:attribute name="latitude" use="required" type="xs:float"/>
+        <xs:attribute name="longitude" use="required" type="xs:double"/>
+        <xs:attribute name="latitude" use="required" type="xs:double"/>
     </xs:complexType>
-    <xs:element name="substation-position">
+    <xs:element name="substationPosition">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="coordinate" type="sp:Coordinate" minOccurs="1" maxOccurs="1"/>
