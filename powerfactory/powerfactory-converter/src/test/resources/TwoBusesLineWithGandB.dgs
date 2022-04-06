@@ -1,0 +1,24 @@
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+ 1;Version;5.0
+
+$$ElmNet;ID(a:40);loc_name(a:40);fold_id(p);frnom(r)
+ 2;MS;;50
+
+$$ElmTerm;ID(a:40);loc_name(a:40);fold_id(p);iUsage(i);uknom(r)
+ 3;Busbar-A;2;0;220
+ 4;Busbar-B;2;0;220
+
+$$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fline(r);GPScoords:SIZEROW(i);GPScoords:SIZECOL(i);nlnum(i);inAir(i)
+  5;lne_A_B_1;;2;10;1;1;0;0;1;0
+
+$$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);chr_name(a:20);obj_id(p);obj_bus(i)
+ 6;Cub_1;3;;5;0
+ 7;Cub_1;4;;5;1
+
+$$StaSwitch;ID(a:40);loc_name(a:40);fold_id(p);iUse(i);on_off(i)
+ 8;Switch;6;1;1
+ 9;Switch;7;1;1
+
+$$TypLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);uline(r);sline(r);InomAir(r);cohl_(i);rline(r);xline(r);rline0(r);xline0(r);Ithr(r);tmax(r);rtemp(r);systp(i);nlnph(i);nneutral(i);frnom(r);mlei(a:2);gline(r);bline(r)
+  10;tlne_A_B_1;;5;138;99999;1;0;3,561228;11,7311;999999;999999;0;80;80;0;3;0;60;Cu;14,49275;82,54568
+
