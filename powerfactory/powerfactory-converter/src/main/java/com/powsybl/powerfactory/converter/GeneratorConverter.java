@@ -45,9 +45,6 @@ class GeneratorConverter extends AbstractConverter {
             .setMinP(generatorModel.minP)
             .setMaxP(generatorModel.maxP)
             .add();
-        if (generatorModel.isDisconnected) {
-            g.getTerminal().disconnect();
-        }
         Optional<ReactiveLimits> reactiveLimits = ReactiveLimits.create(elmSym);
         if (reactiveLimits.isPresent()) {
             g.newMinMaxReactiveLimits()
@@ -58,7 +55,6 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     static class GeneratorModel {
-        private final boolean isDisconnected;
         private final double targetP;
         private final double targetQ;
         private final double targetVpu;
@@ -66,8 +62,7 @@ class GeneratorConverter extends AbstractConverter {
         private final double minP;
         private final double maxP;
 
-        GeneratorModel(boolean isDisconnected, double targetP, double targetQ, double targetVpu, boolean voltageRegulatorOn, double minP, double maxP) {
-            this.isDisconnected = isDisconnected;
+        GeneratorModel(double targetP, double targetQ, double targetVpu, boolean voltageRegulatorOn, double minP, double maxP) {
             this.targetP = targetP;
             this.targetQ = targetQ;
             this.targetVpu = targetVpu;
@@ -77,7 +72,6 @@ class GeneratorConverter extends AbstractConverter {
         }
 
         static GeneratorModel create(DataObject elmSym) {
-            boolean isDisconnected = disconnected(elmSym);
             boolean voltageRegulatorOn = voltageRegulatorOn(elmSym);
 
             float pgini = elmSym.getFloatAttributeValue("pgini");
@@ -86,15 +80,7 @@ class GeneratorConverter extends AbstractConverter {
             double pMinUc = minP(elmSym, pgini);
             double pMaxUc = maxP(elmSym, pgini);
 
-            return new GeneratorModel(isDisconnected, pgini, qgini, usetp, voltageRegulatorOn, pMinUc, pMaxUc);
-        }
-
-        private static boolean disconnected(DataObject elmSym) {
-            OptionalInt outserv = elmSym.findIntAttributeValue("outserv");
-            if (outserv.isPresent()) {
-                return outserv.getAsInt() == 1;
-            }
-            return false;
+            return new GeneratorModel(pgini, qgini, usetp, voltageRegulatorOn, pMinUc, pMaxUc);
         }
 
         private static boolean voltageRegulatorOn(DataObject elmSym) {
