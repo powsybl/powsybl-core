@@ -117,9 +117,9 @@ public final class EquipmentExport {
                 ConnectivityNodeEq.write(node, bus.getNameOrId(), vl.getId(), cimNamespace, writer);
                 String key;
                 if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                    key = vl.getId() + bus.getTerminal().getNodeBreakerView().getNode();
+                    key = vl.getId() + bus.getTerminal().getNodeBreakerView().getNode() + CONNECTIVITY_NODE_SUFFIX;
                 } else {
-                    key = bus.getTerminal().getBusBreakerView().getBus().getId();
+                    key = bus.getTerminal().getBusBreakerView().getBus().getId() + CONNECTIVITY_NODE_SUFFIX;
                 }
                 exportedNodes.put(key, node);
             }
@@ -131,7 +131,7 @@ public final class EquipmentExport {
             String node = CgmesExportUtil.getUniqueId();
             ConnectivityNodeEq.write(node, CgmesExportUtil.format(nodes.get(0)), vl.getId(), cimNamespace, writer);
             for (Integer nodeId : nodes) {
-                exportedNodes.put(vl.getId() + nodeId, node);
+                exportedNodes.put(vl.getId() + nodeId + CONNECTIVITY_NODE_SUFFIX, node);
             }
         }
     }
@@ -152,7 +152,7 @@ public final class EquipmentExport {
 
     private static String getSwitchNode1Id(VoltageLevel vl, Switch sw) {
         if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            return vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId());
+            return vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId()) + CONNECTIVITY_NODE_SUFFIX;
         } else {
             return vl.getBusBreakerView().getBus1(sw.getId()).getId() + CONNECTIVITY_NODE_SUFFIX;
         }
@@ -160,9 +160,9 @@ public final class EquipmentExport {
 
     private static String getSwitchNode2Id(VoltageLevel vl, Switch sw) {
         if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            return vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId());
+            return vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId()) + CONNECTIVITY_NODE_SUFFIX;
         } else {
-            return vl.getBusBreakerView().getBus2(sw.getId()).getId();
+            return vl.getBusBreakerView().getBus2(sw.getId()).getId() + CONNECTIVITY_NODE_SUFFIX;
         }
     }
 
@@ -703,7 +703,7 @@ public final class EquipmentExport {
     private static String connectivityNodeId(Map<String, String> exportedNodes, Terminal terminal) {
         String key;
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            key = terminal.getVoltageLevel().getId() + terminal.getNodeBreakerView().getNode();
+            key = terminal.getVoltageLevel().getId() + terminal.getNodeBreakerView().getNode() + CONNECTIVITY_NODE_SUFFIX;
         } else {
             key = terminal.getBusBreakerView().getConnectableBus().getId() + CONNECTIVITY_NODE_SUFFIX;
         }

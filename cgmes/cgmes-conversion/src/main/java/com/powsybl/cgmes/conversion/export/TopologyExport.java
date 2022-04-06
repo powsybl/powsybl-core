@@ -42,6 +42,7 @@ public final class TopologyExport {
                 CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
             }
             writeTopologicalNodes(network, cimNamespace, writer, context);
+            // TODO: write ConnectivityNode-TopologicalNode association
             writeTerminals(network, cimNamespace, writer, context);
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
