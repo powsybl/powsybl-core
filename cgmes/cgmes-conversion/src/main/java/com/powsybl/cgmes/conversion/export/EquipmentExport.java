@@ -27,6 +27,7 @@ import java.util.*;
 public final class EquipmentExport {
 
     private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
+    private static final String CONNECTIVITY_NODE_SUFFIX = "_CN";
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -137,8 +138,8 @@ public final class EquipmentExport {
 
     private static void writeBuses(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
-            ConnectivityNodeEq.write(bus.getId(), bus.getNameOrId(), vl.getId(), cimNamespace, writer);
-            exportedNodes.put(bus.getId(), bus.getId());
+            ConnectivityNodeEq.write(bus.getId() + CONNECTIVITY_NODE_SUFFIX, bus.getNameOrId(), vl.getId(), cimNamespace, writer);
+            exportedNodes.put(bus.getId() + CONNECTIVITY_NODE_SUFFIX, bus.getId() + CONNECTIVITY_NODE_SUFFIX);
         }
     }
 
@@ -153,7 +154,7 @@ public final class EquipmentExport {
         if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
             return vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId());
         } else {
-            return vl.getBusBreakerView().getBus1(sw.getId()).getId();
+            return vl.getBusBreakerView().getBus1(sw.getId()).getId() + CONNECTIVITY_NODE_SUFFIX;
         }
     }
 
@@ -704,7 +705,7 @@ public final class EquipmentExport {
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
             key = terminal.getVoltageLevel().getId() + terminal.getNodeBreakerView().getNode();
         } else {
-            key = terminal.getBusBreakerView().getConnectableBus().getId();
+            key = terminal.getBusBreakerView().getConnectableBus().getId() + CONNECTIVITY_NODE_SUFFIX;
         }
         return exportedNodes.get(key);
     }
