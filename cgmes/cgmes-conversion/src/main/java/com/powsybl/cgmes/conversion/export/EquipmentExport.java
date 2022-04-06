@@ -711,13 +711,10 @@ public final class EquipmentExport {
     }
 
     private static String connectivityNodeId(Map<String, String> exportedNodes, Terminal terminal) {
-        String key;
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            key = terminal.getVoltageLevel().getId() + terminal.getNodeBreakerView().getNode();
-        } else {
-            key = terminal.getBusBreakerView().getBus().getId();
+            return exportedNodes.get(terminal.getVoltageLevel().getId() + terminal.getNodeBreakerView().getNode());
         }
-        return exportedNodes.get(key);
+        return null;
     }
 
     private static class VoltageLevelAdjacency {
