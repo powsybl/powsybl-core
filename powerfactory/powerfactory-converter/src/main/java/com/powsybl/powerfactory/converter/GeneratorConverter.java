@@ -132,7 +132,7 @@ class GeneratorConverter extends AbstractConverter {
             if (pQlimType.isPresent()) {
                 throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");
             }
-            Optional<DataObject> typSym = elmSym.findObjectAttributeValue(TYP_ID).flatMap(DataObjectRef::resolve);
+            Optional<DataObject> typSym = elmSym.findObjectAttributeValue(DataAttributeNames.TYP_ID).flatMap(DataObjectRef::resolve);
             if (typSym.isPresent()) {
                 return create(elmSym, typSym.get());
             } else {

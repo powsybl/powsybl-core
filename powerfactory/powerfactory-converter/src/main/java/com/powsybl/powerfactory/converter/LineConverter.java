@@ -69,7 +69,7 @@ class LineConverter extends AbstractConverter {
         }
 
         static Optional<LineModel> createFromTypLne(DataObject elmLne) {
-            return elmLne.findObjectAttributeValue(TYP_ID).flatMap(DataObjectRef::resolve).map(typLne -> typeLneModel(elmLne, typLne));
+            return elmLne.findObjectAttributeValue(DataAttributeNames.TYP_ID).flatMap(DataObjectRef::resolve).map(typLne -> typeLneModel(elmLne, typLne));
         }
 
         private static LineModel typeLneModel(DataObject elmLne, DataObject typLne) {
