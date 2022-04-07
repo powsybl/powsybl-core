@@ -13,6 +13,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
@@ -225,7 +226,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
             String suffix = "_" + busNum;
-            String mergedBusId = BusBreakerVoltageLevel.this.id + suffix;
+            String mergedBusId = Identifiables.getUniqueId(BusBreakerVoltageLevel.this.id + suffix, getNetwork().getIndex()::contains);
             String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + suffix : null;
             return new MergedBus(mergedBusId, mergedBusName, BusBreakerVoltageLevel.this.fictitious, busSet);
         }

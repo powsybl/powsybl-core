@@ -16,6 +16,7 @@ import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.*;
 import gnu.trove.list.array.TIntArrayList;
@@ -259,7 +260,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }, encountered);
 
                 // check that the component is a bus
-                String busId = NAMING_STRATEGY.getId(NodeBreakerVoltageLevel.this, nodes);
+                String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(NodeBreakerVoltageLevel.this, nodes), getNetwork().getIndex()::contains);
                 CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
                 for (int i = 0; i < nodes.size(); i++) {
                     int n2 = nodes.getQuick(i);
