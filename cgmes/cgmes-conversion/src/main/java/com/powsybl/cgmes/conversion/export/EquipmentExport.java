@@ -710,7 +710,7 @@ public final class EquipmentExport {
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
             key = terminal.getVoltageLevel().getId() + terminal.getNodeBreakerView().getNode();
         } else {
-            key = terminal.getBusBreakerView().getBus().getId();
+            key = terminal.getBusBreakerView().getConnectableBus().getId();
         }
         return exportedNodes.get(key);
     }

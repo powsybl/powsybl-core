@@ -387,7 +387,7 @@ public class CgmesExportContext {
                 boundaryId = CgmesExportUtil.getUniqueId();
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
-        } else if (c instanceof Load && ((Load) c).isFictitious()) {
+        } else if (c instanceof Load && c.isFictitious()) {
             // An fictitious load do not need an alias
         } else {
             int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
@@ -624,6 +624,11 @@ public class CgmesExportContext {
 
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {
         return topologicalNodeByBusViewBusMapping.get(busId);
+    }
+
+    public CgmesExportContext putTopologicalNode(String iidmBusId, String cgmesId) {
+        topologicalNodeByBusViewBusMapping.computeIfAbsent(iidmBusId, k -> new HashSet<>()).add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesId, Source.IGM));
+        return this;
     }
 
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getUnmappedTopologicalNodes() {

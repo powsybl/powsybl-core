@@ -82,7 +82,7 @@ public final class TopologyExport {
     }
 
     private static String topologicalNodeFromIidmBus(Bus b, CgmesExportContext context) {
-        return context.getTopologicalNodesByBusViewBus(b.getId()).stream().findFirst().orElseThrow(PowsyblException::new).getCgmesId();
+        return b != null ? context.getTopologicalNodesByBusViewBus(b.getId()).stream().findFirst().orElseThrow(PowsyblException::new).getCgmesId() : null;
     }
 
     private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -92,8 +92,8 @@ public final class TopologyExport {
             Bus bus1;
             Bus bus2;
             if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                bus1 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId())).getBusView().getBus();
-                bus2 = Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId())).getBusView().getBus();
+                bus1 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
+                bus2 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
             } else {
                 bus1 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus1(sw.getId()).getId());
                 bus2 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus2(sw.getId()).getId());
@@ -102,9 +102,20 @@ public final class TopologyExport {
             String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
             String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
 
-            writeTerminal(cgmesTerminal1, topologicalNodeFromIidmBus(bus1, context), cimNamespace, writer);
-            writeTerminal(cgmesTerminal2, topologicalNodeFromIidmBus(bus2, context), cimNamespace, writer);
+            writeSwitchTerminal(bus1, sw.getVoltageLevel(), cgmesTerminal1, cimNamespace, writer, context);
+            writeSwitchTerminal(bus2, sw.getVoltageLevel(), cgmesTerminal2, cimNamespace, writer, context);
         }
+    }
+
+    private static void writeSwitchTerminal(Bus bus, VoltageLevel voltageLevel, String cgmesTerminal, String cimNamespace,
+                                            XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String tn = topologicalNodeFromIidmBus(bus, context);
+        if (tn == null) {
+            tn = CgmesExportUtil.getUniqueId();
+            writeTopologicalNode(tn, tn, voltageLevel.getId(),
+                    context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId(), cimNamespace, writer);
+        }
+        writeTerminal(cgmesTerminal, tn, cimNamespace, writer);
     }
 
     private static void writeHvdcTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -118,7 +129,13 @@ public final class TopologyExport {
     }
 
     private static void writeHvdcBusTerminals(HvdcLine line, Bus bus, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(bus.getId())) {
+        String iidmId;
+        if (bus == null) {
+            iidmId = line.getId() + side;
+        } else {
+            iidmId = bus.getId();
+        }
+        for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(iidmId)) {
             String dcTopologicalNode = topologicalNode.getCgmesId() + "DC";
             String dcNode = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + side).orElseThrow(PowsyblException::new);
             writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer);
@@ -200,14 +217,27 @@ public final class TopologyExport {
     private static void writeHvdcTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcLine line : network.getHvdcLines()) {
             Bus b1 = line.getConverterStation1().getTerminal().getBusView().getBus();
-            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b1.getId())) {
-                writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
+            if (b1 != null) {
+                for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b1.getId())) {
+                    writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
+                }
+            } else {
+                String topologicalNode = CgmesExportUtil.getUniqueId();
+                context.putTopologicalNode(line.getId() + 1, topologicalNode);
+                writeDCTopologicalNode(topologicalNode + "DC", line.getNameOrId() + 1, cimNamespace, writer);
             }
 
             Bus b2 = line.getConverterStation2().getTerminal().getBusView().getBus();
-            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b2.getId())) {
-                writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
+            if (b2 != null) {
+                for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b2.getId())) {
+                    writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
+                }
+            } else {
+                String topologicalNode = CgmesExportUtil.getUniqueId();
+                context.putTopologicalNode(line.getId() + 2, topologicalNode);
+                writeDCTopologicalNode(topologicalNode + "DC", line.getNameOrId() + 2, cimNamespace, writer);
             }
+
         }
     }
 
