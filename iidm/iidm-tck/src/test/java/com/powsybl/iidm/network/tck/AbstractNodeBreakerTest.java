@@ -278,5 +278,9 @@ public abstract class AbstractNodeBreakerTest {
         assertEquals("VL_0", busL0.getId());
 
         assertNull(network.getBusBreakerView().getBus("unknownBus"));
+
+        network.getVoltageLevel("VL").getNodeBreakerView().newBusbarSection().setId("VL_0").setNode(10).add();
+        busL0 = network.getLoad("L0").getTerminal().getBusBreakerView().getBus();
+        assertEquals("VL_0#0", busL0.getId());
     }
 }
