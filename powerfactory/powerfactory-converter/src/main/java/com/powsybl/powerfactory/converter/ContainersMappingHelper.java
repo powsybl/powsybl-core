@@ -115,11 +115,8 @@ final class ContainersMappingHelper {
                 }
             }
 
-            if (voltageLevelId == null) { // automatic naming
-                return "VL" + noNameVoltageLevelCount++;
-            }
-
-            return voltageLevelId;
+            // automatic naming
+            return Objects.requireNonNullElseGet(voltageLevelId, () -> "VL" + noNameVoltageLevelCount++);
         }
     }
 

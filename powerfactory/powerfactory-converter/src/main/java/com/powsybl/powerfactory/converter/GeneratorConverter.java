@@ -6,9 +6,6 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.Optional;
-import java.util.OptionalInt;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -17,6 +14,9 @@ import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
+
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -35,23 +35,21 @@ class GeneratorConverter extends AbstractConverter {
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
         Generator g = vl.newGenerator()
-            .setId(elmSym.getLocName())
-            .setEnsureIdUnicity(true)
-            .setNode(nodeRef.node)
-            .setTargetP(generatorModel.targetP)
-            .setTargetQ(generatorModel.targetQ)
-            .setTargetV(generatorModel.targetVpu * vl.getNominalV())
-            .setVoltageRegulatorOn(generatorModel.voltageRegulatorOn)
-            .setMinP(generatorModel.minP)
-            .setMaxP(generatorModel.maxP)
-            .add();
-        Optional<ReactiveLimits> reactiveLimits = ReactiveLimits.create(elmSym);
-        if (reactiveLimits.isPresent()) {
-            g.newMinMaxReactiveLimits()
-                .setMinQ(reactiveLimits.get().minQ)
-                .setMaxQ(reactiveLimits.get().maxQ)
+                .setId(elmSym.getLocName())
+                .setEnsureIdUnicity(true)
+                .setNode(nodeRef.node)
+                .setTargetP(generatorModel.targetP)
+                .setTargetQ(generatorModel.targetQ)
+                .setTargetV(generatorModel.targetVpu * vl.getNominalV())
+                .setVoltageRegulatorOn(generatorModel.voltageRegulatorOn)
+                .setMinP(generatorModel.minP)
+                .setMaxP(generatorModel.maxP)
                 .add();
-        }
+        ReactiveLimits.create(elmSym).ifPresent(reactiveLimits ->
+                g.newMinMaxReactiveLimits()
+                        .setMinQ(reactiveLimits.minQ)
+                        .setMaxQ(reactiveLimits.maxQ)
+                        .add());
     }
 
     static class GeneratorModel {
@@ -88,11 +86,7 @@ class GeneratorConverter extends AbstractConverter {
             if (ivMode.isPresent()) {
                 return ivMode.getAsInt() == 1;
             }
-            Optional<String> avMode = elmSym.findStringAttributeValue("av_mode");
-            if (avMode.isPresent()) {
-                return avMode.get().equals("constv");
-            }
-            return false;
+            return elmSym.findStringAttributeValue("av_mode").map(s -> s.equals("constv")).orElse(false);
         }
 
         private static double minP(DataObject elmSym, double p) {
@@ -100,10 +94,7 @@ class GeneratorConverter extends AbstractConverter {
             if (pMinUc.isPresent()) {
                 return pMinUc.get();
             }
-            if (p < 0.0) {
-                return p;
-            }
-            return 0.0;
+            return Math.min(p, 0.0);
         }
 
         private static double maxP(DataObject elmSym, double p) {
@@ -111,10 +102,7 @@ class GeneratorConverter extends AbstractConverter {
             if (pMaxUc.isPresent()) {
                 return pMaxUc.get();
             }
-            if (p > 0.0) {
-                return p;
-            }
-            return 0.0;
+            return Math.max(p, 0.0);
         }
     }
 
@@ -132,12 +120,10 @@ class GeneratorConverter extends AbstractConverter {
             if (pQlimType.isPresent()) {
                 throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");
             }
-            Optional<DataObject> typSym = elmSym.findObjectAttributeValue(DataAttributeNames.TYP_ID).flatMap(DataObjectRef::resolve);
-            if (typSym.isPresent()) {
-                return create(elmSym, typSym.get());
-            } else {
-                return Optional.empty();
-            }
+            return elmSym
+                    .findObjectAttributeValue(DataAttributeNames.TYP_ID)
+                    .flatMap(DataObjectRef::resolve)
+                    .flatMap(typSym -> create(elmSym, typSym));
         }
 
         private static Optional<ReactiveLimits> create(DataObject elmSym, DataObject typSym) {
