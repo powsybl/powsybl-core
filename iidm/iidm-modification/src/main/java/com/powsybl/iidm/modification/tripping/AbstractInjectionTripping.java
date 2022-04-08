@@ -19,10 +19,8 @@ import java.util.Set;
  */
 public abstract class AbstractInjectionTripping extends AbstractTripping {
 
-    protected final String id;
-
     protected AbstractInjectionTripping(String id) {
-        this.id = Objects.requireNonNull(id);
+        super(id);
     }
 
     @Override

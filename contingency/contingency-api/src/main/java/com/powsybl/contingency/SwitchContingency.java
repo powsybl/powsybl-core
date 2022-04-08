@@ -10,17 +10,17 @@ import com.powsybl.iidm.modification.tripping.LoadTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
- * @author Hadrien Godard <hadrien.godard at artelys.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadContingency extends AbstractContingency {
+public class SwitchContingency extends AbstractContingency {
 
-    public LoadContingency(String id) {
+    public SwitchContingency(String id) {
         super(id);
     }
 
     @Override
     public ContingencyElementType getType() {
-        return ContingencyElementType.LOAD;
+        return ContingencyElementType.SWITCH;
     }
 
     @Override
