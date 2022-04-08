@@ -101,4 +101,49 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     public void twoBusesLineWithCTest() {
         assertTrue(importAndCompareXml("TwoBusesLineWithC"));
     }
+
+    @Test
+    public void twoBusesGeneratorTest() {
+        assertTrue(importAndCompareXml("TwoBusesGenerator"));
+    }
+
+    @Test
+    public void twoBusesGeneratorWithoutIvmodeTest() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorWithoutIvmode"));
+    }
+
+    @Test
+    public void twoBusesGeneratorAvmodeTest() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorAvmode"));
+    }
+
+    @Test
+    public void twoBusesGeneratorWithoutActiveLimitsTest() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorWithoutActiveLimits"));
+    }
+
+    @Test
+    public void twoBusesGeneratorIqtypeTest() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorIqtype"));
+    }
+
+    @Test
+    public void twoBusesGeneratorWithoutIqtypeTest() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorWithoutIqtype"));
+    }
+
+    @Test
+    public void twoBusesGeneratorElmReactiveLimits() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorElmReactiveLimits"));
+    }
+
+    @Test
+    public void twoBusesGeneratorTypReactiveLimits() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorTypReactiveLimits"));
+    }
+
+    @Test
+    public void twoBusesGeneratorTypMvarReactiveLimits() {
+        assertTrue(importAndCompareXml("TwoBusesGeneratorTypMvarReactiveLimits"));
+    }
 }
