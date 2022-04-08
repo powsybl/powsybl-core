@@ -22,7 +22,7 @@ public abstract class AbstractTripping implements Tripping {
 
     protected final String id;
 
-    public AbstractTripping(String id) {
+    protected AbstractTripping(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
