@@ -19,8 +19,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.Optional;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
@@ -242,20 +240,12 @@ public final class TopologyExport {
     }
 
     private static void writeDCTopologicalNode(String dcTopologicalNode, String dcTopologicalNodeName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCTopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, dcTopologicalNode);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(dcTopologicalNodeName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("DCTopologicalNode", dcTopologicalNode, dcTopologicalNodeName, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "TopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, topologicalNode);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(topologicalNodeName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("TopologicalNode", topologicalNode, topologicalNodeName, cimNamespace, writer);
         CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, cimNamespace, writer);
         CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, cimNamespace, writer);
         writer.writeEndElement();
