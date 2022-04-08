@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.model;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -75,7 +77,7 @@ public final class CgmesNamespace {
         } else if (cimVersion >= 100) {
             return EU_NAMESPACE;
         }
-        return "err-eu-namespace";
+        throw new PowsyblException("Undefined eu namespace for version " + cimVersion);
     }
 
     public static String getEuPrefix(int cimVersion) {
@@ -84,7 +86,7 @@ public final class CgmesNamespace {
         } else if (cimVersion >= 100) {
             return "eu";
         }
-        return "err-eu-prefix";
+        throw new PowsyblException("Undefined eu prefix for version " + cimVersion);
     }
 
     public static String getLimitValueAttributeName(int cimVersion) {
@@ -93,7 +95,7 @@ public final class CgmesNamespace {
         } else if (cimVersion >= 100) {
             return "normalValue";
         }
-        return "err-limit-value-attr-name";
+        throw new PowsyblException("Undefined limit value attribute name for version " + cimVersion);
     }
 
     public static String getLimitTypeAttributeName(int cimVersion) {
@@ -102,7 +104,7 @@ public final class CgmesNamespace {
         } else if (cimVersion >= 100) {
             return  "OperationalLimitType.kind";
         }
-        return "err-limit-type-attr-name";
+        throw new PowsyblException("Undefined limit type attribute name for version " + cimVersion);
     }
 
     public static String getLimitKindClassName(int cimVersion) {
@@ -111,23 +113,15 @@ public final class CgmesNamespace {
         } else if (cimVersion >= 100) {
             return  "LimitKind";
         }
-        return "err-limit-kind-class-name";
+        throw new PowsyblException("Undefined limit kind class name for version " + cimVersion);
     }
 
     public static boolean isWriteLimitInfiniteDuration(int cimVersion) {
-        if (cimVersion == 16) {
-            return false;
-        } else {
-            return cimVersion >= 100;
-        }
+        return cimVersion >= 100;
     }
 
     public static boolean isWriteGeneratingUnitInitialP(int cimVersion) {
-        if (cimVersion >= 100) {
-            return false;
-        } else {
-            return cimVersion == 16;
-        }
+        return cimVersion == 16;
     }
 
     public static boolean hasProfiles(int cimVersion) {
