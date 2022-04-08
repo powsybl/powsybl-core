@@ -8,7 +8,9 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
@@ -23,7 +25,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Luma <zamarrenolm at aia.es>
@@ -58,6 +60,25 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
         Network network = ieee14Cim14();
         assertEquals(14, network.getExtension(CimCharacteristics.class).getCimVersion());
         testExportToCim(network, "IEEE14", 100);
+    }
+
+    @Test
+    public void testExportIEEE14ToCim100CheckIsNodeBreaker() {
+        // Testing export to CGMES 3 is interpreted as a node/breaker CGMES model
+        // Input was a bus/branch model
+
+        Network network = ieee14Cim14();
+        CgmesModel cgmesModel14 = network.getExtension(CgmesModelExtension.class).getCgmesModel();
+        assertFalse(cgmesModel14.isNodeBreaker());
+
+        String cimZipFilename = "ieee14_CIM100";
+        Properties params = new Properties();
+        params.put(CgmesExport.CIM_VERSION, "100");
+        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
+        new CgmesExport().export(network, params, zip);
+        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
+        CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
+        assertTrue(cgmesModel100.isNodeBreaker());
     }
 
     private Network ieee14Cim14() {

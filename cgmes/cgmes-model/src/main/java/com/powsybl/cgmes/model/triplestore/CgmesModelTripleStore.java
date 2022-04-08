@@ -163,6 +163,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         if (r == null) {
             return false;
         }
+        if (allEqCgmes3OrGreater(r)) {
+            return true;
+        }
         // Only consider is node breaker if all models that have profile
         // EquipmentCore or EquipmentBoundary
         // also have EquipmentOperation or EquipmentBoundaryOperation
@@ -172,6 +175,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             logNodeBreaker(consideredNodeBreaker, modelHasOperationProfile);
         }
         return consideredNodeBreaker;
+    }
+
+    private boolean allEqCgmes3OrGreater(PropertyBags modelProfiles) {
+        for (PropertyBag mp : modelProfiles) {
+            String p = mp.get(PROFILE);
+            if (p != null && isEquipmentCore(p) && !CgmesNamespace.isEqCgmes3OrGreater(p)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private void logNodeBreaker(boolean consideredNodeBreaker, Map<String, Boolean> modelHasOperationProfile) {

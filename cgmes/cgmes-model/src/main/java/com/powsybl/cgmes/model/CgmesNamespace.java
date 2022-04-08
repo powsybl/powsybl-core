@@ -45,6 +45,7 @@ public final class CgmesNamespace {
     private static final String CIM_16_SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
     private static final String CIM_16_SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
 
+    private static final String CGMES_EQ_3_OR_GREATER_PREFIX = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/";
     private static final String CIM_100_EQ_PROFILE = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0";
     private static final String CIM_100_EQ_OPERATION_PROFILE = "http://iec.ch/TC57/ns/CIM/Operation-EU/3.0";
     private static final String CIM_100_TP_PROFILE = "http://iec.ch/TC57/ns/CIM/Topology-EU/3.0";
@@ -78,5 +79,9 @@ public final class CgmesNamespace {
             return PROFILES.get(cimVersion).get(profile);
         }
         throw new AssertionError("Unsupported CIM version " + cimVersion);
+    }
+
+    public static boolean isEqCgmes3OrGreater(String profile) {
+        return profile.startsWith(CGMES_EQ_3_OR_GREATER_PREFIX) && profile.compareTo(CIM_100_EQ_PROFILE) >= 0;
     }
 }
