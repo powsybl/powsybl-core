@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.StudyCase;
-import com.powsybl.powerfactory.model.StudyCaseLoader;
+import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(StudyCaseLoader.class)
-public class DbStudyCaseLoader implements StudyCaseLoader {
+@AutoService(PowerFactoryDataLoader.class)
+public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DbStudyCaseLoader.class);
 
@@ -50,6 +50,11 @@ public class DbStudyCaseLoader implements StudyCaseLoader {
     public DbStudyCaseLoader(PlatformConfig platformConfig, DatabaseReader dbReader) {
         this.platformConfig = Objects.requireNonNull(platformConfig);
         this.dbReader = Objects.requireNonNull(dbReader);
+    }
+
+    @Override
+    public Class<StudyCase> getDataClass() {
+        return StudyCase.class;
     }
 
     @Override

@@ -72,7 +72,7 @@ public class DbStudyCaseLoaderTest {
     }
 
     private StudyCase loadStudy(PlatformConfig platformConfig) {
-        return StudyCaseLoader.load("test.properties",
+        return PowerFactoryDataLoader.load("test.properties",
             () -> {
                 try {
                     return Files.newInputStream(testProperties);
@@ -80,6 +80,7 @@ public class DbStudyCaseLoaderTest {
                     throw new UncheckedIOException(e);
                 }
             },
+            StudyCase.class,
             List.of(new DbStudyCaseLoader(platformConfig, new TestDatabaseReader())))
                 .orElseThrow();
     }
