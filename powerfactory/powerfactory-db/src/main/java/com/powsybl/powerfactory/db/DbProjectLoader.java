@@ -8,45 +8,42 @@ package com.powsybl.powerfactory.db;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.powerfactory.model.PowerFactoryException;
-import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
+import com.powsybl.powerfactory.model.PowerFactoryException;
+import com.powsybl.powerfactory.model.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
- * Study case loader that is able to connect to PowerFactory DB using C++ API.
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(PowerFactoryDataLoader.class)
-public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
+public class DbProjectLoader implements PowerFactoryDataLoader<Project> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DbStudyCaseLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DbProjectLoader.class);
 
     private final PlatformConfig platformConfig;
 
     private final DatabaseReader dbReader;
 
-    public DbStudyCaseLoader() {
+    public DbProjectLoader() {
         this(PlatformConfig.defaultConfig(), new JniDatabaseReader());
     }
 
-    public DbStudyCaseLoader(PlatformConfig platformConfig, DatabaseReader dbReader) {
+    public DbProjectLoader(PlatformConfig platformConfig, DatabaseReader dbReader) {
         this.platformConfig = Objects.requireNonNull(platformConfig);
         this.dbReader = Objects.requireNonNull(dbReader);
     }
 
     @Override
-    public Class<StudyCase> getDataClass() {
-        return StudyCase.class;
+    public Class<Project> getDataClass() {
+        return Project.class;
     }
 
     @Override
@@ -54,23 +51,13 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
         return "properties";
     }
 
-    private static String readProjectName(InputStream is) {
-        try (is) {
-            var properties = new Properties();
-            properties.load(is);
-            return properties.getProperty("projectName");
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
     @Override
     public boolean test(InputStream is) {
-        return dbReader.isOk() && readProjectName(is) != null;
+        return dbReader.isOk() && ActiveProject.read(is).isPresent();
     }
 
     @Override
-    public StudyCase doLoad(String fileName, InputStream is) {
+    public Project doLoad(String fileName, InputStream is) {
         ActiveProject activeProject = ActiveProject.read(is)
                 .orElseThrow(() -> new PowerFactoryException("Project name not found in property file '" + fileName + "'"));
         LOGGER.info("Working on project '{}'", activeProject.getName());
@@ -82,8 +69,9 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
         DataObjectBuilder builder = new DataObjectBuilder();
         dbReader.read(powerFactoryHomeDir.toString(), activeProject.getName(), builder);
 
-        Instant time = Instant.now(); // FIXME get from study case object
-        String studyCaseName = "???";
-        return new StudyCase(studyCaseName, time, builder.getIndex());
+        DataObject rootObject = builder.getIndex().getDataObjectById(0L)
+                .orElseThrow(() -> new PowerFactoryException("Root object not found"));
+        Instant creationTime = Instant.now(); // FIXME get from root object
+        return new Project(activeProject.getName(), creationTime, rootObject, builder.getIndex());
     }
 }
