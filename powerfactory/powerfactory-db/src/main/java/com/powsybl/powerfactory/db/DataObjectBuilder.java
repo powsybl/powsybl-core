@@ -69,6 +69,11 @@ public class DataObjectBuilder {
         object.setIntAttributeValue(attributeName, value);
     }
 
+    public void setLongAttributeValue(long objectId, String attributeName, long value) {
+        DataObject object = getObjectById(objectId);
+        object.setLongAttributeValue(attributeName, value);
+    }
+
     public void setDoubleAttributeValue(long objectId, String attributeName, double value) {
         DataObject object = getObjectById(objectId);
         object.setDoubleAttributeValue(attributeName, value);
