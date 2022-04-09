@@ -7,6 +7,7 @@
 package com.powsybl.powerfactory.db;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Stopwatch;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
@@ -19,6 +20,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -67,7 +69,10 @@ public class DbProjectLoader implements PowerFactoryDataLoader<Project> {
 
         // read study cases objects from PowerFactory DB using C++ API
         DataObjectBuilder builder = new DataObjectBuilder();
+        LOGGER.info("Loading objects from DB...");
+        Stopwatch stopwatch = Stopwatch.createStarted();
         dbReader.read(powerFactoryHomeDir.toString(), activeProject.getName(), builder);
+        LOGGER.info("{} objects loaded in {} s", builder.getIndex().getDataObjects().size(), stopwatch.elapsed(TimeUnit.SECONDS));
 
         DataObject rootObject = builder.getIndex().getDataObjectById(0L)
                 .orElseThrow(() -> new PowerFactoryException("Root object not found"));
