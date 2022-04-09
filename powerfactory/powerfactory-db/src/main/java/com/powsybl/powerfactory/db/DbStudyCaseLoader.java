@@ -16,15 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 /**
  * Study case loader that is able to connect to PowerFactory DB using C++ API.
@@ -35,9 +30,6 @@ import java.util.regex.Pattern;
 public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DbStudyCaseLoader.class);
-
-    static final String DIG_SILENT_DEFAULT_DIR = "C:\\Program Files\\DIgSILENT";
-    private static final Pattern POWER_FACTORY_DIR_PATTERN = Pattern.compile("PowerFactory (\\d{4}) SP(\\d+)");
 
     private final PlatformConfig platformConfig;
 
@@ -77,36 +69,6 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
         return dbReader.isOk() && readProjectName(is) != null;
     }
 
-    private static Optional<String> readPowerFactoryHomeFromConfig(PlatformConfig platformConfig) {
-        return platformConfig.getOptionalModuleConfig("power-factory")
-                .flatMap(moduleConfig -> Optional.ofNullable(moduleConfig.getStringProperty("home-dir", null)));
-    }
-
-    private Path getDigSilentDir() {
-        return platformConfig.getConfigDir().getFileSystem().getPath(DIG_SILENT_DEFAULT_DIR);
-    }
-
-    private String findPowerFactoryHome() {
-        Path digSilentDir = getDigSilentDir();
-        try {
-            if (Files.exists(digSilentDir)) {
-                try (var pathStream = Files.list(digSilentDir)) {
-                    return pathStream.map(path -> path.getFileName().toString())
-                            .filter(fileName -> POWER_FACTORY_DIR_PATTERN.matcher(fileName).matches())
-                            .max(Comparator.naturalOrder())
-                            .orElseThrow(DbStudyCaseLoader::createPowerFactoryInstallNotFound);
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        throw createPowerFactoryInstallNotFound();
-    }
-
-    private static PowerFactoryException createPowerFactoryInstallNotFound() {
-        return new PowerFactoryException("PowerFactory installation not found");
-    }
-
     @Override
     public StudyCase doLoad(String fileName, InputStream is) {
         String projectName = readProjectName(is);
@@ -115,11 +77,7 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
         }
         LOGGER.info("Working on project '{}'", projectName);
 
-        // first read from platform config, then try to autodetect
-        String powerFactoryHome = readPowerFactoryHomeFromConfig(platformConfig)
-                .orElseGet(this::findPowerFactoryHome);
-        Path powerFactoryHomeDir = getDigSilentDir().resolve(powerFactoryHome).toAbsolutePath();
-
+        Path powerFactoryHomeDir = PowerFactoryAppUtil.getHomeDir(platformConfig);
         LOGGER.info("Using PowerFactory installation '{}'", powerFactoryHomeDir);
 
         // read study cases objects from PowerFactory DB using C++ API

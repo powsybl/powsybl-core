@@ -97,7 +97,7 @@ public class DbStudyCaseLoaderTest {
     @Test
     public void autodetectInstallTest() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        Path digSilentDir = fileSystem.getPath(DbStudyCaseLoader.DIG_SILENT_DEFAULT_DIR);
+        Path digSilentDir = fileSystem.getPath(PowerFactoryAppUtil.DIG_SILENT_DEFAULT_DIR);
         Files.createDirectories(digSilentDir.resolve("PowerFactory 2016 SP3"));
         Files.createDirectories(digSilentDir.resolve("PowerFactory 2022 SP1"));
         StudyCase studyCase = loadStudy(platformConfig);
