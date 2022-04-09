@@ -326,7 +326,7 @@ public final class IidmXmlUtil {
      */
     public static void writeDoubleAttributeFromMinimumVersion(String rootElementName, String attributeName, double value, double defaultValue,
                                                               ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
-        writeAttributeFromMinimumVersion(rootElementName, attributeName, !Objects.equals(value, defaultValue), type,
+        writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type,
                 minVersion, context, () -> XmlUtil.writeDouble(attributeName, value, context.getWriter()));
     }
 
