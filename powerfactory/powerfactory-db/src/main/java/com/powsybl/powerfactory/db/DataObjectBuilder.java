@@ -8,8 +8,7 @@ package com.powsybl.powerfactory.db;
 
 import com.powsybl.powerfactory.model.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,38 +17,32 @@ public class DataObjectBuilder {
 
     private final DataObjectIndex index = new DataObjectIndex();
 
-    private final Map<String, DataClass> classesByName = new HashMap<>();
+    private final DataScheme scheme = new DataScheme();
 
     public DataObjectIndex getIndex() {
         return index;
     }
 
     public void createClass(String name) {
-        if (classesByName.containsKey(name)) {
+        Objects.requireNonNull(name);
+        if (scheme.classExists(name)) {
             return;
         }
-        DataClass dataClass = new DataClass(name);
-        classesByName.put(dataClass.getName(), dataClass);
+        scheme.addClass(new DataClass(name));
     }
 
     public void createAttribute(String className, String attributeName, int type, String description) {
-        DataClass dataClass = getClassByName(className);
+        Objects.requireNonNull(className);
+        Objects.requireNonNull(attributeName);
+        DataClass dataClass = scheme.getClassByName(className);
         if (dataClass.getAttributeByName(attributeName) != null) {
             return;
         }
         dataClass.addAttribute(new DataAttribute(attributeName, DataAttributeType.values()[type], description));
     }
 
-    private DataClass getClassByName(String className) {
-        DataClass dataClass = classesByName.get(className);
-        if (dataClass == null) {
-            throw new PowerFactoryException("Class '" + className + "' not found");
-        }
-        return dataClass;
-    }
-
     public void createObject(long id, String className) {
-        DataClass dataClass = getClassByName(className);
+        DataClass dataClass = scheme.getClassByName(className);
         new DataObject(id, dataClass, index);
     }
 
