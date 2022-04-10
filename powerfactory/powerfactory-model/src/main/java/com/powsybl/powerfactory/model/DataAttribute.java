@@ -6,6 +6,9 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -43,6 +46,16 @@ public class DataAttribute {
 
     public String getDescription() {
         return description;
+    }
+
+    public void writeJson(JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
+        generator.writeStringField("name", name);
+        generator.writeStringField("type", type.name());
+        if (description != null && !description.isBlank()) {
+            generator.writeStringField("description", description);
+        }
+        generator.writeEndObject();
     }
 
     @Override

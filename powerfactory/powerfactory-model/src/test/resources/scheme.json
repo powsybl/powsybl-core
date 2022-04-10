@@ -1,0 +1,21 @@
+{
+  "classes" : [ {
+    "name" : "ElmFoo",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "i",
+      "type" : "INTEGER"
+    } ]
+  }, {
+    "name" : "ElmBar",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "d",
+      "type" : "DOUBLE"
+    } ]
+  } ]
+}

@@ -6,10 +6,12 @@
  */
 package com.powsybl.powerfactory.model;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -51,6 +53,18 @@ public class DataClass {
     public DataAttribute getAttributeByName(String name) {
         Objects.requireNonNull(name);
         return attributesByName.get(name);
+    }
+
+    public void writeJson(JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
+        generator.writeStringField("name", name);
+        generator.writeFieldName("attributes");
+        generator.writeStartArray();
+        for (DataAttribute attribute : attributes) {
+            attribute.writeJson(generator);
+        }
+        generator.writeEndArray();
+        generator.writeEndObject();
     }
 
     @Override
