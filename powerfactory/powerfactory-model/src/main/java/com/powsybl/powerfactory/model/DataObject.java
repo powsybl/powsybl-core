@@ -446,6 +446,8 @@ public class DataObject {
                 generator.writeNumberField(e.getKey(), (Float) e.getValue());
             } else if (e.getValue() instanceof Double) {
                 generator.writeNumberField(e.getKey(), (Double) e.getValue());
+            } else if (e.getValue() instanceof DataObjectRef) {
+                generator.writeNumberField(e.getKey(), ((DataObjectRef) e.getValue()).getId());
             } else {
                 throw new PowerFactoryException("Unsupported value type: " + e.getValue().getClass());
             }
