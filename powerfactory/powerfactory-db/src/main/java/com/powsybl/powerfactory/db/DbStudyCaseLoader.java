@@ -58,7 +58,7 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
         ActiveProjectConfig activeProjectConfig = ActiveProjectConfig.read(is)
                 .orElseThrow(() -> new PowerFactoryException("Project name not found in property file '" + fileName + "'"));
 
-        Project project = activeProjectConfig.loadProject(dbReader, platformConfig);
+        Project project = activeProjectConfig.loadProjectFromDb(dbReader, platformConfig);
 
         Instant time = Instant.now(); // FIXME get from study case object
         String studyCaseName = "???";

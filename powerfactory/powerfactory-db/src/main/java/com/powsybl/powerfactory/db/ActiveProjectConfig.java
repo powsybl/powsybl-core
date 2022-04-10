@@ -51,7 +51,7 @@ public class ActiveProjectConfig {
         }
     }
 
-    public Project loadProject(DatabaseReader dbReader, PlatformConfig platformConfig) {
+    public Project loadProjectFromDb(DatabaseReader dbReader, PlatformConfig platformConfig) {
         LOGGER.info("Working on project '{}'", name);
 
         Path powerFactoryHomeDir = PowerFactoryAppUtil.getHomeDir(platformConfig);

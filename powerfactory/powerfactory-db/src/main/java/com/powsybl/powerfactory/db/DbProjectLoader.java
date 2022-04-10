@@ -54,6 +54,6 @@ public class DbProjectLoader implements PowerFactoryDataLoader<Project> {
         ActiveProjectConfig activeProjectConfig = ActiveProjectConfig.read(is)
                 .orElseThrow(() -> new PowerFactoryException("Project name not found in property file '" + fileName + "'"));
 
-        return activeProjectConfig.loadProject(dbReader, platformConfig);
+        return activeProjectConfig.loadProjectFromDb(dbReader, platformConfig);
     }
 }
