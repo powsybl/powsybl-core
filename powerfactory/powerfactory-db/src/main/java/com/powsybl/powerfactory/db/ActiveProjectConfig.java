@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
@@ -66,7 +65,6 @@ public class ActiveProjectConfig {
 
         DataObject rootObject = builder.getIndex().getDataObjectById(0L)
                 .orElseThrow(() -> new PowerFactoryException("Root object not found"));
-        Instant creationTime = Instant.now(); // FIXME get from root object
-        return new Project(name, creationTime, rootObject, builder.getIndex());
+        return new Project(name, rootObject, builder.getIndex());
     }
 }

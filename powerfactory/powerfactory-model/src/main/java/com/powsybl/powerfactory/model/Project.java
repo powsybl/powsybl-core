@@ -6,7 +6,12 @@
  */
 package com.powsybl.powerfactory.model;
 
-import java.time.Instant;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.commons.json.JsonUtil;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.util.Objects;
 
 /**
@@ -16,15 +21,12 @@ public class Project {
 
     private final String name;
 
-    private final Instant creationTime;
-
     private final DataObject rootObject;
 
     private final DataObjectIndex index;
 
-    public Project(String name, Instant creationTime, DataObject rootObject, DataObjectIndex index) {
+    public Project(String name, DataObject rootObject, DataObjectIndex index) {
         this.name = Objects.requireNonNull(name);
-        this.creationTime = Objects.requireNonNull(creationTime);
         this.rootObject = Objects.requireNonNull(rootObject);
         this.index = Objects.requireNonNull(index);
     }
@@ -33,15 +35,35 @@ public class Project {
         return name;
     }
 
-    public Instant getCreationTime() {
-        return creationTime;
-    }
-
     public DataObject getRootObject() {
         return rootObject;
     }
 
     public DataObjectIndex getIndex() {
         return index;
+    }
+
+    public void writeJson(JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
+
+        generator.writeStringField("name", name);
+
+        DataScheme scheme = DataScheme.build(rootObject);
+        scheme.writeJson(generator);
+
+        generator.writeFieldName("rootObject");
+        rootObject.writeJson(generator);
+
+        generator.writeEndObject();
+    }
+
+    public void writeJson(Writer writer) {
+        JsonUtil.writeJson(writer, generator -> {
+            try {
+                writeJson(generator);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
     }
 }

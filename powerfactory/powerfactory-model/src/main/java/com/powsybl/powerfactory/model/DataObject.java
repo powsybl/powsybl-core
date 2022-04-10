@@ -8,9 +8,11 @@ package com.powsybl.powerfactory.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.primitives.Ints;
 import org.apache.commons.math3.linear.RealMatrix;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.time.Instant;
 import java.util.*;
@@ -37,7 +39,7 @@ public class DataObject {
 
     private final DataClass dataClass;
 
-    private DataObjectIndex index;
+    private final DataObjectIndex index;
 
     private final Map<String, Object> attributeValues = new HashMap<>();
 
@@ -423,6 +425,43 @@ public class DataObject {
     public String getFullName() {
         return getPath().stream().map(DataObject::getLocName).collect(Collectors.joining("\\"))
                 + '.' + dataClass.getName();
+    }
+
+    public void writeJson(JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
+
+        generator.writeNumberField("id", id);
+        generator.writeStringField("className", dataClass.getName());
+
+        generator.writeFieldName("values");
+        generator.writeStartObject();
+        for (var e : attributeValues.entrySet()) {
+            if (e.getValue() instanceof String) {
+                generator.writeStringField(e.getKey(), (String) e.getValue());
+            } else if (e.getValue() instanceof Integer) {
+                generator.writeNumberField(e.getKey(), (Integer) e.getValue());
+            } else if (e.getValue() instanceof Long) {
+                generator.writeNumberField(e.getKey(), (Long) e.getValue());
+            } else if (e.getValue() instanceof Float) {
+                generator.writeNumberField(e.getKey(), (Float) e.getValue());
+            } else if (e.getValue() instanceof Double) {
+                generator.writeNumberField(e.getKey(), (Double) e.getValue());
+            } else {
+                throw new PowerFactoryException("Unsupported value type: " + e.getValue().getClass());
+            }
+        }
+        generator.writeEndObject();
+
+        if (!children.isEmpty()) {
+            generator.writeFieldName("children");
+            generator.writeStartArray();
+            for (DataObject child : children) {
+                child.writeJson(generator);
+            }
+            generator.writeEndArray();
+        }
+
+        generator.writeEndObject();
     }
 
     @Override

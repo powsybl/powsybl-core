@@ -26,7 +26,7 @@ public class DataScheme {
         DataScheme scheme = new DataScheme();
         root.traverse(object -> {
             DataClass clazz = object.getDataClass();
-            if (scheme.classExists(clazz.getName())) {
+            if (!scheme.classExists(clazz.getName())) {
                 scheme.addClass(clazz);
             }
         });

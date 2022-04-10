@@ -6,12 +6,15 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.google.common.io.ByteStreams;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +88,13 @@ public class DataObjectTest {
         List<DataObject> foundObjs = objFoo.search(".*f.*");
         assertEquals(1, foundObjs.size());
         assertSame(objFoo, foundObjs.get(0));
+
+        Project project = new Project("test", objBar, index);
+        try (StringWriter writer = new StringWriter()) {
+            project.writeJson(writer);
+            assertEquals(new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/test.json")), StandardCharsets.UTF_8),
+                         writer.toString());
+        }
     }
 
     @Test
