@@ -83,4 +83,9 @@ public class DataObjectBuilder {
         DataObject object = getObjectById(objectId);
         object.setStringAttributeValue(attributeName, value);
     }
+
+    public void setObjectAttributeValue(long objectId, String attributeName, long otherObjectId) {
+        DataObject object = getObjectById(objectId);
+        object.setObjectAttributeValue(attributeName, otherObjectId);
+    }
 }
