@@ -27,6 +27,9 @@ public class DataObjectIndex {
         objectsById.put(obj.getId(), obj);
         objectsByClass.computeIfAbsent(obj.getDataClassName(), k -> new ArrayList<>())
                 .add(obj);
+        if (backwardLinks != null) {
+            indexBackwardLinks(obj);
+        }
     }
 
     public Collection<DataObject> getDataObjects() {
@@ -42,20 +45,20 @@ public class DataObjectIndex {
         return objectsByClass.getOrDefault(className, Collections.emptyList());
     }
 
-    private void indexBackwardLinks(DataObject dataObject) {
-        for (DataAttribute attribute : dataObject.getDataClass().getAttributes()) {
+    private void indexBackwardLinks(DataObject obj) {
+        for (DataAttribute attribute : obj.getDataClass().getAttributes()) {
             if (attribute.getType() == DataAttributeType.OBJECT) {
-                dataObject.findObjectAttributeValue(attribute.getName())
+                obj.findObjectAttributeValue(attribute.getName())
                         .flatMap(DataObjectRef::resolve)
                         .ifPresent(link -> backwardLinks.computeIfAbsent(link.getId(), k -> new ArrayList<>())
-                                .add(dataObject));
+                                .add(obj));
             } else if (attribute.getType() == DataAttributeType.OBJECT_VECTOR) {
-                dataObject.findObjectVectorAttributeValue(attribute.getName())
+                obj.findObjectVectorAttributeValue(attribute.getName())
                         .ifPresent(refs -> {
                             for (DataObjectRef ref : refs) {
                                 ref.resolve().ifPresent(object ->
                                         backwardLinks.computeIfAbsent(ref.getId(), k -> new ArrayList<>())
-                                                .add(dataObject));
+                                                .add(obj));
                             }
                         });
             }
@@ -65,8 +68,8 @@ public class DataObjectIndex {
     private void indexBackwardLinks() {
         if (backwardLinks == null) {
             backwardLinks = new LinkedHashMap<>();
-            for (DataObject dataObject : objectsById.values()) {
-                indexBackwardLinks(dataObject);
+            for (DataObject obj : objectsById.values()) {
+                indexBackwardLinks(obj);
             }
         }
     }
