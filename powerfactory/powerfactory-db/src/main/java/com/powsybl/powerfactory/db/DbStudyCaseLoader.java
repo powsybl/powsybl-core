@@ -8,18 +8,14 @@ package com.powsybl.powerfactory.db;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.powerfactory.model.PowerFactoryException;
-import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.powsybl.powerfactory.model.PowerFactoryException;
+import com.powsybl.powerfactory.model.Project;
+import com.powsybl.powerfactory.model.StudyCase;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * Study case loader that is able to connect to PowerFactory DB using C++ API.
@@ -28,8 +24,6 @@ import java.util.Properties;
  */
 @AutoService(PowerFactoryDataLoader.class)
 public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DbStudyCaseLoader.class);
 
     private final PlatformConfig platformConfig;
 
@@ -54,36 +48,20 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
         return "properties";
     }
 
-    private static String readProjectName(InputStream is) {
-        try (is) {
-            var properties = new Properties();
-            properties.load(is);
-            return properties.getProperty("projectName");
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
     @Override
     public boolean test(InputStream is) {
-        return dbReader.isOk() && readProjectName(is) != null;
+        return dbReader.isOk() && ActiveProjectConfig.read(is).isPresent();
     }
 
     @Override
     public StudyCase doLoad(String fileName, InputStream is) {
-        ActiveProject activeProject = ActiveProject.read(is)
+        ActiveProjectConfig activeProjectConfig = ActiveProjectConfig.read(is)
                 .orElseThrow(() -> new PowerFactoryException("Project name not found in property file '" + fileName + "'"));
-        LOGGER.info("Working on project '{}'", activeProject.getName());
 
-        Path powerFactoryHomeDir = PowerFactoryAppUtil.getHomeDir(platformConfig);
-        LOGGER.info("Using PowerFactory installation '{}'", powerFactoryHomeDir);
-
-        // read study cases objects from PowerFactory DB using C++ API
-        DataObjectBuilder builder = new DataObjectBuilder();
-        dbReader.read(powerFactoryHomeDir.toString(), activeProject.getName(), builder);
+        Project project = activeProjectConfig.loadProject(dbReader, platformConfig);
 
         Instant time = Instant.now(); // FIXME get from study case object
         String studyCaseName = "???";
-        return new StudyCase(studyCaseName, time, builder.getIndex());
+        return new StudyCase(studyCaseName, time, project.getIndex());
     }
 }

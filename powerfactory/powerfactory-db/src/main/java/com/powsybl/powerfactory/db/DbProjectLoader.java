@@ -7,28 +7,19 @@
 package com.powsybl.powerfactory.db;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Stopwatch;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.Project;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.time.Instant;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(PowerFactoryDataLoader.class)
 public class DbProjectLoader implements PowerFactoryDataLoader<Project> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DbProjectLoader.class);
 
     private final PlatformConfig platformConfig;
 
@@ -55,28 +46,14 @@ public class DbProjectLoader implements PowerFactoryDataLoader<Project> {
 
     @Override
     public boolean test(InputStream is) {
-        return dbReader.isOk() && ActiveProject.read(is).isPresent();
+        return dbReader.isOk() && ActiveProjectConfig.read(is).isPresent();
     }
 
     @Override
     public Project doLoad(String fileName, InputStream is) {
-        ActiveProject activeProject = ActiveProject.read(is)
+        ActiveProjectConfig activeProjectConfig = ActiveProjectConfig.read(is)
                 .orElseThrow(() -> new PowerFactoryException("Project name not found in property file '" + fileName + "'"));
-        LOGGER.info("Working on project '{}'", activeProject.getName());
 
-        Path powerFactoryHomeDir = PowerFactoryAppUtil.getHomeDir(platformConfig);
-        LOGGER.info("Using PowerFactory installation '{}'", powerFactoryHomeDir);
-
-        // read study cases objects from PowerFactory DB using C++ API
-        DataObjectBuilder builder = new DataObjectBuilder();
-        LOGGER.info("Loading objects from DB...");
-        Stopwatch stopwatch = Stopwatch.createStarted();
-        dbReader.read(powerFactoryHomeDir.toString(), activeProject.getName(), builder);
-        LOGGER.info("{} objects loaded in {} s", builder.getIndex().getDataObjects().size(), stopwatch.elapsed(TimeUnit.SECONDS));
-
-        DataObject rootObject = builder.getIndex().getDataObjectById(0L)
-                .orElseThrow(() -> new PowerFactoryException("Root object not found"));
-        Instant creationTime = Instant.now(); // FIXME get from root object
-        return new Project(activeProject.getName(), creationTime, rootObject, builder.getIndex());
+        return activeProjectConfig.loadProject(dbReader, platformConfig);
     }
 }
