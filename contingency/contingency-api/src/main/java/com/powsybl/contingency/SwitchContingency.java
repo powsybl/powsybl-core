@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.iidm.modification.tripping.LoadTripping;
+import com.powsybl.iidm.modification.tripping.SwitchTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
@@ -25,7 +25,7 @@ public class SwitchContingency extends AbstractContingency {
 
     @Override
     public Tripping toModification() {
-        return new LoadTripping(id);
+        return new SwitchTripping(id);
     }
 
 }
