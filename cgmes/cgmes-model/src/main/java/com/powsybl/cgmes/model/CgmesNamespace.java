@@ -39,18 +39,18 @@ public final class CgmesNamespace {
     public static final String EU_NAMESPACE = "http://iec.ch/TC57/CIM100-European#";
     public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 
-    private static final String CIM_16_EQ_PROFILE = "http://entsoe.eu/CIM/EquipmentCore/3/1";
-    private static final String CIM_16_EQ_OPERATION_PROFILE = "http://entsoe.eu/CIM/EquipmentOperation/3/1";
-    private static final String CIM_16_TP_PROFILE = "http://entsoe.eu/CIM/Topology/4/1";
-    private static final String CIM_16_SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
-    private static final String CIM_16_SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
+    public static final String CIM_16_EQ_PROFILE = "http://entsoe.eu/CIM/EquipmentCore/3/1";
+    public static final String CIM_16_EQ_OPERATION_PROFILE = "http://entsoe.eu/CIM/EquipmentOperation/3/1";
+    public static final String CIM_16_TP_PROFILE = "http://entsoe.eu/CIM/Topology/4/1";
+    public static final String CIM_16_SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
+    public static final String CIM_16_SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
 
-    private static final String CGMES_EQ_3_OR_GREATER_PREFIX = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/";
-    private static final String CIM_100_EQ_PROFILE = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0";
-    private static final String CIM_100_EQ_OPERATION_PROFILE = "http://iec.ch/TC57/ns/CIM/Operation-EU/3.0";
-    private static final String CIM_100_TP_PROFILE = "http://iec.ch/TC57/ns/CIM/Topology-EU/3.0";
-    private static final String CIM_100_SV_PROFILE = "http://iec.ch/TC57/ns/CIM/StateVariables-EU/3.0";
-    private static final String CIM_100_SSH_PROFILE = "http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0";
+    public static final String CGMES_EQ_3_OR_GREATER_PREFIX = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/";
+    public static final String CIM_100_EQ_PROFILE = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0";
+    public static final String CIM_100_EQ_OPERATION_PROFILE = "http://iec.ch/TC57/ns/CIM/Operation-EU/3.0";
+    public static final String CIM_100_TP_PROFILE = "http://iec.ch/TC57/ns/CIM/Topology-EU/3.0";
+    public static final String CIM_100_SV_PROFILE = "http://iec.ch/TC57/ns/CIM/StateVariables-EU/3.0";
+    public static final String CIM_100_SSH_PROFILE = "http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0";
 
     private static final Map<Integer, Map<String, String>> PROFILES = Map.of(
             16, Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP", CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV", CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE),
@@ -79,9 +79,5 @@ public final class CgmesNamespace {
             return PROFILES.get(cimVersion).get(profile);
         }
         throw new AssertionError("Unsupported CIM version " + cimVersion);
-    }
-
-    public static boolean isEqCgmes3OrGreater(String profile) {
-        return profile.startsWith(CGMES_EQ_3_OR_GREATER_PREFIX) && profile.compareTo(CIM_100_EQ_PROFILE) >= 0;
     }
 }

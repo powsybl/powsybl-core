@@ -81,7 +81,7 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
         assertTrue(cgmesModel100.isNodeBreaker());
     }
 
-    private Network ieee14Cim14() {
+    private static Network ieee14Cim14() {
         ReadOnlyDataSource dataSource = Cim14SmallCasesCatalog.ieee14().dataSource();
         return new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
     }

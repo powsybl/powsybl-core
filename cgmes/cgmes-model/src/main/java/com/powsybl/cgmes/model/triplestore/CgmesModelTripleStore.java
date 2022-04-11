@@ -26,6 +26,9 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.CGMES_EQ_3_OR_GREATER_PREFIX;
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -180,11 +183,15 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private boolean allEqCgmes3OrGreater(PropertyBags modelProfiles) {
         for (PropertyBag mp : modelProfiles) {
             String p = mp.get(PROFILE);
-            if (p != null && isEquipmentCore(p) && !CgmesNamespace.isEqCgmes3OrGreater(p)) {
+            if (p != null && isEquipmentCore(p) && !isEqCgmes3OrGreater(p)) {
                 return false;
             }
         }
         return true;
+    }
+
+    private static boolean isEqCgmes3OrGreater(String profile) {
+        return profile.startsWith(CGMES_EQ_3_OR_GREATER_PREFIX) && profile.compareTo(CIM_100_EQ_PROFILE) >= 0;
     }
 
     private void logNodeBreaker(boolean consideredNodeBreaker, Map<String, Boolean> modelHasOperationProfile) {
