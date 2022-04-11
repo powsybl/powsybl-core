@@ -115,12 +115,7 @@ public final class EquipmentExport {
                 VoltageLevel vl = bus.getTerminal().getVoltageLevel();
                 String node = CgmesExportUtil.getUniqueId();
                 ConnectivityNodeEq.write(node, bus.getNameOrId(), vl.getId(), cimNamespace, writer);
-                String key;
-                if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                    key = vl.getId() + bus.getTerminal().getNodeBreakerView().getNode() + CONNECTIVITY_NODE_SUFFIX;
-                } else {
-                    key = bus.getTerminal().getBusBreakerView().getBus().getId() + CONNECTIVITY_NODE_SUFFIX;
-                }
+                String key = vl.getId() + bus.getTerminal().getNodeBreakerView().getNode() + CONNECTIVITY_NODE_SUFFIX; // We are already in NODE-BREAKER
                 exportedNodes.put(key, node);
             }
         }
