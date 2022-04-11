@@ -10,7 +10,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -299,14 +299,14 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Find all paths from the specified vertex.
-     * This method relies on two functions to stop the traverse when the target vertex is found or when an edge must not be traversed.
+     * This method relies on two predicates to stop the traverse when the target vertex is found or when an edge must not be traversed.
      *
      * @param from the vertex index where the traverse has to start.
-     * @param pathComplete a function that returns true when the target vertex is found.
-     * @param pathCancelled a function that returns true when the edge must not be traversed.
+     * @param pathComplete a predicate that returns true when the target vertex is found.
+     * @param pathCancelled a predicate that returns true when the edge must not be traversed.
      * @return a list that contains the index of the traversed edges.
      */
-    List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCancelled);
+    List<TIntArrayList> findAllPaths(int from, Predicate<V> pathComplete, Predicate<E> pathCancelled);
 
     /**
      * Add a {@link UndirectedGraphListener} to get notified when the graph changes.
@@ -324,13 +324,13 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Prints the entire graph to the specified {@link PrintStream}.
-     * The printing relies on the two specified functions to render the values attached to a vertex or an edge.
+     * The printing relies on the two specified predicates to render the values attached to a vertex or an edge.
      *
      * @param out the output stream.
-     * @param vertexToString the function to use to render the values of vertices.
-     * @param edgeToString the function to use to render the values of edges.
+     * @param vertexToString the predicate to use to render the values of vertices.
+     * @param edgeToString the predicate to use to render the values of edges.
      */
-    void print(PrintStream out, Function<V, String> vertexToString, Function<E, String> edgeToString);
+    void print(PrintStream out, Predicate<V> vertexToString, Predicate<E> edgeToString);
 
     /**
      * Remove from the vertices which are not connected to any edge, and which have no associated object.
