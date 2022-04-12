@@ -40,7 +40,7 @@ public final class TopologyExport {
             CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
             String cimNamespace = context.getCimNamespace();
 
-            if (context.getCimVersion() == 16) {
+            if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
             }
             writeTopologicalNodes(network, cimNamespace, writer, context);
