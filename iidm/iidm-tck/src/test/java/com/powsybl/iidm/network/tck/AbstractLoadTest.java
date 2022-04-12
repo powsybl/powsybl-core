@@ -308,10 +308,13 @@ public abstract class AbstractLoadTest {
 
     @Test
     public void setNameTest() {
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        network.addListener(mockedListener);
         Load load = network.getLoad("CE");
         assertNotNull(load);
         assertTrue(load.getOptionalName().isEmpty());
         load.setName("FOO");
         assertEquals("FOO", load.getOptionalName().orElseThrow());
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, "FOO");
     }
 }
