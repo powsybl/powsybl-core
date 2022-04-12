@@ -314,8 +314,7 @@ public class Conversion {
                 return new SwitchTerminal(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getDanglingLineTerminalInSwitchesChain();
             }
         }
-        Terminal t = context.terminalMapping().find(cgmesTerminalId);
-        return t != null ? Optional.of(t) : Optional.empty();
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
     }
 
     private void convert(
