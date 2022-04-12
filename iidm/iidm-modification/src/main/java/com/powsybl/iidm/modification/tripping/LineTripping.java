@@ -25,11 +25,11 @@ public class LineTripping extends BranchTripping {
 
     @Override
     protected PowsyblException createNotFoundException() {
-        return new PowsyblException("Line '" + getBranchId() + "' not found");
+        return new PowsyblException("Line '" + id + "' not found");
     }
 
     @Override
     protected PowsyblException createNotConnectedException() {
-        return new PowsyblException("VoltageLevel '" + getVoltageLevelId() + "' not connected to line '" + getBranchId() + "'");
+        return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to line '" + id + "'");
     }
 }

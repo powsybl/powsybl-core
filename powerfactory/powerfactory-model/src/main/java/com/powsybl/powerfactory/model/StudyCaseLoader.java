@@ -35,9 +35,16 @@ public interface StudyCaseLoader {
     static Optional<StudyCase> load(String fileName, Supplier<InputStream> inputStreamSupplier) {
         Objects.requireNonNull(inputStreamSupplier);
         for (StudyCaseLoader studyCaseLoader : ServiceLoader.load(StudyCaseLoader.class)) {
-            if (fileName.endsWith(studyCaseLoader.getExtension()) &&
-                    studyCaseLoader.test(inputStreamSupplier.get())) {
-                return Optional.of(studyCaseLoader.doLoad(fileName, inputStreamSupplier.get()));
+            if (fileName.endsWith(studyCaseLoader.getExtension())) {
+                try (var testIs = inputStreamSupplier.get()) {
+                    if (studyCaseLoader.test(testIs)) {
+                        try (var loadIs = inputStreamSupplier.get()) {
+                            return Optional.of(studyCaseLoader.doLoad(fileName, loadIs));
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
         }
         return Optional.empty();

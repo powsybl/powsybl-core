@@ -188,7 +188,7 @@ public class PowerFactoryImporter implements Importer {
                 case "ElmSym":
                 case "ElmAsm":
                 case "ElmGenstat":
-                    createGenerator(network, importContext, obj);
+                    new GeneratorConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmLod":
@@ -200,7 +200,7 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmLne":
-                    createLine(network, importContext, obj);
+                    new LineConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmTr2":
@@ -218,6 +218,13 @@ public class PowerFactoryImporter implements Importer {
                 case "ElmTrfstat":
                 case "StaSwitch":
                     // already processed
+                    break;
+
+                case "TypLne":
+                case "TypSym":
+                case "TypLod":
+                case "TypTr2":
+                    // Referenced by other objects
                     break;
 
                 case "ElmDsl":
@@ -293,100 +300,6 @@ public class PowerFactoryImporter implements Importer {
                     .setBPerSection(bPerSection)
                     .setMaximumSectionCount(ncapx)
                 .add()
-                .add();
-    }
-
-    private void createGenerator(Network network, ImportContext importContext, DataObject elmSym) {
-        NodeRef nodeRef = checkNodes(elmSym, importContext.objIdToNode, 1).iterator().next();
-        VoltageLevel vl = network.getVoltageLevel(nodeRef.voltageLevelId);
-        int ivMode = elmSym.getIntAttributeValue("iv_mode");
-        float pgini = elmSym.getFloatAttributeValue("pgini");
-        float qgini = elmSym.getFloatAttributeValue("qgini");
-        double usetp = elmSym.getFloatAttributeValue("usetp") * vl.getNominalV();
-        double pMinUc = elmSym.getFloatAttributeValue("Pmin_uc");
-        double pMaxUc = elmSym.getFloatAttributeValue("Pmax_uc");
-        Generator g = vl.newGenerator()
-                .setId(elmSym.getLocName())
-                .setEnsureIdUnicity(true)
-                .setNode(nodeRef.node)
-                .setTargetP(pgini)
-                .setTargetQ(qgini)
-                .setTargetV(usetp)
-                .setVoltageRegulatorOn(ivMode == 1)
-                .setMinP(pMinUc)
-                .setMaxP(pMaxUc)
-                .add();
-        elmSym.findObjectAttributeValue(TYP_ID)
-                .flatMap(DataObjectRef::resolve)
-                .ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
-    }
-
-    private void createReactiveLimits(DataObject elmSym, DataObject typSym, Generator g) {
-        if (typSym.getDataClassName().equals("TypSym")) {
-            DataObject pQlimType = elmSym.findObjectAttributeValue("pQlimType")
-                    .flatMap(DataObjectRef::resolve)
-                    .orElse(null);
-            if (pQlimType != null) {
-                throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");
-            } else {
-                int iqtype = elmSym.getIntAttributeValue("iqtype");
-                float qMinPu;
-                float qMaxPu;
-                if (iqtype == 0) { // use limits specified in element
-                    qMinPu = elmSym.getFloatAttributeValue("q_min");
-                    qMaxPu = elmSym.getFloatAttributeValue("q_max");
-                } else { // use limits specified in type
-                    qMinPu = typSym.getFloatAttributeValue("q_min");
-                    qMaxPu = typSym.getFloatAttributeValue("q_max");
-                }
-                float qMinTyp = typSym.getFloatAttributeValue("Q_min");
-                float qMaxTyp = typSym.getFloatAttributeValue("Q_max");
-                double minQ = -1 * qMinPu * qMinTyp;
-                double maxQ = qMaxPu * qMaxTyp;
-                g.newMinMaxReactiveLimits()
-                        .setMinQ(minQ)
-                        .setMaxQ(maxQ)
-                        .add();
-            }
-        } else {
-            // TODO
-        }
-    }
-
-    private void createLine(Network network, ImportContext importContext, DataObject elmLne) {
-        Collection<NodeRef> nodeRefs = checkNodes(elmLne, importContext.objIdToNode, 2);
-        Iterator<NodeRef> it = nodeRefs.iterator();
-        NodeRef nodeRef1 = it.next();
-        NodeRef nodeRef2 = it.next();
-        float dline = elmLne.getFloatAttributeValue("dline");
-        DataObject typLne = elmLne.getObjectAttributeValue(TYP_ID)
-                .resolve()
-                .orElseThrow();
-        float rline = typLne.getFloatAttributeValue("rline");
-        float xline = typLne.getFloatAttributeValue("xline");
-        float bline = typLne.getFloatAttributeValue("bline");
-        float tline = typLne.getFloatAttributeValue("tline");
-        double r = rline * dline;
-        double x = xline * dline;
-        double g = tline * dline * 10e-6;
-        double b = bline * dline * 10e-6;
-        double g1 = g / 2;
-        double g2 = g / 2;
-        double b1 = b / 2;
-        double b2 = b / 2;
-        network.newLine()
-                .setId(elmLne.getLocName())
-                .setEnsureIdUnicity(true)
-                .setVoltageLevel1(nodeRef1.voltageLevelId)
-                .setVoltageLevel2(nodeRef2.voltageLevelId)
-                .setNode1(nodeRef1.node)
-                .setNode2(nodeRef2.node)
-                .setR(r)
-                .setX(x)
-                .setG1(g1)
-                .setG2(g2)
-                .setB1(b1)
-                .setB2(b2)
                 .add();
     }
 
