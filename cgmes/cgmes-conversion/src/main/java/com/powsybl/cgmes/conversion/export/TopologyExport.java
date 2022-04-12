@@ -17,7 +17,9 @@ import com.powsybl.iidm.network.util.Networks;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -40,6 +42,7 @@ public final class TopologyExport {
                 CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
             }
             writeTopologicalNodes(network, cimNamespace, writer, context);
+            // TODO: write ConnectivityNode-TopologicalNode association
             writeTerminals(network, cimNamespace, writer, context);
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -213,11 +216,15 @@ public final class TopologyExport {
     }
 
     private static void writeHvdcTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        Set<String> written = new HashSet<>();
         for (HvdcLine line : network.getHvdcLines()) {
             Bus b1 = line.getConverterStation1().getTerminal().getBusView().getBus();
             if (b1 != null) {
                 for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b1.getId())) {
-                    writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
+                    if (!written.contains(topologicalNode.getCgmesId())) {
+                        writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
+                        written.add(topologicalNode.getCgmesId());
+                    }
                 }
             } else {
                 String topologicalNode = CgmesExportUtil.getUniqueId();
@@ -228,7 +235,10 @@ public final class TopologyExport {
             Bus b2 = line.getConverterStation2().getTerminal().getBusView().getBus();
             if (b2 != null) {
                 for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b2.getId())) {
-                    writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
+                    if (!written.contains(topologicalNode.getCgmesId())) {
+                        writeDCTopologicalNode(topologicalNode.getCgmesId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
+                        written.add(topologicalNode.getCgmesId());
+                    }
                 }
             } else {
                 String topologicalNode = CgmesExportUtil.getUniqueId();

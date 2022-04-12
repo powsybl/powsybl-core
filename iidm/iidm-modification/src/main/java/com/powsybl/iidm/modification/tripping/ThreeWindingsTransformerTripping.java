@@ -20,10 +20,8 @@ import java.util.Set;
  */
 public class ThreeWindingsTransformerTripping extends AbstractTripping {
 
-    private final String id;
-
     public ThreeWindingsTransformerTripping(String id) {
-        this.id = Objects.requireNonNull(id);
+        super(id);
     }
 
     @Override
