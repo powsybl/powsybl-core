@@ -58,6 +58,14 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     }
 
     @Override
+    public I setName(String name) {
+        String oldName = this.name;
+        this.name = name;
+        getNetwork().getListeners().notifyUpdate(this, "name", oldName, name);
+        return (I) this;
+    }
+
+    @Override
     public Set<String> getAliases() {
         Set<String> aliases = new HashSet<>();
         aliases.addAll(aliasesWithoutType);

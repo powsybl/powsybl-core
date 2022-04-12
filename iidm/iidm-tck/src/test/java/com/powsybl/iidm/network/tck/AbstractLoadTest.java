@@ -305,4 +305,13 @@ public abstract class AbstractLoadTest {
         assertFalse(load.hasProperty("a"));
         assertNull(load.getProperty("a"));
     }
+
+    @Test
+    public void setNameTest() {
+        Load load = network.getLoad("CE");
+        assertNotNull(load);
+        assertTrue(load.getOptionalName().isEmpty());
+        load.setName("FOO");
+        assertEquals("FOO", load.getOptionalName().orElseThrow());
+    }
 }
