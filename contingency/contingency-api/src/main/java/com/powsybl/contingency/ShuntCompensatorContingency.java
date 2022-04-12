@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class ShuntCompensatorContingency extends AbstractInjectionContingency {
+public class ShuntCompensatorContingency extends AbstractContingency {
 
     public ShuntCompensatorContingency(String id) {
         super(id);

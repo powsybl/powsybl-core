@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineContingency extends AbstractInjectionContingency {
+public class DanglingLineContingency extends AbstractContingency {
 
     public DanglingLineContingency(String id) {
         super(id);

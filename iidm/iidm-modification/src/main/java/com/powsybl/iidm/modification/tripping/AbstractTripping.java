@@ -12,12 +12,23 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public abstract class AbstractTripping implements Tripping {
+
+    protected final String id;
+
+    protected AbstractTripping(String id) {
+        this.id = Objects.requireNonNull(id);
+    }
+
+    public String getId() {
+        return id;
+    }
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {

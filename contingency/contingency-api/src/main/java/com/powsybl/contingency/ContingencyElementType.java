@@ -22,5 +22,6 @@ public enum ContingencyElementType {
     LINE,
     TWO_WINDINGS_TRANSFORMER,
     THREE_WINDINGS_TRANSFORMER,
-    LOAD
+    LOAD,
+    SWITCH
 }
