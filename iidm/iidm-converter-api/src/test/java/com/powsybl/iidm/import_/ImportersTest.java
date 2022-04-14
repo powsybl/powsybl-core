@@ -61,13 +61,15 @@ public class ImportersTest extends AbstractConvertersTest {
         Files.createFile(fileSystem.getPath(WORK_DIR + "bar.tst"));
         Files.createFile(fileSystem.getPath(WORK_DIR + "baz.txt"));
 
-        ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(WORK_DIR + ZIP_TST + ".zip")));
-        // create an entry
-        ZipEntry e = new ZipEntry(FOO_TST);
-        out.putNextEntry(e);
-        byte[] data = "Test String".getBytes();
-        out.write(data, 0, data.length);
-        out.closeEntry();
+        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(WORK_DIR + ZIP_TST + ".zip")));) {
+            // create an entry
+            ZipEntry e = new ZipEntry(ZIP_TST);
+            out.putNextEntry(e);
+            byte[] data = "Test String".getBytes();
+            out.write(data, 0, data.length);
+            out.closeEntry();
+        }
+
     }
 
     @Test
