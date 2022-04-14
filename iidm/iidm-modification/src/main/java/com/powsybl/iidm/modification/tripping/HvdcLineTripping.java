@@ -20,8 +20,6 @@ import java.util.Set;
  */
 public class HvdcLineTripping extends AbstractTripping {
 
-    private final String hvdcLineId;
-
     private final String voltageLevelId;
 
     public HvdcLineTripping(String hvdcLineId) {
@@ -29,7 +27,7 @@ public class HvdcLineTripping extends AbstractTripping {
     }
 
     public HvdcLineTripping(String hvdcLineId, String voltageLevelId) {
-        this.hvdcLineId = Objects.requireNonNull(hvdcLineId);
+        super(hvdcLineId);
         this.voltageLevelId = voltageLevelId;
     }
 
@@ -37,7 +35,7 @@ public class HvdcLineTripping extends AbstractTripping {
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
-        HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
+        HvdcLine hvdcLine = network.getHvdcLine(id);
         if (hvdcLine == null) {
             throw new PowsyblException("HVDC line '" + hvdcLine + "' not found");
         }
@@ -51,7 +49,7 @@ public class HvdcLineTripping extends AbstractTripping {
             } else if (voltageLevelId.equals(terminal2.getVoltageLevel().getId())) {
                 TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals);
             } else {
-                throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to HVDC line '" + hvdcLineId + "'");
+                throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to HVDC line '" + id + "'");
             }
         } else {
             TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect, traversedTerminals);

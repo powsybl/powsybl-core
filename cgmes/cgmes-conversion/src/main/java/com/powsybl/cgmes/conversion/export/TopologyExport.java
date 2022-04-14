@@ -15,7 +15,9 @@ import com.powsybl.iidm.network.util.Networks;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -90,11 +92,11 @@ public final class TopologyExport {
             Bus bus1;
             Bus bus2;
             if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                bus1 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
-                bus2 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId()))).map(t -> t.getBusView().getBus()).orElse(null);
+                bus1 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode1(sw.getId()))).map(t -> t.getBusBreakerView().getBus()).orElse(null);
+                bus2 = Optional.ofNullable(Networks.getEquivalentTerminal(vl, vl.getNodeBreakerView().getNode2(sw.getId()))).map(t -> t.getBusBreakerView().getBus()).orElse(null);
             } else {
-                bus1 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus1(sw.getId()).getId());
-                bus2 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus2(sw.getId()).getId());
+                bus1 = vl.getBusBreakerView().getBus1(sw.getId());
+                bus2 = vl.getBusBreakerView().getBus2(sw.getId());
             }
 
             String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
@@ -118,21 +120,19 @@ public final class TopologyExport {
 
     private static void writeHvdcTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (HvdcLine line : network.getHvdcLines()) {
-            Bus b1 = line.getConverterStation1().getTerminal().getBusBreakerView().getBus();
-            writeHvdcBusTerminals(line, b1, 1, cimNamespace, writer);
-
-            Bus b2 = line.getConverterStation2().getTerminal().getBusBreakerView().getBus();
-            writeHvdcBusTerminals(line, b2, 2, cimNamespace, writer);
+            writeHvdcBusTerminals(line, line.getConverterStation1(), 1, cimNamespace, writer);
+            writeHvdcBusTerminals(line, line.getConverterStation2(), 2, cimNamespace, writer);
         }
     }
 
-    private static void writeHvdcBusTerminals(HvdcLine line, Bus bus, int side, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeHvdcBusTerminals(HvdcLine line, HvdcConverterStation<?> converter, int side, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        Bus bus = converter.getTerminal().getBusBreakerView().getBus();
         String dcTopologicalNode = bus.getId() + "DC";
         String dcNode = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode" + side).orElseThrow(PowsyblException::new);
         writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer);
         String dcTerminal = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal" + side).orElseThrow(PowsyblException::new);
         writeDCTerminal(dcTerminal, dcTopologicalNode, cimNamespace, writer);
-        String acdcConverterDcTerminal = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
+        String acdcConverterDcTerminal = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
         writeAcdcConverterDCTerminal(acdcConverterDcTerminal, dcTopologicalNode, cimNamespace, writer);
     }
 
@@ -206,12 +206,19 @@ public final class TopologyExport {
     }
 
     private static void writeHvdcTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        Set<String> written = new HashSet<>();
         for (HvdcLine line : network.getHvdcLines()) {
             Bus b1 = line.getConverterStation1().getTerminal().getBusBreakerView().getBus();
-            writeDCTopologicalNode(b1.getId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
+            if (!written.contains(b1.getId())) {
+                writeDCTopologicalNode(b1.getId() + "DC", line.getNameOrId() + 1, cimNamespace, writer);
+                written.add(b1.getId());
+            }
 
             Bus b2 = line.getConverterStation2().getTerminal().getBusBreakerView().getBus();
-            writeDCTopologicalNode(b2.getId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
+            if (!written.contains(b2.getId())) {
+                writeDCTopologicalNode(b2.getId() + "DC", line.getNameOrId() + 2, cimNamespace, writer);
+                written.add(b2.getId());
+            }
         }
     }
 

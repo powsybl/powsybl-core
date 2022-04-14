@@ -127,6 +127,8 @@ public class CgmesExportContext {
         if (cimCharacteristics != null) {
             cimVersion = cimCharacteristics.getCimVersion();
             topologyKind = cimCharacteristics.getTopologyKind();
+        } else {
+            topologyKind = networkTopologyKind(network);
         }
         scenarioTime = network.getCaseDate();
         // TODO CgmesSvMetadata and CgmesSshMetadata could be in fact same class
@@ -146,6 +148,15 @@ public class CgmesExportContext {
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
         addIidmMappings(network);
+    }
+
+    private CgmesTopologyKind networkTopologyKind(Network network) {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+                return CgmesTopologyKind.NODE_BREAKER;
+            }
+        }
+        return CgmesTopologyKind.BUS_BRANCH;
     }
 
     public void addIidmMappings(Network network) {
@@ -493,6 +504,14 @@ public class CgmesExportContext {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
     }
 
+    public boolean isWriteConnectivityNodes() {
+        boolean isWriteConnectivityNodes = CgmesNamespace.isWriteConnectivityNodes(cimVersion);
+        if (!isWriteConnectivityNodes) {
+            isWriteConnectivityNodes = topologyKind.equals(CgmesTopologyKind.NODE_BREAKER);
+        }
+        return isWriteConnectivityNodes;
+    }
+
     public Collection<String> getRegionsIds() {
         return Collections.unmodifiableSet(regionsIdsByRegionName.values());
     }
@@ -504,4 +523,5 @@ public class CgmesExportContext {
     public String getSubRegionName(String subRegionId) {
         return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
+
 }

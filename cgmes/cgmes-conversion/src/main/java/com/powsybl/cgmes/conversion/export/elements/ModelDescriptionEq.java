@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import org.joda.time.DateTime;
@@ -24,7 +25,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class ModelDescriptionEq {
 
-    public static void write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context, boolean isNodeBreaker) throws XMLStreamException {
+    public static void write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + CgmesExportUtil.getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
@@ -46,7 +47,7 @@ public final class ModelDescriptionEq {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
-        if (isNodeBreaker) {
+        if (context.getTopologyKind().equals(CgmesTopologyKind.NODE_BREAKER)) {
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
             writer.writeCharacters(CgmesNamespace.getProfile(context.getCimVersion(), "EQ_OP"));
             writer.writeEndElement();
