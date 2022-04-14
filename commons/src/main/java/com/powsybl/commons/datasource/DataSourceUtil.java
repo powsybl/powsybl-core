@@ -18,7 +18,8 @@ public interface DataSourceUtil {
 
     static String getFileName(String baseName, String suffix, String ext) {
         Objects.requireNonNull(baseName);
-        return baseName + (suffix != null ? suffix : "") + (ext == null || ext.isEmpty() ? "" : "." + ext);
+        String end = (suffix != null ? suffix : "") + (ext == null || ext.isEmpty() ? "" : "." + ext);
+        return  baseName.endsWith(end) ? baseName : baseName + end;
     }
 
     static OpenOption[] getOpenOptions(boolean append) {
@@ -63,7 +64,7 @@ public interface DataSourceUtil {
         Objects.requireNonNull(fileNameOrBaseName);
 
         if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new ZipFileDataSource(directory, fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4), observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
             return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {
