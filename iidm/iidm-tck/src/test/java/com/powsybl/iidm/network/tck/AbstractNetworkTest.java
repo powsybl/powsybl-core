@@ -13,6 +13,7 @@ import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.network.util.Networks;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -79,6 +80,21 @@ public abstract class AbstractNetworkTest {
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel1.getTopologyKind());
 
         NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+
+        assertEquals(0.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(0.0, topology1.getFictitiousQ0(0), 0.0);
+        topology1.setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
+        assertEquals(1.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
+        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(voltageLevel1);
+        nodesByBus.forEach((busId, nodes) -> {
+            if (nodes.contains(0)) {
+                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+            } else if (nodes.contains(1)) {
+                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+            }
+        });
+
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
         assertEquals(2, topology1.getBusbarSectionCount());

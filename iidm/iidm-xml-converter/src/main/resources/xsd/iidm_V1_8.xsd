@@ -123,6 +123,7 @@
             <xs:element name="switch" minOccurs="0" maxOccurs="unbounded" type="iidm:SwitchNode"/>
             <xs:element name="internalConnection" minOccurs="0" maxOccurs="unbounded" type="iidm:InternalConnection"/>
             <xs:element name="bus" minOccurs="0" maxOccurs="unbounded" type="iidm:CalculatedBus"/>
+            <xs:element name="inj" minOccurs="0" maxOccurs="unbounded" type="iidm:FictitiousInjection"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="BusBreakerTopology">
@@ -136,6 +137,8 @@
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="v" use="optional" type="xs:double"/>
                 <xs:attribute name="angle" use="optional" type="xs:double"/>
+                <xs:attribute name="fictitiousP0" use="optional" type="xs:double"/>
+                <xs:attribute name="fictitiousQ0" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -150,6 +153,11 @@
         <xs:attribute name="nodes" use="required" type="xs:string"/>
         <xs:attribute name="v" use="optional" type="xs:double"/>
         <xs:attribute name="angle" use="optional" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="FictitiousInjection">
+        <xs:attribute name="node" use="required" type="xs:int"/>
+        <xs:attribute name="fictitiousP0" use="optional" type="xs:double"/>
+        <xs:attribute name="fictitiousQ0" use="optional" type="xs:double"/>
     </xs:complexType>
     <xs:simpleType name="SwitchKind">
         <xs:restriction base="xs:string">
