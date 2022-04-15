@@ -42,7 +42,7 @@ public final class ShortCircuitAnalysis {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
+        public CompletableFuture<ShortCircuitAnalysisMultiResult> runAsync(Network network,
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager,
                                                                       Reporter reporter) {
@@ -53,7 +53,7 @@ public final class ShortCircuitAnalysis {
             return provider.run(network, parameters, computationManager, reporter);
         }
 
-        public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
+        public CompletableFuture<ShortCircuitAnalysisMultiResult> runAsync(Network network,
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager) {
             Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
@@ -62,20 +62,20 @@ public final class ShortCircuitAnalysis {
             return provider.run(network, parameters, computationManager);
         }
 
-        public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager,
-                                              Reporter reporter) {
+        public ShortCircuitAnalysisMultiResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager,
+                                                   Reporter reporter) {
             return runAsync(network, parameters, computationManager, reporter).join();
         }
 
-        public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
+        public ShortCircuitAnalysisMultiResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
             return runAsync(network, parameters, computationManager).join();
         }
 
-        public ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters) {
+        public ShortCircuitAnalysisMultiResult run(Network network, ShortCircuitParameters parameters) {
             return run(network, parameters, LocalComputationManager.getDefault());
         }
 
-        public ShortCircuitAnalysisResult run(Network network) {
+        public ShortCircuitAnalysisMultiResult run(Network network) {
             return run(network, ShortCircuitParameters.load());
         }
 
@@ -106,29 +106,29 @@ public final class ShortCircuitAnalysis {
         return find(null);
     }
 
-    public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, ShortCircuitParameters parameters,
-                                                                         ComputationManager computationManager) {
+    public static CompletableFuture<ShortCircuitAnalysisMultiResult> runAsync(Network network, ShortCircuitParameters parameters,
+                                                                              ComputationManager computationManager) {
         return find().runAsync(network, parameters, computationManager);
     }
 
-    public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, ShortCircuitParameters parameters,
-                                                                         ComputationManager computationManager, Reporter reporter) {
+    public static CompletableFuture<ShortCircuitAnalysisMultiResult> runAsync(Network network, ShortCircuitParameters parameters,
+                                                                              ComputationManager computationManager, Reporter reporter) {
         return find().runAsync(network, parameters, computationManager, reporter);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public static ShortCircuitAnalysisMultiResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
         return find().run(network, parameters, computationManager, reporter);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
+    public static ShortCircuitAnalysisMultiResult run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
         return find().run(network, parameters, computationManager);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters) {
+    public static ShortCircuitAnalysisMultiResult run(Network network, ShortCircuitParameters parameters) {
         return find().run(network, parameters);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network) {
+    public static ShortCircuitAnalysisMultiResult run(Network network) {
         return find().run(network);
     }
 }

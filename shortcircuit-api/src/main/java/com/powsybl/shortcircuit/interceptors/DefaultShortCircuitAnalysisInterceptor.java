@@ -9,7 +9,7 @@ package com.powsybl.shortcircuit.interceptors;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
 
 /**
  * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
@@ -27,7 +27,7 @@ public class DefaultShortCircuitAnalysisInterceptor implements ShortCircuitAnaly
     }
 
     @Override
-    public void onShortCircuitResult(Network network, ShortCircuitAnalysisResult shortCircuitAnalysisResult) {
+    public void onShortCircuitResult(Network network, ShortCircuitAnalysisMultiResult shortCircuitAnalysisMultiResult) {
         // Nothing to do
     }
 }

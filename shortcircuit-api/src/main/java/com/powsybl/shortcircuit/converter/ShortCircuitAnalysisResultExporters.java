@@ -8,7 +8,7 @@ package com.powsybl.shortcircuit.converter;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -45,7 +45,7 @@ public final class ShortCircuitAnalysisResultExporters {
         return null;
     }
 
-    public static void export(ShortCircuitAnalysisResult result, Path path, String format, Network network) {
+    public static void export(ShortCircuitAnalysisMultiResult result, Path path, String format, Network network) {
         Objects.requireNonNull(path);
         try (Writer writer = Files.newBufferedWriter(path)) {
             export(result, writer, format, network);
@@ -54,7 +54,7 @@ public final class ShortCircuitAnalysisResultExporters {
         }
     }
 
-    public static void export(ShortCircuitAnalysisResult result, Writer writer, String format, Network network) throws IOException {
+    public static void export(ShortCircuitAnalysisMultiResult result, Writer writer, String format, Network network) throws IOException {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(format);

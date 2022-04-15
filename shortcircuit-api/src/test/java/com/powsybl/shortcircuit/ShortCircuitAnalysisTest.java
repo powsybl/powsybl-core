@@ -54,14 +54,14 @@ public class ShortCircuitAnalysisTest {
             }
 
             @Override
-            public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters,
+            public CompletableFuture<ShortCircuitAnalysisMultiResult> run(Network network, ShortCircuitParameters parameters,
                                                                      ComputationManager computationManager) {
 
-                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList(), Collections.emptyList()));
+                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisMultiResult(Collections.emptyList(), Collections.emptyList()));
             }
         };
 
-        ShortCircuitAnalysisResult res = provider.run(null, null, null).join();
+        ShortCircuitAnalysisMultiResult res = provider.run(null, null, null).join();
 
         assertEquals(0, res.getFaultResults().size());
         assertEquals(0, res.getLimitViolations().size());
@@ -92,32 +92,32 @@ public class ShortCircuitAnalysisTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, shortCircuitParameters, computationManager);
+        CompletableFuture<ShortCircuitAnalysisMultiResult> result = ShortCircuitAnalysis.runAsync(network, shortCircuitParameters, computationManager);
         assertNotNull(result.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager);
+        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutComputationManager() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters);
+        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutParameters() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network);
+        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network);
         assertNotNull(result);
     }
 
     @Test
     public void testWithReporter() {
         ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager, reporter);
+        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager, reporter);
         assertNotNull(result);
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
@@ -131,7 +131,7 @@ public class ShortCircuitAnalysisTest {
     public void testInterceptor() {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisInterceptorMock interceptorMock = new ShortCircuitAnalysisInterceptorMock();
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysisMock.runWithNonEmptyResult();
+        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysisMock.runWithNonEmptyResult();
         assertNotNull(result);
 
         List<FaultResult> faultResult = result.getFaultResults();

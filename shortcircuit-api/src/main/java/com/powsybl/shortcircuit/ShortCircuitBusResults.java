@@ -10,7 +10,8 @@ package com.powsybl.shortcircuit;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class ShortCircuitBusResults {
-    // FIXME: delta voltages are missing for the moment, but not useful or the global design.
+    // FIXME: delta voltages are missing for the moment,
+    //  but not useful for the global design.
 
     private final String voltageLevelId;
 
@@ -18,10 +19,17 @@ public class ShortCircuitBusResults {
 
     private DetailedShortCircuitValue voltage;
 
+    private DetailedShortCircuitValue current;
+
     public ShortCircuitBusResults(String voltageLevelId, String busId, DetailedShortCircuitValue voltage) {
+        this(voltageLevelId, busId, voltage, null);
+    }
+
+    public ShortCircuitBusResults(String voltageLevelId, String busId, DetailedShortCircuitValue voltage, DetailedShortCircuitValue current) {
         this.voltageLevelId = voltageLevelId;
         this.busId = busId;
         this.voltage = voltage;
+        this.current = current;
     }
 
     public String getVoltageLevelId() {
@@ -34,5 +42,9 @@ public class ShortCircuitBusResults {
 
     public DetailedShortCircuitValue getVoltage() {
         return voltage;
+    }
+
+    public DetailedShortCircuitValue getCurrent() {
+        return current;
     }
 }

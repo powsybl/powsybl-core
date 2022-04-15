@@ -7,7 +7,6 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.security.LimitViolation;
 import com.powsybl.security.NetworkMetadata;
 
 import java.util.ArrayList;
@@ -16,8 +15,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Results of a short-circuit computation.
- * Will contain an exhaustive list of computed short-circuit fault results.
+ * Results of an localized short-circuit computation.
+ * Will contain a fault result, with feeder results.
+ * Will contain a list of short-circuit bus result for each buses of the network.
  *
  * @author Boubakeur Brahimi
  */
@@ -25,17 +25,24 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
 
     private NetworkMetadata networkMetadata;
 
-    private final List<FaultResult> faultResults = new ArrayList<>();
+    private final FaultResult faultResult;
 
-    public ShortCircuitAnalysisResult(List<FaultResult> faultResults) {
-        this.faultResults.addAll(Objects.requireNonNull(faultResults));
+    private final List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
+
+    public ShortCircuitAnalysisResult(FaultResult faultResult) {
+        this(faultResult, Collections.emptyList());
+    }
+
+    public ShortCircuitAnalysisResult(FaultResult faultResult, List<ShortCircuitBusResults> shortCircuitBusResults) {
+        this.faultResult = Objects.requireNonNull(faultResult);
+        this.shortCircuitBusResults.addAll(Objects.requireNonNull(shortCircuitBusResults));
     }
 
     /**
-     * A list of results, for each fault which have been simulated.
+     * The associated fault result.
      */
-    public List<FaultResult> getFaultResults() {
-        return Collections.unmodifiableList(faultResults);
+    public FaultResult getFaultResult() {
+        return faultResult;
     }
 
     public NetworkMetadata getNetworkMetadata() {

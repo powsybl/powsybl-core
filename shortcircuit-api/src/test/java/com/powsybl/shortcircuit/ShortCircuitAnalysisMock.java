@@ -48,20 +48,20 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
-        return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>(), new ArrayList<>()));
+    public CompletableFuture<ShortCircuitAnalysisMultiResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
+        return CompletableFuture.completedFuture(new ShortCircuitAnalysisMultiResult(new ArrayList<>(), new ArrayList<>()));
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<ShortCircuitAnalysisMultiResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
         reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
         return run(network, parameters, computationManager);
     }
 
-    public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
+    public static ShortCircuitAnalysisMultiResult runWithNonEmptyResult() {
         FeederResult feederResult = new FeederResult("GEN", 5);
         FaultResult faultResult = new FaultResult("VLGEN", 10, Collections.singletonList(feederResult));
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
-        return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
+        return new ShortCircuitAnalysisMultiResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
     }
 }

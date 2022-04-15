@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationHelper;
 import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -33,7 +33,7 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
     }
 
     @Override
-    public void export(ShortCircuitAnalysisResult result, Writer writer, Network network) {
+    public void export(ShortCircuitAnalysisMultiResult result, Writer writer, Network network) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
         TableFormatterFactory tableFormatterFactory = getTableFormatterFactory();
@@ -42,7 +42,7 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         printLimitViolationResults(result, writer, tableFormatterFactory, tableFormatterConfig, network);
     }
 
-    private static void printShortCircuitResults(ShortCircuitAnalysisResult result, Writer writer,
+    private static void printShortCircuitResults(ShortCircuitAnalysisMultiResult result, Writer writer,
                                                  TableFormatterFactory formatterFactory, TableFormatterConfig formatterConfig) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
@@ -59,7 +59,7 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         }
     }
 
-    private static void printLimitViolationResults(ShortCircuitAnalysisResult result, Writer writer,
+    private static void printLimitViolationResults(ShortCircuitAnalysisMultiResult result, Writer writer,
                                                    TableFormatterFactory formatterFactory, TableFormatterConfig formatterConfig, Network network) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
