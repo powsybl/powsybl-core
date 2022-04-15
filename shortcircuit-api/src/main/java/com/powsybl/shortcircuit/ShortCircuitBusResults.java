@@ -17,15 +17,15 @@ public class ShortCircuitBusResults {
 
     private final String busId;
 
-    private DetailedShortCircuitValue voltage;
+    private ThreePhaseValue voltage;
 
-    private DetailedShortCircuitValue current;
+    private ThreePhaseValue current;
 
-    public ShortCircuitBusResults(String voltageLevelId, String busId, DetailedShortCircuitValue voltage) {
+    public ShortCircuitBusResults(String voltageLevelId, String busId, ThreePhaseValue voltage) {
         this(voltageLevelId, busId, voltage, null);
     }
 
-    public ShortCircuitBusResults(String voltageLevelId, String busId, DetailedShortCircuitValue voltage, DetailedShortCircuitValue current) {
+    public ShortCircuitBusResults(String voltageLevelId, String busId, ThreePhaseValue voltage, ThreePhaseValue current) {
         this.voltageLevelId = voltageLevelId;
         this.busId = busId;
         this.voltage = voltage;
@@ -40,11 +40,11 @@ public class ShortCircuitBusResults {
         return busId;
     }
 
-    public DetailedShortCircuitValue getVoltage() {
+    public ThreePhaseValue getVoltage() {
         return voltage;
     }
 
-    public DetailedShortCircuitValue getCurrent() {
+    public ThreePhaseValue getCurrent() {
         return current;
     }
 }

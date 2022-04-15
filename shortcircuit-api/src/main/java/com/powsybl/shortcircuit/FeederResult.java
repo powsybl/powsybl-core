@@ -26,7 +26,7 @@ public class FeederResult {
      */
     private final double feederThreePhaseCurrent;
 
-    private DetailedShortCircuitValue current = null;
+    private ThreePhaseValue current = null;
 
     @JsonCreator
     public FeederResult(@JsonProperty("connectableId") String connectableId,
@@ -35,7 +35,7 @@ public class FeederResult {
         this.feederThreePhaseCurrent = feederThreePhaseCurrent;
     }
 
-    public FeederResult(String connectableId, double feederThreePhaseCurrent, DetailedShortCircuitValue current) {
+    public FeederResult(String connectableId, double feederThreePhaseCurrent, ThreePhaseValue current) {
         // FIXME: json creator?
         this.connectableId = Objects.requireNonNull(connectableId);
         this.feederThreePhaseCurrent = feederThreePhaseCurrent;
@@ -50,7 +50,7 @@ public class FeederResult {
         return feederThreePhaseCurrent;
     }
 
-    public DetailedShortCircuitValue getCurrent() {
+    public ThreePhaseValue getCurrent() {
         return current;
     }
 }

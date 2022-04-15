@@ -9,7 +9,7 @@ package com.powsybl.shortcircuit;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class DetailedShortCircuitValue {
+public class ThreePhaseValue {
     /**
      * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and the
      * the magnitude and angle of current or voltage for the Fortescue direct, zero and indirect components.
@@ -29,8 +29,8 @@ public class DetailedShortCircuitValue {
     private double zeroPhase = Double.NaN;
     private double inversePhase = Double.NaN;
 
-    public DetailedShortCircuitValue(double magnitude1, double magnitude2, double magnitude3, double phase1, double phase2, double phase3,
-                                     double directMagnitude, double zeroMagnitude, double inverseMagnitude, double directPhase, double zeroPhase, double inversePhase) {
+    public ThreePhaseValue(double magnitude1, double magnitude2, double magnitude3, double phase1, double phase2, double phase3,
+                           double directMagnitude, double zeroMagnitude, double inverseMagnitude, double directPhase, double zeroPhase, double inversePhase) {
         this(magnitude1, magnitude2, magnitude3, phase1, phase2, phase3, directMagnitude, directPhase);
         this.zeroMagnitude = zeroMagnitude;
         this.inverseMagnitude = inverseMagnitude;
@@ -38,8 +38,8 @@ public class DetailedShortCircuitValue {
         this.inversePhase = inversePhase;
     }
 
-    public DetailedShortCircuitValue(double magnitude1, double magnitude2, double magnitude3, double phase1, double phase2, double phase3,
-                                     double directMagnitude, double directPhase) {
+    public ThreePhaseValue(double magnitude1, double magnitude2, double magnitude3, double phase1, double phase2, double phase3,
+                           double directMagnitude, double directPhase) {
         this.magnitude1 = magnitude1;
         this.magnitude2 = magnitude2;
         this.magnitude3 = magnitude3;
