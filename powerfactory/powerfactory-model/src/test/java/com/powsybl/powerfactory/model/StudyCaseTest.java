@@ -9,6 +9,7 @@ package com.powsybl.powerfactory.model;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -22,23 +23,24 @@ public class StudyCaseTest {
     @Test
     public void test() {
         DataClass clsFoo = DataClass.init("ElmFoo")
-                .addAttribute(new DataAttribute("ref", DataAttributeType.OBJECT));
+                .addAttribute(new DataAttribute("ref", DataAttributeType.INTEGER64));
         DataClass clsBar = DataClass.init("ElmBar");
 
-        DataObject objBar = new DataObject(2L, clsBar)
+        DataObjectIndex index = new DataObjectIndex();
+        DataObject objBar = new DataObject(2L, clsBar, index)
                 .setLocName("bar");
-        DataObject objFoo = new DataObject(1L, clsFoo)
+        DataObject objFoo = new DataObject(1L, clsFoo, index)
                 .setLocName("foo")
-                .setObjectAttributeValue("ref", objBar);
+                .setLongAttributeValue("ref", objBar.getId());
         Instant time = Instant.parse("2021-10-30T09:35:25Z");
-        DataObject elmNet = new DataObject(0L, new DataClass("ElmNet"));
-        StudyCase studyCase = new StudyCase("test", time, List.of(elmNet));
-        objBar.setStudyCase(studyCase);
-        objFoo.setStudyCase(studyCase);
+        DataClass clsNet = DataClass.init("ElmNet");
+        DataObject elmNet = new DataObject(0L, clsNet, index)
+                .setLocName("net");
+        StudyCase studyCase = new StudyCase("test", time, index);
 
         assertEquals("test", studyCase.getName());
         assertEquals(time, studyCase.getTime());
-        assertEquals(List.of(elmNet), studyCase.getElmNets());
-        assertSame(studyCase, objFoo.getStudyCase());
+        assertSame(index, objFoo.getIndex());
+        assertEquals(List.of(elmNet, objFoo, objBar), new ArrayList<>(studyCase.getIndex().getDataObjects()));
     }
 }

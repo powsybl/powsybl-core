@@ -60,7 +60,7 @@ public class TrippingTopologyTraverserTest {
 
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
-        TrippingTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect, null);
         assertTrue(switchesToOpen.isEmpty());
         assertEquals(1, terminalsToDisconnect.size());
         assertEquals("BusTerminal[b1]", terminalsToDisconnect.iterator().next().toString());
@@ -70,13 +70,13 @@ public class TrippingTopologyTraverserTest {
 
         switchesToOpen.clear();
         terminalsToDisconnect.clear();
-        TrippingTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(l1.getTerminal1(), switchesToOpen, terminalsToDisconnect, null);
         assertTrue(switchesToOpen.isEmpty());
         assertTrue(terminalsToDisconnect.isEmpty());
 
         switchesToOpen.clear();
         terminalsToDisconnect.clear();
-        TrippingTopologyTraverser.traverse(l1.getTerminal2(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(l1.getTerminal2(), switchesToOpen, terminalsToDisconnect, null);
         assertTrue(switchesToOpen.isEmpty());
         assertEquals(1, terminalsToDisconnect.size());
         assertEquals("BusTerminal[b2]", terminalsToDisconnect.iterator().next().toString());

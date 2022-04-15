@@ -149,7 +149,10 @@ public final class FakeCgmesModel implements CgmesModel {
     public FakeCgmesModel substations(String... ids) {
         fakeObjectsFromIdentifiers("Substation", ids, substations);
         // Add a default SubRegion to every substation
-        substations.forEach(s -> s.put("SubRegion", "SubRegion0"));
+        substations.forEach(s -> {
+            s.put("SubRegion", "SubRegion0");
+            s.put("Region", "Region0");
+        });
         return this;
     }
 
@@ -319,8 +322,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags baseVoltages() {
-        // No need to support base voltages in FakeCgmesModel
-        return null;
+        return new PropertyBags();
     }
 
     @Override

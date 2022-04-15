@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -129,7 +128,7 @@ public class CgmesImport implements Importer {
                         boundaryLocationParameter,
                         defaultValueConfig));
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc, DataSourceUtil.getBaseName(loc));
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
@@ -176,6 +175,24 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
+                .setCreateCgmesExportMapping(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
+                                defaultValueConfig))
+                .setEnsureIdAliasUnicity(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                ENSURE_ID_ALIAS_UNICITY_PARAMETER,
+                                defaultValueConfig))
+                .setImportControlAreas(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                IMPORT_CONTROL_AREAS_PARAMETER,
+                                defaultValueConfig))
                 .setProfileForInitialValuesShuntSectionsTapPositions(
                         ConversionParameters.readStringParameter(
                                 getFormat(),
@@ -193,22 +210,7 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
-                                defaultValueConfig))
-                .setEnsureIdAliasUnicity(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                ENSURE_ID_ALIAS_UNICITY_PARAMETER,
-                                defaultValueConfig
-                        ))
-                .setCreateCgmesExportMapping(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
-                                defaultValueConfig
-                        )
-                );
+                                defaultValueConfig));
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {

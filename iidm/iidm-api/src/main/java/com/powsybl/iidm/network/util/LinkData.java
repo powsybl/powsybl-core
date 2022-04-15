@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.util;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
+import com.powsybl.iidm.network.Branch;
+
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -46,19 +48,46 @@ public final class LinkData {
         return branchAdmittance;
     }
 
-    static BranchAdmittanceMatrix kronChain(Complex yFirstConnected11, Complex yFirstConnected12,
-        Complex yFirstConnected21, Complex yFirstConnected22, Complex ySecondConnected11,
-        Complex ySecondConnected12, Complex ySecondConnected21, Complex ySecondConnected22) {
+    public static BranchAdmittanceMatrix kronChain(BranchAdmittanceMatrix firstAdm, Branch.Side firstChainNodeSide,
+        BranchAdmittanceMatrix secondAdm, Branch.Side secondChainNodeSide) {
         BranchAdmittanceMatrix admittance = new BranchAdmittanceMatrix();
 
-        admittance.y11 = yFirstConnected11.subtract(yFirstConnected21.multiply(yFirstConnected12)
-            .divide(yFirstConnected22.add(ySecondConnected22)));
-        admittance.y12 = ySecondConnected21.multiply(yFirstConnected12)
-            .divide(yFirstConnected22.add(ySecondConnected22)).negate();
-        admittance.y21 = yFirstConnected21.multiply(ySecondConnected12)
-            .divide(yFirstConnected22.add(ySecondConnected22)).negate();
-        admittance.y22 = ySecondConnected11.subtract(
-            ySecondConnected21.multiply(ySecondConnected12).divide(yFirstConnected22.add(ySecondConnected22)));
+        Complex yFirst11;
+        Complex yFirst1C;
+        Complex yFirstC1;
+        Complex yFirstCC;
+        if (firstChainNodeSide == Branch.Side.TWO) {
+            yFirst11 = firstAdm.y11();
+            yFirst1C = firstAdm.y12();
+            yFirstC1 = firstAdm.y21();
+            yFirstCC = firstAdm.y22();
+        } else {
+            yFirst11 = firstAdm.y22();
+            yFirst1C = firstAdm.y21();
+            yFirstC1 = firstAdm.y12();
+            yFirstCC = firstAdm.y11();
+        }
+
+        Complex ySecond22;
+        Complex ySecond2C;
+        Complex ySecondC2;
+        Complex ySecondCC;
+        if (secondChainNodeSide == Branch.Side.TWO) {
+            ySecond22 = secondAdm.y11();
+            ySecond2C = secondAdm.y12();
+            ySecondC2 = secondAdm.y21();
+            ySecondCC = secondAdm.y22();
+        } else {
+            ySecond22 = secondAdm.y22();
+            ySecond2C = secondAdm.y21();
+            ySecondC2 = secondAdm.y12();
+            ySecondCC = secondAdm.y11();
+        }
+
+        admittance.y11 = yFirst11.subtract(yFirst1C.multiply(yFirstC1).divide(yFirstCC.add(ySecondCC)));
+        admittance.y12 = yFirst1C.multiply(ySecondC2).divide(yFirstCC.add(ySecondCC)).negate();
+        admittance.y21 = ySecond2C.multiply(yFirstC1).divide(yFirstCC.add(ySecondCC)).negate();
+        admittance.y22 = ySecond22.subtract(ySecond2C.multiply(ySecondC2).divide(yFirstCC.add(ySecondCC)));
 
         return admittance;
     }
@@ -118,10 +147,24 @@ public final class LinkData {
     }
 
     public static class BranchAdmittanceMatrix {
-        Complex y11 = Complex.ZERO;
-        Complex y12 = Complex.ZERO;
-        Complex y21 = Complex.ZERO;
-        Complex y22 = Complex.ZERO;
+        private Complex y11;
+        private Complex y12;
+        private Complex y21;
+        private Complex y22;
+
+        public BranchAdmittanceMatrix() {
+            y11 = Complex.ZERO;
+            y12 = Complex.ZERO;
+            y21 = Complex.ZERO;
+            y22 = Complex.ZERO;
+        }
+
+        public BranchAdmittanceMatrix(Complex y11, Complex y12, Complex y21, Complex y22) {
+            this.y11 = y11;
+            this.y12 = y12;
+            this.y21 = y21;
+            this.y22 = y22;
+        }
 
         public Complex y11() {
             return y11;

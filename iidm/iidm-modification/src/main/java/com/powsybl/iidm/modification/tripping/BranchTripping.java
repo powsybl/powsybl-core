@@ -23,8 +23,8 @@ import java.util.function.BiFunction;
  */
 public class BranchTripping extends AbstractTripping {
 
-    private final String branchId;
-    private final String voltageLevelId;
+    protected final String voltageLevelId;
+
     private final BiFunction<Network, String, Branch<?>> supplier;
 
     public BranchTripping(String branchId) {
@@ -36,13 +36,17 @@ public class BranchTripping extends AbstractTripping {
     }
 
     protected BranchTripping(String branchId, String voltageLevelId, BiFunction<Network, String, Branch<?>> supplier) {
-        this.branchId = Objects.requireNonNull(branchId);
+        super(branchId);
         this.voltageLevelId = voltageLevelId;
         this.supplier = supplier;
     }
 
+    /**
+     * @deprecated Use {@link #getId()} instead.
+     */
+    @Deprecated
     protected String getBranchId() {
-        return branchId;
+        return id;
     }
 
     protected String getVoltageLevelId() {
@@ -50,33 +54,33 @@ public class BranchTripping extends AbstractTripping {
     }
 
     @Override
-    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
-        Branch<?> branch = supplier.apply(network, branchId);
+        Branch<?> branch = supplier.apply(network, id);
         if (branch == null) {
             throw createNotFoundException();
         }
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect);
+                TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
             } else if (voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect);
+                TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
             } else {
                 throw createNotConnectedException();
             }
         } else {
-            TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect);
-            TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect);
+            TrippingTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
+            TrippingTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
         }
     }
 
     protected PowsyblException createNotFoundException() {
-        return new PowsyblException("Branch '" + branchId + "' not found");
+        return new PowsyblException("Branch '" + id + "' not found");
     }
 
     protected PowsyblException createNotConnectedException() {
-        return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + branchId + "'");
+        return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + id + "'");
     }
 
 }

@@ -16,6 +16,7 @@ import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.*;
 import gnu.trove.list.array.TIntArrayList;
@@ -259,7 +260,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }, encountered);
 
                 // check that the component is a bus
-                String busId = NAMING_STRATEGY.getId(NodeBreakerVoltageLevel.this, nodes);
+                String busId = Identifiables.getUniqueId(NAMING_STRATEGY.getId(NodeBreakerVoltageLevel.this, nodes), getNetwork().getIndex()::contains);
                 CopyOnWriteArrayList<NodeTerminal> terminals = new CopyOnWriteArrayList<>();
                 for (int i = 0; i < nodes.size(); i++) {
                     int n2 = nodes.getQuick(i);
@@ -524,12 +525,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void edgeBeforeRemoval(int e, SwitchImpl aSwitch) {
+                NetworkImpl network = getNetwork();
+                if (aSwitch != null) {
+                    network.getListeners().notifyBeforeRemoval(aSwitch);
+                }
+            }
+
+            @Override
             public void edgeRemoved(int e, SwitchImpl aSwitch) {
                 NetworkImpl network = getNetwork();
                 if (aSwitch != null) {
                     String switchId = aSwitch.getId();
-                    network.getListeners().notifyBeforeRemoval(aSwitch);
                     network.getIndex().remove(aSwitch);
+                    switches.remove(switchId);
                     network.getListeners().notifyAfterRemoval(switchId);
                 } else {
                     network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
@@ -537,11 +546,16 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void allEdgesBeforeRemoval(Collection<SwitchImpl> aSwitches) {
+                NetworkImpl network = getNetwork();
+                aSwitches.stream().filter(Objects::nonNull).forEach(ss -> network.getListeners().notifyBeforeRemoval(ss));
+            }
+
+            @Override
             public void allEdgesRemoved(Collection<SwitchImpl> aSwitches) {
                 NetworkImpl network = getNetwork();
                 aSwitches.forEach(ss -> {
                     if (ss != null) {
-                        network.getListeners().notifyBeforeRemoval(ss);
                         network.getIndex().remove(ss);
                     } else {
                         network.getListeners().notifyElementRemoved(NodeBreakerVoltageLevel.this, INTERNAL_CONNECTION, null);
@@ -773,7 +787,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void removeSwitch(String switchId) {
-            Integer e = switches.remove(switchId);
+            Integer e = switches.get(switchId);
             if (e == null) {
                 throw new PowsyblException("Switch '" + switchId
                         + "' not found in voltage level '" + id + "'");

@@ -6,28 +6,30 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.time.Instant;
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@JsonIgnoreProperties({"time", "index"})
+@JsonPropertyOrder({"name", "dataObjects"})
 public class StudyCase {
 
     private final String name;
 
     private final Instant time;
 
-    private final List<DataObject> elmNets;
+    private final DataObjectIndex index;
 
-    public StudyCase(String name, Instant time, List<DataObject> elmNets) {
+    public StudyCase(String name, Instant time, DataObjectIndex index) {
         this.name = Objects.requireNonNull(name);
         this.time = Objects.requireNonNull(time);
-        if (elmNets.isEmpty()) {
-            throw new IllegalArgumentException("Empty ElmNet list");
-        }
-        this.elmNets = Objects.requireNonNull(elmNets);
+        this.index = Objects.requireNonNull(index);
     }
 
     public String getName() {
@@ -38,7 +40,11 @@ public class StudyCase {
         return time;
     }
 
-    public List<DataObject> getElmNets() {
-        return elmNets;
+    public DataObjectIndex getIndex() {
+        return index;
+    }
+
+    public Collection<DataObject> getDataObjects() {
+        return index.getDataObjects();
     }
 }

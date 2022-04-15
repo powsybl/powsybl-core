@@ -13,6 +13,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
@@ -225,7 +226,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
             String suffix = "_" + busNum;
-            String mergedBusId = BusBreakerVoltageLevel.this.id + suffix;
+            String mergedBusId = Identifiables.getUniqueId(BusBreakerVoltageLevel.this.id + suffix, getNetwork().getIndex()::contains);
             String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + suffix : null;
             return new MergedBus(mergedBusId, mergedBusName, BusBreakerVoltageLevel.this.fictitious, busSet);
         }
@@ -351,8 +352,18 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             @Override
+            public void edgeBeforeRemoval(int e, SwitchImpl obj) {
+                // Nothing to do, notifications are handled properly in removeSwitch
+            }
+
+            @Override
             public void edgeRemoved(int e, SwitchImpl obj) {
                 invalidateCache();
+            }
+
+            @Override
+            public void allEdgesBeforeRemoval(Collection<SwitchImpl> obj) {
+                // Nothing to do, notifications are handled properly in removeAllSwitches
             }
 
             @Override
@@ -769,16 +780,16 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private void removeSwitch(String switchId) {
-        Integer e = switches.remove(switchId);
+        Integer e = switches.get(switchId);
         if (e == null) {
             throw new PowsyblException("Switch '" + switchId
                     + "' not found in voltage level '" + id + "'");
         }
         NetworkImpl network = getNetwork();
         SwitchImpl aSwitch = graph.getEdgeObject(e);
-
         network.getListeners().notifyBeforeRemoval(aSwitch);
 
+        switches.remove(switchId);
         graph.removeEdge(e);
         network.getIndex().remove(aSwitch);
 

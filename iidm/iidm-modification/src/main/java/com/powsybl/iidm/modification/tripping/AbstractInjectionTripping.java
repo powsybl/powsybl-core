@@ -19,17 +19,15 @@ import java.util.Set;
  */
 public abstract class AbstractInjectionTripping extends AbstractTripping {
 
-    protected final String id;
-
     protected AbstractInjectionTripping(String id) {
-        this.id = Objects.requireNonNull(id);
+        super(id);
     }
 
     @Override
-    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
-        TrippingTopologyTraverser.traverse(getInjection(network).getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(getInjection(network).getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
     }
 
     protected abstract Injection<?> getInjection(Network network);

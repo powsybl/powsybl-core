@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>4.8.0-SNAPSHOT</version>
+    <version>4.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -104,8 +104,8 @@
         <graphviz-builder.version>1.0.11</graphviz-builder.version>
         <groovy.version>3.0.9</groovy.version>
         <guava.version>30.0-jre</guava.version>
-        <jackson.version>2.10.5</jackson.version>
-        <jackson-databind.version>2.10.5.1</jackson-databind.version>
+        <jackson.version>2.13.2</jackson.version>
+        <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
         <jena.version>3.0.0</jena.version>
         <jgrapht.version>1.4.0</jgrapht.version>
@@ -125,7 +125,7 @@
         <snakeyaml.version>1.26</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.0.2</stringtemplate.version>
-        <threeten.version>1.0</threeten.version>
+        <threeten.version>1.5.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
@@ -685,6 +685,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-databind.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.auto.service</groupId>
