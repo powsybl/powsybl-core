@@ -36,7 +36,7 @@ public class StudyCaseTest {
         DataClass clsNet = DataClass.init("ElmNet");
         DataObject elmNet = new DataObject(0L, clsNet, index)
                 .setLocName("net");
-        StudyCase studyCase = new StudyCase("test", time, index);
+        StudyCase studyCase = new StudyCase("test", time, List.of(elmNet), index);
 
         assertEquals("test", studyCase.getName());
         assertEquals(time, studyCase.getTime());

@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -150,6 +151,8 @@ public class DgsReader {
         stopwatch.stop();
         LOGGER.info("DGS file read in {} ms: {} data objects", stopwatch.elapsed(TimeUnit.MILLISECONDS), index.getDataObjects().size());
 
-        return new StudyCase(studyCaseName, Instant.now(), index);
+        List<DataObject> elmNets = index.getDataObjectsByClass("ElmNet");
+
+        return new StudyCase(studyCaseName, Instant.now(), elmNets, index);
     }
 }

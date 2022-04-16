@@ -8,13 +8,12 @@ package com.powsybl.powerfactory.db;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
-import com.powsybl.powerfactory.model.PowerFactoryException;
-import com.powsybl.powerfactory.model.Project;
-import com.powsybl.powerfactory.model.StudyCase;
+import com.powsybl.powerfactory.model.*;
 
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -62,6 +61,7 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
 
         Instant time = Instant.now(); // FIXME get from study case object
         String studyCaseName = "???";
-        return new StudyCase(studyCaseName, time, project.getIndex());
+        List<DataObject> elmNets = new ArrayList<>(); // FIXME
+        return new StudyCase(studyCaseName, time, elmNets, project.getIndex());
     }
 }

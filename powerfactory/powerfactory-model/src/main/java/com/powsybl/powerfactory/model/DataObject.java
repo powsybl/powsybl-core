@@ -6,8 +6,6 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.primitives.Ints;
@@ -25,10 +23,6 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-
-@JsonIgnoreProperties({"parent", "children", "index", "path", "fullName", "attributeNames", "locName", "dataClassName"})
-@JsonPropertyOrder({"id", "dataClass", "attributeValues"})
-
 public class DataObject {
 
     private static final String NOT_FOUND = "' not found";

@@ -11,10 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -24,14 +21,18 @@ public class DataScheme {
     private final Map<String, DataClass> classesByName = new HashMap<>();
 
     public static DataScheme build(DataObject root) {
-        Objects.requireNonNull(root);
+        return build(List.of(root));
+    }
+
+    public static DataScheme build(List<DataObject> roots) {
+        Objects.requireNonNull(roots);
         DataScheme scheme = new DataScheme();
-        root.traverse(object -> {
+        roots.forEach(root -> root.traverse(object -> {
             DataClass clazz = object.getDataClass();
             if (!scheme.classExists(clazz.getName())) {
                 scheme.addClass(clazz);
             }
-        });
+        }));
         return scheme;
     }
 
