@@ -34,8 +34,6 @@ public class DgsReader {
 
     private final DataObjectIndex index = new DataObjectIndex();
 
-    private final Map<String, DataClass> classesByName = new HashMap<>();
-
     private final Map<String, String> general = new HashMap<>();
 
     public static StudyCase read(Path dgsFile) {
@@ -92,7 +90,6 @@ public class DgsReader {
             if (!tableName.equals("General")) {
                 // this is a class description
                 clazz = new DataClass(tableName);
-                classesByName.put(clazz.getName(), clazz);
             }
         }
 

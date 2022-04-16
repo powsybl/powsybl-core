@@ -442,7 +442,7 @@ public final class JsonUtil {
         boolean onField(String name) throws IOException;
     }
 
-    public static <T> void parseObject(JsonParser parser, FieldHandler fieldHandler) {
+    public static void parseObject(JsonParser parser, FieldHandler fieldHandler) {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(fieldHandler);
         try {
