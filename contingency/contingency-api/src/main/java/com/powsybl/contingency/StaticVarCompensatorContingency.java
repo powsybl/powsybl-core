@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class StaticVarCompensatorContingency extends AbstractInjectionContingency {
+public class StaticVarCompensatorContingency extends AbstractContingency {
 
     public StaticVarCompensatorContingency(String id) {
         super(id);

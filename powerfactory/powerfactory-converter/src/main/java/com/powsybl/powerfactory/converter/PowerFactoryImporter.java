@@ -197,7 +197,7 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmLod":
-                    createLoad(network, importContext, obj);
+                    new LoadConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmShnt":
@@ -254,20 +254,6 @@ public class PowerFactoryImporter implements Importer {
                 network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
 
         return network;
-    }
-
-    private void createLoad(Network network, ImportContext importContext, DataObject elmLod) {
-        NodeRef nodeRef = checkNodes(elmLod, importContext.objIdToNode, 1).iterator().next();
-        VoltageLevel vl = network.getVoltageLevel(nodeRef.voltageLevelId);
-        float p0 = elmLod.getFloatAttributeValue("plini");
-        float q0 = elmLod.getFloatAttributeValue("qlini");
-        vl.newLoad()
-                .setId(elmLod.getLocName())
-                .setEnsureIdUnicity(true)
-                .setNode(nodeRef.node)
-                .setP0(p0)
-                .setQ0(q0)
-                .add();
     }
 
     private void createShunt(Network network, ImportContext importContext, DataObject elmShnt) {
