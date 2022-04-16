@@ -141,7 +141,8 @@ public class DataObject {
     private static void checkAttributeType(DataAttribute attribute, DataAttributeType type) {
         if (attribute.getType() != type
                 // hack to handle float attributes considered as double in C++ API
-                && !(attribute.getType() == DataAttributeType.DOUBLE && type == DataAttributeType.FLOAT)) {
+                && !(attribute.getType() == DataAttributeType.DOUBLE && type == DataAttributeType.FLOAT)
+                && !(attribute.getType() == DataAttributeType.INTEGER && type == DataAttributeType.INTEGER64)) {
             throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
         }
     }
@@ -306,11 +307,11 @@ public class DataObject {
             return OptionalLong.empty();
         }
         checkAttributeType(attribute, DataAttributeType.INTEGER64);
-        Long value = (Long) attributeValues.get(name);
+        Number value = (Number) attributeValues.get(name);
         if (value == null) {
             return OptionalLong.empty();
         }
-        return OptionalLong.of(value);
+        return OptionalLong.of(value.longValue());
     }
 
     public long getLongAttributeValue(String name) {
@@ -359,9 +360,9 @@ public class DataObject {
     }
 
     public Optional<Instant> findInstantAttributeValue(String name) {
-        OptionalInt i = findIntAttributeValue(name);
-        if (i.isPresent()) {
-            return Optional.of(Instant.ofEpochSecond(i.getAsInt()));
+        OptionalLong l = findLongAttributeValue(name);
+        if (l.isPresent()) {
+            return Optional.of(Instant.ofEpochSecond(l.getAsLong()));
         }
         return Optional.empty();
     }

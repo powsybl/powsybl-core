@@ -1,0 +1,48 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.powerfactory.model;
+
+import com.google.auto.service.AutoService;
+
+import java.io.*;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+@AutoService(PowerFactoryDataLoader.class)
+public class JsonStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
+
+    @Override
+    public Class<StudyCase> getDataClass() {
+        return StudyCase.class;
+    }
+
+    @Override
+    public String getExtension() {
+        return "json";
+    }
+
+    @Override
+    public boolean test(InputStream is) {
+        try {
+            is.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return true;
+    }
+
+    @Override
+    public StudyCase doLoad(String fileName, InputStream is) {
+        try (Reader reader = new InputStreamReader(is)) {
+            Project project = Project.parseJson(reader);
+            return project.getActiveStudyCase();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+}

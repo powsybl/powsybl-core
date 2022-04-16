@@ -8,12 +8,12 @@ package com.powsybl.powerfactory.db;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.powerfactory.model.*;
+import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
+import com.powsybl.powerfactory.model.PowerFactoryException;
+import com.powsybl.powerfactory.model.Project;
+import com.powsybl.powerfactory.model.StudyCase;
 
 import java.io.InputStream;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -58,10 +58,6 @@ public class DbStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
                 .orElseThrow(() -> new PowerFactoryException("Project name not found in property file '" + fileName + "'"));
 
         Project project = activeProjectConfig.loadProjectFromDb(dbReader, platformConfig);
-
-        Instant time = Instant.now(); // FIXME get from study case object
-        String studyCaseName = "???";
-        List<DataObject> elmNets = new ArrayList<>(); // FIXME
-        return new StudyCase(studyCaseName, time, elmNets, project.getIndex());
+        return project.getActiveStudyCase();
     }
 }

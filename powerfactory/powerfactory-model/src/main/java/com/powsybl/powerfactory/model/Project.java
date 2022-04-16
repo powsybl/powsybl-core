@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -107,5 +109,15 @@ public class Project {
                 throw new UncheckedIOException(e);
             }
         });
+    }
+
+    public StudyCase getActiveStudyCase() {
+        // get active study case
+        DataObject studyCaseObj = rootObject.getObjectAttributeValue("pCase").resolve().orElseThrow();
+        Instant studyTime = studyCaseObj.getInstantAttributeValue("iStudyTime");
+        String studyCaseName = rootObject.getLocName() + " - " + studyCaseObj.getLocName();
+        DataObject netDataObj = rootObject.getChild("Network Model", "Network Data").orElseThrow();
+        List<DataObject> elmNets = netDataObj.getChildrenByClass("ElmNet");
+        return new StudyCase(studyCaseName, studyTime, elmNets, index);
     }
 }
