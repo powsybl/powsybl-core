@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -226,20 +225,5 @@ public class DataObjectTest {
         assertFalse(objFoo.findDoubleMatrixAttributeValue("mm").isPresent());
         assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleMatrixAttributeValue("mm"));
         assertEquals(new BlockRealMatrix(2, 2), objFoo.getDoubleMatrixAttributeValue("m"));
-    }
-
-    @Test
-    public void testInstantAttribute() {
-        DataObjectIndex index = new DataObjectIndex();
-        DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo, index);
-        assertFalse(objFoo.findInstantAttributeValue("i").isPresent());
-        Instant time = Instant.parse("2021-10-30T09:35:25Z");
-        objFoo.setInstantAttributeValue("i", time);
-        assertTrue(objFoo.findInstantAttributeValue("i").isPresent());
-        assertEquals(time, objFoo.findInstantAttributeValue("i").orElseThrow());
-        assertFalse(objFoo.findInstantAttributeValue("ii").isPresent());
-        assertThrows(PowerFactoryException.class, () -> objFoo.getInstantAttributeValue("ii"));
-        assertEquals(time, objFoo.getInstantAttributeValue("i"));
     }
 }

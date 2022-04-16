@@ -8,13 +8,11 @@ package com.powsybl.powerfactory.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.google.common.primitives.Ints;
 import com.powsybl.commons.json.JsonUtil;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -24,8 +22,6 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DataObject {
-
-    private static final String NOT_FOUND = "' not found";
 
     private final long id;
 
@@ -148,11 +144,11 @@ public class DataObject {
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String name) {
-        return new PowerFactoryException("Attribute '" + name + NOT_FOUND);
+        return new PowerFactoryException("Attribute '" + name + "' not found");
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String type, String name) {
-        return new PowerFactoryException(type + " attribute '" + name + NOT_FOUND);
+        return new PowerFactoryException(type + " attribute '" + name + "' not found");
     }
 
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
@@ -359,23 +355,6 @@ public class DataObject {
         return this;
     }
 
-    public Optional<Instant> findInstantAttributeValue(String name) {
-        OptionalLong l = findLongAttributeValue(name);
-        if (l.isPresent()) {
-            return Optional.of(Instant.ofEpochSecond(l.getAsLong()));
-        }
-        return Optional.empty();
-    }
-
-    public Instant getInstantAttributeValue(String name) {
-        return findInstantAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Instant", name));
-    }
-
-    public DataObject setInstantAttributeValue(String name, Instant value) {
-        setIntAttributeValue(name, Ints.checkedCast(value.getEpochSecond()));
-        return this;
-    }
-
     private static void indent(PrintStream out, int depth) {
         for (int i = 0; i < depth; i++) {
             out.print("    ");
@@ -467,6 +446,8 @@ public class DataObject {
                                 parser.nextToken();
                                 context.attributeValues.put(fieldName2, parser.getValueAsLong());
                                 return true;
+                            case INTEGER_VECTOR:
+                                break;
                             case DOUBLE:
                                 parser.nextToken();
                                 context.attributeValues.put(fieldName2, parser.getValueAsDouble());
@@ -474,10 +455,21 @@ public class DataObject {
                             case STRING:
                                 context.attributeValues.put(fieldName2, parser.nextTextValue());
                                 return true;
+                            case DOUBLE_VECTOR:
+                                break;
+                            case DOUBLE_MATRIX:
+                                break;
                             case OBJECT:
                                 parser.nextToken();
                                 context.attributeValues.put(fieldName2, new DataObjectRef(parser.getValueAsLong(), index));
                                 return true;
+                            case OBJECT_VECTOR:
+                            case STRING_VECTOR:
+                            case INTEGER64_VECTOR:
+                            case FLOAT:
+                            case FLOAT_VECTOR:
+                                // TODO
+                                return false;
                         }
                         return false;
                     });

@@ -114,7 +114,7 @@ public class Project {
     public StudyCase getActiveStudyCase() {
         // get active study case
         DataObject studyCaseObj = rootObject.getObjectAttributeValue("pCase").resolve().orElseThrow();
-        Instant studyTime = studyCaseObj.getInstantAttributeValue("iStudyTime");
+        Instant studyTime = Instant.ofEpochSecond(studyCaseObj.getLongAttributeValue("iStudyTime"));
         String studyCaseName = rootObject.getLocName() + " - " + studyCaseObj.getLocName();
         DataObject netDataObj = rootObject.getChild("Network Model", "Network Data").orElseThrow();
         List<DataObject> elmNets = netDataObj.getChildrenByClass("ElmNet");
