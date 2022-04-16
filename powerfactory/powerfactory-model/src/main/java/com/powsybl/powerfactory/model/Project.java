@@ -111,6 +111,21 @@ public class Project {
         });
     }
 
+    /**
+     * Get active study case.
+     * Following layout is expected:
+     * MyProject.IntPrj
+     *     pCase (OBJECT)
+     *     'Study Cases'.IntPrjfolder
+     *         MyStudyCase.Intcase
+     *             iStudyTime (INTEGER64)
+     *     'Network Model'.IntPrjfolder
+     *         'Network Data'.IntPrjfolder
+     *             MyNetwork1.ElmNet
+     *             MyNetwork2.ElmNet
+     *             ...
+     * @return the active study case
+     */
     public StudyCase getActiveStudyCase() {
         // get active study case
         DataObject studyCaseObj = rootObject.getObjectAttributeValue("pCase").resolve().orElseThrow();
