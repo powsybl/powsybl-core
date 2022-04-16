@@ -9,7 +9,9 @@ package com.powsybl.powerfactory.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.google.common.primitives.Ints;
+import com.powsybl.commons.json.JsonUtil;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import java.io.IOException;
@@ -425,6 +427,76 @@ public class DataObject {
     public String getFullName() {
         return getPath().stream().map(DataObject::getLocName).collect(Collectors.joining("\\"))
                 + '.' + dataClass.getName();
+    }
+
+    static class ParsingContext {
+        long id = -1;
+
+        String className;
+
+        final List<DataObject> children = new ArrayList<>();
+
+        final Map<String, Object> attributeValues = new HashMap<>();
+    }
+
+    static DataObject parseJson(JsonParser parser, DataObjectIndex index, DataScheme scheme) {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(index);
+        Objects.requireNonNull(scheme);
+        ParsingContext context = new ParsingContext();
+        JsonUtil.parseObject(parser, fieldName -> {
+            switch (fieldName) {
+                case "id":
+                    parser.nextToken();
+                    context.id = parser.getValueAsLong();
+                    return true;
+                case "className":
+                    context.className = parser.nextTextValue();
+                    return true;
+                case "values":
+                    DataClass dataClass = scheme.getClassByName(context.className);
+                    parser.nextToken();
+                    JsonUtil.parseObject(parser, new JsonUtil.FieldHandler() {
+                        @Override
+                        public boolean onField(String fieldName2) throws IOException {
+                            DataAttribute attribute = dataClass.getAttributeByName(fieldName2);
+                            switch (attribute.getType()) {
+                                case INTEGER:
+                                    parser.nextToken();
+                                    context.attributeValues.put(fieldName2, parser.getValueAsInt());
+                                    return true;
+                                case INTEGER64:
+                                    parser.nextToken();
+                                    context.attributeValues.put(fieldName2, parser.getValueAsLong());
+                                    return true;
+                                case DOUBLE:
+                                    parser.nextToken();
+                                    context.attributeValues.put(fieldName2, parser.getValueAsDouble());
+                                    return true;
+                                case STRING:
+                                    context.attributeValues.put(fieldName2, parser.nextTextValue());
+                                    return true;
+                                case OBJECT:
+                                    parser.nextToken();
+                                    context.attributeValues.put(fieldName2, new DataObjectRef(parser.getValueAsLong(), index));
+                                    return true;
+                            }
+                            return false;
+                        }
+                    });
+                    return true;
+                case "children":
+                    JsonUtil.parseObjectArray(parser, context.children::add, parser2 -> DataObject.parseJson(parser2, index, scheme));
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        DataObject object = new DataObject(context.id, scheme.getClassByName(context.className), index);
+        for (DataObject child : context.children) {
+            child.setParent(object);
+        }
+        return object;
     }
 
     public void writeJson(JsonGenerator generator) throws IOException {

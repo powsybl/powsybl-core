@@ -7,9 +7,11 @@
 package com.powsybl.powerfactory.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Objects;
@@ -41,6 +43,46 @@ public class Project {
 
     public DataObjectIndex getIndex() {
         return index;
+    }
+
+    static class ParsingContext {
+        String name;
+
+        final DataObjectIndex index = new DataObjectIndex();
+
+        DataScheme scheme;
+
+        DataObject rootObject;
+    }
+
+    static Project parseJson(JsonParser parser) {
+        ParsingContext context = new ParsingContext();
+        try {
+            parser.nextToken();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        JsonUtil.parseObject(parser, fieldName -> {
+            switch (fieldName) {
+                case "name":
+                    context.name = parser.nextTextValue();
+                    return true;
+                case "classes":
+                    context.scheme = DataScheme.parseJson(parser);
+                    return true;
+                case "rootObject":
+                    parser.nextToken();
+                    context.rootObject = DataObject.parseJson(parser, context.index, context.scheme);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        return new Project(context.name, context.rootObject, context.index);
+    }
+
+    static Project parseJson(Reader reader) {
+        return JsonUtil.parseJson(reader, Project::parseJson);
     }
 
     public void writeJson(JsonGenerator generator) throws IOException {

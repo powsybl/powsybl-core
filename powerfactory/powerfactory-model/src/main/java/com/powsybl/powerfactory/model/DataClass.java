@@ -6,12 +6,14 @@
  */
 package com.powsybl.powerfactory.model;
 
-import java.io.IOException;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.commons.json.JsonUtil;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,7 +31,14 @@ public class DataClass {
     private final Map<String, DataAttribute> attributesByName = new HashMap<>();
 
     public DataClass(String name) {
+        this(name, Collections.emptyList());
+    }
+
+    public DataClass(String name, List<DataAttribute> attributes) {
         this.name = Objects.requireNonNull(name);
+        for (var attribute : attributes) {
+            addAttribute(attribute);
+        }
     }
 
     public String getName() {
@@ -53,6 +62,29 @@ public class DataClass {
     public DataAttribute getAttributeByName(String name) {
         Objects.requireNonNull(name);
         return attributesByName.get(name);
+    }
+
+    static class ParsingContext {
+        String name;
+
+        final List<DataAttribute> attributes = new ArrayList<>();
+    }
+
+    static DataClass parseJson(JsonParser parser) {
+        ParsingContext context = new ParsingContext();
+        JsonUtil.parseObject(parser, fieldName -> {
+            switch (fieldName) {
+                case "name":
+                    context.name = parser.nextTextValue();
+                    return true;
+                case "attributes":
+                    JsonUtil.parseObjectArray(parser, context.attributes::add, DataAttribute::parseJson);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        return new DataClass(context.name, context.attributes);
     }
 
     public void writeJson(JsonGenerator generator) throws IOException {

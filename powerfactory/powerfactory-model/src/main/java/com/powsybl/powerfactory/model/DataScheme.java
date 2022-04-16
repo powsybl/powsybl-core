@@ -7,6 +7,8 @@
 package com.powsybl.powerfactory.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -52,6 +54,13 @@ public class DataScheme {
 
     public boolean classExists(String name) {
         return findClassByName(name).isPresent();
+    }
+
+    static DataScheme parseJson(JsonParser parser) {
+        Objects.requireNonNull(parser);
+        DataScheme scheme = new DataScheme();
+        JsonUtil.parseObjectArray(parser, scheme::addClass, DataClass::parseJson);
+        return scheme;
     }
 
     public void writeJson(JsonGenerator generator) throws IOException {

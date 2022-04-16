@@ -7,6 +7,8 @@
 package com.powsybl.powerfactory.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -46,6 +48,34 @@ public class DataAttribute {
 
     public String getDescription() {
         return description;
+    }
+
+    static class ParsingContext {
+        String name;
+
+        DataAttributeType type;
+
+        String description = "";
+    }
+
+    static DataAttribute parseJson(JsonParser parser) {
+        ParsingContext context = new ParsingContext();
+        JsonUtil.parseObject(parser, fieldName -> {
+            switch (fieldName) {
+                case "name":
+                    context.name = parser.nextTextValue();
+                    return true;
+                case "type":
+                    context.type = DataAttributeType.valueOf(parser.nextTextValue());
+                    return true;
+                case "description":
+                    context.description = parser.nextTextValue();
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        return new DataAttribute(context.name, context.type, context.description);
     }
 
     public void writeJson(JsonGenerator generator) throws IOException {
