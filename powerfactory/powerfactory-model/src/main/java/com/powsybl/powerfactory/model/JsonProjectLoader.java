@@ -8,9 +8,7 @@ package com.powsybl.powerfactory.model;
 
 import com.google.auto.service.AutoService;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -40,6 +38,10 @@ public class JsonProjectLoader implements PowerFactoryDataLoader<Project> {
 
     @Override
     public Project doLoad(String fileName, InputStream is) {
-        throw new PowerFactoryException("TODO");
+        try (Reader reader = new InputStreamReader(is)) {
+            return Project.parseJson(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

@@ -43,12 +43,17 @@ public class DataObject {
 
     private final DataObjectIndex index;
 
-    private final Map<String, Object> attributeValues = new HashMap<>();
+    private final Map<String, Object> attributeValues;
 
     public DataObject(long id, DataClass dataClass, DataObjectIndex index) {
+        this(id, dataClass, index, new LinkedHashMap<>());
+    }
+
+    public DataObject(long id, DataClass dataClass, DataObjectIndex index, Map<String, Object> attributeValues) {
         this.id = id;
         this.dataClass = Objects.requireNonNull(dataClass);
         this.index = Objects.requireNonNull(index);
+        this.attributeValues = attributeValues;
         index.addDataObject(this);
     }
 
@@ -456,33 +461,30 @@ public class DataObject {
                 case "values":
                     DataClass dataClass = scheme.getClassByName(context.className);
                     parser.nextToken();
-                    JsonUtil.parseObject(parser, new JsonUtil.FieldHandler() {
-                        @Override
-                        public boolean onField(String fieldName2) throws IOException {
-                            DataAttribute attribute = dataClass.getAttributeByName(fieldName2);
-                            switch (attribute.getType()) {
-                                case INTEGER:
-                                    parser.nextToken();
-                                    context.attributeValues.put(fieldName2, parser.getValueAsInt());
-                                    return true;
-                                case INTEGER64:
-                                    parser.nextToken();
-                                    context.attributeValues.put(fieldName2, parser.getValueAsLong());
-                                    return true;
-                                case DOUBLE:
-                                    parser.nextToken();
-                                    context.attributeValues.put(fieldName2, parser.getValueAsDouble());
-                                    return true;
-                                case STRING:
-                                    context.attributeValues.put(fieldName2, parser.nextTextValue());
-                                    return true;
-                                case OBJECT:
-                                    parser.nextToken();
-                                    context.attributeValues.put(fieldName2, new DataObjectRef(parser.getValueAsLong(), index));
-                                    return true;
-                            }
-                            return false;
+                    JsonUtil.parseObject(parser, fieldName2 -> {
+                        DataAttribute attribute = dataClass.getAttributeByName(fieldName2);
+                        switch (attribute.getType()) {
+                            case INTEGER:
+                                parser.nextToken();
+                                context.attributeValues.put(fieldName2, parser.getValueAsInt());
+                                return true;
+                            case INTEGER64:
+                                parser.nextToken();
+                                context.attributeValues.put(fieldName2, parser.getValueAsLong());
+                                return true;
+                            case DOUBLE:
+                                parser.nextToken();
+                                context.attributeValues.put(fieldName2, parser.getValueAsDouble());
+                                return true;
+                            case STRING:
+                                context.attributeValues.put(fieldName2, parser.nextTextValue());
+                                return true;
+                            case OBJECT:
+                                parser.nextToken();
+                                context.attributeValues.put(fieldName2, new DataObjectRef(parser.getValueAsLong(), index));
+                                return true;
                         }
+                        return false;
                     });
                     return true;
                 case "children":
@@ -492,7 +494,7 @@ public class DataObject {
                     return false;
             }
         });
-        DataObject object = new DataObject(context.id, scheme.getClassByName(context.className), index);
+        DataObject object = new DataObject(context.id, scheme.getClassByName(context.className), index, context.attributeValues);
         for (DataObject child : context.children) {
             child.setParent(object);
         }
