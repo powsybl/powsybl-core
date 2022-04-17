@@ -6,11 +6,18 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.google.common.io.ByteStreams;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -20,27 +27,56 @@ import static org.junit.Assert.assertSame;
  */
 public class StudyCaseTest {
 
-    @Test
-    public void test() {
+    private StudyCase studyCase;
+    private DataObjectIndex index;
+    private DataObject objBar;
+    private DataObject objFoo;
+    private DataObject elmNet;
+
+    @Before
+    public void setUp() throws Exception {
         DataClass clsFoo = DataClass.init("ElmFoo")
                 .addAttribute(new DataAttribute("ref", DataAttributeType.INTEGER64));
         DataClass clsBar = DataClass.init("ElmBar");
+        DataClass clsNet = DataClass.init("ElmNet");
 
-        DataObjectIndex index = new DataObjectIndex();
-        DataObject objBar = new DataObject(2L, clsBar, index)
+        index = new DataObjectIndex();
+        objBar = new DataObject(2L, clsBar, index)
                 .setLocName("bar");
-        DataObject objFoo = new DataObject(1L, clsFoo, index)
+        objFoo = new DataObject(1L, clsFoo, index)
                 .setLocName("foo")
                 .setLongAttributeValue("ref", objBar.getId());
-        Instant time = Instant.parse("2021-10-30T09:35:25Z");
-        DataClass clsNet = DataClass.init("ElmNet");
-        DataObject elmNet = new DataObject(0L, clsNet, index)
+        Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
+        elmNet = new DataObject(0L, clsNet, index)
                 .setLocName("net");
-        StudyCase studyCase = new StudyCase("test", time, List.of(elmNet), index);
+        studyCase = new StudyCase("test", studyTime, List.of(elmNet), index);
+    }
 
+    @Test
+    public void test() {
         assertEquals("test", studyCase.getName());
-        assertEquals(time, studyCase.getTime());
+        Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
+        assertEquals(studyTime, studyCase.getTime());
         assertSame(index, objFoo.getIndex());
         assertEquals(List.of(elmNet, objFoo, objBar), new ArrayList<>(studyCase.getIndex().getDataObjects()));
+    }
+
+    @Test
+    public void jsonTest() throws IOException {
+        String json;
+        try (StringWriter writer = new StringWriter()) {
+            studyCase.writeJson(writer);
+            json = writer.toString();
+        }
+        var is = Objects.requireNonNull(getClass().getResourceAsStream("/studyCase.json"));
+        assertEquals(new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8), json);
+
+        try (StringReader reader = new StringReader(json)) {
+            StudyCase studyCase2 = StudyCase.parseJson(reader);
+            assertEquals("test", studyCase2.getName());
+            Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
+            assertEquals(studyTime, studyCase2.getTime());
+            assertEquals(1, studyCase2.getElmNets().size());
+        }
     }
 }

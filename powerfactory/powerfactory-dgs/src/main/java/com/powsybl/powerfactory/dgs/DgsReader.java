@@ -149,7 +149,7 @@ public class DgsReader {
         LOGGER.info("DGS file read in {} ms: {} data objects", stopwatch.elapsed(TimeUnit.MILLISECONDS), index.getDataObjects().size());
 
         List<DataObject> elmNets = index.getDataObjectsByClass("ElmNet");
-
-        return new StudyCase(studyCaseName, Instant.now(), elmNets, index);
+        Instant studyTime = Instant.ofEpochMilli(0); // FIXME get from head comment?
+        return new StudyCase(studyCaseName, studyTime, elmNets, index);
     }
 }

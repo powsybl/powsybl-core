@@ -7,12 +7,15 @@
 package com.powsybl.powerfactory.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,10 +55,56 @@ public class StudyCase {
         return index;
     }
 
+    static class ParsingContext {
+        String name;
+
+        Instant time;
+
+        final DataObjectIndex index = new DataObjectIndex();
+
+        DataScheme scheme;
+
+        final List<DataObject> elmNets = new ArrayList<>();
+    }
+
+    static StudyCase parseJson(JsonParser parser) {
+        ParsingContext context = new ParsingContext();
+        try {
+            parser.nextToken();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        JsonUtil.parseObject(parser, fieldName -> {
+            switch (fieldName) {
+                case "name":
+                    context.name = parser.nextTextValue();
+                    return true;
+                case "time":
+                    context.time = Instant.parse(parser.nextTextValue());
+                    return true;
+                case "classes":
+                    context.scheme = DataScheme.parseJson(parser);
+                    return true;
+                case "elmNets":
+                    JsonUtil.parseObjectArray(parser, context.elmNets::add,
+                        parser2 -> DataObject.parseJson(parser2, context.index, context.scheme));
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        return new StudyCase(context.name, context.time, context.elmNets, context.index);
+    }
+
+    static StudyCase parseJson(Reader reader) {
+        return JsonUtil.parseJson(reader, StudyCase::parseJson);
+    }
+
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
 
         generator.writeStringField("name", name);
+        generator.writeStringField("time", time.toString());
 
         DataScheme scheme = DataScheme.build(elmNets);
         scheme.writeJson(generator);
