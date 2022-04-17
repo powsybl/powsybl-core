@@ -16,6 +16,8 @@ import java.io.*;
 @AutoService(PowerFactoryDataLoader.class)
 public class JsonStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
 
+    private final JsonProjectLoader projectLoader = new JsonProjectLoader();
+
     @Override
     public Class<StudyCase> getDataClass() {
         return StudyCase.class;
@@ -23,26 +25,16 @@ public class JsonStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
 
     @Override
     public String getExtension() {
-        return "json";
+        return projectLoader.getExtension();
     }
 
     @Override
     public boolean test(InputStream is) {
-        try {
-            is.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return true;
+        return projectLoader.test(is);
     }
 
     @Override
     public StudyCase doLoad(String fileName, InputStream is) {
-        try (Reader reader = new InputStreamReader(is)) {
-            Project project = Project.parseJson(reader);
-            return project.getActiveStudyCase();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return projectLoader.doLoad(fileName, is).getActiveStudyCase();
     }
 }
