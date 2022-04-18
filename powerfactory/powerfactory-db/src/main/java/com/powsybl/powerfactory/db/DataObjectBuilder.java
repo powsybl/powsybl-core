@@ -8,6 +8,7 @@ package com.powsybl.powerfactory.db;
 
 import com.powsybl.powerfactory.model.*;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -75,6 +76,11 @@ public class DataObjectBuilder {
     public void setStringAttributeValue(long objectId, String attributeName, String value) {
         DataObject object = getObjectById(objectId);
         object.setStringAttributeValue(attributeName, value);
+    }
+
+    public void setDoubleVectorAttributeValue(long objectId, String attributeName, List<Double> value) {
+        DataObject object = getObjectById(objectId);
+        object.setDoubleVectorAttributeValue(attributeName, value);
     }
 
     public void setObjectAttributeValue(long objectId, String attributeName, long otherObjectId) {
