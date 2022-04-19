@@ -51,7 +51,7 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         try (TableFormatter formatter = formatterFactory.create(writer, "Short circuit analysis", formatterConfig,
                 new Column("ID"), new Column("Three Phase Fault Current"))) {
             for (FaultResult action : result.getFaultResults()) {
-                formatter.writeCell(action.getId())
+                formatter.writeCell(action.getFault().getId())
                         .writeCell(action.getThreePhaseFaultCurrent());
             }
         } catch (IOException e) {
