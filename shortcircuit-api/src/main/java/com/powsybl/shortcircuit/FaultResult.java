@@ -26,25 +26,28 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final double threePhaseFaultActivePower;
 
+    private final double timeConstant;
+
     private final List<FeederResult> feederResults;
 
     private final ShortCircuitBusResults faultBusResults; // voltages and currents on three phases.
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent, double threePhaseFaultActivePower,
-                       List<FeederResult> feederResults, ShortCircuitBusResults faultBusResults) {
+                       List<FeederResult> feederResults, ShortCircuitBusResults faultBusResults, double timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
         this.faultBusResults = faultBusResults;
+        this.timeConstant = timeConstant;
     }
 
-    public FaultResult(Fault fault, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
-        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null);
+    public FaultResult(Fault fault, double threePhaseFaultCurrent, List<FeederResult> feederResults, double timeConstant) {
+        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null, timeConstant);
     }
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent) {
-        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null);
+        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null, Double.NaN);
     }
 
     /**
@@ -89,5 +92,13 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
      */
     public ShortCircuitBusResults getFaultBusResults() {
         return faultBusResults;
+    }
+
+    /**
+     *
+     * The duration before reaching the permanent current.
+     */
+    public double getTimeConstant() {
+        return timeConstant;
     }
 }

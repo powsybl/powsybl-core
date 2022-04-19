@@ -44,6 +44,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
         double threePhaseFaultCurrent = Double.NaN;
         List<Extension<FaultResult>> extensions = Collections.emptyList();
         List<FeederResult> feederResults = Collections.emptyList();
+        double timeConstant = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -63,6 +64,10 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     });
                     break;
 
+                case "timeConstant":
+                    parser.nextToken();
+                    timeConstant = parser.readValueAs(Double.class);
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
@@ -73,7 +78,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
             }
         }
 
-        FaultResult faultResult = new FaultResult(fault, threePhaseFaultCurrent, feederResults);
+        FaultResult faultResult = new FaultResult(fault, threePhaseFaultCurrent, feederResults, timeConstant);
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;
