@@ -8,24 +8,22 @@ package com.powsybl.shortcircuit;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and the
+ * the magnitude and angle of current or voltage for the Fortescue direct, zero and indirect components.
  */
 public class ThreePhaseValue {
-    /**
-     * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and the
-     * the magnitude and angle of current or voltage for the Fortescue direct, zero and indirect components.
-     */
     // Results on three phases.
-    private double magnitude1;
-    private double magnitude2;
-    private double magnitude3;
-    private double phase1;
-    private double phase2;
-    private double phase3;
+    private final double magnitude1;
+    private final double magnitude2;
+    private final double magnitude3;
+    private final double phase1;
+    private final double phase2;
+    private final double phase3;
     // Fortescue results.
-    private double directMagnitude;
+    private final double directMagnitude;
     private double zeroMagnitude = Double.NaN;
     private double inverseMagnitude = Double.NaN;
-    private double directPhase;
+    private final double directPhase;
     private double zeroPhase = Double.NaN;
     private double inversePhase = Double.NaN;
 

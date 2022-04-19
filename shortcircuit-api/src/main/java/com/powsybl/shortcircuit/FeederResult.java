@@ -26,7 +26,7 @@ public class FeederResult {
      */
     private final double feederThreePhaseCurrent;
 
-    private ThreePhaseValue current = null;
+    private ThreePhaseValue current = null; // FIXME optional?
 
     @JsonCreator
     public FeederResult(@JsonProperty("connectableId") String connectableId,
