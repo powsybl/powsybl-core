@@ -17,7 +17,7 @@ import java.util.Collections;
 /**
  * @author Boubakeur Brahimi
  */
-public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
+public class MultiShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     private ShortCircuitAnalysisTool shortCircuitTool = new ShortCircuitAnalysisTool();
     private static final String COMMAND_NAME = "shortcircuit";

@@ -17,7 +17,6 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static com.powsybl.shortcircuit.ShortCircuitConstants.DEFAULT_IMPEDANCE_CONNECTION;
 import static com.powsybl.shortcircuit.ShortCircuitConstants.DEFAULT_STUDY_TYPE;
 
 /**
@@ -28,16 +27,9 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.DEFAULT_STUDY_TYPE;
  */
 public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParameters> {
 
-    private boolean subTransStudy = ShortCircuitConstants.SUBTRANS_STUDY;
     private boolean withFeederResult = ShortCircuitConstants.WITH_FEEDER_RESULT;
     private ShortCircuitConstants.StudyType studyType = DEFAULT_STUDY_TYPE;
-    private String equipment; //The branch or bus where the fault is simulated for selective studies
-    private ShortCircuitConstants.SelectiveStudyType selectiveStudyType;
-    private double faultResistance;
-    private double faultReactance;
-    private ShortCircuitConstants.ImpedanceConnection impedanceConnection = DEFAULT_IMPEDANCE_CONNECTION;
-    private int voltageDropThreshold; //in %
-    private int faultLocation; // in % of the branch
+    private double minVoltageDropProportionalThreshold = ShortCircuitConstants.DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
 
     public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {
@@ -58,22 +50,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         ModuleConfig config = platformConfig.getOptionalModuleConfig("short-circuit-parameters").orElse(null);
         if (config != null) {
-            //TODO: add parameter for a list of equipments on which the analysis should be done (sytematic study but with specified equipments)
-            parameters.setSubTransStudy(config.getBooleanProperty("subTransStudy", ShortCircuitConstants.SUBTRANS_STUDY));
             parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", ShortCircuitConstants.WITH_FEEDER_RESULT));
             parameters.setStudyType(config.getEnumProperty("study-type", ShortCircuitConstants.StudyType.class, DEFAULT_STUDY_TYPE));
-            if (parameters.studyType == ShortCircuitConstants.StudyType.SELECTIVE_STUDY) {
-                parameters.setEquipment(config.getStringProperty("equipment-name"));
-                parameters.setSelectiveStudyType(config.getEnumProperty("selective-study-type", ShortCircuitConstants.SelectiveStudyType.class));
-                parameters.setFaultResistance(config.getDoubleProperty("fault-resistance"));
-                parameters.setFaultReactance(config.getDoubleProperty("fault-reactance"));
-                parameters.setImpedanceConnection(config.getEnumProperty("impedance-connection", ShortCircuitConstants.ImpedanceConnection.class, DEFAULT_IMPEDANCE_CONNECTION));
-                parameters.setVoltageDropThreshold(config.getIntProperty("voltage-drop-threshold"));
-                if (parameters.selectiveStudyType == ShortCircuitConstants.SelectiveStudyType.BRANCH_STUDY) {
-                    parameters.setFaultLocation(config.getIntProperty("fault-location"));
-                }
-
-            }
+            parameters.setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", ShortCircuitConstants.DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD));
         }
         return parameters;
     }
@@ -82,15 +61,6 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         for (ConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
-    }
-
-    public boolean isSubTransStudy() {
-        return subTransStudy;
-    }
-
-    public ShortCircuitParameters setSubTransStudy(boolean subTransStudy) {
-        this.subTransStudy = subTransStudy;
-        return this;
     }
 
     public boolean isWithFeederResult() {
@@ -111,66 +81,13 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    public String getEquipment() {
-        return equipment;
+    public double getMinVoltageDropProportionalThreshold() {
+        return minVoltageDropProportionalThreshold;
     }
 
-    public ShortCircuitParameters setEquipment(String equipment) {
-        this.equipment = equipment;
-        return this;
-    }
-
-    public double getFaultResistance() {
-        return faultResistance;
-    }
-
-    public ShortCircuitParameters setFaultResistance(double faultResistance) {
-        this.faultResistance = faultResistance;
-        return this;
-    }
-
-    public double getFaultReactance() {
-        return faultReactance;
-    }
-
-    public ShortCircuitParameters setFaultReactance(double faultReactance) {
-        this.faultReactance = faultReactance;
-        return this;
-    }
-
-    public ShortCircuitConstants.ImpedanceConnection getImpedanceConnection() {
-        return impedanceConnection;
-    }
-
-    public ShortCircuitParameters setImpedanceConnection(ShortCircuitConstants.ImpedanceConnection impedanceConnection) {
-        this.impedanceConnection = impedanceConnection;
-        return this;
-    }
-
-    public int getVoltageDropThreshold() {
-        return voltageDropThreshold;
-    }
-
-    public ShortCircuitParameters setVoltageDropThreshold(int voltageDropThreshold) {
-        this.voltageDropThreshold = voltageDropThreshold;
-        return this;
-    }
-
-    public int getFaultLocation() {
-        return faultLocation;
-    }
-
-    public ShortCircuitParameters setFaultLocation(int faultLocation) {
-        this.faultLocation = faultLocation;
-        return this;
-    }
-
-    public ShortCircuitConstants.SelectiveStudyType getSelectiveStudyType() {
-        return selectiveStudyType;
-    }
-
-    public ShortCircuitParameters setSelectiveStudyType(ShortCircuitConstants.SelectiveStudyType selectiveStudyType) {
-        this.selectiveStudyType = selectiveStudyType;
+    // The maximum voltage drop threshold in %.
+    public ShortCircuitParameters setMinVoltageDropProportionalThreshold(double minVoltageDropProportionalThreshold) {
+        this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
         return this;
     }
 }

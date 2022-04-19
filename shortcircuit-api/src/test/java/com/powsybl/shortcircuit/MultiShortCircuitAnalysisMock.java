@@ -22,8 +22,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.com>
  */
-@AutoService(ShortCircuitAnalysisProvider.class)
-public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
+@AutoService(MultiShortCircuitAnalysisProvider.class)
+public class MultiShortCircuitAnalysisMock implements MultiShortCircuitAnalysisProvider {
 
     private final List<ShortCircuitAnalysisInterceptor> interceptors = new ArrayList<>();
 

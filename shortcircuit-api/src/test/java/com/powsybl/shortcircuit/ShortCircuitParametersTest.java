@@ -76,20 +76,11 @@ public class ShortCircuitParametersTest {
     }
 
     @Test
-    public void testSubTransStudy() {
-        ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
-        assertFalse(parameters.isSubTransStudy());
-
-        parameters.setSubTransStudy(true);
-        assertTrue(parameters.isSubTransStudy());
-    }
-
-    @Test
     public void testStudyType() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
-        assertEquals(ShortCircuitConstants.StudyType.SYSTEMATIC_STUDY, parameters.getStudyType());
+        assertEquals(ShortCircuitConstants.StudyType.TRANSIENT, parameters.getStudyType());
 
-        assertNull(parameters.getEquipment());
+        assertNull(parameters.getStudyType());
     }
 
     @Test
@@ -109,16 +100,8 @@ public class ShortCircuitParametersTest {
         Files.copy(getClass().getResourceAsStream("/config.yml"), cfgFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
-        assertTrue(parameters.isSubTransStudy());
-        assertEquals(ShortCircuitConstants.StudyType.SELECTIVE_STUDY, parameters.getStudyType());
-        assertNotNull(parameters.getEquipment());
-        assertEquals("id", parameters.getEquipment());
+        assertEquals(ShortCircuitConstants.StudyType.TRANSIENT, parameters.getStudyType());
         assertFalse(parameters.isWithFeederResult());
-        assertEquals(ShortCircuitConstants.SelectiveStudyType.BUS_STUDY, parameters.getSelectiveStudyType());
-        assertEquals(0, parameters.getFaultResistance(), 0);
-        assertEquals(0, parameters.getFaultReactance(), 0);
-        assertEquals(5, parameters.getVoltageDropThreshold(), 0);
-        assertEquals(ShortCircuitConstants.DEFAULT_IMPEDANCE_CONNECTION, parameters.getImpedanceConnection());
     }
 
     private static class DummyExtension extends AbstractExtension<ShortCircuitParameters> {

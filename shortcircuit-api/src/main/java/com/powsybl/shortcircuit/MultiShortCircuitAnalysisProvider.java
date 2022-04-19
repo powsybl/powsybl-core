@@ -16,21 +16,21 @@ import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
-public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
+public interface MultiShortCircuitAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
 
     void addInterceptor(ShortCircuitAnalysisInterceptor interceptor);
 
     boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor);
 
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, Fault fault, ShortCircuitParameters parameters,
-                                                              ComputationManager computationManager) {
-        return ShortCircuitAnalysis.runAsync(network, fault, parameters, computationManager);
+    default CompletableFuture<ShortCircuitAnalysisMultiResult> run(Network network, ShortCircuitParameters parameters,
+                                                                   ComputationManager computationManager) {
+        return MultiShortCircuitAnalysis.runAsync(network, parameters, computationManager);
     }
 
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, Fault fault, ShortCircuitParameters parameters,
-                                                              ComputationManager computationManager, Reporter reporter) {
-        return ShortCircuitAnalysis.runAsync(network, fault, parameters, computationManager, reporter);
+    default CompletableFuture<ShortCircuitAnalysisMultiResult> run(Network network, ShortCircuitParameters parameters,
+                                                                   ComputationManager computationManager, Reporter reporter) {
+        return MultiShortCircuitAnalysis.runAsync(network, parameters, computationManager, reporter);
     }
 }

@@ -27,12 +27,12 @@ import static org.junit.Assert.*;
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
-public class ShortCircuitAnalysisTest {
+public class MultiShortCircuitAnalysisTest {
 
     @Test
     public void shortCircuitAnalysisWithDummyProvider() {
 
-        ShortCircuitAnalysisProvider provider = new ShortCircuitAnalysisProvider() {
+        MultiShortCircuitAnalysisProvider provider = new MultiShortCircuitAnalysisProvider() {
             @Override
             public String getName() {
                 return "DummyProvider";
@@ -85,39 +85,39 @@ public class ShortCircuitAnalysisTest {
 
     @Test
     public void testDefaultProvider() {
-        ShortCircuitAnalysis.Runner defaultShortCircuitAnalysisRunner = ShortCircuitAnalysis.find();
+        MultiShortCircuitAnalysis.Runner defaultShortCircuitAnalysisRunner = MultiShortCircuitAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultShortCircuitAnalysisRunner.getName());
         assertEquals("1.0", defaultShortCircuitAnalysisRunner.getVersion());
     }
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<ShortCircuitAnalysisMultiResult> result = ShortCircuitAnalysis.runAsync(network, shortCircuitParameters, computationManager);
+        CompletableFuture<ShortCircuitAnalysisMultiResult> result = MultiShortCircuitAnalysis.runAsync(network, shortCircuitParameters, computationManager);
         assertNotNull(result.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager);
+        ShortCircuitAnalysisMultiResult result = MultiShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutComputationManager() {
-        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters);
+        ShortCircuitAnalysisMultiResult result = MultiShortCircuitAnalysis.run(network, shortCircuitParameters);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutParameters() {
-        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network);
+        ShortCircuitAnalysisMultiResult result = MultiShortCircuitAnalysis.run(network);
         assertNotNull(result);
     }
 
     @Test
     public void testWithReporter() {
         ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
-        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager, reporter);
+        ShortCircuitAnalysisMultiResult result = MultiShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager, reporter);
         assertNotNull(result);
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
@@ -131,7 +131,7 @@ public class ShortCircuitAnalysisTest {
     public void testInterceptor() {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisInterceptorMock interceptorMock = new ShortCircuitAnalysisInterceptorMock();
-        ShortCircuitAnalysisMultiResult result = ShortCircuitAnalysisMock.runWithNonEmptyResult();
+        ShortCircuitAnalysisMultiResult result = MultiShortCircuitAnalysisMock.runWithNonEmptyResult();
         assertNotNull(result);
 
         List<FaultResult> faultResult = result.getFaultResults();

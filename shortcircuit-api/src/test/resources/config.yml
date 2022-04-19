@@ -1,9 +1,3 @@
 short-circuit-parameters:
-  subTransStudy: true
-  study-type: "SELECTIVE_STUDY"
-  equipment-name: "id"
-  selective-study-type: "BUS_STUDY"
-  fault-resistance: 0
-  fault-reactance: 0
-  voltage-drop-threshold: 5
+  study-type: "SUB_TRANSIENT"
   withFeederResult: false

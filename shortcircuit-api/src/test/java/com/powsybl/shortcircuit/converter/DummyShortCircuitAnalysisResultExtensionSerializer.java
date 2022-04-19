@@ -21,7 +21,7 @@ import java.io.IOException;
  * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(ExtensionJsonSerializer.class)
-public class DummyShortCircuitAnalysisResultExtensionSerializer implements ExtensionJsonSerializer<ShortCircuitAnalysisMultiResult, ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension> {
+public class DummyShortCircuitAnalysisResultExtensionSerializer implements ExtensionJsonSerializer<ShortCircuitAnalysisMultiResult, MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension> {
 
     @Override
     public String getExtensionName() {
@@ -34,21 +34,21 @@ public class DummyShortCircuitAnalysisResultExtensionSerializer implements Exten
     }
 
     @Override
-    public Class<? super ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension> getExtensionClass() {
-        return ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension.class;
+    public Class<? super MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension> getExtensionClass() {
+        return MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension.class;
     }
 
     @Override
-    public void serialize(ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension deserialize(JsonParser parser, DeserializationContext deserializationContext)  throws IOException {
+    public MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension deserialize(JsonParser parser, DeserializationContext deserializationContext)  throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             continue;
         }
-        return new ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension();
+        return new MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension();
     }
 }
