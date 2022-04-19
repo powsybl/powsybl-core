@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public final class FaultResult extends AbstractExtendable<FaultResult> {
 
-    private final String id;
+    private final Fault fault;
 
     private final double threePhaseFaultCurrent;
 
@@ -30,29 +30,28 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final ShortCircuitBusResults faultBusResults; // voltages and currents on three phases.
 
-    public FaultResult(String id, double threePhaseFaultCurrent, double threePhaseFaultActivePower,
+    public FaultResult(Fault fault, double threePhaseFaultCurrent, double threePhaseFaultActivePower,
                        List<FeederResult> feederResults, ShortCircuitBusResults faultBusResults) {
-        this.id = Objects.requireNonNull(id);
+        this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
         this.faultBusResults = faultBusResults;
     }
 
-    public FaultResult(String id, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
-        this(id, threePhaseFaultCurrent, Double.NaN, feederResults, null);
+    public FaultResult(Fault fault, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
+        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null);
     }
 
-    public FaultResult(String id, double threePhaseFaultCurrent) {
-        this(id, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null);
+    public FaultResult(Fault fault, double threePhaseFaultCurrent) {
+        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null);
     }
 
     /**
-     * ID of the equipment for which a fault has been simulated. In a first simple approach, the equipment is a voltage
-     * level, and no side is needed.
+     * The fault associated to the results.
      */
-    public String getId() {
-        return id;
+    public Fault getFault() {
+        return fault;
     }
 
     /**

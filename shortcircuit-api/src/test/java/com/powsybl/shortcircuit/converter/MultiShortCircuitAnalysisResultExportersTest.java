@@ -12,9 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.FeederResult;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
+import com.powsybl.shortcircuit.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -50,8 +48,9 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     }
 
     private static ShortCircuitAnalysisMultiResult createResult() {
+        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES);
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult("faultResultID", 1);
+        FaultResult faultResult = new FaultResult(fault, 1);
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
@@ -65,8 +64,9 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     }
 
     private static ShortCircuitAnalysisMultiResult createResultWithExtension() {
+        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES);
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult("faultResultID", 1);
+        FaultResult faultResult = new FaultResult(fault, 1);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
@@ -84,9 +84,10 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     }
 
     private static ShortCircuitAnalysisMultiResult createWithFeederResults() {
+        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES);
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
-        FaultResult faultResult = new FaultResult("faultResultID", 1, Collections.singletonList(feederResult));
+        FaultResult faultResult = new FaultResult(fault, 1, Collections.singletonList(feederResult));
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
@@ -140,8 +141,9 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     }
 
     public ShortCircuitAnalysisMultiResult createResult(Network network) {
+        Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES);
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult("VLGEN", 2500);
+        FaultResult faultResult = new FaultResult(fault, 2500);
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "VLGEN";
