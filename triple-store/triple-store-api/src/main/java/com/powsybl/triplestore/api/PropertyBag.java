@@ -33,6 +33,12 @@ public class PropertyBag extends HashMap<String, String> {
         return propertyNames;
     }
 
+    public void putNonNull(String key, String value) {
+        if (key != null && value != null) {
+            put(key, value);
+        }
+    }
+
     public String getLocal(String property) {
         String value = get(property);
         if (value == null) {
