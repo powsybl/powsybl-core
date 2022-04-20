@@ -87,7 +87,7 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES);
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
-        FaultResult faultResult = new FaultResult(fault, 1, Collections.singletonList(feederResult));
+        FaultResult faultResult = new FaultResult(fault, 1, Collections.singletonList(feederResult), 1);
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";

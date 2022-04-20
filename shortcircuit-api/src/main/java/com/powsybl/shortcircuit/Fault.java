@@ -15,7 +15,7 @@ package com.powsybl.shortcircuit;
 public interface Fault {
 
     // How the fault impedance is connected to the network.
-    public enum ConnectionType {
+    enum ConnectionType {
         SERIES,
         PARALLEL,
     }

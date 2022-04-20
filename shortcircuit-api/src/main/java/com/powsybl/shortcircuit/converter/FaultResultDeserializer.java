@@ -17,6 +17,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.Fault;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.FeederResult;
 
@@ -39,16 +40,17 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
     @Override
     public FaultResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String id = "";
+        Fault fault = null;
         double threePhaseFaultCurrent = Double.NaN;
         List<Extension<FaultResult>> extensions = Collections.emptyList();
         List<FeederResult> feederResults = Collections.emptyList();
+        double timeConstant = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "id":
+                case "fault":
                     parser.nextToken();
-                    id = parser.readValueAs(String.class);
+                    fault = parser.readValueAs(Fault.class);
                     break;
 
                 case "threePhaseFaultCurrent":
@@ -62,6 +64,10 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     });
                     break;
 
+                case "timeConstant":
+                    parser.nextToken();
+                    timeConstant = parser.readValueAs(Double.class);
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
@@ -72,7 +78,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
             }
         }
 
-        FaultResult faultResult = new FaultResult(id, threePhaseFaultCurrent, feederResults);
+        FaultResult faultResult = new FaultResult(fault, threePhaseFaultCurrent, feederResults, timeConstant);
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;

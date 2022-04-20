@@ -61,7 +61,7 @@ public class MultiShortCircuitAnalysisMock implements MultiShortCircuitAnalysisP
     public static ShortCircuitAnalysisMultiResult runWithNonEmptyResult() {
         Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES);
         FeederResult feederResult = new FeederResult("GEN", 5);
-        FaultResult faultResult = new FaultResult(fault, 10, Collections.singletonList(feederResult));
+        FaultResult faultResult = new FaultResult(fault, 10, Collections.singletonList(feederResult), 1);
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
         return new ShortCircuitAnalysisMultiResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
     }

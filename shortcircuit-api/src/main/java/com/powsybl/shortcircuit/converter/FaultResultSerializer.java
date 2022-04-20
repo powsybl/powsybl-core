@@ -27,7 +27,7 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
     public void serialize(FaultResult faultResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("id", faultResult.getId());
+        jsonGenerator.writeStringField("id", faultResult.getFault().getId());
         jsonGenerator.writeNumberField("threePhaseFaultCurrent", faultResult.getThreePhaseFaultCurrent());
         if (!(faultResult.getFeederResults()).isEmpty()) {
             jsonGenerator.writeObjectField("feederResult", faultResult.getFeederResults());

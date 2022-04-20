@@ -26,6 +26,8 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final double threePhaseFaultActivePower;
 
+    private final double timeConstant;
+
     private final List<FeederResult> feederResults;
 
     private final ThreePhaseValue current; // FIXME optional?
@@ -33,21 +35,30 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     private final ThreePhaseValue voltage; // FIXME optional?
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent, double threePhaseFaultActivePower,
-                       List<FeederResult> feederResults, ThreePhaseValue current, ThreePhaseValue voltage) {
+                       List<FeederResult> feederResults, ThreePhaseValue current, ThreePhaseValue voltage, double timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
         this.current = current;
         this.voltage = voltage;
+        this.timeConstant = timeConstant;
     }
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
-        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null, null);
+        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null, null, Double.NaN);
+    }
+
+    public FaultResult(Fault fault, double threePhaseFaultCurrent, List<FeederResult> feederResults, double timeConstant) {
+        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null, null, timeConstant);
+    }
+
+    public FaultResult(Fault fault, double threePhaseFaultCurrent, double timeConstant) {
+        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null, null, timeConstant);
     }
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent) {
-        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null, null);
+        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null, null, Double.NaN);
     }
 
     /**
@@ -99,5 +110,13 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
      */
     public ThreePhaseValue getVoltage() {
         return voltage;
+    }
+
+    /**
+     *
+     * The duration before reaching the permanent current.
+     */
+    public double getTimeConstant() {
+        return timeConstant;
     }
 }
