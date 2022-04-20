@@ -6,12 +6,15 @@
  */
 package com.powsybl.shortcircuit;
 
+import java.util.Objects;
+
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class ShortCircuitBusResults {
-    // FIXME: delta voltages are missing for the moment,
-    //  but not useful for the global design.
+    // FIXME
+    // delta voltages are missing for the moment,
+    // but not useful for the global design.
 
     private final String voltageLevelId;
 
@@ -19,17 +22,10 @@ public class ShortCircuitBusResults {
 
     private ThreePhaseValue voltage;
 
-    private ThreePhaseValue current;
-
     public ShortCircuitBusResults(String voltageLevelId, String busId, ThreePhaseValue voltage) {
-        this(voltageLevelId, busId, voltage, null);
-    }
-
-    public ShortCircuitBusResults(String voltageLevelId, String busId, ThreePhaseValue voltage, ThreePhaseValue current) {
         this.voltageLevelId = voltageLevelId;
         this.busId = busId;
-        this.voltage = voltage;
-        this.current = current;
+        this.voltage = Objects.requireNonNull(voltage);
     }
 
     public String getVoltageLevelId() {
@@ -42,9 +38,5 @@ public class ShortCircuitBusResults {
 
     public ThreePhaseValue getVoltage() {
         return voltage;
-    }
-
-    public ThreePhaseValue getCurrent() {
-        return current;
     }
 }

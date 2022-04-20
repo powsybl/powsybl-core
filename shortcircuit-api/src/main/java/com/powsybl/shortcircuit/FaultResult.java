@@ -28,23 +28,26 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final List<FeederResult> feederResults;
 
-    private final ShortCircuitBusResults faultBusResults; // voltages and currents on three phases.
+    private final ThreePhaseValue current; // FIXME optional?
+
+    private final ThreePhaseValue voltage; // FIXME optional?
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent, double threePhaseFaultActivePower,
-                       List<FeederResult> feederResults, ShortCircuitBusResults faultBusResults) {
+                       List<FeederResult> feederResults, ThreePhaseValue current, ThreePhaseValue voltage) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultCurrent = threePhaseFaultCurrent;
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
-        this.faultBusResults = faultBusResults;
+        this.current = current;
+        this.voltage = voltage;
     }
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
-        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null);
+        this(fault, threePhaseFaultCurrent, Double.NaN, feederResults, null, null);
     }
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent) {
-        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null);
+        this(fault, threePhaseFaultCurrent, Double.NaN, Collections.emptyList(), null, null);
     }
 
     /**
@@ -85,9 +88,16 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     /**
-     * The results on three phases for current and voltage at fault bus.
+     * The results on three phases for current.
      */
-    public ShortCircuitBusResults getFaultBusResults() {
-        return faultBusResults;
+    public ThreePhaseValue getCurrent() {
+        return current;
+    }
+
+    /**
+     * The results on three phases for voltage.
+     */
+    public ThreePhaseValue getVoltage() {
+        return voltage;
     }
 }
