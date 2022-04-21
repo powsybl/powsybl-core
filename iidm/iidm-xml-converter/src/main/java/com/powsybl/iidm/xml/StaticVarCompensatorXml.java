@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,7 +32,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected boolean hasSubElements(StaticVarCompensator svc) {
-        return !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable());
+        return svc != svc.getRegulatingTerminal().getConnectable();
     }
 
     @Override
@@ -58,7 +57,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
-        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()),
+        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(svc != svc.getRegulatingTerminal().getConnectable(),
                 ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
                 IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
     }

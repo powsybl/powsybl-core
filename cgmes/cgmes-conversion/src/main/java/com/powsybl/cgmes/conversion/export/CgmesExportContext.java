@@ -161,6 +161,7 @@ public class CgmesExportContext {
 
     public void addIidmMappings(Network network) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
+        // TODO add option to skip this part (if from CGMES)
         addIidmMappingsSubstations(network);
         BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
         if (bvMapping == null) {
@@ -171,6 +172,7 @@ public class CgmesExportContext {
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsShuntCompensators(network);
+        addIidmMappingsStaticVarCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
         addIidmMappingsControlArea(network);
@@ -317,6 +319,16 @@ public class CgmesExportContext {
             if (regulatingControlId == null) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
+            }
+        }
+    }
+
+    private static void addIidmMappingsStaticVarCompensators(Network network) {
+        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+            String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
+            if (regulatingControlId == null && (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
+                regulatingControlId = CgmesExportUtil.getUniqueId();
+                svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);
             }
         }
     }

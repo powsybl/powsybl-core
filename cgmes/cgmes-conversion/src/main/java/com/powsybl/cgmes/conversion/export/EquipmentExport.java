@@ -58,7 +58,7 @@ public final class EquipmentExport {
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, exportedTerminals, cimNamespace, writer);
-            writeShuntCompensators(network, cimNamespace, writer);
+            writeShuntCompensators(network, exportedTerminals, cimNamespace, writer);
             writeStaticVarCompensators(network, exportedTerminals, cimNamespace, writer);
             writeLines(network, exportedTerminals, cimNamespace, writer);
             writeTwoWindingsTransformers(network, exportedTerminals, cimNamespace, writer);
@@ -225,16 +225,8 @@ public final class EquipmentExport {
     private static void writeGenerators(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-            if (generatingUnit == null) {
-                generatingUnit = CgmesExportUtil.getUniqueId();
-                generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
-            }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            if (regulatingControlId != null || generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable())) {
-                if (regulatingControlId == null) {
-                    regulatingControlId = CgmesExportUtil.getUniqueId();
-                    generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);
-                }
+            if (regulatingControlId != null) {
                 String regulatingControlName = "RC_" + generator.getNameOrId();
                 RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(exportedTerminals, generator.getRegulatingTerminal()), cimNamespace, writer);
             }
@@ -266,7 +258,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeShuntCompensators(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeShuntCompensators(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             double bPerSection = 0.0;
             double gPerSection = Double.NaN;
@@ -284,17 +276,16 @@ public final class EquipmentExport {
                     g = s.getG(section);
                 }
             }
+            String regulatingControlId = s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            String regulatingControlName = "RC_" + s.getNameOrId();
+            RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(exportedTerminals, s.getRegulatingTerminal()), cimNamespace, writer);
         }
     }
 
     private static void writeStaticVarCompensators(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            if (regulatingControlId != null || StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
-                if (regulatingControlId == null) {
-                    regulatingControlId = CgmesExportUtil.getUniqueId();
-                    svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);
-                }
+            if (regulatingControlId != null) {
                 String regulatingControlName = "RC_" + svc.getNameOrId();
                 RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(exportedTerminals, svc.getRegulatingTerminal()), cimNamespace, writer);
             }
