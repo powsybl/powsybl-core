@@ -54,7 +54,7 @@ public class GroovyScriptPostProcessor implements ImportPostProcessor {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig("groovy-post-processor")
                 .flatMap(config -> config.getOptionalPathProperty("script"))
-                .or(() -> platformConfig.getOptionalConfigDir().map(dir -> dir.resolve(DEFAULT_SCRIPT_NAME)))
+                .or(() -> platformConfig.getConfigDir().map(dir -> dir.resolve(DEFAULT_SCRIPT_NAME)))
                 .orElseThrow(() -> new PowsyblException("No script path nor configuration directory defined in platform config"));
     }
 

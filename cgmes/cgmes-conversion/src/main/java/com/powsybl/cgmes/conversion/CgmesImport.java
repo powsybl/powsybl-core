@@ -48,7 +48,7 @@ public class CgmesImport implements Importer {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
-        String boundaryPath = platformConfig.getOptionalConfigDir()
+        String boundaryPath = platformConfig.getConfigDir()
                 .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
                 .map(Path::toString)
                 .orElse(null);

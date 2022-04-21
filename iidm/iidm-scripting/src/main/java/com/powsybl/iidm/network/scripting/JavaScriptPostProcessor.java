@@ -58,7 +58,7 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
 
         script = platformConfig.getOptionalModuleConfig("javaScriptPostProcessor")
                 .flatMap(config -> config.getOptionalPathProperty("script"))
-                .or(() -> platformConfig.getOptionalConfigDir().map(dir -> dir.resolve(SCRIPT_NAME)))
+                .or(() -> platformConfig.getConfigDir().map(dir -> dir.resolve(SCRIPT_NAME)))
                 .orElseThrow(() -> new PowsyblException("No script path nor configuration directory defined in platform config"));
     }
 

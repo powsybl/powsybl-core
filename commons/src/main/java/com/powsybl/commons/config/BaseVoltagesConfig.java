@@ -64,7 +64,7 @@ public class BaseVoltagesConfig {
     }
 
     public static BaseVoltagesConfig fromPlatformConfig(PlatformConfig platformConfig, String configFileName) {
-        return platformConfig.getOptionalConfigDir()
+        return platformConfig.getConfigDir()
                 .map(configDir -> fromPath(configDir, configFileName))
                 .orElseGet(() -> {
                     LOGGER.debug("Configuration directory not defined in platform config, loading file '{}' from class path", configFileName);

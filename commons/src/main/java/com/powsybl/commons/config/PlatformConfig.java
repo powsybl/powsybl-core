@@ -89,12 +89,7 @@ public class PlatformConfig {
         this.configDir = configDir != null ? FileUtil.createDirectory(configDir) : null;
     }
 
-    @Deprecated
-    public Path getConfigDir() {
-        return configDir;
-    }
-
-    public Optional<Path> getOptionalConfigDir() {
+    public Optional<Path> getConfigDir() {
         return Optional.ofNullable(configDir);
     }
 
