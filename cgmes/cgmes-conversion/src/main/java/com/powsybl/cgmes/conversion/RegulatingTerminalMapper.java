@@ -7,54 +7,96 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.*;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.math.graph.TraverseResult;
-
 /**
+ * IIDM does not have terminals at ends of switches.
+ * When we found a CGMES regulating terminal that corresponds to the end of a switch,
+ * we have to map it to an equivalent IIDM terminal.
+ * The mapping has to take into account if the controlled magnitude corresponds to a node (voltage)
+ * or if it is a flow (active/reactive power)
+ *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class SwitchTerminal {
+class RegulatingTerminalMapper {
     private final VoltageLevel vl;
     private final Switch sw;
     private final boolean isNodeBreakerModel;
 
-    SwitchTerminal(VoltageLevel vl, Switch sw, boolean isNodeBreakerModel) {
-        this.vl = vl;
-        this.sw = sw;
-        this.isNodeBreakerModel = isNodeBreakerModel;
-    }
-
-    // Find a terminal in the topological node
-    Optional<Terminal> getTerminalInTopologicalNode() {
-        if (isNodeBreakerModel) {
-            return getTerminalInTopologicalNodeNodeBreaker();
+    public static Optional<Terminal> mapForVoltageControl(String cgmesTerminalId, Context context) {
+        if (cgmesTerminalId == null) {
+            return Optional.empty();
+        }
+        Switch sw = atSwitchEnd(cgmesTerminalId, context);
+        if (sw != null) {
+            return new RegulatingTerminalMapper(sw).findTerminalInTopologicalNode();
         } else {
-            return getTerminalInTopologicalNodeBusBranch();
+            return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
         }
     }
 
-    private Optional<Terminal> getTerminalInTopologicalNodeNodeBreaker() {
-        int end1 = getSwitchEndNodeBreaker(vl, sw, true);
-        int end2 = getSwitchEndNodeBreaker(vl, sw, false);
+    public static Optional<TerminalAndSign> mapForFlowControl(String cgmesTerminalId, Context context) {
+        if (cgmesTerminalId == null) {
+            return Optional.empty();
+        }
+        Switch sw = atSwitchEnd(cgmesTerminalId, context);
+        if (sw != null) {
+            Branch.Side side = sequenceNumberToSide(context.cgmes().terminal(cgmesTerminalId).getSequenceNumber());
+            return new RegulatingTerminalMapper(sw).findTerminalInSwitchesChain(side);
+        }
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).map(t -> new TerminalAndSign(t, 1));
+    }
+
+    public static Optional<Terminal> mapForTieFlow(String cgmesTerminalId, Context context) {
+        if (cgmesTerminalId == null) {
+            return Optional.empty();
+        }
+        Switch sw = atSwitchEnd(cgmesTerminalId, context);
+        if (sw != null) {
+            return new RegulatingTerminalMapper(sw).findDanglingLineTerminalInSwitchesChain();
+        } else {
+            return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
+        }
+    }
+
+    RegulatingTerminalMapper(Switch sw) {
+        this.vl = sw.getVoltageLevel();
+        this.sw = sw;
+        this.isNodeBreakerModel = vl.getTopologyKind() == TopologyKind.NODE_BREAKER;
+    }
+
+    // Find a terminal in the topological node
+    Optional<Terminal> findTerminalInTopologicalNode() {
+        if (isNodeBreakerModel) {
+            return findTerminalInTopologicalNodeNodeBreaker();
+        } else {
+            return findTerminalInTopologicalNodeBusBranch();
+        }
+    }
+
+    private Optional<Terminal> findTerminalInTopologicalNodeNodeBreaker() {
+        int end1 = vl.getNodeBreakerView().getNode1(sw.getId());
+        int end2 = vl.getNodeBreakerView().getNode2(sw.getId());
 
         List<Terminal> terminals = findTerminalsNodeBreaker(end1, end2);
         return bestTerminalInTopologicalNode(terminals);
     }
 
-    private Optional<Terminal> getTerminalInTopologicalNodeBusBranch() {
-        Bus end1 = getSwitchEndBusBranch(vl, sw, true);
-        Bus end2 = getSwitchEndBusBranch(vl, sw, false);
+    private Optional<Terminal> findTerminalInTopologicalNodeBusBranch() {
+        Bus end1 = vl.getBusBreakerView().getBus1(sw.getId());
+        Bus end2 = vl.getBusBreakerView().getBus2(sw.getId());
 
         List<Terminal> terminals = findTerminalsBusBranch(end1, end2);
         return bestTerminalInTopologicalNode(terminals);
@@ -76,27 +118,27 @@ class SwitchTerminal {
         return terminals.stream().findFirst();
     }
 
-    // Find a terminal in a switches chain.
-    Optional<TerminalAndSign> getTerminalInSwitchesChain(Branch.Side terminalSide) {
+    // Find a terminal in a chain of switches.
+    Optional<TerminalAndSign> findTerminalInSwitchesChain(Branch.Side terminalSide) {
         if (isNodeBreakerModel) {
-            return getTerminalInSwitchesChainNodeBreaker(terminalSide);
+            return findTerminalInSwitchesChainNodeBreaker(terminalSide);
         } else {
-            return getTerminalInSwitchesChainBusBranch(terminalSide);
+            return findTerminalInSwitchesChainBusBranch(terminalSide);
         }
     }
 
-    private Optional<TerminalAndSign> getTerminalInSwitchesChainNodeBreaker(Branch.Side terminalSide) {
-        int end1 = getSwitchEndNodeBreaker(vl, sw, true);
-        int end2 = getSwitchEndNodeBreaker(vl, sw, false);
+    private Optional<TerminalAndSign> findTerminalInSwitchesChainNodeBreaker(Branch.Side terminalSide) {
+        int end1 = vl.getNodeBreakerView().getNode1(sw.getId());
+        int end2 = vl.getNodeBreakerView().getNode2(sw.getId());
 
         Terminal terminalEnd1 = findTerminalChainEndNodeBreaker(end1, end2);
         Terminal terminalEnd2 = findTerminalChainEndNodeBreaker(end2, end1);
         return bestTerminalInChain(terminalSide, terminalEnd1, terminalEnd2);
     }
 
-    private Optional<TerminalAndSign> getTerminalInSwitchesChainBusBranch(Branch.Side terminalSide) {
-        Bus end1 = getSwitchEndBusBranch(vl, sw, true);
-        Bus end2 = getSwitchEndBusBranch(vl, sw, false);
+    private Optional<TerminalAndSign> findTerminalInSwitchesChainBusBranch(Branch.Side terminalSide) {
+        Bus end1 = vl.getBusBreakerView().getBus1(sw.getId());
+        Bus end2 = vl.getBusBreakerView().getBus2(sw.getId());
 
         Terminal terminalEnd1 = findTerminalChainEndBusBranch(end1, end2);
         Terminal terminalEnd2 = findTerminalChainEndBusBranch(end2, end1);
@@ -125,46 +167,30 @@ class SwitchTerminal {
     }
 
     // Find a dangingLine terminal in a switches chain
-    Optional <Terminal> getDanglingLineTerminalInSwitchesChain() {
+    Optional <Terminal> findDanglingLineTerminalInSwitchesChain() {
         if (isNodeBreakerModel) {
-            return getDanglingLineTerminalInSwitchesChainNodeBreaker();
+            return findDanglingLineTerminalInSwitchesChainNodeBreaker();
         } else {
-            return getDanglingLineTerminalInSwitchesChainBusBranch();
+            return findDanglingLineTerminalInSwitchesChainBusBranch();
         }
     }
 
-    private Optional<Terminal> getDanglingLineTerminalInSwitchesChainNodeBreaker() {
-        int end1 = getSwitchEndNodeBreaker(vl, sw, true);
-        int end2 = getSwitchEndNodeBreaker(vl, sw, false);
+    private Optional<Terminal> findDanglingLineTerminalInSwitchesChainNodeBreaker() {
+        int end1 = vl.getNodeBreakerView().getNode1(sw.getId());
+        int end2 = vl.getNodeBreakerView().getNode2(sw.getId());
 
         Terminal terminalEnd1 = findTerminalChainEndNodeBreaker(end1, end2);
         Terminal terminalEnd2 = findTerminalChainEndNodeBreaker(end2, end1);
         return bestDanglingLineTerminal(terminalEnd1, terminalEnd2);
     }
 
-    private Optional<Terminal> getDanglingLineTerminalInSwitchesChainBusBranch() {
-        Bus end1 = getSwitchEndBusBranch(vl, sw, true);
-        Bus end2 = getSwitchEndBusBranch(vl, sw, false);
+    private Optional<Terminal> findDanglingLineTerminalInSwitchesChainBusBranch() {
+        Bus end1 = vl.getBusBreakerView().getBus1(sw.getId());
+        Bus end2 = vl.getBusBreakerView().getBus2(sw.getId());
 
         Terminal terminalEnd1 = findTerminalChainEndBusBranch(end1, end2);
         Terminal terminalEnd2 = findTerminalChainEndBusBranch(end2, end1);
         return bestDanglingLineTerminal(terminalEnd1, terminalEnd2);
-    }
-
-    private static int getSwitchEndNodeBreaker(VoltageLevel vl, Switch sw, boolean end1) {
-        if (end1) {
-            return vl.getNodeBreakerView().getNode1(sw.getId());
-        } else {
-            return vl.getNodeBreakerView().getNode2(sw.getId());
-        }
-    }
-
-    private static Bus getSwitchEndBusBranch(VoltageLevel vl, Switch sw, boolean end1) {
-        if (end1) {
-            return vl.getBusBreakerView().getBus1(sw.getId());
-        } else {
-            return vl.getBusBreakerView().getBus2(sw.getId());
-        }
     }
 
     private List<Terminal> findTerminalsNodeBreaker(int end, int otherEnd) {
@@ -308,8 +334,27 @@ class SwitchTerminal {
         return Optional.empty();
     }
 
-    static boolean isSwitch(String conductingEquipmentType) {
-        return conductingEquipmentType.equals("Breaker") || conductingEquipmentType.equals("Disconnector");
+    private static Switch atSwitchEnd(String cgmesTerminalId, Context context) {
+        Objects.requireNonNull(cgmesTerminalId);
+        CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
+        if (cgmesTerminal != null && isSwitch(cgmesTerminal.conductingEquipmentType())) {
+            return context.network().getSwitch(cgmesTerminal.conductingEquipment());
+        }
+        return null;
+    }
+
+    private static boolean isSwitch(String conductingEquipmentType) {
+        return CgmesNames.SWITCH_TYPES.contains(conductingEquipmentType);
+    }
+
+    private static Branch.Side sequenceNumberToSide(int sequenceNumber) {
+        if (sequenceNumber == 1) {
+            return Branch.Side.ONE;
+        } else if (sequenceNumber == 2) {
+            return Branch.Side.TWO;
+        } else {
+            throw new PowsyblException(String.format("Unexpected sequenceNumber %d", sequenceNumber));
+        }
     }
 
     static class TerminalAndSign {

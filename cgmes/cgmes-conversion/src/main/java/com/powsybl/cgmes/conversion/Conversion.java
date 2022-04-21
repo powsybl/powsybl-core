@@ -214,7 +214,7 @@ public class Conversion {
             network.newExtension(CgmesControlAreasAdder.class).add();
             CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
             cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf, cgmes, network));
+            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
             cgmesControlAreas.cleanIfEmpty();
         }
 
@@ -282,8 +282,7 @@ public class Conversion {
                 .add();
     }
 
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf,
-        CgmesModel cgmesModel, Network network) {
+    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         if (cgmesControlArea == null) {
@@ -291,30 +290,12 @@ public class Conversion {
             return;
         }
         String terminalId = tf.getId("terminal");
-        Boundary boundary = context.terminalMapping().findBoundary(terminalId, cgmesModel);
+        Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {
             cgmesControlArea.add(boundary);
             return;
         }
-        Optional<Terminal> terminal = getRegulatingTerminalTieFlow(terminalId, context, cgmesModel, network);
-        if (terminal.isPresent()) {
-            cgmesControlArea.add(terminal.get());
-        }
-    }
-
-    private static Optional<Terminal> getRegulatingTerminalTieFlow(String cgmesTerminalId, Context context, CgmesModel cgmesModel, Network network) {
-        if (cgmesTerminalId == null) {
-            return Optional.empty();
-        }
-
-        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-        if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
-            Switch sw = network.getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw != null) {
-                return new SwitchTerminal(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getDanglingLineTerminalInSwitchesChain();
-            }
-        }
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
+        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
     }
 
     private void convert(

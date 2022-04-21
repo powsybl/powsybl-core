@@ -6,18 +6,11 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.SwitchTerminal.TerminalAndSign;
-import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -44,7 +37,7 @@ public class RegulatingControlMapping {
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
         regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this, context);
         regulatingControlMappingForShuntCompensators = new RegulatingControlMappingForShuntCompensators(this, context);
-        regulatingControlMappingForVscConverters = new RegulatingControlMappingForVscConverters(this, context);
+        regulatingControlMappingForVscConverters = new RegulatingControlMappingForVscConverters(context);
     }
 
     public RegulatingControlMappingForGenerators forGenerators() {
@@ -130,48 +123,6 @@ public class RegulatingControlMapping {
         });
 
         cachedRegulatingControls.clear();
-    }
-
-    Optional<Terminal> getRegulatingTerminalVoltageControl(String cgmesTerminalId) {
-        if (cgmesTerminalId == null) {
-            return Optional.empty();
-        }
-
-        CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-        if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
-            Switch sw = context.network().getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw != null) {
-                return new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInTopologicalNode();
-            }
-        }
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
-    }
-
-    Optional<TerminalAndSign> getRegulatingTerminalFlowControl(String cgmesTerminalId) {
-        if (cgmesTerminalId == null) {
-            return Optional.empty();
-        }
-
-        CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-        if (cgmesTerminal != null && SwitchTerminal.isSwitch(cgmesTerminal.conductingEquipmentType())) {
-            Switch sw = context.network().getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw != null) {
-                Branch.Side side = sequenceNumberToSide(cgmesTerminal.getSequenceNumber());
-                return new SwitchTerminal(sw.getVoltageLevel(), sw, context.cgmes().isNodeBreaker()).getTerminalInSwitchesChain(side);
-            }
-        }
-        Optional<Terminal> ot = Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId));
-        return ot.isPresent() ? Optional.of(new TerminalAndSign(ot.get(), 1)) : Optional.empty();
-    }
-
-    private static Branch.Side sequenceNumberToSide(int sequenceNumber) {
-        if (sequenceNumber == 1) {
-            return Branch.Side.ONE;
-        } else if (sequenceNumber == 2) {
-            return Branch.Side.TWO;
-        } else {
-            throw new PowsyblException(String.format("Unexpected sequenceNumber %d", sequenceNumber));
-        }
     }
 
     static boolean isControlModeVoltage(String controlMode) {
