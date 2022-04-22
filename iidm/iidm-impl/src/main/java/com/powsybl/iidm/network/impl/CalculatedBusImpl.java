@@ -11,10 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import gnu.trove.list.array.TIntArrayList;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,12 +24,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     private boolean valid = true;
 
     private final List<NodeTerminal> terminals;
+    private final Function<Terminal, Bus> getBusFromTerminal;
 
     private NodeTerminal terminalRef;
 
-    CalculatedBusImpl(String id, String name, boolean fictitious, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+    CalculatedBusImpl(String id, String name, boolean fictitious, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals, Function<Terminal, Bus> getBusFromTerminal) {
         super(id, name, fictitious, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
+        this.getBusFromTerminal = Objects.requireNonNull(getBusFromTerminal);
         this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
     }
 
@@ -141,6 +140,43 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     public double getQ() {
         checkValidity();
         return super.getQ();
+    }
+
+    @Override
+    public double getFictitiousP0() {
+        checkValidity();
+        return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousP0(n))
+                .reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        checkValidity();
+        Networks.getNodes(id, voltageLevel, getBusFromTerminal).forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousP0(n, 0.0));
+        voltageLevel.getNodeBreakerView().setFictitiousP0(Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")),
+                p0);
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0() {
+        checkValidity();
+        return Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .mapToDouble(n -> voltageLevel.getNodeBreakerView().getFictitiousQ0(n))
+                .reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousQ0(double q0) {
+        checkValidity();
+        Networks.getNodes(id, voltageLevel, getBusFromTerminal).forEach(n -> voltageLevel.getNodeBreakerView().setFictitiousQ0(n, 0.0));
+        voltageLevel.getNodeBreakerView().setFictitiousQ0(Networks.getNodes(id, voltageLevel, getBusFromTerminal)
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Bus " + id + " should contain at least one node")), q0);
+        return this;
     }
 
     @Override
