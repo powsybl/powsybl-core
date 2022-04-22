@@ -7,14 +7,17 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.*;
-
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -43,6 +46,13 @@ public class TerminalMapping {
         }
         boundaries.put(cgmesTerminal, iidmBoundary);
         terminalNumbers.put(cgmesTerminal, terminalNumber);
+    }
+
+    public Terminal get(String cgmesTerminalId) {
+        if (terminals.get(cgmesTerminalId) != null) {
+            return terminals.get(cgmesTerminalId);
+        }
+        return null;
     }
 
     public Terminal find(String cgmesTerminalId) {
