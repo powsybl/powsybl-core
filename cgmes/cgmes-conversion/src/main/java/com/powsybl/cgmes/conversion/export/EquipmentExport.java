@@ -35,14 +35,14 @@ public final class EquipmentExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
-            String cimNamespace = context.getCimNamespace();
-            String euNamespace = context.getEuNamespace();
-            String limitValueAttributeName = context.getLimitValueAttributeName();
-            String limitTypeAttributeName = context.getLimitTypeAttributeName();
-            String limitKindClassName = context.getLimitKindClassName();
-            boolean writeInfiniteDuration = context.isWriteLimitInfiniteDuration();
-            boolean writeInitialP = context.isWriteGeneratingUnitInitialP();
+            String cimNamespace = context.getCim().getNamespace();
+            String euNamespace = context.getCim().getEuNamespace();
+            String limitValueAttributeName = context.getCim().getLimitValueAttributeName();
+            String limitTypeAttributeName = context.getCim().getLimitTypeAttributeName();
+            String limitKindClassName = context.getCim().getLimitKindClassName();
+            boolean writeInfiniteDuration = context.getCim().writeLimitInfiniteDuration();
+            boolean writeInitialP = context.getCim().writeGeneratingUnitInitialP();
+            CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
 
             // TODO fill EQ Model Description
             if (context.getCimVersion() >= 16) {

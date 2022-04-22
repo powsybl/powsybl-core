@@ -40,10 +40,10 @@ public final class SteadyStateHypothesisExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
-        String cimNamespace = context.getCimNamespace();
+        String cimNamespace = context.getCim().getNamespace();
 
         try {
-            CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
+            CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() == 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);

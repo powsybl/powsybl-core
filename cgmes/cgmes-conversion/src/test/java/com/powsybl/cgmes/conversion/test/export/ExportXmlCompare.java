@@ -800,7 +800,7 @@ public final class ExportXmlCompare {
 
     private static DiffBuilder selectingEquivalentSvObjects(DiffBuilder diffBuilder) {
         Map<String, String> prefixUris = new HashMap<>(2);
-        prefixUris.put("cim", CgmesNamespace.getCim(16));
+        prefixUris.put("cim", CgmesNamespace.getCim(16).getNamespace());
         prefixUris.put("rdf", RDF_NAMESPACE);
         QName resourceAttribute = new QName(RDF_NAMESPACE, "resource");
         ElementSelector byResource = ElementSelectors.byNameAndAttributes(resourceAttribute);

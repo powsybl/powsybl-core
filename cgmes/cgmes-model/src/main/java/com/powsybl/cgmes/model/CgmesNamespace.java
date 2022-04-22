@@ -28,11 +28,6 @@ public final class CgmesNamespace {
     public static final String CIM_16_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
     public static final String CIM_14_NAMESPACE = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
 
-    private static final Map<Integer, String> CIM_NAMESPACES = Map.of(
-            14, CIM_14_NAMESPACE,
-            16, CIM_16_NAMESPACE,
-            100, CIM_100_NAMESPACE);
-
     private static final Set<String> VALID_CIM_NAMESPACES = Set.of(CIM_14_NAMESPACE, CIM_16_NAMESPACE, CIM_100_NAMESPACE);
     private static final Pattern CIM_100_PLUS_NAMESPACE_PATTERN = Pattern.compile(".*/CIM[0-9]+#$");
 
@@ -54,10 +49,9 @@ public final class CgmesNamespace {
     public static final String CIM_100_SV_PROFILE = "http://iec.ch/TC57/ns/CIM/StateVariables-EU/3.0";
     public static final String CIM_100_SSH_PROFILE = "http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0";
 
-    private static final Map<Integer, Map<String, String>> PROFILES = Map.of(
-            16, Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP", CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV", CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE),
-            100, Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE, "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE)
-    );
+    public static final Cim CIM_14 = new Cim14();
+    public static final Cim CIM_16 = new Cim16();
+    public static final Cim CIM_100 = new Cim100();
 
     public static boolean isValid(String ns) {
         // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
@@ -65,74 +59,229 @@ public final class CgmesNamespace {
         return VALID_CIM_NAMESPACES.contains(ns) || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
     }
 
-    public static String getCim(int cimVersion) {
-        if (CIM_NAMESPACES.containsKey(cimVersion)) {
-            return CIM_NAMESPACES.get(cimVersion);
-        }
-        throw new AssertionError("Unsupported CIM version " + cimVersion);
+    public interface Cim {
+        int getVersion();
+
+        String getNamespace();
+
+        boolean hasProfiles();
+
+        String getProfile(String profile);
+
+        String getEuPrefix();
+
+        String getEuNamespace();
+
+        String getLimitValueAttributeName();
+
+        String getLimitTypeAttributeName();
+
+        String getLimitKindClassName();
+
+        boolean writeLimitInfiniteDuration();
+
+        boolean writeGeneratingUnitInitialP();
     }
 
-    public static String getEu(int cimVersion) {
-        if (cimVersion == 16) {
-            return ENTSOE_NAMESPACE;
-        } else if (cimVersion >= 100) {
-            return EU_NAMESPACE;
+    private static final class Cim14 implements Cim {
+        @Override
+        public int getVersion() {
+            return 14;
         }
-        throw new PowsyblException("Undefined eu namespace for version " + cimVersion);
+
+        @Override
+        public String getNamespace() {
+            return CIM_14_NAMESPACE;
+        }
+
+        @Override
+        public boolean hasProfiles() {
+            return false;
+        }
+
+        @Override
+        public String getProfile(String profile) {
+            throw new AssertionError("Unsupported CIM version 14");
+        }
+
+        @Override
+        public String getEuPrefix() {
+            throw new PowsyblException("Undefined eu prefix for version 14");
+        }
+
+        @Override
+        public String getEuNamespace() {
+            throw new PowsyblException("Undefined eu prefix for version 14");
+        }
+
+        @Override
+        public String getLimitValueAttributeName() {
+            throw new PowsyblException("Undefined eu prefix for version 14");
+        }
+
+        @Override
+        public String getLimitTypeAttributeName() {
+            throw new PowsyblException("Undefined eu prefix for version 14");
+        }
+
+        @Override
+        public String getLimitKindClassName() {
+            throw new PowsyblException("Undefined eu prefix for version 14");
+        }
+
+        @Override
+        public boolean writeLimitInfiniteDuration() {
+            return false;
+        }
+
+        @Override
+        public boolean writeGeneratingUnitInitialP() {
+            return false;
+        }
+
+        private Cim14() {
+        }
     }
 
-    public static String getEuPrefix(int cimVersion) {
-        if (cimVersion == 16) {
+    private static final class Cim16 implements Cim {
+
+        private final Map<String, String> profiles = Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP", CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV", CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE);
+
+        @Override
+        public int getVersion() {
+            return 16;
+        }
+
+        @Override
+        public String getNamespace() {
+            return CIM_16_NAMESPACE;
+        }
+
+        @Override
+        public boolean hasProfiles() {
+            return true;
+        }
+
+        @Override
+        public String getProfile(String profile) {
+            return profiles.get(profile);
+        }
+
+        @Override
+        public String getEuPrefix() {
             return "entsoe";
-        } else if (cimVersion >= 100) {
+        }
+
+        @Override
+        public String getEuNamespace() {
+            return ENTSOE_NAMESPACE;
+        }
+
+        @Override
+        public String getLimitValueAttributeName() {
+            return "value";
+        }
+
+        @Override
+        public String getLimitTypeAttributeName() {
+            return "OperationalLimitType.limitType";
+        }
+
+        @Override
+        public String getLimitKindClassName() {
+            return "LimitTypeKind";
+        }
+
+        @Override
+        public boolean writeLimitInfiniteDuration() {
+            return false;
+        }
+
+        @Override
+        public boolean writeGeneratingUnitInitialP() {
+            return true;
+        }
+
+        private Cim16() {
+        }
+    }
+
+    private static final class Cim100 implements Cim {
+
+        private final Map<String, String> profiles = Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE, "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE);
+
+        @Override
+        public int getVersion() {
+            return 100;
+        }
+
+        @Override
+        public String getNamespace() {
+            return CIM_100_NAMESPACE;
+        }
+
+        @Override
+        public boolean hasProfiles() {
+            return true;
+        }
+
+        @Override
+        public String getProfile(String profile) {
+            return profiles.get(profile);
+        }
+
+        @Override
+        public String getEuPrefix() {
             return "eu";
         }
-        throw new PowsyblException("Undefined eu prefix for version " + cimVersion);
-    }
 
-    public static String getLimitValueAttributeName(int cimVersion) {
-        if (cimVersion == 16) {
-            return "value";
-        } else if (cimVersion >= 100) {
+        @Override
+        public String getEuNamespace() {
+            return EU_NAMESPACE;
+        }
+
+        @Override
+        public String getLimitValueAttributeName() {
             return "normalValue";
         }
-        throw new PowsyblException("Undefined limit value attribute name for version " + cimVersion);
-    }
 
-    public static String getLimitTypeAttributeName(int cimVersion) {
-        if (cimVersion == 16) {
-            return "OperationalLimitType.limitType";
-        } else if (cimVersion >= 100) {
-            return  "OperationalLimitType.kind";
+        @Override
+        public String getLimitTypeAttributeName() {
+            return "OperationalLimitType.kind";
         }
-        throw new PowsyblException("Undefined limit type attribute name for version " + cimVersion);
-    }
 
-    public static String getLimitKindClassName(int cimVersion) {
-        if (cimVersion == 16) {
-            return "LimitTypeKind";
-        } else if (cimVersion >= 100) {
-            return  "LimitKind";
+        @Override
+        public String getLimitKindClassName() {
+            return "LimitKind";
         }
-        throw new PowsyblException("Undefined limit kind class name for version " + cimVersion);
-    }
 
-    public static boolean isWriteLimitInfiniteDuration(int cimVersion) {
-        return cimVersion >= 100;
-    }
-
-    public static boolean isWriteGeneratingUnitInitialP(int cimVersion) {
-        return cimVersion == 16;
-    }
-
-    public static boolean hasProfiles(int cimVersion) {
-        return PROFILES.containsKey(cimVersion);
-    }
-
-    public static String getProfile(int cimVersion, String profile) {
-        if (PROFILES.containsKey(cimVersion)) {
-            return PROFILES.get(cimVersion).get(profile);
+        @Override
+        public boolean writeLimitInfiniteDuration() {
+            return true;
         }
-        throw new AssertionError("Unsupported CIM version " + cimVersion);
+
+        @Override
+        public boolean writeGeneratingUnitInitialP() {
+            return false;
+        }
+
+        private Cim100() {
+        }
+    }
+
+    public static Cim getCim(int cimVersion) {
+        switch (cimVersion) {
+            case 14:
+                return CIM_14;
+            case 16:
+                return CIM_16;
+            case 100:
+                return CIM_100;
+            default:
+                if (cimVersion > 100) {
+                    return CIM_100;
+                }
+                throw new PowsyblException("Unsupported CIM version " + cimVersion);
+        }
     }
 }
