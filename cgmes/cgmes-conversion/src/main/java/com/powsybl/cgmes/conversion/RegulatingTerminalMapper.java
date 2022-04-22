@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * we have to map it to an equivalent IIDM terminal.
  * The mapping has to take into account if the controlled magnitude corresponds to a node (voltage)
  * or if it is a flow (active/reactive power)
- *
+r *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
@@ -34,27 +34,29 @@ final class RegulatingTerminalMapper {
     }
 
     public static Optional<Terminal> mapForVoltageControl(String cgmesTerminalId, Context context) {
-        return mapped(cgmesTerminalId, context)
-                .or(() -> new EquivalentTerminalFinderVoltageControl(cgmesTerminalId, context).find());
+        return cgmesTerminalId == null ?
+                Optional.empty() :
+                mapped(cgmesTerminalId, context)
+                        .or(() -> new EquivalentTerminalFinderVoltageControl(cgmesTerminalId, context).find());
     }
 
     public static Optional<TerminalAndSign> mapForFlowControl(String cgmesTerminalId, Context context) {
-        return mapped(cgmesTerminalId, context)
-                .map(t -> new TerminalAndSign(t, 1))
-                .or(() -> new EquivalentTerminalFinderFlowControl(cgmesTerminalId, context).findWithSign());
+        return cgmesTerminalId == null ?
+                Optional.empty() :
+                mapped(cgmesTerminalId, context)
+                        .map(t -> new TerminalAndSign(t, 1))
+                        .or(() -> new EquivalentTerminalFinderFlowControl(cgmesTerminalId, context).findWithSign());
     }
 
     public static Optional<Terminal> mapForTieFlow(String cgmesTerminalId, Context context) {
-        return mapped(cgmesTerminalId, context)
-                .or(() -> new EquivalentTerminalFinderTieFlow(cgmesTerminalId, context).find());
+        return cgmesTerminalId == null ?
+                Optional.empty() :
+                mapped(cgmesTerminalId, context)
+                        .or(() -> new EquivalentTerminalFinderTieFlow(cgmesTerminalId, context).find());
     }
 
     private static Optional<Terminal> mapped(String cgmesTerminalId, Context context) {
-        if (cgmesTerminalId == null) {
-            return Optional.empty();
-        } else {
-            return Optional.ofNullable(context.terminalMapping().get(cgmesTerminalId));
-        }
+        return Optional.ofNullable(context.terminalMapping().get(cgmesTerminalId));
     }
 
     private static boolean isBusbarSection(Terminal t) {
