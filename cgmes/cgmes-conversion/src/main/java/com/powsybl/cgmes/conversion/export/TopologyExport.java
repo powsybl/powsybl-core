@@ -139,7 +139,7 @@ public final class TopologyExport {
         }
 
         Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
-        if ( terminal != null) {
+        if (terminal != null) {
             return terminal;
         }
 
