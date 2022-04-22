@@ -152,7 +152,7 @@ final class RegulatingTerminalMapper {
             return buses;
         }
 
-        private static <T> Terminal onlyOneTerminalOrNull(VoltageLevel vl, Set<T> vertices, Function<Terminal, T> terminalToVertex) {
+        private static <T> Terminal selectValidTerminalForFlow(VoltageLevel vl, Set<T> vertices, Function<Terminal, T> terminalToVertex) {
             List<Terminal> terminals = allTerminals(vl, vertices, terminalToVertex)
                     .filter(terminal -> terminal.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION)
                     .collect(Collectors.toList());
@@ -178,7 +178,7 @@ final class RegulatingTerminalMapper {
             // We are able to map a flow control if we find only one terminal after expanding
             // If we find more than one terminal (equipment) we won't be able to decide which one to
             // assign for flow control magnitude
-            return onlyOneTerminalOrNull(vl, nodes, t -> t.getNodeBreakerView().getNode());
+            return selectValidTerminalForFlow(vl, nodes, t -> t.getNodeBreakerView().getNode());
         }
 
         protected Terminal findForFlow(Bus end, Bus otherEnd) {
@@ -192,7 +192,7 @@ final class RegulatingTerminalMapper {
             // We are able to map a flow control if we find only one terminal after expanding
             // If we find more than one terminal (equipment) we won't be able to decide which one to
             // assign for flow control magnitude
-            return onlyOneTerminalOrNull(vl, buses, t -> t.getBusBreakerView().getBus());
+            return selectValidTerminalForFlow(vl, buses, t -> t.getBusBreakerView().getBus());
         }
     }
 
