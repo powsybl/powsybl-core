@@ -44,7 +44,7 @@ public class SecurityAnalysisExecutionBuilder {
                                             String providerName,
                                             SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
         this.externalConfig = Objects.requireNonNull(externalConfig);
-        this.providerName = Objects.requireNonNull(providerName);
+        this.providerName = providerName;
         this.inputBuildStrategy = Objects.requireNonNull(inputBuildStrategy);
     }
 
