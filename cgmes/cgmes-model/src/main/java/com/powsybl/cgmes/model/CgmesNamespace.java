@@ -106,27 +106,27 @@ public final class CgmesNamespace {
 
         @Override
         public String getEuPrefix() {
-            throw new PowsyblException("Undefined eu prefix for version 14");
+            throw new PowsyblException("Undefined EU prefix for version 14");
         }
 
         @Override
         public String getEuNamespace() {
-            throw new PowsyblException("Undefined eu prefix for version 14");
+            throw new PowsyblException("Undefined EU namespace for version 14");
         }
 
         @Override
         public String getLimitValueAttributeName() {
-            throw new PowsyblException("Undefined eu prefix for version 14");
+            throw new PowsyblException("Undefined limit value attribute name for version 14");
         }
 
         @Override
         public String getLimitTypeAttributeName() {
-            throw new PowsyblException("Undefined eu prefix for version 14");
+            throw new PowsyblException("Undefined limit type attribute name for version 14");
         }
 
         @Override
         public String getLimitKindClassName() {
-            throw new PowsyblException("Undefined eu prefix for version 14");
+            throw new PowsyblException("Undefined limit kind class name for version 14");
         }
 
         @Override
