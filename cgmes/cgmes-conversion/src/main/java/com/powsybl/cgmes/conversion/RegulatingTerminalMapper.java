@@ -75,6 +75,27 @@ final class RegulatingTerminalMapper {
     }
 
     private static <T> Stream<? extends Terminal> allTerminals(VoltageLevel vl, Set<T> vertices, Function<Terminal, T> terminalToVertex) {
+        // The current implementation is:
+        // For all connectables inside the voltage level:
+        // For all terminals of connectable:
+        // filter terminals in the voltage level
+        // filter terminals with vertex in the list of vertices
+
+        // A potential optimization could be:
+        // instead of streaming from all terminals in the voltage level
+        // iterate only over terminals obtained from the given vertices
+
+        // But:
+        // For node/breaker is ok, we can get the (optional) terminal from a node
+        // But for bus/branch (bus breaker view):
+        // There is no way to get the terminals of the equipment that could be connected to the bus
+        // (the list of all "connectables" and their terminals)
+        // Only the currently connected terminals can be obtained
+
+        // So:
+        // We leave the current implementation because it allows uniform processing at both levels
+        // And the room for optimization seems really narrow
+
         return vl.getConnectableStream()
                 .map(c -> (Connectable<?>) c)
                 .flatMap(c -> c.getTerminals().stream())
@@ -285,15 +306,6 @@ final class RegulatingTerminalMapper {
         }
 
         private static <T> List<Terminal> allTerminals(VoltageLevel vl, Set<T> vertices, Function<Terminal, T> terminalToVertex) {
-            // TODO(Luma) check if it is possible to refactor current implementation,
-            //  instead of streaming from all terminals in the voltage level
-            //  iterate only over terminals from vertices
-
-            // For all connectables inside the voltage level:
-            // For all terminals of connectable:
-            // filter terminals in the voltage level
-            // filter terminals with vertex in the list of vertices
-
             return RegulatingTerminalMapper.allTerminals(vl, vertices, terminalToVertex).collect(Collectors.toList());
         }
 
