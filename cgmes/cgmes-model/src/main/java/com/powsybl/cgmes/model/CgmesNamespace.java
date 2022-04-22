@@ -8,6 +8,7 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.PowsyblException;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -83,16 +84,27 @@ public final class CgmesNamespace {
         boolean writeGeneratingUnitInitialP();
     }
 
-    private static final class Cim14 implements Cim {
+    private abstract static class AbstractCim implements Cim {
+        private final int version;
+        private final String namespace;
+
         @Override
         public int getVersion() {
-            return 14;
+            return version;
         }
 
         @Override
         public String getNamespace() {
-            return CIM_14_NAMESPACE;
+            return namespace;
         }
+
+        private AbstractCim(int version, String namespace) {
+            this.version = version;
+            this.namespace = namespace;
+        }
+    }
+
+    private static final class Cim14 extends AbstractCim {
 
         @Override
         public boolean hasProfiles() {
@@ -140,22 +152,13 @@ public final class CgmesNamespace {
         }
 
         private Cim14() {
+            super(14, CIM_14_NAMESPACE);
         }
     }
 
-    private static final class Cim16 implements Cim {
+    private abstract static class AbstractCimWithProfiles extends AbstractCim {
 
-        private final Map<String, String> profiles = Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP", CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV", CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE);
-
-        @Override
-        public int getVersion() {
-            return 16;
-        }
-
-        @Override
-        public String getNamespace() {
-            return CIM_16_NAMESPACE;
-        }
+        private final Map<String, String> profiles = new HashMap<>();
 
         @Override
         public boolean hasProfiles() {
@@ -166,6 +169,14 @@ public final class CgmesNamespace {
         public String getProfile(String profile) {
             return profiles.get(profile);
         }
+
+        private AbstractCimWithProfiles(int version, String namespace, Map<String, String> profiles) {
+            super(version, namespace);
+            this.profiles.putAll(profiles);
+        }
+    }
+
+    private static final class Cim16 extends AbstractCimWithProfiles {
 
         @Override
         public String getEuPrefix() {
@@ -203,32 +214,13 @@ public final class CgmesNamespace {
         }
 
         private Cim16() {
+            super(16, CIM_16_NAMESPACE, Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
+                    CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV",
+                    CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE));
         }
     }
 
-    private static final class Cim100 implements Cim {
-
-        private final Map<String, String> profiles = Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE, "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE);
-
-        @Override
-        public int getVersion() {
-            return 100;
-        }
-
-        @Override
-        public String getNamespace() {
-            return CIM_100_NAMESPACE;
-        }
-
-        @Override
-        public boolean hasProfiles() {
-            return true;
-        }
-
-        @Override
-        public String getProfile(String profile) {
-            return profiles.get(profile);
-        }
+    private static final class Cim100 extends AbstractCimWithProfiles {
 
         @Override
         public String getEuPrefix() {
@@ -266,6 +258,8 @@ public final class CgmesNamespace {
         }
 
         private Cim100() {
+            super(100, CIM_100_NAMESPACE, Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
+                    "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE));
         }
     }
 
