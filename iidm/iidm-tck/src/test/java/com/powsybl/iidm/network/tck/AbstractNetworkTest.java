@@ -223,6 +223,7 @@ public abstract class AbstractNetworkTest {
         network.runValidationChecks();
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.getLoad("load1").setP0(0.0);
         voltageLevel1.newLoad()
                 .setId("unchecked")
                 .setP0(1.0)
