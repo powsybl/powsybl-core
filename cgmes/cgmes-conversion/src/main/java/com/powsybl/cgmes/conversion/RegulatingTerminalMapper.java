@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * we have to map it to an equivalent IIDM terminal.
  * The mapping has to take into account if the controlled magnitude corresponds to a node (voltage)
  * or if it is a flow (active/reactive power)
-r *
+ *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
@@ -34,8 +34,7 @@ final class RegulatingTerminalMapper {
     }
 
     public static Optional<Terminal> mapForVoltageControl(String cgmesTerminalId, Context context) {
-        return cgmesTerminalId == null ?
-                Optional.empty() :
+        return cgmesTerminalId == null ? Optional.empty() :
                 // The CGMES terminal has been explicitly mapped to an IIDM terminal
                 mapped(cgmesTerminalId, context)
                         // The CGMES terminal is the end of a switch but we can find a terminal in the same electrical node
@@ -47,16 +46,14 @@ final class RegulatingTerminalMapper {
     }
 
     public static Optional<TerminalAndSign> mapForFlowControl(String cgmesTerminalId, Context context) {
-        return cgmesTerminalId == null ?
-                Optional.empty() :
+        return cgmesTerminalId == null ? Optional.empty() :
                 mapped(cgmesTerminalId, context)
                         .map(t -> new TerminalAndSign(t, 1))
                         .or(() -> new EquivalentTerminalFinderFlowControl(cgmesTerminalId, context).findWithSign());
     }
 
     public static Optional<Terminal> mapForTieFlow(String cgmesTerminalId, Context context) {
-        return cgmesTerminalId == null ?
-                Optional.empty() :
+        return cgmesTerminalId == null ? Optional.empty() :
                 mapped(cgmesTerminalId, context)
                         .or(() -> new EquivalentTerminalFinderTieFlow(cgmesTerminalId, context).find());
     }
@@ -106,12 +103,12 @@ final class RegulatingTerminalMapper {
     abstract static class AbstractEquivalentTerminalFinder {
         protected final VoltageLevel vl;
         protected final Switch sw;
-        protected final boolean isNodeBreakerModel;
+        protected final boolean isNodeBreaker;
 
         AbstractEquivalentTerminalFinder(String cgmesTerminalId, Context context) {
             this.sw = atSwitchEnd(cgmesTerminalId, context);
             this.vl = this.sw == null ? null : sw.getVoltageLevel();
-            this.isNodeBreakerModel = this.vl != null && vl.getTopologyKind() == TopologyKind.NODE_BREAKER;
+            this.isNodeBreaker = this.vl != null && vl.getTopologyKind() == TopologyKind.NODE_BREAKER;
         }
 
         private static Switch atSwitchEnd(String cgmesTerminalId, Context context) {
@@ -234,7 +231,7 @@ final class RegulatingTerminalMapper {
 
         // Find a terminal in a chain of switches.
         Optional<TerminalAndSign> findWithSign(int cgmesTerminalEnd) {
-            if (isNodeBreakerModel) {
+            if (isNodeBreaker) {
                 return findWithSignNodeBreaker(cgmesTerminalEnd);
             } else {
                 return findWithSignBusBranch(cgmesTerminalEnd);
@@ -287,7 +284,7 @@ final class RegulatingTerminalMapper {
             return buses;
         }
 
-        private static <T> List<Terminal> allTerminalsAssociatedConductingEquipment(VoltageLevel vl, Set<T> vertices, Function<Terminal, T> terminalToVertex) {
+        private static <T> List<Terminal> allTerminals(VoltageLevel vl, Set<T> vertices, Function<Terminal, T> terminalToVertex) {
             // TODO(Luma) check if it is possible to refactor current implementation,
             //  instead of streaming from all terminals in the voltage level
             //  iterate only over terminals from vertices
@@ -297,10 +294,10 @@ final class RegulatingTerminalMapper {
             // filter terminals in the voltage level
             // filter terminals with vertex in the list of vertices
 
-            return allTerminals(vl, vertices, terminalToVertex).collect(Collectors.toList());
+            return RegulatingTerminalMapper.allTerminals(vl, vertices, terminalToVertex).collect(Collectors.toList());
         }
 
-        private static Optional<Terminal> bestTerminalInTopologicalNode(List<Terminal> terminals) {
+        private static Optional<Terminal> best(List<Terminal> terminals) {
             // Prefer first terminals corresponding to busbar sections,
             // then terminals of equipment capable of voltage control,
             // then any terminal available
@@ -312,42 +309,32 @@ final class RegulatingTerminalMapper {
 
         @Override
         Optional<Terminal> find() {
-            return sw == null ? Optional.empty() : findTerminalInTopologicalNode();
-        }
-
-        // Find a terminal in the topological node
-        Optional<Terminal> findTerminalInTopologicalNode() {
-            if (isNodeBreakerModel) {
-                return findTerminalInTopologicalNodeNodeBreaker();
-            } else {
-                return findTerminalInTopologicalNodeBusBranch();
+            if (sw == null) {
+                return Optional.empty();
             }
+            return isNodeBreaker ? findNodeBreaker() : findBusBranch();
         }
 
-        private Optional<Terminal> findTerminalInTopologicalNodeNodeBreaker() {
+        private Optional<Terminal> findNodeBreaker() {
             int end1 = vl.getNodeBreakerView().getNode1(sw.getId());
             List<Terminal> terminals = findTerminalsNodeBreaker(end1);
-            return bestTerminalInTopologicalNode(terminals);
+            return best(terminals);
         }
 
-        private Optional<Terminal> findTerminalInTopologicalNodeBusBranch() {
+        private Optional<Terminal> findBusBranch() {
             Bus end1 = vl.getBusBreakerView().getBus1(sw.getId());
             List<Terminal> terminals = findTerminalsBusBranch(end1);
-            return bestTerminalInTopologicalNode(terminals);
+            return best(terminals);
         }
 
         protected List<Terminal> findTerminalsNodeBreaker(int node) {
-            // TODO(Luma) rename: This is the list of all nodes reachable by switches or internal connections from this "end"
-            //  The node of the other end of the switch will always be included in the expansion list,
-            //  there is no need to check it
             Set<Integer> nodes = allNodesReachableBySwitches(vl, node);
-            // TODO(Luma) rename: from all the reachable nodes, we obtain a list of potential terminal candidates
-            return allTerminalsAssociatedConductingEquipment(vl, nodes, t -> t.getNodeBreakerView().getNode());
+            return allTerminals(vl, nodes, t -> t.getNodeBreakerView().getNode());
         }
 
         private List<Terminal> findTerminalsBusBranch(Bus end) {
             Set<Bus> buses = allBusesReachableBySwitches(vl, end);
-            return allTerminalsAssociatedConductingEquipment(vl, buses, t -> t.getBusBreakerView().getBus());
+            return allTerminals(vl, buses, t -> t.getBusBreakerView().getBus());
         }
     }
 
@@ -362,7 +349,7 @@ final class RegulatingTerminalMapper {
          * At this moment we only know this information in danglingLines so
          * the terminal will only be accepted if it is a danglingLine
          */
-        private static Optional<Terminal> bestDanglingLineTerminal(Terminal terminalEnd1, Terminal terminalEnd2) {
+        private static Optional<Terminal> best(Terminal terminalEnd1, Terminal terminalEnd2) {
             if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
                 return Optional.of(terminalEnd1);
             }
@@ -374,34 +361,27 @@ final class RegulatingTerminalMapper {
 
         @Override
         Optional<Terminal> find() {
-            return sw == null ? Optional.empty() : findDanglingLineTerminalInSwitchesChain();
-        }
-
-        // Find a dangingLine terminal in a switches chain
-        Optional<Terminal> findDanglingLineTerminalInSwitchesChain() {
-            if (isNodeBreakerModel) {
-                return findDanglingLineTerminalInSwitchesChainNodeBreaker();
-            } else {
-                return findDanglingLineTerminalInSwitchesChainBusBranch();
+            // Find a Danging Line terminal in a chain of switches
+            if (sw == null) {
+                return Optional.empty();
             }
+            return isNodeBreaker ? findNodeBreaker() : findBusBranch();
         }
 
-        private Optional<Terminal> findDanglingLineTerminalInSwitchesChainNodeBreaker() {
+        private Optional<Terminal> findNodeBreaker() {
             int end1 = vl.getNodeBreakerView().getNode1(sw.getId());
             int end2 = vl.getNodeBreakerView().getNode2(sw.getId());
-
             Terminal terminalEnd1 = findForFlow(end1, end2);
             Terminal terminalEnd2 = findForFlow(end2, end1);
-            return bestDanglingLineTerminal(terminalEnd1, terminalEnd2);
+            return best(terminalEnd1, terminalEnd2);
         }
 
-        private Optional<Terminal> findDanglingLineTerminalInSwitchesChainBusBranch() {
+        private Optional<Terminal> findBusBranch() {
             Bus end1 = vl.getBusBreakerView().getBus1(sw.getId());
             Bus end2 = vl.getBusBreakerView().getBus2(sw.getId());
-
             Terminal terminalEnd1 = findForFlow(end1, end2);
             Terminal terminalEnd2 = findForFlow(end2, end1);
-            return bestDanglingLineTerminal(terminalEnd1, terminalEnd2);
+            return best(terminalEnd1, terminalEnd2);
         }
     }
 }
