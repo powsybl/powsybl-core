@@ -213,7 +213,7 @@ final class RegulatingTerminalMapper {
             // We are able to map a flow control if we find only one terminal after expanding
             // If we find more than one terminal (equipment) we won't be able to decide which one to
             // assign for flow control magnitude
-            return selectValidTerminalForFlow(vl, buses, t -> t.getBusBreakerView().getBus());
+            return selectValidTerminalForFlow(vl, buses, RegulatingTerminalMapper::getTerminalBus);
         }
     }
 
@@ -346,7 +346,7 @@ final class RegulatingTerminalMapper {
 
         private List<Terminal> findTerminalsBusBranch(Bus end) {
             Set<Bus> buses = allBusesReachableBySwitches(vl, end);
-            return allTerminals(vl, buses, t -> t.getBusBreakerView().getBus());
+            return allTerminals(vl, buses, RegulatingTerminalMapper::getTerminalBus);
         }
     }
 
@@ -395,5 +395,10 @@ final class RegulatingTerminalMapper {
             Terminal terminalEnd2 = findForFlow(end2, end1);
             return best(terminalEnd1, terminalEnd2);
         }
+    }
+
+    private static Bus getTerminalBus(Terminal terminal) {
+        return terminal.getBusBreakerView().getBus() != null ? terminal.getBusBreakerView().getBus()
+            : terminal.getBusBreakerView().getConnectableBus();
     }
 }
