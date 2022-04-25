@@ -7,6 +7,7 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.security.LimitViolation;
 import com.powsybl.security.NetworkMetadata;
 
 import java.util.ArrayList;
@@ -25,23 +26,23 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
 
     private NetworkMetadata networkMetadata;
 
-    private final FaultResult faultResult;
+    private final List<FaultResult> faultResult;
 
-    private final List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
+    private final List<LimitViolation> limitViolations = new ArrayList<>();
 
-    public ShortCircuitAnalysisResult(FaultResult faultResult) {
+    public ShortCircuitAnalysisResult(List<FaultResult> faultResult) {
         this(faultResult, Collections.emptyList());
     }
 
-    public ShortCircuitAnalysisResult(FaultResult faultResult, List<ShortCircuitBusResults> shortCircuitBusResults) {
+    public ShortCircuitAnalysisResult(List<FaultResult> faultResult, List<LimitViolation> limitViolations) {
         this.faultResult = Objects.requireNonNull(faultResult);
-        this.shortCircuitBusResults.addAll(Objects.requireNonNull(shortCircuitBusResults));
+        this.limitViolations.addAll(Objects.requireNonNull(limitViolations));
     }
 
     /**
      * The associated fault result.
      */
-    public FaultResult getFaultResult() {
+    public List<FaultResult> getFaultResults() {
         return faultResult;
     }
 
@@ -52,6 +53,10 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
     public ShortCircuitAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
         this.networkMetadata = networkMetadata;
         return this;
+    }
+
+    public List<LimitViolation> getLimitViolations() {
+        return limitViolations;
     }
 
 }

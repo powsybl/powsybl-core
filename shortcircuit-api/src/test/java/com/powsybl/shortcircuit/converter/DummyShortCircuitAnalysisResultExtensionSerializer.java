@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ import java.io.IOException;
  * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(ExtensionJsonSerializer.class)
-public class DummyShortCircuitAnalysisResultExtensionSerializer implements ExtensionJsonSerializer<ShortCircuitAnalysisMultiResult, MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension> {
+public class DummyShortCircuitAnalysisResultExtensionSerializer implements ExtensionJsonSerializer<ShortCircuitAnalysisResult, MultiShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension> {
 
     @Override
     public String getExtensionName() {

@@ -20,6 +20,15 @@ public interface Fault {
         PARALLEL,
     }
 
+    // What kind of fault is simulated
+    enum FaultType {
+        THREEPHASE,
+        TWOPHASE,
+        SINGLEPHASE,
+    }
+
+    //TODO : add the numbers of the phase for two and single phase
+
     // The equipment or bus id where the fault is simulated.
     String getId();
 
@@ -35,4 +44,14 @@ public interface Fault {
     default ConnectionType getConnectionType() {
         return ConnectionType.SERIES;
     }
+
+    default FaultType getFaultType() {
+        return FaultType.THREEPHASE;
+    }
+
+    // Whether the result should indicate a limit violation
+    boolean isWithLimitViolation();
+
+    // Whether the results should include the voltage map on the whole network
+    boolean isWithDetailedResults();
 }

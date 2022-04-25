@@ -47,8 +47,8 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         assertEquals("Export a result in JSON format", ShortCircuitAnalysisResultExporters.getExporter("JSON").getComment());
     }
 
-    private static ShortCircuitAnalysisMultiResult createResult() {
-        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES);
+    private static ShortCircuitAnalysisResult createResult() {
+        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult = new FaultResult(fault, 1);
         faultResults.add(faultResult);
@@ -60,11 +60,11 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisMultiResult(faultResults, limitViolations);
+        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
     }
 
-    private static ShortCircuitAnalysisMultiResult createResultWithExtension() {
-        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES);
+    private static ShortCircuitAnalysisResult createResultWithExtension() {
+        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult = new FaultResult(fault, 1);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
@@ -78,13 +78,13 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
-        ShortCircuitAnalysisMultiResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisMultiResult(faultResults, limitViolations);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults, limitViolations);
         shortCircuitAnalysisResult.addExtension(DummyShortCircuitAnalysisResultExtension.class, new DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
     }
 
-    private static ShortCircuitAnalysisMultiResult createWithFeederResults() {
-        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES);
+    private static ShortCircuitAnalysisResult createWithFeederResults() {
+        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
         FaultResult faultResult = new FaultResult(fault, 1, Collections.singletonList(feederResult), 1);
@@ -97,38 +97,38 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisMultiResult(faultResults, limitViolations);
+        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
     }
 
-    public void writeJson(ShortCircuitAnalysisMultiResult results, Path path) {
+    public void writeJson(ShortCircuitAnalysisResult results, Path path) {
         ShortCircuitAnalysisResultExporters.export(results, path, "JSON", null);
     }
 
     @Test
     public void testWriteJson() throws IOException {
-        ShortCircuitAnalysisMultiResult result = createResultWithExtension();
+        ShortCircuitAnalysisResult result = createResultWithExtension();
         writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-with-extensions-results.json");
     }
 
     @Test
     public void roundTripJson() throws IOException {
-        ShortCircuitAnalysisMultiResult result = createResultWithExtension();
+        ShortCircuitAnalysisResult result = createResultWithExtension();
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-with-extensions-results.json");
     }
 
     @Test
     public void testJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisMultiResult result = createWithFeederResults();
+        ShortCircuitAnalysisResult result = createWithFeederResults();
         writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
     public void roundTripJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisMultiResult result = createWithFeederResults();
+        ShortCircuitAnalysisResult result = createWithFeederResults();
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
     }
 
-    public void writeCsv(ShortCircuitAnalysisMultiResult result, Path path) {
+    public void writeCsv(ShortCircuitAnalysisResult result, Path path) {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisResultExporters.export(result, path, "CSV", network);
     }
@@ -136,12 +136,12 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     @Test
     public void testWriteCsv() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
-        ShortCircuitAnalysisMultiResult result = createResult(network);
+        ShortCircuitAnalysisResult result = createResult(network);
         writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/shortcircuit-results.csv");
     }
 
-    public ShortCircuitAnalysisMultiResult createResult(Network network) {
-        Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES);
+    public ShortCircuitAnalysisResult createResult(Network network) {
+        Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult = new FaultResult(fault, 2500);
         faultResults.add(faultResult);
@@ -153,7 +153,7 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisMultiResult(faultResults, limitViolations);
+        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
     }
 
     static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {
@@ -172,7 +172,7 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         }
     }
 
-    static class DummyShortCircuitAnalysisResultExtension extends AbstractExtension<ShortCircuitAnalysisMultiResult> {
+    static class DummyShortCircuitAnalysisResultExtension extends AbstractExtension<ShortCircuitAnalysisResult> {
 
         @Override
         public String getName() {

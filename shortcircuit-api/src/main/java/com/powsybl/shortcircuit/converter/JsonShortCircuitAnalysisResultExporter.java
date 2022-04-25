@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -35,7 +35,7 @@ public class JsonShortCircuitAnalysisResultExporter implements ShortCircuitAnaly
     }
 
     @Override
-    public void export(ShortCircuitAnalysisMultiResult result, Writer writer, Network network) throws IOException {
+    public void export(ShortCircuitAnalysisResult result, Writer writer, Network network) throws IOException {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new ShortCircuitAnalysisJsonModule());
 

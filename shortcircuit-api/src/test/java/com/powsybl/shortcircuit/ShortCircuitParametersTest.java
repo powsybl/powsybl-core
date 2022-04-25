@@ -79,8 +79,6 @@ public class ShortCircuitParametersTest {
     public void testStudyType() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
         assertEquals(ShortCircuitConstants.StudyType.TRANSIENT, parameters.getStudyType());
-
-        assertNull(parameters.getStudyType());
     }
 
     @Test
@@ -100,7 +98,7 @@ public class ShortCircuitParametersTest {
         Files.copy(getClass().getResourceAsStream("/config.yml"), cfgFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
-        assertEquals(ShortCircuitConstants.StudyType.TRANSIENT, parameters.getStudyType());
+        assertEquals(ShortCircuitConstants.StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertFalse(parameters.isWithFeederResult());
     }
 

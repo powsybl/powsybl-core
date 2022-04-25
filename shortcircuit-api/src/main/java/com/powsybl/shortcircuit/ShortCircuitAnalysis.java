@@ -15,6 +15,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,44 +43,44 @@ public final class ShortCircuitAnalysis {
         }
 
         public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
-                                                                      Fault fault,
+                                                                      List<Fault> faults,
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager,
                                                                       Reporter reporter) {
             Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
-            Objects.requireNonNull(fault, NOT_NULL_FAULT_MESSAGE);
+            Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
             Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
             Objects.requireNonNull(reporter, "Reporter should not be null");
-            return provider.run(network, fault, parameters, computationManager, reporter);
+            return provider.run(network, faults, parameters, computationManager, reporter);
         }
 
         public CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network,
-                                                                      Fault fault,
+                                                                      List<Fault> faults,
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager) {
             Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
-            Objects.requireNonNull(fault, NOT_NULL_FAULT_MESSAGE);
+            Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
             Objects.requireNonNull(parameters, NOT_NULL_PARAMETERS_MESSAGE);
-            return provider.run(network, fault, parameters, computationManager);
+            return provider.run(network, faults, parameters, computationManager);
         }
 
-        public ShortCircuitAnalysisResult run(Network network, Fault fault, ShortCircuitParameters parameters, ComputationManager computationManager,
+        public ShortCircuitAnalysisResult run(Network network, List<Fault> faults, ShortCircuitParameters parameters, ComputationManager computationManager,
                                               Reporter reporter) {
-            return runAsync(network, fault, parameters, computationManager, reporter).join();
+            return runAsync(network, faults, parameters, computationManager, reporter).join();
         }
 
-        public ShortCircuitAnalysisResult run(Network network, Fault fault, ShortCircuitParameters parameters, ComputationManager computationManager) {
-            return runAsync(network, fault, parameters, computationManager).join();
+        public ShortCircuitAnalysisResult run(Network network, List<Fault> faults, ShortCircuitParameters parameters, ComputationManager computationManager) {
+            return runAsync(network, faults, parameters, computationManager).join();
         }
 
-        public ShortCircuitAnalysisResult run(Network network, Fault fault, ShortCircuitParameters parameters) {
-            return run(network, fault, parameters, LocalComputationManager.getDefault());
+        public ShortCircuitAnalysisResult run(Network network, List<Fault> faults, ShortCircuitParameters parameters) {
+            return run(network, faults, parameters, LocalComputationManager.getDefault());
         }
 
-        public ShortCircuitAnalysisResult run(Network network, Fault fault) {
-            return run(network, fault, ShortCircuitParameters.load());
+        public ShortCircuitAnalysisResult run(Network network, List<Fault> faults) {
+            return run(network, faults, ShortCircuitParameters.load());
         }
 
         @Override
@@ -109,29 +110,29 @@ public final class ShortCircuitAnalysis {
         return find(null);
     }
 
-    public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, Fault fault, ShortCircuitParameters parameters,
+    public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, List<Fault> faults, ShortCircuitParameters parameters,
                                                                          ComputationManager computationManager) {
-        return find().runAsync(network, fault, parameters, computationManager);
+        return find().runAsync(network, faults, parameters, computationManager);
     }
 
-    public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, Fault fault, ShortCircuitParameters parameters,
+    public static CompletableFuture<ShortCircuitAnalysisResult> runAsync(Network network, List<Fault> faults, ShortCircuitParameters parameters,
                                                                          ComputationManager computationManager, Reporter reporter) {
-        return find().runAsync(network, fault, parameters, computationManager, reporter);
+        return find().runAsync(network, faults, parameters, computationManager, reporter);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network, ShortCircuitParameters parameters, Fault fault, ComputationManager computationManager, Reporter reporter) {
-        return find().run(network, fault, parameters, computationManager, reporter);
+    public static ShortCircuitAnalysisResult run(Network network,  List<Fault> faults, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+        return find().run(network, faults, parameters, computationManager, reporter);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network, Fault fault, ShortCircuitParameters parameters, ComputationManager computationManager) {
-        return find().run(network, fault, parameters, computationManager);
+    public static ShortCircuitAnalysisResult run(Network network, List<Fault> faults, ShortCircuitParameters parameters, ComputationManager computationManager) {
+        return find().run(network, faults, parameters, computationManager);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network, Fault fault, ShortCircuitParameters parameters) {
-        return find().run(network, fault, parameters);
+    public static ShortCircuitAnalysisResult run(Network network, List<Fault> faults, ShortCircuitParameters parameters) {
+        return find().run(network, faults, parameters);
     }
 
-    public static ShortCircuitAnalysisResult run(Network network, Fault fault) {
-        return find().run(network, fault);
+    public static ShortCircuitAnalysisResult run(Network network, List<Fault> faults) {
+        return find().run(network, faults);
     }
 }

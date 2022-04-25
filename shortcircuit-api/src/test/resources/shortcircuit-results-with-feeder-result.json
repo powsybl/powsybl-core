@@ -5,7 +5,8 @@
     "threePhaseFaultCurrent" : 1.0,
     "feederResult" : [ {
       "connectableId" : "connectableId",
-      "feederThreePhaseCurrent" : 1.0
+      "feederThreePhaseCurrent" : 1.0,
+      "current" : null
     } ]
   } ],
   "limitViolations" : [ {

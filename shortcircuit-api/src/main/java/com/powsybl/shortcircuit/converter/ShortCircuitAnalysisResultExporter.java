@@ -7,13 +7,13 @@
 package com.powsybl.shortcircuit.converter;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 import java.io.Writer;
 
 /**
- * Implementations provide a method to write down the content of a {@link ShortCircuitAnalysisMultiResult}.
+ * Implementations provide a method to write down the content of a {@link ShortCircuitAnalysisResult}.
  *
  * @author Boubakeur Brahimi
  */
@@ -23,6 +23,6 @@ public interface ShortCircuitAnalysisResultExporter {
 
     String getComment();
 
-    void export(ShortCircuitAnalysisMultiResult result, Writer writer, Network network) throws IOException;
+    void export(ShortCircuitAnalysisResult result, Writer writer, Network network) throws IOException;
 
 }

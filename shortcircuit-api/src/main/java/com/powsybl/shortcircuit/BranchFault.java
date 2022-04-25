@@ -17,10 +17,10 @@ public class BranchFault extends AbstractFault {
     // Location of the fault in % of the branch length (with side ONE as reference).
     private double proportionalLocation;
 
-    public BranchFault(String id, double r, double x, Fault.ConnectionType connection,
+    public BranchFault(String id, double r, double x, Fault.ConnectionType connection, Fault.FaultType faultType, boolean withLimitViolation, boolean withDetailedResults,
                        double proportionalLocation) {
         // Here the id is the id of a branch.
-        super(id, r, x, connection);
+        super(id, r, x, connection, faultType, withLimitViolation, withDetailedResults);
         this.proportionalLocation = proportionalLocation;
     }
 

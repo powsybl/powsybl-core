@@ -8,6 +8,7 @@ package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -30,9 +31,11 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final List<FeederResult> feederResults;
 
-    private final ThreePhaseValue current; // FIXME optional?
+    private final ThreePhaseValue current;
 
-    private final ThreePhaseValue voltage; // FIXME optional?
+    private final ThreePhaseValue voltage;
+
+    private final List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
 
     public FaultResult(Fault fault, double threePhaseFaultCurrent, double threePhaseFaultActivePower,
                        List<FeederResult> feederResults, ThreePhaseValue current, ThreePhaseValue voltage, double timeConstant) {

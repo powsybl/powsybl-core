@@ -22,8 +22,8 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.com>
  */
-@AutoService(MultiShortCircuitAnalysisProvider.class)
-public class MultiShortCircuitAnalysisMock implements MultiShortCircuitAnalysisProvider {
+@AutoService(ShortCircuitAnalysisProvider.class)
+public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
 
     private final List<ShortCircuitAnalysisInterceptor> interceptors = new ArrayList<>();
 
@@ -48,21 +48,21 @@ public class MultiShortCircuitAnalysisMock implements MultiShortCircuitAnalysisP
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisMultiResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
-        return CompletableFuture.completedFuture(new ShortCircuitAnalysisMultiResult(new ArrayList<>(), new ArrayList<>()));
+    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults, ShortCircuitParameters parameters, ComputationManager computationManager) {
+        return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>(), new ArrayList<>()));
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisMultiResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
         reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
-        return run(network, parameters, computationManager);
+        return run(network, faults, parameters, computationManager);
     }
 
-    public static ShortCircuitAnalysisMultiResult runWithNonEmptyResult() {
-        Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES);
+    public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
+        Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         FeederResult feederResult = new FeederResult("GEN", 5);
         FaultResult faultResult = new FaultResult(fault, 10, Collections.singletonList(feederResult), 1);
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
-        return new ShortCircuitAnalysisMultiResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
+        return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
     }
 }

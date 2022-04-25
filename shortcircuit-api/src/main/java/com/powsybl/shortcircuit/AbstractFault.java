@@ -18,12 +18,19 @@ abstract class AbstractFault implements Fault {
     private final double r;
     private final double x;
     private Fault.ConnectionType connection;
+    private Fault.FaultType faultType;
+    private boolean withLimitViolation;
+    private boolean withDetailedResults;
 
-    public AbstractFault(String id, double r, double x, Fault.ConnectionType connection) {
+    public AbstractFault(String id, double r, double x, Fault.ConnectionType connection,
+                         Fault.FaultType faultType, boolean withLimitViolation, boolean withDetailedResults) {
         this.id = id;
         this.r = r;
         this.x = x;
         this.connection = connection;
+        this.faultType = faultType;
+        this.withLimitViolation = withLimitViolation;
+        this.withDetailedResults = withDetailedResults;
     }
 
     public String getId() {
@@ -43,5 +50,20 @@ abstract class AbstractFault implements Fault {
     @Override
     public ConnectionType getConnectionType() {
         return this.connection;
+    }
+
+    @Override
+    public FaultType getFaultType() {
+        return this.faultType;
+    }
+
+    @Override
+    public boolean isWithLimitViolation() {
+        return this.withLimitViolation;
+    }
+
+    @Override
+    public boolean isWithDetailedResults() {
+        return this.withDetailedResults;
     }
 }

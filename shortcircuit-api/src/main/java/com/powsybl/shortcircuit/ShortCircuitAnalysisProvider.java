@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -24,13 +25,13 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
 
     boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor);
 
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, Fault fault, ShortCircuitParameters parameters,
+    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults, ShortCircuitParameters parameters,
                                                               ComputationManager computationManager) {
-        return ShortCircuitAnalysis.runAsync(network, fault, parameters, computationManager);
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager);
     }
 
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, Fault fault, ShortCircuitParameters parameters,
+    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults, ShortCircuitParameters parameters,
                                                               ComputationManager computationManager, Reporter reporter) {
-        return ShortCircuitAnalysis.runAsync(network, fault, parameters, computationManager, reporter);
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, reporter);
     }
 }

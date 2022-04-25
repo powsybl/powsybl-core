@@ -103,7 +103,7 @@ public class ShortCircuitAnalysisTool implements Tool {
             JsonShortCircuitParameters.update(parameters, parametersFile);
         }
 
-        ShortCircuitAnalysisMultiResult shortCircuitAnalysisResult = MultiShortCircuitAnalysis.runAsync(network, parameters, computationManager).join();
+        ShortCircuitAnalysis shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, parameters, computationManager).join();
 
         if (shortCircuitAnalysisResult != null) {
             if (outputFile != null) {

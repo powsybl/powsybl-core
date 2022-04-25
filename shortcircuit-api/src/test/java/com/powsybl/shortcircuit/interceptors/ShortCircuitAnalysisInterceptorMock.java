@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -41,7 +41,7 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
     }
 
     @Override
-    public void onShortCircuitResult(Network network, ShortCircuitAnalysisMultiResult shortCircuitAnalysisResult) {
+    public void onShortCircuitResult(Network network, ShortCircuitAnalysisResult shortCircuitAnalysisResult) {
         super.onShortCircuitResult(network, shortCircuitAnalysisResult);
 
         assertShortCircuitResult(shortCircuitAnalysisResult);
@@ -72,7 +72,7 @@ public class ShortCircuitAnalysisInterceptorMock extends DefaultShortCircuitAnal
         assertEquals(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, limitViolation.getLimitType());
     }
 
-    private static void assertShortCircuitResult(ShortCircuitAnalysisMultiResult shortCircuitAnalysisResult) {
+    private static void assertShortCircuitResult(ShortCircuitAnalysisResult shortCircuitAnalysisResult) {
         assertNotNull(shortCircuitAnalysisResult);
         assertEquals(1, shortCircuitAnalysisResult.getFaultResults().size());
         assertEquals(1, shortCircuitAnalysisResult.getLimitViolations().size());

@@ -20,7 +20,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.NetworkMetadata;
 import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisMultiResult;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,21 +37,21 @@ import java.util.function.Supplier;
  *
  * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<ShortCircuitAnalysisMultiResult> {
+public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<ShortCircuitAnalysisResult> {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 
     ShortCircuitAnalysisResultDeserializer() {
-        super(ShortCircuitAnalysisMultiResult.class);
+        super(ShortCircuitAnalysisResult.class);
     }
 
     @Override
-    public ShortCircuitAnalysisMultiResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         NetworkMetadata networkMetadata = null;
         List<FaultResult> faultResults = null;
         List<LimitViolation> limitViolations = Collections.emptyList();
-        List<Extension<ShortCircuitAnalysisMultiResult>> extensions = Collections.emptyList();
+        List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -86,14 +86,14 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
             }
         }
 
-        ShortCircuitAnalysisMultiResult result = new ShortCircuitAnalysisMultiResult(faultResults, limitViolations);
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults, limitViolations);
         result.setNetworkMetadata(networkMetadata);
         SUPPLIER.get().addExtensions(result, extensions);
 
         return result;
     }
 
-    public static ShortCircuitAnalysisMultiResult read(Path jsonFile) {
+    public static ShortCircuitAnalysisResult read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return read(is);
         } catch (IOException e) {
@@ -101,13 +101,13 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
         }
     }
 
-    public static ShortCircuitAnalysisMultiResult read(InputStream is) {
+    public static ShortCircuitAnalysisResult read(InputStream is) {
         Objects.requireNonNull(is);
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new ShortCircuitAnalysisJsonModule());
         try {
-            return objectMapper.readValue(is, ShortCircuitAnalysisMultiResult.class);
+            return objectMapper.readValue(is, ShortCircuitAnalysisResult.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
