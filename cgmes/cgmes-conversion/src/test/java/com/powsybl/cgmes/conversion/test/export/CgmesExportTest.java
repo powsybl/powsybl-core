@@ -74,9 +74,9 @@ public class CgmesExportTest {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             Exporters.export("CGMES", network, null, tmpDir.resolve("tmp"));
             Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "tmp"));
-            VoltageLevel c = n2.getVoltageLevel("_C");
-            assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("_TEST_SW")));
-            assertNull(n2.getVscConverterStation("_C2").getTerminal().getBusView().getBus());
+            VoltageLevel c = n2.getVoltageLevel("C");
+            assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("TEST_SW")));
+            assertNull(n2.getVscConverterStation("C2").getTerminal().getBusView().getBus());
         }
     }
 }
