@@ -16,9 +16,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
