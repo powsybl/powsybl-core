@@ -30,49 +30,49 @@ public final class Cim14SmallCasesNetworkCatalog {
         String genInfName = "INF     ";
         Network network = Network.create("unknown", "no-format");
         Substation sGen = network.newSubstation()
-            .setId("_GEN______SS")
+            .setId("GEN______SS")
             .setName("GEN     _SS")
             .setGeographicalTags(sGenGeoTag)
             .add();
-        sGen.setProperty("CGMES.subRegionId", "_SGR_1_");
+        sGen.setProperty("CGMES.subRegionId", "SGR_1_");
         Substation sInf = network.newSubstation()
-            .setId("_INF______SS")
+            .setId("INF______SS")
             .setName("INF     _SS")
             .setGeographicalTags(sInfGeoTag)
             .add();
-        sInf.setProperty("CGMES.subRegionId", "_SGR_1_");
+        sInf.setProperty("CGMES.subRegionId", "SGR_1_");
         VoltageLevel vlInf = sInf.newVoltageLevel()
-            .setId("_INF______VL")
+            .setId("INF______VL")
             .setName("INF     _VL")
             .setNominalV(380.0)
             .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
         VoltageLevel vlGrid = sGen.newVoltageLevel()
-            .setId("_GRID_____VL")
+            .setId("GRID_____VL")
             .setName("GRID    _VL")
             .setNominalV(380.0)
             .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
         VoltageLevel vlGen = sGen.newVoltageLevel()
-            .setId("_GEN______VL")
+            .setId("GEN______VL")
             .setName("GEN     _VL")
             .setNominalV(21.0)
             .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
         Bus busGrid = vlGrid.getBusBreakerView().newBus()
-            .setId("_GRID_____TN")
+            .setId("GRID_____TN")
             .setName("GRID")
             .add();
         busGrid.setV(419);
         busGrid.setAngle(0);
         Bus busGen = vlGen.getBusBreakerView().newBus()
-            .setId("_GEN______TN")
+            .setId("GEN______TN")
             .setName("GEN")
             .add();
         busGen.setV(21);
         busGen.setAngle(0);
         Generator gen = vlGen.newGenerator()
-            .setId("_GEN______SM")
+            .setId("GEN______SM")
             .setName(genName)
             .setConnectableBus(busGen.getId())
             .setBus(busGen.getId())
@@ -91,13 +91,13 @@ public final class Cim14SmallCasesNetworkCatalog {
         gen.getTerminal().setQ(0);
         gen.setRegulatingTerminal(gen.getTerminal());
         Bus busInf = vlInf.getBusBreakerView().newBus()
-            .setId("_INF______TN")
+            .setId("INF______TN")
             .setName("INF")
             .add();
         busInf.setV(419);
         busInf.setAngle(0);
         Generator genInf = vlInf.newGenerator()
-            .setId("_INF______SM")
+            .setId("INF______SM")
             .setName(genInfName)
             .setConnectableBus(busInf.getId())
             .setBus(busInf.getId())
@@ -116,7 +116,7 @@ public final class Cim14SmallCasesNetworkCatalog {
         genInf.getTerminal().setQ(0);
         genInf.setRegulatingTerminal(genInf.getTerminal());
         Line line = network.newLine()
-            .setId("_GRID____-INF_____-1_AC")
+            .setId("GRID____-INF_____-1_AC")
             .setName("GRID    -INF     -1")
             .setR(0.0)
             .setX(86.64)
@@ -150,7 +150,7 @@ public final class Cim14SmallCasesNetworkCatalog {
             double g = g1 / rho2 + g2;
             double b = b1 / rho2 + b2;
             TwoWindingsTransformer tx = sGen.newTwoWindingsTransformer()
-                .setId("_GEN_____-GRID____-1_PT")
+                .setId("GEN_____-GRID____-1_PT")
                 .setName("GEN     -GRID    -1")
                 .setR(r)
                 .setX(x)

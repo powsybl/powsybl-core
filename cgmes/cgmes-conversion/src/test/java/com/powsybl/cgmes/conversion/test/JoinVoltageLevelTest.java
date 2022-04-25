@@ -7,16 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -24,13 +14,15 @@ import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -43,15 +35,15 @@ public class JoinVoltageLevelTest {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerJoinVoltageLevelSwitch(), config);
 
-        Switch sw = n.getSwitch("_5e9f0079-647e-46da-b0ee-f5f24e127602");
+        Switch sw = n.getSwitch("5e9f0079-647e-46da-b0ee-f5f24e127602");
         VoltageLevel voltageLevel = sw.getVoltageLevel();
         Substation substation = voltageLevel.getSubstation().orElse(null);
 
-        boolean ok = compareVoltageLevelSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5", "_a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
+        boolean ok = compareVoltageLevelSubstation("d6056127-34f1-43a9-b029-23fddb913bd5", "a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
         assertTrue(ok);
 
-        VoltageLevel voltageLevelIidm = n.getVoltageLevel("_a43d15db-44a6-4fda-a525-2402ff43226f");
-        assertEquals("_a43d15eb-44a6-4fda-a525-2402ff43226f", voltageLevelIidm.getAliasFromType("MergedVoltageLevel1").get());
+        VoltageLevel voltageLevelIidm = n.getVoltageLevel("a43d15db-44a6-4fda-a525-2402ff43226f");
+        assertEquals("a43d15eb-44a6-4fda-a525-2402ff43226f", voltageLevelIidm.getAliasFromType("MergedVoltageLevel1").get());
     }
 
     @Test
@@ -59,7 +51,7 @@ public class JoinVoltageLevelTest {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerSwitchBetweenVoltageLevelsOpen(), config);
 
-        Switch sw = n.getSwitch("_5e9f0079-647e-46da-b0ee-f5f24e127602");
+        Switch sw = n.getSwitch("5e9f0079-647e-46da-b0ee-f5f24e127602");
         assertNotNull(sw);
 
         boolean isOpen = sw.isOpen();
@@ -68,7 +60,7 @@ public class JoinVoltageLevelTest {
         VoltageLevel voltageLevel = sw.getVoltageLevel();
         Substation substation = voltageLevel.getSubstation().orElse(null);
 
-        boolean ok = compareVoltageLevelSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5", "_a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
+        boolean ok = compareVoltageLevelSubstation("d6056127-34f1-43a9-b029-23fddb913bd5", "a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
         assertTrue(ok);
     }
 
@@ -77,7 +69,7 @@ public class JoinVoltageLevelTest {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerJoinVoltageLevelTx(), config);
 
-        TwoWindingsTransformer t2x = n.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        TwoWindingsTransformer t2x = n.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
         Terminal t1 = t2x.getTerminal(Side.ONE);
         VoltageLevel voltageLevel1 = t1.getVoltageLevel();
         Terminal t2 = t2x.getTerminal(Side.TWO);
@@ -85,13 +77,13 @@ public class JoinVoltageLevelTest {
 
         Substation substation = t2x.getSubstation().orElse(null);
 
-        boolean ok = compareVoltageLevelSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5",
-            "_a43d15db-44a6-4fda-a525-2402ff43226f", "_0d68ac81-124d-4d21-afa8-6c503feef5b8", substation.getId(),
+        boolean ok = compareVoltageLevelSubstation("d6056127-34f1-43a9-b029-23fddb913bd5",
+            "a43d15db-44a6-4fda-a525-2402ff43226f", "0d68ac81-124d-4d21-afa8-6c503feef5b8", substation.getId(),
             voltageLevel1.getId(), voltageLevel2.getId());
         assertTrue(ok);
 
-        Substation substationIidm = n.getSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5");
-        assertEquals("_d6056137-34f1-43a9-b029-23fddb913bd5", substationIidm.getAliasFromType("MergedSubstation1").get());
+        Substation substationIidm = n.getSubstation("d6056127-34f1-43a9-b029-23fddb913bd5");
+        assertEquals("d6056137-34f1-43a9-b029-23fddb913bd5", substationIidm.getAliasFromType("MergedSubstation1").get());
     }
 
     private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {

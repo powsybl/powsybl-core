@@ -136,7 +136,7 @@ public class CgmesExportContextTest {
         Network n = buildIidmMapping();
 
         // Change switch status
-        n.getSwitch("_9550e743-98fd-4be7-848f-b6a600d6c67b").setOpen(true);
+        n.getSwitch("9550e743-98fd-4be7-848f-b6a600d6c67b").setOpen(true);
 
         // Check that topology mapping has been invalidated
         assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
@@ -147,7 +147,7 @@ public class CgmesExportContextTest {
         Network n = buildIidmMapping();
 
         // Create switch
-        n.getVoltageLevel("_04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newSwitch().setId("test").setNode1(0).setNode2(2).setOpen(false).setKind(SwitchKind.BREAKER).add();
+        n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newSwitch().setId("test").setNode1(0).setNode2(2).setOpen(false).setKind(SwitchKind.BREAKER).add();
 
         // Check that topology mapping has been invalidated
         assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
@@ -158,7 +158,7 @@ public class CgmesExportContextTest {
         Network n = buildIidmMapping();
 
         // Create internal connection
-        n.getVoltageLevel("_04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
+        n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
 
         // Check that topology mapping has been invalidated
         assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
@@ -169,7 +169,7 @@ public class CgmesExportContextTest {
         Network n = buildIidmMapping();
 
         // Delete switch
-        n.getVoltageLevel("_04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().removeSwitch("_9550e743-98fd-4be7-848f-b6a600d6c67b");
+        n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().removeSwitch("9550e743-98fd-4be7-848f-b6a600d6c67b");
 
         // Check that topology mapping has been invalidated
         assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
@@ -180,7 +180,7 @@ public class CgmesExportContextTest {
         Network n = buildIidmMapping();
 
         // Delete voltage level (containing switches)
-        VoltageLevel vl = n.getVoltageLevel("_04636548-c766-11e1-8775-005056c00008");
+        VoltageLevel vl = n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008");
         vl.getLines().forEach(Connectable::remove);
         vl.remove();
 
