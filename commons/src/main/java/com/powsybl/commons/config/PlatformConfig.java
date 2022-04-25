@@ -68,14 +68,15 @@ public class PlatformConfig {
             if (providers.isEmpty()) {
                 LOGGER.warn("Platform configuration provider not found. In order to customize the platform configuration, consider using powsybl-config-classic artifact, or powsybl-config-test for tests.");
                 defaultConfig = new PlatformConfig(new EmptyModuleConfigRepository(), null);
+            } else {
+                if (providers.size() > 1) {
+                    LOGGER.error("Multiple platform configuration providers found: {}", providers);
+                    throw new PowsyblException("Multiple platform configuration providers found");
+                }
+                PlatformConfigProvider p = providers.get(0);
+                LOGGER.info("Using platform configuration provider {}", p.getName());
+                defaultConfig = p.getPlatformConfig();
             }
-            if (providers.size() > 1) {
-                LOGGER.error("Multiple platform configuration providers found: {}", providers);
-                throw new PowsyblException("Multiple platform configuration providers found");
-            }
-            PlatformConfigProvider p = providers.get(0);
-            LOGGER.info("Using platform configuration provider {}", p.getName());
-            defaultConfig = p.getPlatformConfig();
         }
         return defaultConfig;
     }
