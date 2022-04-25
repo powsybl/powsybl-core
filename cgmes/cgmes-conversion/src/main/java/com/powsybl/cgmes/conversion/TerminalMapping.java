@@ -55,6 +55,10 @@ public class TerminalMapping {
         return null;
     }
 
+    public String getTopologicalNode(String cgmesTerminalId) {
+        return cgmesTerminalsMapping.get(cgmesTerminalId);
+    }
+
     public Terminal find(String cgmesTerminalId) {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
