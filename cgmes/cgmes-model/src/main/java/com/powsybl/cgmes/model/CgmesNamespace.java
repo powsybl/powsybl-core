@@ -7,6 +7,8 @@
 package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.PowsyblException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,8 @@ import java.util.regex.Pattern;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class CgmesNamespace {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesNamespace.class);
 
     private CgmesNamespace() {
     }
@@ -156,9 +160,39 @@ public final class CgmesNamespace {
         }
     }
 
-    private abstract static class AbstractCimWithProfiles extends AbstractCim {
+    private abstract static class AbstractCim16AndAbove extends AbstractCim {
 
+        private final String euPrefix;
+        private final String euNamespace;
+        private final String limitValueAttributeName;
+        private final String limitTypeAttributeName;
+        private final String limitKindClassName;
         private final Map<String, String> profiles = new HashMap<>();
+
+        @Override
+        public String getEuPrefix() {
+            return euPrefix;
+        }
+
+        @Override
+        public String getEuNamespace() {
+            return euNamespace;
+        }
+
+        @Override
+        public String getLimitValueAttributeName() {
+            return limitValueAttributeName;
+        }
+
+        @Override
+        public String getLimitTypeAttributeName() {
+            return limitTypeAttributeName;
+        }
+
+        @Override
+        public String getLimitKindClassName() {
+            return limitKindClassName;
+        }
 
         @Override
         public boolean hasProfiles() {
@@ -170,38 +204,20 @@ public final class CgmesNamespace {
             return profiles.get(profile);
         }
 
-        private AbstractCimWithProfiles(int version, String namespace, Map<String, String> profiles) {
+        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace,
+                                      String limitValueAttributeName, String limitTypeAttributeName,
+                                      String limitKindClassName, Map<String, String> profiles) {
             super(version, namespace);
+            this.euPrefix = euPrefix;
+            this.euNamespace = euNamespace;
+            this.limitValueAttributeName = limitValueAttributeName;
+            this.limitTypeAttributeName = limitTypeAttributeName;
+            this.limitKindClassName = limitKindClassName;
             this.profiles.putAll(profiles);
         }
     }
 
-    private static final class Cim16 extends AbstractCimWithProfiles {
-
-        @Override
-        public String getEuPrefix() {
-            return "entsoe";
-        }
-
-        @Override
-        public String getEuNamespace() {
-            return ENTSOE_NAMESPACE;
-        }
-
-        @Override
-        public String getLimitValueAttributeName() {
-            return "value";
-        }
-
-        @Override
-        public String getLimitTypeAttributeName() {
-            return "OperationalLimitType.limitType";
-        }
-
-        @Override
-        public String getLimitKindClassName() {
-            return "LimitTypeKind";
-        }
+    private static final class Cim16 extends AbstractCim16AndAbove {
 
         @Override
         public boolean writeLimitInfiniteDuration() {
@@ -214,38 +230,15 @@ public final class CgmesNamespace {
         }
 
         private Cim16() {
-            super(16, CIM_16_NAMESPACE, Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
+            super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE, "value",
+                    "OperationalLimitType.limitType", "LimitTypeKind",
+                    Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
                     CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV",
                     CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE));
         }
     }
 
-    private static final class Cim100 extends AbstractCimWithProfiles {
-
-        @Override
-        public String getEuPrefix() {
-            return "eu";
-        }
-
-        @Override
-        public String getEuNamespace() {
-            return EU_NAMESPACE;
-        }
-
-        @Override
-        public String getLimitValueAttributeName() {
-            return "normalValue";
-        }
-
-        @Override
-        public String getLimitTypeAttributeName() {
-            return "OperationalLimitType.kind";
-        }
-
-        @Override
-        public String getLimitKindClassName() {
-            return "LimitKind";
-        }
+    private static final class Cim100 extends AbstractCim16AndAbove {
 
         @Override
         public boolean writeLimitInfiniteDuration() {
@@ -258,7 +251,9 @@ public final class CgmesNamespace {
         }
 
         private Cim100() {
-            super(100, CIM_100_NAMESPACE, Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
+            super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE, "normalValue",
+                    "OperationalLimitType.kind", "LimitKind",
+                    Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
                     "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE));
         }
     }
@@ -273,6 +268,7 @@ public final class CgmesNamespace {
                 return CIM_100;
             default:
                 if (cimVersion > 100) {
+                    LOG.info("CIM version is above 100 ({}), will be considered 100", cimVersion);
                     return CIM_100;
                 }
                 throw new PowsyblException("Unsupported CIM version " + cimVersion);
