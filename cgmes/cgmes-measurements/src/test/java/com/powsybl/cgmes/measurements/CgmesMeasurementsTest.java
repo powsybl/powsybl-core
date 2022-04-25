@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.measurements;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
