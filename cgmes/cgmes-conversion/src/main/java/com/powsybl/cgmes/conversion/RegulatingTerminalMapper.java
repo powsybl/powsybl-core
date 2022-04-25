@@ -42,7 +42,7 @@ final class RegulatingTerminalMapper {
                         // As a last resource, rely on the "find" method of terminal mapping:
                         // Bus/branch models may define remote voltage controls that point to busbar sections
                         // Busbar sections are not mapped to IIDM
-                        .or(() -> Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)));
+                        .or(() -> Optional.ofNullable(context.terminalMapping().findFromTopologicalNode(cgmesTerminalId)));
     }
 
     public static Optional<TerminalAndSign> mapForFlowControl(String cgmesTerminalId, Context context) {
