@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 /**
  * @author Hadrien Godard <hadrien.godard at artelys.com>
  */
-public class LoadContingency extends AbstractInjectionContingency {
+public class LoadContingency extends AbstractContingency {
 
     public LoadContingency(String id) {
         super(id);

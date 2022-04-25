@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Bus;
@@ -306,15 +305,15 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         assertEquals(lineP1, setterCaptor.getValue(), 0.0001);
         Mockito.verify(lineTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(lineQ1, setterCaptor.getValue(), 0.0001);
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Matchers.anyDouble());
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Matchers.anyDouble());
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Mockito.anyDouble());
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Mockito.anyDouble());
 
         Mockito.verify(twtTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
         assertEquals(twtP1, setterCaptor.getValue(), 0.0001);
         Mockito.verify(twtTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(twtQ1, setterCaptor.getValue(), 0.0001);
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Matchers.anyDouble());
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Matchers.anyDouble());
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Mockito.anyDouble());
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Mockito.anyDouble());
 
         Mockito.verify(shuntTerminal, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(shuntQ, setterCaptor.getValue(), 0.0001);
@@ -323,8 +322,8 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         assertEquals(leg1P, setterCaptor.getValue(), 0.3);
         Mockito.verify(leg1Terminal, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(leg1Q, setterCaptor.getValue(), 0.3);
-        Mockito.verify(leg2Terminal, Mockito.times(0)).setP(Matchers.anyDouble());
-        Mockito.verify(leg2Terminal, Mockito.times(0)).setQ(Matchers.anyDouble());
+        Mockito.verify(leg2Terminal, Mockito.times(0)).setP(Mockito.anyDouble());
+        Mockito.verify(leg2Terminal, Mockito.times(0)).setQ(Mockito.anyDouble());
         Mockito.verify(leg3Terminal, Mockito.times(1)).setP(setterCaptor.capture());
         assertEquals(leg3P, setterCaptor.getValue(), 0.3);
         Mockito.verify(leg3Terminal, Mockito.times(1)).setQ(setterCaptor.capture());

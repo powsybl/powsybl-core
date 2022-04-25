@@ -20,19 +20,17 @@ import java.util.Set;
  */
 public class BusbarSectionTripping extends AbstractTripping {
 
-    private final String busbarSectionId;
-
     public BusbarSectionTripping(String busbarSectionId) {
-        this.busbarSectionId = Objects.requireNonNull(busbarSectionId);
+        super(busbarSectionId);
     }
 
     @Override
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
-        BusbarSection busbarSection = network.getBusbarSection(busbarSectionId);
+        BusbarSection busbarSection = network.getBusbarSection(id);
         if (busbarSection == null) {
-            throw new PowsyblException("Busbar section '" + busbarSectionId + "' not found");
+            throw new PowsyblException("Busbar section '" + id + "' not found");
         }
 
         TrippingTopologyTraverser.traverse(busbarSection.getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);

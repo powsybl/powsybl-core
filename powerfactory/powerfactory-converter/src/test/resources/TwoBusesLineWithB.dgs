@@ -20,5 +20,5 @@ $$StaSwitch;ID(a:40);loc_name(a:40);fold_id(p);iUse(i);on_off(i)
  9;Switch;7;1;1
 
 $$TypLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);uline(r);sline(r);InomAir(r);cohl_(i);rline(r);xline(r);rline0(r);xline0(r);Ithr(r);tmax(r);rtemp(r);systp(i);nlnph(i);nneutral(i);frnom(r);mlei(a:2);bline(r);bline0(r)
-  10;tlne_A_B_1;;5;138;99999;1;0;3,561228;11,7311;999999;999999;0;80;80;0;3;0;60;Cu;82,54568;0
+  10;tlne_A_B_1;;5;220;99999;1;0;3,561228;11,7311;999999;999999;0;80;80;0;3;0;60;Cu;82,54568;0
 

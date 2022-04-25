@@ -11,11 +11,11 @@ import java.util.Objects;
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public abstract class AbstractInjectionContingency implements ContingencyElement {
+public abstract class AbstractContingency implements ContingencyElement {
 
     protected final String id;
 
-    public AbstractInjectionContingency(String id) {
+    protected AbstractContingency(String id) {
         this.id = Objects.requireNonNull(id);
     }
 
@@ -26,14 +26,14 @@ public abstract class AbstractInjectionContingency implements ContingencyElement
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hash(id, getType());
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AbstractInjectionContingency) {
-            AbstractInjectionContingency ic = (AbstractInjectionContingency) obj;
-            return id.equals(ic.getId()) && getType() == ic.getType();
+        if (obj instanceof AbstractContingency) {
+            AbstractContingency that = (AbstractContingency) obj;
+            return id.equals(that.getId()) && getType() == that.getType();
         }
         return false;
     }

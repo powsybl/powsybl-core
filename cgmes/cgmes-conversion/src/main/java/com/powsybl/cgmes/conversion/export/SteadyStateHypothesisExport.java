@@ -45,7 +45,7 @@ public final class SteadyStateHypothesisExport {
         try {
             CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
 
-            if (context.getCimVersion() == 16) {
+            if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
             }
 

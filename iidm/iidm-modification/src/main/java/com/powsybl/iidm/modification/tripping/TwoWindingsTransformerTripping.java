@@ -25,11 +25,11 @@ public class TwoWindingsTransformerTripping extends BranchTripping {
 
     @Override
     protected PowsyblException createNotFoundException() {
-        return new PowsyblException("Two windings transformer '" + getBranchId() + "' not found");
+        return new PowsyblException("Two windings transformer '" + id + "' not found");
     }
 
     @Override
     protected PowsyblException createNotConnectedException() {
-        return new PowsyblException("VoltageLevel '" + getVoltageLevelId() + "' not connected to the two windings transformer '" + getBranchId() + "'");
+        return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to the two windings transformer '" + id + "'");
     }
 }
