@@ -6,19 +6,17 @@
  */
 package com.powsybl.timeseries;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
