@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
-import com.powsybl.cgmes.conformity.test.Cgmes3Catalog;
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
