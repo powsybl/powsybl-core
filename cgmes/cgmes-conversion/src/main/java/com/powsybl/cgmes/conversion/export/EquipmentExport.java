@@ -657,12 +657,8 @@ public final class EquipmentExport {
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
 
-            String node1 = null;
-            String node2 = null;
-            if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                node1 = exportedNodes.get(getSwitchNode1Id(vl, sw));
-                node2 = exportedNodes.get(getSwitchNode2Id(vl, sw));
-            }
+            String node1 = exportedNodes.get(getSwitchNode1Id(vl, sw));
+            String node2 = exportedNodes.get(getSwitchNode2Id(vl, sw));
             String terminalId1 = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1).orElseThrow(PowsyblException::new);
             TerminalEq.write(terminalId1, sw.getId(), node1, 1, cimNamespace, writer);
             String terminalId2 = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2).orElseThrow(PowsyblException::new);
