@@ -1188,7 +1188,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     void setValidationLevelIfGreaterThan(ValidationLevel validationLevel) {
-        this.validationLevel = ValidationLevel.min(this.validationLevel, validationLevel);
+        if (this.validationLevel != null) {
+            this.validationLevel = ValidationLevel.min(this.validationLevel, validationLevel);
+        }
     }
 
     void invalidateValidationLevel() {

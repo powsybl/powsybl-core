@@ -32,14 +32,14 @@ public class CgmesExportContext {
     private static final String TERMINAL_NETWORK = "Terminal_Network";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
 
-    private int cimVersion = 16;
+    private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
-    private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.getProfile(cimVersion, "EQ"));
-    private ModelDescription tpModelDescription = new ModelDescription("TP Model", CgmesNamespace.getProfile(cimVersion, "TP"));
-    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.getProfile(cimVersion, "SV"));
-    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.getProfile(cimVersion, "SSH"));
+    private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfile("EQ"));
+    private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
+    private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfile("SV"));
+    private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfile("SSH"));
 
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
@@ -125,7 +125,7 @@ public class CgmesExportContext {
     public CgmesExportContext(Network network) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
-            cimVersion = cimCharacteristics.getCimVersion();
+            setCimVersion(cimCharacteristics.getCimVersion());
             topologyKind = cimCharacteristics.getTopologyKind();
         } else {
             topologyKind = networkTopologyKind(network);
@@ -442,16 +442,16 @@ public class CgmesExportContext {
     }
 
     public int getCimVersion() {
-        return cimVersion;
+        return cim.getVersion();
     }
 
     public CgmesExportContext setCimVersion(int cimVersion) {
-        this.cimVersion = cimVersion;
-        if (CgmesNamespace.hasProfiles(cimVersion)) {
-            eqModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "EQ"));
-            tpModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "TP"));
-            svModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SV"));
-            sshModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SSH"));
+        cim = CgmesNamespace.getCim(cimVersion);
+        if (cim.hasProfiles()) {
+            eqModelDescription.setProfile(cim.getProfile("EQ"));
+            tpModelDescription.setProfile(cim.getProfile("TP"));
+            svModelDescription.setProfile(cim.getProfile("SV"));
+            sshModelDescription.setProfile(cim.getProfile("SSH"));
         }
         return this;
     }
@@ -508,8 +508,8 @@ public class CgmesExportContext {
         return this;
     }
 
-    public String getCimNamespace() {
-        return CgmesNamespace.getCim(cimVersion);
+    public CgmesNamespace.Cim getCim() {
+        return cim;
     }
 
     public BaseVoltageMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
@@ -517,7 +517,7 @@ public class CgmesExportContext {
     }
 
     public boolean isWriteConnectivityNodes() {
-        boolean isWriteConnectivityNodes = CgmesNamespace.isWriteConnectivityNodes(cimVersion);
+        boolean isWriteConnectivityNodes = cim.isWriteConnectivityNodes();
         if (!isWriteConnectivityNodes) {
             isWriteConnectivityNodes = topologyKind.equals(CgmesTopologyKind.NODE_BREAKER);
         }

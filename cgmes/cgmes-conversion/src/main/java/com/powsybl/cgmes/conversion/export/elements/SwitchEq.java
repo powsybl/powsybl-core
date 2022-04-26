@@ -7,13 +7,10 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.SwitchKind;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -21,13 +18,8 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class SwitchEq {
 
     public static void write(String id, String switchName, SwitchKind switchKind, String equipmentContainer, boolean retained, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, switchClassname(switchKind));
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(switchName);
-        writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "Equipment.EquipmentContainer");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + equipmentContainer);
+        CgmesExportUtil.writeStartIdName(switchClassname(switchKind), id, switchName, cimNamespace, writer);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "Switch.retained");
         writer.writeCharacters(CgmesExportUtil.format(retained));
         writer.writeEndElement();

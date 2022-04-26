@@ -12,21 +12,16 @@ import com.powsybl.cgmes.model.CgmesNames;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public final class TerminalEq {
 
     public static void write(String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, CgmesNames.TERMINAL);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeEmptyElement(cimNamespace, "Terminal.ConductingEquipment");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
+        CgmesExportUtil.writeStartId(CgmesNames.TERMINAL, id, true, cimNamespace, writer);
+        CgmesExportUtil.writeReference("Terminal.ConductingEquipment", conductingEquipmentId, cimNamespace, writer);
         if (connectivityNodeId != null) {
-            writer.writeEmptyElement(cimNamespace, "Terminal.ConnectivityNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + connectivityNodeId);
+            CgmesExportUtil.writeReference("Terminal.ConnectivityNode", connectivityNodeId, cimNamespace, writer);
         }
         writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));

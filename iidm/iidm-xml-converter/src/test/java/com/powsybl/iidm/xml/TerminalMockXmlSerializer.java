@@ -44,6 +44,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                         .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.5"))
                         .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.6"))
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.7"))
+                        .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.8"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0")
@@ -54,6 +55,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                         .put("1.5", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_5")
                         .put("1.6", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_6")
                         .put("1.7", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_7")
+                        .put("1.8", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_8")
                         .build());
     }
 

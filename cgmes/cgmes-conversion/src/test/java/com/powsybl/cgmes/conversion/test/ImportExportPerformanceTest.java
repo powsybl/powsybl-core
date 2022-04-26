@@ -80,7 +80,9 @@ public class ImportExportPerformanceTest {
         Path exportFolder = fs.getPath("impl-" + ts);
         Files.createDirectories(exportFolder);
         DataSource exportDataSource = new FileDataSource(exportFolder, "");
-        e.export(n, new Properties(), exportDataSource);
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.CIM_VERSION, "16");
+        e.export(n, exportParameters, exportDataSource);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(ImportExportPerformanceTest.class);

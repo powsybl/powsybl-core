@@ -7,13 +7,10 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -21,23 +18,16 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class HvdcConverterStationEq {
 
     public static void write(String id, String converterName, HvdcConverterStation.HvdcType converterType, double ratedUdc, String dcEquipmentContainerId, String pccTerminal, String capabilityCurveId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, converterClassName(converterType));
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(converterName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName(converterClassName(converterType), id, converterName, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "ACDCConverter.ratedUdc");
         writer.writeCharacters(CgmesExportUtil.format(ratedUdc));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "Equipment.EquipmentContainer");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcEquipmentContainerId);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", dcEquipmentContainerId, cimNamespace, writer);
         if (pccTerminal != null) {
-            writer.writeEmptyElement(cimNamespace, "ACDCConverter.PccTerminal");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + pccTerminal);
+            CgmesExportUtil.writeReference("ACDCConverter.PccTerminal", pccTerminal, cimNamespace, writer);
         }
         if (capabilityCurveId != null) {
-            writer.writeEmptyElement(cimNamespace, "VsConverter.CapabilityCurve");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + capabilityCurveId);
+            CgmesExportUtil.writeReference("VsConverter.CapabilityCurve", capabilityCurveId, cimNamespace, writer);
         }
         writer.writeEndElement();
     }

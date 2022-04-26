@@ -42,8 +42,8 @@ public final class StateVariablesExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
-            String cimNamespace = context.getCimNamespace();
+            String cimNamespace = context.getCim().getNamespace();
+            CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getSvModelDescription(), context);
@@ -80,11 +80,9 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, CgmesNames.NAME);
             writer.writeCharacters(islandId); // Use id as name
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "TopologicalIsland.AngleRefTopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.get(island.getKey()));
+            CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.getKey()), cimNamespace, writer);
             for (String tn : island.getValue()) {
-                writer.writeEmptyElement(cimNamespace, "TopologicalIsland.TopologicalNodes");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
+                CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, cimNamespace, writer);
             }
             writer.writeEndElement();
         }
@@ -186,8 +184,7 @@ public final class StateVariablesExport {
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_V);
         writer.writeCharacters(CgmesExportUtil.format(v));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, SV_VOLTAGE_TOPOLOGICAL_NODE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
+        CgmesExportUtil.writeReference(SV_VOLTAGE_TOPOLOGICAL_NODE, topologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
@@ -321,8 +318,7 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, "SvPowerFlow.q");
             writer.writeCharacters(CgmesExportUtil.format(q));
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SvPowerFlow.Terminal");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminal);
+            CgmesExportUtil.writeReference("SvPowerFlow.Terminal", terminal, cimNamespace, writer);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -339,8 +335,7 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, "SvInjection.qInjection");
             writer.writeCharacters(CgmesExportUtil.format(svInjection.getQ0()));
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SvInjection.TopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
+            CgmesExportUtil.writeReference("SvInjection.TopologicalNode", topologicalNode, cimNamespace, writer);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -351,8 +346,7 @@ public final class StateVariablesExport {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
-            writer.writeEmptyElement(cimNamespace, "SvShuntCompensatorSections.ShuntCompensator");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
+            CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator", s.getId(), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
@@ -392,8 +386,7 @@ public final class StateVariablesExport {
         writer.writeStartElement(cimNamespace, "SvTapStep.position");
         writer.writeCharacters(CgmesExportUtil.format(tapPosition));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "SvTapStep.TapChanger");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tapChangerId);
+        CgmesExportUtil.writeReference("SvTapStep.TapChanger", tapChangerId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
@@ -417,8 +410,7 @@ public final class StateVariablesExport {
             writer.writeStartElement(cimNamespace, "SvStatus.inService");
             writer.writeCharacters(inService);
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SvStatus.ConductingEquipment");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
+            CgmesExportUtil.writeReference("SvStatus.ConductingEquipment", conductingEquipmentId, cimNamespace, writer);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -427,8 +419,7 @@ public final class StateVariablesExport {
 
     private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
+            CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), converterStation.getId(), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
             writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation)));
             writer.writeEndElement();

@@ -13,9 +13,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -392,6 +390,24 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * A node/breaker view of the topology.
      */
     interface NodeBreakerView {
+
+        default double getFictitiousP0(int node) {
+            return 0.0;
+        }
+
+        default NodeBreakerView setFictitiousP0(int node, double p0) {
+            // do nothing
+            return this;
+        }
+
+        default double getFictitiousQ0(int node) {
+            return 0.0;
+        }
+
+        default NodeBreakerView setFictitiousQ0(int node, double q0) {
+            // do nothing
+            return this;
+        }
 
         interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
 
