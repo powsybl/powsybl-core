@@ -68,7 +68,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringCreatedTime,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringFullModelAbout,
-                ExportXmlCompare::ignoringCurrentLimitIds,
+                ExportXmlCompare::ignoringOperationalLimitIds,
                 ExportXmlCompare::ignoringSVIds);
         for (Path file : files) {
             ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
