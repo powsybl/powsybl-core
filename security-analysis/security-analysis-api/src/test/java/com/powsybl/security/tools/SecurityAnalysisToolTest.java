@@ -10,6 +10,10 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
@@ -31,6 +35,8 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,6 +47,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.MODULE_CONFIG_NAME_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.Assert.*;
@@ -234,6 +241,46 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
                 assertEquals("outLog", ((ComputationException) exception.getCause()).getOutLogs().get("out"));
                 assertEquals("errLog", ((ComputationException) exception.getCause()).getErrLogs().get("err"));
             }
+        }
+    }
+
+    @Test
+    public void testRunWithBuilderCreation() throws Exception {
+
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
+             ByteArrayOutputStream berr = new ByteArrayOutputStream();
+             PrintStream out = new PrintStream(bout);
+             PrintStream err = new PrintStream(berr);
+             ComputationManager cm = mock(ComputationManager.class);
+             MockedStatic<PlatformConfig> staticMockedPc = Mockito.mockStatic(PlatformConfig.class)) {
+
+            CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+            PlatformConfig mockedPc = Mockito.mock(PlatformConfig.class);
+            staticMockedPc.when(PlatformConfig::defaultConfig).thenReturn(mockedPc);
+
+            ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
+
+            // Test builder with no module config
+            Mockito.when(mockedPc.getOptionalModuleConfig(MODULE_CONFIG_NAME_PROPERTY)).thenReturn(Optional.empty());
+            ModuleConfig contingenciesProvider = new MapModuleConfig(Map.of("ContingenciesProviderFactory", "com.powsybl.contingency.EmptyContingencyListProviderFactory"));
+            Mockito.when(mockedPc.getOptionalModuleConfig("componentDefaultConfig")).thenReturn(Optional.of(contingenciesProvider));
+            PowsyblException e1 = assertThrows(PowsyblException.class, () -> tool.run(cl, context));
+            assertTrue(e1.getMessage().startsWith("Several SecurityAnalysisProvider implementations found"));
+
+            // Test builder with empty module config
+            Optional<ModuleConfig> emptyModuleConfig = Optional.of(new MapModuleConfig(Collections.emptyMap()));
+            Mockito.when(mockedPc.getOptionalModuleConfig(MODULE_CONFIG_NAME_PROPERTY)).thenReturn(emptyModuleConfig);
+            PowsyblException e2 = assertThrows(PowsyblException.class, () -> tool.run(cl, context));
+            assertTrue(e2.getMessage().startsWith("Several SecurityAnalysisProvider implementations found"));
+
+            // Test builder with chosen implementation
+            ModuleConfig securityAnalysisProvider = new MapModuleConfig(Map.of("default-impl-name", "SecurityAnalysisToolProviderMock"));
+            Mockito.when(mockedPc.getOptionalModuleConfig(MODULE_CONFIG_NAME_PROPERTY)).thenReturn(Optional.of(securityAnalysisProvider));
+            tool.run(cl, context);
+            Path logPath = context.getFileSystem().getPath(OUTPUT_LOG_FILENAME);
+            assertTrue(Files.exists(logPath));
+            assertEquals(Collections.singletonList("Hello world"), Files.readAllLines(logPath));
         }
     }
 
