@@ -67,8 +67,8 @@ public class BaseVoltagesConfig {
         return platformConfig.getConfigDir()
                 .map(configDir -> fromPath(configDir, configFileName))
                 .orElseGet(() -> {
-                    LOGGER.debug("Configuration directory not defined in platform config, loading file '{}' from class path", configFileName);
-                    return fromClassPath(configFileName);
+                    LOGGER.warn("Configuration directory not defined in platform config, trying to load file '{}' from resources", configFileName);
+                    return fromResources(configFileName);
                 });
     }
 
@@ -89,17 +89,17 @@ public class BaseVoltagesConfig {
                 throw new UncheckedIOException(e);
             }
         } else {
-            LOGGER.debug("Base voltage configuration file '{}' not found, loading file '{}' from class path", configFile, configFileName);
-            return fromClassPath(configFileName);
+            LOGGER.warn("Base voltage configuration file '{}' not found, trying to load file '{}' from resources", configFile, configFileName);
+            return fromResources(configFileName);
         }
     }
 
-    private static BaseVoltagesConfig fromClassPath(String configFileName) {
+    private static BaseVoltagesConfig fromResources(String configFileName) {
         InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + configFileName);
         if (configInputStream != null) {
             return fromInputStream(configInputStream);
         } else {
-            throw new PowsyblException("No default base voltages configuration found: " + configFileName);
+            throw new PowsyblException("No base voltages configuration found in resources: " + configFileName);
         }
     }
 

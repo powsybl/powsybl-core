@@ -10,6 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.ByteArrayInputStream;
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -66,6 +68,15 @@ public class BaseVoltagesConfigTest {
         PlatformConfig platformConfig = new PlatformConfig((ModuleConfigRepository) null, Path.of("./"));
         assertThrows("No base voltages configuration found", PowsyblException.class,
             () -> BaseVoltagesConfig.fromPlatformConfig(platformConfig, "unknown.yml"));
+    }
+
+    @Test
+    public void testNoConfigDir() {
+        PlatformConfig mockedPc = Mockito.mock(PlatformConfig.class);
+        Mockito.when(mockedPc.getConfigDir()).thenReturn(Optional.empty());
+
+        PowsyblException e = assertThrows(PowsyblException.class, () -> BaseVoltagesConfig.fromPlatformConfig(mockedPc, "myUnknownFile.yml"));
+        assertEquals("No base voltages configuration found in resources: myUnknownFile.yml", e.getMessage());
     }
 
     @Test
