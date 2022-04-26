@@ -7,26 +7,19 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-
-import org.junit.Test;
-
-import com.powsybl.cgmes.conformity.test.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -35,12 +28,12 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 public class RegulatingTerminalConversionTest {
 
     @Test
-    public void microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() throws IOException {
+    public void microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCaseRegulatingTerminalsDefinedOnSwitches(), config);
 
         // Flow control in transformer
-        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         assertNotNull(tw2t);
         PhaseTapChanger ptc = tw2t.getPhaseTapChanger();
         assertNotNull(ptc);
@@ -54,7 +47,7 @@ public class RegulatingTerminalConversionTest {
         assertEquals(65.0, regulationValue, 0.0);
 
         // Voltage control
-        Generator gen = n.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator gen = n.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
         assertNotNull(gen);
 
         regulatingTerminal = gen.getRegulatingTerminal();
@@ -66,12 +59,12 @@ public class RegulatingTerminalConversionTest {
     }
 
     @Test
-    public void microGridBaseBECaseRegulatingTerminalsDefinedOnSwitches() throws IOException {
+    public void microGridBaseBECaseRegulatingTerminalsDefinedOnSwitches() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERegulatingTerminalsDefinedOnSwitches(), config);
 
         // Flow control in transformer
-        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         assertNotNull(tw2t);
         PhaseTapChanger ptc = tw2t.getPhaseTapChanger();
         assertNotNull(ptc);
@@ -85,7 +78,7 @@ public class RegulatingTerminalConversionTest {
         assertEquals(-65.0, regulationValue, 0.0);
 
         // Voltage control
-        Generator gen = n.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator gen = n.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
         assertNotNull(gen);
 
         regulatingTerminal = gen.getRegulatingTerminal();
@@ -96,7 +89,7 @@ public class RegulatingTerminalConversionTest {
         assertEquals(21.987, regulationValue, 0.0);
     }
 
-    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
@@ -105,8 +98,6 @@ public class RegulatingTerminalConversionTest {
 
         config.setConvertSvInjections(true);
         Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        return n;
+        return c.convert();
     }
 }
