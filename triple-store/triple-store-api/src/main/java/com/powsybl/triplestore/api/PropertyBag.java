@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 public class PropertyBag extends HashMap<String, String> {
 
     public PropertyBag(List<String> propertyNames) {
-        this(propertyNames, false);
+        this(propertyNames, true);
     }
 
-    public PropertyBag(List<String> propertyNames, boolean removeUnderscore) {
+    public PropertyBag(List<String> propertyNames, boolean removeInitialUnderscoreForIdentifiers) {
         super(propertyNames.size());
         this.propertyNames = propertyNames;
-        this.removeInitialUnderscoreForIdentifiers = removeUnderscore;
+        this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
     }
 
     public List<String> propertyNames() {

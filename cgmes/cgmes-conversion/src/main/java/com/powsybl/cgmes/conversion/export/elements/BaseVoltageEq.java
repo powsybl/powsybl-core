@@ -7,12 +7,9 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -22,11 +19,8 @@ public final class BaseVoltageEq {
     private static final String EQ_BASEVOLTAGE_NOMINALV = "BaseVoltage.nominalVoltage";
 
     public static void write(String id, double nominalV, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "BaseVoltage");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(CgmesExportUtil.format(nominalV));
-        writer.writeEndElement();
+        String name = CgmesExportUtil.format(nominalV);
+        CgmesExportUtil.writeStartIdName("BaseVoltage", id, name, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_BASEVOLTAGE_NOMINALV);
         writer.writeCharacters(CgmesExportUtil.format(nominalV));
         writer.writeEndElement();

@@ -7,12 +7,9 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -46,54 +43,36 @@ public final class TapChangerEq {
     private static final String EQ_RATIOTAPCHANGERTABLEPOINT_RATIOTAPCHANGERTABLE = "RatioTapChangerTablePoint.RatioTapChangerTable";
 
     public static void writePhase(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, String phaseTapChangerTableId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "PhaseTapChangerTabular");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(tapChangerName);
-        writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, EQ_PHASETAPCHANGER_TRANSFORMEREND);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + transformerEndId);
+        CgmesExportUtil.writeStartIdName("PhaseTapChangerTabular", id, tapChangerName, cimNamespace, writer);
+        CgmesExportUtil.writeReference(EQ_PHASETAPCHANGER_TRANSFORMEREND, transformerEndId, cimNamespace, writer);
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
-        writer.writeEmptyElement(cimNamespace, EQ_PHASETAPCHANGERTABULAR_PHASETAPCHANGERTABLE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + phaseTapChangerTableId);
+        CgmesExportUtil.writeReference(EQ_PHASETAPCHANGERTABULAR_PHASETAPCHANGERTABLE, phaseTapChangerTableId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     public static void writePhaseTable(String id, String phaseTapChangerTableName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "PhaseTapChangerTable");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(phaseTapChangerTableName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("PhaseTapChangerTable", id, phaseTapChangerTableName, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     public static void writePhaseTablePoint(String id, String phaseTapChangerTableId, double r, double x, double g, double b, double ratio, double angle, Integer step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "PhaseTapChangerTablePoint");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        CgmesExportUtil.writeStartId("PhaseTapChangerTablePoint", id, false, cimNamespace, writer);
         writeTablePoint(r, x, g, b, ratio, step, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_PHASETAPCHANGERTABLEPOINT_ANGLE);
         writer.writeCharacters(CgmesExportUtil.format(angle));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, EQ_PHASETAPCHANGERTABLEPOINT_PHASETAPCHANGERTABLE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + phaseTapChangerTableId);
+        CgmesExportUtil.writeReference(EQ_PHASETAPCHANGERTABLEPOINT_PHASETAPCHANGERTABLE, phaseTapChangerTableId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     public static void writeRatio(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, double stepVoltageIncrement, String ratioTapChangerTableId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "RatioTapChanger");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(tapChangerName);
-        writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, EQ_RATIOTAPCHANGER_TRANSFORMEREND);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + transformerEndId);
+        CgmesExportUtil.writeStartIdName("RatioTapChanger", id, tapChangerName, cimNamespace, writer);
+        CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGER_TRANSFORMEREND, transformerEndId, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_RATIOTAPCHANGER_SVI);
         writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
         writer.writeEndElement();
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
-        writer.writeEmptyElement(cimNamespace, EQ_RATIOTAPCHANGER_RATIOTAPCHANGERTABLE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + ratioTapChangerTableId);
+        CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGER_RATIOTAPCHANGERTABLE, ratioTapChangerTableId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
@@ -119,20 +98,14 @@ public final class TapChangerEq {
     }
 
     public static void writeRatioTable(String id, String ratioTapChangerTableName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "RatioTapChangerTable");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(ratioTapChangerTableName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("RatioTapChangerTable", id, ratioTapChangerTableName, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     public static void writeRatioTablePoint(String id, String ratioTapChangerTableId, double r, double x, double g, double b, double ratio, Integer step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "RatioTapChangerTablePoint");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        CgmesExportUtil.writeStartId("RatioTapChangerTablePoint", id, false, cimNamespace, writer);
         writeTablePoint(r, x, g, b, ratio, step, cimNamespace, writer);
-        writer.writeEmptyElement(cimNamespace, EQ_RATIOTAPCHANGERTABLEPOINT_RATIOTAPCHANGERTABLE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + ratioTapChangerTableId);
+        CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGERTABLEPOINT_RATIOTAPCHANGERTABLE, ratioTapChangerTableId, cimNamespace, writer);
         writer.writeEndElement();
     }
 

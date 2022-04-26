@@ -268,8 +268,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         if (objType.equals(rdfDescriptionClass())) {
             resource = cnx.getValueFactory().createIRI("urn:uuid:" + UUID.randomUUID().toString());
         } else {
+            // Identifiers stored in the triplestore are RDF:ids
             resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"),
-                "_" + UUID.randomUUID().toString());
+                AbstractPowsyblTripleStore.createRdfId());
         }
         IRI parentPredicate = RDF.TYPE;
         IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);

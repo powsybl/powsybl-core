@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.Test;

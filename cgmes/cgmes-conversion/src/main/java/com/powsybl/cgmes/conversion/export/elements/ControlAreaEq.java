@@ -6,12 +6,12 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.ENTSOE_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
@@ -20,13 +20,9 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class ControlAreaEq {
     private static final String CONTROL_AREA_TYPE = "ControlAreaTypeKind.Interchange";
 
-    public static void write(String id, String controlAreaName, String energyIdentificationCodeEIC, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "ControlArea");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(controlAreaName);
-        writer.writeEndElement();
-        writer.writeStartElement(ENTSOE_NAMESPACE, "IdentifiedObject.energyIdentCodeEic");
+    public static void write(String id, String controlAreaName, String energyIdentificationCodeEIC, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, cimNamespace, writer);
+        writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
         writer.writeCharacters(energyIdentificationCodeEIC);
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "ControlArea.type");

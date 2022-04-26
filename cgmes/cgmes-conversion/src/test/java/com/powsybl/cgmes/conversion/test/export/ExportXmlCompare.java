@@ -519,16 +519,22 @@ public final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringCurrentLimitIds(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringOperationalLimitIds(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            String cxpath = control.getXPath();
             if (comparison.getType() == ComparisonType.ATTR_VALUE) {
-                Comparison.Detail control = comparison.getControlDetails();
-                if (control.getXPath().contains("CurrentLimit")
-                        && (control.getTarget().getLocalName().equals("ID") || control.getTarget().getLocalName().equals("resource"))) {
+                String cname = control.getTarget().getLocalName();
+                if (cxpath.contains("CurrentLimit") && (cname.equals("ID") || cname.equals("resource"))) {
                     return ComparisonResult.EQUAL;
-                } else if (control.getXPath().contains("OperationalLimit")
-                        && control.getTarget().getLocalName().equals("ID")) {
+                } else if (cxpath.contains("OperationalLimit") && cname.equals("ID")) {
                     return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
+                if (cxpath.contains("CurrentLimit") || cxpath.contains("OperationalLimit")) {
+                    if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
+                        return ComparisonResult.EQUAL;
+                    }
                 }
             }
         }
@@ -691,9 +697,11 @@ public final class ExportXmlCompare {
     }
 
     private static void debugAttribute(Node n, String namespace, String localName, String indent) {
-        Node a = n.getAttributes().getNamedItemNS(namespace, localName);
-        if (a != null) {
-            LOG.error("{}{} = {}", indent, localName, a.getTextContent());
+        if (n.getAttributes() != null) {
+            Node a = n.getAttributes().getNamedItemNS(namespace, localName);
+            if (a != null) {
+                LOG.error("{}{} = {}", indent, localName, a.getTextContent());
+            }
         }
     }
 
@@ -792,7 +800,7 @@ public final class ExportXmlCompare {
 
     private static DiffBuilder selectingEquivalentSvObjects(DiffBuilder diffBuilder) {
         Map<String, String> prefixUris = new HashMap<>(2);
-        prefixUris.put("cim", CgmesNamespace.getCim(16));
+        prefixUris.put("cim", CgmesNamespace.getCim(16).getNamespace());
         prefixUris.put("rdf", RDF_NAMESPACE);
         QName resourceAttribute = new QName(RDF_NAMESPACE, "resource");
         ElementSelector byResource = ElementSelectors.byNameAndAttributes(resourceAttribute);

@@ -7,12 +7,9 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -30,20 +27,12 @@ public final class PowerTransformerEq {
     private static final String EQ_POWERTRANSFORMEREND_RATEDU = "PowerTransformerEnd.ratedU";
 
     public static void write(String id, String transformerName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "PowerTransformer");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(transformerName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     public static void writeEnd(String id, String transformerEndName, String transformerId, int endNumber, double r, double x, double g, double b, double ratedU, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "PowerTransformerEnd");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(transformerEndName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_ENDNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(endNumber));
         writer.writeEndElement();
@@ -62,10 +51,8 @@ public final class PowerTransformerEq {
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
         writer.writeCharacters(CgmesExportUtil.format(ratedU));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, EQ_POWERTRANSFORMEREND_POWERTRANSFORMER);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + transformerId);
-        writer.writeEmptyElement(cimNamespace, EQ_TRANSFORMEREND_TERMINAL);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminalId);
+        CgmesExportUtil.writeReference(EQ_POWERTRANSFORMEREND_POWERTRANSFORMER, transformerId, cimNamespace, writer);
+        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_TERMINAL, terminalId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
