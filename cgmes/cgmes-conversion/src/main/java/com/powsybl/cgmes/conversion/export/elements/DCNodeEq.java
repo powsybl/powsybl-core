@@ -6,12 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
-import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -19,13 +17,8 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class DCNodeEq {
 
     public static void write(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(dcNodeName);
-        writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "DCNode.DCEquipmentContainer");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcEquipmentContainerId);
+        CgmesExportUtil.writeStartIdName("DCNode", id, dcNodeName, cimNamespace, writer);
+        CgmesExportUtil.writeReference("DCNode.DCEquipmentContainer", dcEquipmentContainerId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
