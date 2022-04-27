@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,7 +22,7 @@ import java.util.Set;
  */
 class BusTerminal extends AbstractTerminal {
 
-    private static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment";
+    private static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment ";
 
     private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
         @Override
@@ -33,8 +32,8 @@ class BusTerminal extends AbstractTerminal {
 
         @Override
         public void moveConnectable(int node, String voltageLevelId) {
-            if (network == null) {
-                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
+            if (removed) {
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
             getConnectable().move(BusTerminal.this, getConnectionInfo(), node, voltageLevelId);
         }
@@ -44,20 +43,24 @@ class BusTerminal extends AbstractTerminal {
 
         @Override
         public BusExt getBus() {
+            if (removed) {
+                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+            }
             return isConnected() ? getConnectableBus() : null;
         }
 
         @Override
         public ConfiguredBus getConnectableBus() {
-            return Optional.ofNullable(voltageLevel)
-                    .map(vl -> ((BusBreakerVoltageLevel) vl).getBus(getConnectableBusId(), true))
-                    .orElse(null);
+            if (removed) {
+                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+            }
+            return ((BusBreakerVoltageLevel) voltageLevel).getBus(getConnectableBusId(), true);
         }
 
         @Override
         public void setConnectableBus(String busId) {
-            if (network == null) {
-                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
+            if (removed) {
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
             Objects.requireNonNull(busId);
             BusBreakerVoltageLevel vl = (BusBreakerVoltageLevel) voltageLevel;
@@ -75,8 +78,8 @@ class BusTerminal extends AbstractTerminal {
 
         @Override
         public void moveConnectable(String busId, boolean connected) {
-            if (network == null) {
-                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
+            if (removed) {
+                throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
             getConnectable().move(BusTerminal.this, getConnectionInfo(), busId, connected);
         }
@@ -93,13 +96,16 @@ class BusTerminal extends AbstractTerminal {
 
         @Override
         public BusExt getBus() {
+            if (removed) {
+                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+            }
             return isConnected() ? this.getConnectableBus() : null;
         }
 
         @Override
         public MergedBus getConnectableBus() {
-            if (voltageLevel == null) {
-                return null;
+            if (removed) {
+                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
             }
             ConfiguredBus bus = ((BusBreakerVoltageLevel) voltageLevel).getBus(getConnectableBusId(), true);
             return ((BusBreakerVoltageLevel) voltageLevel).calculatedBusTopology.getMergedBus(bus);
@@ -126,8 +132,8 @@ class BusTerminal extends AbstractTerminal {
     }
 
     void setConnectableBusId(String connectableBusId) {
-        if (network == null) {
-            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
+        if (removed) {
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         int variantIndex = network.get().getVariantIndex();
         String oldValue = this.connectableBusId.set(variantIndex, connectableBusId);
@@ -136,12 +142,15 @@ class BusTerminal extends AbstractTerminal {
     }
 
     String getConnectableBusId() {
-        return Optional.ofNullable(network).map(n -> this.connectableBusId.get(n.get().getVariantIndex())).orElse(null);
+        if (removed) {
+            throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+        }
+        return this.connectableBusId.get(network.get().getVariantIndex());
     }
 
     void setConnected(boolean connected) {
-        if (network == null) {
-            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT);
+        if (removed) {
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         int variantIndex = network.get().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
@@ -151,27 +160,33 @@ class BusTerminal extends AbstractTerminal {
 
     @Override
     public boolean isConnected() {
-        return Optional.ofNullable(network).map(n -> this.connected.get(n.get().getVariantIndex())).orElse(false);
+        if (removed) {
+            throw new PowsyblException("Cannot access connectivity status of removed equipment " + connectable.id);
+        }
+        return this.connected.get(network.get().getVariantIndex());
     }
 
     @Override
     public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
-        if (voltageLevel == null) {
-            throw new PowsyblException("Associated equipment is removed");
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
         return ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override
     public void traverse(TopologyTraverser traverser) {
-        if (voltageLevel == null) {
-            throw new PowsyblException("Associated equipment is removed");
+        if (removed) {
+            throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
         ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 
     @Override
     protected double getV() {
+        if (removed) {
+            throw new PowsyblException("Cannot access v of removed equipment " + connectable.id);
+        }
         return busBreakerView.getBus() != null ? busBreakerView.getBus().getV() : Double.NaN;
     }
 
