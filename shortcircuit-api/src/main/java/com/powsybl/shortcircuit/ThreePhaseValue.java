@@ -48,6 +48,14 @@ public class ThreePhaseValue {
         this.directPhase = directPhase;
     }
 
+    public ThreePhaseValue(double directMagnitude, double directPhase) {
+        this(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, directMagnitude, directPhase);
+    }
+
+    public ThreePhaseValue(double directMagnitude) {
+        this(Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, directMagnitude, Double.NaN);
+    }
+
     public double getMagnitude1() {
         return magnitude1;
     }

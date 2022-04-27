@@ -16,15 +16,7 @@ import java.util.Objects;
  */
 public class FeederResult {
 
-    /**
-     * The ID of the connectable contributing to the three phase short circuit current.
-     */
     private final String connectableId;
-
-    /**
-     * The value of the current of the connectable contributing to the total fault current in kA
-     */
-    private final double feederThreePhaseCurrent;
 
     private ThreePhaseValue current = null;
 
@@ -32,22 +24,27 @@ public class FeederResult {
     public FeederResult(@JsonProperty("connectableId") String connectableId,
                         @JsonProperty("feederThreePhaseCurrent") double feederThreePhaseCurrent) {
         this.connectableId = Objects.requireNonNull(connectableId);
-        this.feederThreePhaseCurrent = feederThreePhaseCurrent;
+        this.current = new ThreePhaseValue(feederThreePhaseCurrent);
     }
 
-    public FeederResult(String connectableId, double feederThreePhaseCurrent, ThreePhaseValue current) {
+    public FeederResult(String connectableId, ThreePhaseValue current) {
         // FIXME: json creator?
         this.connectableId = Objects.requireNonNull(connectableId);
-        this.feederThreePhaseCurrent = feederThreePhaseCurrent;
         this.current = current;
     }
 
+    /**
+     * The ID of the connectable contributing to the three phase short circuit current.
+     */
     public String getConnectableId() {
         return connectableId;
     }
 
+    /**
+     * The value of the current of the connectable contributing to the total fault current in kA
+     */
     public double getFeederThreePhaseCurrent() {
-        return feederThreePhaseCurrent;
+        return current.getDirectMagnitude();
     }
 
     public ThreePhaseValue getCurrent() {

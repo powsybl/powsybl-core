@@ -20,6 +20,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.Fault;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.FeederResult;
+import com.powsybl.shortcircuit.ThreePhaseValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,8 +78,8 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        FaultResult faultResult = new FaultResult(fault, threePhaseFaultCurrent, feederResults, timeConstant);
+        ThreePhaseValue current = new ThreePhaseValue(threePhaseFaultCurrent);
+        FaultResult faultResult = new FaultResult(fault, current, feederResults, timeConstant);
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;
