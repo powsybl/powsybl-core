@@ -22,8 +22,6 @@ import java.util.Set;
  */
 class NodeTerminal extends AbstractTerminal {
 
-    private static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment ";
-
     private final int node;
 
     // attributes depending on the variant
@@ -60,7 +58,7 @@ class NodeTerminal extends AbstractTerminal {
         @Override
         public BusExt getBus() {
             if (removed) {
-                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+                throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
             return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getBus(node);
         }
@@ -68,7 +66,7 @@ class NodeTerminal extends AbstractTerminal {
         @Override
         public BusExt getConnectableBus() {
             if (removed) {
-                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+                throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
             return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getConnectableBus(node);
         }
@@ -98,7 +96,7 @@ class NodeTerminal extends AbstractTerminal {
         @Override
         public BusExt getBus() {
             if (removed) {
-                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+                throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
             return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getBus(node);
         }
@@ -106,7 +104,7 @@ class NodeTerminal extends AbstractTerminal {
         @Override
         public BusExt getConnectableBus() {
             if (removed) {
-                throw new PowsyblException("Cannot access bus of removed equipment " + connectable.id);
+                throw new PowsyblException(CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT + connectable.id);
             }
             return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getConnectableBus(node);
         }

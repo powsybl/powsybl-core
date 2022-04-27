@@ -19,6 +19,9 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 abstract class AbstractTerminal implements TerminalExt {
 
+    protected static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment ";
+    protected static final String CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT = "Cannot access bus of removed equipment ";
+
     protected final Ref<? extends VariantManagerHolder> network;
 
     protected AbstractConnectable connectable;
@@ -85,7 +88,7 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public Terminal setP(double p) {
         if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + connectable.id);
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set active power on a busbar section");
@@ -111,7 +114,7 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public Terminal setQ(double q) {
         if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + connectable.id);
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set reactive power on a busbar section");
@@ -141,7 +144,7 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public boolean connect() {
         if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + connectable.id);
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         return voltageLevel.connect(this);
     }
@@ -149,7 +152,7 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public boolean disconnect() {
         if (removed) {
-            throw new PowsyblException("Cannot modify removed equipment " + connectable.id);
+            throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         return voltageLevel.disconnect(this);
     }
