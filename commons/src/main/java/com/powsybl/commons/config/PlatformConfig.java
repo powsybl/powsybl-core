@@ -103,7 +103,7 @@ public class PlatformConfig {
      */
     @Deprecated
     public boolean moduleExists(String name) {
-        return getRepository().moduleExists(name);
+        return getOptionalModuleConfig(name).isPresent();
     }
 
     /**
@@ -119,11 +119,6 @@ public class PlatformConfig {
     }
 
     private static class EmptyModuleConfigRepository implements ModuleConfigRepository {
-        @Override
-        public boolean moduleExists(String name) {
-            return false;
-        }
-
         @Override
         public Optional<ModuleConfig> getModuleConfig(String name) {
             return Optional.empty();
