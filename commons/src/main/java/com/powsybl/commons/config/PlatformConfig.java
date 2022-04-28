@@ -66,7 +66,7 @@ public class PlatformConfig {
         if (defaultConfig == null) {
             List<PlatformConfigProvider> providers = Lists.newArrayList(ServiceLoader.load(PlatformConfigProvider.class, PlatformConfig.class.getClassLoader()));
             if (providers.isEmpty()) {
-                LOGGER.warn("Platform configuration provider not found. In order to customize the platform configuration, consider using powsybl-config-classic artifact, or powsybl-config-test for tests.");
+                LOGGER.info("Platform configuration provider not found. In order to customize the platform configuration, consider using powsybl-config-classic artifact, or powsybl-config-test for tests.");
                 defaultConfig = new PlatformConfig(new EmptyModuleConfigRepository(), null);
             } else {
                 if (providers.size() > 1) {
