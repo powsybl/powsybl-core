@@ -33,7 +33,7 @@ public class TestPlatformConfigProviderTest {
         assertNotNull(testPath);
         String testContent = Files.readAllLines(testPath, StandardCharsets.UTF_8).get(0);
         assertEquals("conf", testContent);
-        assertEquals("baz", platformConfig.getModuleConfig("foo").getStringProperty("bar"));
+        assertEquals("baz", platformConfig.getOptionalModuleConfig("foo").flatMap(c -> c.getOptionalStringProperty("bar")).orElse(""));
     }
 
     @Test

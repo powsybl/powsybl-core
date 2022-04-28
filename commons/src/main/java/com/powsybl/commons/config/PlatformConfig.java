@@ -98,10 +98,18 @@ public class PlatformConfig {
         return Objects.requireNonNull(repositorySupplier.get());
     }
 
+    /**
+     * @deprecated Use the <code>Optional</code> returned by {@link #getOptionalModuleConfig(String)}
+     */
+    @Deprecated
     public boolean moduleExists(String name) {
         return getRepository().moduleExists(name);
     }
 
+    /**
+     * @deprecated Use {@link #getOptionalModuleConfig(String)} instead
+     */
+    @Deprecated
     public ModuleConfig getModuleConfig(String name) {
         return getRepository().getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
     }
