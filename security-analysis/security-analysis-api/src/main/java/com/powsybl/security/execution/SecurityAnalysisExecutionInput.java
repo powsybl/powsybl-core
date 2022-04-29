@@ -6,12 +6,13 @@
  */
 package com.powsybl.security.execution;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.action.Action;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.operator.strategy.OperatorStrategy;
 
 import java.util.*;
 
@@ -39,6 +40,8 @@ public class SecurityAnalysisExecutionInput {
     private final List<String> resultExtensions = new ArrayList<>();
     private final Set<LimitViolationType> violationTypes = EnumSet.noneOf(LimitViolationType.class);
     private boolean withLogs = false;
+    private final List<OperatorStrategy> operatorStrategies = new ArrayList<>();
+    private final List<Action> actions = new ArrayList<>();
     private final List<StateMonitor> monitors = new ArrayList<>();
 
     public Optional<ByteSource> getContingenciesSource() {
@@ -61,8 +64,16 @@ public class SecurityAnalysisExecutionInput {
         return networkVariant;
     }
 
+    public List<OperatorStrategy> getOperatorStrategies() {
+        return Collections.unmodifiableList(operatorStrategies);
+    }
+
+    public List<Action> getActions() {
+        return Collections.unmodifiableList(actions);
+    }
+
     public List<StateMonitor> getMonitors() {
-        return ImmutableList.copyOf(monitors);
+        return Collections.unmodifiableList(monitors);
     }
 
     public boolean isWithLogs() {
@@ -94,6 +105,16 @@ public class SecurityAnalysisExecutionInput {
         return this;
     }
 
+    public SecurityAnalysisExecutionInput addOperatorStrategies(List<OperatorStrategy> operatorStrategies) {
+        this.operatorStrategies.addAll(Objects.requireNonNull(operatorStrategies));
+        return this;
+    }
+
+    public SecurityAnalysisExecutionInput addActions(List<Action> actions) {
+        this.actions.addAll(Objects.requireNonNull(actions));
+        return this;
+    }
+
     public SecurityAnalysisExecutionInput setParameters(SecurityAnalysisParameters parameters) {
         this.parameters = Objects.requireNonNull(parameters);
         return this;
@@ -101,6 +122,20 @@ public class SecurityAnalysisExecutionInput {
 
     public SecurityAnalysisExecutionInput setNetworkVariant(Network network, String variantId) {
         networkVariant = new NetworkVariant(network, variantId);
+        return this;
+    }
+
+    public SecurityAnalysisExecutionInput setOperatorStrategies(List<OperatorStrategy> operatorStrategies) {
+        Objects.requireNonNull(operatorStrategies);
+        this.operatorStrategies.clear();
+        this.operatorStrategies.addAll(operatorStrategies);
+        return this;
+    }
+
+    public SecurityAnalysisExecutionInput setActions(List<Action> actions) {
+        Objects.requireNonNull(actions);
+        this.actions.clear();
+        this.actions.addAll(actions);
         return this;
     }
 

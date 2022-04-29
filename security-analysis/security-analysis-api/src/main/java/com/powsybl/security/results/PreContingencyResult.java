@@ -15,9 +15,7 @@ import java.util.*;
  */
 public class PreContingencyResult {
     private LimitViolationsResult limitViolationsResult;
-    private final Map<String, BranchResult> preContingencyBranchResults = new HashMap<>();
-    private final Map<String, BusResult> preContingencyBusResults = new HashMap<>();
-    private final Map<String, ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults = new HashMap<>();
+    private NetworkResult preContingencyNetworkResult;
 
     public PreContingencyResult() {
         this(null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
@@ -26,53 +24,27 @@ public class PreContingencyResult {
     public PreContingencyResult(LimitViolationsResult preContingencyResult, Collection<BranchResult> preContingencyBranchResults,
                                 Collection<BusResult> preContingencyBusResults,
                                 Collection<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
+        this(preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, preContingencyThreeWindingsTransformerResults));
+    }
+
+    public PreContingencyResult(LimitViolationsResult preContingencyResult, NetworkResult preContingencyNetworkResult) {
         this.limitViolationsResult = preContingencyResult;
-        Objects.requireNonNull(preContingencyBranchResults).forEach(r -> this.preContingencyBranchResults.put(r.getBranchId(), r));
-        Objects.requireNonNull(preContingencyBusResults).forEach(r -> this.preContingencyBusResults.put(r.getBusId(), r));
-        Objects.requireNonNull(preContingencyThreeWindingsTransformerResults).forEach(r -> this.preContingencyThreeWindingsTransformerResults.put(r.getThreeWindingsTransformerId(), r));
+        this.preContingencyNetworkResult = Objects.requireNonNull(preContingencyNetworkResult);
     }
 
     public void setLimitViolationsResult(LimitViolationsResult limitViolationsResult) {
         this.limitViolationsResult = limitViolationsResult;
     }
 
-    public void addPreContingencyBranchResults(Collection<BranchResult> branchResults) {
-        Objects.requireNonNull(branchResults).forEach(r -> this.preContingencyBranchResults.put(r.getBranchId(), r));
-    }
-
-    public void addPreContingencyBusResults(Collection<BusResult> busResults) {
-        Objects.requireNonNull(busResults).forEach(r -> this.preContingencyBusResults.put(r.getBusId(), r));
-    }
-
-    public void addPreContingencyThreeWindingsTransformerResults(Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        Objects.requireNonNull(threeWindingsTransformerResults).forEach(r -> this.preContingencyThreeWindingsTransformerResults.put(r.getThreeWindingsTransformerId(), r));
-    }
-
     public LimitViolationsResult getLimitViolationsResult() {
         return limitViolationsResult;
     }
 
-    public List<BusResult> getPreContingencyBusResults() {
-        return List.copyOf(preContingencyBusResults.values());
+    public void setPreContingencyNetworkResult(NetworkResult networkResult) {
+        this.preContingencyNetworkResult = networkResult;
     }
 
-    public BusResult getPreContingencyBusResult(String id) {
-        return preContingencyBusResults.get(Objects.requireNonNull(id));
-    }
-
-    public List<BranchResult> getPreContingencyBranchResults() {
-        return List.copyOf(preContingencyBranchResults.values());
-    }
-
-    public BranchResult getPreContingencyBranchResult(String id) {
-        return preContingencyBranchResults.get(Objects.requireNonNull(id));
-    }
-
-    public List<ThreeWindingsTransformerResult> getPreContingencyThreeWindingsTransformerResults() {
-        return List.copyOf(preContingencyThreeWindingsTransformerResults.values());
-    }
-
-    public ThreeWindingsTransformerResult getPreContingencyThreeWindingsTransformerResult(String id) {
-        return preContingencyThreeWindingsTransformerResults.get(Objects.requireNonNull(id));
+    public NetworkResult getPreContingencyNetworkResult() {
+        return preContingencyNetworkResult;
     }
 }

@@ -12,8 +12,10 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
+import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.operator.strategy.OperatorStrategy;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +38,8 @@ public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider
                                                          SecurityAnalysisParameters parameters,
                                                          ContingenciesProvider contingenciesProvider,
                                                          List<SecurityAnalysisInterceptor> interceptors,
-                                                         List<StateMonitor> monitors,
+                                                         List<OperatorStrategy> operatorStrategies,
+                                                         List<Action> actions, List<StateMonitor> monitors,
                                                          Reporter reporter) {
         DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, reporter);
         interceptors.forEach(securityAnalysis::addInterceptor);

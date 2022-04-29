@@ -111,10 +111,10 @@ public class SecurityAnalysisResultBuilderTest {
 
         PostContingencyResult res1 = res.getPostContingencyResults().get(0);
         assertEquals("contingency1", res1.getContingency().getId());
-        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), res1.getBranchResult("branchId"));
-        assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), res1.getBusResult("busId"));
+        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getBranchResult("branchId"));
+        assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), res1.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
-            0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getThreeWindingsTransformerResult("threeWindingsTransformerId"));
+            0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();

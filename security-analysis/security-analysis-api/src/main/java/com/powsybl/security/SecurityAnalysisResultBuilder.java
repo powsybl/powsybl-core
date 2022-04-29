@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import com.powsybl.security.results.*;
+import com.powsybl.security.results.OperatorStrategyResult;
 
 import java.util.*;
 
@@ -31,6 +32,7 @@ public class SecurityAnalysisResultBuilder {
     // Below are volatile objects used for building the actual complete result
     private final PreContingencyResult preContingencyResult;
     private final List<PostContingencyResult> postContingencyResults = Collections.synchronizedList(new ArrayList<>());
+    private final List<OperatorStrategyResult> operatorStrategyResults = Collections.synchronizedList(new ArrayList<>());
 
     public SecurityAnalysisResultBuilder(LimitViolationFilter filter, SecurityAnalysisResultContext context,
                                          Collection<SecurityAnalysisInterceptor> interceptors) {
@@ -50,18 +52,6 @@ public class SecurityAnalysisResultBuilder {
 
     private void addPostContingencyResult(PostContingencyResult result) {
         postContingencyResults.add(Objects.requireNonNull(result));
-    }
-
-    private void addPreContingencyBranchResults(Map<String, BranchResult> preContingencyBranchResults) {
-        this.preContingencyResult.addPreContingencyBranchResults(Objects.requireNonNull(preContingencyBranchResults.values()));
-    }
-
-    private void addPreContingencyBusResults(Map<String, BusResult> preContingencyBusResults) {
-        this.preContingencyResult.addPreContingencyBusResults(Objects.requireNonNull(preContingencyBusResults.values()));
-    }
-
-    private void addPreContingencyThreeWindingsTransformerResults(Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this.preContingencyResult.addPreContingencyThreeWindingsTransformerResults(Objects.requireNonNull(threeWindingsTransformerResults.values()));
     }
 
     /**
@@ -114,7 +104,7 @@ public class SecurityAnalysisResultBuilder {
             throw new IllegalStateException("Pre-contingency result is not yet defined, cannot build security analysis result.");
         }
 
-        SecurityAnalysisResult res = new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        SecurityAnalysisResult res = new SecurityAnalysisResult(preContingencyResult, postContingencyResults, operatorStrategyResults);
         res.setNetworkMetadata(new NetworkMetadata(context.getNetwork()));
         interceptors.forEach(i -> i.onSecurityAnalysisResult(res, context));
 
@@ -128,11 +118,11 @@ public class SecurityAnalysisResultBuilder {
 
         protected boolean computationOk;
 
-        protected final Map<String, BranchResult> branchResults = new HashMap<>();
+        protected final List<BranchResult> branchResults = new ArrayList<>();
 
-        protected final Map<String, BusResult> busResults = new HashMap<>();
+        protected final List<BusResult> busResults = new ArrayList<>();
 
-        protected final Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults = new HashMap<>();
+        protected final List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
 
         protected final List<LimitViolation> violations = new ArrayList<>();
 
@@ -187,17 +177,17 @@ public class SecurityAnalysisResultBuilder {
         }
 
         public B addBranchResult(BranchResult branchResult) {
-            this.branchResults.put(branchResult.getBranchId(), branchResult);
+            this.branchResults.add(branchResult);
             return (B) this;
         }
 
         public B addBusResult(BusResult busResult) {
-            this.busResults.put(busResult.getBusId(), busResult);
+            this.busResults.add(busResult);
             return (B) this;
         }
 
         public B addThreeWindingsTransformerResult(ThreeWindingsTransformerResult threeWindingsTransformerResult) {
-            this.threeWindingsTransformerResults.put(threeWindingsTransformerResult.getThreeWindingsTransformerId(), threeWindingsTransformerResult);
+            this.threeWindingsTransformerResults.add(threeWindingsTransformerResult);
             return (B) this;
         }
 
@@ -207,6 +197,10 @@ public class SecurityAnalysisResultBuilder {
      * Builder for the pre-contingency result
      */
     public class PreContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PreContingencyResultBuilder> {
+
+        private void setNetworkResult(NetworkResult networkResult) {
+            preContingencyResult.setPreContingencyNetworkResult(Objects.requireNonNull(networkResult));
+        }
 
         PreContingencyResultBuilder(SecurityAnalysisResultContext resultContext) {
             super(resultContext);
@@ -222,9 +216,7 @@ public class SecurityAnalysisResultBuilder {
             LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
             interceptors.forEach(i -> i.onPreContingencyResult(res, resultContext));
             setPreContingencyResult(res);
-            addPreContingencyBranchResults(branchResults);
-            addPreContingencyBusResults(busResults);
-            addPreContingencyThreeWindingsTransformerResults(threeWindingsTransformerResults);
+            setNetworkResult(new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
             return SecurityAnalysisResultBuilder.this;
         }
     }
@@ -253,7 +245,8 @@ public class SecurityAnalysisResultBuilder {
          */
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations, branchResults, busResults, threeWindingsTransformerResults);
+            PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations,
+                    branchResults, busResults, threeWindingsTransformerResults);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
 

@@ -11,10 +11,14 @@ import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.action.Action;
+import com.powsybl.security.action.ActionList;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.operator.strategy.OperatorStrategyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,6 +160,8 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         if (optionsCustomizer != null) {
             optionsCustomizer.customizeOptions(workingDir, options);
         }
+        addOperatorStrategyFile(options, workingDir, input.getOperatorStrategies());
+        addActionFile(options, workingDir, input.getActions());
 
         return new CommandExecution(options.toCommand(), executionCount);
     }
@@ -200,6 +206,28 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         options.parametersFile(getParametersPath(workingDir));
         LOGGER.debug("Writing parameters to file {}", parametersPath);
         JsonSecurityAnalysisParameters.write(parameters, parametersPath);
+    }
+
+    /**
+     * Add operator strategies file option, and write it as JSON to working directory.
+     */
+    private static void addOperatorStrategyFile(SecurityAnalysisCommandOptions options, Path workingDir, List<OperatorStrategy> operatorStrategies) {
+        Path parametersPath = getParametersPath(workingDir);
+        options.parametersFile(getParametersPath(workingDir));
+        LOGGER.debug("Writing operator strategies to file {}", parametersPath);
+        OperatorStrategyList operatorStrategiesList = new OperatorStrategyList(operatorStrategies);
+        operatorStrategiesList.writeFile(parametersPath);
+    }
+
+    /**
+     * Add action file option, and write it as JSON to working directory.
+     */
+    private static void addActionFile(SecurityAnalysisCommandOptions options, Path workingDir, List<Action> actions) {
+        Path parametersPath = getParametersPath(workingDir);
+        options.parametersFile(getParametersPath(workingDir));
+        LOGGER.debug("Writing actions to file {}", parametersPath);
+        ActionList actionsList = new ActionList(actions);
+        actionsList.writeJsonFile(parametersPath);
     }
 
     /**
