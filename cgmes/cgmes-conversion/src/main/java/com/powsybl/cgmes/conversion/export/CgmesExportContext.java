@@ -53,12 +53,41 @@ public class CgmesExportContext {
     private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
 
+    // Update dependencies in a way that:
+    // SV.dependentOn TP
+    // SV.dependentOn SSH
+    // TP.dependentOn EQ
+    // SSH.dependentOn EQ
+    public void updateDependencies() {
+        String eqModelId = getEqModelDescription().getId();
+        if (eqModelId != null) {
+            List<String> eqDependency = List.of(eqModelId);
+            getTpModelDescription()
+                    .clearDependencies()
+                    .addDependencies(eqDependency);
+            getSshModelDescription()
+                    .clearDependencies()
+                    .addDependencies(eqDependency);
+            getSvModelDescription().clearDependencies();
+            String tpModelId = getTpModelDescription().getId();
+            if (tpModelId != null) {
+                getSvModelDescription().addDependencies(List.of(tpModelId));
+            }
+            String sshModelId = getSshModelDescription().getId();
+            if (sshModelId != null) {
+                getSvModelDescription().addDependencies(List.of(sshModelId));
+            }
+        }
+    }
+
     public static final class ModelDescription {
 
         private String description;
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
+        private String modelId = null;
+
         // TODO Each model may have a list of profiles, not only one
         private String profile;
 
@@ -120,6 +149,14 @@ public class CgmesExportContext {
         public ModelDescription setProfile(String profile) {
             this.profile = profile;
             return this;
+        }
+
+        public void setId(String modelId) {
+            this.modelId = modelId;
+        }
+
+        public String getId() {
+            return modelId;
         }
     }
 
