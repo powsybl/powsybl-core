@@ -519,6 +519,18 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath.contains("FullModel")) {
+                if (cxpath.contains("Model.DependentOn")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringOperationalLimitIds(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Comparison.Detail control = comparison.getControlDetails();
