@@ -61,21 +61,21 @@ public class CgmesExportContext {
     public void updateDependencies() {
         String eqModelId = getEqModelDescription().getId();
         if (eqModelId != null) {
-            List<String> eqDependency = List.of(eqModelId);
             getTpModelDescription()
                     .clearDependencies()
-                    .addDependencies(eqDependency);
+                    .addDependency(eqModelId);
             getSshModelDescription()
                     .clearDependencies()
-                    .addDependencies(eqDependency);
+                    .addDependency(eqModelId);
             getSvModelDescription().clearDependencies();
             String tpModelId = getTpModelDescription().getId();
             if (tpModelId != null) {
-                getSvModelDescription().addDependencies(List.of(tpModelId));
+                getSvModelDescription().addDependency(tpModelId);
             }
             String sshModelId = getSshModelDescription().getId();
             if (sshModelId != null) {
-                getSvModelDescription().addDependencies(List.of(sshModelId));
+                getSvModelDescription().addDependency(sshModelId);
+                getSvModelDescription().addDependency(sshModelId);
             }
         }
     }
@@ -86,7 +86,7 @@ public class CgmesExportContext {
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
-        private String modelId = null;
+        private String id = null;
 
         // TODO Each model may have a list of profiles, not only one
         private String profile;
@@ -151,12 +151,12 @@ public class CgmesExportContext {
             return this;
         }
 
-        public void setId(String modelId) {
-            this.modelId = modelId;
+        public void setId(String id) {
+            this.id = id;
         }
 
         public String getId() {
-            return modelId;
+            return id;
         }
     }
 
