@@ -225,6 +225,9 @@ public final class EquipmentExport {
     }
 
     private static void writeGenerators(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, boolean writeInitialP, XMLStreamWriter writer) throws XMLStreamException {
+        // Multiple synchronous machines may be grouped in the same generating unit
+        // We have to write each generating unit only once
+        Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
@@ -255,8 +258,13 @@ public final class EquipmentExport {
                     throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + generator.getNameOrId());
             }
             SynchronousMachineEq.write(generator.getId(), generator.getNameOrId(), generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, generator.getRatedS(), cimNamespace, writer);
-            String generatingUnitName = "GEN_" + generator.getNameOrId();
-            GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writeInitialP, writer);
+            // We have not preserved the names of generating units
+            // We name generating units based on the first machine found
+            String generatingUnitName = "GU_" + generator.getNameOrId();
+            if (!generatingUnitsWritten.contains(generatingUnit)) {
+                GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writeInitialP, writer);
+                generatingUnitsWritten.add(generatingUnit);
+            }
         }
     }
 

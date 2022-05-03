@@ -1496,6 +1496,24 @@ public final class CgmesConformity1ModifiedCatalog {
                 "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources microGridBaseBEGenUnitWithTwoSyncMachines() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_gen_unit_with_two_sync_machines/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources(
+                "MicroGrid-BaseCase-BE-GU-With-2-SMs",
+                null,
+                new ResourceSet(base, "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+                new ResourceSet(baseOriginal,
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
     private static final String ENTSOE_CONFORMITY_1_MODIFIED = "/conformity-modified/cas-1.1.3-data-4.0.3";
 }
