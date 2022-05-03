@@ -10,11 +10,20 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.powerfactory.model.StudyCase;
 import com.powsybl.powerfactory.model.StudyCaseLoader;
+
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -61,11 +70,12 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 
-    private boolean importAndCompareXml(String id) {
+    private Network importAndCompareXml(String id) {
         Network network = new PowerFactoryImporter()
                 .importData(new ResourceDataSource(id, new ResourceSet("/", id + ".dgs")),
                         NetworkFactory.findDefault(),
                         null);
+
         Path file = fileSystem.getPath("/work/" + id + ".xiidm");
         network.setCaseDate(DateTime.parse("2021-01-01T10:00:00.000+02:00"));
         NetworkXml.write(network, file);
@@ -74,76 +84,247 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return true;
+
+        return network;
     }
 
     @Test
     public void ieee14Test() {
-        assertTrue(importAndCompareXml("ieee14"));
+        assertTrue(importAndCompareXiidm("ieee14"));
     }
 
     @Test
     public void twoBusesLineWithBTest() {
-        assertTrue(importAndCompareXml("TwoBusesLineWithB"));
+        assertTrue(importAndCompareXiidm("TwoBusesLineWithB"));
     }
 
     @Test
     public void twoBusesLineWithGandBTest() {
-        assertTrue(importAndCompareXml("TwoBusesLineWithGandB"));
+        assertTrue(importAndCompareXiidm("TwoBusesLineWithGandB"));
     }
 
     @Test
     public void twoBusesLineWithTandBTest() {
-        assertTrue(importAndCompareXml("TwoBusesLineWithTandB"));
+        assertTrue(importAndCompareXiidm("TwoBusesLineWithTandB"));
     }
 
     @Test
     public void twoBusesLineWithCTest() {
-        assertTrue(importAndCompareXml("TwoBusesLineWithC"));
+        assertTrue(importAndCompareXiidm("TwoBusesLineWithC"));
     }
 
     @Test
     public void twoBusesGeneratorTest() {
-        assertTrue(importAndCompareXml("TwoBusesGenerator"));
+        assertTrue(importAndCompareXiidm("TwoBusesGenerator"));
     }
 
     @Test
     public void twoBusesGeneratorWithoutIvmodeTest() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorWithoutIvmode"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorWithoutIvmode"));
     }
 
     @Test
     public void twoBusesGeneratorAvmodeTest() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorAvmode"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorAvmode"));
     }
 
     @Test
     public void twoBusesGeneratorWithoutActiveLimitsTest() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorWithoutActiveLimits"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorWithoutActiveLimits"));
     }
 
     @Test
     public void twoBusesGeneratorIqtypeTest() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorIqtype"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorIqtype"));
     }
 
     @Test
     public void twoBusesGeneratorWithoutIqtypeTest() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorWithoutIqtype"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorWithoutIqtype"));
     }
 
     @Test
     public void twoBusesGeneratorElmReactiveLimits() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorElmReactiveLimits"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorElmReactiveLimits"));
     }
 
     @Test
     public void twoBusesGeneratorTypReactiveLimits() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorTypReactiveLimits"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorTypReactiveLimits"));
     }
 
     @Test
     public void twoBusesGeneratorTypMvarReactiveLimits() {
-        assertTrue(importAndCompareXml("TwoBusesGeneratorTypMvarReactiveLimits"));
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorTypMvarReactiveLimits"));
+    }
+
+    private boolean importAndCompareXiidm(String powerfactoryCase) {
+        importAndCompareXml(powerfactoryCase);
+        return true;
+    }
+
+    @Test
+    public void transformerVhVl() {
+        assertTrue(transformerBalance("Transformer-VhVl", 0.00009));
+    }
+
+    @Test
+    public void transformerVhVlNonNeutral() {
+        assertTrue(transformerBalance("Transformer-VhVl-Non-Neutral", 0.0001));
+    }
+
+    @Test
+    public void transformerVhVlGB() {
+        assertTrue(transformerBalance("Transformer-VhVl-GB", 0.09));
+    }
+
+    @Test
+    public void transformerVhVlGBNonNeutral() {
+        assertTrue(transformerBalance("Transformer-VhVl-GB-Non-Neutral", 0.09));
+    }
+
+    @Test
+    public void transformerVlVh() {
+        assertTrue(transformerBalance("Transformer-VlVh", 0.0009));
+    }
+
+    @Test
+    public void transformerVlVhNonNeutral() {
+        assertTrue(transformerBalance("Transformer-VlVh-Non-Neutral", 0.0009));
+    }
+
+    @Test
+    public void transformerVlVhGB() {
+        assertTrue(transformerBalance("Transformer-VlVh-GB", 0.09));
+    }
+
+    @Test
+    public void transformerVlVhGBNonNeutral() {
+        assertTrue(transformerBalance("Transformer-VlVh-GB-Non-Neutral", 0.09));
+    }
+
+    private boolean transformerBalance(String powerfactoryCase, double tol) {
+        Network network = importAndCompareXml(powerfactoryCase);
+        transformerNetworkBalance(network, tol);
+        return true;
+    }
+
+    /**
+     * Three buses solved case:
+     * Bus 1: SlackBus where a generator and the line "lne_1_2_1" are connected
+     * Bus 2: TransportBus where the line "lne_1_2_1" and the transformer "trf_2_3_1" are connected
+     * Bus 3: LoadBus where the transformer "trf_2_3_1" and the load "lod_3_1" are connected
+     */
+    private static void transformerNetworkBalance(Network network, double tol) {
+
+        Load load = network.getLoad("lod_3_1");
+        assertNotNull(load);
+        Line line = network.getLine("lne_1_2_1");
+        assertNotNull(line);
+        TwoWindingsTransformer t2wt = network.getTwoWindingsTransformer("trf_2_3_1");
+        assertNotNull(t2wt);
+
+        BranchData lineData = new BranchData(line, 0.0, false);
+        BranchData t2wtData = new BranchData(t2wt, 0.0, false, true);
+        assertEquals(0.0, lineData.getComputedP2() + t2wtData.getComputedP1(), tol);
+        assertEquals(0.0, lineData.getComputedQ2() + t2wtData.getComputedQ1(), tol);
+        assertEquals(0.0, t2wtData.getComputedP2() + load.getP0(), tol);
+        assertEquals(0.0, t2wtData.getComputedQ2() + load.getQ0(), tol);
+    }
+
+    @Test
+    public void transformerPhase() {
+        assertTrue(phaseShifterBalance("Transformer-Phase", 0.001));
+    }
+
+    @Test
+    public void transformerPhaseNeutral() {
+        assertTrue(phaseShifterBalance("Transformer-Phase-Neutral", 0.0009));
+    }
+
+    @Test
+    public void transformerPhaseGB() {
+        assertTrue(phaseShifterBalance("Transformer-Phase-GB", 0.9));
+    }
+
+    @Test
+    public void transformerPhaseGBNeutral() {
+        assertTrue(phaseShifterBalance("Transformer-Phase-GB-Neutral", 0.9));
+    }
+
+    private boolean phaseShifterBalance(String powerfactoryCase, double tol) {
+        Network network = importAndCompareXml(powerfactoryCase);
+        phaseNetworkBalance(network, tol);
+        return true;
+    }
+
+    /**
+     * Three buses solved case:
+     * Bus 1: SlackBus where a generator, the line "lne_1_2_1" and the line "lne_1_3_1" are connected
+     * Bus 2: TransportBus where the line "lne_1_2_1" and the transformer "trf_2_3_1" are connected
+     * Bus 3: LoadBus where the transformer "trf_2_3_1", the line "lne_1_3_1" and the load "lod_3_1" are connected
+     */
+    private static void phaseNetworkBalance(Network network, double tol) {
+
+        Load load = network.getLoad("lod_3_1");
+        assertNotNull(load);
+        Line line12 = network.getLine("lne_1_2_1");
+        assertNotNull(line12);
+        Line line13 = network.getLine("lne_1_3_1");
+        assertNotNull(line13);
+        TwoWindingsTransformer t2wt = network.getTwoWindingsTransformer("trf_2_3_1");
+        assertNotNull(t2wt);
+
+        BranchData line12Data = new BranchData(line12, 0.0, false);
+        BranchData line13Data = new BranchData(line13, 0.0, false);
+        BranchData t2wtData = new BranchData(t2wt, 0.0, false, true);
+        assertEquals(0.0, line12Data.getComputedP2() + t2wtData.getComputedP1(), tol);
+        assertEquals(0.0, line12Data.getComputedQ2() + t2wtData.getComputedQ1(), tol);
+        assertEquals(0.0, line13Data.getComputedP2() + t2wtData.getComputedP2() + load.getP0(), tol);
+        assertEquals(0.0, line13Data.getComputedQ2() + t2wtData.getComputedQ2() + load.getQ0(), tol);
+    }
+
+    @Test
+    public void threeMibT3wPhaseTest() {
+        Network network = importAndCompareXml("ThreeMIB_T3W_phase_solved");
+        threeMibT3wPhaseTestNetworkBalance(network, 0.09);
+        assertTrue(true);
+    }
+
+    /**
+     * Only the balance at the three buses of the three windings transformer is done:
+     * Bus 4 (500 kV): Load "lod_4_1", line "lne_4_1_1", twoWindingsTransformer "trf_4_1_1" and threeWindingsTransformer "trf_4_2_7_1" are connected
+     * Bus 2 (18 kV) : Generator "sym_1_2_1" and  threeWindingsTransformer "trf_4_2_7_1" are connected
+     * Bus 7 (16 kV) : Load "lod_7_1" and threeWindingsTransformer "trf_4_2_7_1" are connected
+     */
+    private static void threeMibT3wPhaseTestNetworkBalance(Network network, double tol) {
+
+        Load load4 = network.getLoad("lod_4_1");
+        assertNotNull(load4);
+        Load load7 = network.getLoad("lod_7_1");
+        assertNotNull(load7);
+        Generator generator2 = network.getGenerator("sym_2_1");
+        assertNotNull(generator2);
+
+        Line line45 = network.getLine("lne_4_5_1");
+        assertNotNull(line45);
+        TwoWindingsTransformer t2wt41 = network.getTwoWindingsTransformer("trf_4_1_1");
+        assertNotNull(t2wt41);
+        ThreeWindingsTransformer t3wt427 = network.getThreeWindingsTransformer("tr3_4_2_7_1");
+        assertNotNull(t2wt41);
+
+        BranchData line45Data = new BranchData(line45, 0.0, false);
+        BranchData t2wtData41 = new BranchData(t2wt41, 0.0, false, true);
+        TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
+
+        // The case does not have the reactive of the generator. We set it manually
+        generator2.setTargetQ(435.876560);
+
+        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + load7.getQ0(), tol);
     }
 }
