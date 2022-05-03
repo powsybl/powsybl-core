@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
 
@@ -282,5 +283,28 @@ public abstract class AbstractNodeBreakerTest {
         network.getVoltageLevel("VL").getNodeBreakerView().newBusbarSection().setId("VL_0").setNode(10).add();
         busL0 = network.getLoad("L0").getTerminal().getBusBreakerView().getBus();
         assertEquals("VL_0#0", busL0.getId());
+    }
+
+    @Test
+    public void testRemove() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        Substation sub = network.getSubstation("S1");
+
+        // Disconnect the substation from the network
+        network.getHvdcLine("HVDC1").remove();
+        network.getHvdcLine("HVDC2").remove();
+        sub.getVoltageLevelStream()
+                .flatMap(VoltageLevel::getVscConverterStationStream)
+                .forEach(Connectable::remove);
+
+        // Remove 1 switch
+        VoltageLevel vl1 = network.getVoltageLevel("S1VL1");
+        vl1.getNodeBreakerView().removeSwitch("S1VL1_LD1_BREAKER");
+        assertNull(vl1.getNodeBreakerView().getSwitch("S1VL1_LD1_BREAKER"));
+
+        // Remove substation
+        sub.remove();
+        assertNull(network.getSubstation("S1"));
     }
 }

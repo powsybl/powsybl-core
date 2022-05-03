@@ -121,6 +121,16 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     }
 
     /**
+     * Update object name.
+     *
+     * @param name new name of the object (could be null to erase the name)
+     * @return the object itself
+     */
+    default I setName(String name) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
      * Check that this object has some properties.
      */
     boolean hasProperty();

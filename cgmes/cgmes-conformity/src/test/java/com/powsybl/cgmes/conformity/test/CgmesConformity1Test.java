@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conformity.test;
 
 import java.io.IOException;
 
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import org.junit.Test;
 
 import com.powsybl.cgmes.model.test.CgmesModelTester;
