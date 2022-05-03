@@ -12,8 +12,10 @@ import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -48,6 +50,6 @@ public abstract class AbstractConverter {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connections for '" + obj + "'");
         }
-        return nodeRefs;
+        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
     }
 }
