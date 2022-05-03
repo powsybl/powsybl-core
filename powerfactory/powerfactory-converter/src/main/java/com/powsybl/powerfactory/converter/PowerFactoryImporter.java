@@ -104,6 +104,9 @@ public class PowerFactoryImporter implements Importer {
 
         final Map<String, MutableInt> nodeCountByVoltageLevelId = new HashMap<>();
 
+        // elmTerm object id to busbarSection id mapping
+        final Map<Long, String> elmTermIdBusbarSectionId = new HashMap<>();
+
         List<DataObject> cubiclesObjectNotFound = new ArrayList<>();
 
         ImportContext(ContainersMapping containerMapping) {
@@ -255,37 +258,34 @@ public class PowerFactoryImporter implements Importer {
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
                 network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
 
-        updateVoltages(network, elmTerms);
+        setVoltagesAndAngles(network, importContext, elmTerms);
 
         return network;
     }
 
-    private static void updateVoltages(Network network, List<DataObject> elmTerms) {
+    private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
         for (DataObject elmTerm : elmTerms) {
-            updateVoltage(network, elmTerm);
+            setVoltageAndAngle(network, importContext, elmTerm);
         }
     }
 
-    private static void updateVoltage(Network network, DataObject elmTerm) {
-        String locName = elmTerm.getLocName();
+    private static void setVoltageAndAngle(Network network, ImportContext importContext, DataObject elmTerm) {
+        if (!importContext.elmTermIdBusbarSectionId.containsKey(elmTerm.getId())) {
+            return;
+        }
         Optional<Float> uknom = elmTerm.findFloatAttributeValue("uknom");
         Optional<Float> u = elmTerm.findFloatAttributeValue("m:u");
         Optional<Float> phiu = elmTerm.findFloatAttributeValue("m:phiu");
 
         if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
-            double v = u.get() * uknom.get();
-            double angle = phiu.get();
-            network.getVoltageLevels().forEach(vl -> {
-                String id = vl.getId() + "_" + locName;
-                BusbarSection busbar = network.getBusbarSection(id);
-                if (busbar != null) {
-                    Bus bus = busbar.getTerminal().getBusBreakerView().getBus();
-                    if (bus != null) {
-                        bus.setV(v);
-                        bus.setAngle(angle);
-                    }
+            BusbarSection busbar = network.getBusbarSection(importContext.elmTermIdBusbarSectionId.get(elmTerm.getId()));
+            if (busbar != null) {
+                Bus bus = busbar.getTerminal().getBusBreakerView().getBus();
+                if (bus != null) {
+                    bus.setV(u.get() * uknom.get());
+                    bus.setAngle(phiu.get());
                 }
-            });
+            }
         }
     }
 
@@ -395,11 +395,12 @@ public class PowerFactoryImporter implements Importer {
         int bbNode = nodeCount.intValue();
         nodeCount.increment();
         if (iUsage == 0) { // busbar
-            vl.getNodeBreakerView().newBusbarSection()
+            BusbarSection busbar = vl.getNodeBreakerView().newBusbarSection()
                     .setId(vl.getId() + "_" + elmTerm.getLocName())
                     .setEnsureIdUnicity(true)
                     .setNode(bbNode)
                     .add();
+            importContext.elmTermIdBusbarSectionId.putIfAbsent(elmTerm.getId(), busbar.getId());
         }
         for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
             DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
