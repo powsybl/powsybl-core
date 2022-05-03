@@ -26,7 +26,10 @@ public final class ModelDescriptionEq {
 
     public static void write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "urn:uuid:" + CgmesExportUtil.getUniqueId());
+        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
+        modelDescription.setId(modelId);
+        context.updateDependencies();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();

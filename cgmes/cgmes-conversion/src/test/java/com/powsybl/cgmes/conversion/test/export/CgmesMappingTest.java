@@ -68,6 +68,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringCreatedTime,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringFullModelAbout,
+                ExportXmlCompare::ignoringFullModelDependentOn,
                 ExportXmlCompare::ignoringOperationalLimitIds,
                 ExportXmlCompare::ignoringSVIds);
         for (Path file : files) {
