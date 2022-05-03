@@ -171,7 +171,8 @@ public final class TopologyExport {
 
         voltageLevel.getNodeBreakerView().traverse(node, traverser);
 
-        return (int) nodeSet.stream().sorted().findFirst().get();
+        Optional<Integer> selectedNode = nodeSet.stream().sorted().findFirst();
+        return selectedNode.isPresent() ? selectedNode.get() : null;
     }
 
     private static int getFirstNodeForBusBreakerViewBus(VoltageLevel voltageLevel, Set<String> addedTopologicalNodes, int node) {
@@ -209,8 +210,8 @@ public final class TopologyExport {
         };
 
         voltageLevel.getNodeBreakerView().traverse(node, traverser);
-
-        return (int) nodeSet.stream().findFirst().get();
+        Optional<Integer> selectedNode = nodeSet.stream().findFirst();
+        return selectedNode.isPresent() ? selectedNode.get() : null;
     }
 
     private static void writeHvdcTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
