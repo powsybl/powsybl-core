@@ -12,7 +12,6 @@ import java.util.Properties;
 
 import static org.junit.Assert.assertArrayEquals;
 
-
 public class ExportTest extends AbstractConverterTest {
 
     @Test
@@ -30,36 +29,17 @@ public class ExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testTime() throws IOException {
-        for (int i=0; i<10; i++) {
-            testExportParallelSwitchesNodeBreaker(true);
-        }
-    }
-
-    @Test
-    public void testExportParallelSwitchesNodeBreaker() throws IOException {
-        Network network100 = testExportParallelSwitchesNodeBreaker(false);
-        String[] expected = {"voltageLevel1_0", "voltageLevel1_6", "voltageLevel1_7"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
-    }
-
-    public Network testExportParallelSwitchesNodeBreaker(boolean printPerformance) throws IOException {
+    public void testExportParallelSwitchesNodeBreaker(boolean printPerformance) throws IOException {
         Network network = createParallelSwitchesNBNetwork();
 
         String cimZipFilename = "ParallelSwitchesNB_CIM100";
         Properties params = new Properties();
         params.put(CgmesExport.CIM_VERSION, "100");
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        if (printPerformance) {
-            long startTime = System.currentTimeMillis();
-            new CgmesExport().export(network, params, zip);
-            long endTime = System.currentTimeMillis();
-            long duration = (endTime - startTime);
-            System.out.format("Milli = %s, ( S_Start : %s, S_End : %s ) \n", duration, startTime, endTime);
-        } else {
-            new CgmesExport().export(network, params, zip);
-        }
-        return Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
+        new CgmesExport().export(network, params, zip);
+        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
+        String[] expected = {"voltageLevel1_0", "voltageLevel1_6", "voltageLevel1_7"};
+        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
     }
 
     @Test
@@ -480,7 +460,6 @@ public class ExportTest extends AbstractConverterTest {
                 .setVoltageLevel1(voltageLevel1)
                 .setVoltageLevel2(voltageLevel2);
     }
-
 
     private static void createReactiveCapabilityCurve(Generator generator) {
         generator.newReactiveCapabilityCurve()

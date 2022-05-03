@@ -88,7 +88,6 @@ public final class TopologyExport {
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
 
-
             int node1 = 0;
             int node2 = 0;
             Bus bus1;
