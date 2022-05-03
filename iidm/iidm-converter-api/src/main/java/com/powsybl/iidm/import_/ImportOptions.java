@@ -47,6 +47,7 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
         return this;
     }
 
+    @Override
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
     }
