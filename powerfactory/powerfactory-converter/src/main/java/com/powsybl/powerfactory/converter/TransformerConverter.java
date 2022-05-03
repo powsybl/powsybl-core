@@ -512,12 +512,7 @@ class TransformerConverter extends AbstractConverter {
             private double b1;
 
             TapChangerStep(double ratio, double angle) {
-                this.ratio = ratio;
-                this.angle = angle;
-                this.r = 0.0;
-                this.x = 0.0;
-                this.g1 = 0.0;
-                this.b1 = 0.0;
+                this(ratio, angle, 0.0, 0.0, 0.0, 0.0);
             }
 
             TapChangerStep(double ratio, double angle, double r, double x, double g1, double b1) {

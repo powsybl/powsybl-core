@@ -283,7 +283,6 @@ public class PowerFactoryImporter implements Importer {
                     if (bus != null) {
                         bus.setV(v);
                         bus.setAngle(angle);
-                        System.err.printf("Busbar %s V %f Angle %f %n", busbar.getId(), v, angle);
                     }
                 }
             });
