@@ -29,7 +29,7 @@ public class ExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExportParallelSwitchesNodeBreaker(boolean printPerformance) throws IOException {
+    public void testExportParallelSwitchesNodeBreaker() throws IOException {
         Network network = createParallelSwitchesNBNetwork();
 
         String cimZipFilename = "ParallelSwitchesNB_CIM100";
