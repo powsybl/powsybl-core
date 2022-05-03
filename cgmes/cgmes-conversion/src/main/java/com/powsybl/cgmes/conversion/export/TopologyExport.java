@@ -120,9 +120,10 @@ public final class TopologyExport {
         if (tn == null) {
             tn = voltageLevel.getId() + "_" + node;
         }
+        String tnName = bus != null ? bus.getNameOrId() : tn;
         if (!addedTopologicalNodes.contains(tn)) {
             addedTopologicalNodes.add(tn);
-            writeTopologicalNode(tn, tn, voltageLevel.getId(),
+            writeTopologicalNode(tn, tnName, voltageLevel.getId(),
                     context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId(), cimNamespace, writer);
         }
 
