@@ -10,10 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +100,14 @@ public class StudyCase {
         return JsonUtil.parseJson(reader, StudyCase::parseJson);
     }
 
+    static StudyCase readJson(Path file) {
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            return parseJson(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
 
@@ -127,5 +135,13 @@ public class StudyCase {
                 throw new UncheckedIOException(e);
             }
         });
+    }
+
+    public void writeJson(Path file) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            writeJson(writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

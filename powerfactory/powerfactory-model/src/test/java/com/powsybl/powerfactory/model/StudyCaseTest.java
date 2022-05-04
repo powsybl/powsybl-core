@@ -6,18 +6,14 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.google.common.io.ByteStreams;
+import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -25,7 +21,7 @@ import static org.junit.Assert.assertSame;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StudyCaseTest {
+public class StudyCaseTest extends AbstractConverterTest {
 
     private StudyCase studyCase;
     private DataObjectIndex index;
@@ -34,7 +30,8 @@ public class StudyCaseTest {
     private DataObject elmNet;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() throws IOException {
+        super.setUp();
         DataClass clsFoo = DataClass.init("ElmFoo")
                 .addAttribute(new DataAttribute("ref", DataAttributeType.INTEGER64));
         DataClass clsBar = DataClass.init("ElmBar");
@@ -63,20 +60,10 @@ public class StudyCaseTest {
 
     @Test
     public void jsonTest() throws IOException {
-        String json;
-        try (StringWriter writer = new StringWriter()) {
-            studyCase.writeJson(writer);
-            json = writer.toString();
-        }
-        var is = Objects.requireNonNull(getClass().getResourceAsStream("/studyCase.json"));
-        assertEquals(new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8), json);
-
-        try (StringReader reader = new StringReader(json)) {
-            StudyCase studyCase2 = StudyCase.parseJson(reader);
-            assertEquals("test", studyCase2.getName());
-            Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
-            assertEquals(studyTime, studyCase2.getTime());
-            assertEquals(1, studyCase2.getElmNets().size());
-        }
+        var studyCase2 = roundTripTest(studyCase, StudyCase::writeJson, StudyCase::readJson, "/studyCase.json");
+        assertEquals("test", studyCase2.getName());
+        Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
+        assertEquals(studyTime, studyCase2.getTime());
+        assertEquals(1, studyCase2.getElmNets().size());
     }
 }
