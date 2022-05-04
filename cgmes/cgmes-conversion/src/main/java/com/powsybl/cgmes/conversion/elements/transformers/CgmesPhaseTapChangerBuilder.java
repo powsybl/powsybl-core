@@ -7,14 +7,14 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.Comparator;
-import java.util.function.Supplier;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Comparator;
+import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -41,7 +41,15 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
             context.invalid(CgmesNames.PHASE_TAP_CHANGER_TYPE, utype);
             return null;
         }
-        return super.build();
+
+        // We have built a table of steps for all incoming CGMES types (linear, symmetrical, asymmetrical)
+        // Since this point on, the tap changer should be considered tabular.
+
+        // This is relevant if we export the IIDM model back to CGMES:
+        // We will export always phase tap changers as tabular in the EQ instance file,
+        // The type stored here will eventually be used to determine the class in the SSH export,
+        // and it must match the assumption made in the EQ export
+        return super.build().setType(CgmesNames.PHASE_TAP_CHANGER_TABULAR);
     }
 
     private boolean validType() {

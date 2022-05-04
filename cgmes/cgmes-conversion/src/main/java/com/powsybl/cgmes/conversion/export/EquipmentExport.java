@@ -351,13 +351,18 @@ public final class EquipmentExport {
         writeFlowsLimits(leg, terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
     }
 
-    private static void writePhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc, String twtName, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (ptc != null) {
             String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
                     .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
 
             int neutralStep = getPhaseTapChangerNeutralStep(ptc);
             String phaseTapChangerTableId = CgmesExportUtil.getUniqueId();
+            String type = CgmesExportUtil.cgmesTapChangerType(eq, tapChangerId).orElse(CgmesNames.PHASE_TAP_CHANGER_TABULAR);
+            if (!type.equals(CgmesNames.PHASE_TAP_CHANGER_TABULAR)) {
+                throw new PowsyblException("Unsupported tap changer type " + type);
+            }
+
             TapChangerEq.writePhase(tapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, cimNamespace, writer);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
