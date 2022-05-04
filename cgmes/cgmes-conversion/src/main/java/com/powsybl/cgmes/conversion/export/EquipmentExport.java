@@ -258,10 +258,10 @@ public final class EquipmentExport {
                     throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + generator.getNameOrId());
             }
             SynchronousMachineEq.write(generator.getId(), generator.getNameOrId(), generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, generator.getRatedS(), cimNamespace, writer);
-            // We have not preserved the names of generating units
-            // We name generating units based on the first machine found
-            String generatingUnitName = "GU_" + generator.getNameOrId();
             if (!generatingUnitsWritten.contains(generatingUnit)) {
+                // We have not preserved the names of generating units
+                // We name generating units based on the first machine found
+                String generatingUnitName = "GU_" + generator.getNameOrId();
                 GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writeInitialP, writer);
                 generatingUnitsWritten.add(generatingUnit);
             }
