@@ -11,15 +11,16 @@ package com.powsybl.powerfactory.model;
  */
 public enum DataAttributeType {
     INTEGER,
-    FLOAT,
-    DOUBLE,
-    INTEGER64,
-    STRING,
     INTEGER_VECTOR,
-    FLOAT_VECTOR,
+    DOUBLE,
     DOUBLE_VECTOR,
-    MATRIX,
-    BYTE_VECTOR,
+    DOUBLE_MATRIX,
     OBJECT,
-    OBJECT_VECTOR;
+    OBJECT_VECTOR,
+    STRING,
+    STRING_VECTOR,
+    INTEGER64,
+    INTEGER64_VECTOR,
+    FLOAT,
+    FLOAT_VECTOR
 }

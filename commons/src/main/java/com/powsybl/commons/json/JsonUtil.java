@@ -435,4 +435,59 @@ public final class JsonUtil {
             throw new PowsyblException(exception);
         }
     }
+
+    @FunctionalInterface
+    public interface FieldHandler {
+
+        boolean onField(String name) throws IOException;
+    }
+
+    public static void parseObject(JsonParser parser, FieldHandler fieldHandler) {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(fieldHandler);
+        try {
+            JsonToken token = parser.currentToken();
+            if (token != JsonToken.START_OBJECT) {
+                throw new PowsyblException("Start object token was expected: " + token);
+            }
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.FIELD_NAME) {
+                    String fieldName = parser.getCurrentName();
+                    boolean found = fieldHandler.onField(fieldName);
+                    if (!found) {
+                        throw new PowsyblException("Unexpected field " + fieldName);
+                    }
+                } else if (token == JsonToken.END_OBJECT) {
+                    break;
+                } else {
+                    throw new PowsyblException("Unexpected token " + token);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> void parseObjectArray(JsonParser parser, Consumer<T> objectAdder, Function<JsonParser, T> objectParser) {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(objectAdder);
+        Objects.requireNonNull(objectParser);
+        try {
+            JsonToken token = parser.nextToken();
+            if (token != JsonToken.START_ARRAY) {
+                throw new PowsyblException("Start array token was expected");
+            }
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.START_OBJECT) {
+                    objectAdder.accept(objectParser.apply(parser));
+                } else if (token == JsonToken.END_ARRAY) {
+                    break;
+                } else {
+                    throw new PowsyblException("Unexpected token " + token);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }
