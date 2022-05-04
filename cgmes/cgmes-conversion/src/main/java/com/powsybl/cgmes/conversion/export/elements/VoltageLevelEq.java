@@ -7,12 +7,9 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -21,11 +18,7 @@ public final class VoltageLevelEq {
 
     public static void write(String id, String voltageLevelName, double lowVoltageLimit, double highVoltageLimit,
                              String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "VoltageLevel");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(voltageLevelName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("VoltageLevel", id, voltageLevelName, cimNamespace, writer);
         if (!Double.isNaN(lowVoltageLimit)) {
             writer.writeStartElement(cimNamespace, "VoltageLevel.lowVoltageLimit");
             writer.writeCharacters(CgmesExportUtil.format(lowVoltageLimit));
@@ -36,10 +29,8 @@ public final class VoltageLevelEq {
             writer.writeCharacters(CgmesExportUtil.format(highVoltageLimit));
             writer.writeEndElement();
         }
-        writer.writeEmptyElement(cimNamespace, "VoltageLevel.Substation");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + substationId);
-        writer.writeEmptyElement(cimNamespace, "VoltageLevel.BaseVoltage");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + baseVoltageId);
+        CgmesExportUtil.writeReference("VoltageLevel.Substation", substationId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("VoltageLevel.BaseVoltage", baseVoltageId, cimNamespace, writer);
         writer.writeEndElement();
     }
 

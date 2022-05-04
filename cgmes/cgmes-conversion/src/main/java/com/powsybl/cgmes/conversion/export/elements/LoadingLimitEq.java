@@ -7,32 +7,26 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ActivePowerLimits;
+import com.powsybl.iidm.network.ApparentPowerLimits;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.LoadingLimits;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public final class LoadingLimitEq {
 
-    public static void write(String id, Class<? extends LoadingLimits> loadingLimitClass, String name, double value, String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, loadingLimitClassName(loadingLimitClass));
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name);
-        writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, loadingLimitClassName(loadingLimitClass) + ".value");
+    public static void write(String id, Class<? extends LoadingLimits> loadingLimitClass, String name, double value, String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, String valueAttributeName, XMLStreamWriter writer) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(loadingLimitClassName(loadingLimitClass), id, name, cimNamespace, writer);
+        writer.writeStartElement(cimNamespace, loadingLimitClassName(loadingLimitClass) + "." + valueAttributeName);
         writer.writeCharacters(CgmesExportUtil.format(value));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "OperationalLimit.OperationalLimitSet");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + operationalLimitSetId);
-        writer.writeEmptyElement(cimNamespace, "OperationalLimit.OperationalLimitType");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + operationalLimitTypeId);
+        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitSet", operationalLimitSetId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitType", operationalLimitTypeId, cimNamespace, writer);
         writer.writeEndElement();
     }
 

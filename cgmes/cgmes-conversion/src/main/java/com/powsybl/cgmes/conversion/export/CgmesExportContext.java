@@ -33,14 +33,14 @@ public class CgmesExportContext {
     private static final String TERMINAL_NETWORK = "Terminal_Network";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
 
-    private int cimVersion = 16;
+    private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
-    private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.getProfile(cimVersion, "EQ"));
-    private ModelDescription tpModelDescription = new ModelDescription("TP Model", CgmesNamespace.getProfile(cimVersion, "TP"));
-    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.getProfile(cimVersion, "SV"));
-    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.getProfile(cimVersion, "SSH"));
+    private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfile("EQ"));
+    private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
+    private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfile("SV"));
+    private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfile("SSH"));
 
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
@@ -53,12 +53,41 @@ public class CgmesExportContext {
     private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
 
+    // Update dependencies in a way that:
+    // SV.dependentOn TP
+    // SV.dependentOn SSH
+    // TP.dependentOn EQ
+    // SSH.dependentOn EQ
+    public void updateDependencies() {
+        String eqModelId = getEqModelDescription().getId();
+        if (eqModelId != null) {
+            getTpModelDescription()
+                    .clearDependencies()
+                    .addDependency(eqModelId);
+            getSshModelDescription()
+                    .clearDependencies()
+                    .addDependency(eqModelId);
+            getSvModelDescription().clearDependencies();
+            String tpModelId = getTpModelDescription().getId();
+            if (tpModelId != null) {
+                getSvModelDescription().addDependency(tpModelId);
+            }
+            String sshModelId = getSshModelDescription().getId();
+            if (sshModelId != null) {
+                getSvModelDescription().addDependency(sshModelId);
+                getSvModelDescription().addDependency(sshModelId);
+            }
+        }
+    }
+
     public static final class ModelDescription {
 
         private String description;
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
+        private String id = null;
+
         // TODO Each model may have a list of profiles, not only one
         private String profile;
 
@@ -121,6 +150,14 @@ public class CgmesExportContext {
             this.profile = profile;
             return this;
         }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
     }
 
     interface TopologicalConsumer {
@@ -137,7 +174,7 @@ public class CgmesExportContext {
     public CgmesExportContext(Network network, boolean withTopologicalMapping) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
-            cimVersion = cimCharacteristics.getCimVersion();
+            setCimVersion(cimCharacteristics.getCimVersion());
             topologyKind = cimCharacteristics.getTopologyKind();
         }
         scenarioTime = network.getCaseDate();
@@ -540,16 +577,16 @@ public class CgmesExportContext {
     }
 
     public int getCimVersion() {
-        return cimVersion;
+        return cim.getVersion();
     }
 
     public CgmesExportContext setCimVersion(int cimVersion) {
-        this.cimVersion = cimVersion;
-        if (CgmesNamespace.hasProfiles(cimVersion)) {
-            eqModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "EQ"));
-            tpModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "TP"));
-            svModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SV"));
-            sshModelDescription.setProfile(CgmesNamespace.getProfile(cimVersion, "SSH"));
+        cim = CgmesNamespace.getCim(cimVersion);
+        if (cim.hasProfiles()) {
+            eqModelDescription.setProfile(cim.getProfile("EQ"));
+            tpModelDescription.setProfile(cim.getProfile("TP"));
+            svModelDescription.setProfile(cim.getProfile("SV"));
+            sshModelDescription.setProfile(cim.getProfile("SSH"));
         }
         return this;
     }
@@ -606,8 +643,8 @@ public class CgmesExportContext {
         return this;
     }
 
-    public String getCimNamespace() {
-        return CgmesNamespace.getCim(cimVersion);
+    public CgmesNamespace.Cim getCim() {
+        return cim;
     }
 
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {
