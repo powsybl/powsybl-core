@@ -50,6 +50,7 @@ public abstract class AbstractConverter {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connections for '" + obj + "'");
         }
-        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
+        // Return nodes sorted by its index
+        return nodeRefs.stream().sorted(Comparator.comparing(nodeRef -> nodeRef.busIndexIn)).collect(Collectors.toList());
     }
 }
