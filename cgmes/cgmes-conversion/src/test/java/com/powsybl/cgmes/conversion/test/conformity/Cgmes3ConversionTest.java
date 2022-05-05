@@ -110,11 +110,6 @@ public class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        // RegulatingTerminals of both networks are localized to avoid differences.
-        // TODO must be deleted after fixing regulatingTerminals.
-        // Differences are associated with regulating cgmesTerminals defined for breakers
-        fixRegulatingTerminalsBeforeComparison(network);
-        fixRegulatingTerminalsBeforeComparison(networkwithoutTpSv);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
@@ -291,10 +286,6 @@ public class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        // regulatingTerminals of network are localized to avoid differences.
-        // TODO must be deleted after fixing regulatingTerminals.
-        // Differences are associated with regulating cgmesTerminals defined for breakers
-        fixRegulatingTerminalsBeforeComparison(network);
         new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
@@ -325,15 +316,6 @@ public class Cgmes3ConversionTest {
         network.getLoads().forEach(load -> {
             load.getTerminal().setP(Double.NaN);
             load.getTerminal().setQ(Double.NaN);
-        });
-    }
-
-    private static void fixRegulatingTerminalsBeforeComparison(Network network) {
-        network.getGenerators().forEach(generator -> {
-            generator.setRegulatingTerminal(generator.getTerminal());
-        });
-        network.getShuntCompensators().forEach(shuntCompensator -> {
-            shuntCompensator.setRegulatingTerminal(shuntCompensator.getTerminal());
         });
     }
 }
