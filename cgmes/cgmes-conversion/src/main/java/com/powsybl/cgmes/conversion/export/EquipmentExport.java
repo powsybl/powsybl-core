@@ -364,33 +364,32 @@ public final class EquipmentExport {
                     .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
 
             int neutralStep = getPhaseTapChangerNeutralStep(ptc);
-            String controlId = getTapChangerControlId(eq, tapChangerId);
+            Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String phaseTapChangerTableId = CgmesExportUtil.getUniqueId();
-            TapChangerEq.writePhase(tapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, controlId, cimNamespace, writer);
+            TapChangerEq.writePhase(tapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, regulatingControlId, cimNamespace, writer);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer);
             }
 
-            if (controlId != null) {
+            if (regulatingControlId.isPresent()) {
                 String mode = getPhaseTapChangerRegulationMode(ptc);
                 String controlName = twtName + "_PTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal());
-                TapChangerEq.writeControl(ptc, controlId, controlName, mode, terminalId, cimNamespace, writer);
+                TapChangerEq.writeControl(regulatingControlId.get(), controlName, mode, terminalId, cimNamespace, writer);
             }
         }
     }
 
-    private static <C extends Connectable<C>> String getTapChangerControlId(C eq, String tcId) {
+    private static <C extends Connectable<C>> Optional<String> getTapChangerControlId(C eq, String tcId) {
         CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
-        CgmesTapChanger cgmesTc = null;
         if (cgmesTcs != null) {
-            cgmesTc = cgmesTcs.getTapChanger(tcId);
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tcId);
             if (cgmesTc != null) {
-                return cgmesTc.getControlId();
+                return Optional.ofNullable(cgmesTc.getControlId());
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
@@ -399,8 +398,9 @@ public final class EquipmentExport {
                 return "currentFlow";
             case ACTIVE_POWER_CONTROL:
                 return "activePower";
+            default:
+                return null;
         }
-        return null;
     }
 
     private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
@@ -420,21 +420,21 @@ public final class EquipmentExport {
                     .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
             int neutralStep = getRatioTapChangerNeutralStep(rtc);
             double stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0) / (rtc.getLowTapPosition() - neutralStep);
-            String controlId = getTapChangerControlId(eq, tapChangerId);
+            Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String ratioTapChangerTableId = CgmesExportUtil.getUniqueId();
 
-            TapChangerEq.writeRatio(tapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), rtc.getTargetV(), rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement, ratioTapChangerTableId, controlId, cimNamespace, writer);
+            TapChangerEq.writeRatio(tapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), rtc.getTargetV(), rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement, ratioTapChangerTableId, regulatingControlId, cimNamespace, writer);
             TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
                 TapChangerEq.writeRatioTablePoint(CgmesExportUtil.getUniqueId(), ratioTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), step.getKey(), cimNamespace, writer);
             }
 
-            if (controlId != null) {
+            if (regulatingControlId.isPresent()) {
                 // Regulating control mode is always "voltage"
                 String mode = "voltage";
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal());
-                TapChangerEq.writeControl(rtc, controlId, controlName, mode, terminalId, cimNamespace, writer);
+                TapChangerEq.writeControl(regulatingControlId.get(), controlName, mode, terminalId, cimNamespace, writer);
             }
         }
     }
