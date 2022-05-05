@@ -220,7 +220,7 @@ public abstract class AbstractGeneratorTest {
 
     @Test
     public void testRemove() {
-        String unmodifiableRemovedEqMessage = "Cannot modify removed equipment";
+        String unmodifiableRemovedEqMessage = "Cannot modify removed equipment " + TO_REMOVE;
         createGenerator(TO_REMOVE, EnergySource.HYDRO, 20.0, 11., 2.0,
                 15.0, 40.0, true, 2.0);
         int count = network.getGeneratorCount();
@@ -230,18 +230,53 @@ public abstract class AbstractGeneratorTest {
         assertNotNull(generator);
         Terminal terminal = generator.getTerminal();
         assertNotNull(terminal);
-        assertFalse(terminal.isConnected());
-        assertEquals(-1, terminal.getNodeBreakerView().getNode());
-        assertNull(terminal.getBusBreakerView().getBus());
-        assertNull(terminal.getBusBreakerView().getConnectableBus());
-        assertNull(terminal.getBusView().getBus());
-        assertNull(terminal.getBusView().getConnectableBus());
-        assertNull(terminal.getVoltageLevel());
+        try {
+            terminal.isConnected();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access connectivity status of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getNodeBreakerView().getNode();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access node of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
         try {
             terminal.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Associated equipment is removed", e.getMessage());
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
         }
         Terminal.BusBreakerView bbView = terminal.getBusBreakerView();
         assertNotNull(bbView);
@@ -270,7 +305,12 @@ public abstract class AbstractGeneratorTest {
         } catch (PowsyblException e) {
             assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
         }
-        assertNull(generator.getNetwork());
+        try {
+            generator.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed equipment " + TO_REMOVE, e.getMessage());
+        }
         assertEquals(count - 1L, network.getGeneratorCount());
         assertNull(network.getGenerator(TO_REMOVE));
     }
