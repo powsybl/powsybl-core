@@ -413,7 +413,7 @@ public class DataObject {
 
         final List<DataObject> children = new ArrayList<>();
 
-        final Map<String, Object> attributeValues = new HashMap<>();
+        final Map<String, Object> attributeValues = new LinkedHashMap<>();
     }
 
     static DataObject parseJson(JsonParser parser, DataObjectIndex index, DataScheme scheme) {
@@ -465,6 +465,9 @@ public class DataObject {
                             case STRING_VECTOR:
                             case INTEGER64_VECTOR:
                             case FLOAT:
+                                parser.nextToken();
+                                context.attributeValues.put(fieldName2, parser.getFloatValue());
+                                return true;
                             case FLOAT_VECTOR:
                                 // TODO
                                 return false;

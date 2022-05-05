@@ -2,7 +2,34 @@
   "name" : "test",
   "time" : "2021-10-30T09:35:25Z",
   "classes" : [ {
+    "name" : "ElmFoo",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "i",
+      "type" : "INTEGER"
+    }, {
+      "name" : "l",
+      "type" : "INTEGER64"
+    }, {
+      "name" : "f",
+      "type" : "FLOAT"
+    }, {
+      "name" : "d",
+      "type" : "DOUBLE"
+    }, {
+      "name" : "obj",
+      "type" : "OBJECT"
+    } ]
+  }, {
     "name" : "ElmNet",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    } ]
+  }, {
+    "name" : "ElmBar",
     "attributes" : [ {
       "name" : "loc_name",
       "type" : "STRING"
@@ -13,6 +40,25 @@
     "className" : "ElmNet",
     "values" : {
       "loc_name" : "net"
-    }
+    },
+    "children" : [ {
+      "id" : 1,
+      "className" : "ElmFoo",
+      "values" : {
+        "loc_name" : "foo",
+        "i" : 3,
+        "l" : 49494,
+        "f" : 3.4,
+        "d" : 3494.93939,
+        "obj" : 2
+      },
+      "children" : [ {
+        "id" : 2,
+        "className" : "ElmBar",
+        "values" : {
+          "loc_name" : "bar"
+        }
+      } ]
+    } ]
   } ]
 }

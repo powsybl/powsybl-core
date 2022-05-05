@@ -33,7 +33,11 @@ public class StudyCaseTest extends AbstractConverterTest {
     public void setUp() throws IOException {
         super.setUp();
         DataClass clsFoo = DataClass.init("ElmFoo")
-                .addAttribute(new DataAttribute("ref", DataAttributeType.INTEGER64));
+                .addAttribute(new DataAttribute("i", DataAttributeType.INTEGER))
+                .addAttribute(new DataAttribute("l", DataAttributeType.INTEGER64))
+                .addAttribute(new DataAttribute("f", DataAttributeType.FLOAT))
+                .addAttribute(new DataAttribute("d", DataAttributeType.DOUBLE))
+                .addAttribute(new DataAttribute("obj", DataAttributeType.OBJECT));
         DataClass clsBar = DataClass.init("ElmBar");
         DataClass clsNet = DataClass.init("ElmNet");
 
@@ -42,10 +46,16 @@ public class StudyCaseTest extends AbstractConverterTest {
                 .setLocName("bar");
         objFoo = new DataObject(1L, clsFoo, index)
                 .setLocName("foo")
-                .setLongAttributeValue("ref", objBar.getId());
+                .setIntAttributeValue("i", 3)
+                .setLongAttributeValue("l", 49494L)
+                .setFloatAttributeValue("f", 3.4f)
+                .setDoubleAttributeValue("d", 3494.93939d)
+                .setObjectAttributeValue("obj", objBar.getId());
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         elmNet = new DataObject(0L, clsNet, index)
                 .setLocName("net");
+        objFoo.setParent(elmNet);
+        objBar.setParent(objFoo);
         studyCase = new StudyCase("test", studyTime, List.of(elmNet), index);
     }
 
