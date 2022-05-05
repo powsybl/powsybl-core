@@ -81,7 +81,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) {
         for (Connectable<?> c : network.getConnectables()) {
             for (Terminal t : c.getTerminals()) {
-                writeTerminal(t, c, cimNamespace, writer);
+                writeTerminal(t, cimNamespace, writer);
             }
         }
         for (Switch sw : network.getSwitches()) {
@@ -418,19 +418,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminal(Terminal t, Connectable<?> c, String cimNamespace, XMLStreamWriter writer) {
-        Optional<String> tid;
-        if (c instanceof DanglingLine) {
-            tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
-        } else {
-            int numt = CgmesExportUtil.getTerminalSide(t, c);
-            tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + numt);
-        }
-        if (tid.isPresent()) {
-            writeTerminal(tid.get(), t.isConnected(), cimNamespace, writer);
-        } else {
-            LOG.error("Alias not found for terminal {} in connectable {}", t, c.getId());
-        }
+    private static void writeTerminal(Terminal t, String cimNamespace, XMLStreamWriter writer) {
+        writeTerminal(CgmesExportUtil.getTerminalId(t), t.isConnected(), cimNamespace, writer);
     }
 
     private static void writeTerminal(String terminalId, boolean connected, String cimNamespace, XMLStreamWriter writer) {

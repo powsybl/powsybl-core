@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
@@ -24,9 +25,11 @@ import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
+import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -174,7 +177,8 @@ public final class CgmesExportUtil {
         return "EnergyConsumer";
     }
 
-    public static int getTerminalSide(Terminal t, Connectable<?> c) {
+    public static int getTerminalSequenceNumber(Terminal t) {
+        Connectable c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             return 1;
         } else {
@@ -231,4 +235,20 @@ public final class CgmesExportUtil {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
+
+    public static String getTerminalId(Terminal t) {
+        String aliasType;
+        if (t.getConnectable() instanceof DanglingLine) {
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network";
+        } else {
+            int sequenceNumber = getTerminalSequenceNumber(t);
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
+        }
+        Optional<String> terminalId = t.getConnectable().getAliasFromType(aliasType);
+        if (terminalId.isEmpty()) {
+            LOG.error("Alias for type {} not found in connectable {}", aliasType, t, t.getConnectable().getId());
+            throw new PowsyblException("Alias for type " + aliasType + " not found in connectable " + t.getConnectable().getId());
+        }
+        return terminalId.get();
+    }
 }

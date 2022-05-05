@@ -59,16 +59,7 @@ public final class TopologyExport {
     private static void writeBusTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
             for (Terminal t : b.getConnectedTerminals()) {
-                Connectable<?> c = t.getConnectable();
-                String terminalId;
-                if (c instanceof DanglingLine) {
-                    writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer);
-                    terminalId = cgmesTerminalFromAlias(c, "Terminal_Network");
-                } else {
-                    int side = CgmesExportUtil.getTerminalSide(t, c);
-                    terminalId = cgmesTerminalFromAlias(c, CgmesNames.TERMINAL + side);
-                }
-                writeTerminal(terminalId, topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
+                writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
             }
         }
     }
