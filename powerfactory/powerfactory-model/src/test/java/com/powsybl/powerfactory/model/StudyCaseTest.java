@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -37,7 +38,13 @@ public class StudyCaseTest extends AbstractConverterTest {
                 .addAttribute(new DataAttribute("l", DataAttributeType.INTEGER64))
                 .addAttribute(new DataAttribute("f", DataAttributeType.FLOAT))
                 .addAttribute(new DataAttribute("d", DataAttributeType.DOUBLE))
-                .addAttribute(new DataAttribute("obj", DataAttributeType.OBJECT));
+                .addAttribute(new DataAttribute("o", DataAttributeType.OBJECT))
+                .addAttribute(new DataAttribute("iv", DataAttributeType.INTEGER_VECTOR))
+                .addAttribute(new DataAttribute("lv", DataAttributeType.INTEGER64_VECTOR))
+                .addAttribute(new DataAttribute("fv", DataAttributeType.FLOAT_VECTOR))
+                .addAttribute(new DataAttribute("dv", DataAttributeType.DOUBLE_VECTOR))
+                .addAttribute(new DataAttribute("ov", DataAttributeType.OBJECT_VECTOR))
+                .addAttribute(new DataAttribute("sv", DataAttributeType.STRING_VECTOR));
         DataClass clsBar = DataClass.init("ElmBar");
         DataClass clsNet = DataClass.init("ElmNet");
 
@@ -50,7 +57,13 @@ public class StudyCaseTest extends AbstractConverterTest {
                 .setLongAttributeValue("l", 49494L)
                 .setFloatAttributeValue("f", 3.4f)
                 .setDoubleAttributeValue("d", 3494.93939d)
-                .setObjectAttributeValue("obj", objBar.getId());
+                .setObjectAttributeValue("o", objBar.getId())
+                .setIntVectorAttributeValue("iv", List.of(1, 2, 3))
+                .setFloatVectorAttributeValue("fv", List.of(1.3f, 2.3f, 3.5f))
+                .setLongVectorAttributeValue("lv", List.of(4L, 5L, 6943953495493593L))
+                .setDoubleVectorAttributeValue("dv", List.of(1.3949d, 2.34d, 3.1223d))
+                .setObjectVectorAttributeValue("ov", List.of(objBar.getId()))
+                .setStringVectorAttributeValue("sv", List.of("AA", "BBB"));
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         elmNet = new DataObject(0L, clsNet, index)
                 .setLocName("net");
@@ -75,5 +88,12 @@ public class StudyCaseTest extends AbstractConverterTest {
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         assertEquals(studyTime, studyCase2.getTime());
         assertEquals(1, studyCase2.getElmNets().size());
+        DataObject objFoo = studyCase2.getIndex().getDataObjectById(1L).orElseThrow();
+        assertEquals(List.of(1, 2, 3), objFoo.getIntVectorAttributeValue("iv"));
+        assertEquals(List.of(1.3f, 2.3f, 3.5f), objFoo.getFloatVectorAttributeValue("fv"));
+        assertEquals(List.of(4L, 5L, 6943953495493593L), objFoo.getLongVectorAttributeValue("lv"));
+        assertEquals(List.of(1.3949d, 2.34d, 3.1223d), objFoo.getDoubleVectorAttributeValue("dv"));
+        assertEquals(List.of(2L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).collect(Collectors.toList()));
+        assertEquals(List.of("AA", "BBB"), objFoo.getStringVectorAttributeValue("sv"));
     }
 }

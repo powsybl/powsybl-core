@@ -19,8 +19,26 @@
       "name" : "d",
       "type" : "DOUBLE"
     }, {
-      "name" : "obj",
+      "name" : "o",
       "type" : "OBJECT"
+    }, {
+      "name" : "iv",
+      "type" : "INTEGER_VECTOR"
+    }, {
+      "name" : "lv",
+      "type" : "INTEGER64_VECTOR"
+    }, {
+      "name" : "fv",
+      "type" : "FLOAT_VECTOR"
+    }, {
+      "name" : "dv",
+      "type" : "DOUBLE_VECTOR"
+    }, {
+      "name" : "ov",
+      "type" : "OBJECT_VECTOR"
+    }, {
+      "name" : "sv",
+      "type" : "STRING_VECTOR"
     } ]
   }, {
     "name" : "ElmNet",
@@ -50,7 +68,13 @@
         "l" : 49494,
         "f" : 3.4,
         "d" : 3494.93939,
-        "obj" : 2
+        "o" : 2,
+        "iv" : [ 1, 2, 3 ],
+        "fv" : [ 1.3, 2.3, 3.5 ],
+        "lv" : [ 4, 5, 6943953495493593 ],
+        "dv" : [ 1.3949, 2.34, 3.1223 ],
+        "ov" : [ 2 ],
+        "sv" : [ "AA", "BBB" ]
       },
       "children" : [ {
         "id" : 2,
