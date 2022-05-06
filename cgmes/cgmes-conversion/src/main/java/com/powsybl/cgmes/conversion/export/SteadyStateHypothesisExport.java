@@ -319,14 +319,34 @@ public final class SteadyStateHypothesisExport {
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
                         "k");
             } else if (tc instanceof PhaseTapChanger) {
-                rcv = new RegulatingControlView(controlId,
-                        RegulatingControlType.TAP_CHANGER_CONTROL,
-                        true,
-                        tc.isRegulating(),
-                        tc.getTargetDeadband(),
-                        ((PhaseTapChanger) tc).getRegulationValue(),
-                        // Unit multiplier is M for phase tap changers (regulation value is an active power flow in MW)
-                        "M");
+                boolean valid;
+                String unitMultiplier;
+                switch (((PhaseTapChanger) tc).getRegulationMode()) {
+                    case CURRENT_LIMITER:
+                        // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
+                        valid = true;
+                        unitMultiplier = "none";
+                        break;
+                    case ACTIVE_POWER_CONTROL:
+                        // Unit multiplier is M, regulation value is an active power flow in MW
+                        valid = true;
+                        unitMultiplier = "M";
+                        break;
+                    case FIXED_TAP:
+                    default:
+                        valid = false;
+                        unitMultiplier = "none";
+                        break;
+                }
+                if (valid) {
+                    rcv = new RegulatingControlView(controlId,
+                            RegulatingControlType.TAP_CHANGER_CONTROL,
+                            true,
+                            tc.isRegulating(),
+                            tc.getTargetDeadband(),
+                            ((PhaseTapChanger) tc).getRegulationValue(),
+                            unitMultiplier);
+                }
             }
             if (rcv != null) {
                 regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);

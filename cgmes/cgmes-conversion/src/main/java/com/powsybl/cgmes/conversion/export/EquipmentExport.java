@@ -27,6 +27,9 @@ public final class EquipmentExport {
 
     private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
     private static final String CONNECTIVITY_NODE_SUFFIX = "_CN";
+    private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
+    private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
+    private static final String PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -374,9 +377,12 @@ public final class EquipmentExport {
 
             if (regulatingControlId.isPresent()) {
                 String mode = getPhaseTapChangerRegulationMode(ptc);
-                String controlName = twtName + "_PTC_RC";
-                String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal());
-                TapChangerEq.writeControl(regulatingControlId.get(), controlName, mode, terminalId, cimNamespace, writer);
+                // Only export the regulating control if mode is valid
+                if (mode != null) {
+                    String controlName = twtName + "_PTC_RC";
+                    String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal());
+                    TapChangerEq.writeControl(regulatingControlId.get(), controlName, mode, terminalId, cimNamespace, writer);
+                }
             }
         }
     }
@@ -395,9 +401,10 @@ public final class EquipmentExport {
     private static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
         switch (ptc.getRegulationMode()) {
             case CURRENT_LIMITER:
-                return "currentFlow";
+                return PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW;
             case ACTIVE_POWER_CONTROL:
-                return "activePower";
+                return PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER;
+            case FIXED_TAP:
             default:
                 return null;
         }
@@ -430,11 +437,10 @@ public final class EquipmentExport {
             }
 
             if (regulatingControlId.isPresent()) {
-                // Regulating control mode is always "voltage"
-                String mode = "voltage";
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal());
-                TapChangerEq.writeControl(regulatingControlId.get(), controlName, mode, terminalId, cimNamespace, writer);
+                // Regulating control mode is always "voltage"
+                TapChangerEq.writeControl(regulatingControlId.get(), controlName, PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE, terminalId, cimNamespace, writer);
             }
         }
     }
