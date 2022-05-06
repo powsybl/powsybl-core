@@ -8,8 +8,10 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.export.Exporters;
@@ -19,14 +21,17 @@ import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.Test;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -109,5 +114,65 @@ public class CgmesExportTest {
             String gu2 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
             assertEquals(gu1, gu2);
         }
+    }
+
+    @Test
+    public void testPhaseTapChangerFixedTapNotExported() throws IOException, XMLStreamException {
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        Network n = Importers.importData("CGMES", ds, null);
+        TwoWindingsTransformer transformer = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        String regulatingControlId = "5fc492ab-fe33-423b-84f1-a47f87552427";
+        String exportFolder = "/test-ptc-rc-not-exported";
+        String baseName = "testPtcRcNotExported";
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+
+            // With original regulating mode the regulating control should be written in the EQ output
+            String baseNameWithRc = baseName + "-with-rc";
+            Exporters.export("CGMES", n, null, tmpDir.resolve(baseNameWithRc));
+            assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "EQ"));
+            assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "SSH"));
+
+            transformer.getPhaseTapChanger().setRegulating(false);
+            transformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+            String baseNameNoRc = baseName + "-no-rc";
+            Exporters.export("CGMES", n, null, tmpDir.resolve(baseNameNoRc));
+            assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));
+            assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc,  "SSH"));
+        }
+    }
+
+    private static boolean cgmesFileContainsRegulatingControl(String regulatingControlId, Path folder, String baseName, String instanceFile) throws XMLStreamException, IOException {
+        String file = String.format("%s_%s.xml", baseName, instanceFile);
+        String rdfIdAttributeName;
+        String expectedRdfIdAttributeValue;
+        if (instanceFile.equals("EQ")) {
+            rdfIdAttributeName = "ID";
+            expectedRdfIdAttributeValue = "_" + regulatingControlId;
+        } else if (instanceFile.equals("SSH")) {
+            rdfIdAttributeName = "about";
+            expectedRdfIdAttributeValue = "#_" + regulatingControlId;
+        } else {
+            return false;
+        }
+        return xmlFileContainsRegulatingControl(expectedRdfIdAttributeValue, rdfIdAttributeName, folder.resolve(file));
+    }
+
+    private static boolean xmlFileContainsRegulatingControl(String expectedRdfIdAttributeValue, String rdfIdAttributeName, Path file) throws IOException, XMLStreamException {
+        try (InputStream is = Files.newInputStream(file)) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                if (reader.next() == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("TapChangerControl")) {
+                    String id = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, rdfIdAttributeName);
+                    if (expectedRdfIdAttributeValue.equals(id)) {
+                        reader.close();
+                        return true;
+                    }
+                }
+            }
+            reader.close();
+        }
+        return false;
     }
 }
