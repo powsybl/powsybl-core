@@ -227,7 +227,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
         return network;
     }
-    
+
     private void testExportReimport(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
         Network actual = exportReimport(expected, dataSource);
         compareNetworksEQdata(expected, actual);
