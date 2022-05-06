@@ -572,8 +572,8 @@ public class DataObject {
                 for (int row = 0; row < matrix.getRowDimension(); row++) {
                     double[] rowValues = matrix.getRow(row);
                     generator.writeStartArray();
-                    for (int col = 0; col < rowValues.length; col++) {
-                        generator.writeNumber(rowValues[col]);
+                    for (double rowValue : rowValues) {
+                        generator.writeNumber(rowValue);
                     }
                     generator.writeEndArray();
                 }
