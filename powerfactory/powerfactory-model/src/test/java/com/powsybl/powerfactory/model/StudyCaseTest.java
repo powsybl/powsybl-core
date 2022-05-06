@@ -44,7 +44,8 @@ public class StudyCaseTest extends AbstractConverterTest {
                 .addAttribute(new DataAttribute("fv", DataAttributeType.FLOAT_VECTOR))
                 .addAttribute(new DataAttribute("dv", DataAttributeType.DOUBLE_VECTOR))
                 .addAttribute(new DataAttribute("ov", DataAttributeType.OBJECT_VECTOR))
-                .addAttribute(new DataAttribute("sv", DataAttributeType.STRING_VECTOR));
+                .addAttribute(new DataAttribute("sv", DataAttributeType.STRING_VECTOR))
+                .addAttribute(new DataAttribute("dm", DataAttributeType.DOUBLE_MATRIX));
         DataClass clsBar = DataClass.init("ElmBar");
         DataClass clsNet = DataClass.init("ElmNet");
 
@@ -64,6 +65,7 @@ public class StudyCaseTest extends AbstractConverterTest {
                 .setDoubleVectorAttributeValue("dv", List.of(1.3949d, 2.34d, 3.1223d))
                 .setObjectVectorAttributeValue("ov", List.of(objBar.getId()))
                 .setStringVectorAttributeValue("sv", List.of("AA", "BBB"));
+//                .setDoubleMatrixAttributeValue("dm", new BlockRealMatrix(new double[][] {{1d, 2d, 3d}, {4d, 5d, 6d}}));
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         elmNet = new DataObject(0L, clsNet, index)
                 .setLocName("net");

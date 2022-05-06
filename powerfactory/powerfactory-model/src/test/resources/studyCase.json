@@ -39,6 +39,9 @@
     }, {
       "name" : "sv",
       "type" : "STRING_VECTOR"
+    }, {
+      "name" : "dm",
+      "type" : "DOUBLE_MATRIX"
     } ]
   }, {
     "name" : "ElmNet",

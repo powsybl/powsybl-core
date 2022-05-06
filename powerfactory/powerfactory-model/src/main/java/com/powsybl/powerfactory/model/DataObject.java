@@ -601,6 +601,18 @@ public class DataObject {
                     writeValue(generator, value);
                 }
                 generator.writeEndArray();
+            } else if (e.getValue() instanceof RealMatrix) {
+                RealMatrix matrix = (RealMatrix) e.getValue();
+                generator.writeStartArray();
+                for (int row = 0; row < matrix.getRowDimension(); row++) {
+                    double[] rowValues = matrix.getRow(row);
+                    generator.writeStartArray();
+                    for (int col = 0; col < rowValues.length; col++) {
+                        generator.writeNumber(rowValues[col]);
+                    }
+                    generator.writeEndArray();
+                }
+                generator.writeEndArray();
             } else {
                 throw new PowerFactoryException("Unsupported value type: " + e.getValue().getClass());
             }
