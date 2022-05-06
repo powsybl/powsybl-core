@@ -420,7 +420,10 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeTerminal(Terminal t, Connectable<?> c, String cimNamespace, XMLStreamWriter writer) {
         Optional<String> tid;
-        if (c instanceof DanglingLine) {
+        if (c instanceof Load && c.isFictitious()) {
+            // A fictitious load have not terminal
+            return;
+        } else if (c instanceof DanglingLine) {
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
         } else {
             int numt = CgmesExportUtil.getTerminalSide(t, c);
