@@ -484,12 +484,12 @@ public class CgmesExportContext {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
             addIidmTransformerEnd(twt, 3);
-            addIidmPhaseTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), 1);
-            addIidmRatioTapChanger(twt, twt.getLeg1().getRatioTapChanger(), 1);
-            addIidmPhaseTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), 2);
-            addIidmRatioTapChanger(twt, twt.getLeg2().getRatioTapChanger(), 2);
-            addIidmPhaseTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), 3);
-            addIidmRatioTapChanger(twt, twt.getLeg3().getRatioTapChanger(), 3);
+            addIidmPhaseTapChanger(twt, twt.getLeg1().getPhaseTapChanger());
+            addIidmRatioTapChanger(twt, twt.getLeg1().getRatioTapChanger());
+            addIidmPhaseTapChanger(twt, twt.getLeg2().getPhaseTapChanger());
+            addIidmRatioTapChanger(twt, twt.getLeg2().getRatioTapChanger());
+            addIidmPhaseTapChanger(twt, twt.getLeg3().getPhaseTapChanger());
+            addIidmRatioTapChanger(twt, twt.getLeg3().getRatioTapChanger());
         }
     }
 
@@ -504,7 +504,8 @@ public class CgmesExportContext {
     private static void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc) {
         if (ptc != null) {
             String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElse(null));
+                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2)
+                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 3).orElse(null)));
             if (tapChangerId == null) {
                 tapChangerId = CgmesExportUtil.getUniqueId();
                 eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
@@ -515,30 +516,11 @@ public class CgmesExportContext {
     private static void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc) {
         if (rtc != null) {
             String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElse(null));
+                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2)
+                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3).orElse(null)));
             if (tapChangerId == null) {
                 tapChangerId = CgmesExportUtil.getUniqueId();
                 eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1);
-            }
-        }
-    }
-
-    private static void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc, int sequence) {
-        if (ptc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + sequence).orElse(null);
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + sequence);
-            }
-        }
-    }
-
-    private static void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc, int sequence) {
-        if (rtc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + sequence).orElse(null);
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + sequence);
             }
         }
     }
