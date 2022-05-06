@@ -244,5 +244,15 @@ public final class CgmesExportUtil {
         return Optional.empty();
     }
 
+    public static <C extends Connectable<C>> void setCgmesTapChangerType(C eq, String tapChangerId, String type) {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
+            if (cgmesTc != null) {
+                cgmesTc.setType(type);
+            }
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
 }
