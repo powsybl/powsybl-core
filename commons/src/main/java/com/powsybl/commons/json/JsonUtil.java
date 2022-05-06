@@ -497,7 +497,7 @@ public final class JsonUtil {
         T parse(JsonParser parser) throws IOException;
     }
 
-    public static <T> List<T> parseValueArray(JsonParser parser, JsonToken valueToken, ValueParser<T> valueParser) {
+    private static <T> List<T> parseValueArray(JsonParser parser, JsonToken valueToken, ValueParser<T> valueParser) {
         Objects.requireNonNull(parser);
         List<T> values = new ArrayList<>();
         try {
