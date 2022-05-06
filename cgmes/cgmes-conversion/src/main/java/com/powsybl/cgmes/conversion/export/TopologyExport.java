@@ -101,8 +101,6 @@ public final class TopologyExport {
             } else {
                 node1 = getLowerNodeForBusBreakerViewBus(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
                 node2 = getLowerNodeForBusBreakerViewBus(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
-                //node1 = getFirstNodeForBusBreakerViewBus(vl, addedTopologicalNodes, vl.getNodeBreakerView().getNode1(sw.getId()));
-                //node2 = getFirstNodeForBusBreakerViewBus(vl, addedTopologicalNodes, vl.getNodeBreakerView().getNode2(sw.getId()));
                 bus1 = getBusForBusBreakerViewBus(vl, node1);
                 bus2 = getBusForBusBreakerViewBus(vl, node2);
             }
@@ -175,45 +173,6 @@ public final class TopologyExport {
         voltageLevel.getNodeBreakerView().traverse(node, traverser);
 
         Optional<Integer> selectedNode = nodeSet.stream().sorted().findFirst();
-        return selectedNode.isPresent() ? selectedNode.get() : null;
-    }
-
-    private static int getFirstNodeForBusBreakerViewBus(VoltageLevel voltageLevel, Set<String> addedTopologicalNodes, int node) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
-
-        Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
-        if (terminal != null) {
-            return node;
-        }
-        if (addedTopologicalNodes.contains(voltageLevel.getId() + "_" + node)) {
-            return node;
-        }
-
-        Set nodeSet = new HashSet();
-        nodeSet.add(node);
-
-        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
-            if (sw != null && (sw.isOpen() || sw.isRetained())) {
-                return TraverseResult.TERMINATE_PATH;
-            }
-            if (voltageLevel.getNodeBreakerView().getTerminal(node2) != null) {
-                nodeSet.clear();
-                nodeSet.add(node2);
-                return TraverseResult.TERMINATE_TRAVERSER;
-            }
-            if (addedTopologicalNodes.contains(voltageLevel.getId() + "_" + node2)) {
-                nodeSet.clear();
-                nodeSet.add(node2);
-                return TraverseResult.TERMINATE_TRAVERSER;
-            }
-            nodeSet.add(node2);
-            return TraverseResult.CONTINUE;
-        };
-
-        voltageLevel.getNodeBreakerView().traverse(node, traverser);
-        Optional<Integer> selectedNode = nodeSet.stream().findFirst();
         return selectedNode.isPresent() ? selectedNode.get() : null;
     }
 
