@@ -8,14 +8,11 @@ package com.powsybl.powerfactory.model;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -445,50 +442,6 @@ public class DataObject {
         final Map<String, Object> attributeValues = new LinkedHashMap<>();
     }
 
-    public static List<Object> parseValueArray(JsonParser parser, DataAttributeType attributeType, DataObjectIndex index) {
-        Objects.requireNonNull(parser);
-        List<Object> values = new ArrayList<>();
-        try {
-            JsonToken token = parser.nextToken();
-            if (token != JsonToken.START_ARRAY) {
-                throw new PowsyblException("Start array token was expected");
-            }
-            while ((token = parser.nextToken()) != null) {
-                Object value = null;
-                if (token == JsonToken.VALUE_NUMBER_INT) {
-                    if (attributeType == DataAttributeType.INTEGER_VECTOR) {
-                        value = parser.getIntValue();
-                    } else if (attributeType == DataAttributeType.INTEGER64_VECTOR) {
-                        value = parser.getLongValue();
-                    }  else if (attributeType == DataAttributeType.OBJECT_VECTOR) {
-                        value = new DataObjectRef(parser.getLongValue(), index);
-                    }
-                } else if (token == JsonToken.VALUE_NUMBER_FLOAT) {
-                    if (attributeType == DataAttributeType.FLOAT_VECTOR) {
-                        value = parser.getFloatValue();
-                    } else if (attributeType == DataAttributeType.DOUBLE_VECTOR) {
-                        value = parser.getDoubleValue();
-                    }
-                }  else if (token == JsonToken.VALUE_STRING) {
-                    if (attributeType == DataAttributeType.STRING_VECTOR) {
-                        value = parser.getText();
-                    }
-                } else if (token == JsonToken.END_ARRAY) {
-                    break;
-                } else {
-                    throw new PowsyblException("Unexpected token " + token);
-                }
-                if (value == null) {
-                    throw new PowerFactoryException("Invalid JSON value type for attribute type " + attributeType);
-                }
-                values.add(value);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return values;
-    }
-
     static DataObject parseJson(JsonParser parser, DataObjectIndex index, DataScheme scheme) {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(index);
@@ -533,12 +486,24 @@ public class DataObject {
                                 context.attributeValues.put(fieldName2, new DataObjectRef(parser.getValueAsLong(), index));
                                 return true;
                             case INTEGER_VECTOR:
+                                context.attributeValues.put(fieldName2, JsonUtil.parseIntegerArray(parser));
+                                return true;
                             case INTEGER64_VECTOR:
+                                context.attributeValues.put(fieldName2, JsonUtil.parseLongArray(parser));
+                                return true;
                             case FLOAT_VECTOR:
+                                context.attributeValues.put(fieldName2, JsonUtil.parseFloatArray(parser));
+                                return true;
                             case DOUBLE_VECTOR:
+                                context.attributeValues.put(fieldName2, JsonUtil.parseDoubleArray(parser));
+                                return true;
                             case OBJECT_VECTOR:
+                                context.attributeValues.put(fieldName2, JsonUtil.parseLongArray(parser).stream()
+                                        .map(id -> new DataObjectRef(id, index))
+                                        .collect(Collectors.toList()));
+                                return true;
                             case STRING_VECTOR:
-                                context.attributeValues.put(fieldName2, parseValueArray(parser, attribute.getType(), index));
+                                context.attributeValues.put(fieldName2, JsonUtil.parseStringArray(parser));
                                 return true;
                             case DOUBLE_MATRIX:
                                 break;
