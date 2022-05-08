@@ -548,6 +548,28 @@ public class DataObject {
         return false;
     }
 
+    private void writeListJson(JsonGenerator generator, Map.Entry<String, Object> e) throws IOException {
+        generator.writeStartArray();
+        for (Object value : (List) e.getValue()) {
+            writeValue(generator, value);
+        }
+        generator.writeEndArray();
+    }
+
+    private void writeMatrixJson(JsonGenerator generator, Map.Entry<String, Object> e) throws IOException {
+        RealMatrix matrix = (RealMatrix) e.getValue();
+        generator.writeStartArray();
+        for (int row = 0; row < matrix.getRowDimension(); row++) {
+            double[] rowValues = matrix.getRow(row);
+            generator.writeStartArray();
+            for (double rowValue : rowValues) {
+                generator.writeNumber(rowValue);
+            }
+            generator.writeEndArray();
+        }
+        generator.writeEndArray();
+    }
+
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
 
@@ -561,23 +583,9 @@ public class DataObject {
             if (writeValue(generator, e.getValue())) {
                 // nothing
             } else if (e.getValue() instanceof List) {
-                generator.writeStartArray();
-                for (Object value : (List) e.getValue()) {
-                    writeValue(generator, value);
-                }
-                generator.writeEndArray();
+                writeListJson(generator, e);
             } else if (e.getValue() instanceof RealMatrix) {
-                RealMatrix matrix = (RealMatrix) e.getValue();
-                generator.writeStartArray();
-                for (int row = 0; row < matrix.getRowDimension(); row++) {
-                    double[] rowValues = matrix.getRow(row);
-                    generator.writeStartArray();
-                    for (double rowValue : rowValues) {
-                        generator.writeNumber(rowValue);
-                    }
-                    generator.writeEndArray();
-                }
-                generator.writeEndArray();
+                writeMatrixJson(generator, e);
             } else {
                 throw new PowerFactoryException("Unsupported value type: " + e.getValue().getClass());
             }
