@@ -95,10 +95,10 @@ public final class CgmesNames {
     public static final String X_MAX = "xMax";
     public static final String VOLTAGE_STEP_INCREMENT = "voltageStepIncrement";
     public static final String WINDING_CONNECTION_ANGLE = "windingConnectionAngle";
-    public static final String LINEAR = "Linear";
-    public static final String SYMMETRICAL = "Symmetrical";
-    public static final String ASYMMETRICAL = "Asymmetrical";
-    public static final String TABULAR = "Tabular";
+    public static final String LINEAR = "linear";
+    public static final String SYMMETRICAL = "symmetrical";
+    public static final String ASYMMETRICAL = "asymmetrical";
+    public static final String TABULAR = "tabular";
     public static final String TCUL_CONTROL_MODE = "tculControlMode";
     public static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
     public static final String PHASE_TAP_CHANGER_TABULAR = "PhaseTapChangerTabular";

@@ -24,12 +24,15 @@ import java.util.function.Supplier;
 public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder {
 
     private final String type;
+    private final String typeLowerCase;
     private final String tableId;
     private final double xtx;
 
     CgmesPhaseTapChangerBuilder(PropertyBag phaseTapChanger, double xtx, Context context) {
         super(phaseTapChanger, context);
         this.type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE);
+        // To optimise comparisons with valid types
+        this.typeLowerCase = this.type.toLowerCase();
         this.tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         this.xtx = xtx;
     }
@@ -45,7 +48,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         // We keep the original type of tap changer (linear, symmetrical, asymmetrical)
         // The type stored here will eventually be used to determine the class in the SSH export
         // If only SSH export is written, the type used should match the original one
-        return super.build().setType(type);
+        return super.build().setType(toClassTypeFromClassOrKind(type));
     }
 
     private boolean validType() {
@@ -218,18 +221,34 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private boolean isLinear() {
-        return type != null && type.endsWith(CgmesNames.LINEAR);
+        return typeLowerCase != null && typeLowerCase.endsWith(CgmesNames.LINEAR);
     }
 
     private boolean isTabular() {
-        return tableId != null && type != null && type.endsWith(CgmesNames.TABULAR);
+        return tableId != null && typeLowerCase != null && typeLowerCase.endsWith(CgmesNames.TABULAR);
     }
 
     private boolean isSymmetrical() {
-        return type != null && !type.endsWith(CgmesNames.ASYMMETRICAL) && type.endsWith(CgmesNames.SYMMETRICAL);
+        return typeLowerCase != null && !typeLowerCase.endsWith(CgmesNames.ASYMMETRICAL) && typeLowerCase.endsWith(CgmesNames.SYMMETRICAL);
     }
 
     private boolean isAsymmetrical() {
-        return type != null && type.endsWith(CgmesNames.ASYMMETRICAL);
+        return typeLowerCase != null && typeLowerCase.endsWith(CgmesNames.ASYMMETRICAL);
     }
+
+    private static String toClassTypeFromClassOrKind(String type) {
+        // If type is obtained from CIM14 kind PhaseTapChanger.phaseTapChangerType
+        // It has the pattern PhaseTapChangerKind.<type>
+        // where type can be symmetrical, asymmetrical
+        if (type.startsWith("PhaseTapChangerKind.")) {
+            int idot = type.indexOf('.');
+            String kind = type.substring(idot + 1);
+            String camelKind = kind.substring(0, 1).toUpperCase() + kind.substring(1);
+            return "PhaseTapChanger" + camelKind;
+        }
+        // Otherwise, type has been read from the class name,
+        // we do not have to transform it
+        return type;
+    }
+
 }
