@@ -82,7 +82,12 @@ public abstract class AbstractSubstationTest {
         // Remove
         substation.remove();
         assertNotNull(substation);
-        assertNull(substation.getNetwork());
+        try {
+            substation.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed substation sub", e.getMessage());
+        }
     }
 
     @Test
