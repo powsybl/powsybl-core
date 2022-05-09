@@ -467,7 +467,7 @@ public class DataObject {
                         return true;
                     case "data":
                         if (rowCount == null || columnCount == null) {
-                            throw new PowerFactoryException("data has to be specified after row and column count");
+                            throw new PowerFactoryException("Data has to be specified after row and column count");
                         }
                         List<Double> data = JsonUtil.parseDoubleArray(parser);
                         BlockRealMatrix matrix = new BlockRealMatrix(rowCount, columnCount);
