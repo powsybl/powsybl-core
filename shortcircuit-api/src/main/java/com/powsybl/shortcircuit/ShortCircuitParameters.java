@@ -7,7 +7,6 @@
 package com.powsybl.shortcircuit;
 
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
@@ -17,7 +16,7 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static com.powsybl.shortcircuit.ShortCircuitConstants.DEFAULT_STUDY_TYPE;
+import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 
 /**
  * Generic parameters for short circuit-computations.
@@ -27,17 +26,23 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.DEFAULT_STUDY_TYPE;
  */
 public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParameters> {
 
-    private boolean withFeederResult = ShortCircuitConstants.WITH_FEEDER_RESULT;
-    private ShortCircuitConstants.StudyType studyType = DEFAULT_STUDY_TYPE;
-    private double minVoltageDropProportionalThreshold = ShortCircuitConstants.DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
-
     public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {
     }
 
+    // VERSION = 1.0
+    public static final String VERSION = "1.1";
+
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
+    private boolean withFeederResult = WITH_FEEDER_RESULT;
+    private ShortCircuitConstants.StudyType studyType = DEFAULT_STUDY_TYPE;
+    private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
+
+    /**
+     * Load parameters from platform default config.
+     */
     public static ShortCircuitParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -46,14 +51,14 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         Objects.requireNonNull(platformConfig);
 
         ShortCircuitParameters parameters = new ShortCircuitParameters();
+
+        platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
+                parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", WITH_FEEDER_RESULT))
+                        .setStudyType(config.getEnumProperty("study-type", ShortCircuitConstants.StudyType.class, DEFAULT_STUDY_TYPE))
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
+
         parameters.readExtensions(platformConfig);
 
-        ModuleConfig config = platformConfig.getOptionalModuleConfig("short-circuit-parameters").orElse(null);
-        if (config != null) {
-            parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", ShortCircuitConstants.WITH_FEEDER_RESULT));
-            parameters.setStudyType(config.getEnumProperty("study-type", ShortCircuitConstants.StudyType.class, DEFAULT_STUDY_TYPE));
-            parameters.setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", ShortCircuitConstants.DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD));
-        }
         return parameters;
     }
 
@@ -72,11 +77,11 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    public ShortCircuitConstants.StudyType getStudyType() {
+    public StudyType getStudyType() {
         return studyType;
     }
 
-    public ShortCircuitParameters setStudyType(ShortCircuitConstants.StudyType studyType) {
+    public ShortCircuitParameters setStudyType(StudyType studyType) {
         this.studyType = studyType;
         return this;
     }

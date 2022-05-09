@@ -1,5 +1,6 @@
 {
-  "extensions" : {
-    "dummy-extension" : { }
-  }
+  "version" : "1.1",
+  "withFeederResult" : true,
+  "studyType" : "TRANSIENT",
+  "minVoltageDropProportionalThreshold" : 0.0
 }

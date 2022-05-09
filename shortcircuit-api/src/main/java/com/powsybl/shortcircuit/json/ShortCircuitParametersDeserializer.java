@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.ShortCircuitConstants;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
 
 import java.io.IOException;
@@ -28,34 +29,39 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
     }
 
     @Override
-    public ShortCircuitParameters deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-
-        return deserialize(jsonParser, deserializationContext, new ShortCircuitParameters());
+    public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        return deserialize(parser, deserializationContext, new ShortCircuitParameters());
     }
 
     @Override
     public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, ShortCircuitParameters parameters) throws IOException {
-
         List<Extension<ShortCircuitParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-
                 case "version":
-                    parser.nextToken();
+                    parser.nextToken(); // skip
                     break;
-
+                case "withFeederResult":
+                    parser.nextToken();
+                    parameters.setWithFeederResult(parser.readValueAs(Boolean.class));
+                    break;
+                case "studyType":
+                    parser.nextToken();
+                    parameters.setStudyType(parser.readValueAs(ShortCircuitConstants.StudyType.class));
+                    break;
+                case "minVoltageDropProportionalThreshold":
+                    parser.nextToken();
+                    parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
+                    break;
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.readExtensions(parser, deserializationContext, JsonShortCircuitParameters.getExtensionSerializers());
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonShortCircuitParameters.getExtensionSerializers(), parameters);
                     break;
-
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
         JsonShortCircuitParameters.getExtensionSerializers().addExtensions(parameters, extensions);
-
         return parameters;
     }
 
