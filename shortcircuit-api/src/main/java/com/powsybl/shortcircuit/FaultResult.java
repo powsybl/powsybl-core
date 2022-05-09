@@ -7,6 +7,7 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.security.LimitViolation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,9 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final double timeConstant;
 
-    private final List<FeederResult> feederResults;
+    private List<FeederResult> feederResults = new ArrayList<>();
+
+    private List<LimitViolation> limitViolations = new ArrayList<>();
 
     private final ThreePhaseValue current;
 
@@ -36,29 +39,34 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     private final List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
 
     public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
-                       ThreePhaseValue current, ThreePhaseValue voltage, double timeConstant) {
+                       List<LimitViolation> limitViolations, ThreePhaseValue current, ThreePhaseValue voltage, double timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
+        this.limitViolations = List.copyOf(limitViolations);
         this.current = current;
         this.voltage = voltage;
         this.timeConstant = timeConstant;
     }
 
-    public FaultResult(Fault fault, ThreePhaseValue current, List<FeederResult> feederResults) {
-        this(fault, Double.NaN, feederResults, current, null, Double.NaN);
+    public FaultResult(Fault fault, ThreePhaseValue current, List<FeederResult> feederResults, List<LimitViolation> limitViolations, double timeConstant) {
+        this(fault, Double.NaN, feederResults, limitViolations, current, null, timeConstant);
+    }
+
+    public FaultResult(Fault fault, ThreePhaseValue current, List<LimitViolation> limitViolations) {
+        this(fault, Double.NaN, Collections.emptyList(), limitViolations, current, null, Double.NaN);
     }
 
     public FaultResult(Fault fault, ThreePhaseValue current, List<FeederResult> feederResults, double timeConstant) {
-        this(fault, Double.NaN, feederResults, current, null, timeConstant);
+        this(fault, Double.NaN, feederResults, Collections.emptyList(), current, null, timeConstant);
     }
 
     public FaultResult(Fault fault, ThreePhaseValue current, double timeConstant) {
-        this(fault, Double.NaN, Collections.emptyList(), current, null, timeConstant);
+        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), current, null, timeConstant);
     }
 
     public FaultResult(Fault fault, ThreePhaseValue current) {
-        this(fault, Double.NaN, Collections.emptyList(), current, null, Double.NaN);
+        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), current, null, Double.NaN);
     }
 
     /**
@@ -87,6 +95,10 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
      */
     public List<FeederResult> getFeederResults() {
         return Collections.unmodifiableList(feederResults);
+    }
+
+    public List<LimitViolation> getLimitViolations() {
+        return Collections.unmodifiableList(limitViolations);
     }
 
     public double getFeederCurrent(String feederId) {

@@ -48,10 +48,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static ShortCircuitAnalysisResult createResult() {
-        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
-        List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0));
-        faultResults.add(faultResult);
+        Fault fault = new BusFault("id", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
@@ -60,15 +57,14 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
+        List<FaultResult> faultResults = new ArrayList<>();
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0), limitViolations);
+        faultResults.add(faultResult);
+        return new ShortCircuitAnalysisResult(faultResults);
     }
 
     private static ShortCircuitAnalysisResult createResultWithExtension() {
-        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
-        List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0));
-        faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
-        faultResults.add(faultResult);
+        Fault fault = new BusFault("id", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
@@ -78,17 +74,17 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults, limitViolations);
+        List<FaultResult> faultResults = new ArrayList<>();
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0), limitViolations);
+        faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
+        faultResults.add(faultResult);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults);
         shortCircuitAnalysisResult.addExtension(DummyShortCircuitAnalysisResultExtension.class, new DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
     }
 
     private static ShortCircuitAnalysisResult createWithFeederResults() {
-        Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
-        List<FaultResult> faultResults = new ArrayList<>();
-        FeederResult feederResult = new FeederResult("connectableId", 1);
-        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0), Collections.singletonList(feederResult), 1);
-        faultResults.add(faultResult);
+        Fault fault = new BusFault("id", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
@@ -97,7 +93,11 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
+        List<FaultResult> faultResults = new ArrayList<>();
+        FeederResult feederResult = new FeederResult("connectableId", 1);
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0), Collections.singletonList(feederResult), limitViolations, 1);
+        faultResults.add(faultResult);
+        return new ShortCircuitAnalysisResult(faultResults);
     }
 
     public void writeJson(ShortCircuitAnalysisResult results, Path path) {
@@ -142,9 +142,6 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
 
     public ShortCircuitAnalysisResult createResult(Network network) {
         Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
-        List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(2500.0));
-        faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "VLGEN";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
@@ -153,7 +150,10 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
+        List<FaultResult> faultResults = new ArrayList<>();
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(2500.0), limitViolations);
+        faultResults.add(faultResult);
+        return new ShortCircuitAnalysisResult(faultResults);
     }
 
     static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {
