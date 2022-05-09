@@ -65,11 +65,10 @@ public final class EquipmentExport {
             writeLines(network, exportedTerminals, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
             writeTwoWindingsTransformers(network, exportedTerminals, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
             writeThreeWindingsTransformers(network, exportedTerminals, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
-            Map <Boundary, String> danglingLineBoundaries = new HashMap<>();
-            writeDanglingLines(network, exportedTerminals, danglingLineBoundaries, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            writeDanglingLines(network, exportedTerminals, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             writeHvdcLines(network, exportedTerminals, exportedNodes, cimNamespace, writer);
 
-            writeControlAreas(network, exportedTerminals, danglingLineBoundaries, cimNamespace, euNamespace, writer);
+            writeControlAreas(network, exportedTerminals, cimNamespace, euNamespace, writer);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -411,13 +410,13 @@ public final class EquipmentExport {
         return neutralStep;
     }
 
-    private static void writeDanglingLines(Network network, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeDanglingLines(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
 
             String substationId = writeDanglingLineSubstation(danglingLine, cimNamespace, writer);
             String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer, context);
             String voltageLevelId = writeDanglingLineVoltageLevel(danglingLine, substationId, baseVoltageId, cimNamespace, writer);
-            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId, danglingLineBoundaries, cimNamespace, writer);
+            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId, cimNamespace, writer);
 
             // New Load
             String loadId = CgmesExportUtil.getUniqueId();
@@ -480,14 +479,13 @@ public final class EquipmentExport {
         return voltageLevelId;
     }
 
-    private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         // New ConnectivityNode
         String connectivityNodeId = CgmesExportUtil.getUniqueId();
         ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
         // New Terminal
         String terminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
         TerminalEq.write(terminalId, danglingLine.getId(), connectivityNodeId, 2, cimNamespace, writer);
-        danglingLineBoundaries.put(danglingLine.getBoundary(), terminalId);
 
         return connectivityNodeId;
     }
@@ -634,23 +632,48 @@ public final class EquipmentExport {
         DCTerminalEq.write(ACDCCONVERTERDCTERMINAL, id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
     }
 
-    private static void writeControlAreas(Network network, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeControlAreas(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-            writeControlArea(cgmesControlArea, exportedTerminals, danglingLineBoundaries, cimNamespace, euNamespace, writer);
+            writeControlArea(cgmesControlArea, exportedTerminals, cimNamespace, euNamespace, writer);
         }
     }
 
-    private static void writeControlArea(CgmesControlArea cgmesControlArea, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeControlArea(CgmesControlArea cgmesControlArea, Map<Terminal, String> exportedTerminals, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
         ControlAreaEq.write(cgmesControlArea.getId(), cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), cimNamespace, euNamespace, writer);
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
             TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(exportedTerminals, terminal), cimNamespace, writer);
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            if (cgmesControlArea.getBoundaries().contains(boundary)) {
-                TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), danglingLineBoundaries.get(boundary), cimNamespace, writer);
-            }
+            TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), getBoundaryTerminal(boundary), cimNamespace, writer);
         }
+    }
+
+    private static String getBoundaryTerminal(Boundary boundary) throws XMLStreamException {
+        String terminalId = null;
+        Connectable<?> c = boundary.getConnectable();
+        if (c instanceof DanglingLine) {
+            terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
+        } else {
+            int sequenceNumber = 0;
+            if (c instanceof Branch) {
+                if (boundary.getSide().equals(Branch.Side.ONE)) {
+                    sequenceNumber = 1;
+                } else if (boundary.getSide().equals(Branch.Side.TWO)) {
+                    sequenceNumber = 2;
+                }
+            } else if (c instanceof ThreeWindingsTransformer) {
+                if (boundary.getSide().equals(ThreeWindingsTransformer.Side.ONE)) {
+                    sequenceNumber = 1;
+                } else if (boundary.getSide().equals(ThreeWindingsTransformer.Side.TWO)) {
+                    sequenceNumber = 2;
+                } else if (boundary.getSide().equals(ThreeWindingsTransformer.Side.THREE)) {
+                    sequenceNumber = 3;
+                }
+            }
+            terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElseThrow(PowsyblException::new);
+        }
+        return terminalId;
     }
 
     private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
