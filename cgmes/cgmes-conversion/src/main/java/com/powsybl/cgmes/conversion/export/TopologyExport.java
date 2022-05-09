@@ -60,15 +60,17 @@ public final class TopologyExport {
         for (Bus b : network.getBusView().getBuses()) {
             for (Terminal t : b.getConnectedTerminals()) {
                 Connectable<?> c = t.getConnectable();
-                String terminalId;
-                if (c instanceof DanglingLine) {
-                    writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer);
-                    terminalId = cgmesTerminalFromAlias(c, "Terminal_Network");
-                } else {
-                    int side = CgmesExportUtil.getTerminalSide(t, c);
-                    terminalId = cgmesTerminalFromAlias(c, CgmesNames.TERMINAL + side);
+                if (!c.isFictitious()) {
+                    String terminalId;
+                    if (c instanceof DanglingLine) {
+                        writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer);
+                        terminalId = cgmesTerminalFromAlias(c, "Terminal_Network");
+                    } else {
+                        int side = CgmesExportUtil.getTerminalSide(t, c);
+                        terminalId = cgmesTerminalFromAlias(c, CgmesNames.TERMINAL + side);
+                    }
+                    writeTerminal(terminalId, topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
                 }
-                writeTerminal(terminalId, topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
             }
         }
     }

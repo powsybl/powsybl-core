@@ -655,8 +655,10 @@ public final class EquipmentExport {
 
     private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                writeTerminal(t, c, exportedTerminals, exportedNodes, cimNamespace, writer);
+            if (!c.isFictitious()) {
+                for (Terminal t : c.getTerminals()) {
+                    writeTerminal(t, c, exportedTerminals, exportedNodes, cimNamespace, writer);
+                }
             }
         }
 

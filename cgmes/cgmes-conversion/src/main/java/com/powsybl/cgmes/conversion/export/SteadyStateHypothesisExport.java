@@ -80,8 +80,10 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                writeTerminal(t, c, cimNamespace, writer);
+            if (!c.isFictitious()) {
+                for (Terminal t : c.getTerminals()) {
+                    writeTerminal(t, c, cimNamespace, writer);
+                }
             }
         }
         for (Switch sw : network.getSwitches()) {
