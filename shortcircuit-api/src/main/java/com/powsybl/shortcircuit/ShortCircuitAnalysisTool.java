@@ -24,6 +24,7 @@ import org.apache.commons.cli.ParseException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Collections;
 
 /**
  * @author Boubakeur Brahimi
@@ -103,7 +104,8 @@ public class ShortCircuitAnalysisTool implements Tool {
             JsonShortCircuitParameters.update(parameters, parametersFile);
         }
 
-        ShortCircuitAnalysis shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, parameters, computationManager).join();
+        // FIXME : replace empty list by parametrized fault list
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, Collections.emptyList(), parameters, computationManager).join();
 
         if (shortCircuitAnalysisResult != null) {
             if (outputFile != null) {

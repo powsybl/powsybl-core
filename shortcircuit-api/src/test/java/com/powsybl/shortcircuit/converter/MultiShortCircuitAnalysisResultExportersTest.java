@@ -50,7 +50,7 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     private static ShortCircuitAnalysisResult createResult() {
         Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, 1);
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0));
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
@@ -66,7 +66,7 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     private static ShortCircuitAnalysisResult createResultWithExtension() {
         Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, 1);
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0));
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
@@ -87,7 +87,7 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
         Fault fault = new BusFault("faultResultID", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
-        FaultResult faultResult = new FaultResult(fault, 1, Collections.singletonList(feederResult), 1);
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0), Collections.singletonList(feederResult), 1);
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
@@ -143,7 +143,7 @@ public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConver
     public ShortCircuitAnalysisResult createResult(Network network) {
         Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, 2500);
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(2500.0));
         faultResults.add(faultResult);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "VLGEN";

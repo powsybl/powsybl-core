@@ -61,7 +61,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
         Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREEPHASE, true, false);
         FeederResult feederResult = new FeederResult("GEN", 5);
-        FaultResult faultResult = new FaultResult(fault, 10, Collections.singletonList(feederResult), 1);
+        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(10.0), Collections.singletonList(feederResult), 1);
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
         return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
     }
