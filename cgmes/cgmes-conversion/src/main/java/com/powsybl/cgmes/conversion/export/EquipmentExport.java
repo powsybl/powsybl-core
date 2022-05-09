@@ -649,27 +649,17 @@ public final class EquipmentExport {
         }
     }
 
-    private static String getBoundaryTerminal(Boundary boundary) throws XMLStreamException {
+    private static String getBoundaryTerminal(Boundary boundary) {
         String terminalId = null;
         Connectable<?> c = boundary.getConnectable();
         if (c instanceof DanglingLine) {
             terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
         } else {
             int sequenceNumber = 0;
-            if (c instanceof Branch) {
-                if (boundary.getSide().equals(Branch.Side.ONE)) {
-                    sequenceNumber = 1;
-                } else if (boundary.getSide().equals(Branch.Side.TWO)) {
-                    sequenceNumber = 2;
-                }
-            } else if (c instanceof ThreeWindingsTransformer) {
-                if (boundary.getSide().equals(ThreeWindingsTransformer.Side.ONE)) {
-                    sequenceNumber = 1;
-                } else if (boundary.getSide().equals(ThreeWindingsTransformer.Side.TWO)) {
-                    sequenceNumber = 2;
-                } else if (boundary.getSide().equals(ThreeWindingsTransformer.Side.THREE)) {
-                    sequenceNumber = 3;
-                }
+            if (boundary.getSide().equals(Branch.Side.ONE)) {
+                sequenceNumber = 1;
+            } else if (boundary.getSide().equals(Branch.Side.TWO)) {
+                sequenceNumber = 2;
             }
             terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElseThrow(PowsyblException::new);
         }
