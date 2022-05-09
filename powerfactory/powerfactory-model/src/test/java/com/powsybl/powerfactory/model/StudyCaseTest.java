@@ -7,6 +7,7 @@
 package com.powsybl.powerfactory.model;
 
 import com.powsybl.commons.AbstractConverterTest;
+import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,8 +65,8 @@ public class StudyCaseTest extends AbstractConverterTest {
                 .setLongVectorAttributeValue("lv", List.of(4L, 5L, 6943953495493593L))
                 .setDoubleVectorAttributeValue("dv", List.of(1.3949d, 2.34d, 3.1223d))
                 .setObjectVectorAttributeValue("ov", List.of(objBar.getId()))
-                .setStringVectorAttributeValue("sv", List.of("AA", "BBB"));
-//                .setDoubleMatrixAttributeValue("dm", new BlockRealMatrix(new double[][] {{1d, 2d, 3d}, {4d, 5d, 6d}}));
+                .setStringVectorAttributeValue("sv", List.of("AA", "BBB"))
+                .setDoubleMatrixAttributeValue("dm", new BlockRealMatrix(new double[][] {{1d, 2d, 3d}, {4d, 5d, 6d}}));
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         elmNet = new DataObject(0L, clsNet, index)
                 .setLocName("net");

@@ -9,6 +9,9 @@ package com.powsybl.powerfactory.model;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
 import java.io.IOException;
@@ -442,6 +445,103 @@ public class DataObject {
         final Map<String, Object> attributeValues = new LinkedHashMap<>();
     }
 
+    private static RealMatrix parseMatrixJson(JsonParser parser) throws IOException {
+        Mutable<RealMatrix> result = new MutableObject<>();
+
+        parser.nextToken();
+        JsonUtil.parseObject(parser, new JsonUtil.FieldHandler() {
+
+            private Integer rowCount;
+            private Integer columnCount;
+
+            @Override
+            public boolean onField(String fieldName3) throws IOException {
+                switch (fieldName3) {
+                    case "rowCount":
+                        parser.nextToken();
+                        rowCount = parser.getValueAsInt();
+                        return true;
+                    case "columnCount":
+                        parser.nextToken();
+                        columnCount = parser.getValueAsInt();
+                        return true;
+                    case "data":
+                        if (rowCount == null || columnCount == null) {
+                            throw new PowerFactoryException("data has to be specified after row and column count");
+                        }
+                        List<Double> data = JsonUtil.parseDoubleArray(parser);
+                        BlockRealMatrix matrix = new BlockRealMatrix(rowCount, columnCount);
+                        for (int row = 0; row < rowCount; row++) {
+                            for (int col = 0; col < columnCount; col++) {
+                                matrix.setEntry(row, col, data.get(row * columnCount + col));
+                            }
+                        }
+                        result.setValue(matrix);
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+        return result.getValue();
+    }
+
+    private static void parseValueJson(JsonParser parser, DataObjectIndex index, ParsingContext context, DataClass dataClass) throws IOException {
+        parser.nextToken();
+        JsonUtil.parseObject(parser, fieldName -> {
+            DataAttribute attribute = dataClass.getAttributeByName(fieldName);
+            switch (attribute.getType()) {
+                case INTEGER:
+                    parser.nextToken();
+                    context.attributeValues.put(fieldName, parser.getValueAsInt());
+                    return true;
+                case INTEGER64:
+                    parser.nextToken();
+                    context.attributeValues.put(fieldName, parser.getValueAsLong());
+                    return true;
+                case FLOAT:
+                    parser.nextToken();
+                    context.attributeValues.put(fieldName, parser.getFloatValue());
+                    return true;
+                case DOUBLE:
+                    parser.nextToken();
+                    context.attributeValues.put(fieldName, parser.getValueAsDouble());
+                    return true;
+                case STRING:
+                    context.attributeValues.put(fieldName, parser.nextTextValue());
+                    return true;
+                case OBJECT:
+                    parser.nextToken();
+                    context.attributeValues.put(fieldName, new DataObjectRef(parser.getValueAsLong(), index));
+                    return true;
+                case INTEGER_VECTOR:
+                    context.attributeValues.put(fieldName, JsonUtil.parseIntegerArray(parser));
+                    return true;
+                case INTEGER64_VECTOR:
+                    context.attributeValues.put(fieldName, JsonUtil.parseLongArray(parser));
+                    return true;
+                case FLOAT_VECTOR:
+                    context.attributeValues.put(fieldName, JsonUtil.parseFloatArray(parser));
+                    return true;
+                case DOUBLE_VECTOR:
+                    context.attributeValues.put(fieldName, JsonUtil.parseDoubleArray(parser));
+                    return true;
+                case OBJECT_VECTOR:
+                    context.attributeValues.put(fieldName, JsonUtil.parseLongArray(parser).stream()
+                            .map(id -> new DataObjectRef(id, index))
+                            .collect(Collectors.toList()));
+                    return true;
+                case STRING_VECTOR:
+                    context.attributeValues.put(fieldName, JsonUtil.parseStringArray(parser));
+                    return true;
+                case DOUBLE_MATRIX:
+                    context.attributeValues.put(fieldName, parseMatrixJson(parser));
+                    return true;
+            }
+            return false;
+        });
+    }
+
     static DataObject parseJson(JsonParser parser, DataObjectIndex index, DataScheme scheme) {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(index);
@@ -458,58 +558,7 @@ public class DataObject {
                     return true;
                 case "values":
                     DataClass dataClass = scheme.getClassByName(context.className);
-                    parser.nextToken();
-                    JsonUtil.parseObject(parser, fieldName2 -> {
-                        DataAttribute attribute = dataClass.getAttributeByName(fieldName2);
-                        switch (attribute.getType()) {
-                            case INTEGER:
-                                parser.nextToken();
-                                context.attributeValues.put(fieldName2, parser.getValueAsInt());
-                                return true;
-                            case INTEGER64:
-                                parser.nextToken();
-                                context.attributeValues.put(fieldName2, parser.getValueAsLong());
-                                return true;
-                            case FLOAT:
-                                parser.nextToken();
-                                context.attributeValues.put(fieldName2, parser.getFloatValue());
-                                return true;
-                            case DOUBLE:
-                                parser.nextToken();
-                                context.attributeValues.put(fieldName2, parser.getValueAsDouble());
-                                return true;
-                            case STRING:
-                                context.attributeValues.put(fieldName2, parser.nextTextValue());
-                                return true;
-                            case OBJECT:
-                                parser.nextToken();
-                                context.attributeValues.put(fieldName2, new DataObjectRef(parser.getValueAsLong(), index));
-                                return true;
-                            case INTEGER_VECTOR:
-                                context.attributeValues.put(fieldName2, JsonUtil.parseIntegerArray(parser));
-                                return true;
-                            case INTEGER64_VECTOR:
-                                context.attributeValues.put(fieldName2, JsonUtil.parseLongArray(parser));
-                                return true;
-                            case FLOAT_VECTOR:
-                                context.attributeValues.put(fieldName2, JsonUtil.parseFloatArray(parser));
-                                return true;
-                            case DOUBLE_VECTOR:
-                                context.attributeValues.put(fieldName2, JsonUtil.parseDoubleArray(parser));
-                                return true;
-                            case OBJECT_VECTOR:
-                                context.attributeValues.put(fieldName2, JsonUtil.parseLongArray(parser).stream()
-                                        .map(id -> new DataObjectRef(id, index))
-                                        .collect(Collectors.toList()));
-                                return true;
-                            case STRING_VECTOR:
-                                context.attributeValues.put(fieldName2, JsonUtil.parseStringArray(parser));
-                                return true;
-                            case DOUBLE_MATRIX:
-                                break;
-                        }
-                        return false;
-                    });
+                    parseValueJson(parser, index, context, dataClass);
                     return true;
                 case "children":
                     JsonUtil.parseObjectArray(parser, context.children::add, parser2 -> DataObject.parseJson(parser2, index, scheme));
@@ -558,16 +607,19 @@ public class DataObject {
 
     private void writeMatrixJson(JsonGenerator generator, Map.Entry<String, Object> e) throws IOException {
         RealMatrix matrix = (RealMatrix) e.getValue();
+        generator.writeStartObject();
+        generator.writeNumberField("rowCount", matrix.getRowDimension());
+        generator.writeNumberField("columnCount", matrix.getColumnDimension());
+        generator.writeFieldName("data");
         generator.writeStartArray();
         for (int row = 0; row < matrix.getRowDimension(); row++) {
             double[] rowValues = matrix.getRow(row);
-            generator.writeStartArray();
             for (double rowValue : rowValues) {
                 generator.writeNumber(rowValue);
             }
-            generator.writeEndArray();
         }
         generator.writeEndArray();
+        generator.writeEndObject();
     }
 
     public void writeJson(JsonGenerator generator) throws IOException {
