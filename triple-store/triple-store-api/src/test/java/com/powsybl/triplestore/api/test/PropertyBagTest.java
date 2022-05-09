@@ -23,7 +23,7 @@ public class PropertyBagTest {
 
     @BeforeClass
     public static void setUp() {
-        localsWithUnderscore = new PropertyBag(Arrays.asList("id", "name", "enum"));
+        localsWithUnderscore = new PropertyBag(Arrays.asList("id", "name", "enum"), false);
         locals = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
         numbers = new PropertyBag(Collections.singletonList("value"));
         booleans = new PropertyBag(Collections.singletonList("value"));
