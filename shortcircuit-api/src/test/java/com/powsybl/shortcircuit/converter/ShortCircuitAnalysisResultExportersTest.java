@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class MultiShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
+public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
 
     @Test
     public void testGetFormats() {
