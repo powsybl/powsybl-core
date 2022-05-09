@@ -134,6 +134,7 @@ public class CgmesExportTest {
             Exporters.export("CGMES", n, paramsOnlySsh, tmpDir.resolve(baseName));
             String typeOnlySsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId)
                     .orElseThrow(RuntimeException::new);
+            assertEquals("PhaseTapChangerAsymmetrical", typeOnlySsh);
 
             // If we export EQ and SSH (or all instance fiels), type of tap changer should be changed to tabular
             Exporters.export("CGMES", n, null, tmpDir.resolve(baseName));
