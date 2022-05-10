@@ -21,7 +21,7 @@ import java.io.IOException;
  * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(ExtensionJsonSerializer.class)
-public class DummyLimitViolationExtensionSerializer implements ExtensionJsonSerializer<LimitViolation, MultiShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension> {
+public class DummyLimitViolationExtensionSerializer implements ExtensionJsonSerializer<LimitViolation, ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension> {
 
     @Override
     public String getExtensionName() {
@@ -30,25 +30,25 @@ public class DummyLimitViolationExtensionSerializer implements ExtensionJsonSeri
 
     @Override
     public String getCategoryName() {
-        return "security-analysis";
+        return "short-circuit-analysis";
     }
 
     @Override
-    public Class<? super MultiShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension> getExtensionClass() {
-        return MultiShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension.class;
+    public Class<? super ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension> getExtensionClass() {
+        return ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension.class;
     }
 
     @Override
-    public void serialize(MultiShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeEndObject();
     }
 
     @Override
-    public MultiShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             continue;
         }
-        return new MultiShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension();
+        return new ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension();
     }
 }
