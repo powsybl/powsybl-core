@@ -439,41 +439,86 @@ public abstract class AbstractLineTest {
         Terminal t2 = line.getTerminal2();
         assertNotNull(t1);
         assertNotNull(t2);
-        assertNull(t1.getBusBreakerView().getBus());
-        assertNull(t1.getBusBreakerView().getConnectableBus());
-        assertNull(t1.getBusView().getBus());
-        assertNull(t1.getVoltageLevel());
-        assertNull(t2.getBusBreakerView().getBus());
-        assertNull(t2.getBusBreakerView().getConnectableBus());
-        assertNull(t2.getBusView().getBus());
-        assertNull(t2.getVoltageLevel());
+        try {
+            t1.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
         try {
             t1.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Associated equipment is removed", e.getMessage());
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
         }
         try {
             t2.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Associated equipment is removed", e.getMessage());
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
         }
         Terminal.BusBreakerView bbView1 = t1.getBusBreakerView();
         try {
             bbView1.moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Cannot modify removed equipment", e.getMessage());
+            assertEquals("Cannot modify removed equipment " + TO_REMOVE, e.getMessage());
         }
         Terminal.BusBreakerView bbView2 = t2.getBusBreakerView();
         try {
             bbView2.moveConnectable("BUS", true);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Cannot modify removed equipment", e.getMessage());
+            assertEquals("Cannot modify removed equipment " + TO_REMOVE, e.getMessage());
         }
-        assertNull(line.getNetwork());
+        try {
+            line.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed equipment " + TO_REMOVE, e.getMessage());
+        }
         assertNull(network.getLine(TO_REMOVE));
         assertEquals(count - 1L, network.getLineCount());
     }
