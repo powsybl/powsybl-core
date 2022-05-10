@@ -13,6 +13,7 @@ import com.powsybl.security.json.LimitViolationDeserializer;
 import com.powsybl.security.json.LimitViolationSerializer;
 import com.powsybl.security.json.NetworkMetadataDeserializer;
 import com.powsybl.security.json.NetworkMetadataSerializer;
+import com.powsybl.shortcircuit.Fault;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
@@ -27,6 +28,8 @@ public class ShortCircuitAnalysisJsonModule extends SimpleModule {
     public ShortCircuitAnalysisJsonModule() {
         addSerializer(LimitViolation.class, new LimitViolationSerializer());
         addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
+        addSerializer(Fault.class, new FaultSerializer());
+        addDeserializer(Fault.class, new FaultDeserializer());
         addSerializer(FaultResult.class, new FaultResultSerializer());
         addDeserializer(FaultResult.class, new FaultResultDeserializer());
         addSerializer(ShortCircuitAnalysisResult.class, new ShortCircuitAnalysisResultSerializer());

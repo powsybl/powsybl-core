@@ -6,13 +6,16 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.shortcircuit.json.JsonFaultList;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Boubakeur Brahimi
@@ -27,6 +30,11 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
     public void setUp() throws Exception {
         super.setUp();
         createFile("test.uct", "");
+        createFile("out.txt", "");
+        List<Fault> faults = new ArrayList<>();
+        faults.add(new BranchFault("id", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLEPHASE, true, true, 3.0));
+        faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.TWOPHASE, true, true));
+        JsonFaultList.write(faults, fileSystem.getPath("input.txt"));
     }
 
     @Override
@@ -41,7 +49,8 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(shortCircuitTool.getCommand(), COMMAND_NAME, 4, 1);
+        assertCommand(shortCircuitTool.getCommand(), COMMAND_NAME, 5, 2);
+        assertOption(shortCircuitTool.getCommand().getOptions(), "input-file", true, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "case-file", true, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "output-file", false, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "output-format", false, true);
@@ -49,12 +58,17 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
+    public void checkFailsWhenInputFileNotFound() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "wrongFile.txt", "--case-file", "test.uct"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.txt does not exist or is not a regular file");
+    }
+
+    @Test
     public void checkFailsWhenNetworkFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "wrongFile.uct"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
     }
 
     @Test
     public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--output-file", "out.txt"}, 2, "", "error: Missing required option: output-format");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "test.uct", "--output-file", "out.txt"}, 2, "", "error: Missing required option: output-format");
     }
 }

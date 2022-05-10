@@ -17,12 +17,12 @@ abstract class AbstractFault implements Fault {
     private final String id;
     private final double r;
     private final double x;
-    private Fault.ConnectionType connection;
-    private Fault.FaultType faultType;
-    private boolean withLimitViolation;
-    private boolean withDetailedResults;
+    private final Fault.ConnectionType connection;
+    private final Fault.FaultType faultType;
+    private final boolean withLimitViolation;
+    private final boolean withDetailedResults;
 
-    public AbstractFault(String id, double r, double x, Fault.ConnectionType connection,
+    protected AbstractFault(String id, double r, double x, Fault.ConnectionType connection,
                          Fault.FaultType faultType, boolean withLimitViolation, boolean withDetailedResults) {
         this.id = id;
         this.r = r;

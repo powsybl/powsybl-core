@@ -15,7 +15,7 @@ package com.powsybl.shortcircuit;
 public class BranchFault extends AbstractFault {
 
     // Location of the fault in % of the branch length (with side ONE as reference).
-    private double proportionalLocation;
+    private final double proportionalLocation;
 
     public BranchFault(String id, double r, double x, Fault.ConnectionType connection, Fault.FaultType faultType, boolean withLimitViolation, boolean withDetailedResults,
                        double proportionalLocation) {
