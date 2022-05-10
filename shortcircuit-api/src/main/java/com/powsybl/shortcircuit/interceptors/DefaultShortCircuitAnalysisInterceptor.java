@@ -28,7 +28,7 @@ public class DefaultShortCircuitAnalysisInterceptor implements ShortCircuitAnaly
 
     @Override
     public void onShortCircuitResult(Network network, ShortCircuitAnalysisResult shortCircuitAnalysisResult) {
-
+        // Nothing to do
     }
 }
 

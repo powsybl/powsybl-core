@@ -20,7 +20,7 @@ public class ShortCircuitBusResults {
 
     private final String busId;
 
-    private ThreePhaseValue voltage;
+    private final ThreePhaseValue voltage;
 
     public ShortCircuitBusResults(String voltageLevelId, String busId, ThreePhaseValue voltage) {
         this.voltageLevelId = voltageLevelId;

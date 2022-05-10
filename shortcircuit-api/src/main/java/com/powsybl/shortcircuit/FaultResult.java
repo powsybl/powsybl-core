@@ -42,8 +42,8 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
                        List<LimitViolation> limitViolations, ThreePhaseValue current, ThreePhaseValue voltage, double timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
-        this.feederResults = List.copyOf(feederResults);
-        this.limitViolations = List.copyOf(limitViolations);
+        this.feederResults = Collections.unmodifiableList(feederResults);
+        this.limitViolations = Collections.unmodifiableList(limitViolations);
         this.current = current;
         this.voltage = voltage;
         this.timeConstant = timeConstant;
@@ -94,11 +94,11 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
      * List of contributions to the three phase fault current of each connectable connected to the equipment
      */
     public List<FeederResult> getFeederResults() {
-        return Collections.unmodifiableList(feederResults);
+        return feederResults;
     }
 
     public List<LimitViolation> getLimitViolations() {
-        return Collections.unmodifiableList(limitViolations);
+        return limitViolations;
     }
 
     public double getFeederCurrent(String feederId) {

@@ -68,15 +68,13 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         try (TableFormatter formatter = formatterFactory.create(writer, "Limit violations", formatterConfig,
                 new Column("Voltage level"), new Column("Country"), new Column("Base voltage"),
                 new Column("Limit type"), new Column("Limit"), new Column("Value"))) {
-            for (FaultResult faultResult : result.getFaultResults()) {
-                for (LimitViolation limitViolation : faultResult.getLimitViolations()) {
-                    formatter.writeCell(limitViolation.getSubjectId())
-                            .writeCell(LimitViolationHelper.getCountry(limitViolation, network).map(Enum::name).orElse(""))
-                            .writeCell(LimitViolationHelper.getNominalVoltage(limitViolation, network))
-                            .writeCell(limitViolation.getLimitType().name())
-                            .writeCell(limitViolation.getLimit())
-                            .writeCell(limitViolation.getValue());
-                }
+            for (LimitViolation limitViolation : result.getLimitViolations()) {
+                formatter.writeCell(limitViolation.getSubjectId())
+                        .writeCell(LimitViolationHelper.getCountry(limitViolation, network).map(Enum::name).orElse(""))
+                        .writeCell(LimitViolationHelper.getNominalVoltage(limitViolation, network))
+                        .writeCell(limitViolation.getLimitType().name())
+                        .writeCell(limitViolation.getLimit())
+                        .writeCell(limitViolation.getValue());
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

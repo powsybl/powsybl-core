@@ -7,10 +7,13 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.security.LimitViolation;
 import com.powsybl.security.NetworkMetadata;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Results of an localized short-circuit computation.
@@ -43,5 +46,9 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
     public ShortCircuitAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
         this.networkMetadata = networkMetadata;
         return this;
+    }
+
+    public List<LimitViolation> getLimitViolations() {
+        return faultResults.stream().map(FaultResult::getLimitViolations).flatMap(Collection::stream).collect(Collectors.toList());
     }
 }

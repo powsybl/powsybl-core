@@ -7,9 +7,10 @@
 package com.powsybl.shortcircuit;
 
 /**
- * @author Coline Piloquet <coline.piloquet at rte-france.com>
  * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and the
  * the magnitude and angle of current or voltage for the Fortescue direct, zero and indirect components.
+ *
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class ThreePhaseValue {
     // Results on three phases.
@@ -21,23 +22,14 @@ public class ThreePhaseValue {
     private final double phase3;
     // Fortescue results.
     private final double directMagnitude;
-    private double zeroMagnitude = Double.NaN;
-    private double inverseMagnitude = Double.NaN;
+    private final double zeroMagnitude;
+    private final double inverseMagnitude;
     private final double directPhase;
-    private double zeroPhase = Double.NaN;
-    private double inversePhase = Double.NaN;
+    private final double zeroPhase;
+    private final double inversePhase;
 
     public ThreePhaseValue(double magnitude1, double magnitude2, double magnitude3, double phase1, double phase2, double phase3,
                            double directMagnitude, double zeroMagnitude, double inverseMagnitude, double directPhase, double zeroPhase, double inversePhase) {
-        this(magnitude1, magnitude2, magnitude3, phase1, phase2, phase3, directMagnitude, directPhase);
-        this.zeroMagnitude = zeroMagnitude;
-        this.inverseMagnitude = inverseMagnitude;
-        this.zeroPhase = zeroPhase;
-        this.inversePhase = inversePhase;
-    }
-
-    public ThreePhaseValue(double magnitude1, double magnitude2, double magnitude3, double phase1, double phase2, double phase3,
-                           double directMagnitude, double directPhase) {
         this.magnitude1 = magnitude1;
         this.magnitude2 = magnitude2;
         this.magnitude3 = magnitude3;
@@ -46,6 +38,15 @@ public class ThreePhaseValue {
         this.phase3 = phase3;
         this.directMagnitude = directMagnitude;
         this.directPhase = directPhase;
+        this.zeroMagnitude = zeroMagnitude;
+        this.inverseMagnitude = inverseMagnitude;
+        this.zeroPhase = zeroPhase;
+        this.inversePhase = inversePhase;
+    }
+
+    public ThreePhaseValue(double magnitude1, double magnitude2, double magnitude3, double phase1, double phase2, double phase3,
+                           double directMagnitude, double directPhase) {
+        this(magnitude1, magnitude2, magnitude3, phase1, phase2, phase3, directMagnitude, directPhase, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     public ThreePhaseValue(double directMagnitude, double directPhase) {
