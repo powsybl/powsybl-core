@@ -10,9 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.FaultResult;
+import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
@@ -25,12 +26,25 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
 
     @Override
     public void serialize(FaultResult faultResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStartObject();
+        Objects.requireNonNull(faultResult);
+        Objects.requireNonNull(faultResult.getFault());
 
-        jsonGenerator.writeStringField("id", faultResult.getFault().getId());
-        jsonGenerator.writeNumberField("threePhaseFaultCurrent", faultResult.getThreePhaseFaultCurrent());
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeObjectField("fault", faultResult.getFault());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "threePhaseFaultCurrent", faultResult.getThreePhaseFaultCurrent());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "timeConstant", faultResult.getTimeConstant());
+
         if (!(faultResult.getFeederResults()).isEmpty()) {
             jsonGenerator.writeObjectField("feederResult", faultResult.getFeederResults());
+        }
+        if (!(faultResult.getLimitViolations()).isEmpty()) {
+            jsonGenerator.writeObjectField("limitViolations", faultResult.getLimitViolations());
+        }
+        if (faultResult.getCurrent() != null) {
+            jsonGenerator.writeObjectField("current", faultResult.getCurrent());
+        }
+        if (faultResult.getVoltage() != null) {
+            jsonGenerator.writeObjectField("voltage", faultResult.getVoltage());
         }
         JsonUtil.writeExtensions(faultResult, jsonGenerator, serializerProvider);
 

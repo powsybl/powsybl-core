@@ -30,7 +30,7 @@ public class DummyLimitViolationExtensionSerializer implements ExtensionJsonSeri
 
     @Override
     public String getCategoryName() {
-        return "short-circuit-analysis";
+        return "security-analysis";
     }
 
     @Override

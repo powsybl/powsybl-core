@@ -9,6 +9,7 @@ package com.powsybl.shortcircuit.converter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.BusFault;
 import com.powsybl.shortcircuit.Fault;
@@ -32,24 +33,15 @@ public class FaultSerializer extends StdSerializer<Fault> {
         jsonGenerator.writeStringField("version", Fault.VERSION);
         jsonGenerator.writeStringField("dataType", getDataType(fault));
         jsonGenerator.writeStringField("id", fault.getId());
-        writeNumberField(jsonGenerator, "r", fault.getR());
-        writeNumberField(jsonGenerator, "x", fault.getX());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "r", fault.getR());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "x", fault.getX());
         jsonGenerator.writeStringField("connection", fault.getConnectionType().name());
         jsonGenerator.writeStringField("faultType", fault.getFaultType().name());
-        jsonGenerator.writeBooleanField("withLimitViolation", fault.isWithLimitViolation());
-        jsonGenerator.writeBooleanField("withDetailedResults", fault.isWithDetailedResults());
-        writeNumberField(jsonGenerator, "proportionalLocation", fault.getProportionalLocation());
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolation", fault.isWithLimitViolation(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withDetailedResults", fault.isWithDetailedResults(), false);
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "proportionalLocation", fault.getProportionalLocation());
 
         jsonGenerator.writeEndObject();
-    }
-
-    /**
-     * Write number field only if value is a number
-     */
-    private void writeNumberField(JsonGenerator jsonGenerator, String fieldName, double value) throws java.io.IOException {
-        if (!Double.isNaN(value)) {
-            jsonGenerator.writeNumberField(fieldName, value);
-        }
     }
 
     String getDataType(Fault fault) {

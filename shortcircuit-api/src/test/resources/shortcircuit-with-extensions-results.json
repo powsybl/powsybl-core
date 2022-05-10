@@ -1,20 +1,32 @@
 {
   "version" : "1.0",
   "faultResults" : [ {
-    "id" : "faultResultID",
+    "fault" : {
+      "version" : "1.0",
+      "dataType" : "BusFault",
+      "id" : "id",
+      "r" : 0.0,
+      "x" : 0.0,
+      "connection" : "SERIES",
+      "faultType" : "THREEPHASE",
+      "withLimitViolation" : true
+    },
     "threePhaseFaultCurrent" : 1.0,
+    "limitViolations" : [ {
+      "subjectId" : "id",
+      "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
+      "limit" : 2000.0,
+      "limitReduction" : 1.0,
+      "value" : 2500.0,
+      "extensions" : {
+        "DummyLimitViolationExtension" : { }
+      }
+    } ],
+    "current" : {
+      "directMagnitude" : 1.0
+    },
     "extensions" : {
       "DummyFaultResultExtension" : { }
-    }
-  } ],
-  "limitViolations" : [ {
-    "subjectId" : "id",
-    "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
-    "limit" : 2000.0,
-    "limitReduction" : 1.0,
-    "value" : 2500.0,
-    "extensions" : {
-      "DummyLimitViolationExtension" : { }
     }
   } ],
   "extensions" : {
