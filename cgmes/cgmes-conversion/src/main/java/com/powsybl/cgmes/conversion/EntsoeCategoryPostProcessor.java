@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
- *
  * @author Luma Zamarreño <zamarrenolm@aia.es>
  */
 @AutoService(CgmesImportPostProcessor.class)
@@ -45,28 +44,39 @@ public class EntsoeCategoryPostProcessor implements CgmesImportPostProcessor {
     @Override
     public void process(Network network, TripleStore tripleStore) {
         Objects.requireNonNull(network);
-        LOG.error("Execute {} post processor on network {}", getName(), network.getId());
+        LOG.info("Execute {} post processor on network {}", getName(), network.getId());
         for (PropertyBag sm : network.getExtension(CgmesModelExtension.class).getCgmesModel().synchronousMachines()) {
             String generatingUnitId = sm.getId("GeneratingUnit");
             if (generatingUnitId != null) {
-                String description = sm.getId("generatingUnitDescription");
-                // String contains only digits
-                if (StringUtils.isNumeric(description)) {
-                    String generatorId = sm.getId("SynchronousMachine");
-                    Generator g = network.getGenerator(generatorId);
-                    if (g != null) {
-                        try {
-                            int code = Integer.parseInt(description);
-                            g.newExtension(GeneratorEntsoeCategoryAdder.class)
-                                    .withCode(code)
-                                    .add();
-                        } catch (Exception x) {
-                            LOG.error("Bad number for ENTSO-E category {}, generating Unit: {}, generator: {}", description, generatingUnitId, generatorId);
-                        }
-                    }
-                }
+                processGenerator(network, sm, generatingUnitId);
             }
         }
     }
 
+    private static void processGenerator(Network network, PropertyBag sm, String generatingUnitId) {
+        String description = sm.getId("generatingUnitDescription");
+        // String contains only digits or spaces
+        if (!StringUtils.isNumericSpace(description)) {
+            return;
+        }
+        String description1 = description.trim();
+        if (description1.isEmpty()) {
+            return;
+        }
+        String generatorId = sm.getId("SynchronousMachine");
+        Generator g = network.getGenerator(generatorId);
+        if (g == null) {
+            return;
+        }
+        try {
+            int code = Integer.parseInt(description1);
+            if (code > 0) {
+                g.newExtension(GeneratorEntsoeCategoryAdder.class)
+                        .withCode(code)
+                        .add();
+            }
+        } catch (Exception x) {
+            LOG.error("Bad number for ENTSO-E category from description [{}], generating Unit: {}, generator: {}", description, generatingUnitId, generatorId);
+        }
+    }
 }

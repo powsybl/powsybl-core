@@ -802,8 +802,8 @@
 		<cim:GeneratingUnit.genControlSource rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#GeneratorControlSource.offAGC"/>
 		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
 		<cim:Equipment.EquipmentContainer rdf:resource="#_c49942d6-8b01-4b01-b5e8-f1180f84906c"/>
-		<!-- entsoe category valid -->
-		<cim:IdentifiedObject.description>42</cim:IdentifiedObject.description>
+		<!-- entsoe category valid, spaces are trimmed -->
+		<cim:IdentifiedObject.description> 42 </cim:IdentifiedObject.description>
 	</cim:GeneratingUnit>
 	<cim:GeographicalRegion rdf:ID="_c1d5bfe28f8011e08e4d00247eb1f55e">
 		<cim:IdentifiedObject.name>NL</cim:IdentifiedObject.name>
