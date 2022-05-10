@@ -356,8 +356,10 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsTerminals(Network network) {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                addIidmMappingsTerminal(t, c);
+            if (!c.isFictitious()) {
+                for (Terminal t : c.getTerminals()) {
+                    addIidmMappingsTerminal(t, c);
+                }
             }
         }
         addIidmMappingsSwitchTerminals(network);
@@ -426,8 +428,6 @@ public class CgmesExportContext {
                 boundaryId = CgmesExportUtil.getUniqueId();
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
-        } else if (c instanceof Load && c.isFictitious()) {
-            // An fictitious load do not need an alias
         } else {
             int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
