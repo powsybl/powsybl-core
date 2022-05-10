@@ -8,7 +8,10 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
@@ -17,10 +20,12 @@ import com.powsybl.iidm.network.util.Networks;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -77,6 +82,32 @@ public class CgmesExportTest {
             VoltageLevel c = n2.getVoltageLevel("C");
             assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("TEST_SW")));
             assertNull(n2.getVscConverterStation("C2").getTerminal().getBusView().getBus());
+        }
+    }
+
+    @Test
+    public void testSynchronousMachinesWithSameGeneratingUnit() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseBEGenUnitWithTwoSyncMachines().dataSource();
+        Network n = Importers.importData("CGMES", ds, null);
+        String exportFolder = "/test-gu-with-2sm";
+        String baseName = "testGU2SMs";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+
+            // Add boundary EQ for reimport
+            String eqbd = ds.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
+            if (eqbd != null) {
+                try (InputStream is = ds.newInputStream(eqbd)) {
+                    Files.copy(is, tmpDir.resolve(baseName + "_EQ_BD.xml"));
+                }
+            }
+            Exporters.export("CGMES", n, null, tmpDir.resolve(baseName));
+            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "testGU2SMs"), null);
+            Generator g1 = n2.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
+            Generator g2 = n2.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+            String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+            String gu2 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+            assertEquals(gu1, gu2);
         }
     }
 }

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -26,11 +27,13 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private String tso;
 
-    private Ref<NetworkImpl> networkRef;
+    private final Ref<NetworkImpl> networkRef;
 
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
+
+    private boolean removed = false;
 
     SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
         super(id, name, fictitious);
@@ -77,7 +80,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef).map(Ref::get).orElse(null);
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed substation " + id);
+        }
+        return networkRef.get();
     }
 
     void addVoltageLevel(VoltageLevelExt voltageLevel) {
@@ -197,7 +203,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
-        networkRef = null;
+        removed = true;
     }
 
     void remove(VoltageLevelExt voltageLevelExt) {
