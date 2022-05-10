@@ -57,14 +57,13 @@ public class ShortCircuitAnalysisTest {
             public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> fault, ShortCircuitParameters parameters,
                                                                      ComputationManager computationManager) {
 
-                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList(), Collections.emptyList()));
+                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
             }
         };
 
         ShortCircuitAnalysisResult res = provider.run(null, null, null, null).join();
 
         assertEquals(0, res.getFaultResults().size());
-        assertEquals(0, res.getLimitViolations().size());
     }
 
     private static final String DEFAULT_PROVIDER_NAME = "ShortCircuitAnalysisMock";
@@ -138,7 +137,7 @@ public class ShortCircuitAnalysisTest {
 
         List<FaultResult> faultResult = result.getFaultResults();
         interceptorMock.onFaultResult(network, faultResult.get(0));
-        interceptorMock.onLimitViolation(network, result.getLimitViolations().get(0));
+        interceptorMock.onLimitViolation(network, faultResult.get(0).getLimitViolations().get(0));
         interceptorMock.onShortCircuitResult(network, result);
     }
 }

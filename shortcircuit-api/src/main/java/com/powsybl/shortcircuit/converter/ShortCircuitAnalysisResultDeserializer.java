@@ -50,7 +50,6 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
     public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         NetworkMetadata networkMetadata = null;
         List<FaultResult> faultResults = null;
-        List<LimitViolation> limitViolations = Collections.emptyList();
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -70,12 +69,6 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     });
                     break;
 
-                case "limitViolations":
-                    parser.nextToken();
-                    limitViolations = parser.readValueAs(new TypeReference<ArrayList<LimitViolation>>() {
-                    });
-                    break;
-
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
@@ -86,7 +79,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
             }
         }
 
-        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults, limitViolations);
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);
         result.setNetworkMetadata(networkMetadata);
         SUPPLIER.get().addExtensions(result, extensions);
 

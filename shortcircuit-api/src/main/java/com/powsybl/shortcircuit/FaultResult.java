@@ -28,9 +28,9 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final double timeConstant;
 
-    private List<FeederResult> feederResults = new ArrayList<>();
+    private final List<FeederResult> feederResults;
 
-    private List<LimitViolation> limitViolations = new ArrayList<>();
+    private final List<LimitViolation> limitViolations;
 
     private final ThreePhaseValue current;
 
