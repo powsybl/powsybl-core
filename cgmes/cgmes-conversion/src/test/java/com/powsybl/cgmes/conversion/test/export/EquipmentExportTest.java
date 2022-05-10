@@ -6,8 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -98,13 +98,13 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
-        ShuntCompensatorLinearModel sh = (ShuntCompensatorLinearModel) network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
+        ShuntCompensatorLinearModel sh = (ShuntCompensatorLinearModel) network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(0.024793, sh.getBPerSection(), 0.0);
 
         sh.setBPerSection(1E-14);
 
         Network reimported = exportReimport(network, ds);
-        sh = (ShuntCompensatorLinearModel) reimported.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
+        sh = (ShuntCompensatorLinearModel) reimported.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(1E-14, sh.getBPerSection(), 0.0);
     }
 
