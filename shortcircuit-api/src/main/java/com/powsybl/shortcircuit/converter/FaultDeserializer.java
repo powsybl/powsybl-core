@@ -33,8 +33,8 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         double x = Double.NaN;
         Fault.ConnectionType connection = Fault.ConnectionType.SERIES;
         Fault.FaultType faultType = Fault.FaultType.THREE_PHASE;
-        boolean withLimitViolation = false;
-        boolean withDetailedResults = false;
+        boolean withLimitViolations = false;
+        boolean withVoltageMap = false;
         double proportionalLocation = Double.NaN;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -65,13 +65,13 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                     parser.nextToken();
                     faultType = Fault.FaultType.valueOf(parser.readValueAs(String.class));
                     break;
-                case "withLimitViolation":
+                case "withLimitViolations":
                     parser.nextToken();
-                    withLimitViolation = parser.readValueAs(Boolean.class);
+                    withLimitViolations = parser.readValueAs(Boolean.class);
                     break;
-                case "withDetailedResults":
+                case "withVoltageMap":
                     parser.nextToken();
-                    withDetailedResults = parser.readValueAs(Boolean.class);
+                    withVoltageMap = parser.readValueAs(Boolean.class);
                     break;
                 case "proportionalLocation":
                     parser.nextToken();
@@ -89,10 +89,10 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         Fault fault;
         switch (dataType) {
             case "BusFault":
-                fault = new BusFault(id, r, x, connection, faultType, withLimitViolation, withDetailedResults);
+                fault = new BusFault(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
                 break;
             case "BranchFault":
-                fault = new BranchFault(id, r, x, connection, faultType, withLimitViolation, withDetailedResults, proportionalLocation);
+                fault = new BranchFault(id, r, x, connection, faultType, withLimitViolations, withVoltageMap, proportionalLocation);
                 break;
             default:
                 throw new AssertionError("Unexpected datatype: " + dataType);

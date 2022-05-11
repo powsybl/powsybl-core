@@ -9,7 +9,7 @@
       "x" : 0.0,
       "connection" : "SERIES",
       "faultType" : "THREE_PHASE",
-      "withLimitViolation" : true
+      "withLimitViolations" : true
     },
     "threePhaseFaultCurrent" : 1.0,
     "timeConstant" : 1.0,

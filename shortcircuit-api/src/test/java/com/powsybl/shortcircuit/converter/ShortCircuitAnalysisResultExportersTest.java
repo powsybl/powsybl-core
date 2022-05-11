@@ -47,20 +47,25 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         assertEquals("Export a result in JSON format", ShortCircuitAnalysisResultExporters.getExporter("JSON").getComment());
     }
 
-    private static ShortCircuitAnalysisResult createResult() {
-        Fault fault = new BusFault("id", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE, true, false);
-        List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "id";
-        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
-        float limit = 2000;
-        float limitReduction = 1;
-        float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
-        limitViolations.add(limitViolation);
+    private static ShortCircuitAnalysisResult createResult(Network network) {
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0), limitViolations);
-        faultResults.add(faultResult);
+        FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
+        FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
+        faultResults.add(faultResult1);
+        faultResults.add(faultResult2);
         return new ShortCircuitAnalysisResult(faultResults);
+    }
+
+    private static FaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
+        Fault fault = new BusFault(faultId, 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE, true, false);
+        List<LimitViolation> limitViolations = new ArrayList<>();
+        String subjectId = "VLGEN";
+        float limitReduction = 1;
+        LimitViolation limitViolation1 = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        limitViolations.add(limitViolation1);
+        LimitViolation limitViolation2 = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        limitViolations.add(limitViolation2);
+        return new FaultResult(fault, new ThreePhaseValue(value), limitViolations);
     }
 
     private static ShortCircuitAnalysisResult createResultWithExtension() {
@@ -138,27 +143,6 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisResult result = createResult(network);
         writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/shortcircuit-results.csv");
-    }
-
-    public ShortCircuitAnalysisResult createResult(Network network) {
-        List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
-        FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
-        faultResults.add(faultResult1);
-        faultResults.add(faultResult2);
-        return new ShortCircuitAnalysisResult(faultResults);
-    }
-
-    private FaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
-        Fault fault = new BusFault(faultId, 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE, true, false);
-        List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "VLGEN";
-        float limitReduction = 1;
-        LimitViolation limitViolation1 = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
-        limitViolations.add(limitViolation1);
-        LimitViolation limitViolation2 = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
-        limitViolations.add(limitViolation2);
-        return new FaultResult(fault, new ThreePhaseValue(value), limitViolations);
     }
 
     static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {
