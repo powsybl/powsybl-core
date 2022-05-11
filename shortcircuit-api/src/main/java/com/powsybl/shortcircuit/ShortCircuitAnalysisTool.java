@@ -34,7 +34,6 @@ import java.util.List;
 @AutoService(Tool.class)
 public class ShortCircuitAnalysisTool implements Tool {
 
-    private static final String MISSING_REQUIRED_OPTION = "Missing required option: ";
     private static final String FILE_NOT_FOUND = "File %s does not exist or is not a regular file";
 
     private static final String INPUT_FILE_OPTION = "input-file";
@@ -88,17 +87,11 @@ public class ShortCircuitAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        if (!line.hasOption(INPUT_FILE_OPTION)) {
-            throw new ParseException(MISSING_REQUIRED_OPTION + INPUT_FILE_OPTION);
-        }
         Path inputFile = context.getFileSystem().getPath(line.getOptionValue(INPUT_FILE_OPTION));
         if (!Files.exists(inputFile)) {
             throw new PowsyblException(String.format(FILE_NOT_FOUND, inputFile));
         }
 
-        if (!line.hasOption(CASE_FILE_OPTION)) {
-            throw new ParseException(MISSING_REQUIRED_OPTION + CASE_FILE_OPTION);
-        }
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         if (!Files.exists(caseFile)) {
             throw new PowsyblException(String.format(FILE_NOT_FOUND, caseFile));
@@ -108,11 +101,8 @@ public class ShortCircuitAnalysisTool implements Tool {
         String format = null;
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
-            if (!Files.exists(outputFile)) {
-                throw new PowsyblException(String.format(FILE_NOT_FOUND, outputFile));
-            }
             if (!line.hasOption(OUTPUT_FORMAT_OPTION)) {
-                throw new ParseException(MISSING_REQUIRED_OPTION + OUTPUT_FORMAT_OPTION);
+                throw new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION);
             }
             format = line.getOptionValue(OUTPUT_FORMAT_OPTION);
         }
@@ -133,6 +123,9 @@ public class ShortCircuitAnalysisTool implements Tool {
         ShortCircuitParameters parameters = ShortCircuitParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+            if (!Files.exists(parametersFile)) {
+                throw new PowsyblException(String.format(FILE_NOT_FOUND, parametersFile));
+            }
             JsonShortCircuitParameters.update(parameters, parametersFile);
         }
 

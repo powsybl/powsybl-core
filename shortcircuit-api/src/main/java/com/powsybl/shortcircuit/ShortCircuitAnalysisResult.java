@@ -11,7 +11,6 @@ import com.powsybl.security.LimitViolation;
 import com.powsybl.security.NetworkMetadata;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Results of an localized short-circuit computation.
