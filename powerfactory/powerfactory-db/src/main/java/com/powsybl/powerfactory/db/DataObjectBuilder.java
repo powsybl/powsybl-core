@@ -78,13 +78,18 @@ public class DataObjectBuilder {
         object.setStringAttributeValue(attributeName, value);
     }
 
+    public void setObjectAttributeValue(long objectId, String attributeName, long otherObjectId) {
+        DataObject object = getObjectById(objectId);
+        object.setObjectAttributeValue(attributeName, otherObjectId);
+    }
+
     public void setDoubleVectorAttributeValue(long objectId, String attributeName, List<Double> value) {
         DataObject object = getObjectById(objectId);
         object.setDoubleVectorAttributeValue(attributeName, value);
     }
 
-    public void setObjectAttributeValue(long objectId, String attributeName, long otherObjectId) {
+    public void setStringVectorAttributeValue(long objectId, String attributeName, List<String> value) {
         DataObject object = getObjectById(objectId);
-        object.setObjectAttributeValue(attributeName, otherObjectId);
+        object.setStringVectorAttributeValue(attributeName, value);
     }
 }
