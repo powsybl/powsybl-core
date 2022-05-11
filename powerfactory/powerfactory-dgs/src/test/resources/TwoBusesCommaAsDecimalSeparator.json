@@ -80,7 +80,7 @@
       "type" : "STRING"
     } ]
   } ],
-  "elmNets" : [ {
+  "objects" : [ {
     "id" : 2,
     "className" : "ElmNet",
     "values" : {
@@ -155,5 +155,25 @@
         "dline" : 1.0
       }
     } ]
-  } ]
+  }, {
+    "id" : 10,
+    "className" : "TypLne",
+    "values" : {
+      "loc_name" : "TypLne-A;B",
+      "uline" : 220.0,
+      "sline" : 1.0,
+      "aohl_" : "ohl",
+      "rline" : 6.753542,
+      "xline" : 20.61956,
+      "cline" : 0.482287,
+      "rline0" : 0.0,
+      "xline0" : 0.0,
+      "cline0" : 0.0,
+      "rtemp" : 80.0,
+      "Ithr" : 0.0,
+      "chr_name" : "0",
+      "tline" : 0.0
+    }
+  } ],
+  "elmNets" : [ 2 ]
 }
