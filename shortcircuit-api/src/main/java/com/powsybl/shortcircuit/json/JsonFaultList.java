@@ -20,7 +20,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,7 +44,7 @@ public final class JsonFaultList {
     public static List<Fault> update(List<Fault> faults, InputStream is) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            faults.addAll(Arrays.asList(objectMapper.readerForArrayOf(Fault.class).readValue(is)));
+            faults.addAll(objectMapper.readerFor(new TypeReference<List<Fault>>() { }).readValue(is));
             return faults;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
