@@ -19,6 +19,8 @@ import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -66,15 +68,19 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         Objects.requireNonNull(formatterFactory);
         Objects.requireNonNull(formatterConfig);
         try (TableFormatter formatter = formatterFactory.create(writer, "Limit violations", formatterConfig,
-                new Column("Voltage level"), new Column("Country"), new Column("Base voltage"),
+                new Column("ID"), new Column("Voltage level"), new Column("Country"), new Column("Base voltage"),
                 new Column("Limit type"), new Column("Limit"), new Column("Value"))) {
-            for (LimitViolation limitViolation : result.getLimitViolations()) {
-                formatter.writeCell(limitViolation.getSubjectId())
-                        .writeCell(LimitViolationHelper.getCountry(limitViolation, network).map(Enum::name).orElse(""))
-                        .writeCell(LimitViolationHelper.getNominalVoltage(limitViolation, network))
-                        .writeCell(limitViolation.getLimitType().name())
-                        .writeCell(limitViolation.getLimit())
-                        .writeCell(limitViolation.getValue());
+
+            for (Map.Entry<String, List<LimitViolation>> entry : result.getLimitViolations().entrySet()) {
+                for (LimitViolation limitViolation : entry.getValue()) {
+                    formatter.writeCell(entry.getKey())
+                            .writeCell(limitViolation.getSubjectId())
+                            .writeCell(LimitViolationHelper.getCountry(limitViolation, network).map(Enum::name).orElse(""))
+                            .writeCell(LimitViolationHelper.getNominalVoltage(limitViolation, network))
+                            .writeCell(limitViolation.getLimitType().name())
+                            .writeCell(limitViolation.getLimit())
+                            .writeCell(limitViolation.getValue());
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

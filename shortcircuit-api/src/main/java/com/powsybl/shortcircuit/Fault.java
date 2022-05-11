@@ -25,9 +25,9 @@ public interface Fault {
 
     // What kind of fault is simulated
     enum FaultType {
-        THREEPHASE,
-        TWOPHASE,
-        SINGLEPHASE,
+        THREE_PHASE,
+        TWO_PHASE,
+        SINGLE_PHASE,
     }
 
     //TODO : add the numbers of the phase for two and single phase
@@ -49,12 +49,12 @@ public interface Fault {
     }
 
     default FaultType getFaultType() {
-        return FaultType.THREEPHASE;
+        return FaultType.THREE_PHASE;
     }
 
     // Whether the result should indicate a limit violation
-    boolean isWithLimitViolation();
+    boolean withLimitViolations();
 
     // Whether the results should include the voltage map on the whole network
-    boolean isWithDetailedResults();
+    boolean withVoltageMap();
 }

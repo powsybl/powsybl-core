@@ -18,7 +18,7 @@ public class FeederResult {
 
     private final String connectableId;
 
-    private ThreePhaseValue current = null;
+    private final ThreePhaseValue current;
 
     @JsonCreator
     public FeederResult(@JsonProperty("connectableId") String connectableId,

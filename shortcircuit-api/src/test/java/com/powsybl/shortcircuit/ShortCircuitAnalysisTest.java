@@ -137,7 +137,7 @@ public class ShortCircuitAnalysisTest {
 
         List<FaultResult> faultResult = result.getFaultResults();
         interceptorMock.onFaultResult(network, faultResult.get(0));
-        interceptorMock.onLimitViolation(network, result.getLimitViolations().get(0));
+        interceptorMock.onLimitViolation(network, result.getLimitViolations().get(faultResult.get(0).getFault().getId()).get(0));
         interceptorMock.onShortCircuitResult(network, result);
     }
 }

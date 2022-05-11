@@ -10,9 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.NetworkMetadata;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +46,9 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
         return this;
     }
 
-    public List<LimitViolation> getLimitViolations() {
-        return faultResults.stream().map(FaultResult::getLimitViolations).flatMap(Collection::stream).collect(Collectors.toList());
+    public Map<String, List<LimitViolation>> getLimitViolations() {
+        Map<String, List<LimitViolation>> result = new TreeMap<>(); // Ordered by Fault Identity
+        faultResults.forEach(r -> result.put(r.getFault().getId(), r.getLimitViolations()));
+        return result;
     }
 }

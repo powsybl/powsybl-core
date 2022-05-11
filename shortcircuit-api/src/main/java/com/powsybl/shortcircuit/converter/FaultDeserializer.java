@@ -32,7 +32,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         double r = Double.NaN;
         double x = Double.NaN;
         Fault.ConnectionType connection = Fault.ConnectionType.SERIES;
-        Fault.FaultType faultType = Fault.FaultType.THREEPHASE;
+        Fault.FaultType faultType = Fault.FaultType.THREE_PHASE;
         boolean withLimitViolation = false;
         boolean withDetailedResults = false;
         double proportionalLocation = Double.NaN;

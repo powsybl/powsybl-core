@@ -37,8 +37,8 @@ public class FaultSerializer extends StdSerializer<Fault> {
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "x", fault.getX());
         jsonGenerator.writeStringField("connection", fault.getConnectionType().name());
         jsonGenerator.writeStringField("faultType", fault.getFaultType().name());
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolation", fault.isWithLimitViolation(), false);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withDetailedResults", fault.isWithDetailedResults(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolation", fault.withLimitViolations(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withDetailedResults", fault.withVoltageMap(), false);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "proportionalLocation", fault.getProportionalLocation());
 
         jsonGenerator.writeEndObject();

@@ -32,8 +32,8 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
         createFile("test.uct", "");
         createFile("out.txt", "");
         List<Fault> faults = new ArrayList<>();
-        faults.add(new BranchFault("id", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLEPHASE, true, true, 3.0));
-        faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.TWOPHASE, true, true));
+        faults.add(new BranchFault("id", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLE_PHASE, true, true, 3.0));
+        faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.TWO_PHASE, true, true));
         JsonFaultList.write(faults, fileSystem.getPath("input.txt"));
     }
 

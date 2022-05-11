@@ -58,12 +58,12 @@ abstract class AbstractFault implements Fault {
     }
 
     @Override
-    public boolean isWithLimitViolation() {
+    public boolean withLimitViolations() {
         return this.withLimitViolation;
     }
 
     @Override
-    public boolean isWithDetailedResults() {
+    public boolean withVoltageMap() {
         return this.withDetailedResults;
     }
 }
