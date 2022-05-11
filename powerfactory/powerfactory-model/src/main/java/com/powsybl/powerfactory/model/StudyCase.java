@@ -15,9 +15,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -64,7 +64,7 @@ public class StudyCase {
 
         DataScheme scheme;
 
-        final List<DataObject> elmNets = new ArrayList<>();
+        List<DataObject> elmNets;
     }
 
     static StudyCase parseJson(JsonParser parser) {
@@ -85,9 +85,15 @@ public class StudyCase {
                 case "classes":
                     context.scheme = DataScheme.parseJson(parser);
                     return true;
-                case "elmNets":
-                    JsonUtil.parseObjectArray(parser, context.elmNets::add,
+                case "objects":
+                    JsonUtil.parseObjectArray(parser, obj -> { },
                         parser2 -> DataObject.parseJson(parser2, context.index, context.scheme));
+                    return true;
+                case "elmNets":
+                    context.elmNets = JsonUtil.parseLongArray(parser).stream()
+                            .map(id -> context.index.getDataObjectById(id)
+                                    .orElseThrow(() -> new PowerFactoryException("ElmNet object " + id + " not found")))
+                            .collect(Collectors.toList());
                     return true;
                 default:
                     return false;
@@ -117,10 +123,17 @@ public class StudyCase {
         DataScheme scheme = DataScheme.build(elmNets);
         scheme.writeJson(generator);
 
+        generator.writeFieldName("objects");
+        generator.writeStartArray();
+        for (DataObject obj : index.getRootDataObjects()) {
+            obj.writeJson(generator);
+        }
+        generator.writeEndArray();
+
         generator.writeFieldName("elmNets");
         generator.writeStartArray();
         for (DataObject elmNet : elmNets) {
-            elmNet.writeJson(generator);
+            generator.writeNumber(elmNet.getId());
         }
         generator.writeEndArray();
 
