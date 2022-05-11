@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export.elements;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -26,7 +25,10 @@ public final class ModelDescriptionEq {
 
     public static void write(XMLStreamWriter writer, CgmesExportContext.ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + CgmesExportUtil.getUniqueId());
+        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
+        modelDescription.setId(modelId);
+        context.updateDependencies();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();
@@ -46,9 +48,12 @@ public final class ModelDescriptionEq {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-        writer.writeCharacters(CgmesNamespace.getProfile(context.getCimVersion(), "EQ_OP"));
-        writer.writeEndElement();
+        if (context.getCimVersion() < 100) {
+            // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
+            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+            writer.writeCharacters(context.getCim().getProfile("EQ_OP"));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();

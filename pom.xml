@@ -116,7 +116,7 @@
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
         <mfl.version>0.5.6</mfl.version>
-        <mockito.version>3.3.3</mockito.version>
+        <mockito.version>4.4.0</mockito.version>
         <nativelibloader.version>2.4.0</nativelibloader.version>
         <poi.version>3.15</poi.version>
         <rdf4j.version>3.3.0</rdf4j.version>
@@ -202,12 +202,6 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-cgmes-conformity</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-cgmes-conformity</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -937,6 +931,12 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-inline</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>

@@ -17,7 +17,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -116,7 +115,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public TripleStore tripleStore() {
-        return Mockito.mock(TripleStore.class);
+        return new FakeTripleStore();
     }
 
     public boolean hasEquipmentCore() {

@@ -67,8 +67,18 @@ public abstract class AbstractVoltageLevelTest {
         // Remove
         voltageLevel.remove();
         assertNotNull(voltageLevel);
-        assertTrue(voltageLevel.getSubstation().isEmpty());
-        assertNull(voltageLevel.getNetwork());
+        try {
+            voltageLevel.getSubstation();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access substation of removed voltage level bbVL", e.getMessage());
+        }
+        try {
+            voltageLevel.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed voltage level bbVL", e.getMessage());
+        }
         assertNull(network.getVoltageLevel("bbVL"));
     }
 
