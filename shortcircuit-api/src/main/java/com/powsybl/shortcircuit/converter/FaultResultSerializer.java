@@ -31,7 +31,7 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
 
         jsonGenerator.writeStartObject();
         jsonGenerator.writeObjectField("fault", faultResult.getFault());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "threePhaseFaultCurrent", faultResult.getThreePhaseFaultCurrent());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "threePhaseFaultActivePower", faultResult.getThreePhaseFaultActivePower());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "timeConstant", faultResult.getTimeConstant());
 
         if (!(faultResult.getFeederResults()).isEmpty()) {

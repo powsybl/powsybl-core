@@ -11,11 +11,10 @@
       "faultType" : "THREE_PHASE",
       "withLimitViolations" : true
     },
-    "threePhaseFaultCurrent" : 1.0,
+    "threePhaseFaultActivePower" : 0.1,
     "timeConstant" : 1.0,
     "feederResult" : [ {
       "connectableId" : "connectableId",
-      "feederThreePhaseCurrent" : 1.0,
       "current" : {
         "directMagnitude" : 1.0
       }
@@ -29,6 +28,9 @@
     } ],
     "current" : {
       "directMagnitude" : 1.0
+    },
+    "voltage" : {
+      "directMagnitude" : 2.0
     }
   } ]
 }

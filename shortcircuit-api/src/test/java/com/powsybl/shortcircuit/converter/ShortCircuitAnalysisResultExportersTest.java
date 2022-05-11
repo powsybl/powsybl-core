@@ -100,7 +100,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         limitViolations.add(limitViolation);
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
-        FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(1.0), Collections.singletonList(feederResult), limitViolations, 1);
+        FaultResult faultResult = new FaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations, new ThreePhaseValue(1.0), new ThreePhaseValue(2.0), 1);
         faultResults.add(faultResult);
         return new ShortCircuitAnalysisResult(faultResults);
     }
