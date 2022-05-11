@@ -21,7 +21,9 @@ import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -33,6 +35,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.Properties;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
@@ -859,6 +862,18 @@ public class CgmesConformity1ModifiedConversionTest {
         Switch sw = network.getSwitch("fdf5cfbe-9bf5-406a-8d04-fafe47afe31d");
         assertNotNull(sw);
         assertEquals("INTERCONNECTOR22", sw.getNameOrId());
+    }
+
+    @Test
+    public void microGridBaseCaseAssembledEntsoeCategory() {
+        Properties params = new Properties();
+        params.put(CgmesImport.POST_PROCESSORS, "EntsoeCategory");
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEntsoeCategory().dataSource(), params);
+        assertEquals(31, network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa").getExtension(GeneratorEntsoeCategory.class).getCode());
+        assertEquals(42, network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e").getExtension(GeneratorEntsoeCategory.class).getCode());
+        assertNull(network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0").getExtension(GeneratorEntsoeCategory.class));
+        assertNull(network.getGenerator("1dc9afba-23b5-41a0-8540-b479ed8baf4b").getExtension(GeneratorEntsoeCategory.class));
+        assertNull(network.getGenerator("2844585c-0d35-488d-a449-685bcd57afbf").getExtension(GeneratorEntsoeCategory.class));
     }
 
     private FileSystem fileSystem;
