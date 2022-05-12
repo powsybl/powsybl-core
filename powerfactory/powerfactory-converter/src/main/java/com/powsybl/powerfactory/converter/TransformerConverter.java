@@ -247,20 +247,20 @@ class TransformerConverter extends AbstractConverter {
         ptc.setRegulating(false).setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP).add();
     }
 
-    static class TransformerModel {
+    static final class TransformerModel {
         private double r;
         private double x;
         private double g;
         private double b;
 
-        TransformerModel(Complex impedance, Complex shuntAdmittance) {
+        private TransformerModel(Complex impedance, Complex shuntAdmittance) {
             this.r = impedance.getReal();
             this.x = impedance.getImaginary();
             this.g = shuntAdmittance.getReal();
             this.b = shuntAdmittance.getImaginary();
         }
 
-        static TransformerModel create(DataObject typTr2, double ratedApparentPower, double nominalVoltageEnd2) {
+        private static TransformerModel create(DataObject typTr2, double ratedApparentPower, double nominalVoltageEnd2) {
 
             Complex impedance = createImpedance("uktr", "pcutr", typTr2, ratedApparentPower, nominalVoltageEnd2);
             Complex shuntAdmittance = createShuntAdmittance("curmg", "pfe", typTr2, ratedApparentPower, nominalVoltageEnd2);
@@ -327,18 +327,18 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    static class Transformer3wModel {
+    private static final class Transformer3wModel {
         private final TransformerModel hv;
         private final TransformerModel mv;
         private final TransformerModel lv;
 
-        Transformer3wModel(TransformerModel hv, TransformerModel mv, TransformerModel lv) {
+        private Transformer3wModel(TransformerModel hv, TransformerModel mv, TransformerModel lv) {
             this.hv = hv;
             this.mv = mv;
             this.lv = lv;
         }
 
-        TransformerModel getEnd(WindingType windingType) {
+        private TransformerModel getEnd(WindingType windingType) {
             switch (windingType) {
                 case HV:
                     return hv;
@@ -351,7 +351,7 @@ class TransformerConverter extends AbstractConverter {
             }
         }
 
-        static Transformer3wModel create(DataObject typTr3, RatedModel3w ratedModel, double nominalVoltage) {
+        private static Transformer3wModel create(DataObject typTr3, RatedModel3w ratedModel, double nominalVoltage) {
             Complex zHvMv = TransformerModel.createImpedance("uktr3_h", "pcut3_h", typTr3, Math.min(ratedModel.hv.ratedS, ratedModel.mv.ratedS), nominalVoltage);
             Complex zMvLv = TransformerModel.createImpedance("uktr3_m", "pcut3_m", typTr3, Math.min(ratedModel.mv.ratedS, ratedModel.lv.ratedS), nominalVoltage);
             Complex zLvHv = TransformerModel.createImpedance("uktr3_l", "pcut3_l", typTr3, Math.min(ratedModel.lv.ratedS, ratedModel.hv.ratedS), nominalVoltage);
@@ -365,12 +365,12 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    static class RatedModel {
+    private static final class RatedModel {
         private final double ratedU1;
         private final double ratedU2;
         private final double ratedS;
 
-        RatedModel(double ratedU1, double ratedU2, double ratedS) {
+        private RatedModel(double ratedU1, double ratedU2, double ratedS) {
             this.ratedU1 = ratedU1;
             this.ratedU2 = ratedU2;
             this.ratedS = ratedS;
@@ -395,18 +395,18 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    static class RatedModel3w {
+    private static final class RatedModel3w {
         private final RatedModel hv;
         private final RatedModel mv;
         private final RatedModel lv;
 
-        RatedModel3w(RatedModel hv, RatedModel mv, RatedModel lv) {
+        private RatedModel3w(RatedModel hv, RatedModel mv, RatedModel lv) {
             this.hv = hv;
             this.mv = mv;
             this.lv = lv;
         }
 
-        RatedModel getEnd(WindingType windingType) {
+        private RatedModel getEnd(WindingType windingType) {
             switch (windingType) {
                 case HV:
                     return hv;
@@ -432,7 +432,7 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    static class TapChangerPar {
+    private static final class TapChangerPar {
         private final int nntap;
         private final int nntap0;
         private final int ntpmn;
@@ -440,7 +440,7 @@ class TransformerConverter extends AbstractConverter {
         private final double dutap;
         private final double phitr;
 
-        TapChangerPar(int nntap, int nntap0, int ntpmn, int ntpmx, double dutap, double phitr) {
+        private TapChangerPar(int nntap, int nntap0, int ntpmn, int ntpmx, double dutap, double phitr) {
             this.nntap = nntap;
             this.nntap0 = nntap0;
             this.ntpmn = ntpmn;
@@ -449,7 +449,7 @@ class TransformerConverter extends AbstractConverter {
             this.phitr = phitr;
         }
 
-        static TapChangerPar create(DataObject elmTr2, DataObject typTr2) {
+        private static TapChangerPar create(DataObject elmTr2, DataObject typTr2) {
             return create("nntap", "nntap0", "ntpmn", "ntpmx", "dutap", "phitr", elmTr2, typTr2);
         }
 
@@ -471,18 +471,18 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    static class TapChangerPar3w {
+    private static final class TapChangerPar3w {
         private final TapChangerPar hv;
         private final TapChangerPar mv;
         private final TapChangerPar lv;
 
-        TapChangerPar3w(TapChangerPar hv, TapChangerPar mv, TapChangerPar lv) {
+        private TapChangerPar3w(TapChangerPar hv, TapChangerPar mv, TapChangerPar lv) {
             this.hv = hv;
             this.mv = mv;
             this.lv = lv;
         }
 
-        static TapChangerPar3w create(DataObject elmTr3, DataObject typTr3) {
+        private static TapChangerPar3w create(DataObject elmTr3, DataObject typTr3) {
             TapChangerPar hv = TapChangerPar.create("n3tap_h", "n3tp0_h", "n3tmn_h", "n3tmx_h", "du3tp_h", "ph3tr_h", elmTr3, typTr3);
             TapChangerPar mv = TapChangerPar.create("n3tap_m", "n3tp0_m", "n3tmn_m", "n3tmx_m", "du3tp_m", "ph3tr_m", elmTr3, typTr3);
             TapChangerPar lv = TapChangerPar.create("n3tap_l", "n3tp0_l", "n3tmn_l", "n3tmx_l", "du3tp_l", "ph3tr_l", elmTr3, typTr3);
@@ -491,19 +491,19 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    static class TapChanger {
+    private static final class TapChanger {
         private final int lowTapPosition;
         private final int tapPosition;
         private final List<TapChangerStep> steps;
 
-        TapChanger(int lowTapPosition, int tapPosition) {
+        private TapChanger(int lowTapPosition, int tapPosition) {
             this.lowTapPosition = lowTapPosition;
             this.tapPosition = tapPosition;
             steps = new ArrayList<>();
         }
 
         // angle in degrees
-        static class TapChangerStep {
+        private static final class TapChangerStep {
             private double ratio;
             private double angle;
             private double r;
@@ -511,11 +511,11 @@ class TransformerConverter extends AbstractConverter {
             private double g1;
             private double b1;
 
-            TapChangerStep(double ratio, double angle) {
+            private TapChangerStep(double ratio, double angle) {
                 this(ratio, angle, 0.0, 0.0, 0.0, 0.0);
             }
 
-            TapChangerStep(double ratio, double angle, double r, double x, double g1, double b1) {
+            private TapChangerStep(double ratio, double angle, double r, double x, double g1, double b1) {
                 this.ratio = ratio;
                 this.angle = angle;
                 this.r = r;
@@ -607,18 +607,18 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    static class TapChanger3w {
+    private static final class TapChanger3w {
         private final Optional<TapChanger> hv;
         private final Optional<TapChanger> mv;
         private final Optional<TapChanger> lv;
 
-        TapChanger3w(Optional<TapChanger> hv, Optional<TapChanger> mv, Optional<TapChanger> lv) {
+        private TapChanger3w(Optional<TapChanger> hv, Optional<TapChanger> mv, Optional<TapChanger> lv) {
             this.hv = hv;
             this.mv = mv;
             this.lv = lv;
         }
 
-        Optional<TapChanger> getEnd(WindingType windingType) {
+        private Optional<TapChanger> getEnd(WindingType windingType) {
             switch (windingType) {
                 case HV:
                     return hv;
@@ -631,7 +631,7 @@ class TransformerConverter extends AbstractConverter {
             }
         }
 
-        static TapChanger3w create(TapChangerPar3w tapChangerTap3w) {
+        private static TapChanger3w create(TapChangerPar3w tapChangerTap3w) {
             Optional<TapChanger> tcHv = TapChanger.create(tapChangerTap3w.hv);
             Optional<TapChanger> tcMv = TapChanger.create(tapChangerTap3w.mv);
             Optional<TapChanger> tcLv = TapChanger.create(tapChangerTap3w.lv);
