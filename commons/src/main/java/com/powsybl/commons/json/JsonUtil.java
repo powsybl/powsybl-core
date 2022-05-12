@@ -435,4 +435,108 @@ public final class JsonUtil {
             throw new PowsyblException(exception);
         }
     }
+
+    @FunctionalInterface
+    public interface FieldHandler {
+
+        boolean onField(String name) throws IOException;
+    }
+
+    public static void parseObject(JsonParser parser, FieldHandler fieldHandler) {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(fieldHandler);
+        try {
+            JsonToken token = parser.currentToken();
+            if (token != JsonToken.START_OBJECT) {
+                throw new PowsyblException("Start object token was expected: " + token);
+            }
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.FIELD_NAME) {
+                    String fieldName = parser.getCurrentName();
+                    boolean found = fieldHandler.onField(fieldName);
+                    if (!found) {
+                        throw new PowsyblException("Unexpected field " + fieldName);
+                    }
+                } else if (token == JsonToken.END_OBJECT) {
+                    break;
+                } else {
+                    throw new PowsyblException("Unexpected token " + token);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> void parseObjectArray(JsonParser parser, Consumer<T> objectAdder, Function<JsonParser, T> objectParser) {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(objectAdder);
+        Objects.requireNonNull(objectParser);
+        try {
+            JsonToken token = parser.nextToken();
+            if (token != JsonToken.START_ARRAY) {
+                throw new PowsyblException("Start array token was expected");
+            }
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.START_OBJECT) {
+                    objectAdder.accept(objectParser.apply(parser));
+                } else if (token == JsonToken.END_ARRAY) {
+                    break;
+                } else {
+                    throw new PowsyblException("Unexpected token " + token);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @FunctionalInterface
+    interface ValueParser<T> {
+
+        T parse(JsonParser parser) throws IOException;
+    }
+
+    private static <T> List<T> parseValueArray(JsonParser parser, JsonToken valueToken, ValueParser<T> valueParser) {
+        Objects.requireNonNull(parser);
+        List<T> values = new ArrayList<>();
+        try {
+            JsonToken token = parser.nextToken();
+            if (token != JsonToken.START_ARRAY) {
+                throw new PowsyblException("Start array token was expected");
+            }
+            while ((token = parser.nextToken()) != null) {
+                if (token == valueToken) {
+                    values.add(valueParser.parse(parser));
+                } else if (token == JsonToken.END_ARRAY) {
+                    break;
+                } else {
+                    throw new PowsyblException("Unexpected token " + token);
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return values;
+    }
+
+    public static List<Integer> parseIntegerArray(JsonParser parser) {
+        return parseValueArray(parser, JsonToken.VALUE_NUMBER_INT, JsonParser::getIntValue);
+    }
+
+    public static List<Long> parseLongArray(JsonParser parser) {
+        return parseValueArray(parser, JsonToken.VALUE_NUMBER_INT, JsonParser::getLongValue);
+    }
+
+    public static List<Float> parseFloatArray(JsonParser parser) {
+        return parseValueArray(parser, JsonToken.VALUE_NUMBER_FLOAT, JsonParser::getFloatValue);
+    }
+
+    public static List<Double> parseDoubleArray(JsonParser parser) {
+        return parseValueArray(parser, JsonToken.VALUE_NUMBER_FLOAT, JsonParser::getDoubleValue);
+    }
+
+    public static List<String> parseStringArray(JsonParser parser) {
+        return parseValueArray(parser, JsonToken.VALUE_STRING, JsonParser::getText);
+    }
 }

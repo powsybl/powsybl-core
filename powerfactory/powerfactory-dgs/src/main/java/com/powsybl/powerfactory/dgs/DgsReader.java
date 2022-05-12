@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -32,8 +33,6 @@ public class DgsReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(DgsReader.class);
 
     private final DataObjectIndex index = new DataObjectIndex();
-
-    private final Map<String, DataClass> classesByName = new HashMap<>();
 
     private final Map<String, String> general = new HashMap<>();
 
@@ -91,7 +90,6 @@ public class DgsReader {
             if (!tableName.equals("General")) {
                 // this is a class description
                 clazz = new DataClass(tableName);
-                classesByName.put(clazz.getName(), clazz);
             }
         }
 
@@ -150,6 +148,8 @@ public class DgsReader {
         stopwatch.stop();
         LOGGER.info("DGS file read in {} ms: {} data objects", stopwatch.elapsed(TimeUnit.MILLISECONDS), index.getDataObjects().size());
 
-        return new StudyCase(studyCaseName, Instant.now(), index);
+        List<DataObject> elmNets = index.getDataObjectsByClass("ElmNet");
+        Instant studyTime = Instant.ofEpochMilli(0); // FIXME get from head comment?
+        return new StudyCase(studyCaseName, studyTime, elmNets, index);
     }
 }

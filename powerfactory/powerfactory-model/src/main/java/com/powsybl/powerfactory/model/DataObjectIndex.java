@@ -7,6 +7,7 @@
 package com.powsybl.powerfactory.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,6 +30,10 @@ public class DataObjectIndex {
 
     public Collection<DataObject> getDataObjects() {
         return objectsById.values();
+    }
+
+    public List<DataObject> getRootDataObjects() {
+        return objectsById.values().stream().filter(obj -> obj.getParent() == null).collect(Collectors.toList());
     }
 
     public Optional<DataObject> getDataObjectById(long id) {

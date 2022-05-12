@@ -8,8 +8,13 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.export.Exporters;
@@ -24,6 +29,8 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -108,6 +115,50 @@ public class CgmesExportTest {
             String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
             String gu2 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
             assertEquals(gu1, gu2);
+        }
+    }
+
+    @Test
+    public void testPhaseTapChangerType16() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        String transformerId = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
+        String phaseTapChangerId = "6ebbef67-3061-4236-a6fd-6ccc4595f6c3";
+        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 16);
+        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100);
+    }
+
+    @Test
+    public void testPhaseTapChangerType14() throws IOException {
+        ReadOnlyDataSource ds = Cim14SmallCasesCatalog.m7buses().dataSource();
+        String transformerId = "FP.AND11-FTDPRA11-1_PT";
+        String phaseTapChangerId = "FP.AND11-FTDPRA11-1_PTC_OR";
+        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 16);
+        testPhaseTapChangerType(ds, transformerId, phaseTapChangerId, 100);
+    }
+
+    private static void testPhaseTapChangerType(ReadOnlyDataSource ds, String transformerId, String phaseTapChangerId, int cimVersion) throws IOException {
+        Network network = Importers.importData("CGMES", ds, null);
+        String exportFolder = "/test-ptc-type";
+        String baseName = "testPtcType";
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(transformerId);
+        String typeOriginal = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+
+            // When exporting only SSH (or SSH and SV), original type of tap changer should be kept
+            Properties paramsOnlySsh = new Properties();
+            paramsOnlySsh.put(CgmesExport.PROFILES, List.of("SSH"));
+            paramsOnlySsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
+            Exporters.export("CGMES", network, paramsOnlySsh, tmpDir.resolve(baseName));
+            String typeOnlySsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
+            assertEquals(typeOriginal, typeOnlySsh);
+
+            // If we export EQ and SSH (or all instance fiels), type of tap changer should be changed to tabular
+            Properties paramsEqAndSsh = new Properties();
+            paramsEqAndSsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
+            Exporters.export("CGMES", network, paramsEqAndSsh, tmpDir.resolve(baseName));
+            String typeEqAndSsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
+            assertEquals(CgmesNames.PHASE_TAP_CHANGER_TABULAR, typeEqAndSsh);
         }
     }
 }
