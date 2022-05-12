@@ -60,7 +60,7 @@ public final class TopologyExport {
         for (Bus b : network.getBusView().getBuses()) {
             for (Terminal t : b.getConnectedTerminals()) {
                 Connectable<?> c = t.getConnectable();
-                if (!c.isFictitious()) {
+                if (context.isExportedEquipment(c)) {
                     String terminalId;
                     if (c instanceof DanglingLine) {
                         writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer);

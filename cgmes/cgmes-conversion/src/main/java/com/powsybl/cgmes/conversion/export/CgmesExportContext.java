@@ -354,9 +354,9 @@ public class CgmesExportContext {
         baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
-    private static void addIidmMappingsTerminals(Network network) {
+    private void addIidmMappingsTerminals(Network network) {
         for (Connectable<?> c : network.getConnectables()) {
-            if (!c.isFictitious()) {
+            if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
                     addIidmMappingsTerminal(t, c);
                 }
@@ -364,6 +364,14 @@ public class CgmesExportContext {
         }
         addIidmMappingsSwitchTerminals(network);
         addIidmMappingsHvdcTerminals(network);
+    }
+
+    public boolean isExportedEquipment(Connectable<?> c) {
+        // We only ignore fictitious loads,
+        // as they are used to model CGMES SvInjection objects
+        // representing calculation mismatches
+        boolean ignored = c.isFictitious() && c instanceof Load;
+        return !ignored;
     }
 
     private static void addIidmMappingsSwitchTerminals(Network network) {

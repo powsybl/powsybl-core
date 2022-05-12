@@ -49,7 +49,7 @@ public final class SteadyStateHypothesisExport {
                 CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
             }
 
-            writeEnergyConsumers(network, cimNamespace, writer);
+            writeEnergyConsumers(network, cimNamespace, writer, context);
             writeEquivalentInjections(network, cimNamespace, writer);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer);
             writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer);
@@ -61,7 +61,7 @@ public final class SteadyStateHypothesisExport {
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer);
             // TODO writeControlAreas
-            writeTerminals(network, cimNamespace, writer);
+            writeTerminals(network, cimNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -78,9 +78,9 @@ public final class SteadyStateHypothesisExport {
     private static final String ALIAS_TYPE_TERMINAL_1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1";
     private static final String ALIAS_TYPE_TERMINAL_2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2";
 
-    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Connectable<?> c : network.getConnectables()) {
-            if (!c.isFictitious()) {
+            if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
                     writeTerminal(t, c, cimNamespace, writer);
                 }
@@ -473,9 +473,11 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
-            writeSshEnergyConsumer(load.getId(), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer);
+            if (context.isExportedEquipment(load)) {
+                writeSshEnergyConsumer(load.getId(), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer);
+            }
         }
     }
 
