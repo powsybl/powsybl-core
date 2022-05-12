@@ -129,16 +129,43 @@ public class EquipmentExportTest extends AbstractConverterTest {
     @Test
     public void threeWindingsTransformerTest() throws IOException, XMLStreamException {
         Network network = createThreeWindingTransformerNetwork();
+        String t3id = "threeWindingsTransformer1";
 
+        // Export an IIDM Network created from scratch, identifiers for tap changers will be created and stored in aliases
         exportToCgmesEQ(network);
-        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
-        String expectedAlias = network.getThreeWindingsTransformer("threeWindingsTransformer1").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).get();
-        String actualAlias = actual.getThreeWindingsTransformer("threeWindingsTransformer1").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3).get();
-        assertEquals(expectedAlias, actualAlias);
-        exportToCgmesEQ(actual);
-        Network actual2 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
-        String actual2Alias = actual2.getThreeWindingsTransformer("threeWindingsTransformer1").getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3).get();
-        assertEquals(expectedAlias, actual2Alias);
+        ThreeWindingsTransformer expected = network.getThreeWindingsTransformer(t3id);
+
+        // The 3-winding transformer has a ratio and phase tap changer at every end
+        Network network1 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        ThreeWindingsTransformer actual1 = network1.getThreeWindingsTransformer(t3id);
+        for (int k = 1; k <= 3; k++) {
+            String aliasType;
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual1.getAliasFromType(aliasType).get());
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual1.getAliasFromType(aliasType).get());
+        }
+
+        // Export an IIDM Network that has been imported from CGMES,
+        // identifiers for tap changers must be preserved
+        exportToCgmesEQ(network1);
+        Network network2 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        ThreeWindingsTransformer actual2 = network2.getThreeWindingsTransformer(t3id);
+        for (int k = 1; k <= 3; k++) {
+            String aliasType;
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual2.getAliasFromType(aliasType).get());
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual2.getAliasFromType(aliasType).get());
+        }
     }
 
     private Network createThreeWindingTransformerNetwork() {
@@ -210,17 +237,75 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 .setVoltageLevel("voltageLevel3")
                 .add();
         ThreeWindingsTransformer threeWindingsTransformer1 = threeWindingsTransformerAdder1.add();
-        RatioTapChangerAdder rtca = threeWindingsTransformer1.getLeg3().newRatioTapChanger()
+        threeWindingsTransformer1.getLeg1().newRatioTapChanger()
                 .setLowTapPosition(0)
-                .setTapPosition(0);
-        rtca.beginStep()
-                .setR(0.01)
-                .setX(0.0001)
-                .setB(0)
-                .setG(0)
-                .setRho(0.04)
-                .endStep();
-        rtca.add();
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.01)
+                    .setX(0.0001)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.1)
+                    .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg2().newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.02)
+                    .setX(0.0002)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.2)
+                    .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg3().newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.03)
+                    .setX(0.0003)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.3)
+                .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg1().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.01)
+                    .setX(0.0001)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.1)
+                    .setAlpha(10)
+                .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg2().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.02)
+                    .setX(0.0002)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.2)
+                    .setAlpha(20)
+                .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg3().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.03)
+                    .setX(0.0003)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.3)
+                    .setAlpha(30)
+                .endStep()
+                .add();
 
         topology1.newDisconnector()
                 .setId("Disconnector1")

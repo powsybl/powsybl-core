@@ -477,19 +477,24 @@ public class CgmesExportContext {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
-            addIidmPhaseTapChanger(twt, twt.getPhaseTapChanger());
-            addIidmRatioTapChanger(twt, twt.getRatioTapChanger());
+            // FIXME(Luma)
+            //  For two winding transformers we can not check-and-add based on endNumber
+            //  The resulting IIDM tap changer is always at end1
+            //  But the original position of tap changer could be 1 or 2
+            //  We also have to take into account if there is a hidden tap changer
+            addIidmTapChanger(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1);
+            addIidmTapChanger(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1);
         }
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
             addIidmTransformerEnd(twt, 3);
-            addIidmPhaseTapChanger(twt, twt.getLeg1().getPhaseTapChanger());
-            addIidmRatioTapChanger(twt, twt.getLeg1().getRatioTapChanger());
-            addIidmPhaseTapChanger(twt, twt.getLeg2().getPhaseTapChanger());
-            addIidmRatioTapChanger(twt, twt.getLeg2().getRatioTapChanger());
-            addIidmPhaseTapChanger(twt, twt.getLeg3().getPhaseTapChanger());
-            addIidmRatioTapChanger(twt, twt.getLeg3().getRatioTapChanger());
+            addIidmTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1);
+            addIidmTapChanger(twt, twt.getLeg1().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1);
+            addIidmTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 2);
+            addIidmTapChanger(twt, twt.getLeg2().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 2);
+            addIidmTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 3);
+            addIidmTapChanger(twt, twt.getLeg3().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 3);
         }
     }
 
@@ -501,26 +506,12 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc) {
-        if (ptc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 3).orElse(null)));
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
-            }
-        }
-    }
-
-    private static void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc) {
-        if (rtc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3).orElse(null)));
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1);
+    private static void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName, int endNumber) {
+        if (tc != null) {
+            String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
+            if (eq.getAliasFromType(aliasType).isEmpty()) {
+                String newTapChangerId = CgmesExportUtil.getUniqueId();
+                eq.addAlias(newTapChangerId, aliasType);
             }
         }
     }
