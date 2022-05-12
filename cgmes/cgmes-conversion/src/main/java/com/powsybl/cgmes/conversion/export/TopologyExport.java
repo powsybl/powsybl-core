@@ -107,8 +107,8 @@ public final class TopologyExport {
             String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
             String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
 
-            writeSwitchTerminal(tn1, cgmesTerminal1, cimNamespace, writer, context);
-            writeSwitchTerminal(tn2, cgmesTerminal2, cimNamespace, writer, context);
+            writeSwitchTerminal(tn1, cgmesTerminal1, cimNamespace, writer);
+            writeSwitchTerminal(tn2, cgmesTerminal2, cimNamespace, writer);
         }
     }
 
@@ -129,7 +129,7 @@ public final class TopologyExport {
     }
 
     private static void writeSwitchTerminal(String tn, String cgmesTerminal, String cimNamespace,
-                XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                XMLStreamWriter writer) throws XMLStreamException {
         writeTerminal(cgmesTerminal, tn, cimNamespace, writer);
     }
 
@@ -151,7 +151,7 @@ public final class TopologyExport {
         if (terminal != null) {
             return node;
         }
-        Set nodeSet = new HashSet();
+        Set<Integer> nodeSet = new HashSet<>();
         nodeSet.add(node);
 
         VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
