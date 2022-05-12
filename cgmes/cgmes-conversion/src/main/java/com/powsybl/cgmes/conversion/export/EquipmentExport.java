@@ -369,7 +369,13 @@ public final class EquipmentExport {
             int neutralStep = getPhaseTapChangerNeutralStep(ptc);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String phaseTapChangerTableId = CgmesExportUtil.getUniqueId();
-            TapChangerEq.writePhase(tapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, regulatingControlId, cimNamespace, writer);
+
+            // If we write the EQ, we will always write the Tap Changer as tabular
+            // We reset the phase tap changer type stored in the extensions
+            String typeTabular = CgmesNames.PHASE_TAP_CHANGER_TABULAR;
+            CgmesExportUtil.setCgmesTapChangerType(eq, tapChangerId, typeTabular);
+
+            TapChangerEq.writePhase(typeTabular, tapChangerId, twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, regulatingControlId, cimNamespace, writer);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
                 TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer);

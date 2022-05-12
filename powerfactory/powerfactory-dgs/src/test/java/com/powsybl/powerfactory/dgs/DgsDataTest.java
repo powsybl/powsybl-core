@@ -6,7 +6,6 @@
  */
 package com.powsybl.powerfactory.dgs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.powsybl.commons.AbstractConverterTest;
@@ -14,10 +13,7 @@ import com.powsybl.commons.TestUtil;
 import com.powsybl.powerfactory.model.StudyCase;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -30,11 +26,12 @@ import static org.junit.Assert.assertNotNull;
  */
 public class DgsDataTest extends AbstractConverterTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
-
     private String toJson(StudyCase studyCase) throws IOException {
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(studyCase);
-        return TestUtil.normalizeLineSeparator(json);
+        try (StringWriter writer = new StringWriter()) {
+            studyCase.writeJson(writer);
+            String json = writer.toString();
+            return TestUtil.normalizeLineSeparator(json);
+        }
     }
 
     private static StudyCase loadCase(String fileName) {

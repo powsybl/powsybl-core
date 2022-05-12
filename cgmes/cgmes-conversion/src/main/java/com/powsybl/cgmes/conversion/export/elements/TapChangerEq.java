@@ -46,8 +46,8 @@ public final class TapChangerEq {
 
     private static final String EQ_RATIOTAPCHANGERTABLEPOINT_RATIOTAPCHANGERTABLE = "RatioTapChangerTablePoint.RatioTapChangerTable";
 
-    public static void writePhase(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, String phaseTapChangerTableId, Optional<String> regulatingControlId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("PhaseTapChangerTabular", id, tapChangerName, cimNamespace, writer);
+    public static void writePhase(String type, String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, String phaseTapChangerTableId, Optional<String> regulatingControlId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(type, id, tapChangerName, cimNamespace, writer);
         CgmesExportUtil.writeReference(EQ_PHASETAPCHANGER_TRANSFORMEREND, transformerEndId, cimNamespace, writer);
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
         CgmesExportUtil.writeReference(EQ_PHASETAPCHANGERTABULAR_PHASETAPCHANGERTABLE, phaseTapChangerTableId, cimNamespace, writer);
