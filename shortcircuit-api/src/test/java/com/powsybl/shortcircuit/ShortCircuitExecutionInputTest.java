@@ -19,16 +19,14 @@ import java.util.List;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ShortCircuitInputTest extends AbstractConverterTest {
+public class ShortCircuitExecutionInputTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {
-        ShortCircuitInput input = new ShortCircuitInput();
-        List<AbstractFault> faults = new ArrayList<>();
-        faults.add(new BranchFault("id", 1.0, 2.0, AbstractFault.ConnectionType.PARALLEL, AbstractFault.FaultType.SINGLE_PHASE, true, true, 3.0));
-        faults.add(new BusFault("id", 1.1, 2.2, AbstractFault.ConnectionType.SERIES, AbstractFault.FaultType.TWO_PHASE, true, true));
-        input.setFaults(faults);
-        roundTripTest(input, JsonShortCircuitInput::write, JsonShortCircuitInput::read,
+        List<Fault> faults = new ArrayList<>();
+        faults.add(new BranchFault("id", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLE_PHASE, true, true, 3.0));
+        faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.TWO_PHASE, true, true));
+        roundTripTest(faults, JsonShortCircuitInput::write, JsonShortCircuitInput::read,
                 "/ShortCircuitInput.json");
     }
 
@@ -36,8 +34,7 @@ public class ShortCircuitInputTest extends AbstractConverterTest {
     public void writeErrorPath() {
         expected.expect(UncheckedIOException.class);
         expected.expectMessage("java.nio.file.AccessDeniedException: ");
-        ShortCircuitInput input = new ShortCircuitInput();
-        JsonShortCircuitInput.write(input, Path.of(""));
+        JsonShortCircuitInput.write(new ArrayList<>(), Path.of(""));
     }
 
     @Test
@@ -48,7 +45,7 @@ public class ShortCircuitInputTest extends AbstractConverterTest {
         OutputStream out = Mockito.mock(OutputStream.class);
         Mockito.doThrow(new IOException()).when(out).close();
 
-        JsonShortCircuitInput.write(new ShortCircuitInput(), out);
+        JsonShortCircuitInput.write(new ArrayList<>(), out);
     }
 
     @Test

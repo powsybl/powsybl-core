@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 
 import java.util.ArrayList;
@@ -48,18 +49,27 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<AbstractFault> faults, ShortCircuitParameters parameters, ComputationManager computationManager) {
+    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
+                                                             List<Fault> faults,
+                                                             ShortCircuitParameters parameters,
+                                                             ComputationManager computationManager,
+                                                             List<StateMonitor> monitors) {
         return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>()));
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<AbstractFault> faults, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
+                                                             List<Fault> faults,
+                                                             ShortCircuitParameters parameters,
+                                                             ComputationManager computationManager,
+                                                             List<StateMonitor> monitors,
+                                                             Reporter reporter) {
         reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
-        return run(network, faults, parameters, computationManager);
+        return run(network, faults, parameters, computationManager, monitors);
     }
 
     public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
-        AbstractFault fault = new BusFault("VLGEN", 0.0, 0.0, AbstractFault.ConnectionType.SERIES, AbstractFault.FaultType.THREE_PHASE, true, false);
+        Fault fault = new BusFault("VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE, true, false);
         FeederResult feederResult = new FeederResult("GEN", 5);
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
         FaultResult faultResult = new FaultResult(fault, new ThreePhaseValue(10.0), Collections.singletonList(feederResult), Collections.singletonList(limitViolation), 1);

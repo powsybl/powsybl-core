@@ -6,6 +6,7 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.shortcircuit.tools.ShortCircuitAnalysisTool;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
@@ -52,22 +53,18 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
         assertEquals("Computation", shortCircuitTool.getCommand().getTheme());
         assertEquals("Run short circuit analysis", shortCircuitTool.getCommand().getDescription());
 
-        assertCommand(shortCircuitTool.getCommand(), COMMAND_NAME, 5, 2);
+        assertCommand(shortCircuitTool.getCommand(), COMMAND_NAME, 6, 2);
         assertOption(shortCircuitTool.getCommand().getOptions(), "input-file", true, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "case-file", true, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "output-file", false, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "output-format", false, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "parameters-file", false, true);
+        assertOption(shortCircuitTool.getCommand().getOptions(), "monitoring-file", false, true);
     }
 
     @Test
     public void checkFailsWhenInputFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "wrongFile.txt", "--case-file", "test.uct"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.txt does not exist or is not a regular file");
-    }
-
-    @Test
-    public void checkFailsWhenInputFileIsEmpty() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "emptyInput.txt", "--case-file", "test.uct"}, 3, null, "File 'emptyInput.txt' is empty");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "wrongFile.txt", "--case-file", "network.xiidm"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
@@ -87,7 +84,7 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Test
     public void checkFailsWhenParametersFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "network.xiidm", "--parameters-file", "wrongFile.txt"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.txt does not exist or is not a regular file");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "network.xiidm", "--parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test

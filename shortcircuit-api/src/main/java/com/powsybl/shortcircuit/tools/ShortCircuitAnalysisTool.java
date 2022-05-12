@@ -4,18 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.shortcircuit;
+package com.powsybl.shortcircuit.tools;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;
 import com.powsybl.shortcircuit.json.JsonShortCircuitInput;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -24,22 +26,19 @@ import org.apache.commons.cli.ParseException;
 
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.CASE_FILE_OPTION;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.MONITORING_FILE;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.OUTPUT_FILE_OPTION;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.OUTPUT_FORMAT_OPTION;
+import static com.powsybl.shortcircuit.tools.ShortCircuitAnalysisToolConstants.*;
 
 /**
  * @author Boubakeur Brahimi
  */
 @AutoService(Tool.class)
 public class ShortCircuitAnalysisTool implements Tool {
-
-    private static final String FILE_NOT_FOUND = "File %s does not exist or is not a regular file";
-
-    private static final String INPUT_FILE_OPTION = "input-file";
-    private static final String CASE_FILE_OPTION = "case-file";
-    private static final String OUTPUT_FORMAT_OPTION = "output-format";
-    private static final String OUTPUT_FILE_OPTION = "output-file";
-    private static final String PARAMETERS_FILE = "parameters-file";
 
     @Override
     public Command getCommand() {
@@ -69,6 +68,11 @@ public class ShortCircuitAnalysisTool implements Tool {
                 options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
                         .desc("the output format " + ShortCircuitAnalysisResultExporters.getFormats()).hasArg()
                         .argName("FORMAT").build());
+                options.addOption(Option.builder().longOpt(MONITORING_FILE)
+                        .desc("monitoring file (.json) to get network's info after computation")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 return options;
             }
 
@@ -84,52 +88,57 @@ public class ShortCircuitAnalysisTool implements Tool {
         };
     }
 
+    static Network readNetwork(CommandLine line, ToolRunningContext context) {
+        ToolOptions options = new ToolOptions(line, context);
+        Path caseFile = options.getPath(CASE_FILE_OPTION)
+                .orElseThrow(AssertionError::new);
+        context.getOutputStream().println("Loading network '" + caseFile + "'");
+        return Importers.loadNetwork(caseFile);
+    }
+
+    static ShortCircuitInput readInput(CommandLine line, ToolRunningContext context) throws ParseException {
+        ToolOptions options = new ToolOptions(line, context);
+        ShortCircuitInput input = new ShortCircuitInput();
+        // Faults is required
+        Path inputFile = options.getPath(INPUT_FILE_OPTION)
+                .orElseThrow(() -> new ParseException("Missing required option: " + INPUT_FILE_OPTION));
+        context.getOutputStream().println("Loading input '" + inputFile + "'");
+        JsonShortCircuitInput.update(input.getFaults(), inputFile);
+        // ShortCircuit parameters loading
+        input.setParameters(ShortCircuitParameters.load());
+        options.getPath(PARAMETERS_FILE).ifPresent(parametersFile -> {
+            context.getOutputStream().println("Loading parameters '" + parametersFile + "'");
+            JsonShortCircuitParameters.update(input.getParameters(), parametersFile);
+        });
+        // MonitorState list
+        options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> {
+            context.getOutputStream().println("Loading monitors '" + monitorFilePath + "'");
+            input.setMonitors(StateMonitor.read(monitorFilePath));
+        });
+        return input;
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path inputFile = context.getFileSystem().getPath(line.getOptionValue(INPUT_FILE_OPTION));
-        if (!Files.exists(inputFile)) {
-            throw new PowsyblException(String.format(FILE_NOT_FOUND, inputFile));
-        }
+        ToolOptions options = new ToolOptions(line, context);
 
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
-        if (!Files.exists(caseFile)) {
-            throw new PowsyblException(String.format(FILE_NOT_FOUND, caseFile));
-        }
-
-        Path outputFile = null;
+        // Output file and output format
+        Path outputFile = options.getPath(OUTPUT_FILE_OPTION)
+                .orElse(null);
         String format = null;
-        if (line.hasOption(OUTPUT_FILE_OPTION)) {
-            outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
-            if (!line.hasOption(OUTPUT_FORMAT_OPTION)) {
-                throw new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION);
-            }
-            format = line.getOptionValue(OUTPUT_FORMAT_OPTION);
+        if (outputFile != null) {
+            format = options.getValue(OUTPUT_FORMAT_OPTION)
+                    .orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION));
         }
-
-        context.getOutputStream().println("Loading fault list '" + inputFile + "'");
-        ShortCircuitInput input = JsonShortCircuitInput.read(inputFile);
-        if (input.getFaults().isEmpty()) {
-            throw new PowsyblException("File '" + inputFile + "' is empty");
-        }
-
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile);
-        if (network == null) {
-            throw new PowsyblException("Fail to load network from file '" + caseFile + "'");
-        }
+        // Network loading
+        Network network = readNetwork(line, context);
+        // ComputationManager
         ComputationManager computationManager = context.getShortTimeExecutionComputationManager();
-
-        ShortCircuitParameters parameters = ShortCircuitParameters.load();
-        if (line.hasOption(PARAMETERS_FILE)) {
-            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
-            if (!Files.exists(parametersFile)) {
-                throw new PowsyblException(String.format(FILE_NOT_FOUND, parametersFile));
-            }
-            JsonShortCircuitParameters.update(parameters, parametersFile);
-        }
-
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, input.getFaults(), parameters, computationManager).join();
-
+        // ShortCircuit inputs (faults, parameters & monitors) loading
+        ShortCircuitInput executionInput = readInput(line, context);
+        // Execution
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, executionInput.getFaults(), executionInput.getParameters(), computationManager, executionInput.getMonitors()).join();
+        // Results
         if (shortCircuitAnalysisResult != null) {
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");

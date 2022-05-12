@@ -6,27 +6,54 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.google.common.collect.ImmutableList;
+import com.powsybl.security.monitor.StateMonitor;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Generic input for short circuit-computations.
+ *
+ * Input data/configuration for a {@link com.powsybl.shortcircuit.ShortCircuitAnalysis} computation.
+ * However, all fields must always be non {@literal null}.
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class ShortCircuitInput {
 
-    // VERSION = 1.0
-    public static final String VERSION = "1.0";
+    private final List<Fault> faults = new ArrayList<>();
 
-    private final List<AbstractFault> faults = new ArrayList<>();
+    private ShortCircuitParameters parameters;
 
-    public List<AbstractFault> getFaults() {
+    private final List<StateMonitor> monitors = new ArrayList<>();
+
+    public List<Fault> getFaults() {
         return faults;
     }
 
-    public ShortCircuitInput setFaults(List<AbstractFault> faults) {
-        this.faults.addAll(List.copyOf(faults));
+    public ShortCircuitParameters getParameters() {
+        return parameters;
+    }
+
+    public List<StateMonitor> getMonitors() {
+        return ImmutableList.copyOf(monitors);
+    }
+
+    public ShortCircuitInput setFaults(List<Fault> faults) {
+        this.faults.clear();
+        this.faults.addAll(Objects.requireNonNull(faults));
+        return this;
+    }
+
+    public ShortCircuitInput setParameters(ShortCircuitParameters parameters) {
+        this.parameters = Objects.requireNonNull(parameters);
+        return this;
+    }
+
+    public ShortCircuitInput setMonitors(List<StateMonitor> monitors) {
+        this.monitors.clear();
+        this.monitors.addAll(Objects.requireNonNull(monitors));
         return this;
     }
 }
