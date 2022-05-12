@@ -10,6 +10,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.extensions.*;
@@ -114,6 +115,22 @@ public class EquipmentExportTest extends AbstractConverterTest {
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridType4BE().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        testExportReimport(network, dataSource);
+    }
+
+    @Test
+    public void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        // Remove aliases of equivalent injections, so they will have to be created during export
+        for (DanglingLine danglingLine : network.getDanglingLines()) {
+            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection")
+                    .ifPresent(danglingLine::removeAlias);
+            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
+                    .ifPresent(danglingLine::removeAlias);
+        }
         testExportReimport(network, dataSource);
     }
 
