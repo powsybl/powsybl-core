@@ -83,6 +83,32 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void microGridBaseCaseAssembledSwitchAtBoundary() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+
+        network.newExtension(CgmesControlAreasAdder.class).add();
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                .setId("controlAreaId")
+                .setName("controlAreaName")
+                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
+                .setNetInterchange(Double.NaN)
+                .add();
+        TieLine tieLine = (TieLine) network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        cgmesControlArea.add(tieLine.getHalf1().getBoundary());
+        Network actual = exportReimport(network, dataSource);
+        CgmesControlAreas actualCgmesControlAreas = actual.getExtension(CgmesControlAreas.class);
+        CgmesControlArea actualCgmesControlArea = actualCgmesControlAreas.getCgmesControlArea("controlAreaId");
+        assertEquals(1, actualCgmesControlArea.getTerminals().size());
+        actualCgmesControlArea.getTerminals().forEach( terminal -> {
+            assertEquals("78736387-5f60-4832-b3fe-d50daf81b0a6%20+%207f43f508-2496-4b64-9146-0a40406cbe49", terminal.getConnectable().getId());
+        });
+    }
+
+    @Test
     public void microGrid() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
