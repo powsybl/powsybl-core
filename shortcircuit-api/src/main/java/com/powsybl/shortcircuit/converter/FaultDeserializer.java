@@ -38,9 +38,6 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         double proportionalLocation = Double.NaN;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken();
-                    break;
                 case "dataType":
                     parser.nextToken();
                     dataType = parser.readValueAs(String.class);

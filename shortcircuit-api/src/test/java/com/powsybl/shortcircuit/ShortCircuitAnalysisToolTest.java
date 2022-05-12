@@ -6,7 +6,6 @@
  */
 package com.powsybl.shortcircuit;
 
-import com.powsybl.shortcircuit.json.JsonFaultList;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
@@ -14,9 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Boubakeur Brahimi
@@ -33,11 +30,8 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
         Files.copy(getClass().getResourceAsStream("/network.xiidm"), fileSystem.getPath("network.xiidm"));
         createFile("test.uct", "");
         createFile("out.txt", "");
-        createFile("emptyFaultList.txt", "[]");
-        List<Fault> faults = new ArrayList<>();
-        faults.add(new BranchFault("id", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLE_PHASE, true, true, 3.0));
-        faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.TWO_PHASE, true, true));
-        JsonFaultList.write(faults, fileSystem.getPath("input.txt"));
+        createFile("emptyInput.txt", "{ }");
+        Files.copy(getClass().getResourceAsStream("/ShortCircuitInput.json"), fileSystem.getPath("input.txt"));
     }
 
     @Override
@@ -67,7 +61,7 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Test
     public void checkFailsWhenInputFileIsEmpty() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "emptyFaultList.txt", "--case-file", "test.uct"}, 3, null, "File 'emptyFaultList.txt' is empty");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "emptyInput.txt", "--case-file", "test.uct"}, 3, null, "File 'emptyInput.txt' is empty");
     }
 
     @Test

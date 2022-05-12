@@ -14,9 +14,6 @@ package com.powsybl.shortcircuit;
  */
 public interface Fault {
 
-    // VERSION = 1.0
-    String VERSION = "1.0";
-
     // How the fault impedance is connected to the network.
     enum ConnectionType {
         SERIES,

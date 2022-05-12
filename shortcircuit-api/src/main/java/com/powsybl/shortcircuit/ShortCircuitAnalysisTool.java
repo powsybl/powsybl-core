@@ -12,7 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;
-import com.powsybl.shortcircuit.json.JsonFaultList;
+import com.powsybl.shortcircuit.json.JsonShortCircuitInput;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -26,7 +26,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  * @author Boubakeur Brahimi
@@ -108,8 +107,8 @@ public class ShortCircuitAnalysisTool implements Tool {
         }
 
         context.getOutputStream().println("Loading fault list '" + inputFile + "'");
-        List<Fault> faults = JsonFaultList.read(inputFile);
-        if (faults.isEmpty()) {
+        ShortCircuitInput input = JsonShortCircuitInput.read(inputFile);
+        if (input.getFaults().isEmpty()) {
             throw new PowsyblException("File '" + inputFile + "' is empty");
         }
 
@@ -129,7 +128,7 @@ public class ShortCircuitAnalysisTool implements Tool {
             JsonShortCircuitParameters.update(parameters, parametersFile);
         }
 
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager).join();
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, input.getFaults(), parameters, computationManager).join();
 
         if (shortCircuitAnalysisResult != null) {
             if (outputFile != null) {

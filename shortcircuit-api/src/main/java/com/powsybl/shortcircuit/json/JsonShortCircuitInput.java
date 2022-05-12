@@ -6,11 +6,10 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.Fault;
+import com.powsybl.shortcircuit.ShortCircuitInput;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
 
 import java.io.IOException;
@@ -19,33 +18,30 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
  *  @author Thomas Adam <tadam at silicom.fr>
  */
-public final class JsonFaultList {
+public final class JsonShortCircuitInput {
 
-    private JsonFaultList() {
+    private JsonShortCircuitInput() {
     }
 
-    public static List<Fault> update(List<Fault> faults, Path jsonFile) {
+    public static ShortCircuitInput update(ShortCircuitInput input, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return update(faults, is);
+            return update(input, is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static List<Fault> update(List<Fault> faults, InputStream is) {
+    public static ShortCircuitInput update(ShortCircuitInput input, InputStream is) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            faults.addAll(objectMapper.readerFor(new TypeReference<List<Fault>>() { }).readValue(is));
-            return faults;
+            return objectMapper.readerForUpdating(input).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -55,31 +51,31 @@ public final class JsonFaultList {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
     }
 
-    public static void write(List<Fault> parameters, Path jsonFile) {
+    public static void write(ShortCircuitInput input, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
-            write(parameters, outputStream);
+            write(input, outputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static void write(List<Fault> parameters, OutputStream outputStream) {
+    public static void write(ShortCircuitInput input, OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
-            ObjectWriter writer = objectMapper.writerFor(new TypeReference<List<Fault>>() { });
-            writer.writeValue(outputStream, parameters);
+            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+            writer.writeValue(outputStream, input);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static List<Fault> read(Path jsonFile) {
-        return update(new ArrayList<>(), jsonFile);
+    public static ShortCircuitInput read(Path jsonFile) {
+        return update(new ShortCircuitInput(), jsonFile);
     }
 
-    public static List<Fault> read(InputStream jsonStream) {
-        return update(new ArrayList<>(), jsonStream);
+    public static ShortCircuitInput read(InputStream jsonStream) {
+        return update(new ShortCircuitInput(), jsonStream);
     }
 }

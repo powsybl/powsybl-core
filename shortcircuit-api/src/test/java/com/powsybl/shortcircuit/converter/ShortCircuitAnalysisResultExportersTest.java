@@ -47,7 +47,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         assertEquals("Export a result in JSON format", ShortCircuitAnalysisResultExporters.getExporter("JSON").getComment());
     }
 
-    private static ShortCircuitAnalysisResult createResult(Network network) {
+    private static ShortCircuitAnalysisResult createResult() {
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
         FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
@@ -140,8 +140,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
 
     @Test
     public void testWriteCsv() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-        ShortCircuitAnalysisResult result = createResult(network);
+        ShortCircuitAnalysisResult result = createResult();
         writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/shortcircuit-results.csv");
     }
 
