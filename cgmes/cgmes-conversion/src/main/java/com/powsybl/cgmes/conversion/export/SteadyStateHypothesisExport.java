@@ -82,7 +82,7 @@ public final class SteadyStateHypothesisExport {
         for (Connectable<?> c : network.getConnectables()) {
             if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, c, cimNamespace, writer);
+                    writeTerminal(t, cimNamespace, writer);
                 }
             }
         }
@@ -319,14 +319,34 @@ public final class SteadyStateHypothesisExport {
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
                         "k");
             } else if (tc instanceof PhaseTapChanger) {
-                rcv = new RegulatingControlView(controlId,
-                        RegulatingControlType.TAP_CHANGER_CONTROL,
-                        true,
-                        tc.isRegulating(),
-                        tc.getTargetDeadband(),
-                        ((PhaseTapChanger) tc).getRegulationValue(),
-                        // Unit multiplier is M for phase tap changers (regulation value is an active power flow in MW)
-                        "M");
+                boolean valid;
+                String unitMultiplier;
+                switch (((PhaseTapChanger) tc).getRegulationMode()) {
+                    case CURRENT_LIMITER:
+                        // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
+                        valid = true;
+                        unitMultiplier = "none";
+                        break;
+                    case ACTIVE_POWER_CONTROL:
+                        // Unit multiplier is M, regulation value is an active power flow in MW
+                        valid = true;
+                        unitMultiplier = "M";
+                        break;
+                    case FIXED_TAP:
+                    default:
+                        valid = false;
+                        unitMultiplier = "none";
+                        break;
+                }
+                if (valid) {
+                    rcv = new RegulatingControlView(controlId,
+                            RegulatingControlType.TAP_CHANGER_CONTROL,
+                            true,
+                            tc.isRegulating(),
+                            tc.getTargetDeadband(),
+                            ((PhaseTapChanger) tc).getRegulationValue(),
+                            unitMultiplier);
+                }
             }
             if (rcv != null) {
                 regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
@@ -418,19 +438,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminal(Terminal t, Connectable<?> c, String cimNamespace, XMLStreamWriter writer) {
-        Optional<String> tid;
-        if (c instanceof DanglingLine) {
-            tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
-        } else {
-            int numt = CgmesExportUtil.getTerminalSide(t, c);
-            tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + numt);
-        }
-        if (tid.isPresent()) {
-            writeTerminal(tid.get(), t.isConnected(), cimNamespace, writer);
-        } else {
-            LOG.error("Alias not found for terminal {} in connectable {}", t, c.getId());
-        }
+    private static void writeTerminal(Terminal t, String cimNamespace, XMLStreamWriter writer) {
+        writeTerminal(CgmesExportUtil.getTerminalId(t), t.isConnected(), cimNamespace, writer);
     }
 
     private static void writeTerminal(String terminalId, boolean connected, String cimNamespace, XMLStreamWriter writer) {
