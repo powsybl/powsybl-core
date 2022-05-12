@@ -83,6 +83,16 @@ public class DataObjectBuilder {
         object.setObjectAttributeValue(attributeName, otherObjectId);
     }
 
+    public void setIntVectorAttributeValue(long objectId, String attributeName, List<Integer> value) {
+        DataObject object = getObjectById(objectId);
+        object.setIntVectorAttributeValue(attributeName, value);
+    }
+
+    public void setLongVectorAttributeValue(long objectId, String attributeName, List<Long> value) {
+        DataObject object = getObjectById(objectId);
+        object.setLongVectorAttributeValue(attributeName, value);
+    }
+
     public void setDoubleVectorAttributeValue(long objectId, String attributeName, List<Double> value) {
         DataObject object = getObjectById(objectId);
         object.setDoubleVectorAttributeValue(attributeName, value);
@@ -91,5 +101,10 @@ public class DataObjectBuilder {
     public void setStringVectorAttributeValue(long objectId, String attributeName, List<String> value) {
         DataObject object = getObjectById(objectId);
         object.setStringVectorAttributeValue(attributeName, value);
+    }
+
+    public void setObjectVectorAttributeValue(long objectId, String attributeName, List<Long> otherObjectsIds) {
+        DataObject object = getObjectById(objectId);
+        object.setObjectVectorAttributeValue(attributeName, otherObjectsIds);
     }
 }
