@@ -12,9 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -71,6 +69,15 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        testExportReimport(network, dataSource);
+    }
+
+    @Test
+    public void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
         testExportReimport(network, dataSource);
     }
