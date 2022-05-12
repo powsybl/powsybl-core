@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "faults" : [ {
-    "dataType" : "BranchFault",
+    "type" : "BRANCH",
     "id" : "id",
     "r" : 1.0,
     "x" : 2.0,
@@ -11,7 +11,7 @@
     "withVoltageMap" : true,
     "proportionalLocation" : 3.0
   }, {
-    "dataType" : "BusFault",
+    "type" : "BUS",
     "id" : "id",
     "r" : 1.1,
     "x" : 2.2,

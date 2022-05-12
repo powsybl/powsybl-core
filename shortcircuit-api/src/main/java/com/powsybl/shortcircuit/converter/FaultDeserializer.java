@@ -27,7 +27,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
 
     @Override
     public Fault deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String dataType = null;
+        Fault.Type type = null;
         String id = "";
         double r = Double.NaN;
         double x = Double.NaN;
@@ -38,9 +38,9 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         double proportionalLocation = Double.NaN;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "dataType":
+                case "type":
                     parser.nextToken();
-                    dataType = parser.readValueAs(String.class);
+                    type = Fault.Type.valueOf(parser.readValueAs(String.class));
                     break;
                 case "id":
                     parser.nextToken();
@@ -79,20 +79,20 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        if (null == dataType) {
+        if (null == type) {
             throw new AssertionError("Required datatype field is missing");
         }
 
         Fault fault;
-        switch (dataType) {
-            case "BusFault":
+        switch (type) {
+            case BUS:
                 fault = new BusFault(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
                 break;
-            case "BranchFault":
+            case BRANCH:
                 fault = new BranchFault(id, r, x, connection, faultType, withLimitViolations, withVoltageMap, proportionalLocation);
                 break;
             default:
-                throw new AssertionError("Unexpected datatype: " + dataType);
+                throw new AssertionError("Unexpected datatype: " + type.name());
         }
         return fault;
     }

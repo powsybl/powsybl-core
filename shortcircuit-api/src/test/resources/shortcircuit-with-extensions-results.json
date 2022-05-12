@@ -2,7 +2,7 @@
   "version" : "1.0",
   "faultResults" : [ {
     "fault" : {
-      "dataType" : "BusFault",
+      "type" : "BUS",
       "id" : "id",
       "r" : 0.0,
       "x" : 0.0,

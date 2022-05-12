@@ -57,7 +57,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static FaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
-        Fault fault = new BusFault(faultId, 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE, true, false);
+        Fault fault = new BusFault(faultId, 0.0, 0.0, true, false);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "VLGEN";
         float limitReduction = 1;
@@ -69,7 +69,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static ShortCircuitAnalysisResult createResultWithExtension() {
-        Fault fault = new BusFault("id", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE, true, false);
+        Fault fault = new BusFault("id", 0.0, 0.0, true, false);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
@@ -89,7 +89,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static ShortCircuitAnalysisResult createWithFeederResults() {
-        Fault fault = new BusFault("id", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE, true, false);
+        Fault fault = new BusFault("id", 0.0, 0.0, true, false);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;

@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit;
 
 /**
- * Abstract class to describe the characteristics of the fault to be simulated.
+ * Class to describe the characteristics of the fault to be simulated.
  * Used for elementary short-circuit calculation only.
  *
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
@@ -17,14 +17,23 @@ public class BranchFault extends AbstractFault {
     // Location of the fault in % of the branch length (with side ONE as reference).
     private final double proportionalLocation;
 
-    public BranchFault(String id, double r, double x, Fault.ConnectionType connection, Fault.FaultType faultType, boolean withLimitViolations, boolean withVoltageMap,
+    public BranchFault(String id, double r, double x, AbstractFault.ConnectionType connection, AbstractFault.FaultType faultType, boolean withLimitViolations, boolean withVoltageMap,
                        double proportionalLocation) {
         // Here the id is the id of a branch.
         super(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
         this.proportionalLocation = proportionalLocation;
     }
 
+    public BranchFault(String id, double r, double x, boolean withLimitViolations, boolean withVoltageMap, double proportionalLocation) {
+        // Here the id is the id of a bus from the bus view.
+        this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE, withLimitViolations, withVoltageMap, proportionalLocation);
+    }
+
     @Override
+    public Type getType() {
+        return Type.BRANCH;
+    }
+
     public double getProportionalLocation() {
         return this.proportionalLocation;
     }

@@ -54,7 +54,7 @@ public class ShortCircuitAnalysisTest {
             }
 
             @Override
-            public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> fault, ShortCircuitParameters parameters,
+            public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<AbstractFault> fault, ShortCircuitParameters parameters,
                                                                      ComputationManager computationManager) {
 
                 return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
@@ -71,7 +71,7 @@ public class ShortCircuitAnalysisTest {
     private Network network;
     private ComputationManager computationManager;
     private ShortCircuitParameters shortCircuitParameters;
-    private List<Fault> faults;
+    private List<AbstractFault> faults;
 
     @Before
     public void setUp() {

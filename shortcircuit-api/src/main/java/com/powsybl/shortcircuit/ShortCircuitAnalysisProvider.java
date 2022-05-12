@@ -25,12 +25,12 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
 
     boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor);
 
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults, ShortCircuitParameters parameters,
+    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<AbstractFault> faults, ShortCircuitParameters parameters,
                                                               ComputationManager computationManager) {
         return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager);
     }
 
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults, ShortCircuitParameters parameters,
+    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<AbstractFault> faults, ShortCircuitParameters parameters,
                                                               ComputationManager computationManager, Reporter reporter) {
         return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, reporter);
     }

@@ -17,13 +17,13 @@ abstract class AbstractFault implements Fault {
     private final String id;
     private final double r;
     private final double x;
-    private final Fault.ConnectionType connection;
-    private final Fault.FaultType faultType;
+    private final ConnectionType connection;
+    private final FaultType faultType;
     private final boolean withLimitViolations;
     private final boolean withVoltageMap;
 
-    protected AbstractFault(String id, double r, double x, Fault.ConnectionType connection,
-                         Fault.FaultType faultType, boolean withLimitViolations, boolean withVoltageMap) {
+    protected AbstractFault(String id, double r, double x, ConnectionType connection,
+                            FaultType faultType, boolean withLimitViolations, boolean withVoltageMap) {
         this.id = id;
         this.r = r;
         this.x = x;
@@ -33,6 +33,7 @@ abstract class AbstractFault implements Fault {
         this.withVoltageMap = withVoltageMap;
     }
 
+    @Override
     public String getId() {
         return this.id;
     }

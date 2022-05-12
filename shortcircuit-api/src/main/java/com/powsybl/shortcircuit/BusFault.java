@@ -7,15 +7,25 @@
 package com.powsybl.shortcircuit;
 
 /**
- * Abstract class to describe the characteristics of the fault to be simulated.
+ * Class to describe the characteristics of the fault to be simulated.
  * Used for elementary short-circuit calculation only.
  *
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
 public class BusFault extends AbstractFault {
 
-    public BusFault(String id, double r, double x, Fault.ConnectionType connection, Fault.FaultType faultType, boolean withLimitViolations, boolean withVoltageMap) {
+    public BusFault(String id, double r, double x, AbstractFault.ConnectionType connection, AbstractFault.FaultType faultType, boolean withLimitViolations, boolean withVoltageMap) {
         // Here the id is the id of a bus from the bus view.
         super(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
+    }
+
+    public BusFault(String id, double r, double x, boolean withLimitViolations, boolean withVoltageMap) {
+        // Here the id is the id of a bus from the bus view.
+        this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE, withLimitViolations, withVoltageMap);
+    }
+
+    @Override
+    public Type getType() {
+        return Type.BUS;
     }
 }

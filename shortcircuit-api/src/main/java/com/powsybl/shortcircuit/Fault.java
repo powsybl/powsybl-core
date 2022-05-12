@@ -14,6 +14,12 @@ package com.powsybl.shortcircuit;
  */
 public interface Fault {
 
+    // Type of fault (use for downcast & serialize/deserialize)
+    enum Type {
+        BUS,
+        BRANCH
+    }
+
     // How the fault impedance is connected to the network.
     enum ConnectionType {
         SERIES,
@@ -32,14 +38,12 @@ public interface Fault {
     // The equipment or bus id where the fault is simulated.
     String getId();
 
-    default double getProportionalLocation() {
-        return Double.NaN;
-    }
-
     // Characteristics of the short-circuit.
     double getR();
 
     double getX();
+
+    Type getType();
 
     default ConnectionType getConnectionType() {
         return ConnectionType.SERIES;

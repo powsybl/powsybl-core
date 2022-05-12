@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.Fault;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class FaultSerializer extends StdSerializer<Fault> {
     public void serialize(Fault fault, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("dataType", fault.getClass().getSimpleName());
+        jsonGenerator.writeStringField("type", fault.getType().name());
         jsonGenerator.writeStringField("id", fault.getId());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "r", fault.getR());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "x", fault.getX());
@@ -35,7 +36,9 @@ public class FaultSerializer extends StdSerializer<Fault> {
         jsonGenerator.writeStringField("faultType", fault.getFaultType().name());
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolations", fault.withLimitViolations(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageMap", fault.withVoltageMap(), false);
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "proportionalLocation", fault.getProportionalLocation());
+        if (fault.getType() == Fault.Type.BRANCH) {
+            JsonUtil.writeOptionalDoubleField(jsonGenerator, "proportionalLocation", ((BranchFault) fault).getProportionalLocation());
+        }
 
         jsonGenerator.writeEndObject();
     }

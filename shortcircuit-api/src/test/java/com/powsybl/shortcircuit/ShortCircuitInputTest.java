@@ -22,9 +22,9 @@ public class ShortCircuitInputTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         ShortCircuitInput input = new ShortCircuitInput();
-        List<Fault> faults = new ArrayList<>();
-        faults.add(new BranchFault("id", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLE_PHASE, true, true, 3.0));
-        faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.TWO_PHASE, true, true));
+        List<AbstractFault> faults = new ArrayList<>();
+        faults.add(new BranchFault("id", 1.0, 2.0, AbstractFault.ConnectionType.PARALLEL, AbstractFault.FaultType.SINGLE_PHASE, true, true, 3.0));
+        faults.add(new BusFault("id", 1.1, 2.2, AbstractFault.ConnectionType.SERIES, AbstractFault.FaultType.TWO_PHASE, true, true));
         input.setFaults(faults);
         roundTripTest(input, JsonShortCircuitInput::write, JsonShortCircuitInput::read,
                 "/ShortCircuitInput.json");

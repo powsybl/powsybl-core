@@ -18,10 +18,7 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.shortcircuit.Fault;
-import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.FeederResult;
-import com.powsybl.shortcircuit.ThreePhaseValue;
+import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
 import java.util.Collections;
