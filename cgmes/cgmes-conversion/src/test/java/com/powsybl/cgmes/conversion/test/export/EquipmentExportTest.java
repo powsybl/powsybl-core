@@ -87,6 +87,22 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        // Remove aliases of equivalent injections, so they will have to be created during export
+        for (DanglingLine danglingLine : network.getDanglingLines()) {
+            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection")
+                    .ifPresent(danglingLine::removeAlias);
+            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
+                    .ifPresent(danglingLine::removeAlias);
+        }
+        testExportReimport(network, dataSource);
+    }
+
+    @Test
     public void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
