@@ -39,18 +39,17 @@ public class ExportOptionsTest {
         assertEquals(3, (int) options.getExtensions().map(Set::size).orElse(-1));
     }
 
+    @Test
     public void exportOptionsTest2() {
         Set<String> extensionsList = new HashSet<>();
         ExportOptions options = new ExportOptions();
         options.setExtensions(extensionsList);
         assertEquals(0, (int) options.getExtensions().map(Set::size).orElse(-1));
-
     }
 
     @Test
     public void exportOptionsTest3() {
         Set<String> extensionsList = Sets.newHashSet("loadFoo");
-
         ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE, Boolean.TRUE);
         options.setExtensions(extensionsList);
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
