@@ -144,16 +144,14 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static <C extends Connectable<C>> void writeTapChanger(C eq, String tcId, TapChanger<?, ?> tc, String defaultType, Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        String type = CgmesExportUtil.cgmesTapChangerType(eq, tcId).orElse(defaultType);
+        writeTapChanger(type, tcId, tc, cimNamespace, writer);
+
         CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
-        String type = defaultType;
         CgmesTapChanger cgmesTc = null;
         if (cgmesTcs != null) {
             cgmesTc = cgmesTcs.getTapChanger(tcId);
-            if (cgmesTc != null) {
-                type = Optional.ofNullable(cgmesTc.getType()).orElse(defaultType);
-            }
         }
-        writeTapChanger(type, tcId, tc, cimNamespace, writer);
         addRegulatingControlView(tc, cgmesTc, regulatingControlViews);
         if (cgmesTcs != null) {
             for (CgmesTapChanger tapChanger : cgmesTcs.getTapChangers()) {
