@@ -21,7 +21,7 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
     @Override
     public CurrentLimitsImpl add() {
         checkLoadingLimits();
-        CurrentLimitsImpl limits = new CurrentLimitsImpl(owner, permanentLimit, temporaryLimits);
+        CurrentLimitsImpl limits = new CurrentLimitsImpl(owner, id, permanentLimit, temporaryLimits);
         owner.setOperationalLimits(LimitType.CURRENT, limits);
         return limits;
     }

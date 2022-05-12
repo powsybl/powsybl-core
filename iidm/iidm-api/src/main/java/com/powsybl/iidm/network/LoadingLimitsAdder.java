@@ -12,6 +12,8 @@ package com.powsybl.iidm.network;
  */
 public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends OperationalLimitsAdder<L> {
 
+    A setId(String id);
+
     interface TemporaryLimitAdder<A> {
 
         TemporaryLimitAdder<A> setName(String name);

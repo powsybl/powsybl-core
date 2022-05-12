@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.LoadingLimitsAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +23,8 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
+
+    protected String id = null;
 
     protected final OperationalLimitsOwner owner;
 
@@ -119,6 +118,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     @Override
+    public A setId(String id) {
+        this.id = id;
+        return (A) this;
+    }
+
+    @Override
     public A setPermanentLimit(double permanentLimit) {
         this.permanentLimit = permanentLimit;
         return (A) this;
@@ -168,6 +173,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected void checkLoadingLimits() {
+        // When using a set, check that ID is unique in this set
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
         checkTemporaryLimits();
     }

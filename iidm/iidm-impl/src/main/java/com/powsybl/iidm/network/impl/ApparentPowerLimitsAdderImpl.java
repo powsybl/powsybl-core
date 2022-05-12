@@ -22,7 +22,7 @@ class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPo
     @Override
     public ApparentPowerLimits add() {
         checkLoadingLimits();
-        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(owner, permanentLimit, temporaryLimits);
+        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(owner, id, permanentLimit, temporaryLimits);
         owner.setOperationalLimits(LimitType.APPARENT_POWER, limits);
         return limits;
     }

@@ -22,7 +22,7 @@ class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ActivePowerL
     @Override
     public ActivePowerLimits add() {
         checkLoadingLimits();
-        ActivePowerLimits limits = new ActivePowerLimitsImpl(owner, permanentLimit, temporaryLimits);
+        ActivePowerLimits limits = new ActivePowerLimitsImpl(owner, id, permanentLimit, temporaryLimits);
         owner.setOperationalLimits(LimitType.ACTIVE_POWER, limits);
         return limits;
     }

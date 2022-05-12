@@ -15,7 +15,7 @@ import java.util.TreeMap;
  */
 class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsImpl> implements ApparentPowerLimits {
 
-    ApparentPowerLimitsImpl(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        super(owner, permanentLimit, temporaryLimits);
+    ApparentPowerLimitsImpl(OperationalLimitsOwner owner, String id, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(owner, id, permanentLimit, temporaryLimits);
     }
 }

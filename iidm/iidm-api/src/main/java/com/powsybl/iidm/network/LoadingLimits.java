@@ -7,12 +7,15 @@
 package com.powsybl.iidm.network;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Thibaut Vermeulen <thibaut.vermeulen at rte-france.com>
  */
 public interface LoadingLimits extends OperationalLimits {
+
+    Optional<String> getId();
 
     /**
      * Temporary current limit.

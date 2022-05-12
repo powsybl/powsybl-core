@@ -15,7 +15,7 @@ import java.util.TreeMap;
  */
 public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> implements CurrentLimits {
 
-    CurrentLimitsImpl(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        super(owner, permanentLimit, temporaryLimits);
+    CurrentLimitsImpl(OperationalLimitsOwner owner, String id, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(owner, id, permanentLimit, temporaryLimits);
     }
 }
