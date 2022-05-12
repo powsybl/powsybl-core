@@ -157,6 +157,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
+    @Override
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
     }

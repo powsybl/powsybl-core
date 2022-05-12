@@ -55,6 +55,8 @@ public abstract class AbstractOptions<T> {
         return withAllExtensions() || extensions.contains(extensionName);
     }
 
+    public abstract boolean isThrowExceptionIfExtensionNotFound();
+
     /**
      * @deprecated Not used anymore
      */
