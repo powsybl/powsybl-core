@@ -51,8 +51,11 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
         FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
+        Fault fault = new BranchFault("ID_3", 0.0, 0.0, true, true, 12.0);
+        FaultResult faultResult3 = new FaultResult(fault,  new ThreePhaseValue(2002, 2003));
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
+        faultResults.add(faultResult3);
         return new ShortCircuitAnalysisResult(faultResults);
     }
 

@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Boubakeur Brahimi
  */
@@ -46,6 +48,10 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
+        assertEquals("shortcircuit", shortCircuitTool.getCommand().getName());
+        assertEquals("Computation", shortCircuitTool.getCommand().getTheme());
+        assertEquals("Run short circuit analysis", shortCircuitTool.getCommand().getDescription());
+
         assertCommand(shortCircuitTool.getCommand(), COMMAND_NAME, 5, 2);
         assertOption(shortCircuitTool.getCommand().getOptions(), "input-file", true, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "case-file", true, true);

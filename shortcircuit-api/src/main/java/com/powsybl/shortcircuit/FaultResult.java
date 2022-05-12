@@ -62,11 +62,11 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     public FaultResult(Fault fault, ThreePhaseValue current, double timeConstant) {
-        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), current, null, timeConstant);
+        this(fault, current, Collections.emptyList(), timeConstant);
     }
 
     public FaultResult(Fault fault, ThreePhaseValue current) {
-        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), current, null, Double.NaN);
+        this(fault, current, Double.NaN);
     }
 
     /**

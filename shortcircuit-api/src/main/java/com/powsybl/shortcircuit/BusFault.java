@@ -14,7 +14,7 @@ package com.powsybl.shortcircuit;
  */
 public class BusFault extends AbstractFault {
 
-    public BusFault(String id, double r, double x, AbstractFault.ConnectionType connection, AbstractFault.FaultType faultType, boolean withLimitViolations, boolean withVoltageMap) {
+    public BusFault(String id, double r, double x, ConnectionType connection, FaultType faultType, boolean withLimitViolations, boolean withVoltageMap) {
         // Here the id is the id of a bus from the bus view.
         super(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
     }

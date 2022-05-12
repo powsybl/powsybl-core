@@ -9,8 +9,10 @@ package com.powsybl.shortcircuit;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.shortcircuit.json.JsonShortCircuitInput;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +33,39 @@ public class ShortCircuitInputTest extends AbstractConverterTest {
     }
 
     @Test
+    public void writeErrorPath() {
+        expected.expect(UncheckedIOException.class);
+        expected.expectMessage("java.nio.file.AccessDeniedException: ");
+        ShortCircuitInput input = new ShortCircuitInput();
+        JsonShortCircuitInput.write(input, Path.of(""));
+    }
+
+    @Test
+    public void writeErrorOutputStream() throws IOException {
+        expected.expect(UncheckedIOException.class);
+        expected.expectMessage("java.io.IOException");
+
+        OutputStream out = Mockito.mock(OutputStream.class);
+        Mockito.doThrow(new IOException()).when(out).close();
+
+        JsonShortCircuitInput.write(new ShortCircuitInput(), out);
+    }
+
+    @Test
     public void readError() {
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: unexpected");
         JsonShortCircuitInput.read(getClass().getResourceAsStream("/ShortCircuitInputInvalid.json"));
+    }
+
+    @Test
+    public void readErrorInputStream() throws IOException {
+        expected.expect(UncheckedIOException.class);
+        expected.expectMessage("java.io.IOException");
+
+        InputStream in = Mockito.mock(InputStream.class);
+        Mockito.doThrow(new IOException()).when(in).read();
+
+        JsonShortCircuitInput.read(in);
     }
 }
