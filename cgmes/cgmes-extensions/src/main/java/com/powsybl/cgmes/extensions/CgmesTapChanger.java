@@ -24,4 +24,7 @@ public interface CgmesTapChanger {
     OptionalInt getStep();
 
     String getControlId();
+
+    default void setType(String type) {
+    }
 }
