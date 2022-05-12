@@ -59,10 +59,7 @@ public final class TopologyExport {
         for (Connectable<?> c : network.getConnectables()) {
             for (Terminal t : c.getTerminals()) {
                 String terminalId;
-                if (c instanceof Load && c.isFictitious()) {
-                    // A fictitious load have not terminal
-                    continue;
-                } else if (c instanceof DanglingLine) {
+                if (c instanceof DanglingLine) {
                     writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer);
                     terminalId = cgmesTerminalFromAlias(c, "Terminal_Network");
                 } else {

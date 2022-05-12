@@ -224,10 +224,7 @@ public final class EquipmentExport {
 
     private static void writeLoads(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Load load : network.getLoads()) {
-            // A fictitious load is exported like a SVInjection
-            if (!load.isFictitious()) {
-                EnergyConsumerEq.write(load.getId(), load.getNameOrId(), load.getExtension(LoadDetail.class), load.getTerminal().getVoltageLevel().getId(), cimNamespace, writer);
-            }
+            EnergyConsumerEq.write(load.getId(), load.getNameOrId(), load.getExtension(LoadDetail.class), load.getTerminal().getVoltageLevel().getId(), cimNamespace, writer);
         }
     }
 
@@ -678,10 +675,7 @@ public final class EquipmentExport {
     private static void writeTerminal(Terminal t, Connectable<?> c, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) {
         String terminalId = null;
         int sequenceNumber = 1;
-        if (c instanceof Load && c.isFictitious()) {
-            // A fictitious load have not terminal
-            return;
-        } else if (c instanceof DanglingLine) {
+        if (c instanceof DanglingLine) {
             terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network").orElseThrow(PowsyblException::new);
         } else {
             sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);

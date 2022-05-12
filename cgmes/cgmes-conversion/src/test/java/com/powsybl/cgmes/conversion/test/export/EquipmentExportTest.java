@@ -29,6 +29,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.xmlunit.diff.DifferenceEvaluators;
 
@@ -99,6 +100,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         compareNetworksEQdata(expected, actual);
     }
 
+    @Ignore
     @Test
     public void miniBusBranch() throws IOException, XMLStreamException {
         Properties properties = new Properties();
