@@ -98,7 +98,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 .setNetInterchange(Double.NaN)
                 .add();
         TieLine tieLine = (TieLine) network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getHalf1().getBoundary());
+        cgmesControlArea.add(tieLine.getHalf2().getBoundary());
         Network actual = exportReimport(network, dataSource);
         CgmesControlAreas actualCgmesControlAreas = actual.getExtension(CgmesControlAreas.class);
         CgmesControlArea actualCgmesControlArea = actualCgmesControlAreas.getCgmesControlArea("controlAreaId");
