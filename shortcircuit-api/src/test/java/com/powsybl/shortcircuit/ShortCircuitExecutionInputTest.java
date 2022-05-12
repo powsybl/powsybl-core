@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,13 +27,6 @@ public class ShortCircuitExecutionInputTest extends AbstractConverterTest {
         faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.TWO_PHASE, true, true));
         roundTripTest(faults, JsonShortCircuitInput::write, JsonShortCircuitInput::read,
                 "/ShortCircuitInput.json");
-    }
-
-    @Test
-    public void writeErrorPath() {
-        expected.expect(UncheckedIOException.class);
-        expected.expectMessage("java.nio.file.AccessDeniedException: ");
-        JsonShortCircuitInput.write(new ArrayList<>(), Path.of(""));
     }
 
     @Test

@@ -28,10 +28,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
 
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.CASE_FILE_OPTION;
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.MONITORING_FILE;
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.OUTPUT_FILE_OPTION;
-import static com.powsybl.security.tools.SecurityAnalysisToolConstants.OUTPUT_FORMAT_OPTION;
 import static com.powsybl.shortcircuit.tools.ShortCircuitAnalysisToolConstants.*;
 
 /**
@@ -69,10 +65,8 @@ public class ShortCircuitAnalysisTool implements Tool {
                         .desc("the output format " + ShortCircuitAnalysisResultExporters.getFormats()).hasArg()
                         .argName("FORMAT").build());
                 options.addOption(Option.builder().longOpt(MONITORING_FILE)
-                        .desc("monitoring file (.json) to get network's info after computation")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
+                        .desc("monitoring file (.json) to get network's info after computation").hasArg()
+                        .argName("FILE").build());
                 return options;
             }
 
