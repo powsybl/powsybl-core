@@ -103,7 +103,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         CgmesControlAreas actualCgmesControlAreas = actual.getExtension(CgmesControlAreas.class);
         CgmesControlArea actualCgmesControlArea = actualCgmesControlAreas.getCgmesControlArea("controlAreaId");
         assertEquals(1, actualCgmesControlArea.getTerminals().size());
-        actualCgmesControlArea.getTerminals().forEach( terminal -> {
+        actualCgmesControlArea.getTerminals().forEach(terminal -> {
             assertEquals("78736387-5f60-4832-b3fe-d50daf81b0a6%20+%207f43f508-2496-4b64-9146-0a40406cbe49", terminal.getConnectable().getId());
         });
     }
