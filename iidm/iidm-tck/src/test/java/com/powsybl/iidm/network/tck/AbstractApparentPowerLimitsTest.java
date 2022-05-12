@@ -63,17 +63,15 @@ public abstract class AbstractApparentPowerLimitsTest {
         Line l = network.getLine("NHV1_NHV2_2");
 
         // limits1
-        assertFalse(l.getOperationalLimits1().isEmpty());
-        testLimits1(l.getApparentPowerLimits1());
-        testLimits1(l.getApparentPowerLimits(Branch.Side.ONE));
+        testLimits1(l.getApparentPowerLimits1().orElse(null));
+        testLimits1((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.ONE).orElse(null));
 
         // limits2
-        assertFalse(l.getOperationalLimits2().isEmpty());
-        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2();
+        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2().orElseThrow(AssertionError::new);
         testLimits2(apparentPowerLimits2);
-        testLimits2(l.getApparentPowerLimits(Branch.Side.TWO));
+        testLimits2((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.TWO).orElse(null));
 
         apparentPowerLimits2.remove();
-        assertNull(l.getApparentPowerLimits2());
+        assertTrue(l.getActivePowerLimits2().isEmpty());
     }
 }

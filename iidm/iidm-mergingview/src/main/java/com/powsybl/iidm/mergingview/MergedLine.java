@@ -139,23 +139,8 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return getDanglingLine1().getOperationalLimits();
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits1() {
-        return getDanglingLine1().getCurrentLimits();
-    }
-
-    @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         return getDanglingLine1().newCurrentLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits1() {
-        return getDanglingLine1().getActivePowerLimits();
     }
 
     @Override
@@ -164,23 +149,38 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1() {
-        return getDanglingLine1().getApparentPowerLimits();
-    }
-
-    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return getDanglingLine1().newApparentPowerLimits();
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return getDanglingLine2().getOperationalLimits();
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        return getDanglingLine2().getCurrentLimits();
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2() {
-        return getDanglingLine2().getCurrentLimits();
+    public CurrentLimits getNullableCurrentLimits2() {
+        return getDanglingLine2().getNullableCurrentLimits();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return getDanglingLine2().getActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return getDanglingLine2().getNullableActivePowerLimits();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return getDanglingLine2().getApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getDanglingLine2().getNullableApparentPowerLimits();
     }
 
     @Override
@@ -189,18 +189,8 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits2() {
-        return getDanglingLine2().getActivePowerLimits();
-    }
-
-    @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         return getDanglingLine2().newActivePowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getApparentPowerLimits2() {
-        return getDanglingLine2().getApparentPowerLimits();
     }
 
     @Override
@@ -314,6 +304,36 @@ class MergedLine implements TieLine {
         } else {
             throw new PowsyblException("The terminal is not connected to this branch");
         }
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        return getDanglingLine1().getCurrentLimits();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits1() {
+        return getDanglingLine1().getNullableCurrentLimits();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return getDanglingLine1().getActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return getDanglingLine1().getNullableActivePowerLimits();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return getDanglingLine1().getApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getDanglingLine1().getNullableApparentPowerLimits();
     }
 
     @Override

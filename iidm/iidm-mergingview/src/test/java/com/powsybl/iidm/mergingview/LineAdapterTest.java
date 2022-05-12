@@ -79,20 +79,12 @@ public class LineAdapterTest {
         assertEquals(b2, lineAdapted.getB2(), 0.0);
         lineAdapted.setB2(++b2);
         assertEquals(b2, lineAdapted.getB2(), 0.0);
-        assertSame(lineRef.getCurrentLimits1(), lineAdapted.getCurrentLimits1());
-        assertSame(lineRef.getActivePowerLimits1(), lineAdapted.getActivePowerLimits1());
-        assertSame(lineRef.getApparentPowerLimits1(), lineAdapted.getApparentPowerLimits1());
-        assertSame(lineRef.getCurrentLimits2(), lineAdapted.getCurrentLimits2());
-        assertSame(lineRef.getActivePowerLimits2(), lineAdapted.getActivePowerLimits2());
-        assertSame(lineRef.getApparentPowerLimits2(), lineAdapted.getApparentPowerLimits2());
-        assertSame(lineRef.getCurrentLimits(Branch.Side.ONE), lineAdapted.getCurrentLimits(Branch.Side.ONE));
-        assertSame(lineRef.getActivePowerLimits(Branch.Side.ONE), lineAdapted.getActivePowerLimits(Branch.Side.ONE));
-        assertSame(lineRef.getApparentPowerLimits(Branch.Side.ONE), lineAdapted.getApparentPowerLimits(Branch.Side.ONE));
-        assertSame(lineRef.getCurrentLimits(Branch.Side.TWO), lineAdapted.getCurrentLimits(Branch.Side.TWO));
-        assertSame(lineRef.getActivePowerLimits(Branch.Side.TWO), lineAdapted.getActivePowerLimits(Branch.Side.TWO));
-        assertSame(lineRef.getApparentPowerLimits(Branch.Side.TWO), lineAdapted.getApparentPowerLimits(Branch.Side.TWO));
-        assertEquals(lineRef.getOperationalLimits1().size(), lineAdapted.getOperationalLimits1().size());
-        assertEquals(lineRef.getOperationalLimits2().size(), lineAdapted.getOperationalLimits2().size());
+        assertSame(lineRef.getCurrentLimits1().orElse(null), lineAdapted.getCurrentLimits1().orElse(null));
+        assertSame(lineRef.getActivePowerLimits1().orElse(null), lineAdapted.getActivePowerLimits1().orElse(null));
+        assertSame(lineRef.getApparentPowerLimits1().orElse(null), lineAdapted.getApparentPowerLimits1().orElse(null));
+        assertSame(lineRef.getCurrentLimits2().orElse(null), lineAdapted.getCurrentLimits2().orElse(null));
+        assertSame(lineRef.getActivePowerLimits2().orElse(null), lineAdapted.getActivePowerLimits2().orElse(null));
+        assertSame(lineRef.getApparentPowerLimits2().orElse(null), lineAdapted.getApparentPowerLimits2().orElse(null));
 
         assertEquals(lineRef.isOverloaded(), lineAdapted.isOverloaded());
         assertEquals(lineRef.isOverloaded(0.0f), lineAdapted.isOverloaded(0.0f));

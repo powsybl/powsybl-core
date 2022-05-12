@@ -383,23 +383,33 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits() {
-        return operationalLimitsHolder.getOperationalLimits();
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits() {
+    public Optional<CurrentLimits> getCurrentLimits() {
         return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits() {
+    public CurrentLimits getNullableCurrentLimits() {
+        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits() {
         return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits() {
+    public ActivePowerLimits getNullableActivePowerLimits() {
+        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits() {
         return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits() {
+        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
     }
 
     @Override

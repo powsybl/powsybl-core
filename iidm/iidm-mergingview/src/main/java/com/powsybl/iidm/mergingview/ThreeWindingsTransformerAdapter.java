@@ -9,7 +9,6 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,13 +89,33 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public Collection<OperationalLimits> getOperationalLimits() {
-            return getDelegate().getOperationalLimits();
+        public Optional<CurrentLimits> getCurrentLimits() {
+            return getDelegate().getCurrentLimits();
         }
 
         @Override
-        public CurrentLimits getCurrentLimits() {
-            return getDelegate().getCurrentLimits();
+        public CurrentLimits getNullableCurrentLimits() {
+            return getDelegate().getNullableCurrentLimits();
+        }
+
+        @Override
+        public Optional<ActivePowerLimits> getActivePowerLimits() {
+            return getDelegate().getActivePowerLimits();
+        }
+
+        @Override
+        public ActivePowerLimits getNullableActivePowerLimits() {
+            return getDelegate().getNullableActivePowerLimits();
+        }
+
+        @Override
+        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+            return getDelegate().getApparentPowerLimits();
+        }
+
+        @Override
+        public ApparentPowerLimits getNullableApparentPowerLimits() {
+            return getDelegate().getNullableApparentPowerLimits();
         }
 
         @Override
@@ -105,18 +124,8 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public ApparentPowerLimits getApparentPowerLimits() {
-            return getDelegate().getApparentPowerLimits();
-        }
-
-        @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
             return getDelegate().newApparentPowerLimits();
-        }
-
-        @Override
-        public ActivePowerLimits getActivePowerLimits() {
-            return getDelegate().getActivePowerLimits();
         }
 
         @Override

@@ -11,6 +11,7 @@ package com.powsybl.iidm.network;
  * @author Thibaut Vermeulen <thibaut.vermeulen at rte-france.com>
  */
 public interface OperationalLimits {
+
     /**
      * Get the operational limits' type (can be APPARENT_POWER, CURRENT or VOLTAGE)
      */
