@@ -477,13 +477,11 @@ public class CgmesExportContext {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
-            // FIXME(Luma)
             //  For two winding transformers we can not check-and-add based on endNumber
             //  The resulting IIDM tap changer is always at end1
             //  But the original position of tap changer could be 1 or 2
-            //  We also have to take into account if there is a hidden tap changer
-            addIidmTapChanger(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1);
-            addIidmTapChanger(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1);
+            addIidmTapChanger2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
+            addIidmTapChanger2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
         }
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
@@ -512,6 +510,20 @@ public class CgmesExportContext {
             if (eq.getAliasFromType(aliasType).isEmpty()) {
                 String newTapChangerId = CgmesExportUtil.getUniqueId();
                 eq.addAlias(newTapChangerId, aliasType);
+            }
+        }
+    }
+
+    private static void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName) {
+        if (tc != null) {
+            String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 1;
+            String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 2;
+            // Only create a new identifier, always at end 1,
+            // If no previous identifiers were found
+            // Neither at end 1 nor at end 2
+            if (eq.getAliasFromType(aliasType1).isEmpty() && eq.getAliasFromType(aliasType2).isEmpty()) {
+                String newTapChangerId = CgmesExportUtil.getUniqueId();
+                eq.addAlias(newTapChangerId, aliasType1);
             }
         }
     }

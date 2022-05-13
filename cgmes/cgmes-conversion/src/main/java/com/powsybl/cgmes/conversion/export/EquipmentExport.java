@@ -328,11 +328,39 @@ public final class EquipmentExport {
             String end2Id = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 2).orElseThrow(PowsyblException::new);
             PowerTransformerEq.writeEnd(end2Id, twt.getNameOrId() + "_2", twt.getId(), 2, 0.0, 0.0, 0.0, 0.0, twt.getRatedU2(), exportedTerminalId(exportedTerminals, twt.getTerminal2()), cimNamespace, writer);
 
-            // FIXME(Luma) We have to be careful with the endNumber for 2-wt
+            // Export tap changers:
+            // We are exporting the tap changer as it is modelled in IIDM, always at end 1
             int endNumber = 1;
+            // But we have to adjust the aliases for (potential) original tap changers from end 1, end 2
+            // Potential tc2 is always converted to a tc at end 1
+            // If both tc1 and tc2 are present, tc2 is combined (current ratio) with tc1
+            // If we only have tc2, the alias now will store the id of tc1
+            // In the rest of situations, we keep the same id under alias for tc1
+            adjustTapChangerAliases2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
+            adjustTapChangerAliases2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
             writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), cimNamespace, writer);
             writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, cimNamespace, writer);
+
             writeBranchLimits(twt, exportedTerminalId(exportedTerminals, twt.getTerminal1()), exportedTerminalId(exportedTerminals, twt.getTerminal2()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        }
+    }
+
+    private static void adjustTapChangerAliases2wt(TwoWindingsTransformer transformer, TapChanger<?, ?> tc, String tapChangerKind) {
+        // If we had alias only for tc1, is ok, we will export only tc1 at end 1
+        // If we had alias for tc1 and tc2, is ok, tc2 has been moved to end 1 and combined with tc1, but we preserve id for tc1
+        // Only if we had tc at end 2 has been moved to end 1 and its identifier must be preserved
+        if (tc != null) {
+            String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 1;
+            if (transformer.getAliasFromType(aliasType1).isEmpty()) {
+                // At this point, if we have a tap changer,
+                // the alias for type 2 should be non-empty, but we check it anyway
+                String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 2;
+                Optional<String> tc2id = transformer.getAliasFromType(aliasType2);
+                if (tc2id.isPresent()) {
+                    transformer.removeAlias(tc2id.get());
+                    transformer.addAlias(tc2id.get(), aliasType1);
+                }
+            }
         }
     }
 
