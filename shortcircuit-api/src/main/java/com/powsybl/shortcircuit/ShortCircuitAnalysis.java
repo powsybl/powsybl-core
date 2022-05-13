@@ -14,7 +14,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.shortcircuit.monitor.StateMonitor;
 
 import java.util.Collections;
 import java.util.List;

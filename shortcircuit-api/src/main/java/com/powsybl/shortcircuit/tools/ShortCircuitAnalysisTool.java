@@ -10,11 +10,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;
-import com.powsybl.shortcircuit.json.JsonShortCircuitInput;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
+import com.powsybl.shortcircuit.monitor.StateMonitor;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
@@ -97,7 +96,7 @@ public class ShortCircuitAnalysisTool implements Tool {
         Path inputFile = options.getPath(INPUT_FILE_OPTION)
                 .orElseThrow(() -> new ParseException("Missing required option: " + INPUT_FILE_OPTION));
         context.getOutputStream().println("Loading input '" + inputFile + "'");
-        JsonShortCircuitInput.update(input.getFaults(), inputFile);
+        input.setFaults(Fault.read(inputFile));
         // ShortCircuit parameters loading
         input.setParameters(ShortCircuitParameters.load());
         options.getPath(PARAMETERS_FILE).ifPresent(parametersFile -> {

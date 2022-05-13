@@ -17,16 +17,15 @@ public class BranchFault extends AbstractFault {
     // Location of the fault in % of the branch length (with side ONE as reference).
     private final double proportionalLocation;
 
-    public BranchFault(String id, double r, double x, ConnectionType connection, FaultType faultType, boolean withLimitViolations, boolean withVoltageMap,
-                       double proportionalLocation) {
+    public BranchFault(String id, double r, double x, ConnectionType connection, FaultType faultType, double proportionalLocation) {
         // Here the id is the id of a branch.
-        super(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
+        super(id, r, x, connection, faultType);
         this.proportionalLocation = proportionalLocation;
     }
 
-    public BranchFault(String id, double r, double x, boolean withLimitViolations, boolean withVoltageMap, double proportionalLocation) {
+    public BranchFault(String id, double r, double x, double proportionalLocation) {
         // Here the id is the id of a bus from the bus view.
-        this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE, withLimitViolations, withVoltageMap, proportionalLocation);
+        this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE, proportionalLocation);
     }
 
     @Override

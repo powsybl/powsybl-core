@@ -1,0 +1,15 @@
+[ {
+  "id" : "id",
+  "r" : 1.0,
+  "x" : 2.0,
+  "connection" : "PARALLEL",
+  "faultType" : "SINGLE_PHASE",
+  "proportionalLocation" : 3.0
+}, {
+  "type" : "BUS",
+  "id" : "id",
+  "r" : 1.1,
+  "x" : 2.2,
+  "connection" : "SERIES",
+  "faultType" : "TWO_PHASE"
+} ]

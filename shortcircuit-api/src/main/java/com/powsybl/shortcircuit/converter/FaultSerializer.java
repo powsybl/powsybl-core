@@ -34,8 +34,6 @@ public class FaultSerializer extends StdSerializer<Fault> {
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "x", fault.getX());
         jsonGenerator.writeStringField("connection", fault.getConnectionType().name());
         jsonGenerator.writeStringField("faultType", fault.getFaultType().name());
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolations", fault.withLimitViolations(), false);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageMap", fault.withVoltageMap(), false);
         if (fault.getType() == Fault.Type.BRANCH) {
             JsonUtil.writeOptionalDoubleField(jsonGenerator, "proportionalLocation", ((BranchFault) fault).getProportionalLocation());
         }

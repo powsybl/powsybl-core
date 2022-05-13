@@ -11,8 +11,8 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
+import com.powsybl.shortcircuit.monitor.StateMonitor;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

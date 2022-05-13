@@ -6,6 +6,18 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
 /**
  * Interface to describe the characteristics of the fault to be simulated.
  * Used for elementary short-circuit calculation only.
@@ -53,9 +65,23 @@ public interface Fault {
         return FaultType.THREE_PHASE;
     }
 
-    // Whether the result should indicate a limit violation
-    boolean withLimitViolations();
+    private static ObjectMapper createObjectMapper() {
+        return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
+    }
 
-    // Whether the results should include the voltage map on the whole network
-    boolean withVoltageMap();
+    static void write(List<Fault> faults, Path jsonFile) {
+        try (OutputStream out = Files.newOutputStream(jsonFile)) {
+            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, faults);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static List<Fault> read(Path jsonFile) {
+        try (InputStream is = Files.newInputStream(jsonFile)) {
+            return createObjectMapper().readerForListOf(Fault.class).readValue(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

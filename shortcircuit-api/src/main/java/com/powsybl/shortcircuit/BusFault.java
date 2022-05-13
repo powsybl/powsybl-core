@@ -14,14 +14,14 @@ package com.powsybl.shortcircuit;
  */
 public class BusFault extends AbstractFault {
 
-    public BusFault(String id, double r, double x, ConnectionType connection, FaultType faultType, boolean withLimitViolations, boolean withVoltageMap) {
+    public BusFault(String id, double r, double x, ConnectionType connection, FaultType faultType) {
         // Here the id is the id of a bus from the bus view.
-        super(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
+        super(id, r, x, connection, faultType);
     }
 
-    public BusFault(String id, double r, double x, boolean withLimitViolations, boolean withVoltageMap) {
+    public BusFault(String id, double r, double x) {
         // Here the id is the id of a bus from the bus view.
-        this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE, withLimitViolations, withVoltageMap);
+        this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE);
     }
 
     @Override

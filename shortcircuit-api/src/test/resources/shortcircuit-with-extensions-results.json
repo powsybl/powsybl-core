@@ -7,8 +7,7 @@
       "r" : 0.0,
       "x" : 0.0,
       "connection" : "SERIES",
-      "faultType" : "THREE_PHASE",
-      "withLimitViolations" : true
+      "faultType" : "THREE_PHASE"
     },
     "limitViolations" : [ {
       "subjectId" : "id",

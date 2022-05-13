@@ -7,8 +7,7 @@
       "r" : 0.0,
       "x" : 0.0,
       "connection" : "SERIES",
-      "faultType" : "THREE_PHASE",
-      "withLimitViolations" : true
+      "faultType" : "THREE_PHASE"
     },
     "threePhaseFaultActivePower" : 0.1,
     "timeConstant" : 1.0,

@@ -1,0 +1,7 @@
+[ {
+  "faultContext" : {
+    "unexpected" : "f00"
+  },
+  "withLimitViolations" : false,
+  "withVoltageMap" : false
+} ]

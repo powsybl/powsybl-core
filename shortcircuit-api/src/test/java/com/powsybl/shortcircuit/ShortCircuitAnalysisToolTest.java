@@ -34,7 +34,9 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
         createFile("test.uct", "");
         createFile("out.txt", "");
         createFile("emptyInput.txt", "{ }");
-        Files.copy(getClass().getResourceAsStream("/ShortCircuitInput.json"), fileSystem.getPath("input.txt"));
+        Files.copy(getClass().getResourceAsStream("/FaultsFile.json"), fileSystem.getPath("faults.json"));
+        Files.copy(getClass().getResourceAsStream("/ShortCircuitParameters.json"), fileSystem.getPath("parameters.json"));
+        Files.copy(getClass().getResourceAsStream("/MonitoringFile.json"), fileSystem.getPath("monitoring.json"));
     }
 
     @Override
@@ -74,32 +76,37 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Test
     public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "test.uct", "--output-file", "out.txt"}, 2, null, "error: Missing required option: output-format");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct", "--output-file", "out.txt"}, 2, null, "error: Missing required option: output-format");
     }
 
     @Test
     public void checkThrowsWhenNetworkFileIsEmpty() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "test.uct"}, 3, null, "com.powsybl.commons.PowsyblException: Unsupported file format or invalid file.");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct"}, 3, null, "com.powsybl.commons.PowsyblException: Unsupported file format or invalid file.");
     }
 
     @Test
     public void checkFailsWhenParametersFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "network.xiidm", "--parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
+    }
+
+    @Test
+    public void checkFailsWhenMonitoringFileNotFound() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--monitoring-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
     public void test() throws IOException {
-        String expectedOut = "Loading fault list 'input.txt'\n" +
+        String expectedOut = "Loading fault list 'faultsFile.json'\n" +
                 "Loading network 'network.xiidm'\n" +
                 "Short circuit analysis:\n" +
                 "+----+---------------------------+\n" +
                 "| ID | Three Phase Fault Current |\n" +
                 "+----+---------------------------+\n" +
                 "Limit violations:\n" +
-                "+---------------+---------+--------------+------------+-------+-------+\n" +
-                "| Voltage level | Country | Base voltage | Limit type | Limit | Value |\n" +
-                "+---------------+---------+--------------+------------+-------+-------+\n";
+                "+----+---------------+---------+--------------+------------+-------+-------+\n" +
+                "| ID | Voltage level | Country | Base voltage | Limit type | Limit | Value |\n" +
+                "+----+---------------+---------+--------------+------------+-------+-------+\n";
 
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "network.xiidm"}, 0, expectedOut, null);
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "parameters.json", "--monitoring-file", "monitoring.json"}, 0, expectedOut, null);
     }
 }

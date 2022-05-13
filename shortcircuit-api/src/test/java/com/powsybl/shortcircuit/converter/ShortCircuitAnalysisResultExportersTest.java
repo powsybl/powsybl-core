@@ -51,7 +51,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
         FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
-        Fault fault = new BranchFault("ID_3", 0.0, 0.0, true, true, 12.0);
+        Fault fault = new BranchFault("ID_3", 0.0, 0.0, 12.0);
         FaultResult faultResult3 = new FaultResult(fault,  new ThreePhaseValue(2002, 2003));
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
@@ -60,7 +60,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static FaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
-        Fault fault = new BusFault(faultId, 0.0, 0.0, true, false);
+        Fault fault = new BusFault(faultId, 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "VLGEN";
         float limitReduction = 1;
@@ -72,7 +72,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static ShortCircuitAnalysisResult createResultWithExtension() {
-        Fault fault = new BusFault("id", 0.0, 0.0, true, false);
+        Fault fault = new BusFault("id", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
@@ -92,7 +92,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static ShortCircuitAnalysisResult createWithFeederResults() {
-        Fault fault = new BusFault("id", 0.0, 0.0, true, false);
+        Fault fault = new BusFault("id", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;

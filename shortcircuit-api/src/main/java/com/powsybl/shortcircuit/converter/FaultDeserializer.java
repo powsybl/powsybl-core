@@ -33,8 +33,6 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         double x = Double.NaN;
         Fault.ConnectionType connection = Fault.ConnectionType.SERIES;
         Fault.FaultType faultType = Fault.FaultType.THREE_PHASE;
-        boolean withLimitViolations = false;
-        boolean withVoltageMap = false;
         double proportionalLocation = Double.NaN;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -62,14 +60,6 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                     parser.nextToken();
                     faultType = Fault.FaultType.valueOf(parser.readValueAs(String.class));
                     break;
-                case "withLimitViolations":
-                    parser.nextToken();
-                    withLimitViolations = parser.readValueAs(Boolean.class);
-                    break;
-                case "withVoltageMap":
-                    parser.nextToken();
-                    withVoltageMap = parser.readValueAs(Boolean.class);
-                    break;
                 case "proportionalLocation":
                     parser.nextToken();
                     proportionalLocation = parser.readValueAs(Double.class);
@@ -86,10 +76,10 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         Fault fault;
         switch (type) {
             case BUS:
-                fault = new BusFault(id, r, x, connection, faultType, withLimitViolations, withVoltageMap);
+                fault = new BusFault(id, r, x, connection, faultType);
                 break;
             case BRANCH:
-                fault = new BranchFault(id, r, x, connection, faultType, withLimitViolations, withVoltageMap, proportionalLocation);
+                fault = new BranchFault(id, r, x, connection, faultType, proportionalLocation);
                 break;
             default:
                 throw new AssertionError("Unexpected datatype: " + type.name());

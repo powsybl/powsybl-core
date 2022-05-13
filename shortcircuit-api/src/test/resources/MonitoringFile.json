@@ -1,0 +1,25 @@
+[ {
+  "faultContext" : {
+    "id" : "f00"
+  },
+  "withLimitViolations" : false,
+  "withVoltageMap" : false
+}, {
+  "faultContext" : {
+    "id" : "f01"
+  },
+  "withLimitViolations" : false,
+  "withVoltageMap" : true
+}, {
+  "faultContext" : {
+    "id" : "f10"
+  },
+  "withLimitViolations" : true,
+  "withVoltageMap" : false
+}, {
+  "faultContext" : {
+    "id" : "f11"
+  },
+  "withLimitViolations" : true,
+  "withVoltageMap" : true
+} ]

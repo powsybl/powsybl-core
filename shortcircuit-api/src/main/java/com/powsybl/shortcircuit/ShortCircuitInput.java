@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.shortcircuit.monitor.StateMonitor;
 
 import java.util.ArrayList;
 import java.util.List;
