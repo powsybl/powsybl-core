@@ -9,15 +9,24 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.OperationalLimits;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 abstract class AbstractOperationalLimits implements OperationalLimits {
 
+    private final String id;
+
+    @Override
+    public Optional<String> getId() {
+        return Optional.ofNullable(id);
+    }
+
     protected final OperationalLimitsOwner owner;
 
-    AbstractOperationalLimits(OperationalLimitsOwner owner) {
+    AbstractOperationalLimits(OperationalLimitsOwner owner, String id) {
+        this.id = id;
         this.owner = Objects.requireNonNull(owner);
     }
 

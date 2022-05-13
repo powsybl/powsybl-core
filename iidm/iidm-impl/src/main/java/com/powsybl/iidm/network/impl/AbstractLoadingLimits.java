@@ -11,15 +11,12 @@ import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TreeMap;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractOperationalLimits implements LoadingLimits {
-
-    private final String id;
 
     private double permanentLimit;
 
@@ -64,15 +61,9 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     }
 
     AbstractLoadingLimits(OperationalLimitsOwner owner, String id, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        super(owner);
-        this.id = id;
+        super(owner, id);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
-    }
-
-    @Override
-    public Optional<String> getId() {
-        return Optional.ofNullable(id);
     }
 
     @Override

@@ -6,11 +6,16 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Thibaut Vermeulen <thibaut.vermeulen at rte-france.com>
  */
 public interface OperationalLimits {
+
+    Optional<String> getId();
+
     /**
      * Get the operational limits' type (can be APPARENT_POWER, CURRENT or VOLTAGE)
      */
