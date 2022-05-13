@@ -331,11 +331,14 @@ public final class EquipmentExport {
             // Export tap changers:
             // We are exporting the tap changer as it is modelled in IIDM, always at end 1
             int endNumber = 1;
-            // But we have to adjust the aliases for (potential) original tap changers from end 1, end 2
-            // Potential tc2 is always converted to a tc at end 1
-            // If both tc1 and tc2 are present, tc2 is combined (current ratio) with tc1
-            // If we only have tc2, the alias now will store the id of tc1
-            // In the rest of situations, we keep the same id under alias for tc1
+            // IIDM model always has tap changers (ratio and/or phase) at end 1, and only at end 1.
+            // We have to adjust the aliases for (potential) original tap changers coming from end 1, end 2.
+            // Potential tc2 is always converted to a tc at end 1.
+            // If both tc1 and tc2 were present, tc2 was combined during import (fixed at current step) with tc1. Steps from tc1 were kept.
+            // If we only had tc2, it mas moved to end 1.
+            //
+            // When we had only tc2, the alias for tc1 if we do EQ export should contain the identifier of original tc2.
+            // In the rest of situations, we keep the same id under alias for tc1.
             adjustTapChangerAliases2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
             adjustTapChangerAliases2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
             writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), cimNamespace, writer);
