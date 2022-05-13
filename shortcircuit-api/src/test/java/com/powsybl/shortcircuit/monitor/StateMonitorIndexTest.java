@@ -28,7 +28,18 @@ public class StateMonitorIndexTest {
 
         StateMonitorIndex monitorIndex = new StateMonitorIndex(monitors);
 
-        assertEquals(new StateMonitor(new FaultContext("f00"), false, false), monitorIndex.getStateMonitors().get("f00"));
+        FaultContext expectedCtx = new FaultContext("f00");
+        StateMonitor expected = new StateMonitor(expectedCtx, false, false);
+        StateMonitor actual = monitorIndex.getStateMonitors().get("f00");
+        assertEquals(expected, actual);
+        assertEquals(expected.hashCode(), actual.hashCode());
+        assertEquals(expected.toString(), actual.toString());
+
+        FaultContext actualCtx = monitorIndex.getStateMonitors().get("f00").getFaultContext();
+        assertEquals(expectedCtx, actualCtx);
+        assertEquals(expectedCtx.hashCode(), actualCtx.hashCode());
+        assertEquals(expectedCtx.toString(), actualCtx.toString());
+
         assertEquals(new StateMonitor(new FaultContext("f01"), false, true), monitorIndex.getStateMonitors().get("f01"));
         assertEquals(new StateMonitor(new FaultContext("f10"), true, false), monitorIndex.getStateMonitors().get("f10"));
         assertEquals(new StateMonitor(new FaultContext("f11"), true, true), monitorIndex.getStateMonitors().get("f11"));
