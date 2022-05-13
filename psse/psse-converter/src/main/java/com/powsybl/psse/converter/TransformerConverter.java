@@ -92,6 +92,10 @@ class TransformerConverter extends AbstractConverter {
         TapChanger tapChangerAdjustedRatio = tapChangerAdjustmentAfterMovingRatio(tapChanger, w2);
 
         // move ysh between w1 and z
+        // Ysh_eu = Ysh_pu * sbase / (vn1 *vn1) Convert Ysh per unit to engineering units
+        // Ysh_eu_moved = Ysh_eu * (ratedU1 / ratedU2) * (ratedU1 / ratedU2) Apply the structural ratio when moving
+        // Ysh_eu_moved = Ysh_eu * sbase / (vn2 * vn2) as ratedU1 = vn1 and ratedU2 ) vn2
+        // As vn2 is used to convert to eu, only the ratio remains to be applied
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChangerAdjustedRatio);
 
         TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newTwoWindingsTransformer())
