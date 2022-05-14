@@ -7,6 +7,8 @@
 package com.powsybl.powerfactory.db;
 
 import com.powsybl.powerfactory.model.*;
+import org.apache.commons.math3.linear.BlockRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
 
 import java.util.List;
 import java.util.Objects;
@@ -106,5 +108,16 @@ public class DataObjectBuilder {
     public void setObjectVectorAttributeValue(long objectId, String attributeName, List<Long> otherObjectsIds) {
         DataObject object = getObjectById(objectId);
         object.setObjectVectorAttributeValue(attributeName, otherObjectsIds);
+    }
+
+    public void setDoubleMatrixAttributeValue(long objectId, String attributeName, int rowCount, int columnCount, List<Double> value) {
+        DataObject object = getObjectById(objectId);
+        RealMatrix matrix = new BlockRealMatrix(rowCount, columnCount);
+        for (int row = 0; row < rowCount; row++) {
+            for (int col = 0; col < columnCount; col++) {
+                matrix.setEntry(row, col, value.get(row * columnCount + col));
+            }
+        }
+        object.setDoubleMatrixAttributeValue(attributeName, matrix);
     }
 }
