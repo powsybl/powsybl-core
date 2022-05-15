@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface PowerFactoryDataLoader<T> {
+public interface PowerFactoryDataLoader<T extends PowerFactoryData> {
 
     @SuppressWarnings("unchecked")
-    static <T> List<PowerFactoryDataLoader<T>> find(Class<T> dataClass) {
+    static <T extends PowerFactoryData> List<PowerFactoryDataLoader<T>> find(Class<T> dataClass) {
         Objects.requireNonNull(dataClass);
         return ServiceLoader.load(PowerFactoryDataLoader.class).stream()
                 .map(ServiceLoader.Provider::get)
@@ -33,7 +33,7 @@ public interface PowerFactoryDataLoader<T> {
                 .collect(Collectors.toList());
     }
 
-    static <T> Optional<T> load(Path file, Class<T> dataClass) {
+    static <T extends PowerFactoryData> Optional<T> load(Path file, Class<T> dataClass) {
         Objects.requireNonNull(file);
         return load(file.getFileName().toString(), () -> {
             try {
@@ -44,13 +44,13 @@ public interface PowerFactoryDataLoader<T> {
         }, dataClass);
     }
 
-    static <T> Optional<T> load(String fileName, Supplier<InputStream> inputStreamSupplier,
-                                Class<T> dataClass) {
+    static <T extends PowerFactoryData> Optional<T> load(String fileName, Supplier<InputStream> inputStreamSupplier,
+                                                        Class<T> dataClass) {
         return load(fileName, inputStreamSupplier, dataClass, find(dataClass));
     }
 
-    static <T> Optional<T> load(String fileName, Supplier<InputStream> inputStreamSupplier,
-                                Class<T> dataClass, List<PowerFactoryDataLoader<T>> dataLoaders) {
+    static <T extends PowerFactoryData> Optional<T> load(String fileName, Supplier<InputStream> inputStreamSupplier,
+                                                         Class<T> dataClass, List<PowerFactoryDataLoader<T>> dataLoaders) {
         Objects.requireNonNull(fileName);
         Objects.requireNonNull(inputStreamSupplier);
         Objects.requireNonNull(dataLoaders);

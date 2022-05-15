@@ -22,25 +22,16 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StudyCase {
-
-    private final String name;
+public class StudyCase extends AbstractPowerFactoryData {
 
     private final Instant time;
 
     private final List<DataObject> elmNets;
 
-    private final DataObjectIndex index;
-
     public StudyCase(String name, Instant time, List<DataObject> elmNets, DataObjectIndex index) {
-        this.name = Objects.requireNonNull(name);
+        super(name, index);
         this.time = Objects.requireNonNull(time);
         this.elmNets = Objects.requireNonNull(elmNets);
-        this.index = Objects.requireNonNull(index);
-    }
-
-    public String getName() {
-        return name;
     }
 
     public Instant getTime() {
@@ -49,10 +40,6 @@ public class StudyCase {
 
     public List<DataObject> getElmNets() {
         return elmNets;
-    }
-
-    public DataObjectIndex getIndex() {
-        return index;
     }
 
     static class ParsingContext {
@@ -114,6 +101,7 @@ public class StudyCase {
         }
     }
 
+    @Override
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
 
@@ -138,23 +126,5 @@ public class StudyCase {
         generator.writeEndArray();
 
         generator.writeEndObject();
-    }
-
-    public void writeJson(Writer writer) {
-        JsonUtil.writeJson(writer, generator -> {
-            try {
-                writeJson(generator);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-    }
-
-    public void writeJson(Path file) {
-        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            writeJson(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 }

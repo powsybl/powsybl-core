@@ -21,30 +21,17 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Project {
-
-    private final String name;
+public class Project extends AbstractPowerFactoryData {
 
     private final DataObject rootObject;
 
-    private final DataObjectIndex index;
-
     public Project(String name, DataObject rootObject, DataObjectIndex index) {
-        this.name = Objects.requireNonNull(name);
+        super(name, index);
         this.rootObject = Objects.requireNonNull(rootObject);
-        this.index = Objects.requireNonNull(index);
-    }
-
-    public String getName() {
-        return name;
     }
 
     public DataObject getRootObject() {
         return rootObject;
-    }
-
-    public DataObjectIndex getIndex() {
-        return index;
     }
 
     static class ParsingContext {
@@ -95,6 +82,7 @@ public class Project {
         }
     }
 
+    @Override
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
 
@@ -107,24 +95,6 @@ public class Project {
         rootObject.writeJson(generator);
 
         generator.writeEndObject();
-    }
-
-    public void writeJson(Writer writer) {
-        JsonUtil.writeJson(writer, generator -> {
-            try {
-                writeJson(generator);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-    }
-
-    public void writeJson(Path file) {
-        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            writeJson(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     /**
