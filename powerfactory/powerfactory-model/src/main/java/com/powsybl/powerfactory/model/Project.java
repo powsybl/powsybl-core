@@ -119,6 +119,7 @@ public class Project extends AbstractPowerFactoryData {
         String studyCaseName = rootObject.getLocName() + " - " + studyCaseObj.getLocName();
         DataObject netDataObj = rootObject.getChild("Network Model", "Network Data").orElseThrow();
         List<DataObject> elmNets = netDataObj.getChildrenByClass("ElmNet");
+        // TODO apply network variations and operational scenarios
         return new StudyCase(studyCaseName, studyTime, elmNets, index);
     }
 }
