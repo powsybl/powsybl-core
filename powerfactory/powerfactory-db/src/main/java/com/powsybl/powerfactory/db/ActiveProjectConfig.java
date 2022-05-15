@@ -48,6 +48,10 @@ public class ActiveProjectConfig {
         } catch (IOException e) {
             return Optional.empty();
         }
+
+    }
+    public Project loadProjectFromDb() {
+        return loadProjectFromDb(new JniDatabaseReader(), PlatformConfig.defaultConfig());
     }
 
     public Project loadProjectFromDb(DatabaseReader dbReader, PlatformConfig platformConfig) {
