@@ -35,10 +35,6 @@ public class ActiveProjectConfig {
         this.name = Objects.requireNonNull(name);
     }
 
-    public String getName() {
-        return name;
-    }
-
     public static Optional<ActiveProjectConfig> read(InputStream is) {
         try (is) {
             var properties = new Properties();
