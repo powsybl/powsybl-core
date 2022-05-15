@@ -19,6 +19,9 @@ import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.*;
+import org.xmlunit.util.IsNullPredicate;
+import org.xmlunit.util.Linqy;
+import org.xmlunit.util.Nodes;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
@@ -26,10 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -227,7 +227,23 @@ public final class ExportXmlCompare {
     }
 
     static DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de))));
+        // Original CGMES PhaseTapChangerLinear, PhaseTapChangerSymmetrical and PhaseTapChangerAsymmetrical
+        // have been exported as PhaseTapChangerTabular.
+        // We just check that the objects being compared keep a PhaseTapChanger class, not exactly the same one.
+        DifferenceEvaluator de1 = DifferenceEvaluators.chain(de, (comparison, result) -> {
+            if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+                if (comparison.getControlDetails().getTarget().getLocalName().startsWith("PhaseTapChanger") &&
+                        comparison.getTestDetails().getTarget().getLocalName().startsWith("PhaseTapChanger")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+            return result;
+        });
+        return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de1))));
+    }
+
+    public static void compareSV(InputStream expected, InputStream actual) {
+        onlyNodeListSequenceDiffs(compare(diffSV(expected, actual, DifferenceEvaluators.Default).checkForIdentical()));
     }
 
     static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
@@ -837,13 +853,44 @@ public final class ExportXmlCompare {
     }
 
     private static DiffBuilder selectingEquivalentSshObjects(DiffBuilder diffBuilder) {
-        QName aboutAttribute = new QName(RDF_NAMESPACE, "about");
+        QName about = new QName(RDF_NAMESPACE, "about");
         ElementSelector elementSelector = ElementSelectors.conditionalBuilder()
-                .whenElementIsNamed("FullModel")
-                .thenUse(ElementSelectors.byName)
-                .elseUse(ElementSelectors.byNameAndAttributes(aboutAttribute))
+                // If element has rdf:about attribute and is not FullModel
+                .when(e -> !e.getAttributeNS(RDF_NAMESPACE, "about").isEmpty() && !e.getLocalName().equals("FullModel"))
+                // Then select the same elements based on content of rdf:about attribute
+                .thenUse(elementSelectorByAttributes(about))
+                .elseUse(ElementSelectors.byName)
                 .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
+    }
+
+    private static boolean bothNullOrEqual(Object o1, Object o2) {
+        return o1 == null ? o2 == null : o1.equals(o2);
+    }
+
+    private static boolean mapsEqualForKeys(Map<QName, String> control, Map<QName, String> test, Iterable<QName> keys) {
+        Iterator<QName> i = keys.iterator();
+        QName q;
+        do {
+            if (!i.hasNext()) {
+                return true;
+            }
+            q = i.next();
+        } while (bothNullOrEqual(control.get(q), test.get(q)));
+        return false;
+    }
+
+    private static ElementSelector elementSelectorByAttributes(QName... attribs) {
+        if (attribs == null) {
+            throw new IllegalArgumentException("attributes must not be null");
+        } else {
+            final Collection<QName> qs = Arrays.asList(attribs);
+            if (Linqy.any(qs, new IsNullPredicate())) {
+                throw new IllegalArgumentException("attributes must not contain null values");
+            } else {
+                return (controlElement, testElement) -> mapsEqualForKeys(Nodes.getAttributes(controlElement), Nodes.getAttributes(testElement), qs);
+            }
+        }
     }
 
     private static Diff compare(DiffBuilder diffBuilder) {
