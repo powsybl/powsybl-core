@@ -9,14 +9,14 @@ package com.powsybl.powerfactory.model;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -38,7 +38,7 @@ public class StudyCaseTest extends AbstractPowerFactoryTest {
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         assertEquals(studyTime, studyCase.getTime());
         assertSame(index, objFoo.getIndex());
-        assertEquals(List.of(elmNet, objFoo, objBar), new ArrayList<>(studyCase.getIndex().getDataObjects()));
+        assertEquals(List.of(elmNet, objFoo, objBar, objBaz), new ArrayList<>(studyCase.getIndex().getDataObjects()));
     }
 
     @Test
@@ -53,7 +53,18 @@ public class StudyCaseTest extends AbstractPowerFactoryTest {
         assertEquals(List.of(1.3f, 2.3f, 3.5f), objFoo.getFloatVectorAttributeValue("fv"));
         assertEquals(List.of(4L, 5L, 6943953495493593L), objFoo.getLongVectorAttributeValue("lv"));
         assertEquals(List.of(1.3949d, 2.34d, 3.1223d), objFoo.getDoubleVectorAttributeValue("dv"));
-        assertEquals(List.of(2L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).collect(Collectors.toList()));
+        assertEquals(List.of(3L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).collect(Collectors.toList()));
         assertEquals(List.of("AA", "BBB"), objFoo.getStringVectorAttributeValue("sv"));
+    }
+
+    @Test
+    public void loaderTest() {
+        var loader = new JsonStudyCaseLoader();
+        assertEquals(StudyCase.class, loader.getDataClass());
+        assertEquals("json", loader.getExtension());
+        assertTrue(loader.test(getClass().getResourceAsStream("/project.json")));
+        assertTrue(loader.test(new ByteArrayInputStream(new byte[] {}))); // FIXME
+        StudyCase studyCase2 = loader.doLoad("project.json", getClass().getResourceAsStream("/project.json"));
+        assertNotNull(studyCase2);
     }
 }

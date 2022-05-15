@@ -8,11 +8,12 @@ package com.powsybl.powerfactory.model;
 
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,25 +33,25 @@ public class ProjectTest extends AbstractPowerFactoryTest {
         DataClass clsIntCase = DataClass.init("IntCase")
                 .addAttribute(new DataAttribute("iStudyTime", DataAttributeType.INTEGER64));
 
-        prj = new DataObject(3L, clsIntPrj, index)
+        prj = new DataObject(4L, clsIntPrj, index)
                 .setLocName("TestProject")
-                .setObjectAttributeValue("pCase", 5L);
+                .setObjectAttributeValue("pCase", 6L);
 
-        var studyCasesFolder = new DataObject(4L, clsIntPrjfolder, index)
+        var studyCasesFolder = new DataObject(5L, clsIntPrjfolder, index)
                 .setLocName("Study Cases");
         studyCasesFolder.setParent(prj);
 
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
-        var studyCase = new DataObject(5L, clsIntCase, index)
+        var studyCase = new DataObject(6L, clsIntCase, index)
                 .setLocName("TestStudyCase")
-                .setLongAttributeValue("iStudyTime", studyTime.toEpochMilli());
+                .setLongAttributeValue("iStudyTime", studyTime.getEpochSecond());
         studyCase.setParent(studyCasesFolder);
 
-        var netModel = new DataObject(6L, clsIntPrjfolder, index)
+        var netModel = new DataObject(7L, clsIntPrjfolder, index)
                 .setLocName("Network Model");
         netModel.setParent(prj);
 
-        var netData = new DataObject(7L, clsIntPrjfolder, index)
+        var netData = new DataObject(8L, clsIntPrjfolder, index)
                 .setLocName("Network Data");
         netData.setParent(netModel);
 
@@ -61,12 +62,34 @@ public class ProjectTest extends AbstractPowerFactoryTest {
     @Test
     public void test() {
         assertEquals("TestProject", project.getName());
+        assertSame(index, project.getIndex());
         assertSame(prj, project.getRootObject());
+        StudyCase studyCase = project.getActiveStudyCase();
+        assertNotNull(studyCase);
+        assertSame(index, studyCase.getIndex());
+        assertEquals("TestProject - TestStudyCase", studyCase.getName());
+        Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
+        assertEquals(studyTime, studyCase.getTime());
+        assertEquals(1, studyCase.getElmNets().size());
+        assertTrue(project.getIndex().getBackwardLinks(elmNet.getId()).isEmpty());
+        assertEquals(List.of(objFoo), project.getIndex().getBackwardLinks(objBar.getId()));
+        assertEquals(List.of(objFoo), project.getIndex().getBackwardLinks(objBaz.getId()));
     }
 
     @Test
     public void jsonTest() throws IOException {
         var project2 = roundTripTest(project, Project::writeJson, Project::readJson, "/project.json");
         assertEquals("TestProject", project2.getName());
+    }
+
+    @Test
+    public void loaderTest() {
+        var loader = new JsonProjectLoader();
+        assertEquals(Project.class, loader.getDataClass());
+        assertEquals("json", loader.getExtension());
+        assertTrue(loader.test(getClass().getResourceAsStream("/project.json")));
+        assertTrue(loader.test(new ByteArrayInputStream(new byte[] {}))); // FIXME
+        Project project2 = loader.doLoad("project.json", getClass().getResourceAsStream("/project.json"));
+        assertNotNull(project2);
     }
 }

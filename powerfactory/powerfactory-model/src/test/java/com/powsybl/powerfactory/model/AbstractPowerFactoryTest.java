@@ -20,6 +20,7 @@ public abstract class AbstractPowerFactoryTest extends AbstractConverterTest {
 
     protected DataObjectIndex index;
     protected DataObject objBar;
+    protected DataObject objBaz;
     protected DataObject objFoo;
     protected DataObject elmNet;
 
@@ -40,6 +41,7 @@ public abstract class AbstractPowerFactoryTest extends AbstractConverterTest {
                 .addAttribute(new DataAttribute("sv", DataAttributeType.STRING_VECTOR))
                 .addAttribute(new DataAttribute("dm", DataAttributeType.DOUBLE_MATRIX));
         DataClass clsBar = DataClass.init("ElmBar");
+        DataClass clsBaz = DataClass.init("ElmBaz");
         DataClass clsElmNet = DataClass.init("ElmNet");
 
         index = new DataObjectIndex();
@@ -57,12 +59,15 @@ public abstract class AbstractPowerFactoryTest extends AbstractConverterTest {
                 .setFloatVectorAttributeValue("fv", List.of(1.3f, 2.3f, 3.5f))
                 .setLongVectorAttributeValue("lv", List.of(4L, 5L, 6943953495493593L))
                 .setDoubleVectorAttributeValue("dv", List.of(1.3949d, 2.34d, 3.1223d))
-                .setObjectVectorAttributeValue("ov", List.of(2L))
+                .setObjectVectorAttributeValue("ov", List.of(3L))
                 .setStringVectorAttributeValue("sv", List.of("AA", "BBB"))
                 .setDoubleMatrixAttributeValue("dm", new BlockRealMatrix(new double[][] {{1d, 2d, 3d}, {4d, 5d, 6d}}));
         objFoo.setParent(elmNet);
         objBar = new DataObject(2L, clsBar, index)
                 .setLocName("bar");
         objBar.setParent(objFoo);
+        objBaz = new DataObject(3L, clsBaz, index)
+                .setLocName("baz");
+        objBaz.setParent(objFoo);
     }
 }

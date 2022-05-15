@@ -58,6 +58,12 @@
       "type" : "STRING"
     } ]
   }, {
+    "name" : "ElmBaz",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    } ]
+  }, {
     "name" : "IntPrjfolder",
     "attributes" : [ {
       "name" : "loc_name",
@@ -80,34 +86,34 @@
     } ]
   } ],
   "rootObject" : {
-    "id" : 3,
+    "id" : 4,
     "className" : "IntPrj",
     "values" : {
       "loc_name" : "TestProject",
-      "pCase" : 5
+      "pCase" : 6
     },
     "children" : [ {
-      "id" : 4,
+      "id" : 5,
       "className" : "IntPrjfolder",
       "values" : {
         "loc_name" : "Study Cases"
       },
       "children" : [ {
-        "id" : 5,
+        "id" : 6,
         "className" : "IntCase",
         "values" : {
           "loc_name" : "TestStudyCase",
-          "iStudyTime" : 1635586525000
+          "iStudyTime" : 1635586525
         }
       } ]
     }, {
-      "id" : 6,
+      "id" : 7,
       "className" : "IntPrjfolder",
       "values" : {
         "loc_name" : "Network Model"
       },
       "children" : [ {
-        "id" : 7,
+        "id" : 8,
         "className" : "IntPrjfolder",
         "values" : {
           "loc_name" : "Network Data"
@@ -132,7 +138,7 @@
               "fv" : [ 1.3, 2.3, 3.5 ],
               "lv" : [ 4, 5, 6943953495493593 ],
               "dv" : [ 1.3949, 2.34, 3.1223 ],
-              "ov" : [ 2 ],
+              "ov" : [ 3 ],
               "sv" : [ "AA", "BBB" ],
               "dm" : {
                 "rowCount" : 2,
@@ -145,6 +151,12 @@
               "className" : "ElmBar",
               "values" : {
                 "loc_name" : "bar"
+              }
+            }, {
+              "id" : 3,
+              "className" : "ElmBaz",
+              "values" : {
+                "loc_name" : "baz"
               }
             } ]
           } ]
