@@ -44,5 +44,11 @@ public class JniDatabaseReader implements DatabaseReader {
         return ok;
     }
 
-    public native void read(String powerFactoryHomeDir, String projectName, DataObjectBuilder builder);
+    @Override
+    public void read(String powerFactoryHomeDir, String projectName, DataObjectBuilder builder) {
+        init();
+        readNative(powerFactoryHomeDir, projectName, builder);
+    }
+
+    public native void readNative(String powerFactoryHomeDir, String projectName, DataObjectBuilder builder);
 }

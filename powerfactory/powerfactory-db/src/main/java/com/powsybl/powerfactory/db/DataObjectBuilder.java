@@ -9,6 +9,8 @@ package com.powsybl.powerfactory.db;
 import com.powsybl.powerfactory.model.*;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -17,6 +19,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DataObjectBuilder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataObjectBuilder.class);
 
     private final DataObjectIndex index = new DataObjectIndex();
 
@@ -47,6 +51,10 @@ public class DataObjectBuilder {
     public void createObject(long id, String className) {
         DataClass dataClass = scheme.getClassByName(className);
         new DataObject(id, dataClass, index);
+        int objectCount = index.getDataObjects().size();
+        if (objectCount % 1000 == 0) {
+            LOGGER.trace("{} objects have been loaded", objectCount);
+        }
     }
 
     public void setObjectParent(long id, long parentId) {

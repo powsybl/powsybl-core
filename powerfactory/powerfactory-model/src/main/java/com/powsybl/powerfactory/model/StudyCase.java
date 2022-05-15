@@ -102,11 +102,11 @@ public class StudyCase {
         return new StudyCase(context.name, context.time, context.elmNets, context.index);
     }
 
-    static StudyCase parseJson(Reader reader) {
+    public static StudyCase parseJson(Reader reader) {
         return JsonUtil.parseJson(reader, StudyCase::parseJson);
     }
 
-    static StudyCase readJson(Path file) {
+    public static StudyCase readJson(Path file) {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             return parseJson(reader);
         } catch (IOException e) {

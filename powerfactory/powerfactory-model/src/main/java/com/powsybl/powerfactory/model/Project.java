@@ -10,10 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.powsybl.commons.json.JsonUtil;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -83,8 +83,16 @@ public class Project {
         return new Project(context.name, context.rootObject, context.index);
     }
 
-    static Project parseJson(Reader reader) {
+    public static Project parseJson(Reader reader) {
         return JsonUtil.parseJson(reader, Project::parseJson);
+    }
+
+    public static Project readJson(Path file) {
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            return parseJson(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public void writeJson(JsonGenerator generator) throws IOException {
@@ -109,6 +117,14 @@ public class Project {
                 throw new UncheckedIOException(e);
             }
         });
+    }
+
+    public void writeJson(Path file) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            writeJson(writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**
