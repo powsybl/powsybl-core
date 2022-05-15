@@ -50,6 +50,7 @@ public class ActiveProjectConfig {
         }
 
     }
+
     public Project loadProjectFromDb() {
         return loadProjectFromDb(new JniDatabaseReader(), PlatformConfig.defaultConfig());
     }
