@@ -21,6 +21,9 @@ import java.util.Objects;
  */
 public final class NamingStrategyFactory {
 
+    public static final String IDENTITY = "identity";
+    public static final String CGMES = "cgmes";
+
     public static NamingStrategy create(ReadOnlyDataSource ds, String mappingFileName, Path defaultPath) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(mappingFileName);
@@ -65,9 +68,9 @@ public final class NamingStrategyFactory {
 
     public static NamingStrategy create(String impl) {
         Objects.requireNonNull(impl);
-        if ("identity".equals(impl)) {
+        if (IDENTITY.equals(impl)) {
             return new NamingStrategy.Identity();
-        } else if ("cgmes".equals(impl)) {
+        } else if (CGMES.equals(impl)) {
             return new CgmesAliasNamingStrategy();
         }
         throw new PowsyblException("Unknown naming strategy: " + impl);
