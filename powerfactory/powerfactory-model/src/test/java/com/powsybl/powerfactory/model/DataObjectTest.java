@@ -117,6 +117,7 @@ public class DataObjectTest {
         assertFalse(objFoo.findIntAttributeValue("ii").isPresent());
         assertThrows(PowerFactoryException.class, () -> objFoo.getIntAttributeValue("ii"));
         assertEquals(3, objFoo.getIntAttributeValue("i"));
+        assertEquals(3L, objFoo.getLongAttributeValue("i"));
     }
 
     @Test
@@ -159,6 +160,7 @@ public class DataObjectTest {
         assertFalse(objFoo.findDoubleAttributeValue("dd").isPresent());
         assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleAttributeValue("dd"));
         assertEquals(3.14d, objFoo.getDoubleAttributeValue("d"), 0d);
+        assertEquals(3.14f, objFoo.getFloatAttributeValue("d"), 0f);
     }
 
     @Test
