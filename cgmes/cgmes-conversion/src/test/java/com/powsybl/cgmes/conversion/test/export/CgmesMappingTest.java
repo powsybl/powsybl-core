@@ -148,6 +148,6 @@ public class CgmesMappingTest extends AbstractConverterTest {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
         Files.createDirectories(exportFolder);
-        return new ZipFileDataSource(exportFolder.resolve(baseName));
+        return new FileDataSource(exportFolder, baseName);
     }
 }
