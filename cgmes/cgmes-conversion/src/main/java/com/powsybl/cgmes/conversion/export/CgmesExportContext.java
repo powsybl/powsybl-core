@@ -10,6 +10,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.NamingStrategy;
+import com.powsybl.cgmes.conversion.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -175,6 +176,11 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network, boolean withTopologicalMapping) {
+        this(network, withTopologicalMapping, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
+    }
+
+    public CgmesExportContext(Network network, boolean withTopologicalMapping, NamingStrategy namingStrategy) {
+        this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
             setCimVersion(cimCharacteristics.getCimVersion());
@@ -292,7 +298,7 @@ public class CgmesExportContext {
                 if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
                     computeBusBreakerTopologicalNodeMapping(vl, namingStrategy, mapping::putTopologicalNode);
                 } else {
-                    computeNodeBreakerTopologicalNodesMapping(vl, mapping::putTopologicalNode);
+                    computeNodeBreakerTopologicalNodesMapping(vl, namingStrategy, mapping::putTopologicalNode);
                 }
             }
         }
@@ -305,7 +311,7 @@ public class CgmesExportContext {
                         .computeIfAbsent(iidmId, key -> new HashSet<>())
                         .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
             } else {
-                computeNodeBreakerTopologicalNodesMapping(vl, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
+                computeNodeBreakerTopologicalNodesMapping(vl, namingStrategy, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
                         .computeIfAbsent(iidmId, key -> new HashSet<>())
                         .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
             }
@@ -315,20 +321,19 @@ public class CgmesExportContext {
     private static void computeBusBreakerTopologicalNodeMapping(VoltageLevel vl, NamingStrategy namingStrategy, TopologicalConsumer addTnMapping) {
         for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
             Bus busViewBus;
-            String topologicalNode;
             // Bus/breaker IIDM networks have been created from bus/branch CGMES data
             // CGMES Topological Nodes have been used as configured bus identifiers
-            topologicalNode = configuredBus.getId();
+            String topologicalNodeId = namingStrategy.getCgmesId(configuredBus);
 
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
-            if (busViewBus != null && topologicalNode != null) {
+            if (busViewBus != null && topologicalNodeId != null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
-                addTnMapping.accept(busViewBus.getId(), namingStrategy.getCgmesId(configuredBus), topologicalNodeName, Source.IGM);
+                addTnMapping.accept(busViewBus.getId(), topologicalNodeId, topologicalNodeName, Source.IGM);
             }
         }
     }
 
-    private static void computeNodeBreakerTopologicalNodesMapping(VoltageLevel vl, TopologicalConsumer addTnMapping) {
+    private static void computeNodeBreakerTopologicalNodesMapping(VoltageLevel vl, NamingStrategy namingStrategy, TopologicalConsumer addTnMapping) {
         for (int node : vl.getNodeBreakerView().getNodes()) {
             Bus busViewBus;
             String topologicalNode;
@@ -341,8 +346,9 @@ public class CgmesExportContext {
                     topologicalNode = bus.getId();
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
+                        String topologicalNodeId = namingStrategy.getCgmesId(bus);
                         String topologicalNodeName = bus.getNameOrId();
-                        addTnMapping.accept(busViewBus.getId(), bus.getId(), topologicalNodeName, Source.IGM);
+                        addTnMapping.accept(busViewBus.getId(), topologicalNodeId, topologicalNodeName, Source.IGM);
                     }
                 }
             }

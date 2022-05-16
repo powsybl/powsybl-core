@@ -46,16 +46,17 @@ public final class CgmesExportUtil {
 
     private static final DecimalFormatSymbols DOUBLE_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", DOUBLE_FORMAT_SYMBOLS);
-    private static final DecimalFormat SCIENFIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
+    private static final DecimalFormat SCIENTIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
 
-    private static final Pattern ID_PATTERN = Pattern.compile("_[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}");
+    private static final Pattern CIM_MRID_PATTERN = Pattern.compile("[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}");
+    private static final Pattern URN_UUID_PATTERN = Pattern.compile("urn:uuid:[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}");
 
     public static String format(double value) {
         return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String scientificFormat(double value) {
-        return SCIENFIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        return SCIENTIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String format(int value) {
@@ -66,8 +67,8 @@ public final class CgmesExportUtil {
         return String.valueOf(value);
     }
 
-    public static boolean correspondsToCgmesStandards(String id) {
-        return ID_PATTERN.matcher(id).matches();
+    public static boolean isValidCimMasterRID(String id) {
+        return CIM_MRID_PATTERN.matcher(id).matches() || URN_UUID_PATTERN.matcher(id).matches();
     }
 
     public static String getUniqueId() {

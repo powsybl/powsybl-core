@@ -26,7 +26,7 @@ import java.util.*;
 public final class EquipmentExport {
 
     private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
-    private static final String CONNECTIVITY_NODE_SUFFIX = "_CN";
+    private static final String CONNECTIVITY_NODE_SUFFIX = "CN";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
@@ -133,18 +133,19 @@ public final class EquipmentExport {
     private static void writeNodes(VoltageLevel vl, VoltageLevelAdjacency vlAdjacencies, Map <String, String> exportedNodes, String cimNamespace,
                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (List<Integer> nodes : vlAdjacencies.getNodes()) {
-            String node = CgmesExportUtil.getUniqueId();
-            ConnectivityNodeEq.write(node, CgmesExportUtil.format(nodes.get(0)), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer);
-            for (Integer nodeId : nodes) {
-                exportedNodes.put(vl.getId() + nodeId + CONNECTIVITY_NODE_SUFFIX, node);
+            String cgmesNodeId = CgmesExportUtil.getUniqueId();
+            ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer);
+            for (Integer nodeNumber : nodes) {
+                exportedNodes.put(vl.getId() + nodeNumber + CONNECTIVITY_NODE_SUFFIX, cgmesNodeId);
             }
         }
     }
 
     private static void writeBuses(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context)throws XMLStreamException {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
-            ConnectivityNodeEq.write(bus.getId() + CONNECTIVITY_NODE_SUFFIX, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer);
-            exportedNodes.put(bus.getId() + CONNECTIVITY_NODE_SUFFIX, bus.getId() + CONNECTIVITY_NODE_SUFFIX);
+            String cgmesNodeId = context.getNamingStrategy().getCgmesId(bus, CONNECTIVITY_NODE_SUFFIX);
+            ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer);
+            exportedNodes.put(bus.getId() + CONNECTIVITY_NODE_SUFFIX, cgmesNodeId);
         }
     }
 

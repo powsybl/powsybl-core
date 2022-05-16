@@ -79,7 +79,29 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
         Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
         if (uuidFromAlias.isPresent()) {
             uuid = uuidFromAlias.get();
-        } else if (CgmesExportUtil.correspondsToCgmesStandards(id)) {
+        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
+            uuid = id;
+        } else {
+            uuid = CgmesExportUtil.getUniqueId();
+        }
+        idByUuid.put(uuid, id);
+        return uuid;
+    }
+
+    @Override
+    public String getCgmesId(Identifiable<?> identifiable, String subObject) {
+        //  This is a hack to save in the naming strategy an identifier for something that is not an identifiable:
+        //  Connectivity nodes linked to bus/breaker view buses,
+        //  tap changers linked to transformers ????
+        String id = identifiable.getId() + "_" + subObject;
+        if (idByUuid.containsValue(id)) {
+            return idByUuid.inverse().get(id);
+        }
+        String uuid;
+        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "_" + subObject + "_" + "UUID");
+        if (uuidFromAlias.isPresent()) {
+            uuid = uuidFromAlias.get();
+        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
             uuid = id;
         } else {
             uuid = CgmesExportUtil.getUniqueId();

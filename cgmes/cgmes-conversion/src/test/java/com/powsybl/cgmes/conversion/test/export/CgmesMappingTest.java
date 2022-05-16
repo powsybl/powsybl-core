@@ -7,10 +7,19 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.NamingStrategyFactory;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.apache.commons.io.FileUtils;
@@ -23,13 +32,57 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public class CgmesMappingTest extends AbstractConverterTest {
+
+    @Test
+    public void testExportUsingCgmesNamingStrategy() throws IOException {
+        String baseName = "nordic32";
+        ReadOnlyDataSource inputIidm = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
+        Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), null);
+        // Force writing CGMES topological island by assigning a slack bus
+        SlackTerminal.attach(network.getGenerator("G9_______SM").getTerminal().getBusBreakerView().getBus());
+
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        DataSource exportedCgmes = tmpDataSource("exportedCgmes", baseName);
+        Exporters.export("CGMES", network, exportParams, exportedCgmes);
+
+        // Load the exported CGMES model without the ID mapping,
+        // to ensure that all objects have valid CGMES identifiers
+
+        // Build a zip file that does not contain the CSV file for the id mappings, only CGMES exported files
+        Path repackaged = tmpDir.resolve("exportedCgmes").resolve("repackaged.zip");
+        Repackager r = new Repackager(exportedCgmes)
+                .with("test_EQ.xml", Repackager::eq)
+                .with("test_SSH.xml", Repackager::ssh)
+                .with("test_TP.xml", Repackager::tp)
+                .with("test_SV.xml", Repackager::sv);
+        r.zip(repackaged);
+
+        Network network1 = Importers.importData("CGMES", new ZipFileDataSource(repackaged), null);
+        CgmesModel cgmes = network1.getExtension(CgmesModelExtension.class).getCgmesModel();
+        Supplier<Stream<String>> badIds = () -> Stream.of(
+                        network1.getIdentifiables().stream().map(Identifiable::getId),
+                        // Some CGMES identifiers do not end Network identifiables
+                        cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
+                        cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
+                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_ISLAND))
+                        )
+                .flatMap(id -> id)
+                .filter(id -> !CgmesExportUtil.isValidCimMasterRID(id));
+        assertEquals(String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))),
+                0,
+                badIds.get().count());
+    }
 
     @Test
     public void compareCgmesAndIidmExports() throws IOException {
@@ -95,6 +148,6 @@ public class CgmesMappingTest extends AbstractConverterTest {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
         Files.createDirectories(exportFolder);
-        return new FileDataSource(exportFolder, baseName);
+        return new ZipFileDataSource(exportFolder.resolve(baseName));
     }
 }

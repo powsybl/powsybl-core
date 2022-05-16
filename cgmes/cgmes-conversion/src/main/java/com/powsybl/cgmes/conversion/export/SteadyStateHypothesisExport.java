@@ -31,8 +31,6 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class SteadyStateHypothesisExport {
 
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
-
-    private static final String ABOUT = "about";
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
 
@@ -295,7 +293,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        // FIXME(LUMA) review that id has already been mapped through naming strategy
+        // FIXME(LUMA) naming strategy?
         CgmesExportUtil.writeStartAbout(type, id, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "TapChanger.controlEnabled");
         writer.writeCharacters(Boolean.toString(controlEnabled));
@@ -390,7 +388,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeRegulatingControl(RegulatingControlView rc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        // FIXME(LUMA) check rcid and naming strategy?
+        // FIXME(LUMA) naming strategy?
         CgmesExportUtil.writeStartAbout(regulatingControlClassname(rc.type), rc.id, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "RegulatingControl.discrete");
         writer.writeCharacters(Boolean.toString(rc.discrete));
@@ -448,7 +446,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeTerminal(String terminalId, boolean connected, String cimNamespace, XMLStreamWriter writer) {
         try {
-            // FIXME(LUMA) check naming strategy?
+            // FIXME(LUMA) naming strategy?
             CgmesExportUtil.writeStartAbout(CgmesNames.TERMINAL, terminalId, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "ACDCTerminal.connected");
             writer.writeCharacters(Boolean.toString(connected));
@@ -462,7 +460,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeEquivalentInjection(DanglingLine dl, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         Optional<String> ei = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
         if (ei.isPresent()) {
-            // FIXME(Luma) check naming strategy?
+            // FIXME(LUMA) naming strategy?
             CgmesExportUtil.writeStartAbout("EquivalentInjection", ei.get(), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
             writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
@@ -495,7 +493,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        // FIXME(Luma) check naming strategy?
+        // FIXME(LUMA) naming strategy?
         CgmesExportUtil.writeStartAbout(CgmesExportUtil.loadClassName(loadDetail), id, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
@@ -639,7 +637,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeGeneratingUnitParticipationFactor(GeneratingUnit gu, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        // FIXME(Luma) check naming strategy
+        // FIXME(LUMA) naming strategy?
         CgmesExportUtil.writeStartAbout(gu.className, gu.id, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "GeneratingUnit.normalPF");
         writer.writeCharacters(CgmesExportUtil.format(gu.participationFactor));

@@ -23,6 +23,10 @@ public interface NamingStrategy {
 
     String getCgmesId(Identifiable<?> identifiable);
 
+    default String getCgmesId(Identifiable<?> identifiable, String subObject) {
+        return identifiable.getId() + "_" + subObject;
+    }
+
     String getName(String type, String name);
 
     void readIdMapping(Identifiable<?> identifiable, String type);

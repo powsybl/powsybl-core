@@ -61,10 +61,13 @@ public class CgmesExport implements Exporter {
         String filenameTp = baseName + "_TP.xml";
         String filenameSsh = baseName + "_SSH.xml";
         String filenameSv = baseName + "_SV.xml";
-        CgmesExportContext context = new CgmesExportContext(network, ConversionParameters.readBooleanParameter(getFormat(), params, WITH_TOPOLOGICAL_MAPPING_PARAMETER, defaultValueConfig))
+        CgmesExportContext context = new CgmesExportContext(
+                network,
+                ConversionParameters.readBooleanParameter(getFormat(), params, WITH_TOPOLOGICAL_MAPPING_PARAMETER, defaultValueConfig),
+                NamingStrategyFactory.create(ConversionParameters.readStringParameter(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig))
+        )
                 .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
-                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
-                .setNamingStrategy(NamingStrategyFactory.create(ConversionParameters.readStringParameter(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)));
+                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig));
         String cimVersionParam = ConversionParameters.readStringParameter(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
