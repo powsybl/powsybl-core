@@ -1,0 +1,54 @@
+{
+  "name" : "test",
+  "classes" : [ {
+    "name" : "ElmFoo",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "i",
+      "type" : "INTEGER"
+    }, {
+      "name" : "f",
+      "type" : "FLOAT"
+    }, {
+      "name" : "d",
+      "type" : "DOUBLE"
+    }, {
+      "name" : "l",
+      "type" : "INTEGER64"
+    }, {
+      "name" : "iv",
+      "type" : "INTEGER_VECTOR"
+    }, {
+      "name" : "fv",
+      "type" : "FLOAT_VECTOR"
+    }, {
+      "name" : "dv",
+      "type" : "DOUBLE_VECTOR"
+    }, {
+      "name" : "m",
+      "type" : "DOUBLE_MATRIX"
+    } ]
+  }, {
+    "name" : "ElmBar",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    } ]
+  } ],
+  "rootObject" : {
+    "id" : 1,
+    "className" : "ElmBar",
+    "values" : {
+      "loc_name" : "bar"
+    },
+    "children" : [ {
+      "id" : 0,
+      "className" : "ElmFoo",
+      "values" : {
+        "loc_name" : "foo"
+      }
+    } ]
+  }
+}

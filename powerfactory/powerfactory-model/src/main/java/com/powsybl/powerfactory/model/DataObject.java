@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
  */
 public class DataObject {
 
-    private static final String NOT_FOUND = "' not found";
-
     private final long id;
 
     private DataObject parent;
@@ -140,17 +138,20 @@ public class DataObject {
     }
 
     private static void checkAttributeType(DataAttribute attribute, DataAttributeType type) {
-        if (attribute.getType() != type) {
+        if (attribute.getType() != type
+                // hack to handle float attributes considered as double in C++ API
+                && !(attribute.getType() == DataAttributeType.DOUBLE && type == DataAttributeType.FLOAT)
+                && !(attribute.getType() == DataAttributeType.INTEGER && type == DataAttributeType.INTEGER64)) {
             throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
         }
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String name) {
-        return new PowerFactoryException("Attribute '" + name + NOT_FOUND);
+        return new PowerFactoryException("Attribute '" + name + "' not found");
     }
 
     private static PowerFactoryException createAttributeNotFoundException(String type, String name) {
-        return new PowerFactoryException(type + " attribute '" + name + NOT_FOUND);
+        return new PowerFactoryException(type + " attribute '" + name + "' not found");
     }
 
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
@@ -223,7 +224,8 @@ public class DataObject {
     }
 
     public Optional<Float> findFloatAttributeValue(String name) {
-        return findGenericAttributeValue(name, DataAttributeType.FLOAT);
+        return this.<Number>findGenericAttributeValue(name, DataAttributeType.FLOAT)
+                .map(Number::floatValue);
     }
 
     public float getFloatAttributeValue(String name) {
@@ -330,11 +332,11 @@ public class DataObject {
             return OptionalLong.empty();
         }
         checkAttributeType(attribute, DataAttributeType.INTEGER64);
-        Long value = (Long) attributeValues.get(name);
+        Number value = (Number) attributeValues.get(name);
         if (value == null) {
             return OptionalLong.empty();
         }
-        return OptionalLong.of(value);
+        return OptionalLong.of(value.longValue());
     }
 
     public long getLongAttributeValue(String name) {
