@@ -6,8 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -90,7 +90,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     public void miniBusBranchWithSvInjectionExportPQ() throws IOException, XMLStreamException {
 
         Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
-        String loadId = "_0448d86a-c766-11e1-8775-005056c00008";
+        String loadId = "0448d86a-c766-11e1-8775-005056c00008";
         Load load = network.getLoad(loadId);
         String cgmesTerminal = getCgmesTerminal(load.getTerminal());
 
@@ -121,7 +121,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     public void miniBusBranchWithSvInjectionExportQ() throws IOException, XMLStreamException {
 
         Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
-        String shuntCompensatorId = "_04553478-c766-11e1-8775-005056c00008";
+        String shuntCompensatorId = "04553478-c766-11e1-8775-005056c00008";
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         String cgmesTerminal = getCgmesTerminal(shuntCompensator.getTerminal());
 
@@ -204,7 +204,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
 
         // Export SV
-        CgmesExportContext context = new CgmesExportContext(expected);
+        CgmesExportContext context = new CgmesExportContext(expected, true);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

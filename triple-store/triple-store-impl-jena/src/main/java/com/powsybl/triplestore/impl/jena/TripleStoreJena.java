@@ -229,7 +229,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     private String createStatements(Model m, String objNs, String objType, PropertyBag statement) {
 
-        Resource resource = m.createResource(m.getNsPrefixURI("data") + "_" + UUID.randomUUID().toString());
+        Resource resource = m.createResource(m.getNsPrefixURI("data") + AbstractPowsyblTripleStore.createRdfId());
         Property parentPredicate = RDF.type;
         Resource parentObject = m.createResource(objNs + objType);
         Statement parentSt = m.createStatement(resource, parentPredicate, parentObject);

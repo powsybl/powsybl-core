@@ -146,9 +146,11 @@ public class Conversion {
         if (context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
             cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
-            cgmes.baseVoltages().forEach(bv -> mappingAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
             mappingAdder.add();
         }
+        BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
+        cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
+        bvAdder.add();
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -212,7 +214,7 @@ public class Conversion {
             network.newExtension(CgmesControlAreasAdder.class).add();
             CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
             cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf, cgmes, network));
+            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
             cgmesControlAreas.cleanIfEmpty();
         }
 
@@ -243,21 +245,20 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
-        if (mapping != null) {
-            mapping.addTopologyListener();
+        if (config.createCgmesExportMapping) {
+            network.getExtension(CgmesIidmMapping.class).addTopologyListener();
         }
         return network;
     }
 
-    private CgmesIidmMapping.Source isBoundaryTopologicalNode(String graph) {
+    private Source isBoundaryTopologicalNode(String graph) {
         //There are unit tests where the boundary file contains the sequence "TPBD" and others "TP_BD"
-        return graph.contains("TP") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+        return graph.contains("TP") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
     }
 
-    private CgmesIidmMapping.Source isBoundaryBaseVoltage(String graph) {
+    private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
-        return graph.contains("EQ") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+        return graph.contains("EQ") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {
@@ -281,8 +282,7 @@ public class Conversion {
                 .add();
     }
 
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf,
-        CgmesModel cgmesModel, Network network) {
+    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         if (cgmesControlArea == null) {
@@ -290,15 +290,12 @@ public class Conversion {
             return;
         }
         String terminalId = tf.getId("terminal");
-        Boundary boundary = context.terminalMapping().findBoundary(terminalId, cgmesModel);
+        Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {
             cgmesControlArea.add(boundary);
             return;
         }
-        Terminal terminal = context.terminalMapping().find(terminalId, cgmesModel, network);
-        if (terminal != null) {
-            cgmesControlArea.add(terminal);
-        }
+        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
     }
 
     private void convert(
@@ -362,9 +359,9 @@ public class Conversion {
         PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         if (svDescription != null && !svDescription.isEmpty()) {
             CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
-                    .setDescription(svDescription.get(0).getId("description"))
+                    .setDescription(svDescription.get(0).get("description"))
                     .setSvVersion(readVersion(svDescription, context))
-                    .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
+                    .setModelingAuthoritySet(svDescription.get(0).get("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }
@@ -374,9 +371,9 @@ public class Conversion {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
-                    .setDescription(sshDescription.get(0).getId("description"))
+                    .setDescription(sshDescription.get(0).get("description"))
                     .setSshVersion(readVersion(sshDescription, context))
-                    .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));
+                    .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
             sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }

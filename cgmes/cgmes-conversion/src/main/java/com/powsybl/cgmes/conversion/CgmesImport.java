@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -129,7 +128,7 @@ public class CgmesImport implements Importer {
                         boundaryLocationParameter,
                         defaultValueConfig));
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc, DataSourceUtil.getBaseName(loc));
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }

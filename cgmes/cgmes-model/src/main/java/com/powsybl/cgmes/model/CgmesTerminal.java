@@ -44,6 +44,8 @@ public class CgmesTerminal {
 
         this.connected = t.asBoolean("connected", true);
         this.flow = new PowerFlow(t, "p", "q");
+
+        this.sequenceNumber = t.asInt("sequenceNumber", 0);
     }
 
     public String id() {
@@ -78,6 +80,10 @@ public class CgmesTerminal {
         return flow;
     }
 
+    public int getSequenceNumber() {
+        return sequenceNumber;
+    }
+
     private final String id;
     private final String name;
     private final String conductingEquipment;
@@ -86,4 +92,5 @@ public class CgmesTerminal {
     private final PowerFlow flow;
     private final String connectivityNode;
     private final String topologicalNode;
+    private final int sequenceNumber;
 }

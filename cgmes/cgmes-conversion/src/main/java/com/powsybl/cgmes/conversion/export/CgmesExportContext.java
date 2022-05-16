@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.NamingStrategy;
 import com.powsybl.cgmes.extensions.*;
@@ -32,14 +34,14 @@ public class CgmesExportContext {
     private static final String TERMINAL_NETWORK = "Terminal_Network";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
 
-    private int cimVersion = 16;
+    private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
-    private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.EQ_PROFILE);
-    private ModelDescription tpModelDescription = new ModelDescription("TP Model", CgmesNamespace.TP_PROFILE);
-    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
-    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
+    private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfile("EQ"));
+    private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
+    private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfile("SV"));
+    private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfile("SSH"));
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -49,7 +51,37 @@ public class CgmesExportContext {
     private final Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<CgmesIidmMapping.CgmesTopologicalNode> unmappedTopologicalNodes = new HashSet<>();
 
-    private final Map<Double, CgmesIidmMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
+    private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
+
+    private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
+    private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
+
+    // Update dependencies in a way that:
+    // SV.dependentOn TP
+    // SV.dependentOn SSH
+    // TP.dependentOn EQ
+    // SSH.dependentOn EQ
+    public void updateDependencies() {
+        String eqModelId = getEqModelDescription().getId();
+        if (eqModelId != null) {
+            getTpModelDescription()
+                    .clearDependencies()
+                    .addDependency(eqModelId);
+            getSshModelDescription()
+                    .clearDependencies()
+                    .addDependency(eqModelId);
+            getSvModelDescription().clearDependencies();
+            String tpModelId = getTpModelDescription().getId();
+            if (tpModelId != null) {
+                getSvModelDescription().addDependency(tpModelId);
+            }
+            String sshModelId = getSshModelDescription().getId();
+            if (sshModelId != null) {
+                getSvModelDescription().addDependency(sshModelId);
+                getSvModelDescription().addDependency(sshModelId);
+            }
+        }
+    }
 
     public static final class ModelDescription {
 
@@ -57,6 +89,8 @@ public class CgmesExportContext {
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
+        private String id = null;
+
         // TODO Each model may have a list of profiles, not only one
         private String profile;
 
@@ -114,12 +148,36 @@ public class CgmesExportContext {
         public String getProfile() {
             return profile;
         }
+
+        public ModelDescription setProfile(String profile) {
+            this.profile = profile;
+            return this;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
+    interface TopologicalConsumer {
+        void accept(String iidmId, String cgmesId, String cgmesName, Source source);
+    }
+
+    public CgmesExportContext() {
     }
 
     public CgmesExportContext(Network network) {
+        this(network, false);
+    }
+
+    public CgmesExportContext(Network network, boolean withTopologicalMapping) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
-            cimVersion = cimCharacteristics.getCimVersion();
+            setCimVersion(cimCharacteristics.getCimVersion());
             topologyKind = cimCharacteristics.getTopologyKind();
         }
         scenarioTime = network.getCaseDate();
@@ -139,23 +197,38 @@ public class CgmesExportContext {
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
-        addIidmMappings(network);
+        addIidmMappings(network, withTopologicalMapping);
     }
 
     public void addIidmMappings(Network network) {
+        addIidmMappings(network, false);
+    }
+
+    public void addIidmMappings(Network network, boolean withTopologicalMapping) {
         // For a merging view we plan to call CgmesExportContext() and then addIidmMappings(network) for every network
+        // TODO add option to skip this part (if from CGMES)
         addIidmMappingsSubstations(network);
-        CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
-        if (mapping == null) {
-            network.newExtension(CgmesIidmMappingAdder.class).add();
-            mapping = network.getExtension(CgmesIidmMapping.class);
-            mapping.addTopologyListener();
+        if (withTopologicalMapping) {
+            CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
+            if (mapping == null) {
+                network.newExtension(CgmesIidmMappingAdder.class).add();
+                mapping = network.getExtension(CgmesIidmMapping.class);
+                mapping.addTopologyListener();
+            }
+            addIidmMappingsTopologicalNodes(mapping, network);
+        } else {
+            addIidmMappingsTopologicalNodes(network);
         }
-        addIidmMappingsTopologicalNodes(mapping, network);
-        addIidmMappingsBaseVoltages(mapping, network);
+        BaseVoltageMapping bvMapping = network.getExtension(BaseVoltageMapping.class);
+        if (bvMapping == null) {
+            network.newExtension(BaseVoltageMappingAdder.class).add();
+            bvMapping = network.getExtension(BaseVoltageMapping.class);
+        }
+        addIidmMappingsBaseVoltages(bvMapping, network);
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
         addIidmMappingsShuntCompensators(network);
+        addIidmMappingsStaticVarCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
         addIidmMappingsEquivalentInjection(network);
         addIidmMappingsControlArea(network);
@@ -163,13 +236,24 @@ public class CgmesExportContext {
 
     private void addIidmMappingsSubstations(Network network) {
         for (Substation substation : network.getSubstations()) {
+            String country = substation.getCountry().map(Country::name).orElseGet(network::getNameOrId);
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
-                String regionId = CgmesExportUtil.getUniqueId();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
+                String id = regionsIdsByRegionName.computeIfAbsent(country, k -> CgmesExportUtil.getUniqueId());
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", id);
+            } else {
+                regionsIdsByRegionName.computeIfAbsent(country, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId"));
+            }
+            String geoTag;
+            if (substation.getGeographicalTags().size() == 1) {
+                geoTag = substation.getGeographicalTags().iterator().next();
+            } else {
+                geoTag = country;
             }
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
-                String subRegionId = CgmesExportUtil.getUniqueId();
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
+                String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> CgmesExportUtil.getUniqueId());
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", id);
+            } else {
+                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId"));
             }
         }
     }
@@ -203,18 +287,32 @@ public class CgmesExportContext {
             // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
             // If we consider only connected terminals we would miss configured buses that only have connections through switches
             // Switches do not add as terminals
-            // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
+            // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    updateBusBreakerTopologicalNodesMapping(mapping, vl, namingStrategy);
+                    computeBusBreakerTopologicalNodeMapping(vl, namingStrategy, mapping::putTopologicalNode);
                 } else {
-                    updateNodeBreakerTopologicalNodesMapping(mapping, vl);
+                    computeNodeBreakerTopologicalNodesMapping(vl, mapping::putTopologicalNode);
                 }
             }
         }
     }
 
-    private static void updateBusBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl, NamingStrategy namingStrategy) {
+    private void addIidmMappingsTopologicalNodes(Network network) {
+        for (VoltageLevel vl : network.getVoltageLevels()) {
+            if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                computeBusBreakerTopologicalNodeMapping(vl, namingStrategy, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
+                        .computeIfAbsent(iidmId, key -> new HashSet<>())
+                        .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
+            } else {
+                computeNodeBreakerTopologicalNodesMapping(vl, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
+                        .computeIfAbsent(iidmId, key -> new HashSet<>())
+                        .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
+            }
+        }
+    }
+
+    private static void computeBusBreakerTopologicalNodeMapping(VoltageLevel vl, NamingStrategy namingStrategy, TopologicalConsumer addTnMapping) {
         for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
             Bus busViewBus;
             String topologicalNode;
@@ -225,12 +323,12 @@ public class CgmesExportContext {
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
             if (busViewBus != null && topologicalNode != null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
-                mapping.putTopologicalNode(busViewBus.getId(), namingStrategy.getCgmesId(configuredBus), topologicalNodeName, CgmesIidmMapping.Source.IGM);
+                addTnMapping.accept(busViewBus.getId(), namingStrategy.getCgmesId(configuredBus), topologicalNodeName, Source.IGM);
             }
         }
     }
 
-    private static void updateNodeBreakerTopologicalNodesMapping(CgmesIidmMapping mapping, VoltageLevel vl) {
+    private static void computeNodeBreakerTopologicalNodesMapping(VoltageLevel vl, TopologicalConsumer addTnMapping) {
         for (int node : vl.getNodeBreakerView().getNodes()) {
             Bus busViewBus;
             String topologicalNode;
@@ -244,22 +342,22 @@ public class CgmesExportContext {
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
                         String topologicalNodeName = bus.getNameOrId();
-                        mapping.putTopologicalNode(busViewBus.getId(), bus.getId(), topologicalNodeName, CgmesIidmMapping.Source.IGM);
+                        addTnMapping.accept(busViewBus.getId(), bus.getId(), topologicalNodeName, Source.IGM);
                     }
                 }
             }
         }
     }
 
-    private void addIidmMappingsBaseVoltages(CgmesIidmMapping mapping, Network network) {
+    private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
         if (mapping.isBaseVoltageEmpty()) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
                 String baseVoltageId = CgmesExportUtil.getUniqueId();
-                mapping.addBaseVoltage(nominalV, baseVoltageId, CgmesIidmMapping.Source.IGM);
+                mapping.addBaseVoltage(nominalV, baseVoltageId, Source.IGM);
             }
         }
-        Map<Double, CgmesIidmMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
+        Map<Double, BaseVoltageMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
         baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
@@ -335,10 +433,10 @@ public class CgmesExportContext {
                 boundaryId = CgmesExportUtil.getUniqueId();
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
-        } else if (c instanceof Load && ((Load) c).isFictitious()) {
+        } else if (c instanceof Load && c.isFictitious()) {
             // An fictitious load do not need an alias
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 terminalId = CgmesExportUtil.getUniqueId();
@@ -368,6 +466,16 @@ public class CgmesExportContext {
             if (regulatingControlId == null) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
+            }
+        }
+    }
+
+    private static void addIidmMappingsStaticVarCompensators(Network network) {
+        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+            String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
+            if (regulatingControlId == null && (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
+                regulatingControlId = CgmesExportUtil.getUniqueId();
+                svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);
             }
         }
     }
@@ -444,14 +552,20 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsEquivalentInjection(Network network) {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
-            String equivalentInjectionId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection").orElse(null);
-            if (equivalentInjectionId == null) {
-                equivalentInjectionId = CgmesExportUtil.getUniqueId();
+            Optional<String> alias;
+            alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            if (!alias.isPresent()) {
+                String equivalentInjectionId = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(equivalentInjectionId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             }
-            String topologicalNode = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE).orElse(null);
-            if (topologicalNode == null) {
-                topologicalNode = CgmesExportUtil.getUniqueId();
+            alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            if (!alias.isPresent()) {
+                String equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId();
+                danglingLine.addAlias(equivalentInjectionTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            }
+            alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            if (!alias.isPresent()) {
+                String topologicalNode = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(topologicalNode, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             }
         }
@@ -475,15 +589,18 @@ public class CgmesExportContext {
         }
     }
 
-    public CgmesExportContext() {
-    }
-
     public int getCimVersion() {
-        return cimVersion;
+        return cim.getVersion();
     }
 
     public CgmesExportContext setCimVersion(int cimVersion) {
-        this.cimVersion = cimVersion;
+        cim = CgmesNamespace.getCim(cimVersion);
+        if (cim.hasProfiles()) {
+            eqModelDescription.setProfile(cim.getProfile("EQ"));
+            tpModelDescription.setProfile(cim.getProfile("TP"));
+            svModelDescription.setProfile(cim.getProfile("SV"));
+            sshModelDescription.setProfile(cim.getProfile("SSH"));
+        }
         return this;
     }
 
@@ -539,8 +656,8 @@ public class CgmesExportContext {
         return this;
     }
 
-    public String getCimNamespace() {
-        return CgmesNamespace.getCimNamespace(cimVersion);
+    public CgmesNamespace.Cim getCim() {
+        return cim;
     }
 
     public NamingStrategy getNamingStrategy() {
@@ -556,6 +673,11 @@ public class CgmesExportContext {
         return topologicalNodeByBusViewBusMapping.get(busId);
     }
 
+    public CgmesExportContext putTopologicalNode(String iidmBusId, String cgmesId) {
+        topologicalNodeByBusViewBusMapping.computeIfAbsent(iidmBusId, k -> new HashSet<>()).add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesId, Source.IGM));
+        return this;
+    }
+
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getUnmappedTopologicalNodes() {
         return Collections.unmodifiableSet(unmappedTopologicalNodes);
     }
@@ -564,7 +686,19 @@ public class CgmesExportContext {
         return unmappedTopologicalNodes.stream().filter(cgmesTopologicalNode -> cgmesTopologicalNode.getCgmesId().equals(topologicalNodeId)).findAny().orElse(null);
     }
 
-    public CgmesIidmMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
+    public BaseVoltageMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
+    }
+
+    public Collection<String> getRegionsIds() {
+        return Collections.unmodifiableSet(regionsIdsByRegionName.values());
+    }
+
+    public String getRegionName(String regionId) {
+        return regionsIdsByRegionName.inverse().get(regionId);
+    }
+
+    public String getSubRegionName(String subRegionId) {
+        return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
 }

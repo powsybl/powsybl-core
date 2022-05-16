@@ -6,24 +6,22 @@
  */
 package com.powsybl.powerfactory.model;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.powsybl.commons.json.JsonUtil;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-
-@JsonIgnoreProperties({"time", "elmNets"})
-@JsonPropertyOrder({"name", "dataObjects"})
-
 public class StudyCase {
 
     private final String name;
@@ -32,13 +30,13 @@ public class StudyCase {
 
     private final List<DataObject> elmNets;
 
-    public StudyCase(String name, Instant time, List<DataObject> elmNets) {
+    private final DataObjectIndex index;
+
+    public StudyCase(String name, Instant time, List<DataObject> elmNets, DataObjectIndex index) {
         this.name = Objects.requireNonNull(name);
         this.time = Objects.requireNonNull(time);
-        if (elmNets.isEmpty()) {
-            throw new IllegalArgumentException("Empty ElmNet list");
-        }
         this.elmNets = Objects.requireNonNull(elmNets);
+        this.index = Objects.requireNonNull(index);
     }
 
     public String getName() {
@@ -53,17 +51,110 @@ public class StudyCase {
         return elmNets;
     }
 
-    public List<DataObject> getDataObjects() {
-        Set<DataObject> dataObjectsSet = new HashSet<>();
+    public DataObjectIndex getIndex() {
+        return index;
+    }
 
-        for (DataObject elmNet : elmNets) {
-            elmNet.traverseAndReference(dataObjectsSet::add);
+    static class ParsingContext {
+        String name;
+
+        Instant time;
+
+        final DataObjectIndex index = new DataObjectIndex();
+
+        DataScheme scheme;
+
+        List<DataObject> elmNets;
+    }
+
+    static StudyCase parseJson(JsonParser parser) {
+        ParsingContext context = new ParsingContext();
+        try {
+            parser.nextToken();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        List<DataObject> dataObjects = new ArrayList<>();
-        dataObjects.addAll(dataObjectsSet);
+        JsonUtil.parseObject(parser, fieldName -> {
+            switch (fieldName) {
+                case "name":
+                    context.name = parser.nextTextValue();
+                    return true;
+                case "time":
+                    context.time = Instant.parse(parser.nextTextValue());
+                    return true;
+                case "classes":
+                    context.scheme = DataScheme.parseJson(parser);
+                    return true;
+                case "objects":
+                    JsonUtil.parseObjectArray(parser, obj -> { },
+                        parser2 -> DataObject.parseJson(parser2, context.index, context.scheme));
+                    return true;
+                case "elmNets":
+                    context.elmNets = JsonUtil.parseLongArray(parser).stream()
+                            .map(id -> context.index.getDataObjectById(id)
+                                    .orElseThrow(() -> new PowerFactoryException("ElmNet object " + id + " not found")))
+                            .collect(Collectors.toList());
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        return new StudyCase(context.name, context.time, context.elmNets, context.index);
+    }
 
-        Collections.sort(dataObjects, (do1, do2) -> ((Long) do1.getId()).compareTo(do2.getId()));
+    static StudyCase parseJson(Reader reader) {
+        return JsonUtil.parseJson(reader, StudyCase::parseJson);
+    }
 
-        return dataObjects;
+    static StudyCase readJson(Path file) {
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+            return parseJson(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void writeJson(JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
+
+        generator.writeStringField("name", name);
+        generator.writeStringField("time", time.toString());
+
+        DataScheme scheme = DataScheme.build(elmNets);
+        scheme.writeJson(generator);
+
+        generator.writeFieldName("objects");
+        generator.writeStartArray();
+        for (DataObject obj : index.getRootDataObjects()) {
+            obj.writeJson(generator);
+        }
+        generator.writeEndArray();
+
+        generator.writeFieldName("elmNets");
+        generator.writeStartArray();
+        for (DataObject elmNet : elmNets) {
+            generator.writeNumber(elmNet.getId());
+        }
+        generator.writeEndArray();
+
+        generator.writeEndObject();
+    }
+
+    public void writeJson(Writer writer) {
+        JsonUtil.writeJson(writer, generator -> {
+            try {
+                writeJson(generator);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    public void writeJson(Path file) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            writeJson(writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

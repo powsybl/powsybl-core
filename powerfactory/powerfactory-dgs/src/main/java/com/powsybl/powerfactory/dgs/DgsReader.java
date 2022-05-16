@@ -19,7 +19,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,15 +32,9 @@ public class DgsReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DgsReader.class);
 
-    private final Map<Long, DataObject> objectsById = new HashMap<>();
-
-    private final Map<String, DataClass> classesByName = new HashMap<>();
-
-    private final List<ToResolve> toResolveList = new ArrayList<>();
+    private final DataObjectIndex index = new DataObjectIndex();
 
     private final Map<String, String> general = new HashMap<>();
-
-    private List<DataObject> elmNets = new ArrayList<>();
 
     public static StudyCase read(Path dgsFile) {
         return read(dgsFile, StandardCharsets.ISO_8859_1);
@@ -48,21 +45,6 @@ public class DgsReader {
             return new DgsReader().read(dgsFile.getFileName().toString(), reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private static final class ToResolve {
-
-        private final DataObject obj;
-
-        private final String attributeName;
-
-        private final long id;
-
-        private ToResolve(DataObject obj, String attributeName, long id) {
-            this.obj = obj;
-            this.attributeName = attributeName;
-            this.id = id;
         }
     }
 
@@ -79,7 +61,7 @@ public class DgsReader {
                 type = DataAttributeType.FLOAT;
                 break;
             case 'p':
-                type = DataAttributeType.INTEGER64;
+                type = DataAttributeType.OBJECT;
                 break;
             default:
                 throw new AssertionError("Unexpected attribute type: " + attributeType);
@@ -87,17 +69,11 @@ public class DgsReader {
         return type;
     }
 
-    private void resolveLinksAndBuildObjectsTree() {
-        for (ToResolve toResolve : toResolveList) {
-            DataObject obj = objectsById.get(toResolve.id);
-            if (obj == null) {
-                throw new PowerFactoryException("Object '" + toResolve.id + "' not found");
-            }
-            if (toResolve.attributeName.equals(DataAttribute.FOLD_ID)) {
-                toResolve.obj.setParent(obj);
-            } else {
-                toResolve.obj.getReferenceValues().computeIfAbsent(toResolve.attributeName, k -> obj);
-            }
+    private void buildObjectTree() {
+        for (DataObject obj : index.getDataObjects()) {
+            obj.findObjectAttributeValue(DataAttribute.FOLD_ID)
+                    .flatMap(DataObjectRef::resolve)
+                    .ifPresent(obj::setParent);
         }
     }
 
@@ -114,7 +90,6 @@ public class DgsReader {
             if (!tableName.equals("General")) {
                 // this is a class description
                 clazz = new DataClass(tableName);
-                classesByName.put(clazz.getName(), clazz);
             }
         }
 
@@ -126,24 +101,12 @@ public class DgsReader {
             }
         }
 
-        private DataObject createDataObject(long id, DataClass clazz) {
-            if (objectsById.containsKey(id)) {
-                throw new PowerFactoryException("Object '" + id + "' already exists");
-            }
-            DataObject newObj = new DataObject(id, clazz);
-            objectsById.put(id, newObj);
-            return newObj;
-        }
-
         @Override
         public void onStringValue(String attributeName, String value) {
             if (clazz != null) {
                 if ("ID".equals(attributeName)) {
                     long id = Long.parseLong(value);
-                    object = createDataObject(id, clazz);
-                    if (clazz.getName().equals("ElmNet")) {
-                        elmNets.add(object);
-                    }
+                    object = new DataObject(id, clazz, index);
                 } else {
                     object.setStringAttributeValue(attributeName, value);
                 }
@@ -168,8 +131,7 @@ public class DgsReader {
 
         @Override
         public void onObjectValue(String attributeName, long id) {
-            object.setLongAttributeValue(attributeName, id);
-            toResolveList.add(new ToResolve(object, attributeName, id));
+            object.setObjectAttributeValue(attributeName, id);
         }
     }
 
@@ -180,20 +142,14 @@ public class DgsReader {
 
         new DgsParser().read(reader, new DgsHandlerImpl());
 
-        if (elmNets.isEmpty()) {
-            throw new PowerFactoryException("ElmNet object is missing");
-        }
-
-        // resolve object attributes links
-        resolveLinksAndBuildObjectsTree();
+        // build object tree (so resolve parents / children links)
+        buildObjectTree();
 
         stopwatch.stop();
-        LOGGER.info("DGS file read in {} ms: {} data objects", stopwatch.elapsed(TimeUnit.MILLISECONDS), objectsById.size());
+        LOGGER.info("DGS file read in {} ms: {} data objects", stopwatch.elapsed(TimeUnit.MILLISECONDS), index.getDataObjects().size());
 
-        StudyCase studyCase = new StudyCase(studyCaseName, Instant.now(), elmNets);
-        for (DataObject obj : objectsById.values()) {
-            obj.setStudyCase(studyCase);
-        }
-        return studyCase;
+        List<DataObject> elmNets = index.getDataObjectsByClass("ElmNet");
+        Instant studyTime = Instant.ofEpochMilli(0); // FIXME get from head comment?
+        return new StudyCase(studyCaseName, studyTime, elmNets, index);
     }
 }

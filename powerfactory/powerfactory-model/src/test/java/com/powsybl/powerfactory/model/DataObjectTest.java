@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class DataObjectTest {
                 .addAttribute(new DataAttribute("iv", DataAttributeType.INTEGER_VECTOR))
                 .addAttribute(new DataAttribute("fv", DataAttributeType.FLOAT_VECTOR))
                 .addAttribute(new DataAttribute("dv", DataAttributeType.DOUBLE_VECTOR))
-                .addAttribute(new DataAttribute("m", DataAttributeType.MATRIX));
+                .addAttribute(new DataAttribute("m", DataAttributeType.DOUBLE_MATRIX));
     }
 
     @Test
@@ -50,8 +49,9 @@ public class DataObjectTest {
 
     @Test
     public void testObj() throws IOException {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo)
+        DataObject objFoo = new DataObject(0L, clsFoo, index)
                 .setLocName("foo");
         assertEquals(0L, objFoo.getId());
         assertSame(clsFoo, objFoo.getDataClass());
@@ -61,7 +61,7 @@ public class DataObjectTest {
         assertTrue(objFoo.getChildren().isEmpty());
 
         DataClass clsBar = DataClass.init("ElmBar");
-        DataObject objBar = new DataObject(1L, clsBar)
+        DataObject objBar = new DataObject(1L, clsBar, index)
                 .setLocName("bar");
         objFoo.setParent(objBar);
         assertEquals(1, objBar.getChildren().size());
@@ -88,8 +88,9 @@ public class DataObjectTest {
 
     @Test
     public void testStringAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findStringAttributeValue(DataAttribute.LOC_NAME).isPresent());
         objFoo.setStringAttributeValue(DataAttribute.LOC_NAME, "foo");
         assertEquals("foo", objFoo.getLocName());
@@ -106,8 +107,9 @@ public class DataObjectTest {
 
     @Test
     public void testIntAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findIntAttributeValue("i").isPresent());
         objFoo.setIntAttributeValue("i", 3);
         assertTrue(objFoo.findIntAttributeValue("i").isPresent());
@@ -119,8 +121,9 @@ public class DataObjectTest {
 
     @Test
     public void testLongAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findLongAttributeValue("l").isPresent());
         objFoo.setLongAttributeValue("l", 4L);
         assertTrue(objFoo.findLongAttributeValue("l").isPresent());
@@ -132,8 +135,9 @@ public class DataObjectTest {
 
     @Test
     public void testFloatAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findFloatAttributeValue("f").isPresent());
         objFoo.setFloatAttributeValue("f", 3.14f);
         assertTrue(objFoo.findFloatAttributeValue("f").isPresent());
@@ -145,8 +149,9 @@ public class DataObjectTest {
 
     @Test
     public void testDoubleAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findDoubleAttributeValue("d").isPresent());
         objFoo.setDoubleAttributeValue("d", 3.14d);
         assertTrue(objFoo.findDoubleAttributeValue("d").isPresent());
@@ -158,8 +163,9 @@ public class DataObjectTest {
 
     @Test
     public void testIntVectorAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findIntVectorAttributeValue("iv").isPresent());
         objFoo.setIntVectorAttributeValue("iv", List.of(3, 4));
         assertTrue(objFoo.findIntVectorAttributeValue("iv").isPresent());
@@ -171,8 +177,9 @@ public class DataObjectTest {
 
     @Test
     public void testFloatVectorAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findFloatVectorAttributeValue("fv").isPresent());
         objFoo.setFloatVectorAttributeValue("fv", List.of(3.1f, 4.1f));
         assertTrue(objFoo.findFloatVectorAttributeValue("fv").isPresent());
@@ -184,8 +191,9 @@ public class DataObjectTest {
 
     @Test
     public void testDoubleVectorAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
         assertFalse(objFoo.findDoubleVectorAttributeValue("dv").isPresent());
         objFoo.setDoubleVectorAttributeValue("dv", List.of(3.2d, 4.2d));
         assertTrue(objFoo.findDoubleVectorAttributeValue("dv").isPresent());
@@ -197,28 +205,15 @@ public class DataObjectTest {
 
     @Test
     public void testMatrixVectorAttribute() {
+        DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
-        assertFalse(objFoo.findMatrixAttributeValue("m").isPresent());
-        objFoo.setMatrixAttributeValue("m", new BlockRealMatrix(2, 2));
-        assertTrue(objFoo.findMatrixAttributeValue("m").isPresent());
-        assertEquals(new BlockRealMatrix(2, 2), objFoo.findMatrixAttributeValue("m").orElseThrow());
-        assertFalse(objFoo.findMatrixAttributeValue("mm").isPresent());
-        assertThrows(PowerFactoryException.class, () -> objFoo.getMatrixAttributeValue("mm"));
-        assertEquals(new BlockRealMatrix(2, 2), objFoo.getMatrixAttributeValue("m"));
-    }
-
-    @Test
-    public void testInstantAttribute() {
-        DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
-        assertFalse(objFoo.findInstantAttributeValue("i").isPresent());
-        Instant time = Instant.parse("2021-10-30T09:35:25Z");
-        objFoo.setInstantAttributeValue("i", time);
-        assertTrue(objFoo.findInstantAttributeValue("i").isPresent());
-        assertEquals(time, objFoo.findInstantAttributeValue("i").orElseThrow());
-        assertFalse(objFoo.findInstantAttributeValue("ii").isPresent());
-        assertThrows(PowerFactoryException.class, () -> objFoo.getInstantAttributeValue("ii"));
-        assertEquals(time, objFoo.getInstantAttributeValue("i"));
+        DataObject objFoo = new DataObject(0L, clsFoo, index);
+        assertFalse(objFoo.findDoubleMatrixAttributeValue("m").isPresent());
+        objFoo.setDoubleMatrixAttributeValue("m", new BlockRealMatrix(2, 2));
+        assertTrue(objFoo.findDoubleMatrixAttributeValue("m").isPresent());
+        assertEquals(new BlockRealMatrix(2, 2), objFoo.findDoubleMatrixAttributeValue("m").orElseThrow());
+        assertFalse(objFoo.findDoubleMatrixAttributeValue("mm").isPresent());
+        assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleMatrixAttributeValue("mm"));
+        assertEquals(new BlockRealMatrix(2, 2), objFoo.getDoubleMatrixAttributeValue("m"));
     }
 }

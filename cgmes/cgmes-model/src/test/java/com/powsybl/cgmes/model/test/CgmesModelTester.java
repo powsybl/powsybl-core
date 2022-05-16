@@ -118,8 +118,12 @@ public class CgmesModelTester {
             return;
         }
         List<String> expectedPropertyNames = expecteds.get(0).propertyNames();
+        // If the values extracted as "locals" (URL prefix removed) are not equals,
+        // then they must be equals extracted as "identifiers" (URL prefix removed, initial "_" removed)
         expectedPropertyNames.forEach(p -> {
-            assertEquals(expecteds.pluckLocals(p), actuals.pluckLocals(p));
+            if (!expecteds.pluckLocals(p).equals(actuals.pluckLocals(p))) {
+                assertEquals(expecteds.pluckIdentifiers(p), actuals.pluckIdentifiers(p));
+            }
         });
     }
 

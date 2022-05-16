@@ -20,23 +20,21 @@ import java.util.Set;
  */
 public class ThreeWindingsTransformerTripping extends AbstractTripping {
 
-    private final String id;
-
     public ThreeWindingsTransformerTripping(String id) {
-        this.id = Objects.requireNonNull(id);
+        super(id);
     }
 
     @Override
-    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
+    public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer(id);
         if (twt3 == null) {
             throw createNotFoundException();
         }
-        TrippingTopologyTraverser.traverse(twt3.getLeg1().getTerminal(), switchesToOpen, terminalsToDisconnect);
-        TrippingTopologyTraverser.traverse(twt3.getLeg2().getTerminal(), switchesToOpen, terminalsToDisconnect);
-        TrippingTopologyTraverser.traverse(twt3.getLeg3().getTerminal(), switchesToOpen, terminalsToDisconnect);
+        TrippingTopologyTraverser.traverse(twt3.getLeg1().getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
+        TrippingTopologyTraverser.traverse(twt3.getLeg2().getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
+        TrippingTopologyTraverser.traverse(twt3.getLeg3().getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
     }
 
     protected PowsyblException createNotFoundException() {
