@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
@@ -37,10 +35,10 @@ public final class TopologyExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
-            String cimNamespace = context.getCimNamespace();
+            String cimNamespace = context.getCim().getNamespace();
+            CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
-            if (context.getCimVersion() == 16) {
+            if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getTpModelDescription(), context);
             }
             writeTopologicalNodes(network, cimNamespace, writer, context);
@@ -54,6 +52,7 @@ public final class TopologyExport {
 
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeBusTerminals(network, cimNamespace, writer, context);
+        writeBoundaryTerminals(network, cimNamespace, writer);
         writeSwitchesTerminals(network, cimNamespace, writer, context);
         writeHvdcTerminals(network, cimNamespace, writer, context);
     }
@@ -61,17 +60,14 @@ public final class TopologyExport {
     private static void writeBusTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
             for (Terminal t : b.getConnectedTerminals()) {
-                Connectable<?> c = t.getConnectable();
-                String terminalId;
-                if (c instanceof DanglingLine) {
-                    writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer);
-                    terminalId = cgmesTerminalFromAlias(c, "Terminal_Network");
-                } else {
-                    int side = CgmesExportUtil.getTerminalSide(t, c);
-                    terminalId = cgmesTerminalFromAlias(c, CgmesNames.TERMINAL + side);
-                }
-                writeTerminal(terminalId, topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
+                writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
             }
+        }
+    }
+
+    private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (DanglingLine dl : network.getDanglingLines()) {
+            writeBoundaryTerminal(dl, cimNamespace, writer);
         }
     }
 
@@ -150,26 +146,20 @@ public final class TopologyExport {
     }
 
     private static void writeDCNode(String dcNode, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + dcNode);
-        writer.writeEmptyElement(cimNamespace, "DCNode.DCTopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcTopologicalNode);
+        CgmesExportUtil.writeStartAbout("DCNode", dcNode, cimNamespace, writer);
+        CgmesExportUtil.writeReference("DCNode.DCTopologicalNode", dcTopologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     private static void writeAcdcConverterDCTerminal(String acdcConverterDcTerminal, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "ACDCConverterDCTerminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + acdcConverterDcTerminal);
-        writer.writeEmptyElement(cimNamespace, "DCBaseTerminal.DCTopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcTopologicalNode);
+        CgmesExportUtil.writeStartAbout("ACDCConverterDCTerminal", acdcConverterDcTerminal, cimNamespace, writer);
+        CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     private static void writeDCTerminal(String dcTerminal, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCTerminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + dcTerminal);
-        writer.writeEmptyElement(cimNamespace, "DCBaseTerminal.DCTopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcTopologicalNode);
+        CgmesExportUtil.writeStartAbout("DCTerminal", dcTerminal, cimNamespace, writer);
+        CgmesExportUtil.writeReference("DCBaseTerminal.DCTopologicalNode", dcTopologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
@@ -188,10 +178,8 @@ public final class TopologyExport {
     }
 
     private static void writeTerminal(String terminalId, String topologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "Terminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + terminalId);
-        writer.writeEmptyElement(cimNamespace, "Terminal.TopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
+        CgmesExportUtil.writeStartAbout("Terminal", terminalId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("Terminal.TopologicalNode", topologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
@@ -260,24 +248,14 @@ public final class TopologyExport {
     }
 
     private static void writeDCTopologicalNode(String dcTopologicalNode, String dcTopologicalNodeName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCTopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, dcTopologicalNode);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(dcTopologicalNodeName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("DCTopologicalNode", dcTopologicalNode, dcTopologicalNodeName, cimNamespace, writer);
         writer.writeEndElement();
     }
 
     private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "TopologicalNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, topologicalNode);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(topologicalNodeName);
-        writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + connectivityNodeContainerId);
-        writer.writeEmptyElement(cimNamespace, TOPOLOGICAL_NODE_BASE_VOLTAGE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + baseVoltageId);
+        CgmesExportUtil.writeStartIdName("TopologicalNode", topologicalNode, topologicalNodeName, cimNamespace, writer);
+        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, cimNamespace, writer);
+        CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, cimNamespace, writer);
         writer.writeEndElement();
     }
 

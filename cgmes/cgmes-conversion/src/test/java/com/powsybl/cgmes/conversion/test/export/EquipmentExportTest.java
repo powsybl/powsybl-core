@@ -6,10 +6,11 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.extensions.CgmesSshMetadata;
@@ -85,6 +86,22 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        // Remove aliases of equivalent injections, so they will have to be created during export
+        for (DanglingLine danglingLine : network.getDanglingLines()) {
+            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection")
+                    .ifPresent(danglingLine::removeAlias);
+            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
+                    .ifPresent(danglingLine::removeAlias);
+        }
+        testExportReimport(network, dataSource);
+    }
+
+    @Test
     public void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -98,13 +115,13 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
-        ShuntCompensatorLinearModel sh = (ShuntCompensatorLinearModel) network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
+        ShuntCompensatorLinearModel sh = (ShuntCompensatorLinearModel) network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(0.024793, sh.getBPerSection(), 0.0);
 
         sh.setBPerSection(1E-14);
 
         Network reimported = exportReimport(network, ds);
-        sh = (ShuntCompensatorLinearModel) reimported.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
+        sh = (ShuntCompensatorLinearModel) reimported.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(1E-14, sh.getBPerSection(), 0.0);
     }
 

@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
@@ -21,13 +22,8 @@ public final class RegulatingControlEq {
     public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
 
     public static void write(String id, String regulatingControlName, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "RegulatingControl");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(regulatingControlName);
-        writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "RegulatingControl.Terminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminalId);
+        CgmesExportUtil.writeStartIdName("RegulatingControl", id, regulatingControlName, cimNamespace, writer);
+        CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + REGULATING_CONTROL_VOLTAGE);
         writer.writeEndElement();
