@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -612,32 +613,42 @@ public final class EquipmentExport {
     }
 
     private static void writeHvdcLines(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        NamingStrategy namingStrategy = context.getNamingStrategy();
         for (HvdcLine line : network.getHvdcLines()) {
-            String dcConverterUnit1 = CgmesExportUtil.getUniqueId();
             String lineId = context.getNamingStrategy().getCgmesId(line);
-            String converter1Id = context.getNamingStrategy().getCgmesId(line.getConverterStation1());
-            String converter2Id = context.getNamingStrategy().getCgmesId(line.getConverterStation2());
-            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", line.getConverterStation1().getTerminal().getVoltageLevel().getNullableSubstation().getId(), cimNamespace, writer);
+            String converter1Id = namingStrategy.getCgmesId(line.getConverterStation1());
+            String converter2Id = namingStrategy.getCgmesId(line.getConverterStation2());
+            String substation1Id = namingStrategy.getCgmesId(line.getConverterStation1().getTerminal().getVoltageLevel().getNullableSubstation());
+            String substation2Id = namingStrategy.getCgmesId(line.getConverterStation2().getTerminal().getVoltageLevel().getNullableSubstation());
+
+            String dcConverterUnit1 = CgmesExportUtil.getUniqueId();
+            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", substation1Id, cimNamespace, writer);
             String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElseThrow(PowsyblException::new);
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer);
+
             String dcConverterUnit2 = CgmesExportUtil.getUniqueId();
-            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", line.getConverterStation2().getTerminal().getVoltageLevel().getNullableSubstation().getId(), cimNamespace, writer);
+            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", substation2Id, cimNamespace, writer);
             String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2").orElseThrow(PowsyblException::new);
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer);
+
             String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal1").orElseThrow(PowsyblException::new);
             writeDCTerminal(dcTerminal1, lineId, dcNode1, 1, cimNamespace, writer);
+
             String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal2").orElseThrow(PowsyblException::new);
             writeDCTerminal(dcTerminal2, lineId, dcNode2, 2, cimNamespace, writer);
+
             HvdcConverterStation<?> converter = line.getConverterStation1();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter1Id, connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
             String capabilityCurveId1 = writeVsCapabilityCurve(converter, cimNamespace, writer);
             String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter1Id, dcNode1, 2, cimNamespace, writer);
+
             converter = line.getConverterStation2();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter2Id, connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
             String capabilityCurveId2 = writeVsCapabilityCurve(converter, cimNamespace, writer);
             String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter2Id, dcNode2, 2, cimNamespace, writer);
+
             DCLineSegmentEq.write(lineId, line.getNameOrId(), line.getR(), cimNamespace, writer);
             writeHvdcConverterStation(line.getConverterStation1(), exportedTerminals, line.getNominalV(), dcConverterUnit1, capabilityCurveId1, cimNamespace, writer, context);
             writeHvdcConverterStation(line.getConverterStation2(), exportedTerminals, line.getNominalV(), dcConverterUnit2, capabilityCurveId2, cimNamespace, writer, context);
