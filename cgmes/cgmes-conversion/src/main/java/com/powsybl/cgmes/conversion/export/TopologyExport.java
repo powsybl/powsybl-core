@@ -16,6 +16,7 @@ import com.powsybl.math.graph.TraverseResult;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -88,21 +89,28 @@ public final class TopologyExport {
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
 
-            int node1 = 0;
-            int node2 = 0;
-            Bus bus1;
-            Bus bus2;
+            String tn1;
+            String tname1;
+            String tn2;
+            String tname2;
             if (vl.getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
-                bus1 = vl.getBusBreakerView().getBus1(sw.getId());
-                bus2 = vl.getBusBreakerView().getBus2(sw.getId());
+                tn1 = vl.getBusBreakerView().getBus1(sw.getId()).getId();
+                tname1 = vl.getBusBreakerView().getBus1(sw.getId()).getNameOrId();
+                tn2 = vl.getBusBreakerView().getBus2(sw.getId()).getId();
+                tname2 = vl.getBusBreakerView().getBus2(sw.getId()).getNameOrId();
             } else {
-                node1 = getLowerNodeForBusBreakerViewBus(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
-                node2 = getLowerNodeForBusBreakerViewBus(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
-                bus1 = getBusForBusBreakerViewBus(vl, node1);
-                bus2 = getBusForBusBreakerViewBus(vl, node2);
+                int node1 = vl.getNodeBreakerView().getNode1(sw.getId());
+                Bus bus1 = getBusForBusBreakerViewBus(vl, node1);
+                tn1 = bus1 == null ? findOrCreateTopologicalNode(vl, node1) : bus1.getId();
+                tname1 = bus1 == null ? tn1 : bus1.getNameOrId();
+
+                int node2 = vl.getNodeBreakerView().getNode2(sw.getId());
+                Bus bus2 = getBusForBusBreakerViewBus(vl, node2);
+                tn2 = bus2 == null ? findOrCreateTopologicalNode(vl, node2) : bus2.getId();
+                tname2 = bus2 == null ? tn2 : bus2.getNameOrId();
             }
-            String tn1 = writeTopologicalNode(bus1, sw.getVoltageLevel(), node1, addedTopologicalNodes, cimNamespace, writer, context);
-            String tn2 = writeTopologicalNode(bus2, sw.getVoltageLevel(), node2, addedTopologicalNodes, cimNamespace, writer, context);
+            writeTopologicalNode(tn1, tname1, vl, addedTopologicalNodes, cimNamespace, writer, context);
+            writeTopologicalNode(tn2, tname2, vl, addedTopologicalNodes, cimNamespace, writer, context);
 
             String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
             String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
@@ -112,20 +120,44 @@ public final class TopologyExport {
         }
     }
 
-    private static String writeTopologicalNode(Bus bus, VoltageLevel voltageLevel, int node, Set<String> addedTopologicalNodes, String cimNamespace,
-                                               XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String tn = bus != null ? bus.getId() : null;
-        if (tn == null) {
-            tn = voltageLevel.getId() + "_" + node;
+    private static String findOrCreateTopologicalNode(VoltageLevel vl, int node) {
+        if (vl.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new IllegalArgumentException("The voltage level " + vl.getId() + " is not described in Node/Breaker topology");
         }
-        String tnName = bus != null ? bus.getNameOrId() : tn;
-        if (!addedTopologicalNodes.contains(tn)) {
-            addedTopologicalNodes.add(tn);
-            writeTopologicalNode(tn, tnName, voltageLevel.getId(),
-                    context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId(), cimNamespace, writer);
+        Set<Integer> nodeSet = new HashSet<>();
+        nodeSet.add(node);
+
+        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
+            if (sw != null && (sw.isOpen() || sw.isRetained())) {
+                return TraverseResult.TERMINATE_PATH;
+            }
+            nodeSet.add(node2);
+            return TraverseResult.CONTINUE;
+        };
+
+        vl.getNodeBreakerView().traverse(node, traverser);
+
+        Optional<Bus> selectedBus = nodeSet.stream().map(n -> getBusForBusBreakerViewBus(vl, n)).filter(Objects::nonNull).findFirst();
+        if (selectedBus.isPresent()) {
+            return selectedBus.get().getId();
         }
 
-        return tn;
+        Optional<Integer> selectedNode = nodeSet.stream().sorted().findFirst();
+        if (selectedNode.isEmpty()) {
+            throw new PowsyblException("nodeSet never can be empty");
+        }
+
+        return vl.getId() + "_" + selectedNode.get();
+    }
+
+    private static void writeTopologicalNode(String tn, String tname, VoltageLevel voltageLevel, Set<String> addedTopologicalNodes,
+        String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (addedTopologicalNodes.contains(tn)) {
+            return;
+        }
+        addedTopologicalNodes.add(tn);
+        writeTopologicalNode(tn, tname, voltageLevel.getId(),
+            context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId(), cimNamespace, writer);
     }
 
     private static void writeSwitchTerminal(String tn, String cgmesTerminal, String cimNamespace,
@@ -140,37 +172,6 @@ public final class TopologyExport {
         }
 
         return terminal.getBusBreakerView().getBus();
-    }
-
-    private static int getLowerNodeForBusBreakerViewBus(VoltageLevel voltageLevel, int node) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
-
-        Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
-        if (terminal != null) {
-            return node;
-        }
-        Set<Integer> nodeSet = new HashSet<>();
-        nodeSet.add(node);
-
-        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
-            if (sw != null && (sw.isOpen() || sw.isRetained())) {
-                return TraverseResult.TERMINATE_PATH;
-            }
-            if (voltageLevel.getNodeBreakerView().getTerminal(node2) != null) {
-                nodeSet.clear();
-                nodeSet.add(node2);
-                return TraverseResult.TERMINATE_TRAVERSER;
-            }
-            nodeSet.add(node2);
-            return TraverseResult.CONTINUE;
-        };
-
-        voltageLevel.getNodeBreakerView().traverse(node, traverser);
-
-        Optional<Integer> selectedNode = nodeSet.stream().sorted().findFirst();
-        return selectedNode.isPresent() ? selectedNode.get() : null;
     }
 
     private static void writeHvdcTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -237,7 +238,7 @@ public final class TopologyExport {
 
     private static void writeBusTopologicalNodes(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            writeTopologicalNode(b, b.getVoltageLevel(), 0, addedTopologicalNodes, cimNamespace, writer, context);
+            writeTopologicalNode(b.getId(), b.getNameOrId(), b.getVoltageLevel(), addedTopologicalNodes, cimNamespace, writer, context);
         }
     }
 
