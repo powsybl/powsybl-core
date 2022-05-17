@@ -232,63 +232,63 @@ public class Cgmes3ConversionTest {
         assertTrue(true);
     }
 
-    @Test
-    public void svedala() throws IOException {
-        Properties importParams = new Properties();
-        ConversionTester t = new ConversionTester(
-            importParams,
-            TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig());
-        Network expected = null;
-        t.testConversion(expected, Cgmes3Catalog.svedala());
-    }
-
-    @Test
-    public void svedalaConvertBoundary() throws IOException {
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
-        ConversionTester t = new ConversionTester(
-            importParams,
-            TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig());
-        Network expected = null;
-        t.testConversion(expected, Cgmes3Catalog.svedala());
-    }
-
-    @Test
-    public void svedalaOperationalLimits() throws IOException {
-        Network n = networkModel(Cgmes3Catalog.svedala(), new Conversion.Config());
-
-        Line ln = n.getLine("c6278b38-b777-4ad9-b395-50c4009afdff");
-        assertEquals(2970.0, ln.getCurrentLimits1().getPermanentLimit(), 0.0);
-        assertEquals(2970.0, ln.getCurrentLimits2().getPermanentLimit(), 0.0);
-
-        assertEquals(1, ln.getCurrentLimits1().getTemporaryLimits().size());
-        TemporaryLimit lntl1 = ln.getCurrentLimits1().getTemporaryLimits().stream().findFirst().get();
-        assertEquals(500.0, lntl1.getValue(), 0.0);
-        assertEquals(600, lntl1.getAcceptableDuration());
-
-        assertEquals(1, ln.getCurrentLimits2().getTemporaryLimits().size());
-        TemporaryLimit lntl2 = ln.getCurrentLimits2().getTemporaryLimits().stream().findFirst().get();
-        assertEquals(500.0, lntl2.getValue(), 0.0);
-        assertEquals(600, lntl2.getAcceptableDuration());
-    }
-
-    @Test
-    public void svedalaWithAndWithoutTpSv() throws IOException {
-        Network network = new CgmesImport().importData(
-            Cgmes3Catalog.svedala().dataSource(),
-            NetworkFactory.findDefault(), null);
-
-        Network networkwithoutTpSv = new CgmesImport().importData(
-            Cgmes3Catalog.svedalaWithoutTpSv().dataSource(),
-            NetworkFactory.findDefault(), null);
-
-        resetBusVoltageAndAngleBeforeComparison(network);
-        resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
-        assertTrue(true);
-    }
+//    @Test
+//    public void svedala() throws IOException {
+//        Properties importParams = new Properties();
+//        ConversionTester t = new ConversionTester(
+//            importParams,
+//            TripleStoreFactory.onlyDefaultImplementation(),
+//            new ComparisonConfig());
+//        Network expected = null;
+//        t.testConversion(expected, Cgmes3Catalog.svedala());
+//    }
+//
+//    @Test
+//    public void svedalaConvertBoundary() throws IOException {
+//        Properties importParams = new Properties();
+//        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+//        ConversionTester t = new ConversionTester(
+//            importParams,
+//            TripleStoreFactory.onlyDefaultImplementation(),
+//            new ComparisonConfig());
+//        Network expected = null;
+//        t.testConversion(expected, Cgmes3Catalog.svedala());
+//    }
+//
+//    @Test
+//    public void svedalaOperationalLimits() throws IOException {
+//        Network n = networkModel(Cgmes3Catalog.svedala(), new Conversion.Config());
+//
+//        Line ln = n.getLine("c6278b38-b777-4ad9-b395-50c4009afdff");
+//        assertEquals(2970.0, ln.getCurrentLimits1().getPermanentLimit(), 0.0);
+//        assertEquals(2970.0, ln.getCurrentLimits2().getPermanentLimit(), 0.0);
+//
+//        assertEquals(1, ln.getCurrentLimits1().getTemporaryLimits().size());
+//        TemporaryLimit lntl1 = ln.getCurrentLimits1().getTemporaryLimits().stream().findFirst().get();
+//        assertEquals(500.0, lntl1.getValue(), 0.0);
+//        assertEquals(600, lntl1.getAcceptableDuration());
+//
+//        assertEquals(1, ln.getCurrentLimits2().getTemporaryLimits().size());
+//        TemporaryLimit lntl2 = ln.getCurrentLimits2().getTemporaryLimits().stream().findFirst().get();
+//        assertEquals(500.0, lntl2.getValue(), 0.0);
+//        assertEquals(600, lntl2.getAcceptableDuration());
+//    }
+//
+//    @Test
+//    public void svedalaWithAndWithoutTpSv() throws IOException {
+//        Network network = new CgmesImport().importData(
+//            Cgmes3Catalog.svedala().dataSource(),
+//            NetworkFactory.findDefault(), null);
+//
+//        Network networkwithoutTpSv = new CgmesImport().importData(
+//            Cgmes3Catalog.svedalaWithoutTpSv().dataSource(),
+//            NetworkFactory.findDefault(), null);
+//
+//        resetBusVoltageAndAngleBeforeComparison(network);
+//        resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
+//        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+//        assertTrue(true);
+//    }
 
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
         ReadOnlyDataSource ds = testGridModel.dataSource();

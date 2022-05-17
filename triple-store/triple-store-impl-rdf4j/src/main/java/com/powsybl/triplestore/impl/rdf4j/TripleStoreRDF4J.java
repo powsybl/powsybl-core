@@ -9,7 +9,7 @@ package com.powsybl.triplestore.impl.rdf4j;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.*;
-import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.common.transaction.IsolationLevels;
 import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.URIUtil;

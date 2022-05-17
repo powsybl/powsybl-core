@@ -6,9 +6,10 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.Convert;
+import com.univocity.parsers.annotations.EnumOptions;
 import com.univocity.parsers.annotations.FixedWidth;
 import com.univocity.parsers.annotations.Parsed;
+import com.univocity.parsers.conversions.EnumSelector;
 import com.univocity.parsers.fixed.FieldAlignment;
 
 /**
@@ -91,7 +92,7 @@ public class IeeeCdfBus {
      */
     @FixedWidth(from = 24, to = 26, alignment = FieldAlignment.RIGHT)
     @Parsed
-    @Convert(conversionClass = BusTypeConversion.class)
+    @EnumOptions(selectors = EnumSelector.ORDINAL)
     private Type type;
 
     /**

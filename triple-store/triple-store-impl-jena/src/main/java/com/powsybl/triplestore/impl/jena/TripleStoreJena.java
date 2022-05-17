@@ -35,7 +35,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     public TripleStoreJena() {
         // creates an in-memory Jena model that is able to contain multiple graphs
-        dataset = DatasetFactory.createMem();
+        dataset = DatasetFactory.createGeneral();
 
         // Create a model just to obtain a writer and configure it
         writer = ModelFactory.createDefaultModel().getWriter("RDF/XML-ABBREV");
@@ -346,5 +346,5 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     private final Dataset dataset;
     private Model union;
-    private RDFWriter writer;
+    private RDFWriterI writer;
 }

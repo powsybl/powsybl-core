@@ -94,14 +94,14 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     private static CommandLine mockCommandLine(Map<String, String> options, Set<String> flags) {
         CommandLine cli =  mock(CommandLine.class);
-        when(cli.hasOption(any())).thenReturn(false);
-        when(cli.getOptionValue(any())).thenReturn(null);
+        when(cli.hasOption(anyString())).thenReturn(false);
+        when(cli.getOptionValue(anyString())).thenReturn(null);
         options.forEach((k, v) -> {
             when(cli.getOptionValue(k)).thenReturn(v);
             when(cli.hasOption(k)).thenReturn(true);
         });
         flags.forEach(f -> when(cli.hasOption(f)).thenReturn(true));
-        when(cli.getOptionProperties(any())).thenReturn(new Properties());
+        when(cli.getOptionProperties(anyString())).thenReturn(new Properties());
         return cli;
     }
 

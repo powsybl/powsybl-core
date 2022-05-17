@@ -48,13 +48,13 @@ public class Cgmes3Test {
         new CgmesModelTester(Cgmes3Catalog.smallGridWithoutTpSv()).test();
     }
 
-    @Test
-    public void svedala() throws IOException {
-        new CgmesModelTester(Cgmes3Catalog.svedala()).test();
-    }
+    //@Test
+    //public void svedala() throws IOException {
+    //    new CgmesModelTester(Cgmes3Catalog.svedala()).test();
+    //}
 
-    @Test
-    public void svedalaWithoutTp() throws IOException {
-        new CgmesModelTester(Cgmes3Catalog.svedalaWithoutTpSv()).test();
-    }
+    //@Test
+    //public void svedalaWithoutTp() throws IOException {
+    //    new CgmesModelTester(Cgmes3Catalog.svedalaWithoutTpSv()).test();
+    //}
 }

@@ -11,30 +11,23 @@ import com.univocity.parsers.conversions.ObjectConversion;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SeasonConversion extends ObjectConversion<IeeeCdfTitle.Season> {
+public class SeasonConversion extends ObjectConversion<String> {
 
     @Override
-    protected IeeeCdfTitle.Season fromString(String str) {
+    protected String fromString(String str) {
         char season = str.charAt(0);
         switch (season) {
             case 'S':
-                return IeeeCdfTitle.Season.SUMMER;
+                return IeeeCdfTitle.Season.SUMMER.name();
             case 'W':
-                return IeeeCdfTitle.Season.WINTER;
+                return IeeeCdfTitle.Season.WINTER.name();
             default:
                 throw new AssertionError("Unknown season: " + season);
         }
     }
 
     @Override
-    public String revert(IeeeCdfTitle.Season season) {
-        switch (season) {
-            case SUMMER:
-                return "S";
-            case WINTER:
-                return "W";
-            default:
-                throw new AssertionError("Unknown season: " + season);
-        }
+    public String revert(String str) {
+        return str.substring(0, 1);
     }
 }
