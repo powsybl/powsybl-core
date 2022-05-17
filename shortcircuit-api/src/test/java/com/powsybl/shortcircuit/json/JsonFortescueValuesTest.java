@@ -9,7 +9,7 @@ package com.powsybl.shortcircuit.json;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.ThreePhaseValue;
+import com.powsybl.shortcircuit.FortescueValues;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
 import org.junit.Test;
 
@@ -25,13 +25,13 @@ import java.util.List;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class JsonThreePhaseValueTest extends AbstractConverterTest {
+public class JsonFortescueValuesTest extends AbstractConverterTest {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
     }
 
-    private static void write(List<ThreePhaseValue> values, Path jsonFile) {
+    private static void write(List<FortescueValues> values, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
             createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, values);
         } catch (IOException e) {
@@ -39,9 +39,9 @@ public class JsonThreePhaseValueTest extends AbstractConverterTest {
         }
     }
 
-    private static List<ThreePhaseValue> read(Path jsonFile) {
+    private static List<FortescueValues> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return createObjectMapper().readerForListOf(ThreePhaseValue.class).readValue(is);
+            return createObjectMapper().readerForListOf(FortescueValues.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -49,17 +49,17 @@ public class JsonThreePhaseValueTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {
-        List<ThreePhaseValue> values = new ArrayList<>();
-        values.add(new ThreePhaseValue(1.0, 2.0, 3.0, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2, 1.3, 2.3, 3.3));
-        roundTripTest(values, JsonThreePhaseValueTest::write, JsonThreePhaseValueTest::read, "/ThreePhaseValue.json");
+        List<FortescueValues> values = new ArrayList<>();
+        values.add(new FortescueValues(1.2, 2.2, 3.2, 1.3, 2.3, 3.3));
+        roundTripTest(values, JsonFortescueValuesTest::write, JsonFortescueValuesTest::read, "/FortescueValues.json");
     }
 
     @Test
     public void readUnexpectedField() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/ThreePhaseValueInvalid.json"), fileSystem.getPath("/ThreePhaseValueInvalid.json"));
+        Files.copy(getClass().getResourceAsStream("/FortescueValuesInvalid.json"), fileSystem.getPath("/FortescueValuesInvalid.json"));
 
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: unexpected");
-        read(fileSystem.getPath("/ThreePhaseValueInvalid.json"));
+        read(fileSystem.getPath("/FortescueValuesInvalid.json"));
     }
 }

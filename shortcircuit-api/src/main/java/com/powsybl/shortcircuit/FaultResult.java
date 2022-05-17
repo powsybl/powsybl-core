@@ -32,14 +32,14 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final List<LimitViolation> limitViolations;
 
-    private final ThreePhaseValue current;
+    private final FortescueValues current;
 
-    private final ThreePhaseValue voltage;
+    private final FortescueValues voltage;
 
     private final List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
 
     public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, ThreePhaseValue current, ThreePhaseValue voltage, double timeConstant) {
+                       List<LimitViolation> limitViolations, FortescueValues current, FortescueValues voltage, double timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
@@ -49,23 +49,23 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         this.timeConstant = timeConstant;
     }
 
-    public FaultResult(Fault fault, ThreePhaseValue current, List<FeederResult> feederResults, List<LimitViolation> limitViolations, double timeConstant) {
+    public FaultResult(Fault fault, FortescueValues current, List<FeederResult> feederResults, List<LimitViolation> limitViolations, double timeConstant) {
         this(fault, Double.NaN, feederResults, limitViolations, current, null, timeConstant);
     }
 
-    public FaultResult(Fault fault, ThreePhaseValue current, List<LimitViolation> limitViolations) {
+    public FaultResult(Fault fault, FortescueValues current, List<LimitViolation> limitViolations) {
         this(fault, Double.NaN, Collections.emptyList(), limitViolations, current, null, Double.NaN);
     }
 
-    public FaultResult(Fault fault, ThreePhaseValue current, List<FeederResult> feederResults, double timeConstant) {
+    public FaultResult(Fault fault, FortescueValues current, List<FeederResult> feederResults, double timeConstant) {
         this(fault, Double.NaN, feederResults, Collections.emptyList(), current, null, timeConstant);
     }
 
-    public FaultResult(Fault fault, ThreePhaseValue current, double timeConstant) {
+    public FaultResult(Fault fault, FortescueValues current, double timeConstant) {
         this(fault, current, Collections.emptyList(), timeConstant);
     }
 
-    public FaultResult(Fault fault, ThreePhaseValue current) {
+    public FaultResult(Fault fault, FortescueValues current) {
         this(fault, current, Double.NaN);
     }
 
@@ -113,14 +113,14 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     /**
      * The results on three phases for current.
      */
-    public ThreePhaseValue getCurrent() {
+    public FortescueValues getCurrent() {
         return current;
     }
 
     /**
      * The results on three phases for voltage.
      */
-    public ThreePhaseValue getVoltage() {
+    public FortescueValues getVoltage() {
         return voltage;
     }
 
