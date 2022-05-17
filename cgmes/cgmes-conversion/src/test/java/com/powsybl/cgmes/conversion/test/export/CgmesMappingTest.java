@@ -16,9 +16,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
@@ -32,6 +30,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,13 +44,24 @@ import static org.junit.Assert.assertEquals;
 public class CgmesMappingTest extends AbstractConverterTest {
 
     @Test
-    public void testExportUsingCgmesNamingStrategy() throws IOException {
-        String baseName = "nordic32";
-        ReadOnlyDataSource inputIidm = new ResourceDataSource(baseName, new ResourceSet("/cim14", "nordic32.xiidm"));
+    public void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
+        testExportUsingCgmesNamingStrategy("nordic32", "G9_______SM");
+    }
+
+    @Test
+    public void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
+        testExportUsingCgmesNamingStrategy("ieee14", "GEN____8_SM");
+    }
+
+    private void testExportUsingCgmesNamingStrategy(String baseName, String generatorForSlack) throws IOException {
+        ReadOnlyDataSource inputIidm = new ResourceDataSource(baseName, new ResourceSet("/cim14", baseName + ".xiidm"));
         Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), null);
         // Force writing CGMES topological island by assigning a slack bus
-        SlackTerminal.attach(network.getGenerator("G9_______SM").getTerminal().getBusBreakerView().getBus());
+        SlackTerminal.attach(network.getGenerator(generatorForSlack).getTerminal().getBusBreakerView().getBus());
+        testExportUsingCgmesNamingStrategy(network, baseName);
+    }
 
+    public void testExportUsingCgmesNamingStrategy(Network network, String baseName) throws IOException {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
         DataSource exportedCgmes = tmpDataSource("exportedCgmes", baseName);
@@ -71,17 +82,52 @@ public class CgmesMappingTest extends AbstractConverterTest {
         Network network1 = Importers.importData("CGMES", new ZipFileDataSource(repackaged), null);
         CgmesModel cgmes = network1.getExtension(CgmesModelExtension.class).getCgmesModel();
         Supplier<Stream<String>> badIds = () -> Stream.of(
-                        network1.getIdentifiables().stream().map(Identifiable::getId),
+                        network1.getIdentifiables().stream().filter(i -> !i.isFictitious()).map(Identifiable::getId),
                         // Some CGMES identifiers do not end Network identifiables
                         cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
                         cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
-                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_ISLAND))
-                        )
+                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_ISLAND)),
+                        cgmes.transformerEnds().stream().map(o -> o.getId(CgmesNames.TRANSFORMER_END)),
+                        cgmes.phaseTapChangers().stream().map(o -> o.getId(CgmesNames.PHASE_TAP_CHANGER)),
+                        cgmes.ratioTapChangers().stream().map(o -> o.getId(CgmesNames.RATIO_TAP_CHANGER)),
+                        cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit"))
+                )
                 .flatMap(id -> id)
                 .filter(id -> !CgmesExportUtil.isValidCimMasterRID(id));
         assertEquals(String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))),
                 0,
                 badIds.get().count());
+
+        // Compare original network with re-imported using id mappings
+        // We do not compare XIIDM files, as the structure may have significant changes:
+        // CGMES exported always node/breaker, if original was bus/branch a lot of different elements
+        // Even if original was node/breaker, we may have introduced fictitious switches during import,
+        // resulting in different number of nodes and connections
+        Network networkActual = Importers.importData("CGMES", exportedCgmes, null);
+        Network networkExpected = network;
+        for (Substation se : networkExpected.getSubstations()) {
+            Substation sa = networkActual.getSubstation(se.getId());
+            assertEquals(se.getNameOrId(), sa.getNameOrId());
+            for (VoltageLevel vle : se.getVoltageLevels()) {
+                VoltageLevel vla = networkActual.getVoltageLevel(vle.getId());
+                assertEquals(vle.getNameOrId(), vla.getNameOrId());
+                SortedSet<String> busesExpected = buildBusIdsBasedOnConnectedEquipment(vle);
+                SortedSet<String> busesActual = buildBusIdsBasedOnConnectedEquipment(vla);
+                assertEquals(busesExpected, busesActual);
+            }
+        }
+    }
+
+    private static SortedSet<String> buildBusIdsBasedOnConnectedEquipment(VoltageLevel vl) {
+        SortedSet<String> busIds = new TreeSet<>();
+        for (Bus be : vl.getBusView().getBuses()) {
+            // Build an id for the bus based on the concat of ids of connected equipment
+            SortedSet<String> eqIds = new TreeSet<>();
+            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(t.getConnectable().getId()));
+            String busId = String.join(",", eqIds);
+            busIds.add(busId);
+        }
+        return busIds;
     }
 
     @Test
