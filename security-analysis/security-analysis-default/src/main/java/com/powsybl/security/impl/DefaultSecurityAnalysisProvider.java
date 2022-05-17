@@ -7,6 +7,7 @@
 package com.powsybl.security.impl;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
@@ -34,8 +35,10 @@ public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider
                                                          ComputationManager computationManager,
                                                          SecurityAnalysisParameters parameters,
                                                          ContingenciesProvider contingenciesProvider,
-                                                         List<SecurityAnalysisInterceptor> interceptors, List<StateMonitor> monitors) {
-        DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors);
+                                                         List<SecurityAnalysisInterceptor> interceptors,
+                                                         List<StateMonitor> monitors,
+                                                         Reporter reporter) {
+        DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, reporter);
         interceptors.forEach(securityAnalysis::addInterceptor);
         return securityAnalysis.run(workingVariantId, parameters, contingenciesProvider);
     }
