@@ -5,8 +5,8 @@
             <iidm:busbarSection id="bbs" node="0"/>
             <iidm:switch id="NHV1_NHV2_1_BREAKER_1" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
             <iidm:switch id="NHV1_NHV2_1_DISCONNECTOR_1" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="0"/>
-            <iidm:switch id="NHV1_NHV2_1_BREAKER_2" kind="BREAKER" retained="true" open="false" node1="0" node2="3"/>
-            <iidm:switch id="NHV1_NHV2_1_DISCONNECTOR_2" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="4"/>
+            <iidm:switch id="NHV1_NHV2_1_BREAKER_2" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+            <iidm:switch id="NHV1_NHV2_1_DISCONNECTOR_2" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="0"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
