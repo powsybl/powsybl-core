@@ -66,16 +66,17 @@ public class PlatformConfig {
         if (defaultConfig == null) {
             List<PlatformConfigProvider> providers = Lists.newArrayList(ServiceLoader.load(PlatformConfigProvider.class, PlatformConfig.class.getClassLoader()));
             if (providers.isEmpty()) {
-                LOGGER.error("Platform configuration provider not found. For tests, consider using TestPlatformConfigProvider in powsybl-config-test. Otherwise, consider using ClassicPlatformConfigProvider from powsybl-config-classic.");
-                throw new PowsyblException("Platform configuration provider not found");
+                LOGGER.info("Platform configuration provider not found. In order to customize the platform configuration, consider using powsybl-config-classic artifact, or powsybl-config-test for tests.");
+                defaultConfig = new PlatformConfig(new EmptyModuleConfigRepository(), null);
+            } else {
+                if (providers.size() > 1) {
+                    LOGGER.error("Multiple platform configuration providers found: {}", providers);
+                    throw new PowsyblException("Multiple platform configuration providers found");
+                }
+                PlatformConfigProvider p = providers.get(0);
+                LOGGER.info("Using platform configuration provider {}", p.getName());
+                defaultConfig = p.getPlatformConfig();
             }
-            if (providers.size() > 1) {
-                LOGGER.error("Multiple platform configuration providers found: {}", providers);
-                throw new PowsyblException("Multiple platform configuration providers found");
-            }
-            PlatformConfigProvider p = providers.get(0);
-            LOGGER.info("Using platform configuration provider {}", p.getName());
-            defaultConfig = p.getPlatformConfig();
         }
         return defaultConfig;
     }
@@ -86,21 +87,29 @@ public class PlatformConfig {
 
     protected PlatformConfig(Supplier<ModuleConfigRepository> repositorySupplier, Path configDir) {
         this.repositorySupplier = Suppliers.memoize(Objects.requireNonNull(repositorySupplier));
-        this.configDir = FileUtil.createDirectory(configDir);
+        this.configDir = configDir != null ? FileUtil.createDirectory(configDir) : null;
     }
 
-    public Path getConfigDir() {
-        return configDir;
+    public Optional<Path> getConfigDir() {
+        return Optional.ofNullable(configDir);
     }
 
     protected ModuleConfigRepository getRepository() {
         return Objects.requireNonNull(repositorySupplier.get());
     }
 
+    /**
+     * @deprecated Use the <code>Optional</code> returned by {@link #getOptionalModuleConfig(String)}
+     */
+    @Deprecated
     public boolean moduleExists(String name) {
-        return getRepository().moduleExists(name);
+        return getOptionalModuleConfig(name).isPresent();
     }
 
+    /**
+     * @deprecated Use {@link #getOptionalModuleConfig(String)} instead
+     */
+    @Deprecated
     public ModuleConfig getModuleConfig(String name) {
         return getRepository().getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
     }
@@ -109,4 +118,10 @@ public class PlatformConfig {
         return getRepository().getModuleConfig(name);
     }
 
+    private static class EmptyModuleConfigRepository implements ModuleConfigRepository {
+        @Override
+        public Optional<ModuleConfig> getModuleConfig(String name) {
+            return Optional.empty();
+        }
+    }
 }
