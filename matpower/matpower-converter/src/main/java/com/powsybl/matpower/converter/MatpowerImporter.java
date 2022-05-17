@@ -37,10 +37,6 @@ public class MatpowerImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerImporter.class);
 
-    private static final String FORMAT = "MATPOWER";
-
-    private static final String EXT = "mat";
-
     private static final String BUS_PREFIX = "BUS";
     private static final String GENERATOR_PREFIX = "GEN";
     private static final String LINE_PREFIX = "LINE";
@@ -363,7 +359,7 @@ public class MatpowerImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource.exists(null, EXT);
+            return dataSource.exists(null, MatpowerConstants.EXT);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -376,7 +372,7 @@ public class MatpowerImporter implements Importer {
 
     @Override
     public String getFormat() {
-        return FORMAT;
+        return MatpowerConstants.FORMAT;
     }
 
     @Override
@@ -384,8 +380,8 @@ public class MatpowerImporter implements Importer {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            try (InputStream is = fromDataSource.newInputStream(null, EXT);
-                 OutputStream os = toDataSource.newOutputStream(null, EXT, false)) {
+            try (InputStream is = fromDataSource.newInputStream(null, MatpowerConstants.EXT);
+                 OutputStream os = toDataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
@@ -402,13 +398,13 @@ public class MatpowerImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(networkFactory);
-        Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
+        Network network = networkFactory.createNetwork(dataSource.getBaseName(), MatpowerConstants.FORMAT);
 
         //there is no time & date declared in the MATPOWER file: set a default now()
         network.setCaseDate(DateTime.now());
 
         try {
-            try (InputStream iStream = dataSource.newInputStream(null, EXT)) {
+            try (InputStream iStream = dataSource.newInputStream(null, MatpowerConstants.EXT)) {
 
                 MatpowerModel model = MatpowerReader.read(iStream, dataSource.getBaseName());
                 LOGGER.debug("MATPOWER model '{}'", model.getCaseName());
@@ -417,7 +413,7 @@ public class MatpowerImporter implements Importer {
                     MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, branch -> isTransformer(model, branch),
                     busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next()), substationNum -> getId(SUBSTATION_PREFIX, substationNum));
 
-                boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
+                boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(MatpowerConstants.FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                         ParameterDefaultValueConfig.INSTANCE);
 
                 Context context = new Context(model.getBaseMva(), ignoreBaseVoltage);
