@@ -63,8 +63,8 @@ public class ShortCircuitAnalysisTool implements Tool {
                 options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
                         .desc("the output format " + ShortCircuitAnalysisResultExporters.getFormats()).hasArg()
                         .argName("FORMAT").build());
-                options.addOption(Option.builder().longOpt(MONITORING_FILE)
-                        .desc("monitoring file (.json) to get network's info after computation").hasArg()
+                options.addOption(Option.builder().longOpt(OPTIONS_FILE)
+                        .desc("options file (.json) to get network's info after computation").hasArg()
                         .argName("FILE").build());
                 return options;
             }
@@ -103,10 +103,10 @@ public class ShortCircuitAnalysisTool implements Tool {
             context.getOutputStream().println("Loading parameters '" + parametersFile + "'");
             JsonShortCircuitParameters.update(input.getParameters(), parametersFile);
         });
-        // MonitorState list
-        options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> {
-            context.getOutputStream().println("Loading monitors '" + monitorFilePath + "'");
-            input.setMonitors(FaultOptions.read(monitorFilePath));
+        // FaultOptions list
+        options.getPath(OPTIONS_FILE).ifPresent(optionsFilePath -> {
+            context.getOutputStream().println("Loading fault options '" + optionsFilePath + "'");
+            input.setOptions(FaultOptions.read(optionsFilePath));
         });
         return input;
     }
@@ -127,10 +127,10 @@ public class ShortCircuitAnalysisTool implements Tool {
         Network network = readNetwork(line, context);
         // ComputationManager
         ComputationManager computationManager = context.getShortTimeExecutionComputationManager();
-        // ShortCircuit inputs (faults, parameters & monitors) loading
+        // ShortCircuit inputs (faults, parameters & options) loading
         ShortCircuitInput executionInput = readInput(line, context);
         // Execution
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, executionInput.getFaults(), executionInput.getParameters(), computationManager, executionInput.getMonitors()).join();
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, executionInput.getFaults(), executionInput.getParameters(), computationManager, executionInput.getOptions()).join();
         // Results
         if (shortCircuitAnalysisResult != null) {
             if (outputFile != null) {

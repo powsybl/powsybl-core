@@ -54,7 +54,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              List<Fault> faults,
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
-                                                             List<FaultOptions> monitors) {
+                                                             List<FaultOptions> options) {
         return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>()));
     }
 
@@ -63,10 +63,10 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              List<Fault> faults,
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
-                                                             List<FaultOptions> monitors,
+                                                             List<FaultOptions> options,
                                                              Reporter reporter) {
         reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
-        return run(network, faults, parameters, computationManager, monitors);
+        return run(network, faults, parameters, computationManager, options);
     }
 
     public static ShortCircuitAnalysisResult runWithNonEmptyResult() {

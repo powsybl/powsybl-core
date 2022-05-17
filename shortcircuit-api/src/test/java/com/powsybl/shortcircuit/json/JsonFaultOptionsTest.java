@@ -20,24 +20,24 @@ import java.util.List;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class JsonMonitorTest extends AbstractConverterTest {
+public class JsonFaultOptionsTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {
-        List<FaultOptions> monitors = new ArrayList<>();
-        monitors.add(new FaultOptions(new FaultContext("f00"), false, false));
-        monitors.add(new FaultOptions(new FaultContext("f01"), false, true));
-        monitors.add(new FaultOptions(new FaultContext("f10"), true, false));
-        monitors.add(new FaultOptions(new FaultContext("f11"), true, true));
-        roundTripTest(monitors, FaultOptions::write, FaultOptions::read, "/MonitoringFile.json");
+        List<FaultOptions> options = new ArrayList<>();
+        options.add(new FaultOptions(new FaultContext("f00"), false, false));
+        options.add(new FaultOptions(new FaultContext("f01"), false, true));
+        options.add(new FaultOptions(new FaultContext("f10"), true, false));
+        options.add(new FaultOptions(new FaultContext("f11"), true, true));
+        roundTripTest(options, FaultOptions::write, FaultOptions::read, "/FaultOptionsFile.json");
     }
 
     @Test
     public void readError() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/MonitoringFileInvalid.json"), fileSystem.getPath("/MonitoringFileInvalid.json"));
+        Files.copy(getClass().getResourceAsStream("/FaultOptionsFileInvalid.json"), fileSystem.getPath("/FaultOptionsFileInvalid.json"));
 
         expected.expect(UncheckedIOException.class);
         expected.expectMessage("Unrecognized field \"unexpected\"");
-        FaultOptions.read(fileSystem.getPath("/MonitoringFileInvalid.json"));
+        FaultOptions.read(fileSystem.getPath("/FaultOptionsFileInvalid.json"));
     }
 }

@@ -18,7 +18,7 @@ public final class ShortCircuitAnalysisToolConstants {
     public static final String OUTPUT_FORMAT_OPTION = "output-format";
     public static final String OUTPUT_FILE_OPTION = "output-file";
     public static final String PARAMETERS_FILE = "parameters-file";
-    public static final String MONITORING_FILE = "monitoring-file";
+    public static final String OPTIONS_FILE = "options-file";
 
     private ShortCircuitAnalysisToolConstants() {
     }

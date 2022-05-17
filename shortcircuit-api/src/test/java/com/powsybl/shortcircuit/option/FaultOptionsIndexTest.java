@@ -20,28 +20,28 @@ public class FaultOptionsIndexTest {
 
     @Test
     public void test() {
-        List<FaultOptions> monitors = new ArrayList<>();
-        monitors.add(new FaultOptions(new FaultContext("f00"), false, false));
-        monitors.add(new FaultOptions(new FaultContext("f01"), false, true));
-        monitors.add(new FaultOptions(new FaultContext("f10"), true, false));
-        monitors.add(new FaultOptions(new FaultContext("f11"), true, true));
+        List<FaultOptions> options = new ArrayList<>();
+        options.add(new FaultOptions(new FaultContext("f00"), false, false));
+        options.add(new FaultOptions(new FaultContext("f01"), false, true));
+        options.add(new FaultOptions(new FaultContext("f10"), true, false));
+        options.add(new FaultOptions(new FaultContext("f11"), true, true));
 
-        FaultOptionsIndex monitorIndex = new FaultOptionsIndex(monitors);
+        FaultOptionsIndex optionIndex = new FaultOptionsIndex(options);
 
         FaultContext expectedCtx = new FaultContext("f00");
         FaultOptions expected = new FaultOptions(expectedCtx, false, false);
-        FaultOptions actual = monitorIndex.getStateMonitors().get("f00");
+        FaultOptions actual = optionIndex.getOptions().get("f00");
         assertEquals(expected, actual);
         assertEquals(expected.hashCode(), actual.hashCode());
         assertEquals(expected.toString(), actual.toString());
 
-        FaultContext actualCtx = monitorIndex.getStateMonitors().get("f00").getFaultContext();
+        FaultContext actualCtx = optionIndex.getOptions().get("f00").getFaultContext();
         assertEquals(expectedCtx, actualCtx);
         assertEquals(expectedCtx.hashCode(), actualCtx.hashCode());
         assertEquals(expectedCtx.toString(), actualCtx.toString());
 
-        assertEquals(new FaultOptions(new FaultContext("f01"), false, true), monitorIndex.getStateMonitors().get("f01"));
-        assertEquals(new FaultOptions(new FaultContext("f10"), true, false), monitorIndex.getStateMonitors().get("f10"));
-        assertEquals(new FaultOptions(new FaultContext("f11"), true, true), monitorIndex.getStateMonitors().get("f11"));
+        assertEquals(new FaultOptions(new FaultContext("f01"), false, true), optionIndex.getOptions().get("f01"));
+        assertEquals(new FaultOptions(new FaultContext("f10"), true, false), optionIndex.getOptions().get("f10"));
+        assertEquals(new FaultOptions(new FaultContext("f11"), true, true), optionIndex.getOptions().get("f11"));
     }
 }

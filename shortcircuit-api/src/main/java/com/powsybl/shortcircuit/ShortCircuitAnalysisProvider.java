@@ -38,14 +38,14 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
     /**
      * Run an asynchronous single short circuit analysis job.
      *
-     * @param monitors stateMonitor that defines the fault about which information will be written after short circuit analysis
+     * @param options option that defines the fault about which information will be written after short circuit analysis
      */
     default CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
                                                               List<Fault> faults,
                                                               ShortCircuitParameters parameters,
                                                               ComputationManager computationManager,
-                                                              List<FaultOptions> monitors) {
-        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, monitors);
+                                                              List<FaultOptions> options) {
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, options);
     }
 
     /**
@@ -54,8 +54,8 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
     default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults,
                                                               ShortCircuitParameters parameters,
                                                               ComputationManager computationManager,
-                                                              List<FaultOptions> monitors,
+                                                              List<FaultOptions> options,
                                                               Reporter reporter) {
-        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, monitors, reporter);
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, options, reporter);
     }
 }

@@ -14,18 +14,18 @@ import java.util.Map;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class FaultOptionsIndex {
-    private final Map<String, FaultOptions> stateMonitors = new HashMap<>();
+    private final Map<String, FaultOptions> options = new HashMap<>();
 
     public FaultOptionsIndex(List<FaultOptions> faultOptions) {
-        faultOptions.forEach(monitor -> {
-            String id = monitor.getFaultContext().getId();
+        faultOptions.forEach(option -> {
+            String id = option.getFaultContext().getId();
             if (id != null) {
-                this.stateMonitors.merge(id, monitor, FaultOptions::merge);
+                this.options.merge(id, option, FaultOptions::merge);
             }
         });
     }
 
-    public Map<String, FaultOptions> getStateMonitors() {
-        return stateMonitors;
+    public Map<String, FaultOptions> getOptions() {
+        return options;
     }
 }

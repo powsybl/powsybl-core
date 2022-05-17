@@ -26,7 +26,7 @@ public class ShortCircuitInput {
 
     private ShortCircuitParameters parameters;
 
-    private final List<FaultOptions> monitors = new ArrayList<>();
+    private final List<FaultOptions> options = new ArrayList<>();
 
     public List<Fault> getFaults() {
         return faults;
@@ -36,8 +36,8 @@ public class ShortCircuitInput {
         return parameters;
     }
 
-    public List<FaultOptions> getMonitors() {
-        return ImmutableList.copyOf(monitors);
+    public List<FaultOptions> getOptions() {
+        return ImmutableList.copyOf(options);
     }
 
     public ShortCircuitInput setFaults(List<Fault> faults) {
@@ -51,9 +51,9 @@ public class ShortCircuitInput {
         return this;
     }
 
-    public ShortCircuitInput setMonitors(List<FaultOptions> monitors) {
-        this.monitors.clear();
-        this.monitors.addAll(Objects.requireNonNull(monitors));
+    public ShortCircuitInput setOptions(List<FaultOptions> options) {
+        this.options.clear();
+        this.options.addAll(Objects.requireNonNull(options));
         return this;
     }
 }

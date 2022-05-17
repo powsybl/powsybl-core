@@ -59,7 +59,7 @@ public class ShortCircuitAnalysisTest {
                                                                      List<Fault> fault,
                                                                      ShortCircuitParameters parameters,
                                                                      ComputationManager computationManager,
-                                                                     List<FaultOptions> monitors) {
+                                                                     List<FaultOptions> options) {
 
                 return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
             }
@@ -76,7 +76,7 @@ public class ShortCircuitAnalysisTest {
     private ComputationManager computationManager;
     private ShortCircuitParameters shortCircuitParameters;
     private List<Fault> faults;
-    private List<FaultOptions> monitors;
+    private List<FaultOptions> options;
 
     @Before
     public void setUp() {
@@ -87,7 +87,7 @@ public class ShortCircuitAnalysisTest {
         computationManager = Mockito.mock(ComputationManager.class);
         shortCircuitParameters = Mockito.mock(ShortCircuitParameters.class);
         faults = Mockito.mock(List.class);
-        monitors = Mockito.mock(List.class);
+        options = Mockito.mock(List.class);
     }
 
     @Test
@@ -99,19 +99,19 @@ public class ShortCircuitAnalysisTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, faults, shortCircuitParameters, computationManager, monitors);
+        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, faults, shortCircuitParameters, computationManager, options);
         assertNotNull(result.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, monitors);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, options);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutComputationManager() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, monitors);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, options);
         assertNotNull(result);
     }
 
@@ -124,7 +124,7 @@ public class ShortCircuitAnalysisTest {
     @Test
     public void testWithReporter() {
         ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, monitors, reporter);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, options, reporter);
         assertNotNull(result);
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());

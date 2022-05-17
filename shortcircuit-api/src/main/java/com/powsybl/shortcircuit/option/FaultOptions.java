@@ -51,10 +51,10 @@ public class FaultOptions {
         this.withVoltageMap = withVoltageMap;
     }
 
-    public FaultOptions merge(FaultOptions monitorTobeMerged) {
-        Objects.requireNonNull(monitorTobeMerged);
-        this.withLimitViolations = monitorTobeMerged.isWithLimitViolations();
-        this.withVoltageMap = monitorTobeMerged.isWithVoltageMap();
+    public FaultOptions merge(FaultOptions optionTobeMerged) {
+        Objects.requireNonNull(optionTobeMerged);
+        this.withLimitViolations = optionTobeMerged.isWithLimitViolations();
+        this.withVoltageMap = optionTobeMerged.isWithVoltageMap();
         return this;
     }
 
@@ -78,15 +78,15 @@ public class FaultOptions {
 
     @Override
     public String toString() {
-        return "StateMonitor{" +
+        return "FaultOptions{" +
             "withLimitViolations=" + withLimitViolations +
             ", withVoltageMap=" + withVoltageMap +
             '}';
     }
 
-    public static void write(List<FaultOptions> monitors, Path jsonFile) {
+    public static void write(List<FaultOptions> options, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
-            JsonUtil.createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, monitors);
+            JsonUtil.createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, options);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
