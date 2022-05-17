@@ -32,7 +32,7 @@ public interface Fault {
         BRANCH
     }
 
-    // How the fault impedance is connected to the network.
+    // How the fault impedance and resistance are associated.
     enum ConnectionType {
         SERIES,
         PARALLEL,
@@ -41,7 +41,6 @@ public interface Fault {
     // What kind of fault is simulated
     enum FaultType {
         THREE_PHASE,
-        TWO_PHASE,
         SINGLE_PHASE,
     }
 
@@ -50,10 +49,10 @@ public interface Fault {
     // The equipment or bus id where the fault is simulated.
     String getId();
 
-    // Characteristics of the short-circuit.
-    double getR();
+    // Characteristics of the short-circuit to ground.
+    double getRToGround();
 
-    double getX();
+    double getXToGround();
 
     Type getType();
 

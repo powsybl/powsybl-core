@@ -24,6 +24,11 @@ public class BusFault extends AbstractFault {
         this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE);
     }
 
+    public BusFault(String id) {
+        // Here the id is the id of a bus from the bus view.
+        this(id, 0.0, 0.0, ConnectionType.SERIES, FaultType.THREE_PHASE);
+    }
+
     @Override
     public Type getType() {
         return Type.BUS;

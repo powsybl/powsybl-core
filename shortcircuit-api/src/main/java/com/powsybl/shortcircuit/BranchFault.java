@@ -28,6 +28,11 @@ public class BranchFault extends AbstractFault {
         this(id, r, x, ConnectionType.SERIES, FaultType.THREE_PHASE, proportionalLocation);
     }
 
+    public BranchFault(String id, double proportionalLocation) {
+        // Here the id is the id of a bus from the bus view.
+        this(id, 0.0, 0.0, ConnectionType.SERIES, FaultType.THREE_PHASE, proportionalLocation);
+    }
+
     @Override
     public Type getType() {
         return Type.BRANCH;

@@ -35,12 +35,12 @@ abstract class AbstractFault implements Fault {
     }
 
     @Override
-    public double getR() {
+    public double getRToGround() {
         return this.r;
     }
 
     @Override
-    public double getX() {
+    public double getXToGround() {
         return this.x;
     }
 

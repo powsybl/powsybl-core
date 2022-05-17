@@ -11,5 +11,5 @@
   "r" : 1.1,
   "x" : 2.2,
   "connection" : "SERIES",
-  "faultType" : "TWO_PHASE"
+  "faultType" : "THREE_PHASE"
 } ]
