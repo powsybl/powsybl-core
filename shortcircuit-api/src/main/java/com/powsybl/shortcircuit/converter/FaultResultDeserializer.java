@@ -93,7 +93,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        FaultResult faultResult = new FaultResult(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, voltage, timeConstant);
+        FaultResult faultResult = new FaultResult(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, voltage, Collections.emptyList(), timeConstant); //FIXME
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;

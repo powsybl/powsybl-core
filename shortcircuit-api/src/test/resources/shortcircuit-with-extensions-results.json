@@ -9,6 +9,7 @@
       "connection" : "SERIES",
       "faultType" : "THREE_PHASE"
     },
+    "threePhaseFaultActivePower" : 1.0,
     "limitViolations" : [ {
       "subjectId" : "id",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",

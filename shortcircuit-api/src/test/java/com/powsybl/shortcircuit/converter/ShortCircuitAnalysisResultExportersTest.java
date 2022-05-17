@@ -52,7 +52,8 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
         FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
         Fault fault = new BranchFault("ID_3", 0.0, 0.0, 12.0);
-        FaultResult faultResult3 = new FaultResult(fault,  new FortescueValue(2002, 2003));
+        FaultResult faultResult3 = new FaultResult(fault,  1.0, Collections.emptyList(),
+                Collections.emptyList(), new FortescueValue(2002, 2003));
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
         faultResults.add(faultResult3);
@@ -68,7 +69,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         limitViolations.add(limitViolation1);
         LimitViolation limitViolation2 = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation2);
-        return new FaultResult(fault, new FortescueValue(value), limitViolations);
+        return new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(value));
     }
 
     private static ShortCircuitAnalysisResult createResultWithExtension() {
@@ -83,7 +84,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, new FortescueValue(1.0), limitViolations);
+        FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0));
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults);
@@ -103,7 +104,8 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         limitViolations.add(limitViolation);
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
-        FaultResult faultResult = new FaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations, new FortescueValue(1.0), new FortescueValue(2.0), 1);
+        FaultResult faultResult = new FaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
+                new FortescueValue(1.0), new FortescueValue(2.0), Collections.emptyList(), 1);
         faultResults.add(faultResult);
         return new ShortCircuitAnalysisResult(faultResults);
     }

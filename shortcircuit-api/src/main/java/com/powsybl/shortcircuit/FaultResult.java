@@ -9,7 +9,6 @@ package com.powsybl.shortcircuit;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.LimitViolation;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -36,37 +35,29 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final FortescueValue voltage;
 
-    private final List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
+    private final List<ShortCircuitBusResults> shortCircuitBusResults;
 
     public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, double timeConstant) {
+                       List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
+                       double timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
         this.limitViolations = List.copyOf(limitViolations);
         this.current = current;
         this.voltage = voltage;
+        this.shortCircuitBusResults = List.copyOf(shortCircuitBusResults);
         this.timeConstant = timeConstant;
     }
 
-    public FaultResult(Fault fault, FortescueValue current, List<FeederResult> feederResults, List<LimitViolation> limitViolations, double timeConstant) {
-        this(fault, Double.NaN, feederResults, limitViolations, current, null, timeConstant);
+    public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current, double timeConstant) {
+        this(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant);
     }
 
-    public FaultResult(Fault fault, FortescueValue current, List<LimitViolation> limitViolations) {
-        this(fault, Double.NaN, Collections.emptyList(), limitViolations, current, null, Double.NaN);
-    }
-
-    public FaultResult(Fault fault, FortescueValue current, List<FeederResult> feederResults, double timeConstant) {
-        this(fault, Double.NaN, feederResults, Collections.emptyList(), current, null, timeConstant);
-    }
-
-    public FaultResult(Fault fault, FortescueValue current, double timeConstant) {
-        this(fault, current, Collections.emptyList(), timeConstant);
-    }
-
-    public FaultResult(Fault fault, FortescueValue current) {
-        this(fault, current, Double.NaN);
+    public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current) {
+        this(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, null, Collections.emptyList(), Double.NaN);
     }
 
     /**
