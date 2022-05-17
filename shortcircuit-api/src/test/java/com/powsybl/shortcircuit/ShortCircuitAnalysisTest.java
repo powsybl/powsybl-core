@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptorMock;
-import com.powsybl.shortcircuit.monitor.StateMonitor;
+import com.powsybl.shortcircuit.option.FaultOptions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -59,7 +59,7 @@ public class ShortCircuitAnalysisTest {
                                                                      List<Fault> fault,
                                                                      ShortCircuitParameters parameters,
                                                                      ComputationManager computationManager,
-                                                                     List<StateMonitor> monitors) {
+                                                                     List<FaultOptions> monitors) {
 
                 return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
             }
@@ -76,7 +76,7 @@ public class ShortCircuitAnalysisTest {
     private ComputationManager computationManager;
     private ShortCircuitParameters shortCircuitParameters;
     private List<Fault> faults;
-    private List<StateMonitor> monitors;
+    private List<FaultOptions> monitors;
 
     @Before
     public void setUp() {

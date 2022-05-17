@@ -13,8 +13,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
-import com.powsybl.shortcircuit.monitor.StateMonitor;
+import com.powsybl.shortcircuit.option.FaultOptions;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +54,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              List<Fault> faults,
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
-                                                             List<StateMonitor> monitors) {
+                                                             List<FaultOptions> monitors) {
         return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>()));
     }
 
@@ -62,7 +63,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              List<Fault> faults,
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
-                                                             List<StateMonitor> monitors,
+                                                             List<FaultOptions> monitors,
                                                              Reporter reporter) {
         reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
         return run(network, faults, parameters, computationManager, monitors);
@@ -73,7 +74,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
         FeederResult feederResult = new FeederResult("GEN", 5);
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
         FaultResult faultResult = new FaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),
-                new FortescueValue(10.0), null, Collections.emptyList(), 1);
+                new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1));
         return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
     }
 }

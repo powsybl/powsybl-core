@@ -12,7 +12,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
-import com.powsybl.shortcircuit.monitor.StateMonitor;
+import com.powsybl.shortcircuit.option.FaultOptions;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +44,7 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
                                                               List<Fault> faults,
                                                               ShortCircuitParameters parameters,
                                                               ComputationManager computationManager,
-                                                              List<StateMonitor> monitors) {
+                                                              List<FaultOptions> monitors) {
         return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, monitors);
     }
 
@@ -54,7 +54,7 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
     default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults,
                                                               ShortCircuitParameters parameters,
                                                               ComputationManager computationManager,
-                                                              List<StateMonitor> monitors,
+                                                              List<FaultOptions> monitors,
                                                               Reporter reporter) {
         return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, monitors, reporter);
     }

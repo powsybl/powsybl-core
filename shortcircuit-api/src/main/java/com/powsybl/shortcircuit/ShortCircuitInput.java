@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.shortcircuit.monitor.StateMonitor;
+import com.powsybl.shortcircuit.option.FaultOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class ShortCircuitInput {
 
     private ShortCircuitParameters parameters;
 
-    private final List<StateMonitor> monitors = new ArrayList<>();
+    private final List<FaultOptions> monitors = new ArrayList<>();
 
     public List<Fault> getFaults() {
         return faults;
@@ -36,7 +36,7 @@ public class ShortCircuitInput {
         return parameters;
     }
 
-    public List<StateMonitor> getMonitors() {
+    public List<FaultOptions> getMonitors() {
         return ImmutableList.copyOf(monitors);
     }
 
@@ -51,7 +51,7 @@ public class ShortCircuitInput {
         return this;
     }
 
-    public ShortCircuitInput setMonitors(List<StateMonitor> monitors) {
+    public ShortCircuitInput setMonitors(List<FaultOptions> monitors) {
         this.monitors.clear();
         this.monitors.addAll(Objects.requireNonNull(monitors));
         return this;

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
-import com.powsybl.shortcircuit.monitor.StateMonitor;
+import com.powsybl.shortcircuit.option.FaultOptions;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
@@ -106,7 +106,7 @@ public class ShortCircuitAnalysisTool implements Tool {
         // MonitorState list
         options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> {
             context.getOutputStream().println("Loading monitors '" + monitorFilePath + "'");
-            input.setMonitors(StateMonitor.read(monitorFilePath));
+            input.setMonitors(FaultOptions.read(monitorFilePath));
         });
         return input;
     }

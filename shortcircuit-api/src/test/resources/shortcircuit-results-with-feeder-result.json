@@ -10,7 +10,7 @@
       "faultType" : "THREE_PHASE"
     },
     "threePhaseFaultActivePower" : 0.1,
-    "timeConstant" : 1.0,
+    "timeConstant" : "PT1S",
     "feederResult" : [ {
       "connectableId" : "connectableId",
       "current" : {

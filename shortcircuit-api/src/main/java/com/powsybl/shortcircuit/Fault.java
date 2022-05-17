@@ -56,13 +56,9 @@ public interface Fault {
 
     Type getType();
 
-    default ConnectionType getConnectionType() {
-        return ConnectionType.SERIES;
-    }
+    ConnectionType getConnectionType();
 
-    default FaultType getFaultType() {
-        return FaultType.THREE_PHASE;
-    }
+    FaultType getFaultType();
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());

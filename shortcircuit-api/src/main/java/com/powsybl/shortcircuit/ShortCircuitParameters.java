@@ -86,11 +86,11 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** The maximum voltage drop threshold in %. */
     public double getMinVoltageDropProportionalThreshold() {
         return minVoltageDropProportionalThreshold;
     }
 
-    // The maximum voltage drop threshold in %.
     public ShortCircuitParameters setMinVoltageDropProportionalThreshold(double minVoltageDropProportionalThreshold) {
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
         return this;

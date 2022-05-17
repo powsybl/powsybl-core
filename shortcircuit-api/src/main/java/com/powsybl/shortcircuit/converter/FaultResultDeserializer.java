@@ -21,6 +21,7 @@ import com.powsybl.security.LimitViolation;
 import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +41,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
     public FaultResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Fault fault = null;
         double threePhaseFaultActivePower = Double.NaN;
-        double timeConstant = Double.NaN;
+        Duration timeConstant = null;
         List<FeederResult> feederResults = Collections.emptyList();
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<Extension<FaultResult>> extensions = Collections.emptyList();
@@ -61,7 +62,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
                 case "timeConstant":
                     parser.nextToken();
-                    timeConstant = parser.readValueAs(Double.class);
+                    timeConstant = Duration.parse(parser.readValueAs(String.class));
                     break;
 
                 case "feederResult":

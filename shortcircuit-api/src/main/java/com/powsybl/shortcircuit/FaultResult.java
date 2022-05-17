@@ -9,6 +9,7 @@ package com.powsybl.shortcircuit;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.LimitViolation;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +26,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final double threePhaseFaultActivePower;
 
-    private final double timeConstant;
+    private final Duration timeConstant;
 
     private final List<FeederResult> feederResults;
 
@@ -39,25 +40,25 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
-                       double timeConstant) {
+                       Duration timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
         this.feederResults = List.copyOf(feederResults);
         this.limitViolations = List.copyOf(limitViolations);
-        this.current = current;
+        this.current = Objects.requireNonNull(current);
         this.voltage = voltage;
         this.shortCircuitBusResults = List.copyOf(shortCircuitBusResults);
         this.timeConstant = timeConstant;
     }
 
     public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, double timeConstant) {
+                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant) {
         this(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant);
     }
 
     public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current) {
-        this(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, null, Collections.emptyList(), Double.NaN);
+        this(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, null, Collections.emptyList(), null);
     }
 
     /**
@@ -119,7 +120,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
      *
      * The duration before reaching the permanent current.
      */
-    public double getTimeConstant() {
+    public Duration getTimeConstant() {
         return timeConstant;
     }
 }

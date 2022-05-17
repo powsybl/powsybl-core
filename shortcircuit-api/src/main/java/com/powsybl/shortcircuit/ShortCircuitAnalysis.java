@@ -14,7 +14,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.shortcircuit.monitor.StateMonitor;
+import com.powsybl.shortcircuit.option.FaultOptions;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +48,7 @@ public final class ShortCircuitAnalysis {
                                                                       List<Fault> faults,
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager,
-                                                                      List<StateMonitor> monitors,
+                                                                      List<FaultOptions> monitors,
                                                                       Reporter reporter) {
             Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
             Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
@@ -62,7 +62,7 @@ public final class ShortCircuitAnalysis {
                                                                       List<Fault> faults,
                                                                       ShortCircuitParameters parameters,
                                                                       ComputationManager computationManager,
-                                                                      List<StateMonitor> monitors) {
+                                                                      List<FaultOptions> monitors) {
             Objects.requireNonNull(network, NOT_NULL_NETWORK_MESSAGE);
             Objects.requireNonNull(faults, NOT_NULL_FAULT_MESSAGE);
             Objects.requireNonNull(computationManager, NOT_NULL_COMPUTATION_MANAGER_MESSAGE);
@@ -73,7 +73,7 @@ public final class ShortCircuitAnalysis {
         public ShortCircuitAnalysisResult run(Network network, List<Fault> faults,
                                               ShortCircuitParameters parameters,
                                               ComputationManager computationManager,
-                                              List<StateMonitor> monitors,
+                                              List<FaultOptions> monitors,
                                               Reporter reporter) {
             return runAsync(network, faults, parameters, computationManager, monitors, reporter).join();
         }
@@ -81,20 +81,20 @@ public final class ShortCircuitAnalysis {
         public ShortCircuitAnalysisResult run(Network network, List<Fault> faults,
                                               ShortCircuitParameters parameters,
                                               ComputationManager computationManager,
-                                              List<StateMonitor> monitors) {
+                                              List<FaultOptions> monitors) {
             return runAsync(network, faults, parameters, computationManager, monitors).join();
         }
 
         public ShortCircuitAnalysisResult run(Network network,
                                               List<Fault> faults,
                                               ShortCircuitParameters parameters,
-                                              List<StateMonitor> monitors) {
+                                              List<FaultOptions> monitors) {
             return run(network, faults, parameters, LocalComputationManager.getDefault(), monitors);
         }
 
         public ShortCircuitAnalysisResult run(Network network,
                                               List<Fault> faults,
-                                              List<StateMonitor> monitors) {
+                                              List<FaultOptions> monitors) {
             return run(network, faults, ShortCircuitParameters.load(), monitors);
         }
 
@@ -134,7 +134,7 @@ public final class ShortCircuitAnalysis {
                                                                          List<Fault> faults,
                                                                          ShortCircuitParameters parameters,
                                                                          ComputationManager computationManager,
-                                                                         List<StateMonitor> monitors) {
+                                                                         List<FaultOptions> monitors) {
         return find().runAsync(network, faults, parameters, computationManager, monitors);
     }
 
@@ -142,7 +142,7 @@ public final class ShortCircuitAnalysis {
                                                                          List<Fault> faults,
                                                                          ShortCircuitParameters parameters,
                                                                          ComputationManager computationManager,
-                                                                         List<StateMonitor> monitors,
+                                                                         List<FaultOptions> monitors,
                                                                          Reporter reporter) {
         return find().runAsync(network, faults, parameters, computationManager, monitors, reporter);
     }
@@ -151,7 +151,7 @@ public final class ShortCircuitAnalysis {
                                                  List<Fault> faults,
                                                  ShortCircuitParameters parameters,
                                                  ComputationManager computationManager,
-                                                 List<StateMonitor> monitors,
+                                                 List<FaultOptions> monitors,
                                                  Reporter reporter) {
         return find().run(network, faults, parameters, computationManager, monitors, reporter);
     }
@@ -160,18 +160,18 @@ public final class ShortCircuitAnalysis {
                                                  List<Fault> faults,
                                                  ShortCircuitParameters parameters,
                                                  ComputationManager computationManager,
-                                                 List<StateMonitor> monitors) {
+                                                 List<FaultOptions> monitors) {
         return find().run(network, faults, parameters, computationManager, monitors);
     }
 
     public static ShortCircuitAnalysisResult run(Network network, List<Fault> faults, ShortCircuitParameters parameters,
-                                                 List<StateMonitor> monitors) {
+                                                 List<FaultOptions> monitors) {
         return find().run(network, faults, parameters, monitors);
     }
 
     public static ShortCircuitAnalysisResult run(Network network,
                                                  List<Fault> faults,
-                                                 List<StateMonitor> monitors) {
+                                                 List<FaultOptions> monitors) {
         return find().run(network, faults, monitors);
     }
 

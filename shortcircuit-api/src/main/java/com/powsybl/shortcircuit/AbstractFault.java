@@ -6,6 +6,8 @@
  */
 package com.powsybl.shortcircuit;
 
+import java.util.Objects;
+
 /**
  * Abstract class to describe the characteristics of the fault to be simulated.
  * Used for elementary short-circuit calculation only.
@@ -22,11 +24,11 @@ abstract class AbstractFault implements Fault {
 
     protected AbstractFault(String id, double r, double x, ConnectionType connection,
                             FaultType faultType) {
-        this.id = id;
+        this.id = Objects.requireNonNull(id);
         this.r = r;
         this.x = x;
-        this.connection = connection;
-        this.faultType = faultType;
+        this.connection = Objects.requireNonNull(connection);
+        this.faultType = Objects.requireNonNull(faultType);
     }
 
     @Override

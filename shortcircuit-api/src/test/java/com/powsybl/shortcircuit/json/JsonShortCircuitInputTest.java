@@ -45,7 +45,7 @@ public class JsonShortCircuitInputTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultsFileNoType.json"), fileSystem.getPath("/FaultsFileNoType.json"));
 
         expected.expect(AssertionError.class);
-        expected.expectMessage("Required datatype field is missing");
+        expected.expectMessage("Required type field is missing");
         Fault.read(fileSystem.getPath("/FaultsFileNoType.json"));
     }
 }

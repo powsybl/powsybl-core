@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.shortcircuit.monitor;
+package com.powsybl.shortcircuit.option;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

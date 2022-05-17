@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -105,7 +106,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
         FaultResult faultResult = new FaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
-                new FortescueValue(1.0), new FortescueValue(2.0), Collections.emptyList(), 1);
+                new FortescueValue(1.0), new FortescueValue(2.0), Collections.emptyList(), Duration.ofSeconds(1));
         faultResults.add(faultResult);
         return new ShortCircuitAnalysisResult(faultResults);
     }

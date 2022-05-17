@@ -7,8 +7,8 @@
 package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.shortcircuit.monitor.FaultContext;
-import com.powsybl.shortcircuit.monitor.StateMonitor;
+import com.powsybl.shortcircuit.option.FaultContext;
+import com.powsybl.shortcircuit.option.FaultOptions;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -24,12 +24,12 @@ public class JsonMonitorTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {
-        List<StateMonitor> monitors = new ArrayList<>();
-        monitors.add(new com.powsybl.shortcircuit.monitor.StateMonitor(new FaultContext("f00"), false, false));
-        monitors.add(new com.powsybl.shortcircuit.monitor.StateMonitor(new FaultContext("f01"), false, true));
-        monitors.add(new com.powsybl.shortcircuit.monitor.StateMonitor(new FaultContext("f10"), true, false));
-        monitors.add(new com.powsybl.shortcircuit.monitor.StateMonitor(new FaultContext("f11"), true, true));
-        roundTripTest(monitors, StateMonitor::write, StateMonitor::read, "/MonitoringFile.json");
+        List<FaultOptions> monitors = new ArrayList<>();
+        monitors.add(new FaultOptions(new FaultContext("f00"), false, false));
+        monitors.add(new FaultOptions(new FaultContext("f01"), false, true));
+        monitors.add(new FaultOptions(new FaultContext("f10"), true, false));
+        monitors.add(new FaultOptions(new FaultContext("f11"), true, true));
+        roundTripTest(monitors, FaultOptions::write, FaultOptions::read, "/MonitoringFile.json");
     }
 
     @Test
@@ -38,6 +38,6 @@ public class JsonMonitorTest extends AbstractConverterTest {
 
         expected.expect(UncheckedIOException.class);
         expected.expectMessage("Unrecognized field \"unexpected\"");
-        StateMonitor.read(fileSystem.getPath("/MonitoringFileInvalid.json"));
+        FaultOptions.read(fileSystem.getPath("/MonitoringFileInvalid.json"));
     }
 }

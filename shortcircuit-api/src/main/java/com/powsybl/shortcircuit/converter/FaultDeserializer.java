@@ -70,7 +70,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
             }
         }
         if (null == type) {
-            throw new AssertionError("Required datatype field is missing");
+            throw new AssertionError("Required type field is missing");
         }
 
         Fault fault;
@@ -82,7 +82,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                 fault = new BranchFault(id, r, x, connection, faultType, proportionalLocation);
                 break;
             default:
-                throw new AssertionError("Unexpected datatype: " + type.name());
+                throw new AssertionError("Unexpected type: " + type.name());
         }
         return fault;
     }
