@@ -38,22 +38,22 @@ public class Parameter {
         this(name, type, description, defaultValue, null);
     }
 
-    private static Object checkValue(ParameterType type, Object value) {
-        if (value != null && !type.getClazz().isAssignableFrom(value.getClass())) {
-            throw new IllegalArgumentException("Bad default value type " + value.getClass() + ", " + type.getClazz() + " was expected");
+    private static Object checkValue(Class<?> typeClass, Object value) {
+        if (value != null && !typeClass.isAssignableFrom(value.getClass())) {
+            throw new IllegalArgumentException("Bad default value type " + value.getClass() + ", " + typeClass + " was expected");
         }
         return value;
     }
 
     private static List<Object> checkValues(ParameterType type, List<Object> values) {
         if (values != null) {
-            values.forEach(value -> checkValue(type, value));
+            values.forEach(value -> checkValue(type.getElementClass(), value));
         }
         return values;
     }
 
     private static Object checkDefaultValue(ParameterType type, Object defaultValue) {
-        checkValue(type, defaultValue);
+        checkValue(type.getTypeClass(), defaultValue);
         if (type == ParameterType.BOOLEAN && defaultValue == null) {
             throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
         }
