@@ -27,12 +27,13 @@ public class TestPlatformConfigProviderTest {
     public void test() throws IOException {
         PlatformConfig platformConfig = PlatformConfig.defaultConfig();
         assertEquals("/work/" + TestPlatformConfigProvider.CONFIG_DIR,
-                platformConfig.getConfigDir().toString());
+                platformConfig.getConfigDir().map(Path::toString).orElse(null));
 
-        Path testPath = platformConfig.getConfigDir().resolve("other.txt");
+        Path testPath = platformConfig.getConfigDir().map(p -> p.resolve("other.txt")).orElse(null);
+        assertNotNull(testPath);
         String testContent = Files.readAllLines(testPath, StandardCharsets.UTF_8).get(0);
         assertEquals("conf", testContent);
-        assertEquals("baz", platformConfig.getModuleConfig("foo").getStringProperty("bar"));
+        assertEquals("baz", platformConfig.getOptionalModuleConfig("foo").flatMap(c -> c.getOptionalStringProperty("bar")).orElse(""));
     }
 
     @Test

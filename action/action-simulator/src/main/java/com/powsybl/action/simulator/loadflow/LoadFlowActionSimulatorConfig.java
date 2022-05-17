@@ -25,12 +25,12 @@ public class LoadFlowActionSimulatorConfig {
     public static LoadFlowActionSimulatorConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        ModuleConfig config = platformConfig.getModuleConfig("load-flow-action-simulator");
-        String loadFlowName = config.getOptionalStringProperty("load-flow-name").orElse(null);
-        int maxIterations = config.getIntProperty("max-iterations");
-        boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
-        boolean debug = config.getBooleanProperty("debug", false);
-        CopyStrategy copyStrategy = config.getEnumProperty("copy-strategy", CopyStrategy.class, CopyStrategy.DEEP);
+        Optional<ModuleConfig> config = platformConfig.getOptionalModuleConfig("load-flow-action-simulator");
+        String loadFlowName = config.flatMap(c -> c.getOptionalStringProperty("load-flow-name")).orElse(null);
+        int maxIterations = config.map(c -> c.getOptionalIntProperty("max-iterations").orElse(30)).orElse(30);
+        boolean ignorePreContingencyViolations = config.flatMap(c -> c.getOptionalBooleanProperty("ignore-pre-contingency-violations")).orElse(false);
+        boolean debug = config.flatMap(c -> c.getOptionalBooleanProperty("debug")).orElse(false);
+        CopyStrategy copyStrategy = config.flatMap(c -> c.getOptionalEnumProperty("copy-strategy", CopyStrategy.class)).orElse(CopyStrategy.DEEP);
         return new LoadFlowActionSimulatorConfig(loadFlowName, maxIterations, ignorePreContingencyViolations, debug, copyStrategy);
     }
 

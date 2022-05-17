@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationException;
@@ -236,6 +237,25 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
                 assertEquals("outLog", ((ComputationException) exception.getCause()).getOutLogs().get("out"));
                 assertEquals("errLog", ((ComputationException) exception.getCause()).getErrLogs().get("err"));
             }
+        }
+    }
+
+    @Test
+    public void testRunWithBuilderCreation() throws Exception {
+
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
+             ByteArrayOutputStream berr = new ByteArrayOutputStream();
+             PrintStream out = new PrintStream(bout);
+             PrintStream err = new PrintStream(berr);
+             ComputationManager cm = mock(ComputationManager.class)) {
+
+            CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+
+            ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
+
+            PowsyblException e = assertThrows(PowsyblException.class, () -> tool.run(cl, context));
+            assertTrue(e.getMessage().startsWith("Property ContingenciesProviderFactory is not set"));
         }
     }
 

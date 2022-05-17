@@ -48,6 +48,10 @@ public class CgmesImport implements Importer {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
+        String boundaryPath = platformConfig.getConfigDir()
+                .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
+                .map(Path::toString)
+                .orElse(null);
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
@@ -55,7 +59,7 @@ public class CgmesImport implements Importer {
                 BOUNDARY_LOCATION,
                 ParameterType.STRING,
                 "The location of boundary files",
-                platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
+                boundaryPath);
     }
 
     public CgmesImport(PlatformConfig platformConfig) {
@@ -121,14 +125,16 @@ public class CgmesImport implements Importer {
     }
 
     private ReadOnlyDataSource boundary(Properties p) {
-        Path loc = Paths.get(
-                ConversionParameters.readStringParameter(
-                        getFormat(),
-                        p,
-                        boundaryLocationParameter,
-                        defaultValueConfig));
+        String loc = ConversionParameters.readStringParameter(
+                getFormat(),
+                p,
+                boundaryLocationParameter,
+                defaultValueConfig);
+        if (loc == null) {
+            return null;
+        }
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(Paths.get(loc));
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
