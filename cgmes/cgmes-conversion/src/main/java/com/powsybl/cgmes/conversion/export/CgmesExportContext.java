@@ -53,12 +53,41 @@ public class CgmesExportContext {
     private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
 
+    // Update dependencies in a way that:
+    // SV.dependentOn TP
+    // SV.dependentOn SSH
+    // TP.dependentOn EQ
+    // SSH.dependentOn EQ
+    public void updateDependencies() {
+        String eqModelId = getEqModelDescription().getId();
+        if (eqModelId != null) {
+            getTpModelDescription()
+                    .clearDependencies()
+                    .addDependency(eqModelId);
+            getSshModelDescription()
+                    .clearDependencies()
+                    .addDependency(eqModelId);
+            getSvModelDescription().clearDependencies();
+            String tpModelId = getTpModelDescription().getId();
+            if (tpModelId != null) {
+                getSvModelDescription().addDependency(tpModelId);
+            }
+            String sshModelId = getSshModelDescription().getId();
+            if (sshModelId != null) {
+                getSvModelDescription().addDependency(sshModelId);
+                getSvModelDescription().addDependency(sshModelId);
+            }
+        }
+    }
+
     public static final class ModelDescription {
 
         private String description;
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
+        private String id = null;
+
         // TODO Each model may have a list of profiles, not only one
         private String profile;
 
@@ -120,6 +149,14 @@ public class CgmesExportContext {
         public ModelDescription setProfile(String profile) {
             this.profile = profile;
             return this;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
         }
     }
 
@@ -392,7 +429,7 @@ public class CgmesExportContext {
         } else if (c instanceof Load && c.isFictitious()) {
             // An fictitious load do not need an alias
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 terminalId = CgmesExportUtil.getUniqueId();
@@ -508,14 +545,20 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsEquivalentInjection(Network network) {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
-            String equivalentInjectionId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection").orElse(null);
-            if (equivalentInjectionId == null) {
-                equivalentInjectionId = CgmesExportUtil.getUniqueId();
+            Optional<String> alias;
+            alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            if (!alias.isPresent()) {
+                String equivalentInjectionId = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(equivalentInjectionId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             }
-            String topologicalNode = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE).orElse(null);
-            if (topologicalNode == null) {
-                topologicalNode = CgmesExportUtil.getUniqueId();
+            alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            if (!alias.isPresent()) {
+                String equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId();
+                danglingLine.addAlias(equivalentInjectionTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            }
+            alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            if (!alias.isPresent()) {
+                String topologicalNode = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(topologicalNode, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             }
         }

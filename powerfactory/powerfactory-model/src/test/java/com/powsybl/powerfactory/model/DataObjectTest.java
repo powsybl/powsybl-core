@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class DataObjectTest {
                 .addAttribute(new DataAttribute("iv", DataAttributeType.INTEGER_VECTOR))
                 .addAttribute(new DataAttribute("fv", DataAttributeType.FLOAT_VECTOR))
                 .addAttribute(new DataAttribute("dv", DataAttributeType.DOUBLE_VECTOR))
-                .addAttribute(new DataAttribute("m", DataAttributeType.MATRIX));
+                .addAttribute(new DataAttribute("m", DataAttributeType.DOUBLE_MATRIX));
     }
 
     @Test
@@ -118,6 +117,7 @@ public class DataObjectTest {
         assertFalse(objFoo.findIntAttributeValue("ii").isPresent());
         assertThrows(PowerFactoryException.class, () -> objFoo.getIntAttributeValue("ii"));
         assertEquals(3, objFoo.getIntAttributeValue("i"));
+        assertEquals(3L, objFoo.getLongAttributeValue("i"));
     }
 
     @Test
@@ -160,6 +160,7 @@ public class DataObjectTest {
         assertFalse(objFoo.findDoubleAttributeValue("dd").isPresent());
         assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleAttributeValue("dd"));
         assertEquals(3.14d, objFoo.getDoubleAttributeValue("d"), 0d);
+        assertEquals(3.14f, objFoo.getFloatAttributeValue("d"), 0f);
     }
 
     @Test
@@ -209,27 +210,12 @@ public class DataObjectTest {
         DataObjectIndex index = new DataObjectIndex();
         DataClass clsFoo = createFooClass();
         DataObject objFoo = new DataObject(0L, clsFoo, index);
-        assertFalse(objFoo.findMatrixAttributeValue("m").isPresent());
-        objFoo.setMatrixAttributeValue("m", new BlockRealMatrix(2, 2));
-        assertTrue(objFoo.findMatrixAttributeValue("m").isPresent());
-        assertEquals(new BlockRealMatrix(2, 2), objFoo.findMatrixAttributeValue("m").orElseThrow());
-        assertFalse(objFoo.findMatrixAttributeValue("mm").isPresent());
-        assertThrows(PowerFactoryException.class, () -> objFoo.getMatrixAttributeValue("mm"));
-        assertEquals(new BlockRealMatrix(2, 2), objFoo.getMatrixAttributeValue("m"));
-    }
-
-    @Test
-    public void testInstantAttribute() {
-        DataObjectIndex index = new DataObjectIndex();
-        DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo, index);
-        assertFalse(objFoo.findInstantAttributeValue("i").isPresent());
-        Instant time = Instant.parse("2021-10-30T09:35:25Z");
-        objFoo.setInstantAttributeValue("i", time);
-        assertTrue(objFoo.findInstantAttributeValue("i").isPresent());
-        assertEquals(time, objFoo.findInstantAttributeValue("i").orElseThrow());
-        assertFalse(objFoo.findInstantAttributeValue("ii").isPresent());
-        assertThrows(PowerFactoryException.class, () -> objFoo.getInstantAttributeValue("ii"));
-        assertEquals(time, objFoo.getInstantAttributeValue("i"));
+        assertFalse(objFoo.findDoubleMatrixAttributeValue("m").isPresent());
+        objFoo.setDoubleMatrixAttributeValue("m", new BlockRealMatrix(2, 2));
+        assertTrue(objFoo.findDoubleMatrixAttributeValue("m").isPresent());
+        assertEquals(new BlockRealMatrix(2, 2), objFoo.findDoubleMatrixAttributeValue("m").orElseThrow());
+        assertFalse(objFoo.findDoubleMatrixAttributeValue("mm").isPresent());
+        assertThrows(PowerFactoryException.class, () -> objFoo.getDoubleMatrixAttributeValue("mm"));
+        assertEquals(new BlockRealMatrix(2, 2), objFoo.getDoubleMatrixAttributeValue("m"));
     }
 }

@@ -6,7 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
+import com.powsybl.cgmes.extensions.CgmesTapChanger;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -24,9 +27,11 @@ import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
+import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -59,7 +64,7 @@ public final class CgmesExportUtil {
     }
 
     public static String getUniqueId() {
-        return "_" + UUID.randomUUID();
+        return UUID.randomUUID().toString();
     }
 
     public static void writeRdfRoot(String cimNamespace, String euPrefix, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -76,7 +81,10 @@ public final class CgmesExportUtil {
 
     public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "urn:uuid:" + getUniqueId());
+        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
+        modelDescription.setId(modelId);
+        context.updateDependencies();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();
@@ -171,7 +179,20 @@ public final class CgmesExportUtil {
         return "EnergyConsumer";
     }
 
+    /**
+     * @deprecated Use {@link #getTerminalSequenceNumber(Terminal)} instead
+     */
+    @Deprecated(since = "4.9.0", forRemoval = true)
     public static int getTerminalSide(Terminal t, Connectable<?> c) {
+        // There is no need to provide the connectable explicitly, it must always be the one associated with the terminal
+        if (c != t.getConnectable()) {
+            throw new PowsyblException("Wrong connectable in getTerminalSide : " + c.getId());
+        }
+        return getTerminalSequenceNumber(t);
+    }
+
+    public static int getTerminalSequenceNumber(Terminal t) {
+        Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             return 1;
         } else {
@@ -227,5 +248,43 @@ public final class CgmesExportUtil {
         }
     }
 
+    public static <C extends Connectable<C>> Optional<String> cgmesTapChangerType(C eq, String tcId) {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tcId);
+            if (cgmesTc != null) {
+                return Optional.ofNullable(cgmesTc.getType());
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static <C extends Connectable<C>> void setCgmesTapChangerType(C eq, String tapChangerId, String type) {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
+            if (cgmesTc != null) {
+                cgmesTc.setType(type);
+            }
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
+
+    public static String getTerminalId(Terminal t) {
+        String aliasType;
+        Connectable<?> c = t.getConnectable();
+        if (c instanceof DanglingLine) {
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network";
+        } else {
+            int sequenceNumber = getTerminalSequenceNumber(t);
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
+        }
+        Optional<String> terminalId = c.getAliasFromType(aliasType);
+        if (terminalId.isEmpty()) {
+            LOG.error("Alias for type {} not found in connectable {}", aliasType, t.getConnectable().getId());
+            throw new PowsyblException("Alias for type " + aliasType + " not found in connectable " + t.getConnectable().getId());
+        }
+        return terminalId.get();
+    }
 }
