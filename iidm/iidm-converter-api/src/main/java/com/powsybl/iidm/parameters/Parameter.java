@@ -31,23 +31,25 @@ public class Parameter {
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
-        this.possibleValues = checkValues(type, possibleValues);
+        this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
     }
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue) {
         this(name, type, description, defaultValue, null);
     }
 
-    private static Object checkValue(Class<?> typeClass, Object value) {
+    private static void checkValue(Class<?> typeClass, Object value) {
         if (value != null && !typeClass.isAssignableFrom(value.getClass())) {
             throw new IllegalArgumentException("Bad default value type " + value.getClass() + ", " + typeClass + " was expected");
         }
-        return value;
     }
 
-    private static List<Object> checkValues(ParameterType type, List<Object> values) {
+    private static List<Object> checkPossibleValues(ParameterType type, List<Object> values, Object defaultValue) {
         if (values != null) {
             values.forEach(value -> checkValue(type.getElementClass(), value));
+            if (defaultValue != null && !values.contains(defaultValue)) {
+                throw new IllegalArgumentException("Parameter possible values " + values + " should contain default one " + defaultValue);
+            }
         }
         return values;
     }
