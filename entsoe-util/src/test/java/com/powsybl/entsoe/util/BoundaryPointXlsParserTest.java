@@ -6,17 +6,20 @@
  */
 package com.powsybl.entsoe.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Country;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -41,10 +44,10 @@ public class BoundaryPointXlsParserTest {
 
     @Test
     public void test() throws IOException {
-        HSSFWorkbook workbook = createWorkbook();
 
         byte[] buffer;
-        try (ByteArrayOutputStream stream = new ByteArrayOutputStream(1024)) {
+        try (HSSFWorkbook workbook = createWorkbook();
+             ByteArrayOutputStream stream = new ByteArrayOutputStream(1024)) {
             workbook.write(stream);
             stream.flush();
             buffer = stream.toByteArray();
@@ -62,5 +65,12 @@ public class BoundaryPointXlsParserTest {
         assertEquals("BoundaryPoint FR-BE", point.getName());
         assertEquals(Country.FR, point.getBorderFrom());
         assertEquals(Country.BE, point.getBorderTo());
+    }
+
+    @Test
+    public void testMissingBoundaryPointFile() {
+        BoundaryPointXlsParser parser = new BoundaryPointXlsParser();
+        PowsyblException e = assertThrows(PowsyblException.class, parser::parseDefault);
+        assertEquals("Boundary point sheet /work/unittests/BoundaryPoint.xls not found", e.getMessage());
     }
 }

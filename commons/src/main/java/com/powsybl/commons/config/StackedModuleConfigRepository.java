@@ -31,17 +31,6 @@ public class StackedModuleConfigRepository implements ModuleConfigRepository {
     }
 
     @Override
-    public boolean moduleExists(String name) {
-        Objects.requireNonNull(name);
-        for (ModuleConfigRepository repository : repositories) {
-            if (repository.moduleExists(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public Optional<ModuleConfig> getModuleConfig(String name) {
         ModuleConfig stackedConfig = null;
         for (ModuleConfigRepository repository : repositories) {
