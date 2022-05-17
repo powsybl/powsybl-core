@@ -45,7 +45,7 @@ public class ParameterDefaultValueConfig {
             if (platformConfig == null) {
                 platformConfig = PlatformConfig.defaultConfig();
             }
-            configCache = platformConfig.moduleExists(MODULE_NAME) ? platformConfig.getModuleConfig(MODULE_NAME) : null;
+            configCache = platformConfig.getOptionalModuleConfig(MODULE_NAME).orElse(null);
             init = true;
         }
         return configCache;
