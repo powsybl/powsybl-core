@@ -149,7 +149,7 @@ public class FortescueValue {
         Pair<Double, Double> phase2 = getPolarFromCartesian(mGphase.get(2, 0), mGphase.get(3, 0));
         Pair<Double, Double> phase3 = getPolarFromCartesian(mGphase.get(4, 0), mGphase.get(5, 0));
 
-        ThreePhaseValue threePhaseValue = new ThreePhaseValue(phase1.getKey() / Math.sqrt(3), phase2.getKey() / Math.sqrt(3) / Math.sqrt(3), phase3.getKey(), phase1.getValue(), phase2.getValue(), phase3.getValue());
+        ThreePhaseValue threePhaseValue = new ThreePhaseValue(phase1.getKey() / Math.sqrt(3), phase2.getKey() / Math.sqrt(3), phase3.getKey() / Math.sqrt(3), phase1.getValue(), phase2.getValue(), phase3.getValue());
         return threePhaseValue;
     }
 
