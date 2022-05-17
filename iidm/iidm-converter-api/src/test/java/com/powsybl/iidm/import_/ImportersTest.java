@@ -13,7 +13,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.AbstractConvertersTest;
-import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -30,8 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +39,6 @@ public class ImportersTest extends AbstractConvertersTest {
 
     private static final String WORK_DIR = "/work/";
     private static final String FOO_TST = "foo.tst";
-    private static final String ZIP_TST = "multiple.dot.tst";
 
     private final Importer testImporter = new TestImporter();
     private final ImportPostProcessor testImportPostProcessor = new TestImportPostProcessor();
@@ -60,16 +56,6 @@ public class ImportersTest extends AbstractConvertersTest {
         Files.createFile(fileSystem.getPath(WORK_DIR + FOO_TST));
         Files.createFile(fileSystem.getPath(WORK_DIR + "bar.tst"));
         Files.createFile(fileSystem.getPath(WORK_DIR + "baz.txt"));
-
-        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(WORK_DIR + ZIP_TST + ".zip")));) {
-            // create an entry
-            ZipEntry e = new ZipEntry(ZIP_TST);
-            out.putNextEntry(e);
-            byte[] data = "Test String".getBytes();
-            out.write(data, 0, data.length);
-            out.closeEntry();
-        }
-
     }
 
     @Test
@@ -199,13 +185,6 @@ public class ImportersTest extends AbstractConvertersTest {
     public void createDataSource2() throws IOException {
         DataSource dataSource = Importers.createDataSource(path);
         assertTrue(dataSource.exists(FOO_TST));
-    }
-
-    @Test
-    public void createDataSource3() throws IOException {
-        var zipPath = fileSystem.getPath(WORK_DIR, ZIP_TST + ".zip");
-        DataSource dataSource = Exporters.createDataSource(zipPath);
-        assertTrue(dataSource.exists(ZIP_TST));
     }
 
     @Test
