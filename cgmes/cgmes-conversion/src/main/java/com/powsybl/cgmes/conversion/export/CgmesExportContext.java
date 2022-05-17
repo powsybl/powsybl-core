@@ -326,7 +326,7 @@ public class CgmesExportContext {
         } else if (c instanceof Load && c.isFictitious()) {
             // A fictitious load do not need an alias
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 terminalId = CgmesExportUtil.getUniqueId();
