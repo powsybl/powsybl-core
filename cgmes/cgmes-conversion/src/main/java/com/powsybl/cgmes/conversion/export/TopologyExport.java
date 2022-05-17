@@ -64,7 +64,7 @@ public final class TopologyExport {
                 if (b == null) {
                     b = t.getBusBreakerView().getConnectableBus();
                 }
-                writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
+                writeTerminal(CgmesExportUtil.getTerminalId(t), b.getId(), cimNamespace, writer);
             }
         }
     }
