@@ -12,10 +12,10 @@ package com.powsybl.shortcircuit;
  *
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class FortescueValues {
+public class FortescueValue {
 
-    public class ThreePhaseValues {
-        // Values on the three phases.
+    public class ThreePhaseValue {
+        // Value on the three phases.
         private final double magnitude1;
         private final double magnitude2;
         private final double magnitude3;
@@ -23,7 +23,7 @@ public class FortescueValues {
         private final double angle2;
         private final double angle3;
 
-        public ThreePhaseValues(double magnitude1, double magnitude2, double magnitude3, double angle1, double angle2, double angle3) {
+        public ThreePhaseValue(double magnitude1, double magnitude2, double magnitude3, double angle1, double angle2, double angle3) {
             this.magnitude1 = magnitude1;
             this.magnitude2 = magnitude2;
             this.magnitude3 = magnitude3;
@@ -64,7 +64,7 @@ public class FortescueValues {
     private final double zeroAngle;
     private final double inverseAngle;
 
-    public FortescueValues(double directMagnitude, double zeroMagnitude, double inverseMagnitude, double directAngle, double zeroAngle, double inverseAngle) {
+    public FortescueValue(double directMagnitude, double zeroMagnitude, double inverseMagnitude, double directAngle, double zeroAngle, double inverseAngle) {
         this.directMagnitude = directMagnitude;
         this.directAngle = directAngle;
         this.zeroMagnitude = zeroMagnitude;
@@ -73,11 +73,11 @@ public class FortescueValues {
         this.inverseAngle = inverseAngle;
     }
 
-    public FortescueValues(double directMagnitude, double directAngle) {
+    public FortescueValue(double directMagnitude, double directAngle) {
         this(directMagnitude, Double.NaN, Double.NaN, directAngle, Double.NaN, Double.NaN);
     }
 
-    public FortescueValues(double directMagnitude) {
+    public FortescueValue(double directMagnitude) {
         this(directMagnitude, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
@@ -105,9 +105,9 @@ public class FortescueValues {
         return inverseAngle;
     }
 
-    ThreePhaseValues toThreePhaseValues() {
+    ThreePhaseValue toThreePhaseValue() {
         // TODO.
-        ThreePhaseValues threePhaseValues = new ThreePhaseValues(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        return threePhaseValues;
+        ThreePhaseValue threePhaseValue = new ThreePhaseValue(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        return threePhaseValue;
     }
 }

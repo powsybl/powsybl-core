@@ -44,8 +44,8 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
         List<FeederResult> feederResults = Collections.emptyList();
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<Extension<FaultResult>> extensions = Collections.emptyList();
-        FortescueValues current = null;
-        FortescueValues voltage = null;
+        FortescueValue current = null;
+        FortescueValue voltage = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -76,12 +76,12 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
                 case "current":
                     parser.nextToken();
-                    current = parser.readValueAs(FortescueValues.class);
+                    current = parser.readValueAs(FortescueValue.class);
                     break;
 
                 case "voltage":
                     parser.nextToken();
-                    voltage = parser.readValueAs(FortescueValues.class);
+                    voltage = parser.readValueAs(FortescueValue.class);
                     break;
 
                 case "extensions":

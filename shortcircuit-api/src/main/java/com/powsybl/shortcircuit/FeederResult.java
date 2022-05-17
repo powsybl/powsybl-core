@@ -19,18 +19,18 @@ public class FeederResult {
 
     private final String connectableId;
 
-    private final FortescueValues current;
+    private final FortescueValue current;
 
     @JsonCreator
     public FeederResult(@JsonProperty("connectableId") String connectableId,
-                        @JsonProperty("current") FortescueValues current) {
+                        @JsonProperty("current") FortescueValue current) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.current = current;
     }
 
     public FeederResult(String connectableId,
                         double feederThreePhaseCurrent) {
-        this(Objects.requireNonNull(connectableId), new FortescueValues(feederThreePhaseCurrent));
+        this(Objects.requireNonNull(connectableId), new FortescueValue(feederThreePhaseCurrent));
     }
 
     /**
@@ -40,7 +40,7 @@ public class FeederResult {
         return connectableId;
     }
 
-    public FortescueValues getCurrent() {
+    public FortescueValue getCurrent() {
         return current;
     }
 

@@ -10,20 +10,20 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.FortescueValues;
+import com.powsybl.shortcircuit.FortescueValue;
 
 import java.io.IOException;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class FortescueValuesSerializer extends StdSerializer<FortescueValues> {
+public class FortescueValuesSerializer extends StdSerializer<FortescueValue> {
     public FortescueValuesSerializer() {
-        super(FortescueValues.class);
+        super(FortescueValue.class);
     }
 
     @Override
-    public void serialize(FortescueValues value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(FortescueValue value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
         // Fortescue components.

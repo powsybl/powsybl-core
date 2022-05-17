@@ -10,21 +10,21 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.shortcircuit.FortescueValues;
+import com.powsybl.shortcircuit.FortescueValue;
 
 import java.io.IOException;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class FortescueValuesDeserializer extends StdDeserializer<FortescueValues> {
+class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
 
     FortescueValuesDeserializer() {
-        super(FortescueValues.class);
+        super(FortescueValue.class);
     }
 
     @Override
-    public FortescueValues deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public FortescueValue deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         // Fortescue components.
         double directMagnitude = Double.NaN;
         double zeroMagnitude = Double.NaN;
@@ -63,6 +63,6 @@ class FortescueValuesDeserializer extends StdDeserializer<FortescueValues> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FortescueValues(directMagnitude, zeroMagnitude, inverseMagnitude, directPhase, zeroPhase, inversePhase);
+        return new FortescueValue(directMagnitude, zeroMagnitude, inverseMagnitude, directPhase, zeroPhase, inversePhase);
     }
 }

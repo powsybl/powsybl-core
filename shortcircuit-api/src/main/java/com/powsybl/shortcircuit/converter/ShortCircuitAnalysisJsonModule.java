@@ -23,8 +23,8 @@ import com.powsybl.shortcircuit.json.ShortCircuitParametersSerializer;
 public class ShortCircuitAnalysisJsonModule extends SimpleModule {
 
     public ShortCircuitAnalysisJsonModule() {
-        addSerializer(FortescueValues.class, new FortescueValuesSerializer());
-        addDeserializer(FortescueValues.class, new FortescueValuesDeserializer());
+        addSerializer(FortescueValue.class, new FortescueValuesSerializer());
+        addDeserializer(FortescueValue.class, new FortescueValuesDeserializer());
         addSerializer(LimitViolation.class, new LimitViolationSerializer());
         addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
         addSerializer(Fault.class, new FaultSerializer());

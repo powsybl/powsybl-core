@@ -20,9 +20,9 @@ public class ShortCircuitBusResults {
 
     private final String busId;
 
-    private final FortescueValues voltage;
+    private final FortescueValue voltage;
 
-    public ShortCircuitBusResults(String voltageLevelId, String busId, FortescueValues voltage) {
+    public ShortCircuitBusResults(String voltageLevelId, String busId, FortescueValue voltage) {
         this.voltageLevelId = voltageLevelId;
         this.busId = busId;
         this.voltage = Objects.requireNonNull(voltage);
@@ -36,7 +36,7 @@ public class ShortCircuitBusResults {
         return busId;
     }
 
-    public FortescueValues getVoltage() {
+    public FortescueValue getVoltage() {
         return voltage;
     }
 }
