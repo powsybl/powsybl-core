@@ -7,21 +7,17 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -74,16 +70,6 @@ public class BoundaryPointXlsParserTest {
     @Test
     public void testMissingBoundaryPointFile() {
         BoundaryPointXlsParser parser = new BoundaryPointXlsParser();
-
-        PlatformConfig mockedPc = Mockito.mock(PlatformConfig.class);
-        Mockito.when(mockedPc.getConfigDir()).thenReturn(Optional.empty());
-
-        try (MockedStatic<PlatformConfig> staticMockedPc = Mockito.mockStatic(PlatformConfig.class)) {
-            staticMockedPc.when(PlatformConfig::defaultConfig).thenReturn(mockedPc);
-            PowsyblException e = assertThrows(PowsyblException.class, parser::parseDefault);
-            assertEquals("Cannot access boundary point sheet as configuration directory is not defined in platform config", e.getMessage());
-        }
-
         PowsyblException e = assertThrows(PowsyblException.class, parser::parseDefault);
         assertEquals("Boundary point sheet /work/unittests/BoundaryPoint.xls not found", e.getMessage());
     }
