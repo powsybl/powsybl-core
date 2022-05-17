@@ -152,6 +152,7 @@ public class CgmesExport implements Exporter {
             PROFILES,
             ParameterType.STRING_LIST,
             "Profiles to export",
+            List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
     private static final Parameter WITH_TOPOLOGICAL_MAPPING_PARAMETER = new Parameter(
             WITH_TOPOLOGICAL_MAPPING,

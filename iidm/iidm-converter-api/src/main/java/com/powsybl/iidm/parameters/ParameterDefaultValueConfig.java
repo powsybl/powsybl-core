@@ -62,7 +62,7 @@ public class ParameterDefaultValueConfig {
             case DOUBLE:
                 return getDoubleValue(format, parameter);
             default:
-                throw new AssertionError();
+                throw new IllegalStateException("Unsupported parameter type: " + parameter.getType());
         }
     }
 
@@ -83,15 +83,15 @@ public class ParameterDefaultValueConfig {
             (moduleConfig, name) -> moduleConfig.getOptionalDoubleProperty(name).stream().boxed().findFirst());
     }
 
-    private <T> T getValue(String format, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> supplier) {
+    private <T> T getValue(String format, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> valueSupplier) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(parameter);
         ModuleConfig moduleConfig = getModuleConfig();
 
         if (moduleConfig != null) {
             for (String name : parameter.getNames()) {
-                T value = supplier.apply(moduleConfig, name)
-                        .orElseGet(() -> supplier.apply(moduleConfig, format + "_" + name).orElse(null));
+                T value = valueSupplier.apply(moduleConfig, name)
+                        .orElseGet(() -> valueSupplier.apply(moduleConfig, format + "_" + name).orElse(null));
                 if (value != null) {
                     return value;
                 }

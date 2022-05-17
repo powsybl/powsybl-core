@@ -23,17 +23,37 @@ public class Parameter {
 
     private final Object defaultValue;
 
-    public Parameter(String name, ParameterType type, String description, Object defaultValue) {
-        if (defaultValue != null && !type.getClazz().isAssignableFrom(defaultValue.getClass())) {
-            throw new IllegalArgumentException("Bad default value type " + defaultValue.getClass() + ", " + type.getClazz() + " was expected");
-        }
+    private final List<Object> possibleValues;
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues) {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
+        this.possibleValues = checkValues(type, possibleValues);
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue) {
+        this(name, type, description, defaultValue, null);
+    }
+
+    private static Object checkValue(ParameterType type, Object value) {
+        if (value != null && !type.getClazz().isAssignableFrom(value.getClass())) {
+            throw new IllegalArgumentException("Bad default value type " + value.getClass() + ", " + type.getClazz() + " was expected");
+        }
+        return value;
+    }
+
+    private static List<Object> checkValues(ParameterType type, List<Object> values) {
+        if (values != null) {
+            values.forEach(value -> checkValue(type, value));
+        }
+        return values;
     }
 
     private static Object checkDefaultValue(ParameterType type, Object defaultValue) {
+        checkValue(type, defaultValue);
         if (type == ParameterType.BOOLEAN && defaultValue == null) {
             throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
         }
@@ -67,5 +87,9 @@ public class Parameter {
 
     public Object getDefaultValue() {
         return defaultValue;
+    }
+
+    public List<Object> getPossibleValues() {
+        return possibleValues;
     }
 }
