@@ -4,13 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm;
+package com.powsybl.iidm.parameters;
 
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.ModuleConfigUtil;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 
 import java.util.List;
 import java.util.Objects;
@@ -89,10 +87,10 @@ public final class ConversionParameters {
 
             // check that if possible values are configured, value is contained in possible values
             if (value != null
-                    && configuredParameter.getPossibleValues() != null
-                    && !configuredParameter.getPossibleValues().contains(value)) {
-                throw new IllegalArgumentException("Value " + value + " of parameter " + configuredParameter.getName()
-                        + " is not contained in possible values " + configuredParameter.getPossibleValues());
+                    && configuredParameter.getPossibleValues() != null) {
+                Parameter.checkPossibleValuesContainsValue(configuredParameter.getPossibleValues(), value,
+                    v -> new IllegalArgumentException("Value " + v + " of parameter " + configuredParameter.getName() +
+                                                      " is not contained in possible values " + configuredParameter.getPossibleValues()));
             }
         }
         // if none, use configured parameters

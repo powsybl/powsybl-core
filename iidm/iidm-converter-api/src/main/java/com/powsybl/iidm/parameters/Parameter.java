@@ -9,6 +9,7 @@ package com.powsybl.iidm.parameters;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -44,14 +45,33 @@ public class Parameter {
         }
     }
 
-    private static List<Object> checkPossibleValues(ParameterType type, List<Object> values, Object defaultValue) {
-        if (values != null) {
-            values.forEach(value -> checkValue(type.getElementClass(), value));
-            if (defaultValue != null && !values.contains(defaultValue)) {
-                throw new IllegalArgumentException("Parameter possible values " + values + " should contain default one " + defaultValue);
+    static void checkPossibleValuesContainsValue(List<Object> possibleValues, Object value,
+                                                 Function<Object, IllegalArgumentException> exceptionCreator) {
+        Objects.requireNonNull(possibleValues);
+        Objects.requireNonNull(exceptionCreator);
+        if (value != null) {
+            if (value instanceof List) {
+                for (Object valueElement : (List<?>) value) {
+                    if (!possibleValues.contains(valueElement)) {
+                        throw exceptionCreator.apply(valueElement);
+                    }
+                }
+            } else {
+                if (!possibleValues.contains(value)) {
+                    throw exceptionCreator.apply(value);
+                }
             }
         }
-        return values;
+    }
+
+    private static List<Object> checkPossibleValues(ParameterType type, List<Object> possibleValues, Object defaultValue) {
+        if (possibleValues != null) {
+            possibleValues.forEach(value -> checkValue(type.getElementClass(), value));
+            checkPossibleValuesContainsValue(possibleValues, defaultValue, v -> {
+                throw new IllegalArgumentException("Parameter possible values " + possibleValues + " should contain default value " + v);
+            });
+        }
+        return possibleValues;
     }
 
     private static Object checkDefaultValue(ParameterType type, Object defaultValue) {

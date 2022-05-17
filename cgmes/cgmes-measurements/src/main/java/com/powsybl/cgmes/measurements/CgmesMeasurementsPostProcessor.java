@@ -9,7 +9,7 @@ package com.powsybl.cgmes.measurements;
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.iidm.parameters.ConversionParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;

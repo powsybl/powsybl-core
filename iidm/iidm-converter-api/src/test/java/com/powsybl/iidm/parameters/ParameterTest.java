@@ -34,6 +34,12 @@ public class ParameterTest {
     public void defaultValueNotInPossibleValuesTest() {
         List<Object> possibleValues = List.of("a", "b", "c");
         var e = assertThrows(IllegalArgumentException.class, () -> new Parameter("p1", ParameterType.STRING, "a param", "d", possibleValues));
-        assertEquals("Parameter possible values [a, b, c] should contain default one d", e.getMessage());
+        assertEquals("Parameter possible values [a, b, c] should contain default value d", e.getMessage());
+    }
+
+    @Test(expected = Test.None.class)
+    public void defaultValueWithStringListParamTest() {
+        List<Object> possibleValues = List.of("a", "b", "c");
+        new Parameter("p1", ParameterType.STRING_LIST, "a str list param", List.of("a", "c"), possibleValues);
     }
 }
