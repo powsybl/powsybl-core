@@ -30,23 +30,22 @@ public class Parameter {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
-        checkDefaultValue(defaultValue);
-        this.defaultValue = defaultValue;
+        this.defaultValue = checkDefaultValue(type, defaultValue);
     }
 
-    private void checkDefaultValue(Object defaultValue) {
-        if (this.type == ParameterType.BOOLEAN && defaultValue == null) {
+    private static Object checkDefaultValue(ParameterType type, Object defaultValue) {
+        if (type == ParameterType.BOOLEAN && defaultValue == null) {
             throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
         }
-        if (this.type == ParameterType.DOUBLE && defaultValue == null) {
+        if (type == ParameterType.DOUBLE && defaultValue == null) {
             throw new PowsyblException("With Double parameter you are not allowed to pass a null default value");
         }
+        return defaultValue;
     }
 
     public Parameter addAdditionalNames(String... names) {
         Objects.requireNonNull(names);
         this.names.addAll(Arrays.asList(names));
-
         return this;
     }
 
@@ -69,21 +68,4 @@ public class Parameter {
     public Object getDefaultValue() {
         return defaultValue;
     }
-
-    public boolean getBooleanDefaultValue() {
-        return (boolean) defaultValue;
-    }
-
-    public String getStringDefaultValue() {
-        return (String) defaultValue;
-    }
-
-    public List<String> getStringListDefaultValue() {
-        return (List<String>) defaultValue;
-    }
-
-    public double getDoubleDefaultValue() {
-        return (double) defaultValue;
-    }
-
 }

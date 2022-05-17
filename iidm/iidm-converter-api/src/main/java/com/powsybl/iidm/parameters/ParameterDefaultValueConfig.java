@@ -12,7 +12,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.function.BiFunction;
 
 /**
@@ -45,7 +44,7 @@ public class ParameterDefaultValueConfig {
             if (platformConfig == null) {
                 platformConfig = PlatformConfig.defaultConfig();
             }
-            configCache = platformConfig.moduleExists(MODULE_NAME) ? platformConfig.getModuleConfig(MODULE_NAME) : null;
+            configCache = platformConfig.getOptionalModuleConfig(MODULE_NAME).orElse(null);
             init = true;
         }
         return configCache;
@@ -68,22 +67,20 @@ public class ParameterDefaultValueConfig {
     }
 
     public boolean getBooleanValue(String format, Parameter parameter) {
-        return getValue(format, parameter.getBooleanDefaultValue(), parameter, ModuleConfig::getOptionalBooleanProperty);
+        return getValue(format, (Boolean) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalBooleanProperty);
     }
 
     public String getStringValue(String format, Parameter parameter) {
-        return getValue(format, parameter.getStringDefaultValue(), parameter, ModuleConfig::getOptionalStringProperty);
+        return getValue(format, (String) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalStringProperty);
     }
 
     public List<String> getStringListValue(String format, Parameter parameter) {
-        return getValue(format, parameter.getStringListDefaultValue(), parameter, ModuleConfig::getOptionalStringListProperty);
+        return getValue(format, (List<String>) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalStringListProperty);
     }
 
     public double getDoubleValue(String format, Parameter parameter) {
-        return getValue(format, parameter.getDoubleDefaultValue(), parameter, (moduleConfig, name) -> {
-            OptionalDouble optionalDouble = moduleConfig.getOptionalDoubleProperty(name);
-            return optionalDouble.isPresent() ? Optional.of(optionalDouble.getAsDouble()) : Optional.empty();
-        });
+        return getValue(format, (Double) parameter.getDefaultValue(), parameter,
+            (moduleConfig, name) -> moduleConfig.getOptionalDoubleProperty(name).stream().boxed().findFirst());
     }
 
     private <T> T getValue(String format, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> supplier) {
