@@ -13,7 +13,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.iidm.parameters.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -83,7 +82,7 @@ public class UcteExporter implements Exporter {
             throw new IllegalArgumentException("network is null");
         }
 
-        String namingStrategyName = ConversionParameters.readStringParameter(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+        String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
 
         UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);

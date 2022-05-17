@@ -13,7 +13,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.iidm.parameters.ConversionParameters;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -173,7 +172,7 @@ public class XMLExporter implements Exporter {
             String extensionName = extensionXmlSerializer.getExtensionName();
             Parameter parameter = new Parameter("iidm.export.xml." + extensionName + ".version",
                     ParameterType.STRING, "Version of " + extensionName, null);
-            String extensionVersion = ConversionParameters.readStringParameter(getFormat(), parameters, parameter, defaultValueConfig);
+            String extensionVersion = Parameter.readString(getFormat(), parameters, parameter, defaultValueConfig);
             if (extensionVersion != null) {
                 if (options.getExtensions().map(extensions -> extensions.contains(extensionName)).orElse(true)) {
                     options.addExtensionVersion(extensionName, extensionVersion);
@@ -187,16 +186,16 @@ public class XMLExporter implements Exporter {
 
     private ExportOptions createExportOptions(Properties parameters) {
         ExportOptions options = new ExportOptions()
-                .setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
-                .setWithBranchSV(ConversionParameters.readBooleanParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
-                .setOnlyMainCc(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
-                .setAnonymized(ConversionParameters.readBooleanParameter(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
-                .setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER, defaultValueConfig)))
-                .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
-                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
-                .setSorted(ConversionParameters.readBooleanParameter(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
-                .setVersion(ConversionParameters.readStringParameter(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
+                .setIndent(Parameter.readBoolean(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
+                .setWithBranchSV(Parameter.readBoolean(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
+                .setOnlyMainCc(Parameter.readBoolean(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
+                .setAnonymized(Parameter.readBoolean(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
+                .setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.valueOf(Parameter.readString(getFormat(), parameters, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER, defaultValueConfig)))
+                .setTopologyLevel(TopologyLevel.valueOf(Parameter.readString(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
+                .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setSorted(Parameter.readBoolean(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
+                .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
         addExtensionsVersions(parameters, options);
         return options;
     }
