@@ -6,9 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,10 +34,14 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
         return new ZipFileDataSource(testDir, getBaseName());
     }
 
-    @Before
-    public void setUp() throws IOException {
-        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+    @Test
+    public void fakeZipTest() throws IOException {
+        Files.createFile(testDir.resolve("fake.zip"));
+        assertFalse(new ZipFileDataSource(testDir, "fake").exists("e"));
+    }
 
+    @Test
+    public void createZipDataSourceWithMoreThanOneDot() throws IOException {
         try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(WORK_DIR + ZIP_TST + ".zip")));) {
             // create an entry
             ZipEntry e = new ZipEntry(INSIDE_ZIP_TST_TOP);
@@ -61,16 +62,6 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
             out.closeEntry();
 
         }
-    }
-
-    @Test
-    public void fakeZipTest() throws IOException {
-        Files.createFile(testDir.resolve("fake.zip"));
-        assertFalse(new ZipFileDataSource(testDir, "fake").exists("e"));
-    }
-
-    @Test
-    public void createZipDataSourceWithMoreThanOneDot() throws IOException {
         var zipPath = fileSystem.getPath(WORK_DIR);
         DataSource dataSource = DataSourceUtil.createDataSource(zipPath, ZIP_TST + ".zip", null);
         assertTrue(dataSource.exists(INSIDE_ZIP_TST_TOP));
