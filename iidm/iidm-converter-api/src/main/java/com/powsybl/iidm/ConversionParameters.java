@@ -36,7 +36,7 @@ public final class ConversionParameters {
             case DOUBLE:
                 return readDoubleParameter(format, parameters, configuredParameter, defaultValueConfig);
             default:
-                throw new AssertionError();
+                throw new IllegalStateException("Unknown parameter type: " + configuredParameter.getType());
         }
     }
 
@@ -78,7 +78,7 @@ public final class ConversionParameters {
     }
 
     private static <T> T readParameter(String format, Properties parameters, Parameter configuredParameter, T defaultValue,
-                                          BiFunction<ModuleConfig, List<String>, T> supplier, Predicate<T> isPresent) {
+                                       BiFunction<ModuleConfig, List<String>, T> supplier, Predicate<T> isPresent) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(configuredParameter);
         T value = null;
@@ -86,6 +86,14 @@ public final class ConversionParameters {
         if (parameters != null) {
             MapModuleConfig moduleConfig = new MapModuleConfig(parameters);
             value = supplier.apply(moduleConfig, configuredParameter.getNames());
+
+            // check that if possible values are configured, value is contained in possible values
+            if (value != null
+                    && configuredParameter.getPossibleValues() != null
+                    && !configuredParameter.getPossibleValues().contains(value)) {
+                throw new IllegalArgumentException("Value " + value + " of parameter " + configuredParameter.getName()
+                        + " is not contained in possible values " + configuredParameter.getPossibleValues());
+            }
         }
         // if none, use configured parameters
         if (isPresent.test(value)) {

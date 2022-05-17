@@ -31,9 +31,12 @@ public class ConversionParametersTest {
 
     private FileSystem fileSystem;
 
+    private InMemoryPlatformConfig config;
+
     @Before
     public void setup() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        config = new InMemoryPlatformConfig(fileSystem);
     }
 
     @After
@@ -78,9 +81,17 @@ public class ConversionParametersTest {
         assertEquals(0.06, ConversionParameters.readDoubleParameter("TEST", properties, paramDouble, ParameterDefaultValueConfig.INSTANCE), 1e-8);
         assertEquals(0.08, ConversionParameters.readDoubleParameter("TEST", properties, paramDouble2, ParameterDefaultValueConfig.INSTANCE), 1e-8);
 
-        InMemoryPlatformConfig config = new InMemoryPlatformConfig(fileSystem);
         config.createModuleConfig("import-export-parameters-default-value").setStringProperty("test-param-double", "0.06");
         assertEquals(0.06, ConversionParameters.readDoubleParameter("TEST", new Properties(), paramDouble, new ParameterDefaultValueConfig(config)), 1e-8);
+    }
 
+    @Test
+    public void testWithPossibleValues() {
+        Properties properties = new Properties();
+        properties.put("p1", "d");
+        Parameter p1 = new Parameter("p1", ParameterType.STRING, "a param", "a", List.of("a", "b", "c"));
+        var defaultValueConfig = new ParameterDefaultValueConfig(config);
+        var e = assertThrows(IllegalArgumentException.class, () -> ConversionParameters.readStringParameter("TEST", properties, p1, defaultValueConfig));
+        assertEquals("Value d of parameter p1 is not contained in possible values [a, b, c]", e.getMessage());
     }
 }
