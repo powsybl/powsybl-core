@@ -125,6 +125,10 @@ public final class LoadFlow {
         return find(null);
     }
 
+    public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
+        return find().runAsync(network, workingStateId, computationManager, parameters, reporter);
+    }
+
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().runAsync(network, workingStateId, computationManager, parameters);
     }

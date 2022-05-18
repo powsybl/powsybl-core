@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.scripting;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.CharStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportPostProcessor;
@@ -51,14 +52,14 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
     public JavaScriptPostProcessor(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        Path defaultScript = platformConfig.getConfigDir().resolve(SCRIPT_NAME);
         printToStdOut = platformConfig.getOptionalModuleConfig("javaScriptPostProcessor")
                 .map(config -> config.getBooleanProperty("printToStdOut", DEFAULT_PRINT_TO_STD_OUT))
                 .orElse(DEFAULT_PRINT_TO_STD_OUT);
 
         script = platformConfig.getOptionalModuleConfig("javaScriptPostProcessor")
-                .map(config -> config.getPathProperty("script", defaultScript))
-                .orElse(defaultScript);
+                .flatMap(config -> config.getOptionalPathProperty("script"))
+                .or(() -> platformConfig.getConfigDir().map(dir -> dir.resolve(SCRIPT_NAME)))
+                .orElseThrow(() -> new PowsyblException("No script path nor configuration directory defined in platform config"));
     }
 
     @Override
