@@ -6,11 +6,9 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -21,6 +19,7 @@ import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -59,7 +58,7 @@ public class ThreeWindingsTransformerResultDeserializer extends StdDeserializer<
     }
 
     @Override
-    public ThreeWindingsTransformerResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+    public ThreeWindingsTransformerResult deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(jsonParser, name -> {
             switch (name) {
