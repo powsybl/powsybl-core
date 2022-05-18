@@ -37,6 +37,8 @@ public class ShortCircuitAnalysisJsonModule extends SimpleModule {
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
         addSerializer(ShortCircuitParameters.class, new ShortCircuitParametersSerializer());
         addDeserializer(ShortCircuitParameters.class, new ShortCircuitParametersDeserializer());
+        addSerializer(ShortCircuitBusResults.class, new ShortCircuitBusResultsSerializer());
+        addDeserializer(ShortCircuitBusResults.class, new ShortCircuitBusResultsDeserializer());
     }
 
 }
