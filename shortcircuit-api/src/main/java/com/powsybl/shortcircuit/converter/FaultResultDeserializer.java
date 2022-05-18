@@ -47,6 +47,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
         List<Extension<FaultResult>> extensions = Collections.emptyList();
         FortescueValue current = null;
         FortescueValue voltage = null;
+        List<ShortCircuitBusResults> shortCircuitBusResults = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -85,6 +86,11 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     voltage = parser.readValueAs(FortescueValue.class);
                     break;
 
+                case "shortCircuitBusResults":
+                    parser.nextToken();
+                    shortCircuitBusResults = parser.readValueAs(new TypeReference<List<ShortCircuitBusResults>>() { });
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
@@ -94,7 +100,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        FaultResult faultResult = new FaultResult(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, voltage, Collections.emptyList(), timeConstant); //FIXME
+        FaultResult faultResult = new FaultResult(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant);
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;

@@ -6,6 +6,9 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 /**
@@ -22,7 +25,10 @@ public class ShortCircuitBusResults {
 
     private final FortescueValue voltage;
 
-    public ShortCircuitBusResults(String voltageLevelId, String busId, FortescueValue voltage) {
+    @JsonCreator
+    public ShortCircuitBusResults(@JsonProperty("voltageLevelId") String voltageLevelId,
+                                  @JsonProperty("busId") String busId,
+                                  @JsonProperty("voltage") FortescueValue voltage) {
         this.voltageLevelId = voltageLevelId;
         this.busId = busId;
         this.voltage = Objects.requireNonNull(voltage);

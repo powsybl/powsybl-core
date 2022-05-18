@@ -23,6 +23,14 @@
     "current" : {
       "directMagnitude" : 1.0
     },
+    "shortCircuitBusResults" : [ {
+      "voltageLevelId" : "vlId",
+      "busId" : "busId",
+      "voltage" : {
+        "directMagnitude" : 2004.0,
+        "directAngle" : 2005.0
+      }
+    } ],
     "extensions" : {
       "DummyFaultResultExtension" : { }
     }

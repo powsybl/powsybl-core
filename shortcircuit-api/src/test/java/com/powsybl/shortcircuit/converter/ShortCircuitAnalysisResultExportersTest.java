@@ -53,8 +53,10 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
         FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
         Fault fault = new BranchFault("ID_3", 0.0, 0.0, 12.0);
+        List<ShortCircuitBusResults> busResults = new ArrayList<>();
+        busResults.add(new ShortCircuitBusResults("VLGEN", "busId", new FortescueValue(2004, 2005)));
         FaultResult faultResult3 = new FaultResult(fault,  1.0, Collections.emptyList(),
-                Collections.emptyList(), new FortescueValue(2002, 2003));
+                Collections.emptyList(), new FortescueValue(2002, 2003), null, busResults, null);
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
         faultResults.add(faultResult3);
@@ -84,8 +86,10 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
+        List<ShortCircuitBusResults> busResults = new ArrayList<>();
+        busResults.add(new ShortCircuitBusResults("vlId", "busId", new FortescueValue(2004, 2005)));
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0));
+        FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults);

@@ -123,4 +123,8 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     public Duration getTimeConstant() {
         return timeConstant;
     }
+
+    public List<ShortCircuitBusResults> getShortCircuitBusResults() {
+        return shortCircuitBusResults;
+    }
 }
