@@ -13,18 +13,15 @@ import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.matpower.model.MBranch;
 import com.powsybl.matpower.model.MBus;
 import com.powsybl.matpower.model.MatpowerModel;
 import com.powsybl.matpower.model.MatpowerWriter;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PipedReader;
 import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -69,7 +66,12 @@ public class MatpowerExporter implements Exporter {
         return MBus.Type.PQ;
     }
 
-    private static void createBuses(Network network, MatpowerModel model) {
+    static class Context {
+
+        final Map<String, MBus> mBusesByIds = new HashMap<>();
+    }
+
+    private static void createBuses(Network network, MatpowerModel model, Context context) {
         int num = 1;
         for (Bus bus : network.getBusView().getBuses()) {
             VoltageLevel vl = bus.getVoltageLevel();
@@ -97,6 +99,21 @@ public class MatpowerExporter implements Exporter {
             mBus.setShuntConductance(0d);
             mBus.setShuntSusceptance(b);
             model.addBus(mBus);
+            context.mBusesByIds.put(bus.getId(), mBus);
+        }
+    }
+
+    private void createBranches(Network network, MatpowerModel model) {
+        for (Line l : network.getLines()) {
+            MBranch mBranch = new MBranch();
+            mBranch.setFrom(0);
+            mBranch.setTo(0);
+            boolean inService = l.getTerminal1().isConnected() && l.getTerminal2().isConnected();
+            mBranch.setStatus(inService ? 1 : 0);
+            mBranch.setR(0);
+            mBranch.setX(0);
+            mBranch.setB(0);
+            model.addBranch(mBranch);
         }
     }
 
@@ -110,7 +127,9 @@ public class MatpowerExporter implements Exporter {
         model.setBaseMva(BASE_MVA);
         model.setVersion("2");
 
-        createBuses(network, model);
+        Context context = new Context();
+        createBuses(network, model, context);
+        createBranches(network, model);
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
             MatpowerWriter.write(model, os);

@@ -15,6 +15,6 @@ final class MatpowerConstants {
 
     static final String EXT = "mat";
 
-    MatpowerConstants() {
+    private MatpowerConstants() {
     }
 }
