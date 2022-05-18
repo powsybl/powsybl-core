@@ -24,12 +24,15 @@ import com.powsybl.commons.PowsyblException;
  */
 class IslandEndHvdc {
 
-    // T1: no transformer, C1: one acDcConverter, LS1: one dcLineSegment
-    // T1: one transformer, C1: one acDcConverter, LS1: one dcLineSegment
-    // T2: two transformers, C2: two acDcConverters, LS2: two dcLineSegments
+    // T0: no transformer, C1: one acDcConverter, LS1: one dcLineSegment
+    // T0: no transformer, C1: one acDcConverter, LS2: two dcLineSegments
+    // T0: no transformer, C2: two acDcConverters, LS1: one dcLineSegment
+    // TN: one or more transformers, C1: one acDcConverter, LS1: one dcLineSegment
     // TN: n transformers (usually 2), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
+    // T1: one transformer, C1: one acDcConverter, LS2: two dcLineSegments
+    // T2: two transformers, C2: two acDcConverters, LS1: one dcLineSegment
     enum HvdcEndType {
-        HVDC_T0_C1_LS1, HVDC_T0_C1_LS2, HVDC_T0_C2_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
+        HVDC_T0_C1_LS1, HVDC_T0_C1_LS2, HVDC_T0_C2_LS1, HVDC_TN_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
 
     private final List<HvdcEnd> hvdc;
@@ -198,8 +201,8 @@ class IslandEndHvdc {
                 return HvdcEndType.HVDC_T0_C1_LS2;
             } else if (t == 0 && c == 2 && ls == 1) {
                 return HvdcEndType.HVDC_T0_C2_LS1;
-            } else if (t == 1 && c == 1 && ls == 1) {
-                return HvdcEndType.HVDC_T1_C1_LS1;
+            } else if (t >= 1 && c == 1 && ls == 1) {
+                return HvdcEndType.HVDC_TN_C1_LS1;
             } else if (t == 1 && c == 1 && ls == 2) {
                 return HvdcEndType.HVDC_T1_C1_LS2;
             } else if (t == 2 && c == 2 && ls == 1) {

@@ -40,7 +40,7 @@ class Hvdc {
         switch (type) {
             case HVDC_T0_C1_LS1:
             case HVDC_T0_C1_LS2:
-            case HVDC_T1_C1_LS1:
+            case HVDC_TN_C1_LS1:
             case HVDC_T1_C1_LS2:
                 addC1LSn(hvdc1, hvdc2);
                 break;
