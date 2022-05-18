@@ -27,15 +27,13 @@ public class BranchResultSerializer extends StdSerializer<BranchResult>  {
     public void serialize(BranchResult branchResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("branchId", branchResult.getBranchId());
-        jsonGenerator.writeNumberField("p1", branchResult.getP1());
-        jsonGenerator.writeNumberField("q1", branchResult.getQ1());
-        jsonGenerator.writeNumberField("i1", branchResult.getI1());
-        jsonGenerator.writeNumberField("p2", branchResult.getP2());
-        jsonGenerator.writeNumberField("q2", branchResult.getQ2());
-        jsonGenerator.writeNumberField("i2", branchResult.getI2());
-        if (!Double.isNaN(branchResult.getFlowTransfer())) {
-            jsonGenerator.writeNumberField("flowTransfer", branchResult.getFlowTransfer());
-        }
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p1", branchResult.getP1());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q1", branchResult.getQ1());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i1", branchResult.getI1());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p2", branchResult.getP2());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q2", branchResult.getQ2());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i2", branchResult.getI2());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "flowTransfer", branchResult.getFlowTransfer());
         JsonUtil.writeExtensions(branchResult, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }

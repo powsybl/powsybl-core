@@ -27,15 +27,15 @@ public class ThreeWindingsTransformerResultSerializer extends StdSerializer<Thre
     public void serialize(ThreeWindingsTransformerResult transfoResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("threeWindingsTransformerId", transfoResult.getThreeWindingsTransformerId());
-        jsonGenerator.writeNumberField("p1", transfoResult.getP1());
-        jsonGenerator.writeNumberField("q1", transfoResult.getQ1());
-        jsonGenerator.writeNumberField("i1", transfoResult.getI1());
-        jsonGenerator.writeNumberField("p2", transfoResult.getP2());
-        jsonGenerator.writeNumberField("q2", transfoResult.getQ2());
-        jsonGenerator.writeNumberField("i2", transfoResult.getI2());
-        jsonGenerator.writeNumberField("p3", transfoResult.getP3());
-        jsonGenerator.writeNumberField("q3", transfoResult.getQ3());
-        jsonGenerator.writeNumberField("i3", transfoResult.getI3());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p1", transfoResult.getP1());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q1", transfoResult.getQ1());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i1", transfoResult.getI1());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p2", transfoResult.getP2());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q2", transfoResult.getQ2());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i2", transfoResult.getI2());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "p3", transfoResult.getP3());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "q3", transfoResult.getQ3());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "i3", transfoResult.getI3());
         JsonUtil.writeExtensions(transfoResult, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
