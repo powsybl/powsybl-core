@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamWriter;
 public final class TerminalRefXml {
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName);
+        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(context.isValid()), elementName);
     }
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {

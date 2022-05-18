@@ -8,6 +8,7 @@ package com.powsybl.security.impl;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -85,16 +86,18 @@ public class DefaultSecurityAnalysis {
     private final LimitViolationFilter violationFilter;
     private final List<SecurityAnalysisInterceptor> interceptors;
     private final StateMonitorIndex monitorIndex;
+    private final Reporter reporter;
 
     public DefaultSecurityAnalysis(Network network, LimitViolationDetector detector,
                                    LimitViolationFilter filter, ComputationManager computationManager,
-                                   List<StateMonitor> monitors) {
+                                   List<StateMonitor> monitors, Reporter reporter) {
         this.network = Objects.requireNonNull(network);
         this.violationDetector = Objects.requireNonNull(detector);
         this.violationFilter = Objects.requireNonNull(filter);
         this.interceptors = new ArrayList<>();
         this.computationManager = Objects.requireNonNull(computationManager);
         this.monitorIndex = new StateMonitorIndex(monitors);
+        this.reporter = Objects.requireNonNull(reporter);
         interceptors.add(new CurrentLimitViolationInterceptor());
     }
 
@@ -125,7 +128,7 @@ public class DefaultSecurityAnalysis {
         SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingVariantId);
 
         return LoadFlow
-            .runAsync(network, workingVariantId, computationManager, loadFlowParameters)
+            .runAsync(network, workingVariantId, computationManager, loadFlowParameters, reporter)
             .thenCompose(loadFlowResult -> {
                 if (loadFlowResult.isOk()) {
                     return CompletableFuture
@@ -208,7 +211,7 @@ public class DefaultSecurityAnalysis {
                 applyContingency(workingVariantId, postContVariantId, contingency);
             }, computationManager.getExecutor())
             .thenCompose(aVoid ->
-                LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters)
+                LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters, reporter)
             )
             .thenApplyAsync(lfResult -> {
                 setContingencyOkAndCheckViolations(postContVariantId, resultBuilder, contingency, lfResult);
@@ -234,7 +237,7 @@ public class DefaultSecurityAnalysis {
     private void applyContingency(String workingVariantId, String postContVariantId, Contingency contingency) {
         network.getVariantManager().cloneVariant(workingVariantId, postContVariantId, true);
         network.getVariantManager().setWorkingVariant(postContVariantId);
-        contingency.toTask().modify(network, computationManager);
+        contingency.toModification().apply(network, computationManager);
     }
 
     private void addMonitorInfos(Network network, StateMonitor monitor, Consumer<BranchResult> branchResultConsumer,

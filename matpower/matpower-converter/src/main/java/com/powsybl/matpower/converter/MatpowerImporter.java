@@ -119,6 +119,9 @@ public class MatpowerImporter implements Importer {
                 context.getSlackBuses().add(bus);
             }
 
+            // create voltage limits
+            createVoltageLimits(mBus, voltageLevel);
+
             // create load
             createLoad(mBus, voltageLevel);
 
@@ -127,6 +130,22 @@ public class MatpowerImporter implements Importer {
 
             //create generators
             createGenerators(model, mBus, voltageLevel);
+        }
+    }
+
+    private static void createVoltageLimits(MBus mBus, VoltageLevel voltageLevel) {
+        // as in IIDM, we only have one min and one max voltage level by voltage level we keep only the most severe ones
+        if (mBus.getMinimumVoltageMagnitude() != 0) {
+            double lowVoltageLimit = mBus.getMinimumVoltageMagnitude() * voltageLevel.getNominalV();
+            if (Double.isNaN(voltageLevel.getLowVoltageLimit()) || lowVoltageLimit > voltageLevel.getLowVoltageLimit()) {
+                voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+            }
+        }
+        if (mBus.getMaximumVoltageMagnitude() != 0) {
+            double highVoltageLimit = mBus.getMaximumVoltageMagnitude() * voltageLevel.getNominalV();
+            if (Double.isNaN(voltageLevel.getHighVoltageLimit()) || highVoltageLimit < voltageLevel.getHighVoltageLimit()) {
+                voltageLevel.setHighVoltageLimit(highVoltageLimit);
+            }
         }
     }
 
@@ -230,6 +249,7 @@ public class MatpowerImporter implements Importer {
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
+                    .setVoltageRegulatorOn(false)
                     .setSectionCount(1);
             adder.newLinearModel()
                     .setBPerSection(mBus.getShuntSusceptance() / context.getBaseMva() / zb)

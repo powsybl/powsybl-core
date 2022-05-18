@@ -28,14 +28,9 @@ public final class StaticVarCompensatorEq {
     private static final String EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT = "StaticVarCompensator.voltageSetPoint";
 
     public static void write(String id, String svcName, String regulatingControlId, double inductiveRating, double capacitiveRating, VoltagePerReactivePowerControl voltagePerReactivePowerControl, StaticVarCompensator.RegulationMode svcControlMode, double voltageSetPoint, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "StaticVarCompensator");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(svcName);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("StaticVarCompensator", id, svcName, cimNamespace, writer);
         if (regulatingControlId != null) {
-            writer.writeEmptyElement(cimNamespace, "RegulatingCondEq.RegulatingControl");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + regulatingControlId);
+            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer);
         }
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_INDUCTIVERATING);
         writer.writeCharacters(CgmesExportUtil.format(inductiveRating));
@@ -50,9 +45,8 @@ public final class StaticVarCompensatorEq {
             writer.writeCharacters(CgmesExportUtil.format(0.0));
         }
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
-        writer.writeCharacters(regulationMode(svcControlMode));
-        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + regulationMode(svcControlMode));
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT);
         writer.writeCharacters(CgmesExportUtil.format(voltageSetPoint));
         writer.writeEndElement();
@@ -61,9 +55,9 @@ public final class StaticVarCompensatorEq {
 
     private static String regulationMode(StaticVarCompensator.RegulationMode svcControlMode) {
         if (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svcControlMode)) {
-            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.voltage";
+            return "SVCControlMode.voltage";
         } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
-            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.reactivePower";
+            return "SVCControlMode.reactivePower";
         }
         return "";
     }

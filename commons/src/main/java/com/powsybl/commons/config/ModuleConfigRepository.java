@@ -12,8 +12,13 @@ import java.util.Optional;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ModuleConfigRepository {
-
-    boolean moduleExists(String name);
+    /**
+     * @deprecated Use the <code>Optional</code> returned by {@link #getModuleConfig(String)}
+     */
+    @Deprecated
+    default boolean moduleExists(String name) {
+        return getModuleConfig(name).isPresent();
+    }
 
     Optional<ModuleConfig> getModuleConfig(String name);
 }

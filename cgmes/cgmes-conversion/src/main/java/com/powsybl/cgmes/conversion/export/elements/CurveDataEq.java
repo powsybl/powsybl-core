@@ -7,12 +7,9 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -20,8 +17,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class CurveDataEq {
 
     public static void write(String id, double p, double minQ, double maxQ, String reactiveLimitsId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "CurveData");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        CgmesExportUtil.writeStartId("CurveData", id, false, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "CurveData.xvalue");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
@@ -31,8 +27,7 @@ public final class CurveDataEq {
         writer.writeStartElement(cimNamespace, "CurveData.y2value");
         writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "CurveData.Curve");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + reactiveLimitsId);
+        CgmesExportUtil.writeReference("CurveData.Curve", reactiveLimitsId, cimNamespace, writer);
         writer.writeEndElement();
     }
 

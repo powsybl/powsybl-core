@@ -20,34 +20,6 @@ import java.util.Set;
  */
 public interface CgmesIidmMapping extends Extension<Network> {
 
-    enum Source {
-        BOUNDARY, IGM
-    }
-
-    class BaseVoltageSource {
-        private final String cgmesId;
-        private final double nominalV;
-        private final Source source;
-
-        public BaseVoltageSource(String cgmesId, double nominalV, Source source) {
-            this.cgmesId = Objects.requireNonNull(cgmesId);
-            this.nominalV = nominalV;
-            this.source = Objects.requireNonNull(source);
-        }
-
-        public String getCgmesId() {
-            return cgmesId;
-        }
-
-        public double getNominalV() {
-            return nominalV;
-        }
-
-        public Source getSource() {
-            return source;
-        }
-    }
-
     class CgmesTopologicalNode {
         private final String cgmesId;
         private final String name;
@@ -112,15 +84,5 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
     Set<CgmesTopologicalNode> getUnmappedTopologicalNodes();
 
-    Map<Double, BaseVoltageSource> getBaseVoltages();
-
-    BaseVoltageSource getBaseVoltage(double nominalVoltage);
-
-    boolean isBaseVoltageMapped(double nominalVoltage);
-
-    boolean isBaseVoltageEmpty();
-
-    CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source);
-
-    Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap();
+    void addTopologyListener();
 }

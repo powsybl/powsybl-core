@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -136,12 +137,96 @@ public abstract class AbstractBatteryTest {
 
     @Test
     public void testRemove() {
+        String unmodifiableRemovedEqMessage = "Cannot modify removed equipment " + TO_REMOVE;
         createBattery(TO_REMOVE, 11.0, 12, 10, 20.0);
         int count = network.getBatteryCount();
         Battery battery = network.getBattery(TO_REMOVE);
         assertNotNull(battery);
         battery.remove();
         assertNotNull(battery);
+        Terminal terminal = battery.getTerminal();
+        assertNotNull(terminal);
+        try {
+            terminal.isConnected();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access connectivity status of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
+        }
+        Terminal.BusBreakerView bbView = terminal.getBusBreakerView();
+        assertNotNull(bbView);
+        try {
+            bbView.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        Terminal.NodeBreakerView nbView = terminal.getNodeBreakerView();
+        try {
+            nbView.moveConnectable(0, "VL");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setP(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setQ(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            bbView.setConnectableBus("TEST");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            battery.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed equipment toRemove", e.getMessage());
+        }
         assertEquals(count - 1L, network.getBatteryCount());
         assertNull(network.getBattery(TO_REMOVE));
     }

@@ -6,11 +6,12 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -103,7 +104,6 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SSH");
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
@@ -136,6 +136,13 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         // Import with new SSH
         Network actual = Importers.loadNetwork(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+
+        // Remove ControlAreas extension
+        expected.removeExtension(CgmesControlAreas.class);
+        actual.removeExtension(CgmesControlAreas.class);
+
+        // Create topology mapping
+        CgmesExportContext.updateTopologicalNodesMapping(actual);
 
         // Export original and with new SSH
         NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));

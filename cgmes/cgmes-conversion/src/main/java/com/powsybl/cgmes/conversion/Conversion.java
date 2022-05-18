@@ -11,7 +11,6 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -36,7 +35,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
@@ -150,12 +148,14 @@ public class Conversion {
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
         addCimCharacteristics(network);
-        if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
+        if (context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
             cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
-            cgmes.baseVoltages().forEach(bv -> mappingAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
             mappingAdder.add();
         }
+        BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
+        cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
+        bvAdder.add();
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -219,7 +219,7 @@ public class Conversion {
             network.newExtension(CgmesControlAreasAdder.class).add();
             CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
             cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf, cgmes, network));
+            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
             cgmesControlAreas.cleanIfEmpty();
         }
 
@@ -231,9 +231,7 @@ public class Conversion {
 
         if (config.storeCgmesModelAsNetworkExtension()) {
             // Store a reference to the original CGMES model inside the IIDM network
-            // CgmesUpdate will add a listener to Network changes
-            CgmesUpdate cgmesUpdater = new CgmesUpdate(network);
-            network.newExtension(CgmesModelExtensionAdder.class).withModel(cgmes).withUpdate(cgmesUpdater).add();
+            network.newExtension(CgmesModelExtensionAdder.class).withModel(cgmes).add();
         }
 
         // apply post-processors
@@ -252,17 +250,20 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
+        if (config.createCgmesExportMapping) {
+            network.getExtension(CgmesIidmMapping.class).addTopologyListener();
+        }
         return network;
     }
 
-    private CgmesIidmMapping.Source isBoundaryTopologicalNode(String graph) {
+    private Source isBoundaryTopologicalNode(String graph) {
         //There are unit tests where the boundary file contains the sequence "TPBD" and others "TP_BD"
-        return graph.contains("TP") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+        return graph.contains("TP") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
     }
 
-    private CgmesIidmMapping.Source isBoundaryBaseVoltage(String graph) {
+    private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
-        return graph.contains("EQ") && graph.contains("BD")  ? CgmesIidmMapping.Source.BOUNDARY : CgmesIidmMapping.Source.IGM;
+        return graph.contains("EQ") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {
@@ -286,8 +287,7 @@ public class Conversion {
                 .add();
     }
 
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf,
-        CgmesModel cgmesModel, Network network) {
+    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         if (cgmesControlArea == null) {
@@ -295,15 +295,12 @@ public class Conversion {
             return;
         }
         String terminalId = tf.getId("terminal");
-        Boundary boundary = context.terminalMapping().findBoundary(terminalId, cgmesModel);
+        Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {
             cgmesControlArea.add(boundary);
             return;
         }
-        Terminal terminal = context.terminalMapping().find(terminalId, cgmesModel, network);
-        if (terminal != null) {
-            cgmesControlArea.add(terminal);
-        }
+        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
     }
 
     private void convert(
@@ -365,9 +362,9 @@ public class Conversion {
         PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         if (svDescription != null && !svDescription.isEmpty()) {
             CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
-                    .setDescription(svDescription.get(0).getId("description"))
+                    .setDescription(svDescription.get(0).get("description"))
                     .setSvVersion(readVersion(svDescription, context))
-                    .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
+                    .setModelingAuthoritySet(svDescription.get(0).get("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }
@@ -377,9 +374,9 @@ public class Conversion {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
-                    .setDescription(sshDescription.get(0).getId("description"))
+                    .setDescription(sshDescription.get(0).get("description"))
                     .setSshVersion(readVersion(sshDescription, context))
-                    .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));
+                    .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
             sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }
@@ -512,9 +509,7 @@ public class Conversion {
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
-        Iterator<PropertyBag> k = cgmes.switches().iterator();
-        while (k.hasNext()) {
-            PropertyBag sw = k.next();
+        for (PropertyBag sw : cgmes.switches()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(sw.tabulateLocals("Switch"));
             }
@@ -532,9 +527,7 @@ public class Conversion {
     }
 
     private void convertEquivalentBranchesToLines(Context context, Set<String> delayedBoundaryNodes) {
-        Iterator<PropertyBag> k = cgmes.equivalentBranches().iterator();
-        while (k.hasNext()) {
-            PropertyBag equivalentBranch = k.next();
+        for (PropertyBag equivalentBranch : cgmes.equivalentBranches()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(equivalentBranch.tabulateLocals("EquivalentBranch"));
             }
@@ -610,7 +603,19 @@ public class Conversion {
         } else if (numEquipmentsAtNode == 2) {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
         } else if (numEquipmentsAtNode > 2) {
-            context.invalid(node, "Too many equipment at boundary node");
+            // In some TYNDP there are three acLineSegments at the boundary node,
+            // one of them disconnected. The two connected acLineSegments are imported.
+            List<BoundaryEquipment> connectedBeqs = beqs.stream()
+                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
+            if (connectedBeqs.size() == 2) {
+                convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
+                // Log ignored AcLineSegments
+                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
+                    .forEach(beq -> context.ignored("convertEquipmentAtBoundaryNode",
+                        String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is ignored", node, beq.getAcLineSegmentId())));
+            } else {
+                context.invalid(node, "Too many equipment at boundary node");
+            }
         }
     }
 
@@ -748,18 +753,18 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile getProfileUsedForInitialStateValues() {
-            return profileUsedForInitialStateValues;
+        public StateProfile  getProfileForInitialValuesShuntSectionsTapPositions() {
+            return profileForInitialValuesShuntSectionsTapPositions;
         }
 
-        public Config setProfileUsedForInitialStateValues(String profileUsedForInitialFlowsValues) {
-            switch (Objects.requireNonNull(profileUsedForInitialFlowsValues)) {
+        public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
+            switch (Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions)) {
                 case "SSH":
                 case "SV":
-                    this.profileUsedForInitialStateValues = StateProfile.valueOf(profileUsedForInitialFlowsValues);
+                    this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
                     break;
                 default:
-                    throw new CgmesModelException("Unexpected profile used for state hypothesis: " + profileUsedForInitialFlowsValues);
+                    throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
             }
             return this;
         }
@@ -856,7 +861,7 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
         private boolean convertSvInjections = true;
-        private StateProfile profileUsedForInitialStateValues = SSH;
+        private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 

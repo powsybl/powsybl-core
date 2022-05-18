@@ -6,6 +6,8 @@
  */
 package com.powsybl.math.graph;
 
+import java.util.Collection;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -43,7 +45,17 @@ public class DefaultUndirectedGraphListener<V, E> implements UndirectedGraphList
     }
 
     @Override
-    public void allEdgesRemoved() {
+    public void edgeBeforeRemoval(int e, E obj) {
+        // nothing to do
+    }
+
+    @Override
+    public void allEdgesBeforeRemoval(Collection<E> obj) {
+        // nothing to do
+    }
+
+    @Override
+    public void allEdgesRemoved(Collection<E> obj) {
         // nothing to do
     }
 }

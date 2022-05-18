@@ -11,8 +11,7 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.After;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -21,7 +20,8 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
 
-    private final List<String> removedObjects = new ArrayList<>();
+    private final Set<String> removedObjects = new HashSet<>();
+    private final Set<String> beforeRemovalObjects = new HashSet<>();
 
     @After
     public void tearDown() {
@@ -30,6 +30,11 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
 
     private void addListener(Network network) {
         network.addListener(new DefaultNetworkListener() {
+            @Override
+            public void beforeRemoval(Identifiable id) {
+                beforeRemovalObjects.add(id.getId());
+            }
+
             @Override
             public void afterRemoval(String id) {
                 removedObjects.add(id);
@@ -43,7 +48,8 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
         addListener(network);
         Load ld1 = network.getLoad("LD1");
         ld1.remove();
-        assertEquals(List.of("LD1"), removedObjects);
+        assertEquals(Set.of("LD1"), beforeRemovalObjects);
+        assertEquals(Set.of("LD1"), removedObjects);
     }
 
     @Test
@@ -51,12 +57,16 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         addListener(network);
         Load ld1 = network.getLoad("LD1");
+        VoltageLevel vl = ld1.getTerminal().getVoltageLevel();
         ld1.remove(true);
-        assertEquals(List.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), removedObjects);
+        assertNull(vl.getNodeBreakerView().getSwitch("S1VL1_LD1_BREAKER"));
+        assertNull(vl.getNodeBreakerView().getSwitch("S1VL1_BBS_LD1_DISCONNECTOR"));
+        assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), beforeRemovalObjects);
+        assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), removedObjects);
     }
 
     /**
-     *   G(2)    L(1)
+     *   L(1)   G(2)
      *   |       |
      *   B1      B2
      *   |       |
@@ -116,7 +126,8 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
         addListener(network);
         Load ld = network.getLoad("LD");
         ld.remove(true);
-        assertEquals(List.of("B1", "LD"), removedObjects);
+        assertEquals(Set.of("B1", "LD"), beforeRemovalObjects);
+        assertEquals(Set.of("B1", "LD"), removedObjects);
         assertNull(network.getLoad("LD"));
         assertNull(network.getSwitch("B1"));
         assertNotNull(network.getGenerator("G"));

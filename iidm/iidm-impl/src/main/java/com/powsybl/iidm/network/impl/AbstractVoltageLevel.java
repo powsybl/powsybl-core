@@ -10,6 +10,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -24,6 +25,10 @@ import java.util.stream.Stream;
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
 
+    private static final int DEFAULT_NODE_INDEX_LIMIT = 1000;
+
+    public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
+
     private final Ref<NetworkImpl> networkRef;
 
     private final SubstationImpl substation;
@@ -33,6 +38,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     private double lowVoltageLimit;
 
     private double highVoltageLimit;
+
+    private boolean removed = false;
 
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
                          double nominalV, double lowVoltageLimit, double highVoltageLimit) {
@@ -44,6 +51,13 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         this.highVoltageLimit = highVoltageLimit;
     }
 
+    protected static int loadNodeIndexLimit(PlatformConfig platformConfig) {
+        return platformConfig
+            .getOptionalModuleConfig("iidm")
+            .map(moduleConfig -> moduleConfig.getIntProperty("node-index-limit", DEFAULT_NODE_INDEX_LIMIT))
+            .orElse(DEFAULT_NODE_INDEX_LIMIT);
+    }
+
     @Override
     public ContainerType getContainerType() {
         return ContainerType.VOLTAGE_LEVEL;
@@ -51,6 +65,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public Optional<Substation> getSubstation() {
+        if (removed) {
+            throw new PowsyblException("Cannot access substation of removed voltage level " + id);
+        }
         return Optional.ofNullable(substation);
     }
 
@@ -61,6 +78,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public NetworkImpl getNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed voltage level " + id);
+        }
         return Optional.ofNullable(networkRef)
                 .map(Ref::get)
                 .orElseGet(() -> Optional.ofNullable(substation)
@@ -118,7 +138,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
         // the fastest way to get the equipment is to look in the index
         // and then check if it is connected to this substation
-        T connectable = getConnectable(id, aClass, substation, networkRef);
+        T connectable = getNetwork().getIndex().get(id, aClass);
         if (connectable == null) {
             return null;
         } else if (connectable instanceof Injection) {
@@ -135,16 +155,6 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                     ? connectable : null;
         } else {
             throw new AssertionError();
-        }
-    }
-
-    private static <T extends Connectable> T getConnectable(String id, Class<T> aClass, SubstationImpl substation, Ref<NetworkImpl> networkRef) {
-        if (substation != null) {
-            return substation.getNetwork().getIndex().get(id, aClass);
-        } else if (networkRef != null) {
-            return networkRef.get().getIndex().get(id, aClass);
-        } else {
-            throw new PowsyblException(String.format("Voltage level %s has no container", id));
         }
     }
 
@@ -460,6 +470,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
+        removed = true;
     }
 
     protected abstract void removeTopology();

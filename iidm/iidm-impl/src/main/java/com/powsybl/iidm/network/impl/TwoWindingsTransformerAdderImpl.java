@@ -112,7 +112,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                                 + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
                                 + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getSubstation().isPresent() && voltageLevel2.getSubstation().isPresent()) {
+        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent()) {
             throw new ValidationException(this,
                     "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
                             + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");

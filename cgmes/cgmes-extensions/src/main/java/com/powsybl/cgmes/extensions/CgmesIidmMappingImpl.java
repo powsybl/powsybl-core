@@ -50,16 +50,11 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     // Ideally, each nominal voltage is represented by a single base voltage,
     // for this reason the mapping has been considered 1: 1
 
-    private final Map<Double, BaseVoltageSource> nominalVoltageBaseVoltageMap;
-
-    CgmesIidmMappingImpl(Set<CgmesTopologicalNode> topologicalNodes, Set<BaseVoltageSource> baseVoltages) {
+    CgmesIidmMappingImpl(Set<CgmesTopologicalNode> topologicalNodes) {
         equipmentSideTopologicalNodeMap = new HashMap<>();
         busTopologicalNodeMap = new HashMap<>();
         unmappedTopologicalNodes = new HashMap<>();
         topologicalNodes.forEach(ctn -> unmappedTopologicalNodes.put(ctn.getCgmesId(), ctn));
-
-        nominalVoltageBaseVoltageMap = new HashMap<>();
-        baseVoltages.forEach(bvs -> addBaseVoltage(bvs.getNominalV(), bvs.getCgmesId(), bvs.getSource()));
     }
 
     @Override
@@ -93,7 +88,13 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     @Override
     public CgmesIidmMapping putTopologicalNode(String equipmentId, int side, String topologicalNodeId) {
-        equipmentSideTopologicalNodeMap.put(new EquipmentSide(equipmentId, side), topologicalNodeId);
+        if (topologicalNodeId == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Missing Topological Node for equipment {} side {}", equipmentId, side);
+            }
+        } else {
+            equipmentSideTopologicalNodeMap.put(new EquipmentSide(equipmentId, side), topologicalNodeId);
+        }
         return this;
     }
 
@@ -132,43 +133,60 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
         return new HashSet<>(unmappedTopologicalNodes.values());
     }
 
-    @Override
-    public Map<Double, BaseVoltageSource> getBaseVoltages() {
-        return Collections.unmodifiableMap(nominalVoltageBaseVoltageMap);
+    private void invalidateTopology() {
+        equipmentSideTopologicalNodeMap.clear();
+        busTopologicalNodeMap.clear();
+        unmappedTopologicalNodes.clear();
     }
 
     @Override
-    public BaseVoltageSource getBaseVoltage(double nominalVoltage) {
-        return nominalVoltageBaseVoltageMap.get(nominalVoltage);
-    }
-
-    @Override
-    public boolean isBaseVoltageMapped(double nominalVoltage) {
-        return nominalVoltageBaseVoltageMap.containsKey(nominalVoltage);
-    }
-
-    @Override
-    public boolean isBaseVoltageEmpty() {
-        return nominalVoltageBaseVoltageMap.isEmpty();
-    }
-
-    @Override
-    public CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltageId, Source source) {
-        if (nominalVoltageBaseVoltageMap.containsKey(nominalVoltage)) {
-            if (nominalVoltageBaseVoltageMap.get(nominalVoltage).getSource().equals(Source.IGM) && source.equals(Source.BOUNDARY)) {
-                LOGGER.info("Nominal voltage {} is already mapped with an {} base voltage. Replaced by a {} base voltage", nominalVoltage, Source.IGM.name(), Source.BOUNDARY.name());
-                nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
-            } else {
-                LOGGER.info("Nominal voltage {} is already mapped and not to the given base voltage {} from {}", nominalVoltage, baseVoltageId, source.name());
+    public void addTopologyListener() {
+        getExtendable().addListener(new NetworkListener() {
+            @Override
+            public void onCreation(Identifiable identifiable) {
+                if (identifiable instanceof Switch || identifiable instanceof Bus) {
+                    invalidateTopology();
+                }
             }
-        } else {
-            nominalVoltageBaseVoltageMap.put(nominalVoltage, new BaseVoltageSource(baseVoltageId, nominalVoltage, source));
-        }
-        return this;
-    }
 
-    public Map<Double, BaseVoltageSource> baseVoltagesByNominalVoltageMap() {
-        return new HashMap<>(nominalVoltageBaseVoltageMap);
+            @Override
+            public void beforeRemoval(Identifiable identifiable) {
+                if (identifiable instanceof Switch || identifiable instanceof Bus) {
+                    invalidateTopology();
+                }
+            }
+
+            @Override
+            public void afterRemoval(String id) {
+                // do nothing
+            }
+
+            @Override
+            public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+                // do nothing
+            }
+
+            @Override
+            public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+                if (identifiable instanceof Switch && "open".equals(attribute)) {
+                    invalidateTopology();
+                }
+            }
+
+            @Override
+            public void onElementAdded(Identifiable identifiable, String attribute, Object newValue) {
+                if (identifiable instanceof VoltageLevel && "internalConnection".equals(attribute)) {
+                    invalidateTopology();
+                }
+            }
+
+            @Override
+            public void onElementRemoved(Identifiable identifiable, String attribute, Object oldValue) {
+                if (identifiable instanceof VoltageLevel && "internalConnection".equals(attribute)) {
+                    invalidateTopology();
+                }
+            }
+        });
     }
 
     private void calculate() {

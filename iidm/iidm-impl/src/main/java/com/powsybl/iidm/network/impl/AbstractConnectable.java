@@ -24,18 +24,12 @@ import java.util.function.Supplier;
 abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
-    private Ref<NetworkImpl> networkRef;
+    private final Ref<NetworkImpl> networkRef;
+    private boolean removed = false;
 
     AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
-    }
-
-    public I setName(String name) {
-        String oldValue = this.name;
-        this.name = name;
-        notifyUpdate("name", oldValue, name);
-        return (I) this;
     }
 
     void addTerminal(TerminalExt terminal) {
@@ -49,6 +43,9 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public NetworkImpl getNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed equipment " + id);
+        }
         return networkRef.get();
     }
 
@@ -65,6 +62,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         network.getListeners().notifyAfterRemoval(id);
+        removed = true;
+        terminals.forEach(TerminalExt::remove);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {

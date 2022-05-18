@@ -57,6 +57,20 @@ class BoundaryEquipment {
         return c;
     }
 
+    boolean isAcLineSegmentDisconnected(Context context) {
+        if (type == BoundaryEquipmentType.AC_LINE_SEGMENT) {
+            return !(new ACLineSegmentConversion(propertyBags.get(0), context)).isConnectedAtBothEnds();
+        }
+        return false;
+    }
+
+    String getAcLineSegmentId() {
+        if (type == BoundaryEquipmentType.AC_LINE_SEGMENT) {
+            return propertyBags.get(0).getId("ACLineSegment");
+        }
+        return null;
+    }
+
     void log() {
         if (LOG.isTraceEnabled()) {
             String title = "BoundaryEquipment " + type.toString();

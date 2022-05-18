@@ -1,0 +1,8 @@
+{
+  "functionType" : "BRANCH_ACTIVE_POWER_2",
+  "functionId" : "l",
+  "variableType" : "INJECTION_ACTIVE_POWER",
+  "variableId" : "g",
+  "variableSet" : false,
+  "contingencyContextType" : "ALL"
+}

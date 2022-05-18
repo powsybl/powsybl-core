@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import org.joda.time.DateTime;
@@ -18,6 +19,9 @@ import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.*;
+import org.xmlunit.util.IsNullPredicate;
+import org.xmlunit.util.Linqy;
+import org.xmlunit.util.Nodes;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
@@ -25,17 +29,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -84,7 +83,7 @@ public final class ExportXmlCompare {
                 .withDifferenceEvaluator(knownDiffs)
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
-        assertTrue(!diff.hasDifferences());
+        assertFalse(diff.hasDifferences());
     }
 
     static void compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
@@ -100,7 +99,7 @@ public final class ExportXmlCompare {
                 .withDifferenceEvaluator(knownDiffs)
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
-        assertTrue(!diff.hasDifferences());
+        assertFalse(diff.hasDifferences());
     }
 
     static boolean isConsideredForNetwork(Attr attr) {
@@ -111,18 +110,19 @@ public final class ExportXmlCompare {
         String elementName = attr.getOwnerElement().getLocalName();
         boolean ignored = false;
         if (elementName != null) {
-            ignored = elementName.equals("danglingLine");
-            if (elementName.startsWith("network")) {
-                ignored |= attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
+            if (elementName.equals("danglingLine")) {
+                ignored = true;
+            } else if (elementName.startsWith("network")) {
+                ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
             } else if (elementName.startsWith("voltageLevel")) {
-                ignored |= attr.getLocalName().equals("topologyKind") || attr.getLocalName().equals("lowVoltageLimit") || attr.getLocalName().equals("highVoltageLimit");
+                ignored = attr.getLocalName().equals("topologyKind") || attr.getLocalName().equals("lowVoltageLimit") || attr.getLocalName().equals("highVoltageLimit");
             } else if (elementName.startsWith("hvdcLine")) {
-                ignored |= attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
+                ignored = attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
             } else if (elementName.contains("TapChanger")) {
-                ignored |= attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
+                ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
                         || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
             } else {
-                ignored |= attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
+                ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
         }
         return !ignored;
@@ -207,18 +207,18 @@ public final class ExportXmlCompare {
 
     private static boolean isDanglingLineConversion(Node n) {
         String name = n.getLocalName();
-        return (name.startsWith("substation") && SMALLGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("voltageLevel") && SMALLGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("line") && SMALLGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("substation") && MINIGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("voltageLevel") && MINIGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("line") && MINIGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("substation") && MICROGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("voltageLevel") && MICROGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("line") && MICROGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()));
+        return name.startsWith("substation") && SMALLGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("voltageLevel") && SMALLGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("line") && SMALLGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("substation") && MINIGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("voltageLevel") && MINIGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("line") && MINIGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("substation") && MICROGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("voltageLevel") && MICROGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("line") && MICROGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent());
     }
 
-    static interface DifferenceBuilder {
+    interface DifferenceBuilder {
         DiffBuilder build(InputStream control, InputStream test, DifferenceEvaluator de);
     }
 
@@ -227,10 +227,26 @@ public final class ExportXmlCompare {
     }
 
     static DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de))));
+        // Original CGMES PhaseTapChangerLinear, PhaseTapChangerSymmetrical and PhaseTapChangerAsymmetrical
+        // have been exported as PhaseTapChangerTabular.
+        // We just check that the objects being compared keep a PhaseTapChanger class, not exactly the same one.
+        DifferenceEvaluator de1 = DifferenceEvaluators.chain(de, (comparison, result) -> {
+            if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+                if (comparison.getControlDetails().getTarget().getLocalName().startsWith("PhaseTapChanger") &&
+                        comparison.getTestDetails().getTarget().getLocalName().startsWith("PhaseTapChanger")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+            return result;
+        });
+        return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de1))));
     }
 
-    static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) throws IOException {
+    public static void compareSV(InputStream expected, InputStream actual) {
+        onlyNodeListSequenceDiffs(compare(diffSV(expected, actual, DifferenceEvaluators.Default).checkForIdentical()));
+    }
+
+    static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
@@ -263,8 +279,8 @@ public final class ExportXmlCompare {
             Node control = comparison.getControlDetails().getTarget();
             if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("Model.version")) {
                 Node test = comparison.getTestDetails().getTarget();
-                int vcontrol = Integer.valueOf(control.getTextContent());
-                int vtest = Integer.valueOf(test.getTextContent());
+                int vcontrol = Integer.parseInt(control.getTextContent());
+                int vtest = Integer.parseInt(test.getTextContent());
                 if (vtest == vcontrol + 1) {
                     return ComparisonResult.EQUAL;
                 }
@@ -290,14 +306,25 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringCreatedTime(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            Node control = comparison.getControlDetails().getTarget();
+            Node test = comparison.getTestDetails().getTarget();
+            if (test != null && control != null && control.getParentNode().getLocalName().equals("Model.created")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
             if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("StaticVarCompensator.q")) {
                 Node test = comparison.getTestDetails().getTarget();
                 // Both elements must exist and have valid numeric values
-                double qcontrol = Double.valueOf(control.getTextContent());
-                double qtest = Double.valueOf(test.getTextContent());
+                double qcontrol = Double.parseDouble(control.getTextContent());
+                double qtest = Double.parseDouble(test.getTextContent());
                 // But they could be different
                 // When we export we save in SSH.q the value of the SVC.terminal.q
                 // It would be the result of the power flow calculation
@@ -416,8 +443,8 @@ public final class ExportXmlCompare {
             if (control.getParentNode() != null
                 && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
                 && (control.getParentNode().getLocalName().equals("SvPowerFlow.p") || control.getParentNode().getLocalName().equals("SvPowerFlow.q"))) {
-                double expected = Double.valueOf(control.getNodeValue());
-                double actual = Double.valueOf(comparison.getTestDetails().getTarget().getNodeValue());
+                double expected = Double.parseDouble(control.getNodeValue());
+                double actual = Double.parseDouble(comparison.getTestDetails().getTarget().getNodeValue());
                 if (Math.abs(expected - actual) < 0.2d) {
                     return ComparisonResult.EQUAL;
                 }
@@ -449,17 +476,13 @@ public final class ExportXmlCompare {
     private static boolean isJunctionOrBusbarTerminal(Node n) {
         if (n != null && n.getNodeType() == Node.ELEMENT_NODE && n.getLocalName().equals(CgmesNames.TERMINAL)) {
             String about = n.getAttributes().getNamedItemNS(RDF_NAMESPACE, "about").getTextContent();
-            if (JUNCTIONS_TERMINALS.contains(about)) {
-                return true;
-            } else if (BUSBAR_TERMINALS.contains(about)) {
-                return true;
-            }
+            return JUNCTIONS_TERMINALS.contains(about) || BUSBAR_TERMINALS.contains(about);
         }
         return false;
     }
 
     private static void isOk(Diff diff) {
-        assertTrue(!diff.hasDifferences());
+        assertFalse(diff.hasDifferences());
     }
 
     private static void onlyNodeListSequenceDiffs(Diff diff) {
@@ -492,6 +515,75 @@ public final class ExportXmlCompare {
                 Comparison.Detail test = comparison.getTestDetails();
                 if (control.getTarget().getLocalName().equals("netInterchange")
                         && test.getTarget().getLocalName().equals("netInterchange")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringFullModelAbout(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("FullModel")
+                        && control.getTarget().getLocalName().equals("about")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath.contains("FullModel")) {
+                if (cxpath.contains("Model.DependentOn")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringOperationalLimitIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            String cxpath = control.getXPath();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                String cname = control.getTarget().getLocalName();
+                if (cxpath.contains("CurrentLimit") && (cname.equals("ID") || cname.equals("resource"))) {
+                    return ComparisonResult.EQUAL;
+                } else if (cxpath.contains("OperationalLimit") && cname.equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
+                if (cxpath.contains("CurrentLimit") || cxpath.contains("OperationalLimit")) {
+                    if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringSVIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getXPath().contains("SvVoltage")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvPowerFlow")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvShuntCompensatorSections")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SvStatus")
+                        && control.getTarget().getLocalName().equals("ID")) {
                     return ComparisonResult.EQUAL;
                 }
             }
@@ -628,16 +720,16 @@ public final class ExportXmlCompare {
     }
 
     private static void debugAttributes(Node n, String indent) {
-        if (n.getAttributes() != null) {
-            debugAttribute(n, RDF_NAMESPACE, "resource", indent);
-            debugAttribute(n, RDF_NAMESPACE, "about", indent);
-        }
+        debugAttribute(n, RDF_NAMESPACE, "resource", indent);
+        debugAttribute(n, RDF_NAMESPACE, "about", indent);
     }
 
     private static void debugAttribute(Node n, String namespace, String localName, String indent) {
-        Node a = n.getAttributes().getNamedItemNS(namespace, localName);
-        if (a != null) {
-            LOG.error("{}{} = {}", indent, localName, a.getTextContent());
+        if (n.getAttributes() != null) {
+            Node a = n.getAttributes().getNamedItemNS(namespace, localName);
+            if (a != null) {
+                LOG.error("{}{} = {}", indent, localName, a.getTextContent());
+            }
         }
     }
 
@@ -670,7 +762,7 @@ public final class ExportXmlCompare {
             // Optional attributes with default values
             if (name.equals("EquivalentInjection.regulationStatus") && n.getTextContent().equals("false")) {
                 return false;
-            } else if (name.equals("EquivalentInjection.regulationTarget") && Double.valueOf(n.getTextContent()) == 0) {
+            } else if (name.equals("EquivalentInjection.regulationTarget") && Double.parseDouble(n.getTextContent()) == 0) {
                 return false;
             }
             return name.equals("RDF")
@@ -736,7 +828,7 @@ public final class ExportXmlCompare {
 
     private static DiffBuilder selectingEquivalentSvObjects(DiffBuilder diffBuilder) {
         Map<String, String> prefixUris = new HashMap<>(2);
-        prefixUris.put("cim", CIM_16_NAMESPACE);
+        prefixUris.put("cim", CgmesNamespace.getCim(16).getNamespace());
         prefixUris.put("rdf", RDF_NAMESPACE);
         QName resourceAttribute = new QName(RDF_NAMESPACE, "resource");
         ElementSelector byResource = ElementSelectors.byNameAndAttributes(resourceAttribute);
@@ -761,13 +853,44 @@ public final class ExportXmlCompare {
     }
 
     private static DiffBuilder selectingEquivalentSshObjects(DiffBuilder diffBuilder) {
-        QName aboutAttribute = new QName(RDF_NAMESPACE, "about");
+        QName about = new QName(RDF_NAMESPACE, "about");
         ElementSelector elementSelector = ElementSelectors.conditionalBuilder()
-                .whenElementIsNamed("FullModel")
-                .thenUse(ElementSelectors.byName)
-                .elseUse(ElementSelectors.byNameAndAttributes(aboutAttribute))
+                // If element has rdf:about attribute and is not FullModel
+                .when(e -> !e.getAttributeNS(RDF_NAMESPACE, "about").isEmpty() && !e.getLocalName().equals("FullModel"))
+                // Then select the same elements based on content of rdf:about attribute
+                .thenUse(elementSelectorByAttributes(about))
+                .elseUse(ElementSelectors.byName)
                 .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
+    }
+
+    private static boolean bothNullOrEqual(Object o1, Object o2) {
+        return o1 == null ? o2 == null : o1.equals(o2);
+    }
+
+    private static boolean mapsEqualForKeys(Map<QName, String> control, Map<QName, String> test, Iterable<QName> keys) {
+        Iterator<QName> i = keys.iterator();
+        QName q;
+        do {
+            if (!i.hasNext()) {
+                return true;
+            }
+            q = i.next();
+        } while (bothNullOrEqual(control.get(q), test.get(q)));
+        return false;
+    }
+
+    private static ElementSelector elementSelectorByAttributes(QName... attribs) {
+        if (attribs == null) {
+            throw new IllegalArgumentException("attributes must not be null");
+        } else {
+            final Collection<QName> qs = Arrays.asList(attribs);
+            if (Linqy.any(qs, new IsNullPredicate())) {
+                throw new IllegalArgumentException("attributes must not contain null values");
+            } else {
+                return (controlElement, testElement) -> mapsEqualForKeys(Nodes.getAttributes(controlElement), Nodes.getAttributes(testElement), qs);
+            }
+        }
     }
 
     private static Diff compare(DiffBuilder diffBuilder) {

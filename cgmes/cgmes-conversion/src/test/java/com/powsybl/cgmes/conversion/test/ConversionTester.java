@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -16,7 +17,9 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Branch.Side;
@@ -33,7 +36,10 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,9 +55,10 @@ import static org.junit.Assert.fail;
  */
 public class ConversionTester {
 
-    public ConversionTester(Properties importParams, List<String> tripleStoreImplementations,
-        ComparisonConfig networkComparison) {
+    public ConversionTester(Properties importParams, Properties exportParams, List<String> tripleStoreImplementations,
+                            ComparisonConfig networkComparison) {
         this.importParams = importParams;
+        this.exportParams = exportParams;
         this.tripleStoreImplementations = tripleStoreImplementations;
         this.networkComparison = networkComparison;
         this.onlyReport = false;
@@ -61,15 +68,13 @@ public class ConversionTester {
         this.testExportImportCgmes = false;
     }
 
+    public ConversionTester(Properties importParams, List<String> tripleStoreImplementations,
+        ComparisonConfig networkComparison) {
+        this(importParams, null, tripleStoreImplementations, networkComparison);
+    }
+
     public ConversionTester(List<String> tripleStoreImplementations, ComparisonConfig networkComparison) {
-        this.importParams = null;
-        this.tripleStoreImplementations = tripleStoreImplementations;
-        this.networkComparison = networkComparison;
-        this.onlyReport = false;
-        this.strictTopologyTest = true;
-        this.exportXiidm = false;
-        this.exportCgmes = false;
-        this.testExportImportCgmes = false;
+        this(null, tripleStoreImplementations, networkComparison);
     }
 
     public void setOnlyReport(boolean onlyReport) {
@@ -125,7 +130,7 @@ public class ConversionTester {
         return lastConvertedNetwork;
     }
 
-    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
+    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl)
         throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
         iparams.put("storeCgmesModelAsNetworkExtension", "true");
@@ -145,7 +150,7 @@ public class ConversionTester {
                 fail("Topology test failed");
             }
             if (expected != null) {
-                new Comparison(expected, network, cconfig).compare();
+                new Comparison(expected, network, config).compare();
             }
             if (exportXiidm) {
                 exportXiidm(gm.name(), impl, expected, network);
@@ -154,7 +159,7 @@ public class ConversionTester {
                 exportCgmes(gm.name(), impl, network);
             }
             if (testExportImportCgmes) {
-                testExportImportCgmes(network, fs, i, iparams, cconfig);
+                testExportImportCgmes(network, ds, fs, i, iparams, config);
             }
             if (validateBusBalances) {
                 validateBusBalances(network);
@@ -176,7 +181,7 @@ public class ConversionTester {
         new Conversion(m).report(reportConsumer);
     }
 
-    private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
+    private static void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl + "-");
         XMLExporter xmlExporter = new XMLExporter();
@@ -189,23 +194,39 @@ public class ConversionTester {
         }
     }
 
-    private void exportCgmes(String name, String impl, Network network) throws IOException {
+    private static void exportCgmes(String name, String impl, Network network) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl + "-");
         new CgmesExport().export(network, null, new FileDataSource(path, "foo"));
     }
 
-    private void testExportImportCgmes(Network network, FileSystem fs, CgmesImport i, Properties iparams,
-        ComparisonConfig config) throws IOException {
+    private void testExportImportCgmes(Network network, ReadOnlyDataSource originalDs, FileSystem fs, CgmesImport i, Properties iparams,
+                                       ComparisonConfig config) throws IOException {
 
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
-        new CgmesExport().export(network, null, new FileDataSource(path, "bar"));
+        String baseName = "bar";
+        new CgmesExport().export(network, exportParams, new FileDataSource(path, baseName));
 
-        ReadOnlyDataSource ds = new FileDataSource(path, "bar");
+        DataSource ds = new FileDataSource(path, "bar");
+        String expected = originalDs.listNames(".*EQ.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain EQ profile"));
+        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_EQ.xml", false));
+             InputStream in = originalDs.newInputStream(expected)) {
+            ByteStreams.copy(in, out);
+        }
+        expected = originalDs.listNames(".*TP.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain TP profile"));
+        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_TP.xml", false));
+             InputStream in = originalDs.newInputStream(expected)) {
+            ByteStreams.copy(in, out);
+        }
+        for (String boundary : originalDs.listNames(".*BD.*")) {
+            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + boundary, false));
+                 InputStream in = originalDs.newInputStream(boundary)) {
+                ByteStreams.copy(in, out);
+            }
+        }
         Network actual = i.importData(ds, new NetworkFactoryImpl(), iparams);
-        Network expected = network;
-        new Comparison(expected, actual, config).compare();
+        new Comparison(network, actual, config).compare();
     }
 
     public void validateBusBalances(Network network) throws IOException {
@@ -271,6 +292,7 @@ public class ConversionTester {
     }
 
     private final Properties importParams;
+    private final Properties exportParams;
     private final List<String> tripleStoreImplementations;
     private final ComparisonConfig networkComparison;
     private boolean onlyReport;

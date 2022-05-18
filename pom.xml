@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>4.7.0-SNAPSHOT</version>
+    <version>4.9.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -69,10 +69,12 @@
         <module>loadflow</module>
         <module>math</module>
         <module>matpower</module>
+        <module>powerfactory</module>
         <module>psse</module>
         <module>scripting</module>
         <module>security-analysis</module>
         <module>sensitivity-analysis-api</module>
+        <module>shortcircuit-api</module>
         <module>time-series</module>
         <module>tools</module>
         <module>triple-store</module>
@@ -102,8 +104,8 @@
         <graphviz-builder.version>1.0.11</graphviz-builder.version>
         <groovy.version>3.0.9</groovy.version>
         <guava.version>30.0-jre</guava.version>
-        <jackson.version>2.10.5</jackson.version>
-        <jackson-databind.version>2.10.5.1</jackson-databind.version>
+        <jackson.version>2.13.2</jackson.version>
+        <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
         <jena.version>3.0.0</jena.version>
         <jgrapht.version>1.4.0</jgrapht.version>
@@ -114,7 +116,7 @@
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
         <mfl.version>0.5.6</mfl.version>
-        <mockito.version>3.3.3</mockito.version>
+        <mockito.version>4.4.0</mockito.version>
         <nativelibloader.version>2.4.0</nativelibloader.version>
         <poi.version>3.15</poi.version>
         <rdf4j.version>3.3.0</rdf4j.version>
@@ -123,12 +125,12 @@
         <snakeyaml.version>1.26</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.0.2</stringtemplate.version>
-        <threeten.version>1.0</threeten.version>
+        <threeten.version>1.5.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
-        <powsyblmathnative.version>1.1.0</powsyblmathnative.version>
+        <powsyblmathnative.version>1.2.1</powsyblmathnative.version>
     </properties>
 
     <profiles>
@@ -203,12 +205,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-cgmes-conformity</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-cgmes-conversion</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -217,6 +213,16 @@
                 <artifactId>powsybl-cgmes-conversion</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-cgmes-extensions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-cgmes-measurements</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -389,6 +395,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-iidm-modification</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-reducer</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -488,6 +499,26 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-powerfactory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-powerfactory-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-powerfactory-dgs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-powerfactory-converter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-psse</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -520,6 +551,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-security-analysis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-security-analysis-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -531,7 +567,23 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-security-analysis-default</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-security-analysis-default</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-sensitivity-analysis-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-shortcircuit-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -627,6 +679,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-databind.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.auto.service</groupId>

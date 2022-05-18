@@ -6,20 +6,21 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -30,118 +31,94 @@ public class SensitivityAnalysisTest {
 
     private Network network;
     private ComputationManager computationManager;
-    private SensitivityFactorsProvider sensitivityFactorsProvider;
+    private SensitivityFactor factor;
+    private SensitivityFactorReader factorReader;
+    private SensitivityValueModelWriter valueWriter;
     private List<Contingency> contingencies;
+    private List<SensitivityVariableSet> variableSets;
     private SensitivityAnalysisParameters parameters;
 
     @Before
     public void setUp() {
-        network = Mockito.mock(Network.class);
-        VariantManager variantManager = Mockito.mock(VariantManager.class);
-        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
-        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
+        network = EurostagTutorialExample1Factory.create();
         computationManager = Mockito.mock(ComputationManager.class);
-        sensitivityFactorsProvider = Mockito.mock(SensitivityFactorsProvider.class);
+        factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
+                "NHV1_NHV2_1",
+                SensitivityVariableType.INJECTION_ACTIVE_POWER,
+                "GEN",
+                false,
+                ContingencyContext.none());
+        factorReader = handler -> handler.onFactor(factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(), factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
+        valueWriter = new SensitivityValueModelWriter();
         contingencies = Collections.emptyList();
+        variableSets = Collections.emptyList();
         parameters = Mockito.mock(SensitivityAnalysisParameters.class);
     }
 
     @Test
     public void testDefaultProvider() {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
-        assertEquals(DEFAULT_PROVIDER_NAME, defaultSensitivityAnalysisRunner.getName());
-        assertEquals("1.0", defaultSensitivityAnalysisRunner.getVersion());
+        SensitivityAnalysis.Runner runner = SensitivityAnalysis.find();
+        assertEquals(DEFAULT_PROVIDER_NAME, runner.getName());
+        assertEquals("1.0", runner.getVersion());
     }
 
     @Test
-    public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SensitivityAnalysisResult> result = SensitivityAnalysis.runAsync(network, "v", sensitivityFactorsProvider,
-                contingencies, new SensitivityAnalysisParameters(), computationManager);
-        assertNotNull(result.get());
+    public void testRunAsyncWithReaderAndWriter() {
+        SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, valueWriter,
+                contingencies, variableSets, parameters, computationManager, Reporter.NO_OP)
+                .join();
+        assertEquals(1, valueWriter.getValues().size());
     }
 
     @Test
-    public void testAsyncDefaultProviderWithoutContingencies() throws InterruptedException, ExecutionException {
-        CompletableFuture<SensitivityAnalysisResult> result = SensitivityAnalysis.runAsync(network, "v", sensitivityFactorsProvider,
-                new SensitivityAnalysisParameters(), computationManager);
-        assertNotNull(result.get());
+    public void testRunAsync() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+                        contingencies, variableSets, parameters, computationManager, Reporter.NO_OP)
+                .join();
+        assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testAsyncDefaultProviderWithMinimumArgumentsWithContingencies() throws InterruptedException, ExecutionException {
-        CompletableFuture<SensitivityAnalysisResult> result = SensitivityAnalysis.runAsync(network,
-                sensitivityFactorsProvider, contingencies);
-        assertNotNull(result.get());
+    public void testRun() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+                        contingencies, variableSets, parameters, computationManager, Reporter.NO_OP);
+        assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testAsyncDefaultProviderWithMinimumArgumentsWithoutContingencies() throws InterruptedException, ExecutionException {
-        CompletableFuture<SensitivityAnalysisResult> result = SensitivityAnalysis.runAsync(network,
-                sensitivityFactorsProvider);
-        assertNotNull(result.get());
+    public void testRunShort1() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
+                contingencies, variableSets, parameters);
+        assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testSyncDefaultProvider() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, "v", sensitivityFactorsProvider,
-                contingencies, new SensitivityAnalysisParameters(), computationManager);
-        assertNotNull(result);
+    public void testRunShort2() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies, variableSets, parameters);
+        assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testSyncDefaultProviderWithoutContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, "v", sensitivityFactorsProvider,
-                new SensitivityAnalysisParameters(), computationManager);
-        assertNotNull(result);
+    public void testRunShort3() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies, parameters);
+        assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testSyncDefaultProviderWithMinimumArgumentsWithContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingencies);
-        assertNotNull(result);
+    public void testRunShort4() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies);
+        assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testSyncDefaultProviderWithMinimumArgumentsWithoutContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider);
-        assertNotNull(result);
+    public void testRunShort5() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor));
+        assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testStaticRunMethodWithContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network,
-                network.getVariantManager().getWorkingVariantId(), sensitivityFactorsProvider, contingencies, parameters);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testStaticRunMethodWithoutContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network,
-                        network.getVariantManager().getWorkingVariantId(), sensitivityFactorsProvider, parameters);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testStaticSimpleRunMethodWithParameters() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingencies, parameters);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testStaticSimpleRunMethodWithParametersWithoutContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, parameters);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testStaticSimpleRunMethod() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingencies);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testStaticSimpleRunMethodWithNoContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider);
-        assertNotNull(result);
+    public void testRunShort6() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), parameters);
+        assertEquals(1, result.getValues().size());
     }
 }

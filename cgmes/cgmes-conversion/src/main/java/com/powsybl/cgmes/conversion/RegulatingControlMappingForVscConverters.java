@@ -6,8 +6,10 @@
  */
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -27,8 +29,7 @@ public class RegulatingControlMappingForVscConverters {
         VOLTAGE
     }
 
-    RegulatingControlMappingForVscConverters(RegulatingControlMapping parent, Context context) {
-        this.parent = parent;
+    RegulatingControlMappingForVscConverters(Context context) {
         this.context = context;
         mapping = new HashMap<>();
     }
@@ -87,20 +88,24 @@ public class RegulatingControlMappingForVscConverters {
     }
 
     private void setRegulatingControlVoltage(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
-
+        Terminal regulatingTerminal = RegulatingTerminalMapper
+                .mapForVoltageControl(rc.pccTerminal, context)
+                .orElse(vscConverter.getTerminal());
         vscConverter
             .setVoltageSetpoint(rc.voltageSetpoint)
             .setReactivePowerSetpoint(0.0)
-            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
+            .setRegulatingTerminal(regulatingTerminal)
             .setVoltageRegulatorOn(true);
     }
 
     private void setRegulatingControlReactivePower(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
-
+        TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
+                .mapForFlowControl(rc.pccTerminal, context)
+                .orElseGet(() -> new TerminalAndSign(vscConverter.getTerminal(), 1));
         vscConverter
             .setVoltageSetpoint(0.0)
-            .setReactivePowerSetpoint(rc.reactivePowerSetpoint)
-            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
+            .setReactivePowerSetpoint(rc.reactivePowerSetpoint * mappedRegulatingTerminal.getSign())
+            .setRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
             .setVoltageRegulatorOn(false);
     }
 
@@ -111,7 +116,6 @@ public class RegulatingControlMappingForVscConverters {
         String pccTerminal;
     }
 
-    private final RegulatingControlMapping parent;
     private final Map<String, CgmesRegulatingControlForVscConverter> mapping;
     private final Context context;
 }

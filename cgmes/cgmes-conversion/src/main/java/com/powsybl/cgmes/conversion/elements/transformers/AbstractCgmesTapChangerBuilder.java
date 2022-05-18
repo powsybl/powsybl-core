@@ -7,8 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.Objects;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -16,6 +14,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -47,13 +47,13 @@ abstract class AbstractCgmesTapChangerBuilder {
     }
 
     protected int initialTapPosition(int defaultStep) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
+        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
             case SSH:
                 return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
             case SV:
                 return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
             default:
-                throw new CgmesModelException("Unexpected profile used for initial flows values: " + context.config().getProfileUsedForInitialStateValues());
+                throw new CgmesModelException("Unexpected profile used for initial values: " + context.config().getProfileForInitialValuesShuntSectionsTapPositions());
         }
     }
 
@@ -71,10 +71,6 @@ abstract class AbstractCgmesTapChangerBuilder {
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
-        String phaseType = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE);
-        if (phaseType != null) {
-            tapChanger.setType(phaseType);
-        }
 
         addRegulationData();
         return tapChanger;

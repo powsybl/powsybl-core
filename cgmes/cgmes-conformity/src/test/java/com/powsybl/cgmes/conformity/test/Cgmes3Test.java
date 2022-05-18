@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conformity.test;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
 import org.junit.Test;
 

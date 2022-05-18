@@ -16,8 +16,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conformity.test.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
@@ -46,7 +46,7 @@ public class TieFlowConversionTest {
         cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
             assertEquals(1, cgmesControlArea.getTerminals().size());
             assertEquals(2, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsTerminal(cgmesControlArea, "_044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
+            assertTrue(containsTerminal(cgmesControlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
         });
     }
 
@@ -61,7 +61,7 @@ public class TieFlowConversionTest {
         cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
             assertEquals(0, cgmesControlArea.getTerminals().size());
             assertEquals(3, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsBoundary(cgmesControlArea, "_044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
+            assertTrue(containsBoundary(cgmesControlArea, "044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
         });
     }
 
@@ -76,7 +76,7 @@ public class TieFlowConversionTest {
         cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
             assertEquals(4, cgmesControlArea.getTerminals().size());
             assertEquals(1, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsBoundary(cgmesControlArea, "_17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
+            assertTrue(containsBoundary(cgmesControlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
         });
     }
 
@@ -91,7 +91,7 @@ public class TieFlowConversionTest {
         cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
             assertEquals(5, cgmesControlArea.getTerminals().size());
             assertEquals(0, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsTerminal(cgmesControlArea, "_17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
+            assertTrue(containsTerminal(cgmesControlArea, "17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
         });
     }
 
@@ -103,7 +103,6 @@ public class TieFlowConversionTest {
         CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
 
         config.setConvertSvInjections(true);
-        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
         Conversion c = new Conversion(cgmes, config);
         Network n = c.convert();
 

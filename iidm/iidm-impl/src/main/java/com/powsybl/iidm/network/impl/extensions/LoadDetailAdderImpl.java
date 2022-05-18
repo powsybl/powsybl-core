@@ -16,13 +16,13 @@ import com.powsybl.iidm.network.extensions.LoadDetailAdder;
  */
 public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail> implements LoadDetailAdder {
 
-    private float fixedActivePower;
+    private double fixedActivePower;
 
-    private float fixedReactivePower;
+    private double fixedReactivePower;
 
-    private float variableActivePower;
+    private double variableActivePower;
 
-    private float variableReactivePower;
+    private double variableReactivePower;
 
     public LoadDetailAdderImpl(Load load) {
         super(load);
@@ -34,25 +34,25 @@ public class LoadDetailAdderImpl extends AbstractExtensionAdder<Load, LoadDetail
     }
 
     @Override
-    public LoadDetailAdder withFixedActivePower(float fixedActivePower) {
+    public LoadDetailAdder withFixedActivePower(double fixedActivePower) {
         this.fixedActivePower = fixedActivePower;
         return this;
     }
 
     @Override
-    public LoadDetailAdder withFixedReactivePower(float fixedReactivePower) {
+    public LoadDetailAdder withFixedReactivePower(double fixedReactivePower) {
         this.fixedReactivePower = fixedReactivePower;
         return this;
     }
 
     @Override
-    public LoadDetailAdder withVariableActivePower(float variableActivePower) {
+    public LoadDetailAdder withVariableActivePower(double variableActivePower) {
         this.variableActivePower = variableActivePower;
         return this;
     }
 
     @Override
-    public LoadDetailAdder withVariableReactivePower(float variableReactivePower) {
+    public LoadDetailAdder withVariableReactivePower(double variableReactivePower) {
         this.variableReactivePower = variableReactivePower;
         return this;
     }

@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
@@ -434,24 +435,110 @@ public abstract class AbstractLineTest {
         int count = network.getLineCount();
         line.remove();
         assertNotNull(line);
+        Terminal t1 = line.getTerminal1();
+        Terminal t2 = line.getTerminal2();
+        assertNotNull(t1);
+        assertNotNull(t2);
+        try {
+            t1.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
+        }
+        try {
+            t2.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
+        }
+        Terminal.BusBreakerView bbView1 = t1.getBusBreakerView();
+        try {
+            bbView1.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot modify removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        Terminal.BusBreakerView bbView2 = t2.getBusBreakerView();
+        try {
+            bbView2.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot modify removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            line.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed equipment " + TO_REMOVE, e.getMessage());
+        }
         assertNull(network.getLine(TO_REMOVE));
         assertEquals(count - 1L, network.getLineCount());
     }
 
     @Test
     public void testTieLineAdder() {
+        double tol = 0.0000001;
+
         double r = 10.0;
         double r2 = 1.0;
         double x = 20.0;
         double x2 = 2.0;
-        double hl1g1 = 30.0;
-        double hl1g2 = 35.0;
-        double hl1b1 = 40.0;
-        double hl1b2 = 45.0;
-        double hl2g1 = 130.0;
-        double hl2g2 = 135.0;
-        double hl2b1 = 140.0;
-        double hl2b2 = 145.0;
+        double hl1g1 = 0.03;
+        double hl1g2 = 0.035;
+        double hl1b1 = 0.04;
+        double hl1b2 = 0.045;
+        double hl2g1 = 0.013;
+        double hl2g2 = 0.0135;
+        double hl2b1 = 0.014;
+        double hl2b2 = 0.0145;
 
         // adder
         TieLineAdder adder = network.newTieLine().setId("testTie")
@@ -489,12 +576,12 @@ public abstract class AbstractLineTest {
         assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(r + r2, tieLine.getR(), 0.0);
-        assertEquals(x + x2, tieLine.getX(), 0.0);
-        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
-        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
-        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
-        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+        assertEquals(7.20, tieLine.getR(), tol);
+        assertEquals(22.15, tieLine.getX(), tol);
+        assertEquals(0.03539991244, tieLine.getG1(), tol);
+        assertEquals(0.06749912436, tieLine.getG2(), tol);
+        assertEquals(0.04491554716, tieLine.getB1(), tol);
+        assertEquals(0.06365547158, tieLine.getB2(), tol);
 
         // invalid set line characteristics on tieLine
         try {

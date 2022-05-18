@@ -10,11 +10,14 @@ import com.google.common.base.Functions;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +42,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     private int forecastDistance = 0;
 
     private String sourceFormat;
+
+    private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+    private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
 
     private final NetworkIndex index = new NetworkIndex();
 
@@ -930,6 +936,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2) {
         if (dl1 != null) {
+
+            // Dangling line 2 must always be reoriented
+            // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
+            ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
+
             MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
             l.aliases = new HashSet<>();
@@ -949,18 +960,18 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.r = dl1.getR();
             l.half1.x = dl1.getX();
             l.half1.g1 = dl1.getG();
-            l.half1.g2 = 0;
             l.half1.b1 = dl1.getB();
+            l.half1.g2 = 0;
             l.half1.b2 = 0;
             l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getNameOrId();
-            l.half2.r = dl2.getR();
-            l.half2.x = dl2.getX();
-            l.half2.g2 = dl2.getG();
-            l.half2.g1 = 0;
-            l.half2.b2 = dl2.getB();
-            l.half2.b1 = 0;
+            l.half2.r = brp2.getR();
+            l.half2.x = brp2.getX();
+            l.half2.g1 = brp2.getG1();
+            l.half2.b1 = brp2.getB1();
+            l.half2.g2 = brp2.getG2();
+            l.half2.b2 = brp2.getB2();
             l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
@@ -1131,5 +1142,60 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public void removeListener(NetworkListener listener) {
         listeners.remove(listener);
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks() {
+        return runValidationChecks(true);
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException) {
+        return runValidationChecks(throwsException, Reporter.NO_OP);
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        Reporter readReporter = Objects.requireNonNull(reporter).createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
+        validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
+                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReporter);
+        return validationLevel;
+    }
+
+    @Override
+    public ValidationLevel getValidationLevel() {
+        if (validationLevel == null) {
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, Reporter.NO_OP);
+        }
+        return validationLevel;
+    }
+
+    @Override
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
+        Objects.requireNonNull(validationLevel);
+        if (this.validationLevel == null) {
+            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, Reporter.NO_OP);
+        }
+        if (this.validationLevel.compareTo(validationLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
+        }
+        this.minValidationLevel = validationLevel;
+        return this;
+    }
+
+    ValidationLevel getMinValidationLevel() {
+        return minValidationLevel;
+    }
+
+    void setValidationLevelIfGreaterThan(ValidationLevel validationLevel) {
+        if (this.validationLevel != null) {
+            this.validationLevel = ValidationLevel.min(this.validationLevel, validationLevel);
+        }
+    }
+
+    void invalidateValidationLevel() {
+        if (minValidationLevel.compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) < 0) {
+            validationLevel = null;
+        }
     }
 }

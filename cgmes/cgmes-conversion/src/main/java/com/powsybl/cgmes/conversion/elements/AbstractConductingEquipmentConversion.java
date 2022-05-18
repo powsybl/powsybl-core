@@ -34,7 +34,7 @@ import java.util.Optional;
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context) {
@@ -45,7 +45,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBag p,
         Context context,
@@ -64,7 +64,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
-    public AbstractConductingEquipmentConversion(
+    protected AbstractConductingEquipmentConversion(
         String type,
         PropertyBags ps,
         Context context) {
@@ -122,7 +122,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             // is to accumulate the power flows of connected terminals at boundary node
             for (int k = 1; k <= numTerminals; k++) {
                 if (terminalConnected(k)) {
-                    context.boundary().addPowerFlowAtNode(nodeId(k), powerFlow(k));
+                    context.boundary().addPowerFlowAtNode(nodeId(k), powerFlowSV(k));
                 }
             }
         }
@@ -261,7 +261,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // do it and assign the result at the terminal of the dangling line
         if (context.config().computeFlowsAtBoundaryDanglingLines()
             && terminalConnected(modelSide)
-            && !powerFlow(modelSide).defined()
+            && !powerFlowSV(modelSide).defined()
             && context.boundary().hasVoltage(boundaryNode)) {
 
             if (isZ0(dl)) {
@@ -426,45 +426,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     PowerFlow powerFlow() {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
-            case SSH:
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                if (stateVariablesPowerFlow().defined()) {
-                    return stateVariablesPowerFlow();
-                }
-                break;
-            case SV:
-                if (stateVariablesPowerFlow().defined()) {
-                    return stateVariablesPowerFlow();
-                }
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                break;
+        if (steadyStateHypothesisPowerFlow().defined()) {
+            return steadyStateHypothesisPowerFlow();
         }
-        return PowerFlow.UNDEFINED;
-    }
-
-    PowerFlow powerFlow(int n) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
-            case SSH:
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                if (stateVariablesPowerFlow(n).defined()) {
-                    return stateVariablesPowerFlow(n);
-                }
-                break;
-            case SV:
-                if (stateVariablesPowerFlow(n).defined()) {
-                    return stateVariablesPowerFlow(n);
-                }
-                if (steadyStateHypothesisPowerFlow().defined()) {
-                    return steadyStateHypothesisPowerFlow();
-                }
-                break;
+        if (stateVariablesPowerFlow().defined()) {
+            return stateVariablesPowerFlow();
         }
         return PowerFlow.UNDEFINED;
     }
@@ -660,9 +626,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
-        if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+        if (context.config().createCgmesExportMapping()) {
             CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-            mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
+            String topologicalNode = terminals[cgmesTerminalNumber - 1].t.topologicalNode();
+            mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, topologicalNode);
         }
     }
 
@@ -670,6 +637,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         int cgmesTerminalNumber = terminalNumber;
         int iidmTerminalNumber = cgmesTerminalNumber;
         addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
+    }
+
+    protected static void addMappingForTopologicalNode(Context context, TieLine tl, int side, BoundaryLine boundaryLine) {
+        if (context.config().createCgmesExportMapping()) {
+            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+
+            String cgmesTerminalId = boundaryLine.getModelTerminalId();
+            CgmesTerminal t = context.cgmes().terminal(cgmesTerminalId);
+            mapping.putTopologicalNode(tl.getId(), side, t.topologicalNode());
+        }
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {
@@ -688,9 +665,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             modelNode = iidmNode(modelEnd);
         }
-        PowerFlow modelPowerFlow = powerFlow(modelEnd);
+        PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, boundaryTerminalId, modelPowerFlow);
+            modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
+    }
+
+    private static Branch.Side getBoundarySide(int modelEnd) {
+        if (modelEnd == 1) {
+            return Branch.Side.TWO;
+        } else {
+            return Branch.Side.ONE;
+        }
     }
 
     protected double p0() {

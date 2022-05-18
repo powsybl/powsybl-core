@@ -217,9 +217,11 @@ public class SecurityAnalysisTool implements Tool {
     }
 
     private static SecurityAnalysisExecutionBuilder createBuilder(PlatformConfig platformConfig) {
+        String providerName = platformConfig.getOptionalModuleConfig(MODULE_CONFIG_NAME_PROPERTY)
+                .flatMap(c -> c.getOptionalStringProperty(DEFAULT_SERVICE_IMPL_NAME_PROPERTY))
+                .orElse(null);
         return new SecurityAnalysisExecutionBuilder(() -> ExternalSecurityAnalysisConfig.load(platformConfig),
-            platformConfig.getModuleConfig(MODULE_CONFIG_NAME_PROPERTY).getStringProperty(DEFAULT_SERVICE_IMPL_NAME_PROPERTY),
-            configBasedInputBuildStrategy(platformConfig));
+                providerName, configBasedInputBuildStrategy(platformConfig));
     }
 
     private static SecurityAnalysisExecution buildExecution(ToolOptions options, SecurityAnalysisExecutionBuilder builder) {

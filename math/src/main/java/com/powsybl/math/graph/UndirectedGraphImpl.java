@@ -106,6 +106,15 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final List<UndirectedGraphListener<V, E>> listeners = new CopyOnWriteArrayList<>();
 
+    private final int vertexLimit;
+
+    public UndirectedGraphImpl(int vertexLimit) {
+        if (vertexLimit < 1) {
+            throw new PowsyblException("Vertex limit should be positive");
+        }
+        this.vertexLimit = vertexLimit;
+    }
+
     private void checkVertex(int v) {
         if (v < 0 || v >= vertices.size() || vertices.get(v) == null) {
             throw new PowsyblException("Vertex " + v + " not found");
@@ -136,6 +145,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void addVertexIfNotPresent(int v) {
+        if (v < 0) {
+            throw new PowsyblException("Invalid vertex " + v);
+        }
+        if (v >= this.vertexLimit) {
+            throw new PowsyblException("Vertex index too high: " + v + ". Limit is " + this.vertexLimit);
+        }
         if (v < vertices.size()) {
             if (availableVertices.contains(v)) {
                 vertices.set(v, new Vertex<>());
@@ -234,6 +249,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private E removeEdgeInternal(int e) {
         E obj = edges.get(e).getObject();
+        notifyEdgeBeforeRemoval(e, obj);
         if (e == edges.size() - 1) {
             edges.remove(e);
         } else {
@@ -254,10 +270,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void removeAllEdges() {
+        Collection<E> allEdges = edges.stream().filter(Objects::nonNull).map(Edge::getObject).collect(Collectors.toList());
+        notifyAllEdgesBeforeRemoval(allEdges);
         edges.clear();
         removedEdges.clear();
         invalidateAdjacencyList();
-        notifyAllEdgesRemoved();
+        notifyAllEdgesRemoved(allEdges);
     }
 
     @Override
@@ -630,9 +648,21 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    private void notifyAllEdgesRemoved() {
+    private void notifyEdgeBeforeRemoval(int e, E obj) {
         for (UndirectedGraphListener<V, E> l : listeners) {
-            l.allEdgesRemoved();
+            l.edgeBeforeRemoval(e, obj);
+        }
+    }
+
+    private void notifyAllEdgesBeforeRemoval(Collection<E> obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.allEdgesBeforeRemoval(obj);
+        }
+    }
+
+    private void notifyAllEdgesRemoved(Collection<E> obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.allEdgesRemoved(obj);
         }
     }
 

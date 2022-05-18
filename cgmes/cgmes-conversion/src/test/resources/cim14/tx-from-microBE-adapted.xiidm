@@ -1,21 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6" id="tx-from-microBE-adapted" caseDate="2019-04-01T15:09:53.597+02:00" forecastDistance="0" sourceFormat="CIM1">
-    <iidm:substation id="_37e14a0f-5e34-4647-a062-8bfd9305fa9d" name="PP_Brussels" geographicalTags="_c1d5bfc88f8011e08e4d00247eb1f55e">
-        <iidm:voltageLevel id="_GRID_VL" name="GRID_VL" nominalV="110.0" topologyKind="BUS_BREAKER">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="tx-from-microBE-adapted" caseDate="2019-04-01T15:09:53.597+02:00" forecastDistance="0" sourceFormat="CIM1" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="37e14a0f-5e34-4647-a062-8bfd9305fa9d" name="PP_Brussels" geographicalTags="ELIA-Brussels">
+        <iidm:property name="CGMES.subRegionId" value="c1d5bfc88f8011e08e4d00247eb1f55e"/>
+        <iidm:voltageLevel id="GRID_VL" name="GRID_VL" nominalV="110.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_GRID_TN" name="GRID" v="115.5" angle="-9.391329765319824"/>
+                <iidm:bus id="GRID_TN" name="GRID" v="115.5" angle="-9.391329765319824"/>
             </iidm:busBreakerTopology>
-            <iidm:load id="_LOAD" name="LOAD" loadType="UNDEFINED" p0="89.68599700927734" q0="-57.13199996948242" bus="_GRID_TN" connectableBus="_GRID_TN" p="89.68599700927734" q="-57.13199996948242"/>
+            <iidm:load id="LOAD" name="LOAD" loadType="UNDEFINED" p0="89.68599700927734" q0="-57.13199996948242" bus="GRID_TN" connectableBus="GRID_TN" p="89.68599700927734" q="-57.13199996948242"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="_GEN_VL" name="GEN_VL" nominalV="10.5" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="GEN_VL" name="GEN_VL" nominalV="10.5" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_GEN_TN" name="GEN" v="10.820804595947266" angle="-7.057179927825928"/>
+                <iidm:bus id="GEN_TN" name="GEN" v="10.820804595947266" angle="-7.057179927825928"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_BE-G1_SM" name="BE-G1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="90.0" targetQ="-51.11600112915039" bus="_GEN_TN" connectableBus="_GEN_TN" p="-90.0" q="51.11600112915039">
+            <iidm:generator id="BE-G1_SM" name="BE-G1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="90.0" targetQ="-51.11600112915039" bus="GEN_TN" connectableBus="GEN_TN" p="-90.0" q="51.11600112915039">
                 <iidm:minMaxReactiveLimits minQ="-999.0" maxQ="999.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="_e482b89a-fa84-4ea9-8e70-a83d44790957" name="BE-TR2_3" r="9.481463930569589E-4" x="0.05291150510311127" g="0.0019138280767947435" b="-0.009170063771307468" ratedU1="110.34375" ratedU2="10.5" bus1="_GRID_TN" connectableBus1="_GRID_TN" voltageLevelId1="_GRID_VL" bus2="_GEN_TN" connectableBus2="_GEN_TN" voltageLevelId2="_GEN_VL">
+        <iidm:twoWindingsTransformer id="e482b89a-fa84-4ea9-8e70-a83d44790957" name="BE-TR2_3" r="9.481463930569589E-4" x="0.05291150510311127" g="0.0019138280767947435" b="-0.009170063771307468" ratedU1="110.34375" ratedU2="10.5" bus1="GRID_TN" connectableBus1="GRID_TN" voltageLevelId1="GRID_VL" bus2="GEN_TN" connectableBus2="GEN_TN" voltageLevelId2="GEN_VL">
             <iidm:ratioTapChanger lowTapPosition="1" tapPosition="18" loadTapChangingCapabilities="false">
                 <iidm:step r="-23.961603659057573" x="-23.961603659057573" g="31.512505276437007" b="31.512505276437007" rho="0.871999979019165"/>
                 <iidm:step r="-22.560000839233396" x="-22.560000839233396" g="29.132232804391567" b="29.132232804391567" rho="0.8799999952316284"/>

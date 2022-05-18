@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -15,6 +16,7 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
+import com.powsybl.iidm.network.test.ScadaNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -191,5 +193,27 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
 
         // backward compatibility
         roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-tutorial-example1-opt-sub.xml", IidmXmlVersion.V_1_6);
+    }
+
+    @Test
+    public void testScada() throws IOException {
+        Network network = ScadaNetworkFactory.create();
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
+        roundTripTest(network,
+                NetworkXml::write,
+                NetworkXml::read,
+                getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_XML_VERSION));
+
+        // backward compatibility
+        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmXmlVersion.V_1_8);
+
+        Path path = tmpDir.resolve("test");
+        NetworkXml.write(network, path);
+        try {
+            NetworkXml.validate(path);
+            fail();
+        } catch (UncheckedSaxException e) {
+            // ignore
+        }
     }
 }
