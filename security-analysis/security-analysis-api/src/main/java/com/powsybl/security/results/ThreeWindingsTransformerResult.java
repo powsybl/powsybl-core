@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.results;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.extensions.AbstractExtendable;
 
 import java.util.Objects;
@@ -40,19 +39,20 @@ public class ThreeWindingsTransformerResult extends AbstractExtendable<ThreeWind
 
     private final double i3;
 
-    public ThreeWindingsTransformerResult(@JsonProperty("threeWindingsTransformerId") String threeWindingsTransformerId, @JsonProperty("p1") double p1, @JsonProperty("q1") double q1,
-                                          @JsonProperty("i1") double i1, @JsonProperty("p2") double p2, @JsonProperty("q2") double q2,
-                                          @JsonProperty("i2") double i2, @JsonProperty("p3") double p3, @JsonProperty("q3") double q3, @JsonProperty("i3") double i3) {
+    public ThreeWindingsTransformerResult(String threeWindingsTransformerId,
+                                          double p1, double q1, double i1,
+                                          double p2, double q2, double i2,
+                                          double p3, double q3, double i3) {
         this.threeWindingsTransformerId = Objects.requireNonNull(threeWindingsTransformerId);
-        this.p1 = Objects.requireNonNull(p1);
-        this.q1 = Objects.requireNonNull(q1);
-        this.i1 = Objects.requireNonNull(i1);
-        this.p2 = Objects.requireNonNull(p2);
-        this.q2 = Objects.requireNonNull(q2);
-        this.i2 = Objects.requireNonNull(i2);
-        this.p3 = Objects.requireNonNull(p3);
-        this.q3 = Objects.requireNonNull(q3);
-        this.i3 = Objects.requireNonNull(i3);
+        this.p1 = p1;
+        this.q1 = q1;
+        this.i1 = i1;
+        this.p2 = p2;
+        this.q2 = q2;
+        this.i2 = i2;
+        this.p3 = p3;
+        this.q3 = q3;
+        this.i3 = i3;
     }
 
     public String getThreeWindingsTransformerId() {
