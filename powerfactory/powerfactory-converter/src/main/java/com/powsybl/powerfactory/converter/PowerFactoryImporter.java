@@ -57,8 +57,8 @@ public class PowerFactoryImporter implements Importer {
         return "PowerFactory to IIDM converter";
     }
 
-    private Optional<StudyCaseLoader> findProjectLoader(ReadOnlyDataSource dataSource) {
-        for (StudyCaseLoader studyCaseLoader : ServiceLoader.load(StudyCaseLoader.class)) {
+    private Optional<PowerFactoryDataLoader<StudyCase>> findProjectLoader(ReadOnlyDataSource dataSource) {
+        for (PowerFactoryDataLoader<StudyCase> studyCaseLoader : PowerFactoryDataLoader.find(StudyCase.class)) {
             try {
                 if (dataSource.exists(null, studyCaseLoader.getExtension())) {
                     return Optional.of(studyCaseLoader);

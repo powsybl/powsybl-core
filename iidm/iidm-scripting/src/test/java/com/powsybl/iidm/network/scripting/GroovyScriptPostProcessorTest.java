@@ -49,12 +49,14 @@ public class GroovyScriptPostProcessorTest {
     @Test
     public void test() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        Path script = platformConfig.getConfigDir().resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+        Path script = platformConfig.getConfigDir().map(p -> p.resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME)).orElse(null);
+        assertNotNull(script);
         Files.copy(getClass().getResourceAsStream("/import-post-processor.groovy"), script);
         test(platformConfig);
 
         // Test with a custom script name
-        script = platformConfig.getConfigDir().resolve("custom-script.groovy");
+        script = platformConfig.getConfigDir().map(p -> p.resolve("custom-script.groovy")).orElse(null);
+        assertNotNull(script);
         Files.copy(getClass().getResourceAsStream("/import-post-processor.groovy"), script);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("groovy-post-processor");
         moduleConfig.setStringProperty("script", script.toAbsolutePath().toString());
@@ -67,7 +69,8 @@ public class GroovyScriptPostProcessorTest {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
         // Copy script
-        Path script = platformConfig.getConfigDir().resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+        Path script = platformConfig.getConfigDir().map(p -> p.resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME)).orElse(null);
+        assertNotNull(script);
         Files.copy(getClass().getResourceAsStream("/script-eurostag.groovy"), script);
 
         // Create post-processor
@@ -103,7 +106,8 @@ public class GroovyScriptPostProcessorTest {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 
         // Copy script
-        Path script = platformConfig.getConfigDir().resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME);
+        Path script = platformConfig.getConfigDir().map(p -> p.resolve(GroovyScriptPostProcessor.DEFAULT_SCRIPT_NAME)).orElse(null);
+        assertNotNull(script);
         Files.copy(getClass().getResourceAsStream("/script-four-substations.groovy"), script);
 
         // Create post-processor
