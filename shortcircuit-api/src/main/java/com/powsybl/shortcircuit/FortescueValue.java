@@ -149,7 +149,7 @@ public class FortescueValue {
         Pair<Double, Double> phase2 = getPolarFromCartesian(mGphase.get(2, 0), mGphase.get(3, 0));
         Pair<Double, Double> phase3 = getPolarFromCartesian(mGphase.get(4, 0), mGphase.get(5, 0));
 
-        ThreePhaseValue threePhaseValue = new ThreePhaseValue(phase1.getKey(), phase2.getKey(), phase3.getKey(), phase1.getValue(), phase2.getValue(), phase3.getValue());
+        ThreePhaseValue threePhaseValue = new ThreePhaseValue(phase1.getKey() / Math.sqrt(3), phase2.getKey() / Math.sqrt(3), phase3.getKey() / Math.sqrt(3), phase1.getValue(), phase2.getValue(), phase3.getValue());
         return threePhaseValue;
     }
 
@@ -173,10 +173,10 @@ public class FortescueValue {
         mFortescue.add(0, 2, 1.);
         mFortescue.add(1, 3, 1.);
 
-        mFortescue.add(2, 2, 1. / 2.);
-        mFortescue.add(2, 3, -Math.sqrt(3.) / 2.);
-        mFortescue.add(3, 2, Math.sqrt(3.) / 2.);
-        mFortescue.add(3, 3, 1. / 2.);
+        mFortescue.add(2, 2, -1. / 2.);
+        mFortescue.add(2, 3, Math.sqrt(3.) / 2.);
+        mFortescue.add(3, 2, -Math.sqrt(3.) / 2.);
+        mFortescue.add(3, 3, -1. / 2.);
 
         mFortescue.add(4, 2, -1. / 2.);
         mFortescue.add(4, 3, -Math.sqrt(3.) / 2.);
@@ -192,10 +192,10 @@ public class FortescueValue {
         mFortescue.add(3, 4, Math.sqrt(3.) / 2.);
         mFortescue.add(3, 5, -1. / 2.);
 
-        mFortescue.add(4, 4, 1. / 2.);
-        mFortescue.add(4, 5, -Math.sqrt(3.) / 2.);
-        mFortescue.add(5, 4, Math.sqrt(3.) / 2.);
-        mFortescue.add(5, 5, 1. / 2.);
+        mFortescue.add(4, 4, -1. / 2.);
+        mFortescue.add(4, 5, Math.sqrt(3.) / 2.);
+        mFortescue.add(5, 4, -Math.sqrt(3.) / 2.);
+        mFortescue.add(5, 5, -1. / 2.);
 
         return mFortescue;
     }
