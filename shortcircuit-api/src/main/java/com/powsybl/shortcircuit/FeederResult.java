@@ -6,10 +6,6 @@
  */
 package com.powsybl.shortcircuit;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Objects;
 
 /**
@@ -21,9 +17,8 @@ public class FeederResult {
 
     private final FortescueValue current;
 
-    @JsonCreator
-    public FeederResult(@JsonProperty("connectableId") String connectableId,
-                        @JsonProperty("current") FortescueValue current) {
+    public FeederResult(String connectableId,
+                        FortescueValue current) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.current = current;
     }
@@ -47,7 +42,6 @@ public class FeederResult {
     /**
      * The value of the current of the connectable contributing to the total fault current in kA
      */
-    @JsonIgnore
     public double getFeederThreePhaseCurrent() {
         return current.getDirectMagnitude();
     }
