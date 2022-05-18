@@ -21,27 +21,27 @@ public class FaultOptionsIndexTest {
     @Test
     public void test() {
         List<FaultOptions> options = new ArrayList<>();
-        options.add(new FaultOptions(new FaultContext("f00"), false, false));
-        options.add(new FaultOptions(new FaultContext("f01"), false, true));
-        options.add(new FaultOptions(new FaultContext("f10"), true, false));
-        options.add(new FaultOptions(new FaultContext("f11"), true, true));
+        options.add(new FaultOptions("f00", false, false));
+        options.add(new FaultOptions("f01", false, true));
+        options.add(new FaultOptions("f10", true, false));
+        options.add(new FaultOptions("f11", true, true));
 
         FaultOptionsIndex optionIndex = new FaultOptionsIndex(options);
 
-        FaultContext expectedCtx = new FaultContext("f00");
+        String expectedCtx = "f00";
         FaultOptions expected = new FaultOptions(expectedCtx, false, false);
-        FaultOptions actual = optionIndex.getOptions().get("f00");
+        FaultOptions actual = optionIndex.getOptions("f00");
         assertEquals(expected, actual);
         assertEquals(expected.hashCode(), actual.hashCode());
         assertEquals(expected.toString(), actual.toString());
 
-        FaultContext actualCtx = optionIndex.getOptions().get("f00").getFaultContext();
+        String actualCtx = optionIndex.getOptions("f00").getId();
         assertEquals(expectedCtx, actualCtx);
         assertEquals(expectedCtx.hashCode(), actualCtx.hashCode());
-        assertEquals(expectedCtx.toString(), actualCtx.toString());
+        assertEquals(expectedCtx, actualCtx);
 
-        assertEquals(new FaultOptions(new FaultContext("f01"), false, true), optionIndex.getOptions().get("f01"));
-        assertEquals(new FaultOptions(new FaultContext("f10"), true, false), optionIndex.getOptions().get("f10"));
-        assertEquals(new FaultOptions(new FaultContext("f11"), true, true), optionIndex.getOptions().get("f11"));
+        assertEquals(new FaultOptions("f01", false, true), optionIndex.getOptions("f01"));
+        assertEquals(new FaultOptions("f10", true, false), optionIndex.getOptions("f10"));
+        assertEquals(new FaultOptions("f11", true, true), optionIndex.getOptions("f11"));
     }
 }

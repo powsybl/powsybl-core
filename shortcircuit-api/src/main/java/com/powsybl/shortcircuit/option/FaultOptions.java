@@ -6,8 +6,9 @@
  */
 package com.powsybl.shortcircuit.option;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,14 +24,15 @@ import java.util.Objects;
  */
 public class FaultOptions {
 
-    private final FaultContext faultContext;
+    private final String id;
 
-    private boolean withLimitViolations;
+    private final boolean withLimitViolations;
 
-    private boolean withVoltageMap;
+    private final boolean withVoltageMap;
 
-    public FaultContext getFaultContext() {
-        return faultContext;
+    /** Fault id */
+    public String getId() {
+        return id;
     }
 
     /** Whether the result should indicate a limit violation */
@@ -43,19 +45,12 @@ public class FaultOptions {
         return withVoltageMap;
     }
 
-    public FaultOptions(@JsonProperty("faultContext") FaultContext faultContext,
-                        @JsonProperty("withLimitViolations") boolean withLimitViolations,
-                        @JsonProperty("withVoltageMap") boolean withVoltageMap) {
-        this.faultContext = Objects.requireNonNull(faultContext);
+    public FaultOptions(String id,
+                        boolean withLimitViolations,
+                        boolean withVoltageMap) {
+        this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageMap = withVoltageMap;
-    }
-
-    public FaultOptions merge(FaultOptions optionTobeMerged) {
-        Objects.requireNonNull(optionTobeMerged);
-        this.withLimitViolations = optionTobeMerged.isWithLimitViolations();
-        this.withVoltageMap = optionTobeMerged.isWithVoltageMap();
-        return this;
     }
 
     @Override
@@ -67,26 +62,32 @@ public class FaultOptions {
             return false;
         }
         FaultOptions that = (FaultOptions) o;
-        return Objects.equals(withLimitViolations, that.withLimitViolations) &&
+        return Objects.equals(id, that.id) &&
+                Objects.equals(withLimitViolations, that.withLimitViolations) &&
                 Objects.equals(withVoltageMap, that.withVoltageMap);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(withLimitViolations, withVoltageMap);
+        return Objects.hash(id, withLimitViolations, withVoltageMap);
     }
 
     @Override
     public String toString() {
         return "FaultOptions{" +
+            "id=" + id +
             "withLimitViolations=" + withLimitViolations +
             ", withVoltageMap=" + withVoltageMap +
             '}';
     }
 
+    private static ObjectMapper createObjectMapper() {
+        return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
+    }
+
     public static void write(List<FaultOptions> options, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
-            JsonUtil.createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, options);
+            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, options);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -94,7 +95,7 @@ public class FaultOptions {
 
     public static List<FaultOptions> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return JsonUtil.createObjectMapper().readerForListOf(FaultOptions.class).readValue(is);
+            return createObjectMapper().readerForListOf(FaultOptions.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -17,15 +17,10 @@ public class FaultOptionsIndex {
     private final Map<String, FaultOptions> options = new HashMap<>();
 
     public FaultOptionsIndex(List<FaultOptions> faultOptions) {
-        faultOptions.forEach(option -> {
-            String id = option.getFaultContext().getId();
-            if (id != null) {
-                this.options.merge(id, option, FaultOptions::merge);
-            }
-        });
+        faultOptions.forEach(option -> this.options.put(option.getId(), option));
     }
 
-    public Map<String, FaultOptions> getOptions() {
-        return options;
+    public FaultOptions getOptions(String id) {
+        return options.get(id);
     }
 }

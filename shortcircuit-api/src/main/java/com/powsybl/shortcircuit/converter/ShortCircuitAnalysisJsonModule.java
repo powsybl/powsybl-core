@@ -16,6 +16,7 @@ import com.powsybl.security.json.NetworkMetadataSerializer;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.json.ShortCircuitParametersDeserializer;
 import com.powsybl.shortcircuit.json.ShortCircuitParametersSerializer;
+import com.powsybl.shortcircuit.option.FaultOptions;
 
 /**
  * @author Boubakeur Brahimi
@@ -41,6 +42,8 @@ public class ShortCircuitAnalysisJsonModule extends SimpleModule {
         addDeserializer(ShortCircuitBusResults.class, new ShortCircuitBusResultsDeserializer());
         addSerializer(FeederResult.class, new FeederResultSerializer());
         addDeserializer(FeederResult.class, new FeederResultDeserializer());
+        addSerializer(FaultOptions.class, new FaultOptionsSerializer());
+        addDeserializer(FaultOptions.class, new FaultOptionsDeserializer());
 
     }
 

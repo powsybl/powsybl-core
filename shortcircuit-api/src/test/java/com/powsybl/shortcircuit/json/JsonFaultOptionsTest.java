@@ -7,12 +7,10 @@
 package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.shortcircuit.option.FaultContext;
 import com.powsybl.shortcircuit.option.FaultOptions;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,19 +23,19 @@ public class JsonFaultOptionsTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<FaultOptions> options = new ArrayList<>();
-        options.add(new FaultOptions(new FaultContext("f00"), false, false));
-        options.add(new FaultOptions(new FaultContext("f01"), false, true));
-        options.add(new FaultOptions(new FaultContext("f10"), true, false));
-        options.add(new FaultOptions(new FaultContext("f11"), true, true));
+        options.add(new FaultOptions("f00", false, false));
+        options.add(new FaultOptions("f01", false, true));
+        options.add(new FaultOptions("f10", true, false));
+        options.add(new FaultOptions("f11", true, true));
         roundTripTest(options, FaultOptions::write, FaultOptions::read, "/FaultOptionsFile.json");
     }
 
     @Test
-    public void readError() throws IOException {
+    public void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultOptionsFileInvalid.json"), fileSystem.getPath("/FaultOptionsFileInvalid.json"));
 
-        expected.expect(UncheckedIOException.class);
-        expected.expectMessage("Unrecognized field \"unexpected\"");
+        expected.expect(AssertionError.class);
+        expected.expectMessage("Unexpected field: unexpected");
         FaultOptions.read(fileSystem.getPath("/FaultOptionsFileInvalid.json"));
     }
 }
