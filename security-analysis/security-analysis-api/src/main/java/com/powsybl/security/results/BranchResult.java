@@ -6,11 +6,8 @@
  */
 package com.powsybl.security.results;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.powsybl.commons.extensions.AbstractExtendable;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,7 +17,7 @@ import java.util.Objects;
  *
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class BranchResult {
+public class BranchResult extends AbstractExtendable<BranchResult> {
 
     private final String branchId;
 
@@ -45,20 +42,7 @@ public class BranchResult {
      * <b>p1j,N</b> the active power flow on side 1 of lost branch j at pre contingency stage.
      * Verifying : <i>p1i,N-1 = P1i,N + flow transfer(j->i) * p1j,N</i>
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final double flowTransfer;
-
-    @JsonCreator
-    private BranchResult(Map<String, Object> props) {
-        this.branchId = Objects.requireNonNull((String) props.get("branchId"));
-        this.p1 = Objects.requireNonNull((Double) props.get("p1"));
-        this.q1 = Objects.requireNonNull((Double) props.get("q1"));
-        this.i1 = Objects.requireNonNull((Double) props.get("i1"));
-        this.p2 = Objects.requireNonNull((Double) props.get("p2"));
-        this.q2 = Objects.requireNonNull((Double) props.get("q2"));
-        this.i2 = Objects.requireNonNull((Double) props.get("i2"));
-        this.flowTransfer = Objects.requireNonNullElse((Double) props.get("flowTransfer"), Double.NaN);
-    }
 
     public BranchResult(String branchId, double p1, double q1, double i1, double p2, double q2, double i2) {
         this(branchId, p1, q1, i1, p2, q2, i2, Double.NaN);
@@ -128,11 +112,6 @@ public class BranchResult {
 
     public double getFlowTransfer() {
         return flowTransfer;
-    }
-
-    @JsonGetter(value = "flowTransfer")
-    private Double getNullableFlowTransfer() {
-        return Double.isNaN(flowTransfer) ? null : flowTransfer;
     }
 
     @Override

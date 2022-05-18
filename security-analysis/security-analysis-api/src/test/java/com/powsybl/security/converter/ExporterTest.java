@@ -18,7 +18,7 @@ import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.assertj.core.api.Assertions;
@@ -69,8 +69,8 @@ public class ExporterTest extends AbstractConverterTest {
         List<BranchResult> preContingencyBranchResults = new ArrayList<>();
         preContingencyBranchResults.add(new BranchResult("branch1", 0, 0, 0, 0, 0, 0));
         preContingencyBranchResults.add(new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
-        List<BusResults> preContingencyBusResults = new ArrayList<>();
-        preContingencyBusResults.add(new BusResults("voltageLevelId", "busId", 400, 3.14));
+        List<BusResult> preContingencyBusResults = new ArrayList<>();
+        preContingencyBusResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
         threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));

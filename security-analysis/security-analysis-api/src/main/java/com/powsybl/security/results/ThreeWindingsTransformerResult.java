@@ -7,6 +7,8 @@
 package com.powsybl.security.results;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.commons.extensions.AbstractExtendable;
+
 import java.util.Objects;
 
 /**
@@ -16,7 +18,7 @@ import java.util.Objects;
  * it is the result of the three windings transformer id specified in StateMonitor.
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class ThreeWindingsTransformerResult {
+public class ThreeWindingsTransformerResult extends AbstractExtendable<ThreeWindingsTransformerResult> {
 
     private final String threeWindingsTransformerId;
 
