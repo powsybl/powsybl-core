@@ -83,16 +83,16 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
             uuid = id;
         } else {
             uuid = CgmesExportUtil.getUniqueId();
+            // Only store the IDs that have been created during the export
+            idByUuid.put(uuid, id);
         }
-        idByUuid.put(uuid, id);
         return uuid;
     }
 
     @Override
     public String getCgmesId(Identifiable<?> identifiable, String subObject) {
         //  This is a hack to save in the naming strategy an identifier for something that is not an identifiable:
-        //  Connectivity nodes linked to bus/breaker view buses,
-        //  tap changers linked to transformers ????
+        //  Connectivity nodes linked to bus/breaker view buses
         String id = identifiable.getId() + "_" + subObject;
         if (idByUuid.containsValue(id)) {
             return idByUuid.inverse().get(id);
@@ -105,8 +105,9 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
             uuid = id;
         } else {
             uuid = CgmesExportUtil.getUniqueId();
+            // Only store the IDs that have been created during the export
+            idByUuid.put(uuid, id);
         }
-        idByUuid.put(uuid, id);
         return uuid;
     }
 
