@@ -60,7 +60,7 @@ public final class SteadyStateHypothesisExport {
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer, context);
             // TODO writeControlAreas
-            writeTerminals(network, cimNamespace, writer);
+            writeTerminals(network, cimNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -77,10 +77,12 @@ public final class SteadyStateHypothesisExport {
     private static final String ALIAS_TYPE_TERMINAL_1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1";
     private static final String ALIAS_TYPE_TERMINAL_2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2";
 
-    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                writeTerminal(t, cimNamespace, writer);
+            if (context.isExportedEquipment(c)) {
+                for (Terminal t : c.getTerminals()) {
+                    writeTerminal(t, cimNamespace, writer);
+                }
             }
         }
         for (Switch sw : network.getSwitches()) {
@@ -484,7 +486,9 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
-            writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer);
+            if (context.isExportedEquipment(load)) {
+                writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer);
+            }
         }
     }
 

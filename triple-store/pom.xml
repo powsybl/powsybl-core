@@ -25,7 +25,6 @@
 
     <modules>
         <module>triple-store-api</module>
-        <module>triple-store-impl-jena</module>
         <module>triple-store-impl-rdf4j</module>
         <module>triple-store-test</module>
     </modules>
