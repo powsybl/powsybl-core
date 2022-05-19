@@ -19,8 +19,6 @@ import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -53,7 +51,7 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         try (TableFormatter formatter = formatterFactory.create(writer, "Short circuit analysis", formatterConfig,
                 new Column("ID"), new Column("Three Phase Fault Current"))) {
             for (FaultResult action : result.getFaultResults()) {
-                formatter.writeCell(action.getFault().getId())
+                formatter.writeCell(action.getFault().getElementId())
                         .writeCell(action.getThreePhaseFaultCurrent());
             }
         } catch (IOException e) {
@@ -71,9 +69,9 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
                 new Column("ID"), new Column("Voltage level"), new Column("Country"), new Column("Base voltage"),
                 new Column("Limit type"), new Column("Limit"), new Column("Value"))) {
 
-            for (Map.Entry<String, List<LimitViolation>> entry : result.getLimitViolations().entrySet()) {
-                for (LimitViolation limitViolation : entry.getValue()) {
-                    formatter.writeCell(entry.getKey())
+            for (FaultResult faultResult : result.getFaultResults()) {
+                for (LimitViolation limitViolation : faultResult.getLimitViolations()) {
+                    formatter.writeCell(faultResult.getFault().getId())
                             .writeCell(limitViolation.getSubjectId())
                             .writeCell(LimitViolationHelper.getCountry(limitViolation, network).map(Enum::name).orElse(""))
                             .writeCell(LimitViolationHelper.getNominalVoltage(limitViolation, network))

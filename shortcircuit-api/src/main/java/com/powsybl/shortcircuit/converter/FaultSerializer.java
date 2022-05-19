@@ -30,6 +30,7 @@ public class FaultSerializer extends StdSerializer<Fault> {
 
         jsonGenerator.writeStringField("type", fault.getType().name());
         jsonGenerator.writeStringField("id", fault.getId());
+        jsonGenerator.writeStringField("elementId", fault.getElementId());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "r", fault.getRToGround());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "x", fault.getXToGround());
         jsonGenerator.writeStringField("connection", fault.getConnectionType().name());

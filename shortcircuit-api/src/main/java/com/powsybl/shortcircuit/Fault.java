@@ -46,8 +46,11 @@ public interface Fault {
 
     //TODO : add the numbers of the phase for two and single phase
 
-    // The equipment or bus id where the fault is simulated.
+    // The fault id.
     String getId();
+
+    // The equipment or bus id where the fault is simulated.
+    String getElementId();
 
     // Characteristics of the short-circuit to ground.
     double getRToGround();

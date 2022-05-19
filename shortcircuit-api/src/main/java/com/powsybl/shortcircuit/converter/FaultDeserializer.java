@@ -28,7 +28,8 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
     @Override
     public Fault deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Fault.Type type = null;
-        String id = "";
+        String id = null;
+        String elementId = null;
         double r = Double.NaN;
         double x = Double.NaN;
         Fault.ConnectionType connection = Fault.ConnectionType.SERIES;
@@ -43,6 +44,10 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                 case "id":
                     parser.nextToken();
                     id = parser.readValueAs(String.class);
+                    break;
+                case "elementId":
+                    parser.nextToken();
+                    elementId = parser.readValueAs(String.class);
                     break;
                 case "r":
                     parser.nextToken();
@@ -76,10 +81,10 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         Fault fault;
         switch (type) {
             case BUS:
-                fault = new BusFault(id, r, x, connection, faultType);
+                fault = new BusFault(id, elementId, r, x, connection, faultType);
                 break;
             case BRANCH:
-                fault = new BranchFault(id, r, x, connection, faultType, proportionalLocation);
+                fault = new BranchFault(id, elementId, r, x, connection, faultType, proportionalLocation);
                 break;
             default:
                 throw new AssertionError("Unexpected type: " + type.name());

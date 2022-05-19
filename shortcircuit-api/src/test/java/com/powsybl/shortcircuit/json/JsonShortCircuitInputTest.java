@@ -25,8 +25,8 @@ public class JsonShortCircuitInputTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<Fault> faults = new ArrayList<>();
-        faults.add(new BranchFault("id", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLE_PHASE, 3.0));
-        faults.add(new BusFault("id", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE));
+        faults.add(new BranchFault("F1", "branchId", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLE_PHASE, 3.0));
+        faults.add(new BusFault("F2", "busId", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE));
         roundTripTest(faults, Fault::write, Fault::read,
                 "/FaultsFile.json");
     }

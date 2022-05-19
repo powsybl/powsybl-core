@@ -50,9 +50,9 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
 
     private static ShortCircuitAnalysisResult createResult() {
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult1 = createFaultResult("ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
-        FaultResult faultResult2 = createFaultResult("ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
-        Fault fault = new BranchFault("ID_3", 0.0, 0.0, 12.0);
+        FaultResult faultResult1 = createFaultResult("Fault_ID_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 2500, 2000);
+        FaultResult faultResult2 = createFaultResult("Fault_ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
+        Fault fault = new BranchFault("Fault_ID_3", "BranchId", 0.0, 0.0, 12.0);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
         busResults.add(new ShortCircuitBusResults("VLGEN", "busId", new FortescueValue(2004, 2005)));
         FaultResult faultResult3 = new FaultResult(fault,  1.0, Collections.emptyList(),
@@ -64,21 +64,20 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static FaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
-        Fault fault = new BusFault(faultId, 0.0, 0.0);
+        Fault fault = new BusFault(faultId, "BusId", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "VLGEN";
         float limitReduction = 1;
-        LimitViolation limitViolation1 = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        LimitViolation limitViolation1 = new LimitViolation("VLGEN", limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation1);
-        LimitViolation limitViolation2 = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        LimitViolation limitViolation2 = new LimitViolation("VLGEN", limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation2);
         return new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(value));
     }
 
     private static ShortCircuitAnalysisResult createResultWithExtension() {
-        Fault fault = new BusFault("id", 0.0, 0.0);
+        Fault fault = new BusFault("id", "busId", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "id";
+        String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
         float limitReduction = 1;
@@ -87,7 +86,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
-        busResults.add(new ShortCircuitBusResults("vlId", "busId", new FortescueValue(2004, 2005)));
+        busResults.add(new ShortCircuitBusResults(subjectId, "busId", new FortescueValue(2004, 2005)));
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
@@ -98,7 +97,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     private static ShortCircuitAnalysisResult createWithFeederResults() {
-        Fault fault = new BusFault("id", 0.0, 0.0);
+        Fault fault = new BusFault("id", "BusId", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;

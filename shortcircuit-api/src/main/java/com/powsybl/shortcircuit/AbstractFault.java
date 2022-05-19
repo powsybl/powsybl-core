@@ -17,14 +17,16 @@ import java.util.Objects;
 abstract class AbstractFault implements Fault {
 
     private final String id;
+    private final String elementId;
     private final double r;
     private final double x;
     private final ConnectionType connection;
     private final FaultType faultType;
 
-    protected AbstractFault(String id, double r, double x, ConnectionType connection,
+    protected AbstractFault(String id, String elementId, double r, double x, ConnectionType connection,
                             FaultType faultType) {
         this.id = Objects.requireNonNull(id);
+        this.elementId = Objects.requireNonNull(elementId);
         this.r = r;
         this.x = x;
         this.connection = Objects.requireNonNull(connection);
@@ -34,6 +36,11 @@ abstract class AbstractFault implements Fault {
     @Override
     public String getId() {
         return this.id;
+    }
+
+    @Override
+    public String getElementId() {
+        return this.elementId;
     }
 
     @Override

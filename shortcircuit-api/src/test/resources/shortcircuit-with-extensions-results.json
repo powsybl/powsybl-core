@@ -4,6 +4,7 @@
     "fault" : {
       "type" : "BUS",
       "id" : "id",
+      "elementId" : "busId",
       "r" : 0.0,
       "x" : 0.0,
       "connection" : "SERIES",
@@ -11,7 +12,7 @@
     },
     "threePhaseFaultActivePower" : 1.0,
     "limitViolations" : [ {
-      "subjectId" : "id",
+      "subjectId" : "vlId",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
       "limit" : 2000.0,
       "limitReduction" : 1.0,

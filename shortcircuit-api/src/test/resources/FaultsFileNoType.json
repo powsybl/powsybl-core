@@ -1,5 +1,6 @@
 [ {
-  "id" : "id",
+  "id" : "F1",
+  "elementId" : "branchId",
   "r" : 1.0,
   "x" : 2.0,
   "connection" : "PARALLEL",
@@ -7,7 +8,8 @@
   "proportionalLocation" : 3.0
 }, {
   "type" : "BUS",
-  "id" : "id",
+  "id" : "F2",
+  "elementId" : "busId",
   "r" : 1.1,
   "x" : 2.2,
   "connection" : "SERIES",

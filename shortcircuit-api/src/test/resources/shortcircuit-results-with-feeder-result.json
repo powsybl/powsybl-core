@@ -4,6 +4,7 @@
     "fault" : {
       "type" : "BUS",
       "id" : "id",
+      "elementId" : "BusId",
       "r" : 0.0,
       "x" : 0.0,
       "connection" : "SERIES",
