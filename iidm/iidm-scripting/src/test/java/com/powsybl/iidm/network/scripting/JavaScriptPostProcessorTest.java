@@ -20,8 +20,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -43,7 +42,8 @@ public class JavaScriptPostProcessorTest {
     @Test
     public void test() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        Path script = platformConfig.getConfigDir().resolve(JavaScriptPostProcessor.SCRIPT_NAME);
+        Path script = platformConfig.getConfigDir().map(p -> p.resolve(JavaScriptPostProcessor.SCRIPT_NAME)).orElse(null);
+        assertNotNull(script);
         Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
         test(platformConfig);
 
@@ -52,7 +52,8 @@ public class JavaScriptPostProcessorTest {
         test(platformConfig);
 
         // Test with a custom script name
-        script = platformConfig.getConfigDir().resolve("custom-script.js");
+        script = platformConfig.getConfigDir().map(p -> p.resolve("custom-script.js")).orElse(null);
+        assertNotNull(script);
         Files.copy(getClass().getResourceAsStream("/import-post-processor.js"), script);
         moduleConfig.setStringProperty("script", script.toAbsolutePath().toString());
         test(platformConfig);

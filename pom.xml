@@ -107,7 +107,6 @@
         <jackson.version>2.13.2</jackson.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
-        <jena.version>3.0.0</jena.version>
         <jgrapht.version>1.4.0</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
         <jodatime.version>2.9.7</jodatime.version>
@@ -630,11 +629,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-triple-store-impl-jena</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -781,23 +775,6 @@
                 <artifactId>commons-text</artifactId>
                 <version>${commonstext.version}</version>
             </dependency>
-            <!-- we avoid the apache-jena-libs dependency because it
-            adds a spurious file jena-libs.pom to our distribution -->
-            <dependency>
-                <groupId>org.apache.jena</groupId>
-                <artifactId>jena-tdb</artifactId>
-                <version>${jena.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
@@ -931,12 +908,6 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${mockito.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-inline</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>

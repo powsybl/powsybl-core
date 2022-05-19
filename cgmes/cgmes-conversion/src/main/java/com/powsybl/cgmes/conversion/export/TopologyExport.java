@@ -51,20 +51,22 @@ public final class TopologyExport {
     }
 
     private static void writeTerminals(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writeConnectableTerminals(network, cimNamespace, writer);
+        writeConnectableTerminals(network, cimNamespace, writer, context);
         writeBoundaryTerminals(network, cimNamespace, writer);
         writeSwitchesTerminals(network, addedTopologicalNodes, cimNamespace, writer, context);
         writeHvdcTerminals(network, cimNamespace, writer);
     }
 
-    private static void writeConnectableTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeConnectableTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                Bus b = t.getBusBreakerView().getBus();
-                if (b == null) {
-                    b = t.getBusBreakerView().getConnectableBus();
+            if (context.isExportedEquipment(c)) {
+                for (Terminal t : c.getTerminals()) {
+                    Bus b = t.getBusBreakerView().getBus();
+                    if (b == null) {
+                        b = t.getBusBreakerView().getConnectableBus();
+                    }
+                    writeTerminal(CgmesExportUtil.getTerminalId(t), b.getId(), cimNamespace, writer);
                 }
-                writeTerminal(CgmesExportUtil.getTerminalId(t), b.getId(), cimNamespace, writer);
             }
         }
     }

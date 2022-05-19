@@ -45,7 +45,9 @@ public final class PowerFactoryAppUtil {
 
     public static Path getDigSilentDir(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        return platformConfig.getConfigDir().getFileSystem().getPath(DIG_SILENT_DEFAULT_DIR);
+        return platformConfig.getConfigDir()
+                .map(cd -> cd.getFileSystem().getPath(DIG_SILENT_DEFAULT_DIR))
+                .orElse(Path.of(DIG_SILENT_DEFAULT_DIR));
     }
 
     public static String findHomeDirName(PlatformConfig platformConfig) {

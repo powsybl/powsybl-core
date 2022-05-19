@@ -23,8 +23,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -56,7 +54,7 @@ public final class StateVariablesExport {
             writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer);
             writeTapSteps(network, cimNamespace, writer);
-            writeStatus(network, cimNamespace, writer);
+            writeStatus(network, cimNamespace, writer, context);
             writeConverters(network, cimNamespace, writer);
 
             writer.writeEndDocument();
@@ -75,8 +73,7 @@ public final class StateVariablesExport {
                 continue;
             }
             String islandId = CgmesExportUtil.getUniqueId();
-            writer.writeStartElement(cimNamespace, CgmesNames.TOPOLOGICAL_ISLAND);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, islandId);
+            CgmesExportUtil.writeStartId(CgmesNames.TOPOLOGICAL_ISLAND, islandId, false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, CgmesNames.NAME);
             writer.writeCharacters(islandId); // Use id as name
             writer.writeEndElement();
@@ -176,8 +173,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltage(String topologicalNode, double v, double angle, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "SvVoltage");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+        CgmesExportUtil.writeStartId("SvVoltage", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_ANGLE);
         writer.writeCharacters(CgmesExportUtil.format(angle));
         writer.writeEndElement();
@@ -194,6 +190,13 @@ public final class StateVariablesExport {
         writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getShuntCompensatorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getStaticVarCompensatorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getBatteryStream);
+
+        // Fictitious loads are not exported as Equipment, they are just added to SV as SvInjection
+        for (Load load : network.getLoads()) {
+            if (load.isFictitious()) {
+                writeSvInjection(load, cimNamespace, writer, context);
+            }
+        }
 
         network.getDanglingLineStream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
@@ -252,16 +255,18 @@ public final class StateVariablesExport {
         }
     }
 
-    private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, Function<Network, Stream<I>> getInjectionStream) {
-        getInjectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), cimNamespace, writer));
+    private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
+        getInjectionStream.apply(network).forEach(i -> {
+            if (context.isExportedEquipment(i)) {
+                writePowerFlow(i.getTerminal(), cimNamespace, writer);
+            }
+        });
     }
 
     private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
             writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ(), cimNamespace, writer);
-        } else if (terminal.getConnectable() instanceof Load && terminal.getConnectable().isFictitious()) {
-            writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer);
         } else {
             LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());
         }
@@ -286,21 +291,18 @@ public final class StateVariablesExport {
         return p;
     }
 
-    private static void writeFictitiousLoadPowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeSvInjection(Load load, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         // Fictitious loads are created in IIDM to keep track of mismatches in the input case,
         // These mismatches are given by SvInjection CGMES objects
         // These loads have been taken into account as inputs for potential power flow analysis
-        // TODO(Luma) Not sure that its values should be written back as SvInjection objects
-        // Because in our output we should write our current mismatches
-        // Original mismatches, if they have been used, should be written as loads
-        // But that would mean to introduce a new object in the Equipment profile
-        Load svInjection = (Load) terminal.getConnectable();
-        Bus bus = svInjection.getTerminal().getBusBreakerView().getBus();
+        // They will be written back as SvInjection objects in the SV profile
+        // We do not want to export them back as new objects in the EQ profile
+        Bus bus = load.getTerminal().getBusBreakerView().getBus();
         if (bus == null) {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
-            writeSvInjection(svInjection, bus.getId(), cimNamespace, writer);
+            writeSvInjection(load, bus.getId(), cimNamespace, writer);
         }
     }
 
@@ -310,8 +312,7 @@ public final class StateVariablesExport {
             return;
         }
         try {
-            writer.writeStartElement(cimNamespace, "SvPowerFlow");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+            CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvPowerFlow.p");
             writer.writeCharacters(CgmesExportUtil.format(p));
             writer.writeEndElement();
@@ -327,8 +328,7 @@ public final class StateVariablesExport {
 
     private static void writeSvInjection(Load svInjection, String topologicalNode, String cimNamespace, XMLStreamWriter writer) {
         try {
-            writer.writeStartElement(cimNamespace, "SvInjection");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, svInjection.getId());
+            CgmesExportUtil.writeStartId("SvInjection", svInjection.getId(), false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvInjection.pInjection");
             writer.writeCharacters(CgmesExportUtil.format(svInjection.getP0()));
             writer.writeEndElement();
@@ -344,9 +344,8 @@ public final class StateVariablesExport {
 
     private static void writeShuntCompensatorSections(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
-            CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator", s.getId(), cimNamespace, writer);
+            CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
+            CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator",  s.getId(), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
@@ -381,8 +380,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeSvTapStep(String tapChangerId, int tapPosition, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "SvTapStep");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+        CgmesExportUtil.writeStartId("SvTapStep", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "SvTapStep.position");
         writer.writeCharacters(CgmesExportUtil.format(tapPosition));
         writer.writeEndElement();
@@ -390,10 +388,14 @@ public final class StateVariablesExport {
         writer.writeEndElement();
     }
 
-    private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         // create SvStatus, iterate on Connectables, check Terminal status, add
         // to SvStatus
-        network.getConnectableStream().forEach(c -> writeConnectableStatus((Connectable<?>) c, cimNamespace, writer));
+        network.getConnectableStream().forEach(c -> {
+            if (context.isExportedEquipment(c)) {
+                writeConnectableStatus(c, cimNamespace, writer);
+            }
+        });
 
         // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.
@@ -405,8 +407,7 @@ public final class StateVariablesExport {
 
     private static void writeStatus(String inService, String conductingEquipmentId, String cimNamespace, XMLStreamWriter writer) {
         try {
-            writer.writeStartElement(cimNamespace, "SvStatus");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+            CgmesExportUtil.writeStartId("SvStatus", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvStatus.inService");
             writer.writeCharacters(inService);
             writer.writeEndElement();

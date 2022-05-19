@@ -13,7 +13,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
@@ -62,14 +61,14 @@ public class CgmesExport implements Exporter {
         String filenameSsh = baseName + "_SSH.xml";
         String filenameSv = baseName + "_SV.xml";
         CgmesExportContext context = new CgmesExportContext(network)
-                .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
-                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig));
-        String cimVersionParam = ConversionParameters.readStringParameter(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
+                .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
+                .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig));
+        String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
         try {
-            List<String> profiles = ConversionParameters.readStringListParameter(getFormat(), params, PROFILES_PARAMETER);
+            List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER);
             if (profiles.contains("EQ")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameEq, false))) {
                     XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
@@ -102,7 +101,7 @@ public class CgmesExport implements Exporter {
     }
 
     private String baseName(Properties params, DataSource ds, Network network) {
-        String baseName = ConversionParameters.readStringParameter(getFormat(), params, BASE_NAME_PARAMETER);
+        String baseName = Parameter.readString(getFormat(), params, BASE_NAME_PARAMETER);
         if (baseName != null) {
             return baseName;
         } else if (ds.getBaseName() != null && !ds.getBaseName().isEmpty()) {
@@ -126,6 +125,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
+    public static final String WITH_TOPOLOGICAL_MAPPING = "iidm.export.cgmes.with-topological-mapping";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -151,6 +151,7 @@ public class CgmesExport implements Exporter {
             PROFILES,
             ParameterType.STRING_LIST,
             "Profiles to export",
+            List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
