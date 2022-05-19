@@ -71,7 +71,7 @@ abstract class AbstractOperationalLimitsSet<L extends OperationalLimits> impleme
             oldValue = limitsMap.put(id.get(), operationalLimits);
         }
         ((AbstractOperationalLimits<L>) operationalLimits).setLimitSet(this);
-        owner.notifyUpdate(getType(), "limit" + (oldValue != null && oldValue.getId().isPresent() ? "_" + oldValue.getId().get() : ""), oldValue, operationalLimits);
+        owner.notifyUpdate(getType(), "limit" + (oldValue != null ? oldValue.getId().map(oldId -> "_"  + oldId).orElse("") : ""), oldValue, operationalLimits);
         return oldValue;
     }
 
@@ -90,7 +90,7 @@ abstract class AbstractOperationalLimitsSet<L extends OperationalLimits> impleme
         } else {
             throw new PowsyblException();
         }
-        owner.notifyUpdate(getType(), "limit" + (oldValue.getId().isPresent() ? "_" + oldValue.getId().get() : ""), oldValue, null);
+        owner.notifyUpdate(getType(), "limit" + oldValue.getId().map(oldId -> "_" + oldId).orElse(""), oldValue, null);
     }
 
     static AbstractOperationalLimitsSet<?> create(LimitType limitType, OperationalLimitsOwner owner) {
