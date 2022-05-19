@@ -60,7 +60,9 @@ public final class TopologyExport {
     private static void writeBusTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
             for (Terminal t : b.getConnectedTerminals()) {
-                writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
+                if (context.isExportedEquipment(t.getConnectable())) {
+                    writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
+                }
             }
         }
     }

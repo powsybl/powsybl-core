@@ -1514,7 +1514,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallBusBranchWithSvInjectio() {
+    public static TestGridModelResources smallBusBranchWithSvInjection() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
             + "/SmallGrid/WithSvInjection";
         String baseOriginal = ENTSOE_CONFORMITY_1
@@ -1524,9 +1524,8 @@ public final class CgmesConformity1ModifiedCatalog {
         return new TestGridModelResources(
             "SmallGrid-BusBranch-WithSvInjection",
             null,
-            new ResourceSet(baseOriginal, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
+            new ResourceSet(baseOriginal,
                 "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
-                "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
                 "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
                 "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
             new ResourceSet(base, "SmallGridTestConfiguration_BC_SV_v3.0.0.xml"),
