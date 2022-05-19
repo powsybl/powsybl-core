@@ -9,7 +9,6 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,13 +89,63 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public Collection<OperationalLimits> getOperationalLimits() {
-            return getDelegate().getOperationalLimits();
+        public CurrentLimits getCurrentLimits(String id) {
+            return getDelegate().getCurrentLimits(id);
         }
 
         @Override
-        public CurrentLimits getCurrentLimits() {
-            return getDelegate().getCurrentLimits();
+        public Optional<CurrentLimits> getActiveCurrentLimits() {
+            return getDelegate().getActiveCurrentLimits();
+        }
+
+        @Override
+        public void setActiveCurrentLimits(String id) {
+            getDelegate().setActiveCurrentLimits(id);
+        }
+
+        @Override
+        public CurrentLimitsSet getCurrentLimitsSet() {
+            return getDelegate().getCurrentLimitsSet();
+        }
+
+        @Override
+        public ActivePowerLimits getActivePowerLimits(String id) {
+            return getDelegate().getActivePowerLimits(id);
+        }
+
+        @Override
+        public Optional<ActivePowerLimits> getActiveActivePowerLimits() {
+            return getDelegate().getActiveActivePowerLimits();
+        }
+
+        @Override
+        public void setActiveActivePowerLimits(String id) {
+            getDelegate().setActiveActivePowerLimits(id);
+        }
+
+        @Override
+        public ActivePowerLimitsSet getActivePowerLimitsSet() {
+            return getDelegate().getActivePowerLimitsSet();
+        }
+
+        @Override
+        public ApparentPowerLimits getApparentPowerLimits(String id) {
+            return getDelegate().getApparentPowerLimits(id);
+        }
+
+        @Override
+        public Optional<ApparentPowerLimits> getActiveApparentPowerLimits() {
+            return getDelegate().getActiveApparentPowerLimits();
+        }
+
+        @Override
+        public void setActiveApparentPowerLimits(String id) {
+            getDelegate().setActiveApparentPowerLimits(id);
+        }
+
+        @Override
+        public ApparentPowerLimitsSet getApparentPowerLimitsSet() {
+            return getDelegate().getApparentPowerLimitsSet();
         }
 
         @Override
@@ -105,18 +154,8 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public ApparentPowerLimits getApparentPowerLimits() {
-            return getDelegate().getApparentPowerLimits();
-        }
-
-        @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
             return getDelegate().newApparentPowerLimits();
-        }
-
-        @Override
-        public ActivePowerLimits getActivePowerLimits() {
-            return getDelegate().getActivePowerLimits();
         }
 
         @Override

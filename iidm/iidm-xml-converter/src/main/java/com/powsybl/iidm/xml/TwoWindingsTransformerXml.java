@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Optional;
 
 /**
  *
@@ -64,29 +65,35 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         if (ptc != null) {
             writePhaseTapChanger("phaseTapChanger", ptc, context);
         }
-        if (twt.getActivePowerLimits1() != null) {
+        Optional<ActivePowerLimits> activePowerLimits1 = twt.getActiveActivePowerLimits1();
+        if (activePowerLimits1.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, twt.getActivePowerLimits1(), context.getWriter(),
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, activePowerLimits1.get(), context.getWriter(),
                     context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (twt.getApparentPowerLimits1() != null) {
+        Optional<ApparentPowerLimits> apparentPowerLimits1 = twt.getActiveApparentPowerLimits1();
+        if (apparentPowerLimits1.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, twt.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (twt.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+        Optional<CurrentLimits> currentLimits1 = twt.getActiveCurrentLimits1();
+        if (currentLimits1.isPresent()) {
+            writeCurrentLimits(1, currentLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
-        if (twt.getActivePowerLimits2() != null) {
+        Optional<ActivePowerLimits> activePowerLimits2 = twt.getActiveActivePowerLimits2();
+        if (activePowerLimits2.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, twt.getActivePowerLimits2(), context.getWriter(),
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, activePowerLimits2.get(), context.getWriter(),
                     context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (twt.getApparentPowerLimits2() != null) {
+        Optional<ApparentPowerLimits> apparentPowerLimits2 = twt.getActiveApparentPowerLimits2();
+        if (apparentPowerLimits2.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, twt.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (twt.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+        Optional<CurrentLimits> currentLimits2 = twt.getActiveCurrentLimits2();
+        if (currentLimits2.isPresent()) {
+            writeCurrentLimits(2, currentLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 

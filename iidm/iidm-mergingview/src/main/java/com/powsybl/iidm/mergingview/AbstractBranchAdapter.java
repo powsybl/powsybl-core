@@ -8,7 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -52,13 +52,63 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return getDelegate().getOperationalLimits1();
+    public CurrentLimits getCurrentLimits1(String id) {
+        return getDelegate().getCurrentLimits1(id);
     }
 
     @Override
-    public CurrentLimits getCurrentLimits1() {
-        return getDelegate().getCurrentLimits1();
+    public Optional<CurrentLimits> getActiveCurrentLimits1() {
+        return getDelegate().getActiveCurrentLimits1();
+    }
+
+    @Override
+    public void setActiveCurrentLimits1(String id) {
+        getDelegate().setActiveCurrentLimits1(id);
+    }
+
+    @Override
+    public CurrentLimitsSet getCurrentLimitsSet1() {
+        return getDelegate().getCurrentLimitsSet1();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits1(String id) {
+        return getDelegate().getActivePowerLimits1(id);
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActiveActivePowerLimits1() {
+        return getDelegate().getActiveActivePowerLimits1();
+    }
+
+    @Override
+    public void setActiveActivePowerLimits1(String id) {
+        getDelegate().setActiveActivePowerLimits1(id);
+    }
+
+    @Override
+    public ActivePowerLimitsSet getActivePowerLimitsSet1() {
+        return getDelegate().getActivePowerLimitsSet1();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits1(String id) {
+        return getDelegate().getApparentPowerLimits1(id);
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits1() {
+        return getDelegate().getActiveApparentPowerLimits1();
+    }
+
+    @Override
+    public void setActiveApparentPowerLimits1(String id) {
+        getDelegate().setActiveApparentPowerLimits1(id);
+    }
+
+    @Override
+    public ApparentPowerLimitsSet getApparentPowerLimitsSet1() {
+        return getDelegate().getApparentPowerLimitsSet1();
     }
 
     @Override
@@ -67,18 +117,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1() {
-        return getDelegate().getApparentPowerLimits1();
-    }
-
-    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return getDelegate().newApparentPowerLimits1();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits1() {
-        return getDelegate().getActivePowerLimits1();
     }
 
     @Override
@@ -87,13 +127,63 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return getDelegate().getOperationalLimits2();
+    public CurrentLimits getCurrentLimits2(String id) {
+        return getDelegate().getCurrentLimits2(id);
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2() {
-        return getDelegate().getCurrentLimits2();
+    public Optional<CurrentLimits> getActiveCurrentLimits2() {
+        return getDelegate().getActiveCurrentLimits2();
+    }
+
+    @Override
+    public void setActiveCurrentLimits2(String id) {
+        getDelegate().setActiveCurrentLimits2(id);
+    }
+
+    @Override
+    public CurrentLimitsSet getCurrentLimitsSet2() {
+        return getCurrentLimitsSet2();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits2(String id) {
+        return getDelegate().getActivePowerLimits2(id);
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActiveActivePowerLimits2() {
+        return getDelegate().getActiveActivePowerLimits2();
+    }
+
+    @Override
+    public void setActiveActivePowerLimits2(String id) {
+        getDelegate().setActiveActivePowerLimits2(id);
+    }
+
+    @Override
+    public ActivePowerLimitsSet getActivePowerLimitsSet2() {
+        return getDelegate().getActivePowerLimitsSet2();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits2(String id) {
+        return getDelegate().getApparentPowerLimits2(id);
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits2() {
+        return getDelegate().getActiveApparentPowerLimits2();
+    }
+
+    @Override
+    public void setActiveApparentPowerLimits2(String id) {
+        getDelegate().setActiveApparentPowerLimits2(id);
+    }
+
+    @Override
+    public ApparentPowerLimitsSet getApparentPowerLimitsSet2() {
+        return getDelegate().getApparentPowerLimitsSet2();
     }
 
     @Override
@@ -102,18 +192,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits2() {
-        return getDelegate().getApparentPowerLimits2();
-    }
-
-    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return getDelegate().newApparentPowerLimits2();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits2() {
-        return getDelegate().getActivePowerLimits2();
     }
 
     @Override

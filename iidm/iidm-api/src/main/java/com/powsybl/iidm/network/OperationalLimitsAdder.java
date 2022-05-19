@@ -11,6 +11,9 @@ package com.powsybl.iidm.network;
  */
 public interface OperationalLimitsAdder<L extends OperationalLimits, A extends OperationalLimitsAdder<L, A>> {
 
+    /**
+     * Set optional ID. If there are several limits (strictly more than one) in a {@link LoadingLimitsSet}, IDs are mandatory.
+     */
     A setId(String id);
 
     L add();

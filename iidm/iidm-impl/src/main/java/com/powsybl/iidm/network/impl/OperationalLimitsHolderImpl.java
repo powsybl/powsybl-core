@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -15,7 +16,8 @@ import java.util.*;
  */
 class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
 
-    private final EnumMap<LimitType, OperationalLimits> operationalLimits = new EnumMap<>(LimitType.class);
+    private final EnumMap<LimitType, String> activeLimitsIds = new EnumMap<>(LimitType.class);
+    private final EnumMap<LimitType, AbstractOperationalLimitsSet<?>> limitsSet = new EnumMap<>(LimitType.class);
     private final AbstractIdentifiable<?> identifiable;
     private final String attributeName;
 
@@ -25,13 +27,28 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
     }
 
     @Override
-    public void setOperationalLimits(LimitType limitType, OperationalLimits operationalLimits) {
-        OperationalLimits oldValue;
-        if (operationalLimits == null) {
-            oldValue = this.operationalLimits.remove(limitType);
-        } else {
-            oldValue = this.operationalLimits.put(limitType, operationalLimits);
+    public void remove(LimitType type) {
+        limitsSet.remove(type);
+    }
+
+    @Override
+    public Optional<String> getActiveLimitId(LimitType limitType) {
+        return Optional.ofNullable(activeLimitsIds.get(limitType));
+    }
+
+    @Override
+    public void setActiveLimitId(LimitType limitType, String id) {
+        if (limitsSet.get(limitType) == null || limitsSet.get(limitType).getLimits(id) == null) {
+            throw new PowsyblException();
         }
+        activeLimitsIds.put(limitType, id);
+    }
+
+    @Override
+    public <L extends AbstractOperationalLimits<L>> void setOperationalLimits(LimitType limitType, L operationalLimits) {
+        OperationalLimits oldValue;
+        AbstractOperationalLimitsSet<L> set = (AbstractOperationalLimitsSet<L>) limitsSet.computeIfAbsent(limitType, k -> AbstractOperationalLimitsSet.create(limitType, this));
+        oldValue = set.addLimit(operationalLimits);
         identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType, oldValue, operationalLimits);
     }
 
@@ -40,19 +57,23 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + "." + attribute, oldValue, newValue);
     }
 
-    Collection<OperationalLimits> getOperationalLimits() {
-        return Collections.unmodifiableCollection(operationalLimits.values());
-    }
-
-    <L extends OperationalLimits> L getOperationalLimits(LimitType type, Class<L> limitClazz) {
+    <L extends OperationalLimits, S extends OperationalLimitsSet<L>> S getOperationalLimitsSet(LimitType type, Class<S> limitClazz) {
         if (type == null) {
             throw new IllegalArgumentException("limit type is null");
         }
-        OperationalLimits ol = this.operationalLimits.get(type);
+        OperationalLimitsSet<?> ol = this.limitsSet.get(type);
         if (ol == null || limitClazz.isInstance(ol)) {
-            return (L) ol;
+            return (S) ol;
         }
         throw new AssertionError("Unexpected class for operational limits of type " + type + ". Expected: " + ol.getClass().getName() + ", actual: " + limitClazz.getName() + ".");
+    }
+
+    <L extends OperationalLimits, S extends OperationalLimitsSet<L>> Optional<L> getActiveLimits(LimitType type, Class<S> limitClazz) {
+        OperationalLimitsSet<L> set = getOperationalLimitsSet(type, limitClazz);
+        if (set == null) {
+            return Optional.empty();
+        }
+        return set.getActiveLimits();
     }
 
     CurrentLimitsAdder newCurrentLimits() {

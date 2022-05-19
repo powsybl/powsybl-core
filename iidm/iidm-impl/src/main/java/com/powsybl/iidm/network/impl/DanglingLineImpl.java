@@ -383,23 +383,63 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits() {
-        return operationalLimitsHolder.getOperationalLimits();
+    public CurrentLimits getCurrentLimits(String id) {
+        return operationalLimitsHolder.getOperationalLimitsSet(LimitType.CURRENT, CurrentLimitsSet.class).getLimits(id);
     }
 
     @Override
-    public CurrentLimits getCurrentLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public Optional<CurrentLimits> getActiveCurrentLimits() {
+        return operationalLimitsHolder.getActiveLimits(LimitType.CURRENT, CurrentLimitsSet.class);
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    public void setActiveCurrentLimits(String id) {
+        operationalLimitsHolder.setActiveLimitId(LimitType.CURRENT, id);
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    public CurrentLimitsSet getCurrentLimitsSet() {
+        return operationalLimitsHolder.getOperationalLimitsSet(LimitType.CURRENT, CurrentLimitsSet.class);
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits(String id) {
+        return operationalLimitsHolder.getOperationalLimitsSet(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class).getLimits(id);
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActiveActivePowerLimits() {
+        return operationalLimitsHolder.getActiveLimits(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class);
+    }
+
+    @Override
+    public void setActiveActivePowerLimits(String id) {
+        operationalLimitsHolder.setActiveLimitId(LimitType.ACTIVE_POWER, id);
+    }
+
+    @Override
+    public ActivePowerLimitsSet getActivePowerLimitsSet() {
+        return operationalLimitsHolder.getOperationalLimitsSet(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class);
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits(String id) {
+        return operationalLimitsHolder.getOperationalLimitsSet(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class).getLimits(id);
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits() {
+        return operationalLimitsHolder.getActiveLimits(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class);
+    }
+
+    @Override
+    public void setActiveApparentPowerLimits(String id) {
+        operationalLimitsHolder.setActiveLimitId(LimitType.APPARENT_POWER, id);
+    }
+
+    @Override
+    public ApparentPowerLimitsSet getApparentPowerLimitsSet() {
+        return operationalLimitsHolder.getOperationalLimitsSet(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class);
     }
 
     @Override

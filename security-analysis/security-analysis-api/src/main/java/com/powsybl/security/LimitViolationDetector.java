@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
@@ -245,14 +246,14 @@ public interface LimitViolationDetector {
      * @param consumer
      * @param type
      */
-    default void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    default void checkPermanentLimit(Branch<?> branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(branch, side, 1.0f, value, type)) {
             consumer.accept(new LimitViolation(branch.getId(),
                     ((Branch<?>) branch).getOptionalName().orElse(null),
                     toLimitViolationType(type),
                     null,
                     Integer.MAX_VALUE,
-                    branch.getLimits(type, side).getPermanentLimit(),
+                    branch.getActiveLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
                     1.0f,
                     value,
                     side));

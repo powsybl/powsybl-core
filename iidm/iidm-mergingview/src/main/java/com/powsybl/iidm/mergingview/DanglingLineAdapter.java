@@ -8,7 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -113,23 +113,63 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits() {
-        return getDelegate().getOperationalLimits();
+    public CurrentLimits getCurrentLimits(String id) {
+        return getDelegate().getCurrentLimits(id);
     }
 
     @Override
-    public CurrentLimits getCurrentLimits() {
-        return getDelegate().getCurrentLimits();
+    public Optional<CurrentLimits> getActiveCurrentLimits() {
+        return getDelegate().getActiveCurrentLimits();
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits() {
-        return getDelegate().getActivePowerLimits();
+    public void setActiveCurrentLimits(String id) {
+        getDelegate().setActiveCurrentLimits(id);
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits() {
-        return getDelegate().getApparentPowerLimits();
+    public CurrentLimitsSet getCurrentLimitsSet() {
+        return getDelegate().getCurrentLimitsSet();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits(String id) {
+        return getDelegate().getActivePowerLimits(id);
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActiveActivePowerLimits() {
+        return getDelegate().getActiveActivePowerLimits();
+    }
+
+    @Override
+    public void setActiveActivePowerLimits(String id) {
+        getDelegate().setActiveActivePowerLimits(id);
+    }
+
+    @Override
+    public ActivePowerLimitsSet getActivePowerLimitsSet() {
+        return getDelegate().getActivePowerLimitsSet();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits(String id) {
+        return getDelegate().getApparentPowerLimits(id);
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits() {
+        return getDelegate().getActiveApparentPowerLimits();
+    }
+
+    @Override
+    public void setActiveApparentPowerLimits(String id) {
+        getDelegate().setActiveApparentPowerLimits(id);
+    }
+
+    @Override
+    public ApparentPowerLimitsSet getApparentPowerLimitsSet() {
+        return getDelegate().getApparentPowerLimitsSet();
     }
 
     @Override

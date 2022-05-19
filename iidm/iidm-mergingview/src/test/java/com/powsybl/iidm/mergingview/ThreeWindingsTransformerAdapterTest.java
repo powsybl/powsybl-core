@@ -69,7 +69,7 @@ public class ThreeWindingsTransformerAdapterTest {
                 .setValue(1200)
                 .endTemporaryLimit()
                 .add();
-        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits());
+        assertSame(currentLimitsInLeg1, leg1.getActiveCurrentLimits().orElse(null));
         // --> RatioTapChanger
         final RatioTapChanger ratioTapChangerInLeg1 = leg1.newRatioTapChanger()
                     .setTargetV(200.0)

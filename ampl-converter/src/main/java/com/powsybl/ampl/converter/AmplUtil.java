@@ -128,12 +128,8 @@ public final class AmplUtil {
             }
 
             // limits
-            if (l.getCurrentLimits1() != null) {
-                createLimitsIds(mapper, l.getCurrentLimits1(), l.getId(), "_1_");
-            }
-            if (l.getCurrentLimits2() != null) {
-                createLimitsIds(mapper, l.getCurrentLimits2(), l.getId(), "_2_");
-            }
+            l.getActiveCurrentLimits1().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, l.getId(), "_1_"));
+            l.getActiveCurrentLimits2().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, l.getId(), "_2_"));
         }
     }
 
@@ -150,12 +146,8 @@ public final class AmplUtil {
             }
 
             // limits
-            if (twt.getCurrentLimits1() != null) {
-                createLimitsIds(mapper, twt.getCurrentLimits1(), twt.getId(), "_1_");
-            }
-            if (twt.getCurrentLimits2() != null) {
-                createLimitsIds(mapper, twt.getCurrentLimits2(), twt.getId(), "_2_");
-            }
+            twt.getActiveCurrentLimits1().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, twt.getId(), "_1_"));
+            twt.getActiveCurrentLimits2().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, twt.getId(), "_2_"));
         }
     }
 
@@ -193,15 +185,9 @@ public final class AmplUtil {
             }
 
             // limits
-            if (twt.getLeg1().getCurrentLimits() != null) {
-                createLimitsIds(mapper, twt.getLeg1().getCurrentLimits(), twt.getId() + AmplConstants.LEG1_SUFFIX, "");
-            }
-            if (twt.getLeg2().getCurrentLimits() != null) {
-                createLimitsIds(mapper, twt.getLeg2().getCurrentLimits(), twt.getId() + AmplConstants.LEG2_SUFFIX, "");
-            }
-            if (twt.getLeg3().getCurrentLimits() != null) {
-                createLimitsIds(mapper, twt.getLeg3().getCurrentLimits(), twt.getId() + AmplConstants.LEG3_SUFFIX, "");
-            }
+            twt.getLeg1().getActiveCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, twt.getId() + AmplConstants.LEG1_SUFFIX, ""));
+            twt.getLeg2().getActiveCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, twt.getId() + AmplConstants.LEG2_SUFFIX, ""));
+            twt.getLeg3().getActiveCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, twt.getId() + AmplConstants.LEG3_SUFFIX, ""));
         }
     }
 
@@ -213,9 +199,7 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.LOAD, dl.getId());
 
             // limits
-            if (dl.getCurrentLimits() != null) {
-                createLimitsIds(mapper, dl.getCurrentLimits(), dl.getId(), "");
-            }
+            dl.getActiveCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, dl.getId(), ""));
         }
     }
 

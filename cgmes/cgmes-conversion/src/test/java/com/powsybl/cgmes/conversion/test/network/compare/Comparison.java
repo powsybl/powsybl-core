@@ -542,23 +542,23 @@ public class Comparison {
         compare("g2", expected.getG2(), actual.getG2());
         compare("b2", expected.getB2(), actual.getB2());
         compareLoadingLimits(expected, actual,
-                expected.getActivePowerLimits1(),
-                actual.getActivePowerLimits1());
+                expected.getActiveActivePowerLimits1().orElse(null),
+                actual.getActiveActivePowerLimits1().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getApparentPowerLimits1(),
-                actual.getApparentPowerLimits1());
+                expected.getActiveApparentPowerLimits1().orElse(null),
+                actual.getActiveApparentPowerLimits1().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getCurrentLimits1(),
-                actual.getCurrentLimits1());
+                expected.getActiveCurrentLimits1().orElse(null),
+                actual.getActiveCurrentLimits1().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getActivePowerLimits2(),
-                actual.getActivePowerLimits2());
+                expected.getActiveActivePowerLimits2().orElse(null),
+                actual.getActiveActivePowerLimits2().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getApparentPowerLimits2(),
-                actual.getApparentPowerLimits2());
+                expected.getActiveApparentPowerLimits2().orElse(null),
+                actual.getActiveApparentPowerLimits2().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getCurrentLimits2(),
-                actual.getCurrentLimits2());
+                expected.getActiveCurrentLimits2().orElse(null),
+                actual.getActiveCurrentLimits2().orElse(null));
     }
 
     private void compareDanglingLines(DanglingLine expected, DanglingLine actual) {
@@ -574,14 +574,14 @@ public class Comparison {
         compare("q0", expected.getQ0(), actual.getQ0());
         compare("UcteXnodeCode", expected.getUcteXnodeCode(), actual.getUcteXnodeCode());
         compareLoadingLimits(expected, actual,
-                expected.getActivePowerLimits(),
-                actual.getActivePowerLimits());
+                expected.getActiveActivePowerLimits().orElse(null),
+                actual.getActiveActivePowerLimits().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getApparentPowerLimits(),
-                actual.getApparentPowerLimits());
+                expected.getActiveApparentPowerLimits().orElse(null),
+                actual.getActiveApparentPowerLimits().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getCurrentLimits(),
-                actual.getCurrentLimits());
+                expected.getActiveCurrentLimits().orElse(null),
+                actual.getActiveCurrentLimits().orElse(null));
     }
 
     private void compareLoadingLimits(
@@ -620,23 +620,23 @@ public class Comparison {
         compare("ratedU1", expected.getRatedU1(), actual.getRatedU1());
         compare("ratedU2", expected.getRatedU2(), actual.getRatedU2());
         compareLoadingLimits(expected, actual,
-                expected.getActivePowerLimits1(),
-                actual.getActivePowerLimits1());
+                expected.getActiveActivePowerLimits1().orElse(null),
+                actual.getActiveActivePowerLimits1().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getApparentPowerLimits1(),
-                actual.getApparentPowerLimits1());
+                expected.getActiveApparentPowerLimits1().orElse(null),
+                actual.getActiveApparentPowerLimits1().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getCurrentLimits1(),
-                actual.getCurrentLimits1());
+                expected.getActiveCurrentLimits1().orElse(null),
+                actual.getActiveCurrentLimits1().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getActivePowerLimits2(),
-                actual.getActivePowerLimits2());
+                expected.getActiveActivePowerLimits2().orElse(null),
+                actual.getActiveActivePowerLimits2().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getApparentPowerLimits2(),
-                actual.getApparentPowerLimits2());
+                expected.getActiveApparentPowerLimits2().orElse(null),
+                actual.getActiveApparentPowerLimits2().orElse(null));
         compareLoadingLimits(expected, actual,
-                expected.getCurrentLimits2(),
-                actual.getCurrentLimits2());
+                expected.getActiveCurrentLimits2().orElse(null),
+                actual.getActiveCurrentLimits2().orElse(null));
 
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
@@ -693,14 +693,14 @@ public class Comparison {
 
         compare("ratedU", expected.getRatedU(), actual.getRatedU());
         compareLoadingLimits(expectedt, actualt,
-                expected.getActivePowerLimits(),
-                actual.getActivePowerLimits());
+                expected.getActiveActivePowerLimits().orElse(null),
+                actual.getActiveActivePowerLimits().orElse(null));
         compareLoadingLimits(expectedt, actualt,
-                expected.getApparentPowerLimits(),
-                actual.getApparentPowerLimits());
+                expected.getActiveApparentPowerLimits().orElse(null),
+                actual.getActiveApparentPowerLimits().orElse(null));
         compareLoadingLimits(expectedt, actualt,
-                expected.getCurrentLimits(),
-                actual.getCurrentLimits());
+                expected.getActiveCurrentLimits().orElse(null),
+                actual.getActiveCurrentLimits().orElse(null));
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
         comparePhaseTapChanger(expected.getPhaseTapChanger(), actual.getPhaseTapChanger());
     }

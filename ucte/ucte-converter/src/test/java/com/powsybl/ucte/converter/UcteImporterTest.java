@@ -122,8 +122,8 @@ public class UcteImporterTest {
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
         MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
         assertNotNull(mergedXnode);
-        assertNotNull(l.getCurrentLimits1());
-        assertNotNull(l.getCurrentLimits2());
+        assertTrue(l.getActiveCurrentLimits1().isPresent());
+        assertTrue(l.getActiveCurrentLimits2().isPresent());
     }
 
     @Test

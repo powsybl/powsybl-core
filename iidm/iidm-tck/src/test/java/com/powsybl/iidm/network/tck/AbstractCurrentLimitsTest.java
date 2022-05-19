@@ -228,7 +228,7 @@ public abstract class AbstractCurrentLimitsTest {
         assertEquals(300, temporaryLimit300.getAcceptableDuration());
 
         currentLimits.remove();
-        assertNull(line.getCurrentLimits1());
+        assertTrue(line.getActiveCurrentLimits1().isEmpty());
     }
 
     @Test

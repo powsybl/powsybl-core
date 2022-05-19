@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Optional;
 
 /**
  *
@@ -96,17 +97,20 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }
-        if (dl.getActivePowerLimits() != null) {
+        Optional<ActivePowerLimits> activePowerLimits = dl.getActiveActivePowerLimits();
+        if (activePowerLimits.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, dl.getActivePowerLimits(), context.getWriter(),
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
                     context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (dl.getApparentPowerLimits() != null) {
+        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getActiveApparentPowerLimits();
+        if (apparentPowerLimits.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, dl.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (dl.getCurrentLimits() != null) {
-            writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+        Optional<CurrentLimits> currentLimits = dl.getActiveCurrentLimits();
+        if (currentLimits.isPresent()) {
+            writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 

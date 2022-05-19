@@ -14,23 +14,33 @@ import java.util.Optional;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractOperationalLimits implements OperationalLimits {
+abstract class AbstractOperationalLimits<L extends OperationalLimits> implements OperationalLimits {
 
-    private final String id;
+    private String id;
+    private AbstractOperationalLimitsSet<L> set;
 
     @Override
     public Optional<String> getId() {
         return Optional.ofNullable(id);
     }
 
-    protected final OperationalLimitsOwner owner;
-
-    AbstractOperationalLimits(OperationalLimitsOwner owner, String id) {
-        this.id = id;
-        this.owner = Objects.requireNonNull(owner);
+    @Override
+    public void setId(String id) {
+        // TODO: check no same id in the set
+        this.id = Objects.requireNonNull(id);
     }
 
+    void setLimitSet(AbstractOperationalLimitsSet<L> set) {
+        this.set = set;
+    }
+
+    AbstractOperationalLimits(String id) {
+        this.id = id;
+    }
+
+    @Override
     public void remove() {
-        owner.setOperationalLimits(getLimitType(), null);
+        set.removeLimit((L) this);
+        this.set = null;
     }
 }

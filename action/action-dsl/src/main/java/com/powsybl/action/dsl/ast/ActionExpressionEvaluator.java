@@ -12,6 +12,7 @@ import com.powsybl.dsl.ast.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,11 +95,11 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
         /**
          * TODO: to move to IIDM
          */
-        private static double getPermanentLimit(Branch branch, Branch.Side side) {
+        private static double getPermanentLimit(Branch<?> branch, Branch.Side side) {
             Objects.requireNonNull(branch);
             Objects.requireNonNull(side);
-            double permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Double.NaN;
-            double permanentLimit2 = branch.getCurrentLimits2() != null ? branch.getCurrentLimits2().getPermanentLimit() : Double.NaN;
+            double permanentLimit1 = branch.getActiveCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
+            double permanentLimit2 = branch.getActiveCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
             return side == Branch.Side.ONE ? permanentLimit1 : permanentLimit2;
         }
 

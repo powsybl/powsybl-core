@@ -973,8 +973,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.g2 = brp2.getG2();
             l.half2.b2 = brp2.getB2();
             l.half2.fictitious = dl2.isFictitious();
-            l.limits1 = dl1.getCurrentLimits();
-            l.limits2 = dl2.getCurrentLimits();
+            l.limits1 = dl1.getCurrentLimitsSet();
+            l.activeLimits1Id = dl1.getActiveCurrentLimits().flatMap(OperationalLimits::getId).orElse(null);
+            l.limits2 = dl2.getCurrentLimitsSet();
+            l.activeLimits2Id = dl2.getActiveCurrentLimits().flatMap(OperationalLimits::getId).orElse(null);
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
                 Bus b1 = t1.getBusBreakerView().getBus();
                 if (b1 != null) {
@@ -1076,8 +1078,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 la.setNode2(mergedLine.node2);
             }
             TieLineImpl l = la.add();
-            l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
-            l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
+            mergedLine.limits1.getLimits().forEach(lim -> l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, (CurrentLimitsImpl) lim));
+            if (mergedLine.activeLimits1Id != null) {
+                l.getLimitsHolder1().setActiveLimitId(LimitType.CURRENT, mergedLine.activeLimits1Id);
+            }
+            mergedLine.limits2.getLimits().forEach(lim -> l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, (CurrentLimitsImpl) lim));
+            if (mergedLine.activeLimits2Id != null) {
+                l.getLimitsHolder2().setActiveLimitId(LimitType.CURRENT, mergedLine.activeLimits2Id);
+            }
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
@@ -1087,7 +1095,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    class MergedLine {
+    static class MergedLine {
         String id;
         Set<String> aliases;
         String voltageLevel1;
@@ -1101,7 +1109,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         Integer node2;
         Properties properties = new Properties();
 
-        class HalfMergedLine {
+        static class HalfMergedLine {
             String id;
             String name;
             double r;
@@ -1116,8 +1124,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         final HalfMergedLine half1 = new HalfMergedLine();
         final HalfMergedLine half2 = new HalfMergedLine();
 
-        CurrentLimits limits1;
-        CurrentLimits limits2;
+        CurrentLimitsSet limits1;
+        String activeLimits1Id;
+        CurrentLimitsSet limits2;
+        String activeLimits2Id;
         double p1;
         double q1;
         double p2;

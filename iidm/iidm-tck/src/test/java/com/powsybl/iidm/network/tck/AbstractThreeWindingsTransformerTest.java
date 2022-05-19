@@ -124,16 +124,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits());
+        assertSame(currentLimitsInLeg1, leg1.getActiveCurrentLimits().orElse(null));
         ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
                 .setPermanentLimit(400)
                 .add();
-        assertSame(activePowerLimits1, leg1.getActivePowerLimits());
+        assertSame(activePowerLimits1, leg1.getActiveActivePowerLimits().orElse(null));
         ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
                 .setPermanentLimit(2.4)
                 .add();
-        assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits());
-        assertEquals(3, leg1.getOperationalLimits().size());
+        assertSame(apparentPowerLimits1, leg1.getActiveApparentPowerLimits().orElse(null));
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
@@ -148,7 +147,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg2, leg2.getCurrentLimits());
+        assertSame(currentLimitsInLeg2, leg2.getActiveCurrentLimits().orElse(null));
 
         RatioTapChanger ratioTapChangerInLeg3 = createRatioTapChanger(leg3,
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
@@ -163,7 +162,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg3, leg3.getCurrentLimits());
+        assertSame(currentLimitsInLeg3, leg3.getActiveCurrentLimits().orElse(null));
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(leg1,
             transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));

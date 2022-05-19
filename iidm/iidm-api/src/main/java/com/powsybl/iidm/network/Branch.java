@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Optional;
 
 /**
  * An equipment with two terminals.
@@ -143,19 +142,29 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     Side getSide(Terminal terminal);
 
-    default Collection<OperationalLimits> getOperationalLimits1() {
-        return getCurrentLimits1() != null ? Collections.singletonList(getCurrentLimits1()) : Collections.emptyList();
-    }
+    CurrentLimits getCurrentLimits1(String id);
 
-    CurrentLimits getCurrentLimits1();
+    Optional<CurrentLimits> getActiveCurrentLimits1();
 
-    default ActivePowerLimits getActivePowerLimits1() {
-        return null;
-    }
+    void setActiveCurrentLimits1(String id);
 
-    default ApparentPowerLimits getApparentPowerLimits1() {
-        return null;
-    }
+    CurrentLimitsSet getCurrentLimitsSet1();
+
+    ActivePowerLimits getActivePowerLimits1(String id);
+
+    Optional<ActivePowerLimits> getActiveActivePowerLimits1();
+
+    void setActiveActivePowerLimits1(String id);
+
+    ActivePowerLimitsSet getActivePowerLimitsSet1();
+
+    ApparentPowerLimits getApparentPowerLimits1(String id);
+
+    Optional<ApparentPowerLimits> getActiveApparentPowerLimits1();
+
+    void setActiveApparentPowerLimits1(String id);
+
+    ApparentPowerLimitsSet getApparentPowerLimitsSet1();
 
     CurrentLimitsAdder newCurrentLimits1();
 
@@ -163,19 +172,29 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     ApparentPowerLimitsAdder newApparentPowerLimits1();
 
-    default Collection<OperationalLimits> getOperationalLimits2() {
-        return getCurrentLimits2() != null ? Collections.singletonList(getCurrentLimits2()) : Collections.emptyList();
-    }
+    CurrentLimits getCurrentLimits2(String id);
 
-    CurrentLimits getCurrentLimits2();
+    Optional<CurrentLimits> getActiveCurrentLimits2();
 
-    default ActivePowerLimits getActivePowerLimits2() {
-        return null;
-    }
+    void setActiveCurrentLimits2(String id);
 
-    default ApparentPowerLimits getApparentPowerLimits2() {
-        return null;
-    }
+    CurrentLimitsSet getCurrentLimitsSet2();
+
+    ActivePowerLimits getActivePowerLimits2(String id);
+
+    Optional<ActivePowerLimits> getActiveActivePowerLimits2();
+
+    void setActiveActivePowerLimits2(String id);
+
+    ActivePowerLimitsSet getActivePowerLimitsSet2();
+
+    ApparentPowerLimits getApparentPowerLimits2(String id);
+
+    Optional<ApparentPowerLimits> getActiveApparentPowerLimits2();
+
+    void setActiveApparentPowerLimits2(String id);
+
+    ApparentPowerLimitsSet getApparentPowerLimitsSet2();
 
     CurrentLimitsAdder newCurrentLimits2();
 
@@ -183,41 +202,54 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     ApparentPowerLimitsAdder newApparentPowerLimits2();
 
-    default CurrentLimits getCurrentLimits(Branch.Side side) {
+    default CurrentLimitsSet getCurrentLimitsSet(Branch.Side side) {
         if (side == Branch.Side.ONE) {
-            return getCurrentLimits1();
+            return getCurrentLimitsSet1();
         } else if (side == Branch.Side.TWO) {
-            return getCurrentLimits2();
+            return getCurrentLimitsSet2();
         }
         throw new AssertionError("Unexpected side: " + side);
     }
 
-    default ActivePowerLimits getActivePowerLimits(Branch.Side side) {
+    default ActivePowerLimitsSet getActivePowerLimitsSet(Branch.Side side) {
         if (side == Branch.Side.ONE) {
-            return getActivePowerLimits1();
+            return getActivePowerLimitsSet1();
         } else if (side == Branch.Side.TWO) {
-            return getActivePowerLimits2();
+            return getActivePowerLimitsSet2();
         }
         throw new AssertionError("Unexpected side: " + side);
     }
 
-    default ApparentPowerLimits getApparentPowerLimits(Branch.Side side) {
+    default ApparentPowerLimitsSet getApparentPowerLimitsSet(Branch.Side side) {
         if (side == Branch.Side.ONE) {
-            return getApparentPowerLimits1();
+            return getApparentPowerLimitsSet1();
         } else if (side == Branch.Side.TWO) {
-            return getApparentPowerLimits2();
+            return getApparentPowerLimitsSet2();
         }
         throw new AssertionError("Unexpected side: " + side);
     }
 
-    default LoadingLimits getLimits(LimitType type, Branch.Side side) {
+    default LoadingLimitsSet<?> getLimitsSet(LimitType type, Branch.Side side) {
         switch (type) {
             case CURRENT:
-                return getCurrentLimits(side);
+                return getCurrentLimitsSet(side);
             case ACTIVE_POWER:
-                return getActivePowerLimits(side);
+                return getActivePowerLimitsSet(side);
             case APPARENT_POWER:
-                return getApparentPowerLimits(side);
+                return getApparentPowerLimitsSet(side);
+            default:
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        }
+    }
+
+    default Optional<? extends LoadingLimits> getActiveLimits(LimitType type, Branch.Side side) {
+        switch (type) {
+            case CURRENT:
+                return getCurrentLimitsSet(side).getActiveLimits();
+            case ACTIVE_POWER:
+                return getActivePowerLimitsSet(side).getActiveLimits();
+            case APPARENT_POWER:
+                return getApparentPowerLimitsSet(side).getActiveLimits();
             default:
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         }

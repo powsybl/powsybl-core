@@ -6,27 +6,43 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public interface FlowsLimitsHolder {
 
-    default Collection<OperationalLimits> getOperationalLimits() {
-        return getCurrentLimits() != null ? Collections.singletonList(getCurrentLimits()) : Collections.emptyList();
-    }
+    CurrentLimits getCurrentLimits(String id);
 
-    CurrentLimits getCurrentLimits();
+    /**
+     * Get the active current limits.
+     */
+    Optional<CurrentLimits> getActiveCurrentLimits();
 
-    default ActivePowerLimits getActivePowerLimits() {
-        return null;
-    }
+    /**
+     * Define the active current limits by the ID.
+     * If there is only one limits table (without ID), it is the active current limits
+     */
+    void setActiveCurrentLimits(String id);
 
-    default ApparentPowerLimits getApparentPowerLimits() {
-        return null;
-    }
+    CurrentLimitsSet getCurrentLimitsSet();
+
+    ActivePowerLimits getActivePowerLimits(String id);
+
+    Optional<ActivePowerLimits> getActiveActivePowerLimits();
+
+    void setActiveActivePowerLimits(String id);
+
+    ActivePowerLimitsSet getActivePowerLimitsSet();
+
+    ApparentPowerLimits getApparentPowerLimits(String id);
+
+    Optional<ApparentPowerLimits> getActiveApparentPowerLimits();
+
+    void setActiveApparentPowerLimits(String id);
+
+    ApparentPowerLimitsSet getApparentPowerLimitsSet();
 
     CurrentLimitsAdder newCurrentLimits();
 

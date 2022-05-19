@@ -16,6 +16,8 @@ public interface OperationalLimits {
 
     Optional<String> getId();
 
+    void setId(String id);
+
     /**
      * Get the operational limits' type (can be APPARENT_POWER, CURRENT or VOLTAGE)
      */

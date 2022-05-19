@@ -971,14 +971,10 @@ public class UcteImporter implements Importer {
         addGeographicalNameProperty(ucteNetwork, mergeLine, dlAtSideOne, dlAtSideTwo);
         addXnodeStatusProperty(mergeLine, dlAtSideOne);
 
-        if (dlAtSideOne.getCurrentLimits() != null) {
-            mergeLine.newCurrentLimits1()
-                    .setPermanentLimit(dlAtSideOne.getCurrentLimits().getPermanentLimit()).add();
-        }
-        if (dlAtSideTwo.getCurrentLimits() != null) {
-            mergeLine.newCurrentLimits2()
-                    .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
-        }
+        dlAtSideOne.getActiveCurrentLimits()
+                .ifPresent(currentLimits -> mergeLine.newCurrentLimits1().setPermanentLimit(currentLimits.getPermanentLimit()).add());
+        dlAtSideTwo.getActiveCurrentLimits()
+                .ifPresent(currentLimits -> mergeLine.newCurrentLimits2().setPermanentLimit(currentLimits.getPermanentLimit()).add());
         double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
         double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
         double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
