@@ -17,7 +17,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.NetworkMetadata;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
@@ -47,7 +46,6 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
 
     @Override
     public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        NetworkMetadata networkMetadata = null;
         List<FaultResult> faultResults = null;
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
@@ -55,11 +53,6 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
             switch (parser.getCurrentName()) {
                 case "version":
                     parser.nextToken(); // skip
-                    break;
-
-                case "network":
-                    parser.nextToken();
-                    networkMetadata = parser.readValueAs(NetworkMetadata.class);
                     break;
 
                 case "faultResults":
@@ -79,7 +72,6 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
         }
 
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);
-        result.setNetworkMetadata(networkMetadata);
         SUPPLIER.get().addExtensions(result, extensions);
 
         return result;

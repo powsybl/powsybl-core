@@ -30,9 +30,6 @@ public class ShortCircuitAnalysisResultSerializer extends StdSerializer<ShortCir
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("version", VERSION);
-        if (result.getNetworkMetadata() != null) {
-            jsonGenerator.writeObjectField("network", result.getNetworkMetadata());
-        }
         jsonGenerator.writeObjectField("faultResults", result.getFaultResults());
 
         JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);

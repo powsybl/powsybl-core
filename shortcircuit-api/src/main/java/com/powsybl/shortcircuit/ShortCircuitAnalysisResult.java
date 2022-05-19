@@ -7,7 +7,6 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.security.NetworkMetadata;
 
 import java.util.*;
 
@@ -19,8 +18,6 @@ import java.util.*;
  * @author Boubakeur Brahimi
  */
 public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitAnalysisResult> {
-
-    private NetworkMetadata networkMetadata;
 
     private final Map<String, FaultResult> resultByFaultId = new TreeMap<>();
     private final Map<String, List<FaultResult>> resultByElementId = new TreeMap<>();
@@ -38,15 +35,6 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
      */
     public List<FaultResult> getFaultResults() {
         return new ArrayList<>(resultByFaultId.values());
-    }
-
-    public NetworkMetadata getNetworkMetadata() {
-        return networkMetadata;
-    }
-
-    public ShortCircuitAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
-        this.networkMetadata = networkMetadata;
-        return this;
     }
 
     /**
