@@ -62,10 +62,26 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
             throw new IllegalArgumentException("limit type is null");
         }
         OperationalLimitsSet<?> ol = this.limitsSet.get(type);
-        if (ol == null || limitClazz.isInstance(ol)) {
+        if (ol == null) {
+            return (S) getEmptySet(type);
+        }
+        if (limitClazz.isInstance(ol)) {
             return (S) ol;
         }
         throw new AssertionError("Unexpected class for operational limits of type " + type + ". Expected: " + ol.getClass().getName() + ", actual: " + limitClazz.getName() + ".");
+    }
+
+    static OperationalLimitsSet<?> getEmptySet(LimitType type) {
+        switch (type) {
+            case ACTIVE_POWER:
+                return ActivePowerLimitsSet.EMPTY;
+            case APPARENT_POWER:
+                return ApparentPowerLimitsSet.EMPTY;
+            case CURRENT:
+                return CurrentLimitsSet.EMPTY;
+            default:
+                throw new PowsyblException();
+        }
     }
 
     <L extends OperationalLimits, S extends OperationalLimitsSet<L>> Optional<L> getActiveLimits(LimitType type, Class<S> limitClazz) {

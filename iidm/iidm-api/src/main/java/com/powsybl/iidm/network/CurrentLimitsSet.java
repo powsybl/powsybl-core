@@ -6,8 +6,35 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public interface CurrentLimitsSet extends LoadingLimitsSet<CurrentLimits> {
+
+    CurrentLimitsSet EMPTY = new CurrentLimitsSet() {
+
+        @Override
+        public CurrentLimits getLimits(String id) {
+            return null;
+        }
+
+        @Override
+        public Optional<CurrentLimits> getActiveLimits() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Collection<CurrentLimits> getLimits() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public void remove() {
+            // do nothing
+        }
+    };
 }

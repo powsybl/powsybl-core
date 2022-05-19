@@ -1128,6 +1128,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         String activeLimits1Id;
         CurrentLimitsSet limits2;
         String activeLimits2Id;
+        // TODO: add other type of limits
         double p1;
         double q1;
         double p2;

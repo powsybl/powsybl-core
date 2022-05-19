@@ -6,8 +6,35 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public interface ApparentPowerLimitsSet extends LoadingLimitsSet<ApparentPowerLimits> {
+
+    ApparentPowerLimitsSet EMPTY = new ApparentPowerLimitsSet() {
+
+        @Override
+        public ApparentPowerLimits getLimits(String id) {
+            return null;
+        }
+
+        @Override
+        public Optional<ApparentPowerLimits> getActiveLimits() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Collection<ApparentPowerLimits> getLimits() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public void remove() {
+            // do nothing
+        }
+    };
 }
