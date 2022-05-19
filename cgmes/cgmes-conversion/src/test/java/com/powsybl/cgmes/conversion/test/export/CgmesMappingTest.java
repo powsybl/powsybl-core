@@ -22,26 +22,28 @@ import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public class CgmesMappingTest extends AbstractConverterTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
 
     @Test
     public void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
@@ -58,10 +60,10 @@ public class CgmesMappingTest extends AbstractConverterTest {
         Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), null);
         // Force writing CGMES topological island by assigning a slack bus
         SlackTerminal.attach(network.getGenerator(generatorForSlack).getTerminal().getBusBreakerView().getBus());
-        testExportUsingCgmesNamingStrategy(network, baseName);
+        testExportUsingCgmesNamingStrategy(network, baseName, null, Collections.emptySet());
     }
 
-    public void testExportUsingCgmesNamingStrategy(Network network, String baseName) throws IOException {
+    public void testExportUsingCgmesNamingStrategy(Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds) throws IOException {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
         DataSource exportedCgmes = tmpDataSource("exportedCgmes", baseName);
@@ -69,20 +71,115 @@ public class CgmesMappingTest extends AbstractConverterTest {
 
         // Load the exported CGMES model without the ID mapping,
         // to ensure that all objects have valid CGMES identifiers
+        Network network1 = importExportedCgmesWithoutMapping(exportedCgmes, reimportParams);
+        checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
 
+        // Compare original network with re-imported using ID mapping
+        // We do not compare XIIDM files, as the structure may have significant changes:
+        // CGMES exported always node/breaker, if original was bus/branch a lot of different elements
+        // Even if original was node/breaker, we may have introduced fictitious switches during import,
+        // resulting in different number of nodes and connections
+        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams);
+        Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual);
+        checkDiffs(diffs, knownErrorsSubstationsIds);
+    }
+
+    private void checkDiffs(Collection<Diff> diffs, Set<String> knownErrorsSubstationsIds) {
+        if (diffs.size() > 0) {
+            LOG.error("differences found:");
+            diffs.forEach(d -> LOG.error(d.toString()));
+        }
+        Collection<Diff> notExpected = diffs.stream().filter(d -> !knownErrorsSubstationsIds.contains(d.substationId)).collect(Collectors.toList());
+        if (notExpected.size() > 0) {
+            System.out.println("differences found and not previously known:");
+            notExpected.forEach(d -> LOG.error(d.toString()));
+            fail();
+        }
+    }
+
+    static class Diff {
+        String substationId;
+        String voltageLevelId;
+        SortedSet<String> busesExpectedBusView;
+        SortedSet<String> busesActualBusView;
+        SortedSet<String> busesExpectedBusBreakerView;
+        SortedSet<String> busesActualBusBreakerView;
+
+        @Override
+        public String toString() {
+            return "RelevantDiff in substation " + substationId + System.lineSeparator() +
+                    "  BusView expected" + System.lineSeparator() +
+                    "    " + busesExpectedBusView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator() +
+                    "  BusView actual" + System.lineSeparator() +
+                    "    " + busesActualBusView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator() +
+                    "  BusBreakerView expected" + System.lineSeparator() +
+                    "    " + busesExpectedBusBreakerView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator() +
+                    "  BusBreakerView actual" + System.lineSeparator() +
+                    "    " + busesActualBusBreakerView.stream().collect(Collectors.joining(System.lineSeparator() + "    ")) + System.lineSeparator();
+        }
+    }
+
+    private Collection<Diff> compareNetworksUsingConnectedEquipment(Network expected, Network actual) {
+        Collection<Diff> diffs = new ArrayList<>();
+        for (Substation se : expected.getSubstations()) {
+            Substation sa = actual.getSubstation(se.getId());
+            assertEquals(se.getNameOrId(), sa.getNameOrId());
+            for (VoltageLevel vle : se.getVoltageLevels()) {
+                VoltageLevel vla = actual.getVoltageLevel(vle.getId());
+                assertEquals(vle.getNameOrId(), vla.getNameOrId());
+                SortedSet<String> busesExpectedBusView = buildBusIdsBasedOnConnectedEquipment(vle.getBusView().getBuses());
+                SortedSet<String> busesActualBusView = buildBusIdsBasedOnConnectedEquipment(vla.getBusView().getBuses());
+                if (!busesExpectedBusView.equals(busesActualBusView)) {
+
+                    // Because we may start from a bus/branch network and compare to a node/breaker reimported network
+                    // We may have some mismatches in the calculated buses.
+                    // This happens in buses where only one line ends in the original network,
+                    // they are re-imported with no bus at bus view level
+
+                    // For these situations, we look at the bus/breaker level
+                    // At this level, all the buses in the original network must be present in the reimported network
+                    // Maybe there could be more bus/breaker view buses in the re-imported network,
+                    // representing the end points of disconnected equipment,
+                    // this is way we do not check the two sets of buses with "equals"
+
+                    SortedSet<String> busesExpectedBusBreakerView = buildBusIdsBasedOnConnectedEquipment(vle.getBusBreakerView().getBuses());
+                    SortedSet<String> busesActualBusBreakerView = buildBusIdsBasedOnConnectedEquipment(vla.getBusBreakerView().getBuses());
+                    //assertEquals(busesExpectedBusBreakerView, busesActualBusBreakerView);
+                    // At least all the expected buses must be present in actual network,
+                    // and maybe the actual contains additional buses
+                    boolean isRelevantDiff = busesExpectedBusBreakerView.stream()
+                            .anyMatch(b -> !busesActualBusBreakerView.contains(b));
+                    if (isRelevantDiff) {
+                        Diff diff = new Diff();
+                        diff.substationId = se.getId();
+                        diff.busesExpectedBusView = busesExpectedBusView;
+                        diff.busesActualBusView = busesActualBusView;
+                        diff.busesExpectedBusBreakerView = busesExpectedBusBreakerView;
+                        diff.busesActualBusBreakerView = busesActualBusBreakerView;
+                        diffs.add(diff);
+                    }
+                }
+            }
+        }
+        return diffs;
+    }
+
+    private Network importExportedCgmesWithoutMapping(ReadOnlyDataSource dataSource, Properties reimportParams) throws IOException {
         // Build a zip file that does not contain the CSV file for the id mappings, only CGMES exported files
         Path repackaged = tmpDir.resolve("exportedCgmes").resolve("repackaged.zip");
-        Repackager r = new Repackager(exportedCgmes)
-                .with("test_EQ.xml", Repackager::eq)
-                .with("test_SSH.xml", Repackager::ssh)
-                .with("test_TP.xml", Repackager::tp)
-                .with("test_SV.xml", Repackager::sv);
+        Repackager r = new Repackager(dataSource)
+                .with(dataSource.getBaseName() + "_EQ.xml", Repackager::eq)
+                .with(dataSource.getBaseName() + "_SSH.xml", Repackager::ssh)
+                .with(dataSource.getBaseName() + "_TP.xml", Repackager::tp)
+                .with(dataSource.getBaseName() + "_SV.xml", Repackager::sv);
         r.zip(repackaged);
+        return Importers.importData("CGMES", new ZipFileDataSource(repackaged), reimportParams);
+    }
 
-        Network network1 = Importers.importData("CGMES", new ZipFileDataSource(repackaged), null);
-        CgmesModel cgmes = network1.getExtension(CgmesModelExtension.class).getCgmesModel();
+    private void checkAllIdentifiersAreValidCimCgmesIdentifiers(Network network) {
+        CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
         Supplier<Stream<String>> badIds = () -> Stream.of(
-                        network1.getIdentifiables().stream().filter(i -> !i.isFictitious()).map(Identifiable::getId),
+                        network.getIdentifiables().stream().filter(i -> !i.isFictitious()).map(Identifiable::getId),
                         // Some CGMES identifiers do not end Network identifiables
                         cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
                         cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
@@ -97,30 +194,11 @@ public class CgmesMappingTest extends AbstractConverterTest {
         assertEquals(String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))),
                 0,
                 badIds.get().count());
-
-        // Compare original network with re-imported using id mappings
-        // We do not compare XIIDM files, as the structure may have significant changes:
-        // CGMES exported always node/breaker, if original was bus/branch a lot of different elements
-        // Even if original was node/breaker, we may have introduced fictitious switches during import,
-        // resulting in different number of nodes and connections
-        Network networkActual = Importers.importData("CGMES", exportedCgmes, null);
-        Network networkExpected = network;
-        for (Substation se : networkExpected.getSubstations()) {
-            Substation sa = networkActual.getSubstation(se.getId());
-            assertEquals(se.getNameOrId(), sa.getNameOrId());
-            for (VoltageLevel vle : se.getVoltageLevels()) {
-                VoltageLevel vla = networkActual.getVoltageLevel(vle.getId());
-                assertEquals(vle.getNameOrId(), vla.getNameOrId());
-                SortedSet<String> busesExpected = buildBusIdsBasedOnConnectedEquipment(vle);
-                SortedSet<String> busesActual = buildBusIdsBasedOnConnectedEquipment(vla);
-                assertEquals(busesExpected, busesActual);
-            }
-        }
     }
 
-    private static SortedSet<String> buildBusIdsBasedOnConnectedEquipment(VoltageLevel vl) {
+    private static SortedSet<String> buildBusIdsBasedOnConnectedEquipment(Iterable<Bus> buses) {
         SortedSet<String> busIds = new TreeSet<>();
-        for (Bus be : vl.getBusView().getBuses()) {
+        for (Bus be : buses) {
             // Build an id for the bus based on the concat of ids of connected equipment
             SortedSet<String> eqIds = new TreeSet<>();
             be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(t.getConnectable().getId()));
