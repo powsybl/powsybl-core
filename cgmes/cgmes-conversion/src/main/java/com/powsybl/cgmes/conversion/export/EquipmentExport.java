@@ -54,13 +54,13 @@ public final class EquipmentExport {
             Map <String, String> exportedNodes = new HashMap<>();
             Map <Terminal, String> exportedTerminals = new HashMap<>();
             writeConnectivity(network, exportedNodes, cimNamespace, writer);
-            writeTerminals(network, exportedTerminals, exportedNodes, cimNamespace, writer);
+            writeTerminals(network, exportedTerminals, exportedNodes, cimNamespace, writer, context);
             writeSwitches(network, cimNamespace, writer);
 
             writeSubstations(network, cimNamespace, writer, context);
             writeVoltageLevels(network, cimNamespace, writer, context);
             writeBusbarSections(network, cimNamespace, writer, context);
-            writeLoads(network, cimNamespace, writer);
+            writeLoads(network, cimNamespace, writer, context);
             writeGenerators(network, exportedTerminals, cimNamespace, writeInitialP, writer);
             writeShuntCompensators(network, exportedTerminals, cimNamespace, writer);
             writeStaticVarCompensators(network, exportedTerminals, cimNamespace, writer);
@@ -220,9 +220,11 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeLoads(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeLoads(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
-            EnergyConsumerEq.write(load.getId(), load.getNameOrId(), load.getExtension(LoadDetail.class), load.getTerminal().getVoltageLevel().getId(), cimNamespace, writer);
+            if (context.isExportedEquipment(load)) {
+                EnergyConsumerEq.write(load.getId(), load.getNameOrId(), load.getExtension(LoadDetail.class), load.getTerminal().getVoltageLevel().getId(), cimNamespace, writer);
+            }
         }
     }
 
@@ -739,10 +741,12 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                writeTerminal(t, exportedTerminals, exportedNodes, cimNamespace, writer);
+            if (context.isExportedEquipment(c)) {
+                for (Terminal t : c.getTerminals()) {
+                    writeTerminal(t, exportedTerminals, exportedNodes, cimNamespace, writer);
+                }
             }
         }
 

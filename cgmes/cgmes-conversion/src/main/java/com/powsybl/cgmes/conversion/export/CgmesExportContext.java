@@ -354,14 +354,24 @@ public class CgmesExportContext {
         baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
-    private static void addIidmMappingsTerminals(Network network) {
+    private void addIidmMappingsTerminals(Network network) {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                addIidmMappingsTerminal(t, c);
+            if (isExportedEquipment(c)) {
+                for (Terminal t : c.getTerminals()) {
+                    addIidmMappingsTerminal(t, c);
+                }
             }
         }
         addIidmMappingsSwitchTerminals(network);
         addIidmMappingsHvdcTerminals(network);
+    }
+
+    public boolean isExportedEquipment(Connectable<?> c) {
+        // We only ignore fictitious loads,
+        // as they are used to model CGMES SvInjection objects
+        // representing calculation mismatches
+        boolean ignored = c.isFictitious() && c instanceof Load;
+        return !ignored;
     }
 
     private static void addIidmMappingsSwitchTerminals(Network network) {
@@ -426,8 +436,6 @@ public class CgmesExportContext {
                 boundaryId = CgmesExportUtil.getUniqueId();
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
-        } else if (c instanceof Load && c.isFictitious()) {
-            // An fictitious load do not need an alias
         } else {
             int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
