@@ -22,18 +22,22 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
 
     private NetworkMetadata networkMetadata;
 
-    private final Map<String, FaultResult> faultResults = new TreeMap<>();
+    private final Map<String, FaultResult> resultByFaultId = new TreeMap<>();
+    private final Map<String, List<FaultResult>> resultByElementId = new TreeMap<>();
 
     public ShortCircuitAnalysisResult(List<FaultResult> faultResults) {
         Objects.requireNonNull(faultResults);
-        faultResults.forEach(r -> this.faultResults.put(r.getFault().getId(), r));
+        faultResults.forEach(r -> {
+            this.resultByFaultId.put(r.getFault().getId(), r);
+            this.resultByElementId.computeIfAbsent(r.getFault().getElementId(), k -> new ArrayList<>()).add(r);
+        });
     }
 
     /**
-     * The associated fault result.
+     * The associated fault results.
      */
     public List<FaultResult> getFaultResults() {
-        return new ArrayList<>(faultResults.values());
+        return new ArrayList<>(resultByFaultId.values());
     }
 
     public NetworkMetadata getNetworkMetadata() {
@@ -45,7 +49,23 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
         return this;
     }
 
+    /**
+     * Get a computation result associated to a given fault ID
+     *
+     * @param id the ID of the considered fault.
+     * @return the computation result associated to a given fault ID.
+     */
     public FaultResult getFaultResult(String id) {
-        return faultResults.get(id);
+        return resultByFaultId.get(id);
+    }
+
+    /**
+     * Get a list of computation result associated to a given fault element ID
+     *
+     * @param elementId the ID of the considered element.
+     * @return the computation result associated to a given element ID.
+     */
+    public List<FaultResult> getFaultResults(String elementId) {
+        return resultByElementId.getOrDefault(elementId, Collections.emptyList());
     }
 }

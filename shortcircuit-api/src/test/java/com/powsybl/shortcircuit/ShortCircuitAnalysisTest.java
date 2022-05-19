@@ -90,6 +90,13 @@ public class ShortCircuitAnalysisTest {
     }
 
     @Test
+    public void test() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
+        assertNotNull(result.getFaultResult("Fault_ID_1"));
+        assertEquals(2, result.getFaultResults("BusId").size());
+    }
+
+    @Test
     public void testDefaultProvider() {
         ShortCircuitAnalysis.Runner defaultShortCircuitAnalysisRunner = ShortCircuitAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultShortCircuitAnalysisRunner.getName());
