@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.OperationalLimits;
 
 import java.util.Objects;
@@ -26,11 +27,13 @@ abstract class AbstractOperationalLimits<L extends OperationalLimits> implements
 
     @Override
     public void setId(String id) {
-        // TODO: check no same id in the set
         this.id = Objects.requireNonNull(id);
     }
 
     void setLimitSet(AbstractOperationalLimitsSet<L> set) {
+        if (set.getLimits().stream().map(OperationalLimits::getId).filter(Optional::isPresent).map(Optional::get).anyMatch(lId -> lId.equals(id))) {
+            throw new PowsyblException("Id '" + id + "' is already present in the limits' set");
+        }
         this.set = set;
     }
 
