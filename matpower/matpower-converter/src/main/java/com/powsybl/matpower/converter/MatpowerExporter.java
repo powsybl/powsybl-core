@@ -27,6 +27,7 @@ import java.util.*;
 public class MatpowerExporter implements Exporter {
 
     private static final double BASE_MVA = 100;
+    private static final String FORMAT_VERSION = "2";
 
     @Override
     public String getFormat() {
@@ -95,6 +96,10 @@ public class MatpowerExporter implements Exporter {
             }
             mBus.setShuntConductance(0d);
             mBus.setShuntSusceptance(b);
+            mBus.setVoltageMagnitude(Double.isNaN(bus.getV()) ? 0 : bus.getV());
+            mBus.setVoltageAngle(Double.isNaN(bus.getAngle()) ? 0 : bus.getAngle());
+            mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit());
+            mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit());
             model.addBus(mBus);
             context.mBusesByIds.put(bus.getId(), mBus);
         }
@@ -125,6 +130,7 @@ public class MatpowerExporter implements Exporter {
             Bus bus1 = t1.getBusView().getBus();
             Bus bus2 = t2.getBusView().getBus();
             if (bus1 != null && bus2 != null) {
+                VoltageLevel vl1 = t1.getVoltageLevel();
                 VoltageLevel vl2 = t2.getVoltageLevel();
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesByIds.get(bus1.getId()).getNumber());
@@ -134,8 +140,12 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(twt.getR() / zb);
                 mBranch.setX(twt.getX() / zb);
                 mBranch.setB(twt.getB() * zb);
-                mBranch.setRatio(1);
-                mBranch.setPhaseShiftAngle(0);
+                var rtc = twt.getRatioTapChanger();
+                double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV())
+                        * (1 + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
+                mBranch.setRatio(1 / rho);
+                var ptc = twt.getPhaseTapChanger();
+                mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
                 model.addBranch(mBranch);
             }
         }
@@ -168,7 +178,7 @@ public class MatpowerExporter implements Exporter {
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
-        model.setVersion("2");
+        model.setVersion(FORMAT_VERSION);
 
         Context context = new Context();
         createBuses(network, model, context);
