@@ -4,9 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.shortcircuit;
+package com.powsybl.shortcircuit.tools;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.shortcircuit.Fault;
+import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.ShortCircuitParameters;
 
 import java.util.ArrayList;
 import java.util.List;
