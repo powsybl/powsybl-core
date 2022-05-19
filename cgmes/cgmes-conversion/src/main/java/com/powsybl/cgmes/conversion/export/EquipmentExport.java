@@ -327,9 +327,43 @@ public final class EquipmentExport {
             PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", twt.getId(), 1, r, x, g, b, twt.getRatedU1(), exportedTerminalId(exportedTerminals, twt.getTerminal1()), cimNamespace, writer);
             String end2Id = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 2).orElseThrow(PowsyblException::new);
             PowerTransformerEq.writeEnd(end2Id, twt.getNameOrId() + "_2", twt.getId(), 2, 0.0, 0.0, 0.0, 0.0, twt.getRatedU2(), exportedTerminalId(exportedTerminals, twt.getTerminal2()), cimNamespace, writer);
-            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), cimNamespace, writer);
-            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), end1Id, cimNamespace, writer);
+
+            // Export tap changers:
+            // We are exporting the tap changer as it is modelled in IIDM, always at end 1
+            int endNumber = 1;
+            // IIDM model always has tap changers (ratio and/or phase) at end 1, and only at end 1.
+            // We have to adjust the aliases for (potential) original tap changers coming from end 1, end 2.
+            // Potential tc2 is always converted to a tc at end 1.
+            // If both tc1 and tc2 were present, tc2 was combined during import (fixed at current step) with tc1. Steps from tc1 were kept.
+            // If we only had tc2, it mas moved to end 1.
+            //
+            // When we had only tc2, the alias for tc1 if we do EQ export should contain the identifier of original tc2.
+            // In the rest of situations, we keep the same id under alias for tc1.
+            adjustTapChangerAliases2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
+            adjustTapChangerAliases2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
+            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), cimNamespace, writer);
+            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, cimNamespace, writer);
+
             writeBranchLimits(twt, exportedTerminalId(exportedTerminals, twt.getTerminal1()), exportedTerminalId(exportedTerminals, twt.getTerminal2()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        }
+    }
+
+    private static void adjustTapChangerAliases2wt(TwoWindingsTransformer transformer, TapChanger<?, ?> tc, String tapChangerKind) {
+        // If we had alias only for tc1, is ok, we will export only tc1 at end 1
+        // If we had alias for tc1 and tc2, is ok, tc2 has been moved to end 1 and combined with tc1, but we preserve id for tc1
+        // Only if we had tc at end 2 has been moved to end 1 and its identifier must be preserved
+        if (tc != null) {
+            String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 1;
+            if (transformer.getAliasFromType(aliasType1).isEmpty()) {
+                // At this point, if we have a tap changer,
+                // the alias for type 2 should be non-empty, but we check it anyway
+                String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 2;
+                Optional<String> tc2id = transformer.getAliasFromType(aliasType2);
+                if (tc2id.isPresent()) {
+                    transformer.removeAlias(tc2id.get());
+                    transformer.addAlias(tc2id.get(), aliasType1);
+                }
+            }
         }
     }
 
@@ -356,15 +390,15 @@ public final class EquipmentExport {
         double g = leg.getG() / a02;
         double b = leg.getB() / a02;
         PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedU(), terminalId, cimNamespace, writer);
-        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, endId, leg.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
-        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, endId, cimNamespace, writer);
+        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, endNumber, endId, leg.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
+        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, endNumber, endId,  cimNamespace, writer);
         writeFlowsLimits(leg, terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
     }
 
-    private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writePhaseTapChanger(C eq, PhaseTapChanger ptc, String twtName, int endNumber, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (ptc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber)
+                    .orElseThrow(PowsyblException::new);
 
             int neutralStep = getPhaseTapChangerNeutralStep(ptc);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
@@ -427,10 +461,11 @@ public final class EquipmentExport {
         return neutralStep;
     }
 
-    private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, String endId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber, String endId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (rtc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber)
+                    .orElseThrow(PowsyblException::new);
+
             int neutralStep = getRatioTapChangerNeutralStep(rtc);
             double stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0) / (rtc.getLowTapPosition() - neutralStep);
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
