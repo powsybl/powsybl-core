@@ -51,7 +51,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     protected static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
-            return limitsHolder.getActiveCurrentLimits().isPresent() || limitsHolder.getActiveApparentPowerLimits().isPresent() || limitsHolder.getActiveCurrentLimits().isPresent();
+            return limitsHolder.getActiveActivePowerLimits().isPresent() || limitsHolder.getActiveApparentPowerLimits().isPresent() || limitsHolder.getActiveCurrentLimits().isPresent();
         }
         return limitsHolder.getActiveCurrentLimits().isPresent();
     }

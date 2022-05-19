@@ -24,5 +24,5 @@ public interface OperationalLimitsOwner extends Validable {
 
     <L extends AbstractOperationalLimits<L>> void setOperationalLimits(LimitType limitType, L operationalLimits);
 
-    void notifyUpdate(LimitType limitType, String attribute, double oldValue, double newValue);
+    void notifyUpdate(LimitType limitType, String attribute, Object oldValue, Object newValue);
 }

@@ -53,7 +53,7 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
     }
 
     @Override
-    public void notifyUpdate(LimitType limitType, String attribute, double oldValue, double newValue) {
+    public void notifyUpdate(LimitType limitType, String attribute, Object oldValue, Object newValue) {
         identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + "." + attribute, oldValue, newValue);
     }
 
