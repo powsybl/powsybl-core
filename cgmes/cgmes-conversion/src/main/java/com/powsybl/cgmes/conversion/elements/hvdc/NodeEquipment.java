@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -149,9 +150,9 @@ class NodeEquipment {
         if (listEquipment == null) {
             return false;
         }
-        return listEquipment.stream()
-            .filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER)
-            .count() >= 2;
+        // Only one equipment with same Id
+        return listEquipment.stream().filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER).map(eq -> eq.equipmentId)
+            .collect(Collectors.toSet()).size() >= 2;
     }
 
     boolean containsAcDcConverter(String node, String acDcConverter) {
@@ -172,9 +173,10 @@ class NodeEquipment {
         if (listEquipment == null) {
             return false;
         }
+        // Only one equipment with same Id
         return listEquipment.stream()
             .filter(eq -> eq.equipmentId.equals(equipment1) || eq.equipmentId.equals(equipment2))
-            .count() == 2;
+            .collect(Collectors.toSet()).size() == 2;
     }
 
     Map<String, List<EquipmentReference>> getNodeEquipment() {
