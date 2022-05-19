@@ -43,11 +43,11 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
                        Duration timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.threePhaseFaultActivePower = threePhaseFaultActivePower;
-        this.feederResults = List.copyOf(feederResults);
-        this.limitViolations = List.copyOf(limitViolations);
+        this.feederResults = feederResults;
+        this.limitViolations = limitViolations;
         this.current = Objects.requireNonNull(current);
         this.voltage = voltage;
-        this.shortCircuitBusResults = List.copyOf(shortCircuitBusResults);
+        this.shortCircuitBusResults = shortCircuitBusResults;
         this.timeConstant = timeConstant;
     }
 
