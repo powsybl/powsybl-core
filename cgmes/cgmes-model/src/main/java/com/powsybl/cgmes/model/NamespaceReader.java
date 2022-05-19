@@ -9,6 +9,7 @@ package com.powsybl.cgmes.model;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.xml.XmlUtil;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -50,6 +51,7 @@ public final class NamespaceReader {
             }
         } finally {
             xmlsr.close();
+            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
         }
         return found;
     }
