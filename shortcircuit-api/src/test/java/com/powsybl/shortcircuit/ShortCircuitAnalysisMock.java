@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
-import com.powsybl.shortcircuit.option.FaultOptions;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              List<Fault> faults,
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
-                                                             List<FaultOptions> options) {
+                                                             List<FaultParameters> faultParameters) {
         return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>()));
     }
 
@@ -63,10 +62,10 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              List<Fault> faults,
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
-                                                             List<FaultOptions> options,
+                                                             List<FaultParameters> faultParameters,
                                                              Reporter reporter) {
         reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
-        return run(network, faults, parameters, computationManager, options);
+        return run(network, faults, parameters, computationManager, faultParameters);
     }
 
     public static ShortCircuitAnalysisResult runWithNonEmptyResult() {

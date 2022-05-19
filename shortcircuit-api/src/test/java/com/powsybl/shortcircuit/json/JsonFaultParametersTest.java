@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.shortcircuit.option.FaultOptions;
+import com.powsybl.shortcircuit.FaultParameters;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,24 +18,24 @@ import java.util.List;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class JsonFaultOptionsTest extends AbstractConverterTest {
+public class JsonFaultParametersTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {
-        List<FaultOptions> options = new ArrayList<>();
-        options.add(new FaultOptions("f00", false, false));
-        options.add(new FaultOptions("f01", false, true));
-        options.add(new FaultOptions("f10", true, false));
-        options.add(new FaultOptions("f11", true, true));
-        roundTripTest(options, FaultOptions::write, FaultOptions::read, "/FaultOptionsFile.json");
+        List<FaultParameters> parameters = new ArrayList<>();
+        parameters.add(new FaultParameters("f00", false, false));
+        parameters.add(new FaultParameters("f01", false, true));
+        parameters.add(new FaultParameters("f10", true, false));
+        parameters.add(new FaultParameters("f11", true, true));
+        roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
     }
 
     @Test
     public void readUnexpectedField() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultOptionsFileInvalid.json"), fileSystem.getPath("/FaultOptionsFileInvalid.json"));
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileInvalid.json"), fileSystem.getPath("/FaultParametersFileInvalid.json"));
 
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: unexpected");
-        FaultOptions.read(fileSystem.getPath("/FaultOptionsFileInvalid.json"));
+        FaultParameters.read(fileSystem.getPath("/FaultParametersFileInvalid.json"));
     }
 }

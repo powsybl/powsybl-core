@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.shortcircuit.option;
+package com.powsybl.shortcircuit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class FaultOptions {
+public class FaultParameters {
 
     private final String id;
 
@@ -45,9 +45,9 @@ public class FaultOptions {
         return withVoltageMap;
     }
 
-    public FaultOptions(String id,
-                        boolean withLimitViolations,
-                        boolean withVoltageMap) {
+    public FaultParameters(String id,
+                           boolean withLimitViolations,
+                           boolean withVoltageMap) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageMap = withVoltageMap;
@@ -61,7 +61,7 @@ public class FaultOptions {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        FaultOptions that = (FaultOptions) o;
+        FaultParameters that = (FaultParameters) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(withLimitViolations, that.withLimitViolations) &&
                 Objects.equals(withVoltageMap, that.withVoltageMap);
@@ -74,7 +74,7 @@ public class FaultOptions {
 
     @Override
     public String toString() {
-        return "FaultOptions{" +
+        return "FaultParameters{" +
             "id=" + id +
             "withLimitViolations=" + withLimitViolations +
             ", withVoltageMap=" + withVoltageMap +
@@ -85,17 +85,17 @@ public class FaultOptions {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
     }
 
-    public static void write(List<FaultOptions> options, Path jsonFile) {
+    public static void write(List<FaultParameters> parameters, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
-            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, options);
+            createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, parameters);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static List<FaultOptions> read(Path jsonFile) {
+    public static List<FaultParameters> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return createObjectMapper().readerForListOf(FaultOptions.class).readValue(is);
+            return createObjectMapper().readerForListOf(FaultParameters.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

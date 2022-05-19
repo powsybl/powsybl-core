@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
-import com.powsybl.shortcircuit.option.FaultOptions;
+import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
@@ -63,8 +63,8 @@ public class ShortCircuitAnalysisTool implements Tool {
                 options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
                         .desc("the output format " + ShortCircuitAnalysisResultExporters.getFormats()).hasArg()
                         .argName("FORMAT").build());
-                options.addOption(Option.builder().longOpt(OPTIONS_FILE)
-                        .desc("options file (.json) to get network's info after computation").hasArg()
+                options.addOption(Option.builder().longOpt(FAULT_PARAMETERS_FILE)
+                        .desc("fault parameters file (.json) to get network's info after computation").hasArg()
                         .argName("FILE").build());
                 return options;
             }
@@ -103,10 +103,10 @@ public class ShortCircuitAnalysisTool implements Tool {
             context.getOutputStream().println("Loading parameters '" + parametersFile + "'");
             JsonShortCircuitParameters.update(input.getParameters(), parametersFile);
         });
-        // FaultOptions list
-        options.getPath(OPTIONS_FILE).ifPresent(optionsFilePath -> {
-            context.getOutputStream().println("Loading fault options '" + optionsFilePath + "'");
-            input.setOptions(FaultOptions.read(optionsFilePath));
+        // FaultParameters list
+        options.getPath(FAULT_PARAMETERS_FILE).ifPresent(faultParametersFilePath -> {
+            context.getOutputStream().println("Loading fault parameters '" + faultParametersFilePath + "'");
+            input.setFaultParameters(FaultParameters.read(faultParametersFilePath));
         });
         return input;
     }
@@ -127,10 +127,10 @@ public class ShortCircuitAnalysisTool implements Tool {
         Network network = readNetwork(line, context);
         // ComputationManager
         ComputationManager computationManager = context.getShortTimeExecutionComputationManager();
-        // ShortCircuit inputs (faults, parameters & options) loading
+        // ShortCircuit inputs (faults, parameters & faultParameters) loading
         ShortCircuitInput executionInput = readInput(line, context);
         // Execution
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, executionInput.getFaults(), executionInput.getParameters(), computationManager, executionInput.getOptions()).join();
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = ShortCircuitAnalysis.runAsync(network, executionInput.getFaults(), executionInput.getParameters(), computationManager, executionInput.getFaultParameters()).join();
         // Results
         if (shortCircuitAnalysisResult != null) {
             if (outputFile != null) {

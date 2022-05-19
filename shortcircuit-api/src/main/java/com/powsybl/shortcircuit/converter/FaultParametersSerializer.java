@@ -10,26 +10,26 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.option.FaultOptions;
+import com.powsybl.shortcircuit.FaultParameters;
 
 import java.io.IOException;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class FaultOptionsSerializer extends StdSerializer<FaultOptions> {
+public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
 
-    public FaultOptionsSerializer() {
-        super(FaultOptions.class);
+    public FaultParametersSerializer() {
+        super(FaultParameters.class);
     }
 
     @Override
-    public void serialize(FaultOptions options, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(FaultParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("id", options.getId());
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolations", options.isWithLimitViolations(), false);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageMap", options.isWithVoltageMap(), false);
+        jsonGenerator.writeStringField("id", parameters.getId());
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolations", parameters.isWithLimitViolations(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageMap", parameters.isWithVoltageMap(), false);
         jsonGenerator.writeEndObject();
     }
 }

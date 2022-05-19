@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptorMock;
-import com.powsybl.shortcircuit.option.FaultOptions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -59,7 +58,7 @@ public class ShortCircuitAnalysisTest {
                                                                      List<Fault> fault,
                                                                      ShortCircuitParameters parameters,
                                                                      ComputationManager computationManager,
-                                                                     List<FaultOptions> options) {
+                                                                     List<FaultParameters> faultParameters) {
 
                 return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
             }
@@ -76,7 +75,7 @@ public class ShortCircuitAnalysisTest {
     private ComputationManager computationManager;
     private ShortCircuitParameters shortCircuitParameters;
     private List<Fault> faults;
-    private List<FaultOptions> options;
+    private List<FaultParameters> faultParameters;
 
     @Before
     public void setUp() {
@@ -87,7 +86,7 @@ public class ShortCircuitAnalysisTest {
         computationManager = Mockito.mock(ComputationManager.class);
         shortCircuitParameters = Mockito.mock(ShortCircuitParameters.class);
         faults = Mockito.mock(List.class);
-        options = Mockito.mock(List.class);
+        faultParameters = Mockito.mock(List.class);
     }
 
     @Test
@@ -99,19 +98,19 @@ public class ShortCircuitAnalysisTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, faults, shortCircuitParameters, computationManager, options);
+        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, faults, shortCircuitParameters, computationManager, faultParameters);
         assertNotNull(result.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, options);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutComputationManager() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, options);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, faultParameters);
         assertNotNull(result);
     }
 
@@ -124,7 +123,7 @@ public class ShortCircuitAnalysisTest {
     @Test
     public void testWithReporter() {
         ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, options, reporter);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
         assertNotNull(result);
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());

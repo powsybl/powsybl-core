@@ -7,7 +7,6 @@
 package com.powsybl.shortcircuit;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.shortcircuit.option.FaultOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class ShortCircuitInput {
 
     private ShortCircuitParameters parameters;
 
-    private final List<FaultOptions> options = new ArrayList<>();
+    private final List<FaultParameters> faultParameters = new ArrayList<>();
 
     public List<Fault> getFaults() {
         return faults;
@@ -36,8 +35,8 @@ public class ShortCircuitInput {
         return parameters;
     }
 
-    public List<FaultOptions> getOptions() {
-        return ImmutableList.copyOf(options);
+    public List<FaultParameters> getFaultParameters() {
+        return ImmutableList.copyOf(faultParameters);
     }
 
     public ShortCircuitInput setFaults(List<Fault> faults) {
@@ -51,9 +50,9 @@ public class ShortCircuitInput {
         return this;
     }
 
-    public ShortCircuitInput setOptions(List<FaultOptions> options) {
-        this.options.clear();
-        this.options.addAll(Objects.requireNonNull(options));
+    public ShortCircuitInput setFaultParameters(List<FaultParameters> faultParameters) {
+        this.faultParameters.clear();
+        this.faultParameters.addAll(Objects.requireNonNull(faultParameters));
         return this;
     }
 }

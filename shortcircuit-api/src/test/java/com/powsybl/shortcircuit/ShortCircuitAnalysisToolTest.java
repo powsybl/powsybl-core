@@ -36,7 +36,7 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
         createFile("emptyInput.txt", "{ }");
         Files.copy(getClass().getResourceAsStream("/FaultsFile.json"), fileSystem.getPath("faults.json"));
         Files.copy(getClass().getResourceAsStream("/ShortCircuitParameters.json"), fileSystem.getPath("parameters.json"));
-        Files.copy(getClass().getResourceAsStream("/FaultOptionsFile.json"), fileSystem.getPath("options.json"));
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFile.json"), fileSystem.getPath("faultParameters.json"));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
         assertOption(shortCircuitTool.getCommand().getOptions(), "output-file", false, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "output-format", false, true);
         assertOption(shortCircuitTool.getCommand().getOptions(), "parameters-file", false, true);
-        assertOption(shortCircuitTool.getCommand().getOptions(), "options-file", false, true);
+        assertOption(shortCircuitTool.getCommand().getOptions(), "fault-parameters-file", false, true);
     }
 
     @Test
@@ -86,12 +86,12 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Test
     public void checkFailsWhenParametersFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
-    public void checkFailsWhenOptionsFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--options-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
+    public void checkFailsWhenFaultParametersFileNotFound() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
@@ -107,6 +107,6 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
                 "| ID | Voltage level | Country | Base voltage | Limit type | Limit | Value |\n" +
                 "+----+---------------+---------+--------------+------------+-------+-------+\n";
 
-        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "parameters.json", "--options-file", "options.json"}, 0, expectedOut, null);
+        assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "parameters.json", "--fault-parameters-file", "faultParameters.json"}, 0, expectedOut, null);
     }
 }

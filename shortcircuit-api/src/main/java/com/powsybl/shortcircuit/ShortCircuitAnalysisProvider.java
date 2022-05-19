@@ -12,7 +12,6 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
-import com.powsybl.shortcircuit.option.FaultOptions;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -38,14 +37,14 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
     /**
      * Run an asynchronous single short circuit analysis job.
      *
-     * @param options option that defines the fault about which information will be written after short circuit analysis
+     * @param faultParameters parameters that define the fault about which information will be written after short circuit analysis
      */
     default CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
                                                               List<Fault> faults,
                                                               ShortCircuitParameters parameters,
                                                               ComputationManager computationManager,
-                                                              List<FaultOptions> options) {
-        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, options);
+                                                              List<FaultParameters> faultParameters) {
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, faultParameters);
     }
 
     /**
@@ -54,8 +53,8 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
     default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults,
                                                               ShortCircuitParameters parameters,
                                                               ComputationManager computationManager,
-                                                              List<FaultOptions> options,
+                                                              List<FaultParameters> faultParameters,
                                                               Reporter reporter) {
-        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, options, reporter);
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, faultParameters, reporter);
     }
 }

@@ -10,21 +10,21 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.shortcircuit.option.FaultOptions;
+import com.powsybl.shortcircuit.FaultParameters;
 
 import java.io.IOException;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class FaultOptionsDeserializer extends StdDeserializer<FaultOptions> {
+class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
-    FaultOptionsDeserializer() {
-        super(FaultOptions.class);
+    FaultParametersDeserializer() {
+        super(FaultParameters.class);
     }
 
     @Override
-    public FaultOptions deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public FaultParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String id = null;
         boolean withLimitViolations = false;
         boolean withVoltageMap = false;
@@ -50,6 +50,6 @@ class FaultOptionsDeserializer extends StdDeserializer<FaultOptions> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultOptions(id, withLimitViolations, withVoltageMap);
+        return new FaultParameters(id, withLimitViolations, withVoltageMap);
     }
 }
