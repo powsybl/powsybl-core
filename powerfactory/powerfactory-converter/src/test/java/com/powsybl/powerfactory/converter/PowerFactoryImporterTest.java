@@ -237,8 +237,18 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void transformerPhaseWithmTaps() {
+        assertTrue(phaseShifterBalance("Transformer-Phase-with-mTaps", 0.001));
+    }
+
+    @Test
     public void transformerPhaseNeutral() {
         assertTrue(phaseShifterBalance("Transformer-Phase-Neutral", 0.0009));
+    }
+
+    @Test
+    public void transformerPhaseNeutralWithmTaps() {
+        assertTrue(phaseShifterBalance("Transformer-Phase-Neutral-with-mTaps", 0.0009));
     }
 
     @Test
@@ -247,8 +257,18 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void transformerPhaseGBWithmTaps() {
+        assertTrue(phaseShifterBalance("Transformer-Phase-GB-with-mTaps", 0.9));
+    }
+
+    @Test
     public void transformerPhaseGBNeutral() {
         assertTrue(phaseShifterBalance("Transformer-Phase-GB-Neutral", 0.9));
+    }
+
+    @Test
+    public void transformerPhaseGBNeutralWithmTaps() {
+        assertTrue(phaseShifterBalance("Transformer-Phase-GB-Neutral-with-mTaps", 0.9));
     }
 
     private boolean phaseShifterBalance(String powerfactoryCase, double tol) {

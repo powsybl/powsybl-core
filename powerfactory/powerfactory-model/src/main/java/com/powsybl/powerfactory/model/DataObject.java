@@ -375,6 +375,27 @@ public class DataObject {
         return findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
     }
 
+    public Optional<RealMatrix> findAndParseDoubleMatrixAttributeValue(String name) {
+        OptionalInt opRows = findIntAttributeValue(name + ":SIZEROW");
+        OptionalInt opCols = findIntAttributeValue(name + ":SIZECOL");
+        int rows = opRows.isPresent() ? opRows.getAsInt() : 0;
+        int cols = opCols.isPresent() ? opCols.getAsInt() : 0;
+
+        if (rows <= 0 || cols <= 0) {
+            return Optional.empty();
+        }
+
+        RealMatrix realMatrix = new BlockRealMatrix(rows, cols);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                double value = getFloatAttributeValue(name + ":" + i + ":" + j);
+                realMatrix.setEntry(i, j, value);
+            }
+        }
+
+        return Optional.of(realMatrix);
+    }
+
     public RealMatrix getDoubleMatrixAttributeValue(String name) {
         return findDoubleMatrixAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Matrix", name));
     }

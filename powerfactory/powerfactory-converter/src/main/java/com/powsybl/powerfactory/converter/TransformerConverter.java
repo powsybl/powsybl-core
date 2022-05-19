@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.linear.RealMatrix;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -439,6 +440,7 @@ class TransformerConverter extends AbstractConverter {
         private final int ntpmx;
         private final double dutap;
         private final double phitr;
+        private Optional<RealMatrix> mTaps;
 
         private TapChangerPar(int nntap, int nntap0, int ntpmn, int ntpmx, double dutap, double phitr) {
             this.nntap = nntap;
@@ -450,7 +452,10 @@ class TransformerConverter extends AbstractConverter {
         }
 
         private static TapChangerPar create(DataObject elmTr2, DataObject typTr2) {
-            return create("nntap", "nntap0", "ntpmn", "ntpmx", "dutap", "phitr", elmTr2, typTr2);
+            TapChangerPar tapChangerPar = create("nntap", "nntap0", "ntpmn", "ntpmx", "dutap", "phitr", elmTr2, typTr2);
+
+            tapChangerPar.mTaps = elmTr2.findAndParseDoubleMatrixAttributeValue("mTaps");
+            return tapChangerPar;
         }
 
         private static TapChangerPar create(String nntapT, String nntap0T, String ntpmnT, String ntpmxT, String duTapT,
@@ -486,6 +491,10 @@ class TransformerConverter extends AbstractConverter {
             TapChangerPar hv = TapChangerPar.create("n3tap_h", "n3tp0_h", "n3tmn_h", "n3tmx_h", "du3tp_h", "ph3tr_h", elmTr3, typTr3);
             TapChangerPar mv = TapChangerPar.create("n3tap_m", "n3tp0_m", "n3tmn_m", "n3tmx_m", "du3tp_m", "ph3tr_m", elmTr3, typTr3);
             TapChangerPar lv = TapChangerPar.create("n3tap_l", "n3tp0_l", "n3tmn_l", "n3tmx_l", "du3tp_l", "ph3tr_l", elmTr3, typTr3);
+
+            hv.mTaps = Optional.empty();
+            mv.mTaps = Optional.empty();
+            lv.mTaps = Optional.empty();
 
             return new TapChangerPar3w(hv, mv, lv);
         }
@@ -538,9 +547,19 @@ class TransformerConverter extends AbstractConverter {
         }
 
         private static Optional<TapChanger> create(TapChangerPar tapChangerPar) {
-            if (tapChangerPar.dutap == 0.0 && tapChangerPar.phitr == 0.0) {
+            if (tapChangerPar.dutap == 0.0 && tapChangerPar.phitr == 0.0 && tapChangerPar.mTaps.isEmpty()) {
                 return Optional.empty();
             }
+
+            TapChangerPar fixedTapchangerPar = fixAndCheckTapChangerPar(tapChangerPar);
+
+            if (fixedTapchangerPar.mTaps.isPresent()) {
+                return Optional.of(createTapChangerFromResourceTable(fixedTapchangerPar));
+            }
+            return Optional.of(createTapChangerFromAtributes(fixedTapchangerPar));
+        }
+
+        private static TapChangerPar fixAndCheckTapChangerPar(TapChangerPar tapChangerPar) {
 
             // In IIDM always minTap = 0
             int nntap = tapChangerPar.nntap - tapChangerPar.ntpmn;
@@ -548,13 +567,36 @@ class TransformerConverter extends AbstractConverter {
             int ntpmn = 0;
             int ntpmx = tapChangerPar.ntpmx - tapChangerPar.ntpmn;
 
-            TapChanger tapChanger = new TapChanger(ntpmn, nntap);
-            for (int tap = ntpmn; tap <= ntpmx; tap++) {
-                TapChangerStep tapChangerStep = createTapChangerStep(tap, nntap0, tapChangerPar.dutap, tapChangerPar.phitr);
+            TapChangerPar fixedTapChangerPar = new TapChangerPar(nntap, nntap0, ntpmn, ntpmx, tapChangerPar.dutap, tapChangerPar.phitr);
+            fixedTapChangerPar.mTaps = tapChangerPar.mTaps;
+
+            return fixedTapChangerPar;
+        }
+
+        private static TapChanger createTapChangerFromResourceTable(TapChangerPar tapChangerPar) {
+
+            int rows = tapChangerPar.mTaps.get().getRowDimension();
+            if (rows != tapChangerPar.ntpmx - tapChangerPar.ntpmn + 1 || tapChangerPar.mTaps.get().getColumnDimension() != 5) {
+                throw new PowsyblException("Unexpected mTaps dimension");
+            }
+            TapChanger tapChanger = new TapChanger(tapChangerPar.ntpmn, tapChangerPar.nntap);
+            for (int row = 0; row < rows; row++) {
+                double ratio = tapChangerPar.mTaps.get().getEntry(row, 4);
+                double angle = tapChangerPar.mTaps.get().getEntry(row, 1);
+
+                tapChanger.steps.add(new TapChangerStep(ratio, angle));
+            }
+            return tapChanger;
+        }
+
+        private static TapChanger createTapChangerFromAtributes(TapChangerPar tapChangerPar) {
+
+            TapChanger tapChanger = new TapChanger(tapChangerPar.ntpmn, tapChangerPar.nntap);
+            for (int tap = tapChangerPar.ntpmn; tap <= tapChangerPar.ntpmx; tap++) {
+                TapChangerStep tapChangerStep = createTapChangerStep(tap, tapChangerPar.nntap0, tapChangerPar.dutap, tapChangerPar.phitr);
                 tapChanger.steps.add(tapChangerStep);
             }
-
-            return Optional.of(tapChanger);
+            return tapChanger;
         }
 
         private static TapChangerStep createTapChangerStep(int tap, int nntap0, double dutap, double phitr) {
