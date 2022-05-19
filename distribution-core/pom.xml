@@ -407,13 +407,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-jena</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
         <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
         <dependency>
             <groupId>${project.groupId}</groupId>
