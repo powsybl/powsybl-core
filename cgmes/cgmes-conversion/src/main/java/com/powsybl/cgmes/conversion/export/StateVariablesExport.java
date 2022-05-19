@@ -59,7 +59,7 @@ public final class StateVariablesExport {
             writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer);
             writeTapSteps(network, cimNamespace, writer);
-            writeStatus(network, cimNamespace, writer);
+            writeStatus(network, cimNamespace, writer, context);
             writeConverters(network, cimNamespace, writer);
 
             writer.writeEndDocument();
@@ -201,6 +201,13 @@ public final class StateVariablesExport {
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getStaticVarCompensatorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
 
+        // Fictitious loads are not exported as Equipment, they are just added to SV as SvInjection
+        for (Load load : network.getLoads()) {
+            if (load.isFictitious()) {
+                writeSvInjection(load, cimNamespace, writer, context);
+            }
+        }
+
         network.getDanglingLineStream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
@@ -259,15 +266,17 @@ public final class StateVariablesExport {
     }
 
     private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
-        getInjectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), cimNamespace, writer, context));
+        getInjectionStream.apply(network).forEach(i -> {
+            if (context.isExportedEquipment(i)) {
+                writePowerFlow(i.getTerminal(), cimNamespace, writer);
+            }
+        });
     }
 
-    private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
             writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ(), cimNamespace, writer);
-        } else if (terminal.getConnectable() instanceof Load && terminal.getConnectable().isFictitious()) {
-            writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer, context);
         } else {
             LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());
         }
@@ -292,23 +301,19 @@ public final class StateVariablesExport {
         return p;
     }
 
-    private static void writeFictitiousLoadPowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer,
-        CgmesExportContext context) {
+    private static void writeSvInjection(Load load, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         // Fictitious loads are created in IIDM to keep track of mismatches in the input case,
         // These mismatches are given by SvInjection CGMES objects
         // These loads have been taken into account as inputs for potential power flow analysis
-        // TODO(Luma) Not sure that its values should be written back as SvInjection objects
-        // Because in our output we should write our current mismatches
-        // Original mismatches, if they have been used, should be written as loads
-        // But that would mean to introduce a new object in the Equipment profile
-        Load svInjection = (Load) terminal.getConnectable();
-        Bus bus = svInjection.getTerminal().getBusView().getBus();
+        // They will be written back as SvInjection objects in the SV profile
+        // We do not want to export them back as new objects in the EQ profile
+        Bus bus = load.getTerminal().getBusView().getBus();
         if (bus == null) {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
             CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(bus.getId()).iterator().next();
-            writeSvInjection(svInjection, topologicalNode.getCgmesId(), cimNamespace, writer);
+            writeSvInjection(load, topologicalNode.getCgmesId(), cimNamespace, writer);
         }
     }
 
@@ -394,10 +399,14 @@ public final class StateVariablesExport {
         writer.writeEndElement();
     }
 
-    private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         // create SvStatus, iterate on Connectables, check Terminal status, add
         // to SvStatus
-        network.getConnectableStream().forEach(c -> writeConnectableStatus(c, cimNamespace, writer));
+        network.getConnectableStream().forEach(c -> {
+            if (context.isExportedEquipment(c)) {
+                writeConnectableStatus(c, cimNamespace, writer);
+            }
+        });
 
         // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.

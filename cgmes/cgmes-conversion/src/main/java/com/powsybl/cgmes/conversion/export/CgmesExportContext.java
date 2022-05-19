@@ -354,14 +354,24 @@ public class CgmesExportContext {
         baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
     }
 
-    private static void addIidmMappingsTerminals(Network network) {
+    private void addIidmMappingsTerminals(Network network) {
         for (Connectable<?> c : network.getConnectables()) {
-            for (Terminal t : c.getTerminals()) {
-                addIidmMappingsTerminal(t, c);
+            if (isExportedEquipment(c)) {
+                for (Terminal t : c.getTerminals()) {
+                    addIidmMappingsTerminal(t, c);
+                }
             }
         }
         addIidmMappingsSwitchTerminals(network);
         addIidmMappingsHvdcTerminals(network);
+    }
+
+    public boolean isExportedEquipment(Connectable<?> c) {
+        // We only ignore fictitious loads,
+        // as they are used to model CGMES SvInjection objects
+        // representing calculation mismatches
+        boolean ignored = c.isFictitious() && c instanceof Load;
+        return !ignored;
     }
 
     private static void addIidmMappingsSwitchTerminals(Network network) {
@@ -426,8 +436,6 @@ public class CgmesExportContext {
                 boundaryId = CgmesExportUtil.getUniqueId();
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
-        } else if (c instanceof Load && c.isFictitious()) {
-            // An fictitious load do not need an alias
         } else {
             int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
@@ -477,19 +485,22 @@ public class CgmesExportContext {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
-            addIidmPhaseTapChanger(twt, twt.getPhaseTapChanger());
-            addIidmRatioTapChanger(twt, twt.getRatioTapChanger());
+            //  For two winding transformers we can not check-and-add based on endNumber
+            //  The resulting IIDM tap changer is always at end1
+            //  But the original position of tap changer could be 1 or 2
+            addIidmTapChanger2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
+            addIidmTapChanger2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
         }
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             addIidmTransformerEnd(twt, 1);
             addIidmTransformerEnd(twt, 2);
             addIidmTransformerEnd(twt, 3);
-            addIidmPhaseTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), 1);
-            addIidmRatioTapChanger(twt, twt.getLeg1().getRatioTapChanger(), 1);
-            addIidmPhaseTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), 2);
-            addIidmRatioTapChanger(twt, twt.getLeg2().getRatioTapChanger(), 2);
-            addIidmPhaseTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), 3);
-            addIidmRatioTapChanger(twt, twt.getLeg3().getRatioTapChanger(), 3);
+            addIidmTapChanger(twt, twt.getLeg1().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 1);
+            addIidmTapChanger(twt, twt.getLeg1().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 1);
+            addIidmTapChanger(twt, twt.getLeg2().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 2);
+            addIidmTapChanger(twt, twt.getLeg2().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 2);
+            addIidmTapChanger(twt, twt.getLeg3().getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER, 3);
+            addIidmTapChanger(twt, twt.getLeg3().getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, 3);
         }
     }
 
@@ -501,44 +512,26 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc) {
-        if (ptc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElse(null));
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
+    private static void addIidmTapChanger(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName, int endNumber) {
+        if (tc != null) {
+            String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + endNumber;
+            if (eq.getAliasFromType(aliasType).isEmpty()) {
+                String newTapChangerId = CgmesExportUtil.getUniqueId();
+                eq.addAlias(newTapChangerId, aliasType);
             }
         }
     }
 
-    private static void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc) {
-        if (rtc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
-                    .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElse(null));
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1);
-            }
-        }
-    }
-
-    private static void addIidmPhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc, int sequence) {
-        if (ptc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + sequence).orElse(null);
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + sequence);
-            }
-        }
-    }
-
-    private static void addIidmRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc, int sequence) {
-        if (rtc != null) {
-            String tapChangerId = eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + sequence).orElse(null);
-            if (tapChangerId == null) {
-                tapChangerId = CgmesExportUtil.getUniqueId();
-                eq.addAlias(tapChangerId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + sequence);
+    private static void addIidmTapChanger2wt(Identifiable<?> eq, TapChanger<?, ?> tc, String typeChangerTypeName) {
+        if (tc != null) {
+            String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 1;
+            String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + typeChangerTypeName + 2;
+            // Only create a new identifier, always at end 1,
+            // If no previous identifiers were found
+            // Neither at end 1 nor at end 2
+            if (eq.getAliasFromType(aliasType1).isEmpty() && eq.getAliasFromType(aliasType2).isEmpty()) {
+                String newTapChangerId = CgmesExportUtil.getUniqueId();
+                eq.addAlias(newTapChangerId, aliasType1);
             }
         }
     }
