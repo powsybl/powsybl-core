@@ -58,8 +58,8 @@ public class PowerFactoryImporter implements Importer {
         return "PowerFactory to IIDM converter";
     }
 
-    private Optional<StudyCaseLoader> findProjectLoader(ReadOnlyDataSource dataSource) {
-        for (StudyCaseLoader studyCaseLoader : ServiceLoader.load(StudyCaseLoader.class)) {
+    private Optional<PowerFactoryDataLoader<StudyCase>> findProjectLoader(ReadOnlyDataSource dataSource) {
+        for (PowerFactoryDataLoader<StudyCase> studyCaseLoader : PowerFactoryDataLoader.find(StudyCase.class)) {
             try {
                 if (dataSource.exists(null, studyCaseLoader.getExtension())) {
                     return Optional.of(studyCaseLoader);
@@ -146,7 +146,7 @@ public class PowerFactoryImporter implements Importer {
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
-        List<DataObject> elmNets = studyCase.getIndex().getDataObjectsByClass("ElmNet");
+        List<DataObject> elmNets = studyCase.getElmNets();
         if (elmNets.isEmpty()) {
             throw new PowsyblException("No ElmNet object found");
         }
@@ -156,7 +156,9 @@ public class PowerFactoryImporter implements Importer {
         DateTime caseDate = new Instant(studyCase.getTime().toEpochMilli()).toDateTime();
         network.setCaseDate(caseDate);
 
-        List<DataObject> elmTerms = studyCase.getIndex().getDataObjectsByClass("ElmTerm");
+        List<DataObject> elmTerms = studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream())
+                .collect(Collectors.toList());
 
         LOGGER.info("Creating containers...");
 
@@ -179,7 +181,10 @@ public class PowerFactoryImporter implements Importer {
 
         LOGGER.info("Creating equipments...");
 
-        for (DataObject obj : studyCase.getIndex().getDataObjects()) {
+        var objs = studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*").stream())
+                .collect(Collectors.toList());
+        for (DataObject obj : objs) {
             switch (obj.getDataClassName()) {
                 case "ElmCoup":
                     createSwitch(network, importContext, obj);

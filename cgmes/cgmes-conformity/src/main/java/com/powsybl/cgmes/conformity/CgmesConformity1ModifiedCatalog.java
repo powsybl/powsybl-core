@@ -1476,7 +1476,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallBusBranchWithSvInjectio() {
+    public static TestGridModelResources smallBusBranchWithSvInjection() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
             + "/SmallGrid/WithSvInjection";
         String baseOriginal = ENTSOE_CONFORMITY_1
@@ -1486,9 +1486,8 @@ public final class CgmesConformity1ModifiedCatalog {
         return new TestGridModelResources(
             "SmallGrid-BusBranch-WithSvInjection",
             null,
-            new ResourceSet(baseOriginal, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
+            new ResourceSet(baseOriginal,
                 "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
-                "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
                 "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
                 "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
             new ResourceSet(base, "SmallGridTestConfiguration_BC_SV_v3.0.0.xml"),
@@ -1510,6 +1509,26 @@ public final class CgmesConformity1ModifiedCatalog {
                 new ResourceSet(baseOriginal,
                         "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
                         "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModel microGridBaseCaseAssembledEntsoeCategory() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_Assembled_v2_gu_description_entsoe_category/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources(
+                "MicroGrid-BaseCase-Assembled-Entsoe-Category",
+                null,
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_EQ_V2.xml"),
+                new ResourceSet(baseOriginal,
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_TP_V2.xml"),
                 new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
