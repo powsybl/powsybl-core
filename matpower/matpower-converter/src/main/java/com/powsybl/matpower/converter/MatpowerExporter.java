@@ -13,10 +13,7 @@ import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.matpower.model.MBranch;
-import com.powsybl.matpower.model.MBus;
-import com.powsybl.matpower.model.MatpowerModel;
-import com.powsybl.matpower.model.MatpowerWriter;
+import com.powsybl.matpower.model.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -103,17 +100,63 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
-    private void createBranches(Network network, MatpowerModel model) {
+    private void createBranches(Network network, MatpowerModel model, Context context) {
         for (Line l : network.getLines()) {
-            MBranch mBranch = new MBranch();
-            mBranch.setFrom(0);
-            mBranch.setTo(0);
-            boolean inService = l.getTerminal1().isConnected() && l.getTerminal2().isConnected();
-            mBranch.setStatus(inService ? 1 : 0);
-            mBranch.setR(0);
-            mBranch.setX(0);
-            mBranch.setB(0);
-            model.addBranch(mBranch);
+            Terminal t1 = l.getTerminal1();
+            Terminal t2 = l.getTerminal2();
+            Bus bus1 = t1.getBusView().getBus();
+            Bus bus2 = t2.getBusView().getBus();
+            if (bus1 != null && bus2 != null) {
+                VoltageLevel vl2 = t2.getVoltageLevel();
+                MBranch mBranch = new MBranch();
+                mBranch.setFrom(context.mBusesByIds.get(bus1.getId()).getNumber());
+                mBranch.setTo(context.mBusesByIds.get(bus2.getId()).getNumber());
+                mBranch.setStatus(1);
+                double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
+                mBranch.setR(l.getR() / zb);
+                mBranch.setX(l.getX() / zb);
+                mBranch.setB((l.getB1() + l.getB2()) * zb);
+                model.addBranch(mBranch);
+            }
+        }
+        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            Terminal t1 = twt.getTerminal1();
+            Terminal t2 = twt.getTerminal2();
+            Bus bus1 = t1.getBusView().getBus();
+            Bus bus2 = t2.getBusView().getBus();
+            if (bus1 != null && bus2 != null) {
+                VoltageLevel vl2 = t2.getVoltageLevel();
+                MBranch mBranch = new MBranch();
+                mBranch.setFrom(context.mBusesByIds.get(bus1.getId()).getNumber());
+                mBranch.setTo(context.mBusesByIds.get(bus2.getId()).getNumber());
+                mBranch.setStatus(1);
+                double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
+                mBranch.setR(twt.getR() / zb);
+                mBranch.setX(twt.getX() / zb);
+                mBranch.setB(twt.getB() * zb);
+                mBranch.setRatio(1);
+                mBranch.setPhaseShiftAngle(0);
+                model.addBranch(mBranch);
+            }
+        }
+    }
+
+    private void createGenerators(Network network, MatpowerModel model, Context context) {
+        for (Generator g : network.getGenerators()) {
+            Bus bus = g.getTerminal().getBusView().getBus();
+            if (bus != null) {
+                MGen mGen = new MGen();
+                mGen.setNumber(context.mBusesByIds.get(bus.getId()).getNumber());
+                mGen.setStatus(1);
+                mGen.setRealPowerOutput(g.getTargetP());
+                mGen.setReactivePowerOutput(g.getTargetQ());
+                mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulatorOn() ? g.getTargetV() : 0);
+                mGen.setMinimumRealPowerOutput(g.getMinP());
+                mGen.setMaximumRealPowerOutput(g.getMaxP());
+                mGen.setMinimumReactivePowerOutput(g.getReactiveLimits().getMinQ(g.getTargetP()));
+                mGen.setMaximumReactivePowerOutput(g.getReactiveLimits().getMaxQ(g.getTargetP()));
+                model.addGenerator(mGen);
+            }
         }
     }
 
@@ -129,7 +172,8 @@ public class MatpowerExporter implements Exporter {
 
         Context context = new Context();
         createBuses(network, model, context);
-        createBranches(network, model);
+        createBranches(network, model, context);
+        createGenerators(network, model, context);
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
             MatpowerWriter.write(model, os);
