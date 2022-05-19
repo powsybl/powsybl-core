@@ -37,7 +37,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
     private boolean withFeederResult = WITH_FEEDER_RESULT;
-    private ShortCircuitConstants.StudyType studyType = DEFAULT_STUDY_TYPE;
+    private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
 
     /**
@@ -54,7 +54,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
                 parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", WITH_FEEDER_RESULT))
-                        .setStudyType(config.getEnumProperty("study-type", ShortCircuitConstants.StudyType.class, DEFAULT_STUDY_TYPE))
+                        .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
 
         parameters.readExtensions(platformConfig);

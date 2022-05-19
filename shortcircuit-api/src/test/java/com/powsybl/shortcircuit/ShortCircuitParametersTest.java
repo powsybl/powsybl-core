@@ -164,7 +164,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     @Test
     public void testStudyType() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load();
-        assertEquals(ShortCircuitConstants.StudyType.TRANSIENT, parameters.getStudyType());
+        assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/config.yml"), cfgFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
-        assertEquals(ShortCircuitConstants.StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertFalse(parameters.isWithFeederResult());
     }
 

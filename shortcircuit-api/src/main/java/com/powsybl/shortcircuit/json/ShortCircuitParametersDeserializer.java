@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.ShortCircuitConstants;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
+import com.powsybl.shortcircuit.StudyType;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     break;
                 case "studyType":
                     parser.nextToken();
-                    parameters.setStudyType(parser.readValueAs(ShortCircuitConstants.StudyType.class));
+                    parameters.setStudyType(parser.readValueAs(StudyType.class));
                     break;
                 case "minVoltageDropProportionalThreshold":
                     parser.nextToken();

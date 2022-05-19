@@ -14,12 +14,6 @@ public final class ShortCircuitConstants {
     private ShortCircuitConstants() {
     }
 
-    public enum StudyType {
-        SUB_TRANSIENT,
-        TRANSIENT,
-        STEADY_STATE
-    }
-
     public static final StudyType DEFAULT_STUDY_TYPE = StudyType.TRANSIENT;
     public static final boolean WITH_FEEDER_RESULT = true;
     public static final double DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD = 0.0;
