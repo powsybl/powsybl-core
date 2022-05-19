@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
