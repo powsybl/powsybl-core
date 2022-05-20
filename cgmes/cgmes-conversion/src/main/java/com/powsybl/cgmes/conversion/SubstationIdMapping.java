@@ -86,12 +86,12 @@ public class SubstationIdMapping {
     }
 
     public boolean substationIsMapped(String cgmesIdentifier) {
-        String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
+        String sid = context.namingStrategy().getIidmId(CgmesNames.SUBSTATION, cgmesIdentifier);
         return substationMapping.containsKey(sid);
     }
 
     public String substationIidm(String cgmesIdentifier) {
-        String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
+        String sid = context.namingStrategy().getIidmId(CgmesNames.SUBSTATION, cgmesIdentifier);
         if (substationMapping.containsKey(sid)) {
             return substationMapping.get(sid);
         }
@@ -100,18 +100,18 @@ public class SubstationIdMapping {
 
     // All the keys for a given value, all the merged substations that have cgmesIdentifier as representative
     public Set<String> mergedSubstations(String cgmesIdentifier) {
-        String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
+        String sid = context.namingStrategy().getIidmId(CgmesNames.SUBSTATION, cgmesIdentifier);
         return substationMapping.entrySet().stream().filter(record -> record.getValue().equals(sid))
             .map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     public boolean voltageLevelIsMapped(String cgmesIdentifier) {
-        String vlid = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
+        String vlid = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
         return voltageLevelMapping.containsKey(vlid);
     }
 
     public String voltageLevelIidm(String cgmesIdentifier) {
-        String vlid = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
+        String vlid = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
         if (voltageLevelMapping.containsKey(vlid)) {
             return voltageLevelMapping.get(vlid);
         }
@@ -120,7 +120,7 @@ public class SubstationIdMapping {
 
     // All the keys for a given value, all the merged voltageLevels that have cgmesIdentifier as representative
     public Set<String> mergedVoltageLevels(String cgmesIdentifier) {
-        String vlid = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
+        String vlid = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
         return voltageLevelMapping.entrySet().stream().filter(record -> record.getValue().equals(vlid))
             .map(Map.Entry::getKey).collect(Collectors.toSet());
     }
@@ -145,13 +145,13 @@ public class SubstationIdMapping {
 
     private void addVoltageLevel(Map<String, Set<String>> voltageLevelAdjacency, PropertyBag vl) {
         String voltageLevelId = vl.getId(CgmesNames.VOLTAGE_LEVEL);
-        String vId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, voltageLevelId);
+        String vId = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, voltageLevelId);
         voltageLevelAdjacency.put(vId, new HashSet<>());
     }
 
     private void addSubstation(Map<String, Set<String>> substationAdjacency, PropertyBag sub) {
         String substationlId = sub.getId(CgmesNames.SUBSTATION);
-        String subId = context.namingStrategy().getId(CgmesNames.SUBSTATION, substationlId);
+        String subId = context.namingStrategy().getIidmId(CgmesNames.SUBSTATION, substationlId);
         substationAdjacency.put(subId, new HashSet<>());
     }
 
@@ -307,7 +307,7 @@ public class SubstationIdMapping {
             if (node != null && !context.boundary().containsNode(node)) {
                 String sid = context.cgmes().substation(t, context.nodeBreaker());
                 if (sid != null) {
-                    substationsIds.add(context.namingStrategy().getId(CgmesNames.SUBSTATION, sid));
+                    substationsIds.add(context.namingStrategy().getIidmId(CgmesNames.SUBSTATION, sid));
                 }
             }
         }
