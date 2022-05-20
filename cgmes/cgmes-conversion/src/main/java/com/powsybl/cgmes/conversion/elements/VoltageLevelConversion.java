@@ -79,6 +79,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             index++;
             vl.addAlias(mergedVl, "MergedVoltageLevel" + index, context.config().isEnsureIdAliasUnicity());
         }
+        context.namingStrategy().readIdMapping(vl, "VoltageLevel");
     }
 
     private final String cgmesSubstationId;
