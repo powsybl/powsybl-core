@@ -135,6 +135,7 @@ public class CgmesImport implements Importer {
         }
         Path ploc = Path.of(loc);
         if (!Files.exists(ploc)) {
+            LOGGER.warn("Location of boundaries does not exist {}. No attempt to load boundaries will be made", loc);
             return null;
         }
         // Check that the Data Source has valid CGMES names
