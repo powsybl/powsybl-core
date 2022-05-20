@@ -146,7 +146,7 @@ public class PropertyBag extends HashMap<String, String> {
         }
         // rdf:ID is the mRID plus an underscore added at the beginning of the string
         // We may decide if we want to preserve or not the underscore
-        if (isIdentifier && removeInitialUnderscoreForIdentifiers && s1.charAt(0) == '_') {
+        if (isIdentifier && removeInitialUnderscoreForIdentifiers && s1.length() > 0 && s1.charAt(0) == '_') {
             s1 = s1.substring(1);
         }
         return s1;

@@ -70,7 +70,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
             // Report invalid identifiers but do not fail
             // (sometimes RDF identifiers contain spaces or begin with #)
-            // This is the default behavior for other triple store engines (Jena)
+            // This is the default behavior for other triple store engines (e.g. Jena)
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_INVALID_NCNAME);
             conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_URI_SYNTAX);
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_DUPLICATE_RDF_ID);
