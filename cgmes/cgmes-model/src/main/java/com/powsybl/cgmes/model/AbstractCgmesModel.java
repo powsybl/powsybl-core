@@ -7,17 +7,16 @@
 
 package com.powsybl.cgmes.model;
 
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -149,7 +148,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                 if (end.getId("PhaseTapChanger") != null) {
                     powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
                     powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
-                } else if (end.getId("RatioTapChanger") != null) {
+                }
+                if (end.getId("RatioTapChanger") != null) {
                     powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
                     powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
                 }

@@ -12,18 +12,24 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum ParameterType {
-    BOOLEAN(Boolean.class),
-    STRING(String.class),
-    STRING_LIST(List.class),
-    DOUBLE(Double.class);
+    BOOLEAN(Boolean.class, Boolean.class),
+    STRING(String.class, String.class),
+    STRING_LIST(List.class, String.class),
+    DOUBLE(Double.class, Double.class);
 
-    private final Class<?> clazz;
+    private final Class<?> typeClass;
+    private final Class<?> elementClass;
 
-    ParameterType(Class<?> clazz) {
-        this.clazz = clazz;
+    ParameterType(Class<?> typeClass, Class<?> elementClass) {
+        this.typeClass = typeClass;
+        this.elementClass = elementClass;
     }
 
-    public Class<?> getClazz() {
-        return clazz;
+    public Class<?> getTypeClass() {
+        return typeClass;
+    }
+
+    public Class<?> getElementClass() {
+        return elementClass;
     }
 }
