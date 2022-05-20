@@ -70,8 +70,16 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     private Network importAndCompareXml(String id) {
+        return importAndCompareXml(id, ".dgs");
+    }
+
+    private Network importJsonAndCompareXml(String id) {
+        return importAndCompareXml(id, ".json");
+    }
+
+    private Network importAndCompareXml(String id, String fileExtension) {
         Network network = new PowerFactoryImporter()
-                .importData(new ResourceDataSource(id, new ResourceSet("/", id + ".dgs")),
+                .importData(new ResourceDataSource(id, new ResourceSet("/", id + fileExtension)),
                         NetworkFactory.findDefault(),
                         null);
 
@@ -157,8 +165,18 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorTypMvarReactiveLimits"));
     }
 
+    @Test
+    public void transformerPhaseGBComplete() {
+        assertTrue(importJsonAndCompareXiidm("Transformer-Phase-GB-complete"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
+        return true;
+    }
+
+    private boolean importJsonAndCompareXiidm(String powerfactoryCase) {
+        importJsonAndCompareXml(powerfactoryCase);
         return true;
     }
 

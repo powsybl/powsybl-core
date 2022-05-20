@@ -372,10 +372,16 @@ public class DataObject {
     }
 
     public Optional<RealMatrix> findDoubleMatrixAttributeValue(String name) {
-        return findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
+        // from json, recorded as a RealMatrix
+        Optional<RealMatrix> realMatrix = findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
+        if (realMatrix.isPresent()) {
+            return realMatrix;
+        }
+        // from dgs, recorded as a flat list
+        return findAndParseDoubleMatrixAttributeValueFromDgs(name);
     }
 
-    public Optional<RealMatrix> findAndParseDoubleMatrixAttributeValue(String name) {
+    private Optional<RealMatrix> findAndParseDoubleMatrixAttributeValueFromDgs(String name) {
         OptionalInt opRows = findIntAttributeValue(name + ":SIZEROW");
         OptionalInt opCols = findIntAttributeValue(name + ":SIZECOL");
         int rows = opRows.isPresent() ? opRows.getAsInt() : 0;

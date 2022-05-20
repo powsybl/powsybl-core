@@ -454,7 +454,7 @@ class TransformerConverter extends AbstractConverter {
         private static TapChangerPar create(DataObject elmTr2, DataObject typTr2) {
             TapChangerPar tapChangerPar = create("nntap", "nntap0", "ntpmn", "ntpmx", "dutap", "phitr", elmTr2, typTr2);
 
-            tapChangerPar.mTaps = elmTr2.findAndParseDoubleMatrixAttributeValue("mTaps");
+            tapChangerPar.mTaps = elmTr2.findDoubleMatrixAttributeValue("mTaps");
             return tapChangerPar;
         }
 
