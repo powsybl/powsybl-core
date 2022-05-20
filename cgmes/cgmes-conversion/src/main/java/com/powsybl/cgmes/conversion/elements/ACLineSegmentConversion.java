@@ -88,6 +88,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
         context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
 
+        context.namingStrategy().readIdMapping(tl, "TieLine"); // TODO: maybe this should be refined for merged line
+
         addMappingForTopologicalNode(context, tl, 1, boundaryLine1);
         addMappingForTopologicalNode(context, tl, 2, boundaryLine2);
     }
@@ -167,7 +169,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             isLine2Reoriented(boundaryLine2.getBoundarySide()));
 
         TieLineAdder adder = context.network().newTieLine()
-            .setId(boundaryLine1.getId() + " + " + boundaryLine2.getId())
+            .setId(context.namingStrategy().getIidmId("TieLine", boundaryLine1.getId() + " + " + boundaryLine2.getId())) // TODO: maybe refine for merged lines
             .setName(boundaryLine1.getName() + " + " + boundaryLine2.getName())
             .newHalfLine1()
             .setId(boundaryLine1.getId())
