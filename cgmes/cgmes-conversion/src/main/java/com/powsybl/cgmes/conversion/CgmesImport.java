@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -132,8 +132,12 @@ public class CgmesImport implements Importer {
         if (loc == null) {
             return null;
         }
+        Path ploc = Path.of(loc);
+        if (!Files.exists(ploc)) {
+            return null;
+        }
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(Paths.get(loc));
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(ploc);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
