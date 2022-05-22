@@ -74,7 +74,7 @@
     "minimumVoltageMagnitude" : 202.5
   }, {
     "number" : 6,
-    "type" : "PQ",
+    "type" : "REF",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,

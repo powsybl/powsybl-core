@@ -53,17 +53,22 @@ public class MatpowerExporter implements Exporter {
         return Collections.emptyList();
     }
 
-    private static MBus.Type getType(Bus bus) {
-        if (!bus.isInMainConnectedComponent()) {
-            return MBus.Type.ISOLATED;
-        }
+    private static boolean hasSlackExtension(Bus bus) {
         VoltageLevel vl = bus.getVoltageLevel();
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
         if (slackTerminal != null) {
             Terminal terminal = slackTerminal.getTerminal();
-            if (terminal.getBusView().getBus() == bus) {
-                return MBus.Type.REF;
-            }
+            return terminal.getBusView().getBus() == bus;
+        }
+        return false;
+    }
+
+    private static MBus.Type getType(Bus bus, Context context) {
+        if (!bus.isInMainConnectedComponent()) {
+            return MBus.Type.ISOLATED;
+        }
+        if ((context.refBusId != null && context.refBusId.equals(bus.getId())) || hasSlackExtension(bus)) {
+            return MBus.Type.REF;
         }
         for (Generator g : bus.getGenerators()) {
             if (g.isVoltageRegulatorOn()) {
@@ -74,6 +79,8 @@ public class MatpowerExporter implements Exporter {
     }
 
     static class Context {
+
+        String refBusId;
 
         int num = 1;
 
@@ -141,7 +148,7 @@ public class MatpowerExporter implements Exporter {
             VoltageLevel vl = bus.getVoltageLevel();
             MBus mBus = new MBus();
             mBus.setNumber(context.num++);
-            mBus.setType(getType(bus));
+            mBus.setType(getType(bus, context));
             mBus.setAreaNumber(AREA_NUMBER);
             mBus.setLossZone(LOSS_ZONE);
             mBus.setBaseVoltage(vl.getNominalV());
@@ -345,6 +352,32 @@ public class MatpowerExporter implements Exporter {
         createDanglingLineGenerators(network, model, context);
     }
 
+    private static int getBranchCount(Bus bus) {
+        int[] branchCount = new int[1];
+        bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
+            @Override
+            public void visitLine(Line line, Branch.Side side) {
+                branchCount[0]++;
+            }
+
+            @Override
+            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                branchCount[0]++;
+            }
+
+            @Override
+            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                branchCount[0]++;
+            }
+
+            @Override
+            public void visitDanglingLine(DanglingLine danglingLine) {
+                branchCount[0]++;
+            }
+        });
+        return branchCount[0];
+    }
+
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter) {
         Objects.requireNonNull(network);
@@ -356,6 +389,15 @@ public class MatpowerExporter implements Exporter {
         model.setVersion(FORMAT_VERSION);
 
         Context context = new Context();
+        boolean hasSlack = network.getBusView().getBusStream().anyMatch(MatpowerExporter::hasSlackExtension);
+        if (!hasSlack) {
+            context.refBusId = network.getBusView().getBusStream()
+                    .filter(Bus::isInMainConnectedComponent)
+                    .max(Comparator.comparingInt(MatpowerExporter::getBranchCount))
+                    .orElseThrow()
+                    .getId();
+            LOGGER.debug("Matpower reference bus automatically selected: {}", context.refBusId);
+        }
         createBuses(network, model, context);
         createBranches(network, model, context);
         createGenerators(network, model, context);
