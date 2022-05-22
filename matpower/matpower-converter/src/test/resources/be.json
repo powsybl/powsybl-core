@@ -5,6 +5,7 @@
   "buses" : [ {
     "number" : 1,
     "type" : "PV",
+    "name" : "10.5_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -19,6 +20,7 @@
   }, {
     "number" : 2,
     "type" : "PQ",
+    "name" : "110.0_0",
     "realPowerDemand" : 200.0,
     "reactivePowerDemand" : 90.0,
     "shuntConductance" : 0.0,
@@ -33,6 +35,7 @@
   }, {
     "number" : 3,
     "type" : "PV",
+    "name" : "21.0_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -47,6 +50,7 @@
   }, {
     "number" : 4,
     "type" : "PQ",
+    "name" : "220.0_0",
     "realPowerDemand" : 1.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -61,6 +65,7 @@
   }, {
     "number" : 5,
     "type" : "PQ",
+    "name" : "225.0_0",
     "realPowerDemand" : 200.0,
     "reactivePowerDemand" : 50.0,
     "shuntConductance" : 0.0,
@@ -75,6 +80,7 @@
   }, {
     "number" : 6,
     "type" : "REF",
+    "name" : "380.0_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -89,6 +95,7 @@
   }, {
     "number" : 7,
     "type" : "PQ",
+    "name" : "BE-Line_1",
     "realPowerDemand" : -27.365225,
     "reactivePowerDemand" : 0.425626,
     "shuntConductance" : 0.0,
@@ -103,6 +110,7 @@
   }, {
     "number" : 8,
     "type" : "PQ",
+    "name" : "BE-Line_3",
     "realPowerDemand" : -46.816625,
     "reactivePowerDemand" : 79.193778,
     "shuntConductance" : 0.0,
@@ -117,6 +125,7 @@
   }, {
     "number" : 9,
     "type" : "PQ",
+    "name" : "BE-Line_5",
     "realPowerDemand" : -90.037005,
     "reactivePowerDemand" : 148.603743,
     "shuntConductance" : 0.0,
@@ -131,6 +140,7 @@
   }, {
     "number" : 10,
     "type" : "PQ",
+    "name" : "BE-Line_7",
     "realPowerDemand" : -26.805006,
     "reactivePowerDemand" : 1.489867,
     "shuntConductance" : 0.0,
@@ -145,6 +155,7 @@
   }, {
     "number" : 11,
     "type" : "PQ",
+    "name" : "BE-Line_4",
     "realPowerDemand" : -43.687227,
     "reactivePowerDemand" : 84.876604,
     "shuntConductance" : 0.0,
@@ -159,6 +170,7 @@
   }, {
     "number" : 12,
     "type" : "PQ",
+    "name" : "BE-TR3_1",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,

@@ -96,6 +96,7 @@ public class MatpowerExporter implements Exporter {
             if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2) && isConnectedToMainCc(bus3)) {
                 MBus mBus = new MBus();
                 mBus.setNumber(context.num++);
+                mBus.setName(twt.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
@@ -124,6 +125,7 @@ public class MatpowerExporter implements Exporter {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
                 mBus.setNumber(context.num++);
+                mBus.setName(dl.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
@@ -150,6 +152,7 @@ public class MatpowerExporter implements Exporter {
                 VoltageLevel vl = bus.getVoltageLevel();
                 MBus mBus = new MBus();
                 mBus.setNumber(context.num++);
+                mBus.setName(bus.getNameOrId());
                 mBus.setType(getType(bus, context));
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);

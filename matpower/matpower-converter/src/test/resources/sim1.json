@@ -5,6 +5,7 @@
   "buses" : [ {
     "number" : 1,
     "type" : "PV",
+    "name" : "VLGEN_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -19,6 +20,7 @@
   }, {
     "number" : 2,
     "type" : "REF",
+    "name" : "VLHV1_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -33,6 +35,7 @@
   }, {
     "number" : 3,
     "type" : "PQ",
+    "name" : "VLHV2_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
     "shuntConductance" : 0.0,
@@ -47,6 +50,7 @@
   }, {
     "number" : 4,
     "type" : "PQ",
+    "name" : "VLLOAD_0",
     "realPowerDemand" : 600.0,
     "reactivePowerDemand" : 200.0,
     "shuntConductance" : 0.0,

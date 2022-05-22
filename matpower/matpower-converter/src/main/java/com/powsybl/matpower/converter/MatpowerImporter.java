@@ -188,6 +188,7 @@ public class MatpowerImporter implements Importer {
         String busId = getId(BUS_PREFIX, mBus.getNumber());
         Bus bus = voltageLevel.getBusBreakerView().newBus()
                 .setId(busId)
+                .setName(mBus.getName())
                 .add();
         bus.setV(mBus.getVoltageMagnitude() * voltageLevel.getNominalV())
                 .setAngle(mBus.getVoltageAngle());
