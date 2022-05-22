@@ -96,7 +96,7 @@ public class MatpowerExporter implements Exporter {
             }
             mBus.setShuntConductance(0d);
             mBus.setShuntSusceptance(b);
-            mBus.setVoltageMagnitude(Double.isNaN(bus.getV()) ? 0 : bus.getV());
+            mBus.setVoltageMagnitude(Double.isNaN(bus.getV()) ? 1 : bus.getV() / vl.getNominalV());
             mBus.setVoltageAngle(Double.isNaN(bus.getAngle()) ? 0 : bus.getAngle());
             mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit());
             mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit());
@@ -153,14 +153,16 @@ public class MatpowerExporter implements Exporter {
 
     private void createGenerators(Network network, MatpowerModel model, Context context) {
         for (Generator g : network.getGenerators()) {
-            Bus bus = g.getTerminal().getBusView().getBus();
+            Terminal t = g.getTerminal();
+            Bus bus = t.getBusView().getBus();
             if (bus != null) {
+                VoltageLevel vl = t.getVoltageLevel();
                 MGen mGen = new MGen();
                 mGen.setNumber(context.mBusesByIds.get(bus.getId()).getNumber());
                 mGen.setStatus(1);
                 mGen.setRealPowerOutput(g.getTargetP());
                 mGen.setReactivePowerOutput(g.getTargetQ());
-                mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulatorOn() ? g.getTargetV() : 0);
+                mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulatorOn() ? g.getTargetV() / vl.getNominalV() : 0);
                 mGen.setMinimumRealPowerOutput(g.getMinP());
                 mGen.setMaximumRealPowerOutput(g.getMaxP());
                 mGen.setMinimumReactivePowerOutput(g.getReactiveLimits().getMinQ(g.getTargetP()));
