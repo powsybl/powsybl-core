@@ -30,9 +30,9 @@ public class MatpowerExporter implements Exporter {
     private static final String FORMAT_VERSION = "2";
     private static final int AREA_NUMBER = 1;
     private static final int LOSS_ZONE = 1;
-    public static final int CONNECTED_STATUS = 1;
-    public static final String V_PROP = "v";
-    public static final String ANGLE_PROP = "angle";
+    private static final int CONNECTED_STATUS = 1;
+    private static final String V_PROP = "v";
+    private static final String ANGLE_PROP = "angle";
 
     @Override
     public String getFormat() {
