@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.matpower.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,6 +27,8 @@ import java.util.*;
  */
 @AutoService(Exporter.class)
 public class MatpowerExporter implements Exporter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerExporter.class);
 
     private static final double BASE_MVA = 100;
     private static final String FORMAT_VERSION = "2";
@@ -317,7 +321,19 @@ public class MatpowerExporter implements Exporter {
                 mGen.setStatus(CONNECTED_STATUS);
                 mGen.setRealPowerOutput(g.getTargetP());
                 mGen.setReactivePowerOutput(g.getTargetQ());
-                mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulatorOn() ? g.getTargetV() / vl.getNominalV() : 0);
+                Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
+                if (g.isVoltageRegulatorOn() && regulatedBus != null) {
+                    double targetV = g.getTargetV() / vl.getNominalV();
+                    if (!regulatedBus.getId().equals(bus.getId())) {
+                        double oldTargetV = targetV;
+                        targetV *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
+                        LOGGER.warn("Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
+                                g.getId(), oldTargetV, targetV);
+                    }
+                    mGen.setVoltageMagnitudeSetpoint(targetV);
+                } else {
+                    mGen.setVoltageMagnitudeSetpoint(0);
+                }
                 mGen.setMinimumRealPowerOutput(g.getMinP());
                 mGen.setMaximumRealPowerOutput(g.getMaxP());
                 mGen.setMinimumReactivePowerOutput(g.getReactiveLimits().getMinQ(g.getTargetP()));
