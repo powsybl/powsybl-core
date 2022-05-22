@@ -211,7 +211,7 @@ public class MatpowerExporter implements Exporter {
                 var rtc = twt.getRatioTapChanger();
                 double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV())
                         * (1 + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
-                mBranch.setRatio(1 / rho);
+                mBranch.setRatio(1d / rho);
                 var ptc = twt.getPhaseTapChanger();
                 mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
                 model.addBranch(mBranch);
@@ -267,9 +267,9 @@ public class MatpowerExporter implements Exporter {
         mBranch.setX(leg.getX() / zb);
         mBranch.setB(leg.getB() * zb);
         var rtc = leg.getRatioTapChanger();
-        double rho = 1 / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV())
-                * (1 + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
-        mBranch.setRatio(1 / rho);
+        double rho = 1d / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV())
+                * (1d + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
+        mBranch.setRatio(1d / rho);
         var ptc = leg.getPhaseTapChanger();
         mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
         return mBranch;
