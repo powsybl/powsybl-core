@@ -410,5 +410,7 @@ public class MatpowerExporter implements Exporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
+        LOGGER.info("Matpower export of '{}' done", network.getId());
     }
 }
