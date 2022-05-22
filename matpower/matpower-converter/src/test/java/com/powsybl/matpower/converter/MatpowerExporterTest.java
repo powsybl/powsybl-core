@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.matpower.model.MatpowerModel;
 import com.powsybl.matpower.model.MatpowerReader;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -49,7 +48,6 @@ public class MatpowerExporterTest {
     }
 
     @Test
-    @Ignore
     public void testMicroGridBe() throws IOException {
         Network network = Importers.loadNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource());
         exportToMatAndCompareTo(network, "/be.json");
