@@ -106,8 +106,10 @@ public class MatpowerExporter implements Exporter {
         }
 
         for (DanglingLine dl : network.getDanglingLines()) {
-            Bus bus = dl.getTerminal().getBusView().getBus();
+            Terminal t = dl.getTerminal();
+            Bus bus = t.getBusView().getBus();
             if (bus != null) {
+                VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
                 mBus.setNumber(num++);
                 mBus.setType(MBus.Type.PQ);
@@ -120,7 +122,7 @@ public class MatpowerExporter implements Exporter {
                 mBus.setReactivePowerDemand(dl.getQ0());
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(dl.getBoundary().getV());
+                mBus.setVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV());
                 mBus.setVoltageAngle(dl.getBoundary().getAngle());
                 mBus.setMinimumVoltageMagnitude(0);
                 mBus.setMaximumVoltageMagnitude(0);
