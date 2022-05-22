@@ -28,6 +28,8 @@ public class MatpowerExporter implements Exporter {
 
     private static final double BASE_MVA = 100;
     private static final String FORMAT_VERSION = "2";
+    private static final int AREA_NUMBER = 1;
+    private static final int LOSS_ZONE = 1;
 
     @Override
     public String getFormat() {
@@ -77,8 +79,8 @@ public class MatpowerExporter implements Exporter {
             MBus mBus = new MBus();
             mBus.setNumber(num++);
             mBus.setType(getType(bus));
-            mBus.setAreaNumber(1);
-            mBus.setLossZone(1);
+            mBus.setAreaNumber(AREA_NUMBER);
+            mBus.setLossZone(LOSS_ZONE);
             mBus.setBaseVoltage(vl.getNominalV());
             mBus.setMinimumVoltageMagnitude(vl.getLowVoltageLimit());
             mBus.setMaximumVoltageMagnitude(vl.getHighVoltageLimit());
@@ -113,8 +115,8 @@ public class MatpowerExporter implements Exporter {
                 MBus mBus = new MBus();
                 mBus.setNumber(num++);
                 mBus.setType(MBus.Type.PQ);
-                mBus.setAreaNumber(1);
-                mBus.setLossZone(1);
+                mBus.setAreaNumber(AREA_NUMBER);
+                mBus.setLossZone(LOSS_ZONE);
                 mBus.setBaseVoltage(dl.getTerminal().getVoltageLevel().getNominalV());
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
@@ -139,8 +141,8 @@ public class MatpowerExporter implements Exporter {
                 MBus mBus = new MBus();
                 mBus.setNumber(num++);
                 mBus.setType(MBus.Type.PQ);
-                mBus.setAreaNumber(1);
-                mBus.setLossZone(1);
+                mBus.setAreaNumber(AREA_NUMBER);
+                mBus.setLossZone(LOSS_ZONE);
                 mBus.setBaseVoltage(twt.getRatedU0());
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
