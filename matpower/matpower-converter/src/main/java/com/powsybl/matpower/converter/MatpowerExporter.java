@@ -68,16 +68,72 @@ public class MatpowerExporter implements Exporter {
 
     static class Context {
 
+        int num = 1;
+
         final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
     }
 
-    private static void createBuses(Network network, MatpowerModel model, Context context) {
-        int num = 1;
+    private static void createTransformerStarBuses(Network network, MatpowerModel model, Context context) {
+        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            Bus bus1 = twt.getLeg1().getTerminal().getBusView().getBus();
+            Bus bus2 = twt.getLeg2().getTerminal().getBusView().getBus();
+            Bus bus3 = twt.getLeg3().getTerminal().getBusView().getBus();
+            if (bus1 != null && bus2 != null && bus3 != null) {
+                MBus mBus = new MBus();
+                mBus.setNumber(context.num++);
+                mBus.setType(MBus.Type.PQ);
+                mBus.setAreaNumber(AREA_NUMBER);
+                mBus.setLossZone(LOSS_ZONE);
+                mBus.setBaseVoltage(twt.getRatedU0());
+                mBus.setMinimumVoltageMagnitude(0d);
+                mBus.setMaximumVoltageMagnitude(0d);
+                mBus.setRealPowerDemand(0d);
+                mBus.setReactivePowerDemand(0d);
+                mBus.setShuntConductance(0d);
+                mBus.setShuntSusceptance(0d);
+                mBus.setVoltageMagnitude(1d);
+                mBus.setVoltageAngle(0);
+                mBus.setMinimumVoltageMagnitude(0d);
+                mBus.setMaximumVoltageMagnitude(0d);
+                model.addBus(mBus);
+                context.mBusesNumbersByIds.put(twt.getId(), mBus.getNumber());
+            }
+        }
+    }
 
+    private static void createDanglingLineBuses(Network network, MatpowerModel model, Context context) {
+        for (DanglingLine dl : network.getDanglingLines()) {
+            Terminal t = dl.getTerminal();
+            Bus bus = t.getBusView().getBus();
+            if (bus != null) {
+                VoltageLevel vl = t.getVoltageLevel();
+                MBus mBus = new MBus();
+                mBus.setNumber(context.num++);
+                mBus.setType(MBus.Type.PQ);
+                mBus.setAreaNumber(AREA_NUMBER);
+                mBus.setLossZone(LOSS_ZONE);
+                mBus.setBaseVoltage(dl.getTerminal().getVoltageLevel().getNominalV());
+                mBus.setMinimumVoltageMagnitude(0d);
+                mBus.setMaximumVoltageMagnitude(0d);
+                mBus.setRealPowerDemand(dl.getP0());
+                mBus.setReactivePowerDemand(dl.getQ0());
+                mBus.setShuntConductance(0d);
+                mBus.setShuntSusceptance(0d);
+                mBus.setVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV());
+                mBus.setVoltageAngle(dl.getBoundary().getAngle());
+                mBus.setMinimumVoltageMagnitude(0d);
+                mBus.setMaximumVoltageMagnitude(0d);
+                model.addBus(mBus);
+                context.mBusesNumbersByIds.put(dl.getId(), mBus.getNumber());
+            }
+        }
+    }
+
+    private static void createBuses(Network network, MatpowerModel model, Context context) {
         for (Bus bus : network.getBusView().getBuses()) {
             VoltageLevel vl = bus.getVoltageLevel();
             MBus mBus = new MBus();
-            mBus.setNumber(num++);
+            mBus.setNumber(context.num++);
             mBus.setType(getType(bus));
             mBus.setAreaNumber(AREA_NUMBER);
             mBus.setLossZone(LOSS_ZONE);
@@ -107,78 +163,11 @@ public class MatpowerExporter implements Exporter {
             context.mBusesNumbersByIds.put(bus.getId(), mBus.getNumber());
         }
 
-        for (DanglingLine dl : network.getDanglingLines()) {
-            Terminal t = dl.getTerminal();
-            Bus bus = t.getBusView().getBus();
-            if (bus != null) {
-                VoltageLevel vl = t.getVoltageLevel();
-                MBus mBus = new MBus();
-                mBus.setNumber(num++);
-                mBus.setType(MBus.Type.PQ);
-                mBus.setAreaNumber(AREA_NUMBER);
-                mBus.setLossZone(LOSS_ZONE);
-                mBus.setBaseVoltage(dl.getTerminal().getVoltageLevel().getNominalV());
-                mBus.setMinimumVoltageMagnitude(0d);
-                mBus.setMaximumVoltageMagnitude(0d);
-                mBus.setRealPowerDemand(dl.getP0());
-                mBus.setReactivePowerDemand(dl.getQ0());
-                mBus.setShuntConductance(0d);
-                mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV());
-                mBus.setVoltageAngle(dl.getBoundary().getAngle());
-                mBus.setMinimumVoltageMagnitude(0d);
-                mBus.setMaximumVoltageMagnitude(0d);
-                model.addBus(mBus);
-                context.mBusesNumbersByIds.put(dl.getId(), mBus.getNumber());
-            }
-        }
-
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            Bus bus1 = twt.getLeg1().getTerminal().getBusView().getBus();
-            Bus bus2 = twt.getLeg2().getTerminal().getBusView().getBus();
-            Bus bus3 = twt.getLeg3().getTerminal().getBusView().getBus();
-            if (bus1 != null && bus2 != null && bus3 != null) {
-                MBus mBus = new MBus();
-                mBus.setNumber(num++);
-                mBus.setType(MBus.Type.PQ);
-                mBus.setAreaNumber(AREA_NUMBER);
-                mBus.setLossZone(LOSS_ZONE);
-                mBus.setBaseVoltage(twt.getRatedU0());
-                mBus.setMinimumVoltageMagnitude(0d);
-                mBus.setMaximumVoltageMagnitude(0d);
-                mBus.setRealPowerDemand(0d);
-                mBus.setReactivePowerDemand(0d);
-                mBus.setShuntConductance(0d);
-                mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(1d);
-                mBus.setVoltageAngle(0);
-                mBus.setMinimumVoltageMagnitude(0d);
-                mBus.setMaximumVoltageMagnitude(0d);
-                model.addBus(mBus);
-                context.mBusesNumbersByIds.put(twt.getId(), mBus.getNumber());
-            }
-        }
+        createDanglingLineBuses(network, model, context);
+        createTransformerStarBuses(network, model, context);
     }
 
-    private static MBranch createLegBranch(ThreeWindingsTransformer twt, ThreeWindingsTransformer.Leg leg, Bus bus, Context context) {
-        MBranch mBranch = new MBranch();
-        mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
-        mBranch.setTo(context.mBusesNumbersByIds.get(twt.getId()));
-        mBranch.setStatus(1);
-        double zb = Math.pow(twt.getRatedU0(), 2) / BASE_MVA;
-        mBranch.setR(leg.getR() / zb);
-        mBranch.setX(leg.getX() / zb);
-        mBranch.setB(leg.getB() * zb);
-        var rtc = leg.getRatioTapChanger();
-        double rho = 1 / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV())
-                * (1 + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
-        mBranch.setRatio(1 / rho);
-        var ptc = leg.getPhaseTapChanger();
-        mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
-        return mBranch;
-    }
-
-    private void createBranches(Network network, MatpowerModel model, Context context) {
+    private void createLines(Network network, MatpowerModel model, Context context) {
         for (Line l : network.getLines()) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
@@ -197,7 +186,9 @@ public class MatpowerExporter implements Exporter {
                 model.addBranch(mBranch);
             }
         }
+    }
 
+    private void createTransformers2(Network network, MatpowerModel model, Context context) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             Terminal t1 = twt.getTerminal1();
             Terminal t2 = twt.getTerminal2();
@@ -223,7 +214,9 @@ public class MatpowerExporter implements Exporter {
                 model.addBranch(mBranch);
             }
         }
+    }
 
+    private void createDanglingLineBranches(Network network, MatpowerModel model, Context context) {
         for (DanglingLine dl : network.getDanglingLines()) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
@@ -240,7 +233,9 @@ public class MatpowerExporter implements Exporter {
                 model.addBranch(mBranch);
             }
         }
+    }
 
+    private void createTransformerLegs(Network network, MatpowerModel model, Context context) {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             var leg1 = twt.getLeg1();
             var leg2 = twt.getLeg2();
@@ -252,9 +247,58 @@ public class MatpowerExporter implements Exporter {
             Bus bus2 = t2.getBusView().getBus();
             Bus bus3 = t3.getBusView().getBus();
             if (bus1 != null && bus2 != null && bus3 != null) {
-                model.addBranch(createLegBranch(twt, leg1, bus1, context));
-                model.addBranch(createLegBranch(twt, leg2, bus2, context));
-                model.addBranch(createLegBranch(twt, leg3, bus3, context));
+                model.addBranch(createTransformerLeg(twt, leg1, bus1, context));
+                model.addBranch(createTransformerLeg(twt, leg2, bus2, context));
+                model.addBranch(createTransformerLeg(twt, leg3, bus3, context));
+            }
+        }
+    }
+
+    private static MBranch createTransformerLeg(ThreeWindingsTransformer twt, ThreeWindingsTransformer.Leg leg, Bus bus, Context context) {
+        MBranch mBranch = new MBranch();
+        mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
+        mBranch.setTo(context.mBusesNumbersByIds.get(twt.getId()));
+        mBranch.setStatus(1);
+        double zb = Math.pow(twt.getRatedU0(), 2) / BASE_MVA;
+        mBranch.setR(leg.getR() / zb);
+        mBranch.setX(leg.getX() / zb);
+        mBranch.setB(leg.getB() * zb);
+        var rtc = leg.getRatioTapChanger();
+        double rho = 1 / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV())
+                * (1 + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
+        mBranch.setRatio(1 / rho);
+        var ptc = leg.getPhaseTapChanger();
+        mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
+        return mBranch;
+    }
+
+    private void createBranches(Network network, MatpowerModel model, Context context) {
+        createLines(network, model, context);
+        createTransformers2(network, model, context);
+        createDanglingLineBranches(network, model, context);
+        createTransformerLegs(network, model, context);
+    }
+
+    private void createDanglingLineGenerators(Network network, MatpowerModel model, Context context) {
+        for (DanglingLine dl : network.getDanglingLines()) {
+            Terminal t = dl.getTerminal();
+            Bus bus = t.getBusView().getBus();
+            if (bus != null) {
+                var g = dl.getGeneration();
+                if (g != null) {
+                    VoltageLevel vl = t.getVoltageLevel();
+                    MGen mGen = new MGen();
+                    mGen.setNumber(context.mBusesNumbersByIds.get(dl.getId()));
+                    mGen.setStatus(1);
+                    mGen.setRealPowerOutput(g.getTargetP());
+                    mGen.setReactivePowerOutput(g.getTargetQ());
+                    mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulationOn() ? g.getTargetV() / vl.getNominalV() : 0);
+                    mGen.setMinimumRealPowerOutput(g.getMinP());
+                    mGen.setMaximumRealPowerOutput(g.getMaxP());
+                    mGen.setMinimumReactivePowerOutput(g.getReactiveLimits().getMinQ(g.getTargetP()));
+                    mGen.setMaximumReactivePowerOutput(g.getReactiveLimits().getMaxQ(g.getTargetP()));
+                    model.addGenerator(mGen);
+                }
             }
         }
     }
@@ -279,27 +323,7 @@ public class MatpowerExporter implements Exporter {
             }
         }
 
-        for (DanglingLine dl : network.getDanglingLines()) {
-            Terminal t = dl.getTerminal();
-            Bus bus = t.getBusView().getBus();
-            if (bus != null) {
-                var g = dl.getGeneration();
-                if (g != null) {
-                    VoltageLevel vl = t.getVoltageLevel();
-                    MGen mGen = new MGen();
-                    mGen.setNumber(context.mBusesNumbersByIds.get(dl.getId()));
-                    mGen.setStatus(1);
-                    mGen.setRealPowerOutput(g.getTargetP());
-                    mGen.setReactivePowerOutput(g.getTargetQ());
-                    mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulationOn() ? g.getTargetV() / vl.getNominalV() : 0);
-                    mGen.setMinimumRealPowerOutput(g.getMinP());
-                    mGen.setMaximumRealPowerOutput(g.getMaxP());
-                    mGen.setMinimumReactivePowerOutput(g.getReactiveLimits().getMinQ(g.getTargetP()));
-                    mGen.setMaximumReactivePowerOutput(g.getReactiveLimits().getMaxQ(g.getTargetP()));
-                    model.addGenerator(mGen);
-                }
-            }
-        }
+        createDanglingLineGenerators(network, model, context);
     }
 
     @Override
