@@ -30,6 +30,7 @@ public class MatpowerExporter implements Exporter {
     private static final String FORMAT_VERSION = "2";
     private static final int AREA_NUMBER = 1;
     private static final int LOSS_ZONE = 1;
+    public static final int CONNECTED_STATUS = 1;
 
     @Override
     public String getFormat() {
@@ -178,7 +179,7 @@ public class MatpowerExporter implements Exporter {
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
                 mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
-                mBranch.setStatus(1);
+                mBranch.setStatus(CONNECTED_STATUS);
                 double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
                 mBranch.setR(l.getR() / zb);
                 mBranch.setX(l.getX() / zb);
@@ -200,7 +201,7 @@ public class MatpowerExporter implements Exporter {
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
                 mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
-                mBranch.setStatus(1);
+                mBranch.setStatus(CONNECTED_STATUS);
                 double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
                 mBranch.setR(twt.getR() / zb);
                 mBranch.setX(twt.getX() / zb);
@@ -225,7 +226,7 @@ public class MatpowerExporter implements Exporter {
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
                 mBranch.setTo(context.mBusesNumbersByIds.get(dl.getId()));
-                mBranch.setStatus(1);
+                mBranch.setStatus(CONNECTED_STATUS);
                 double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
                 mBranch.setR(dl.getR() / zb);
                 mBranch.setX(dl.getX() / zb);
@@ -258,7 +259,7 @@ public class MatpowerExporter implements Exporter {
         MBranch mBranch = new MBranch();
         mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
         mBranch.setTo(context.mBusesNumbersByIds.get(twt.getId()));
-        mBranch.setStatus(1);
+        mBranch.setStatus(CONNECTED_STATUS);
         double zb = Math.pow(twt.getRatedU0(), 2) / BASE_MVA;
         mBranch.setR(leg.getR() / zb);
         mBranch.setX(leg.getX() / zb);
@@ -289,7 +290,7 @@ public class MatpowerExporter implements Exporter {
                     VoltageLevel vl = t.getVoltageLevel();
                     MGen mGen = new MGen();
                     mGen.setNumber(context.mBusesNumbersByIds.get(dl.getId()));
-                    mGen.setStatus(1);
+                    mGen.setStatus(CONNECTED_STATUS);
                     mGen.setRealPowerOutput(g.getTargetP());
                     mGen.setReactivePowerOutput(g.getTargetQ());
                     mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulationOn() ? g.getTargetV() / vl.getNominalV() : 0);
@@ -311,7 +312,7 @@ public class MatpowerExporter implements Exporter {
                 VoltageLevel vl = t.getVoltageLevel();
                 MGen mGen = new MGen();
                 mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
-                mGen.setStatus(1);
+                mGen.setStatus(CONNECTED_STATUS);
                 mGen.setRealPowerOutput(g.getTargetP());
                 mGen.setReactivePowerOutput(g.getTargetQ());
                 mGen.setVoltageMagnitudeSetpoint(g.isVoltageRegulatorOn() ? g.getTargetV() / vl.getNominalV() : 0);
