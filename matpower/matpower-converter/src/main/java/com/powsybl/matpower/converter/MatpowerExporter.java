@@ -89,19 +89,25 @@ public class MatpowerExporter implements Exporter {
             }
             mBus.setRealPowerDemand(pDemand);
             mBus.setReactivePowerDemand(qDemand);
-            double b = 0;
+            double bSum = 0;
             double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
             for (ShuntCompensator sc : bus.getShuntCompensators()) {
-                b += sc.getB() * zb * BASE_MVA;
+                bSum += sc.getB() * zb * BASE_MVA;
             }
             mBus.setShuntConductance(0d);
-            mBus.setShuntSusceptance(b);
+            mBus.setShuntSusceptance(bSum);
             mBus.setVoltageMagnitude(Double.isNaN(bus.getV()) ? 1 : bus.getV() / vl.getNominalV());
             mBus.setVoltageAngle(Double.isNaN(bus.getAngle()) ? 0 : bus.getAngle());
             mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit());
             mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit());
             model.addBus(mBus);
             context.mBusesByIds.put(bus.getId(), mBus);
+        }
+        for (DanglingLine dl : network.getDanglingLines()) {
+            throw new UnsupportedOperationException("TODO");
+        }
+        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            throw new UnsupportedOperationException("TODO");
         }
     }
 
@@ -148,6 +154,12 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
                 model.addBranch(mBranch);
             }
+        }
+        for (DanglingLine dl : network.getDanglingLines()) {
+            throw new UnsupportedOperationException("TODO");
+        }
+        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            throw new UnsupportedOperationException("TODO");
         }
     }
 
