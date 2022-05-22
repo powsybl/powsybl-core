@@ -66,7 +66,7 @@ public class MatpowerExporter implements Exporter {
 
     static class Context {
 
-        final Map<String, MBus> mBusesByIds = new HashMap<>();
+        final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
     }
 
     private static void createBuses(Network network, MatpowerModel model, Context context) {
@@ -102,7 +102,7 @@ public class MatpowerExporter implements Exporter {
             mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit());
             mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit());
             model.addBus(mBus);
-            context.mBusesByIds.put(bus.getId(), mBus);
+            context.mBusesNumbersByIds.put(bus.getId(), mBus.getNumber());
         }
 
         for (DanglingLine dl : network.getDanglingLines()) {
@@ -124,10 +124,10 @@ public class MatpowerExporter implements Exporter {
                 mBus.setShuntSusceptance(0d);
                 mBus.setVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV());
                 mBus.setVoltageAngle(dl.getBoundary().getAngle());
-                mBus.setMinimumVoltageMagnitude(0);
-                mBus.setMaximumVoltageMagnitude(0);
+                mBus.setMinimumVoltageMagnitude(0d);
+                mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
-                context.mBusesByIds.put(dl.getId(), mBus);
+                context.mBusesNumbersByIds.put(dl.getId(), mBus.getNumber());
             }
         }
 
@@ -148,20 +148,20 @@ public class MatpowerExporter implements Exporter {
                 mBus.setReactivePowerDemand(0d);
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(1);
+                mBus.setVoltageMagnitude(1d);
                 mBus.setVoltageAngle(0);
-                mBus.setMinimumVoltageMagnitude(0);
-                mBus.setMaximumVoltageMagnitude(0);
+                mBus.setMinimumVoltageMagnitude(0d);
+                mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
-                context.mBusesByIds.put(twt.getId(), mBus);
+                context.mBusesNumbersByIds.put(twt.getId(), mBus.getNumber());
             }
         }
     }
 
     private static MBranch createLegBranch(ThreeWindingsTransformer twt, ThreeWindingsTransformer.Leg leg, Bus bus, Context context) {
         MBranch mBranch = new MBranch();
-        mBranch.setFrom(context.mBusesByIds.get(bus.getId()).getNumber());
-        mBranch.setTo(context.mBusesByIds.get(twt.getId()).getNumber());
+        mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
+        mBranch.setTo(context.mBusesNumbersByIds.get(twt.getId()));
         mBranch.setStatus(1);
         double zb = Math.pow(twt.getRatedU0(), 2) / BASE_MVA;
         mBranch.setR(leg.getR() / zb);
@@ -185,8 +185,8 @@ public class MatpowerExporter implements Exporter {
             if (bus1 != null && bus2 != null) {
                 VoltageLevel vl2 = t2.getVoltageLevel();
                 MBranch mBranch = new MBranch();
-                mBranch.setFrom(context.mBusesByIds.get(bus1.getId()).getNumber());
-                mBranch.setTo(context.mBusesByIds.get(bus2.getId()).getNumber());
+                mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
+                mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
                 mBranch.setStatus(1);
                 double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
                 mBranch.setR(l.getR() / zb);
@@ -205,8 +205,8 @@ public class MatpowerExporter implements Exporter {
                 VoltageLevel vl1 = t1.getVoltageLevel();
                 VoltageLevel vl2 = t2.getVoltageLevel();
                 MBranch mBranch = new MBranch();
-                mBranch.setFrom(context.mBusesByIds.get(bus1.getId()).getNumber());
-                mBranch.setTo(context.mBusesByIds.get(bus2.getId()).getNumber());
+                mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
+                mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
                 mBranch.setStatus(1);
                 double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
                 mBranch.setR(twt.getR() / zb);
@@ -228,8 +228,8 @@ public class MatpowerExporter implements Exporter {
             if (bus != null) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBranch mBranch = new MBranch();
-                mBranch.setFrom(context.mBusesByIds.get(bus.getId()).getNumber());
-                mBranch.setTo(context.mBusesByIds.get(dl.getId()).getNumber());
+                mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
+                mBranch.setTo(context.mBusesNumbersByIds.get(dl.getId()));
                 mBranch.setStatus(1);
                 double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
                 mBranch.setR(dl.getR() / zb);
@@ -264,7 +264,7 @@ public class MatpowerExporter implements Exporter {
             if (bus != null) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MGen mGen = new MGen();
-                mGen.setNumber(context.mBusesByIds.get(bus.getId()).getNumber());
+                mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
                 mGen.setStatus(1);
                 mGen.setRealPowerOutput(g.getTargetP());
                 mGen.setReactivePowerOutput(g.getTargetQ());
@@ -285,7 +285,7 @@ public class MatpowerExporter implements Exporter {
                 if (g != null) {
                     VoltageLevel vl = t.getVoltageLevel();
                     MGen mGen = new MGen();
-                    mGen.setNumber(context.mBusesByIds.get(dl.getId()).getNumber());
+                    mGen.setNumber(context.mBusesNumbersByIds.get(dl.getId()));
                     mGen.setStatus(1);
                     mGen.setRealPowerOutput(g.getTargetP());
                     mGen.setReactivePowerOutput(g.getTargetQ());
