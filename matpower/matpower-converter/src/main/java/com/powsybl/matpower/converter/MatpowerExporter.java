@@ -31,6 +31,8 @@ public class MatpowerExporter implements Exporter {
     private static final int AREA_NUMBER = 1;
     private static final int LOSS_ZONE = 1;
     public static final int CONNECTED_STATUS = 1;
+    public static final String V_PROP = "v";
+    public static final String ANGLE_PROP = "angle";
 
     @Override
     public String getFormat() {
@@ -92,8 +94,8 @@ public class MatpowerExporter implements Exporter {
                 mBus.setReactivePowerDemand(0d);
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(1d);
-                mBus.setVoltageAngle(0);
+                mBus.setVoltageMagnitude(twt.hasProperty(V_PROP) ? Double.parseDouble(twt.getProperty(V_PROP)) / twt.getRatedU0() : 1d);
+                mBus.setVoltageAngle(twt.hasProperty(ANGLE_PROP) ? Double.parseDouble(twt.getProperty(ANGLE_PROP)) : 0d);
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
