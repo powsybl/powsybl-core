@@ -13,6 +13,8 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
@@ -23,6 +25,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.Test;
 
 import javax.xml.stream.XMLInputFactory;
@@ -104,16 +107,16 @@ public class CgmesExportTest {
         String baseName = "testGU2SMs";
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
-
-            // Add boundary EQ for reimport
+            // Export to CGMES and add boundary EQ for reimport
+            Exporters.export("CGMES", n, null, tmpDir.resolve(baseName));
             String eqbd = ds.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
             if (eqbd != null) {
                 try (InputStream is = ds.newInputStream(eqbd)) {
                     Files.copy(is, tmpDir.resolve(baseName + "_EQ_BD.xml"));
                 }
             }
-            Exporters.export("CGMES", n, null, tmpDir.resolve(baseName));
-            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "testGU2SMs"), null);
+
+            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, baseName), null);
             Generator g1 = n2.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
             Generator g2 = n2.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
             String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
@@ -225,4 +228,48 @@ public class CgmesExportTest {
             assertEquals(CgmesNames.PHASE_TAP_CHANGER_TABULAR, typeEqAndSsh);
         }
     }
+
+    @Test
+    public void testDoNotExportFictitiousSwitches() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerTerminalDisconnected().dataSource();
+        Network network = Importers.importData("CGMES", ds, null);
+
+        String disconnectedTerminalId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91";
+        String fictitiousSwitchId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91_SW_fict";
+
+        // Verify that a fictitious switch has been created for the disconnected terminal
+        Switch fictitiousSwitch = network.getSwitch(fictitiousSwitchId);
+        assertNotNull(fictitiousSwitch);
+        assertTrue(fictitiousSwitch.isFictitious());
+
+        String exportFolder = "/test-terminal-disconnected-fictitious-switch";
+        String baseName = "testTerminalDisconnectedFictitiousSwitch";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            // Export to CGMES and add boundary EQ for reimport
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Exporters.export("CGMES", network, null, tmpDir.resolve(baseName));
+            String eqbd = ds.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
+            if (eqbd != null) {
+                try (InputStream is = ds.newInputStream(eqbd)) {
+                    Files.copy(is, tmpDir.resolve(baseName + "_EQ_BD.xml"));
+                }
+            }
+            ReadOnlyDataSource exportedCgmes = new GenericReadOnlyDataSource(tmpDir, baseName);
+
+            // Check that the exported CGMES model does not contain the fictitious switch
+            // And that the corresponding terminal is disconnected
+            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, null, TripleStoreFactory.defaultImplementation());
+            assertTrue(cgmes.isNodeBreaker());
+            assertFalse(cgmes.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
+            assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
+
+            // Verify that the fictitious switch is created again when we re-import the exported CGMES data
+            Network networkReimported = Importers.loadNetwork(exportedCgmes, null);
+            fictitiousSwitch = networkReimported.getSwitch(fictitiousSwitchId);
+            assertNotNull(fictitiousSwitch);
+            assertTrue(fictitiousSwitch.isFictitious());
+            assertTrue(fictitiousSwitch.isOpen());
+        }
+    }
+
 }

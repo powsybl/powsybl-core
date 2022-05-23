@@ -384,11 +384,10 @@ public class CgmesExportContext {
         addIidmMappingsHvdcTerminals(network);
     }
 
-    public boolean isExportedEquipment(Connectable<?> c) {
-        // We only ignore fictitious loads,
-        // as they are used to model CGMES SvInjection objects
-        // representing calculation mismatches
-        boolean ignored = c.isFictitious() && c instanceof Load;
+    public boolean isExportedEquipment(Identifiable<?> c) {
+        // We ignore fictitious loads used to model CGMES SvInjection objects that represent calculation mismatches
+        // We also ignore fictitious switches used to model CGMES disconnected Terminals
+        boolean ignored = c.isFictitious() && (c instanceof Load || c instanceof Switch);
         return !ignored;
     }
 
