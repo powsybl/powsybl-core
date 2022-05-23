@@ -7,12 +7,18 @@
 package com.powsybl.sensitivity;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
@@ -57,5 +63,25 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
     @Override
     public String getVersion() {
         return "1.0";
+    }
+
+    @Override
+    public Optional<Extension<SensitivityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
+        return Optional.of(new SensitivityAnalysisParametersTest.DummyExtension());
+    }
+
+    @Override
+    public List<String> getSpecificParametersNames() {
+        return Collections.singletonList("dummy-extension");
+    }
+
+    @Override
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.of(new SensitivityAnalysisParametersTest.DummySerializer());
+    }
+
+    @Override
+    public Optional<Extension<SensitivityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.of(new SensitivityAnalysisParametersTest.DummyExtension());
     }
 }
