@@ -20,9 +20,9 @@ import java.io.IOException;
  *
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityAnalysisParametersJsonSerializer extends StdSerializer<SensitivityAnalysisParameters> {
+public class SensitivityAnalysisParametersSerializer extends StdSerializer<SensitivityAnalysisParameters> {
 
-    SensitivityAnalysisParametersJsonSerializer() {
+    SensitivityAnalysisParametersSerializer() {
         super(SensitivityAnalysisParameters.class);
     }
 
@@ -36,7 +36,7 @@ public class SensitivityAnalysisParametersJsonSerializer extends StdSerializer<S
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, SensitivityJson.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get);
 
         jsonGenerator.writeEndObject();
     }
