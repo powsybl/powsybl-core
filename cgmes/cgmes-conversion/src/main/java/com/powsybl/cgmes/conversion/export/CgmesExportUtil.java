@@ -29,6 +29,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
@@ -45,14 +46,19 @@ public final class CgmesExportUtil {
 
     private static final DecimalFormatSymbols DOUBLE_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", DOUBLE_FORMAT_SYMBOLS);
-    private static final DecimalFormat SCIENFIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
+    private static final DecimalFormat SCIENTIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
+
+    private static final Pattern CIM_MRID_PATTERN = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-4[a-f\\d]{3}-[89ab][a-f\\d]{3}-[a-f\\d]{12}");
+    private static final Pattern URN_UUID_PATTERN = Pattern.compile("(?i)urn:uuid:[a-f\\d]{8}-[a-f\\d]{4}-4[a-f\\d]{3}-[89ab][a-f\\d]{3}-[a-f\\d]{12}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-4[a-f\\d]{3}-[89ab][a-f\\d]{3}-[a-f\\d]{7}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}4[a-f\\d]{3}[89ab][a-f\\d]{3}[a-f\\d]{12}");
 
     public static String format(double value) {
         return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String scientificFormat(double value) {
-        return SCIENFIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        return SCIENTIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String format(int value) {
@@ -61,6 +67,13 @@ public final class CgmesExportUtil {
 
     public static String format(boolean value) {
         return String.valueOf(value);
+    }
+
+    public static boolean isValidCimMasterRID(String id) {
+        return CIM_MRID_PATTERN.matcher(id).matches()
+                || URN_UUID_PATTERN.matcher(id).matches()
+                || ENTSOE_BD_EXCEPTIONS_PATTERN1.matcher(id).matches()
+                || ENTSOE_BD_EXCEPTIONS_PATTERN2.matcher(id).matches();
     }
 
     public static String getUniqueId() {

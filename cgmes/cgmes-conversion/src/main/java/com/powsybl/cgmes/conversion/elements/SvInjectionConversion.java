@@ -87,7 +87,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void findBusId(String topologicalNode) {
-        busId = context.namingStrategy().getId("Bus", topologicalNode);
+        busId = context.namingStrategy().getIidmId("Bus", topologicalNode);
     }
 
     private void findNode(String topologicalNode) {
