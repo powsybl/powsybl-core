@@ -164,6 +164,15 @@ class NodeEquipment {
             .anyMatch(eq -> eq.equipmentId.equals(acDcConverter) && eq.type == EquipmentType.AC_DC_CONVERTER);
     }
 
+    int acDcConvertersConnectedTo(String node) {
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
+        if (listEquipment == null) {
+            return 0;
+        }
+        return listEquipment.stream().filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER).map(eq -> eq.equipmentId)
+        .collect(Collectors.toSet()).size();
+    }
+
     boolean connectedEquipment(String equipment1, String equipment2, List<String> nodes) {
         return nodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
     }

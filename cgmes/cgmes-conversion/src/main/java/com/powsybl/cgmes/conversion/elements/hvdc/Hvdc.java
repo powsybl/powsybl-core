@@ -38,14 +38,11 @@ class Hvdc {
         }
         HvdcEndType type = hvdc1.computeType();
         switch (type) {
-            case HVDC_T0_C1_LS1:
-            case HVDC_T0_C1_LS2:
             case HVDC_TN_C1_LS1:
-            case HVDC_T1_C1_LS2:
+            case HVDC_TN_C1_LS2:
                 addC1LSn(hvdc1, hvdc2);
                 break;
-            case HVDC_T2_C2_LS1:
-            case HVDC_T0_C2_LS1:
+            case HVDC_TN_C2_LS1:
                 addC2LS1(nodeEquipment, hvdc1, hvdc2);
                 break;
             case HVDC_TN_CN_LSN:
