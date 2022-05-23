@@ -30,7 +30,7 @@ class IslandEndHvdc {
     // TN: n transformers (n >= 0), C1: one acDcConverter, LS1: one dcLineSegment
     // TN: n transformers (n >= 0), C2: two acDcConverters, LS1: one dcLineSegment
     // TN: n transformers (n >= 0), C1: one acDcConverter, LS2: two dcLineSegments
-    // TN: n transformers (n > 1, usually 2), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
+    // TN: n transformers (n >= 0), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
     enum HvdcEndType {
         HVDC_TN_C1_LS1, HVDC_TN_C2_LS1, HVDC_TN_C1_LS2, HVDC_TN_CN_LSN,
     }
@@ -101,10 +101,6 @@ class IslandEndHvdc {
 
         visitedNodes.addAll(hvdcNodes);
 
-        if (acDcConverters.isEmpty() || dcLineSegment.isEmpty()) {
-            return;
-        }
-
         HvdcEnd hvdcEnd = new HvdcEnd(hvdcNodes, transformers, acDcConverters, dcLineSegment);
         hvdc.add(hvdcEnd);
     }
@@ -164,22 +160,6 @@ class IslandEndHvdc {
             .forEachOrdered(eq -> listEq.add(eq.equipmentId));
     }
 
-    HvdcEnd selectSymmetricHvdcEnd(HvdcEnd hvdcEnd1) {
-        return hvdc.stream().filter(h -> isCompatible(hvdcEnd1, h)).findFirst().orElse(null);
-    }
-
-    private static boolean isCompatible(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
-        if (hvdcEnd1.acDcConvertersEnd.size() != hvdcEnd2.acDcConvertersEnd.size()) {
-            return false;
-        }
-        if (hvdcEnd1.dcLineSegmentsEnd.size() != hvdcEnd2.dcLineSegmentsEnd.size()) {
-            return false;
-        }
-
-        return hvdcEnd1.dcLineSegmentsEnd.stream()
-            .allMatch(hvdcEnd2.dcLineSegmentsEnd::contains);
-    }
-
     List<HvdcEnd> getHvdc() {
         return hvdc;
     }
@@ -212,11 +192,41 @@ class IslandEndHvdc {
                 return HvdcEndType.HVDC_TN_C1_LS2;
             } else if (t >= 0 && c == 2 && ls == 1) {
                 return HvdcEndType.HVDC_TN_C2_LS1;
-            } else if (t > 1 && c == ls && c > 1) {
+            } else if (t >= 0 && c == ls && c > 1) {
                 return HvdcEndType.HVDC_TN_CN_LSN;
             }
 
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Transformers %d Converters %d DcLineSegments %d", t, c, ls));
+        }
+
+        boolean isMatchingTo(HvdcEnd otherHvdcEnd) {
+            if (this.acDcConvertersEnd.size() != otherHvdcEnd.acDcConvertersEnd.size()) {
+                return false;
+            }
+            if (this.dcLineSegmentsEnd.size() != otherHvdcEnd.dcLineSegmentsEnd.size()) {
+                return false;
+            }
+
+            return this.dcLineSegmentsEnd.stream()
+                .allMatch(otherHvdcEnd.dcLineSegmentsEnd::contains);
+        }
+
+        boolean isAssociatedWith(HvdcEnd otherHvdcEnd) {
+            return this.dcLineSegmentsEnd.stream().anyMatch(otherHvdcEnd.dcLineSegmentsEnd::contains);
+        }
+
+        static HvdcEnd joinAll(List<HvdcEnd> listHvdcEnd) {
+
+            HvdcEnd finalHvdcEnd = new HvdcEnd(new ArrayList<>(), new HashSet<>(), new HashSet<>(), new HashSet<>());
+
+            listHvdcEnd.stream().forEach(hvdcEnd -> {
+                finalHvdcEnd.nodesEnd.addAll(hvdcEnd.nodesEnd);
+                finalHvdcEnd.transformersEnd.addAll(hvdcEnd.transformersEnd);
+                finalHvdcEnd.acDcConvertersEnd.addAll(hvdcEnd.acDcConvertersEnd);
+                finalHvdcEnd.dcLineSegmentsEnd.addAll(hvdcEnd.dcLineSegmentsEnd);
+            });
+
+            return finalHvdcEnd;
         }
     }
 }

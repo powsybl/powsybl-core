@@ -57,7 +57,7 @@ public class CgmesDcConversion {
         Islands islands = new Islands(adjacency);
 
         IslandsEnds islandsEnds = new IslandsEnds();
-        islands.getIslandsNodes().forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
+        islands.getIslandsNodes().forEach(listNodes -> islandsEnds.add(adjacency, nodeEquipment, listNodes));
 
         Hvdc hvdc = new Hvdc();
         islandsEnds.getIslandsEndsNodes().forEach(ien -> {

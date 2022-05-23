@@ -173,6 +173,15 @@ class NodeEquipment {
         .collect(Collectors.toSet()).size();
     }
 
+    boolean existDcLineSegmentBetweenBothNodes(String node1, String node2) {
+        List<EquipmentReference> listEquipment1 = nodeEquipment.get(node1);
+        List<EquipmentReference> listEquipment2 = nodeEquipment.get(node2);
+        if (listEquipment1 == null || listEquipment2 == null) {
+            return false;
+        }
+        return listEquipment1.stream().anyMatch(eq -> eq.type == EquipmentType.DC_LINE_SEGMENT && listEquipment2.contains(eq));
+    }
+
     boolean connectedEquipment(String equipment1, String equipment2, List<String> nodes) {
         return nodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
     }
