@@ -184,11 +184,6 @@ class IslandEndHvdc {
         return hvdc;
     }
 
-    void report(List<String> reportList) {
-        reportList.add("IslandEndHvdc");
-        hvdc.forEach(hvdcEnd -> hvdcEnd.report(reportList));
-    }
-
     static class HvdcEnd {
         final List<String> nodesEnd;
         final Set<String> transformersEnd;
@@ -222,14 +217,6 @@ class IslandEndHvdc {
             }
 
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Transformers %d Converters %d DcLineSegments %d", t, c, ls));
-        }
-
-        void report(List<String> reportList) {
-            reportList.add(String.format("    nodesEnd: %s", this.nodesEnd));
-            reportList.add(String.format("    transformersEnd: %s", this.transformersEnd));
-            reportList.add(String.format("    acDcConvertersEnd: %s", this.acDcConvertersEnd));
-            reportList.add(String.format("    dcLineSegmentsEnd: %s", this.dcLineSegmentsEnd));
-            reportList.add("---");
         }
     }
 }
