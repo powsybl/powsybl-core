@@ -18,8 +18,8 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 public class SensitivityJsonModule extends SimpleModule {
 
     public SensitivityJsonModule() {
-        addDeserializer(SensitivityAnalysisParameters.class, new SensitivityAnalysisParametersJsonDeserializer());
-        addSerializer(SensitivityAnalysisParameters.class, new SensitivityAnalysisParametersJsonSerializer());
+        addDeserializer(SensitivityAnalysisParameters.class, new SensitivityAnalysisParametersDeserializer());
+        addSerializer(SensitivityAnalysisParameters.class, new SensitivityAnalysisParametersSerializer());
         addSerializer(SensitivityFactor.class, new SensitivityFactorJsonSerializer());
         addDeserializer(SensitivityFactor.class, new SensitivityFactorJsonDeserializer());
         addSerializer(SensitivityValue.class, new SensitivityValueJsonSerializer());
