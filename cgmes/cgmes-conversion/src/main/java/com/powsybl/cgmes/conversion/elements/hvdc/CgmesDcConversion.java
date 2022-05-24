@@ -401,14 +401,6 @@ public class CgmesDcConversion {
         }
     }
 
-    static String getDcNode(PropertyBag xxxterminal, CgmesModel cgmesModel) {
-        if (cgmesModel.isNodeBreaker()) {
-            return xxxterminal.getId("DCNode");
-        } else {
-            return xxxterminal.getId("DCTopologicalNode");
-        }
-    }
-
     private static String findAcDcConverterConnectedTo(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency,
         String acDcConverterId1, String acDcConverterId2, String dcNode) {
         List<String> dcNodes1 = acDcConverterNodes.getDcNodes(acDcConverterId1);
