@@ -1,5 +1,6 @@
 [ {
-  "id" : "f00"
+  "id" : "f00",
+  "minVoltageDropProportionalThreshold" : 1.0
 }, {
   "id" : "f01",
   "withVoltageMap" : true

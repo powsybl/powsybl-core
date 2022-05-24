@@ -28,6 +28,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         String id = null;
         boolean withLimitViolations = false;
         boolean withVoltageMap = false;
+        double minVoltageDropProportionalThreshold = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -46,10 +47,15 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     withVoltageMap = parser.readValueAs(Boolean.class);
                     break;
 
+                case "minVoltageDropProportionalThreshold":
+                    parser.nextToken();
+                    minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageMap);
+        return new FaultParameters(id, withLimitViolations, withVoltageMap, minVoltageDropProportionalThreshold);
     }
 }

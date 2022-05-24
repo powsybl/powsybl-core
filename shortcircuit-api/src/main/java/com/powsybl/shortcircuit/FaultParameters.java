@@ -30,6 +30,8 @@ public class FaultParameters {
 
     private final boolean withVoltageMap;
 
+    private final double minVoltageDropProportionalThreshold;
+
     /** Fault id */
     public String getId() {
         return id;
@@ -45,12 +47,19 @@ public class FaultParameters {
         return withVoltageMap;
     }
 
+    /** Override general parameter */
+    public double getMinVoltageDropProportionalThreshold() {
+        return minVoltageDropProportionalThreshold;
+    }
+
     public FaultParameters(String id,
                            boolean withLimitViolations,
-                           boolean withVoltageMap) {
+                           boolean withVoltageMap,
+                           double minVoltageDropProportionalThreshold) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageMap = withVoltageMap;
+        this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
     }
 
     @Override
@@ -64,21 +73,23 @@ public class FaultParameters {
         FaultParameters that = (FaultParameters) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(withLimitViolations, that.withLimitViolations) &&
-                Objects.equals(withVoltageMap, that.withVoltageMap);
+                Objects.equals(withVoltageMap, that.withVoltageMap) &&
+                Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, withLimitViolations, withVoltageMap);
+        return Objects.hash(id, withLimitViolations, withVoltageMap, minVoltageDropProportionalThreshold);
     }
 
     @Override
     public String toString() {
         return "FaultParameters{" +
-            "id=" + id +
-            "withLimitViolations=" + withLimitViolations +
-            ", withVoltageMap=" + withVoltageMap +
-            '}';
+                "id=" + id +
+                ", withLimitViolations=" + withLimitViolations +
+                ", withVoltageMap=" + withVoltageMap +
+                ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
+                '}';
     }
 
     private static ObjectMapper createObjectMapper() {
