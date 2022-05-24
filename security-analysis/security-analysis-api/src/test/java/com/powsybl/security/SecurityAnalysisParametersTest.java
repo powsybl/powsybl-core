@@ -6,13 +6,11 @@
  */
 package com.powsybl.security;
 
-import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,7 +33,7 @@ public class SecurityAnalysisParametersTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
         assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
@@ -45,49 +43,16 @@ public class SecurityAnalysisParametersTest {
 
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
-        assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertFalse(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
         assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
     }
 
     @Test
     public void testExtensionFromConfig() {
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
-
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));
-    }
-
-    private static class DummyExtension extends AbstractExtension<SecurityAnalysisParameters> {
-
-        @Override
-        public String getName() {
-            return "dummyExtension";
-        }
-    }
-
-    @AutoService(SecurityAnalysisParameters.ConfigLoader.class)
-    public static class DummyLoader implements SecurityAnalysisParameters.ConfigLoader<DummyExtension> {
-
-        @Override
-        public DummyExtension load(PlatformConfig platformConfig) {
-            return new DummyExtension();
-        }
-
-        @Override
-        public String getExtensionName() {
-            return "dummyExtension";
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "security-analysis-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
     }
 
     @Test

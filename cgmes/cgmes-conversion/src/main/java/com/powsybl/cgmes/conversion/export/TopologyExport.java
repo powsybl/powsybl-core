@@ -239,7 +239,7 @@ public final class TopologyExport {
 
     private static void writeBusTopologicalNodes(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            writeTopologicalNode(b.getId(), b.getNameOrId(), b.getVoltageLevel(), addedTopologicalNodes, cimNamespace, writer, context);
+            writeTopologicalNode(b.getId(), b.getNameOrId(), context.getNamingStrategy().getCgmesId(b.getVoltageLevel()), addedTopologicalNodes, cimNamespace, writer, context);
         }
     }
 
@@ -248,7 +248,7 @@ public final class TopologyExport {
             Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNodeId.isPresent()) {
                 String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getBoundary().getVoltageLevel().getNominalV()).getId();
-                writeTopologicalNode(topologicalNodeId.get(), dl.getNameOrId(), dl.getBoundary().getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
+                writeTopologicalNode(topologicalNodeId.get(), dl.getNameOrId(), context.getNamingStrategy().getCgmesId(dl.getBoundary().getVoltageLevel()), baseVoltage, cimNamespace, writer);
             }
         }
     }

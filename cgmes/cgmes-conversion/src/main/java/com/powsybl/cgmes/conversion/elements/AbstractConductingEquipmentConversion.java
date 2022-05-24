@@ -249,6 +249,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE, tn); // TODO: delete when aliases are correctly handled by mergedlines
         });
+        context.namingStrategy().readIdMapping(dl, type);
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
@@ -470,7 +471,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         TerminalData(String terminalPropertyName, PropertyBag p, Context context) {
             t = context.cgmes().terminal(p.getId(terminalPropertyName));
             String nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-            this.busId = context.namingStrategy().getId("Bus", nodeId);
+            this.busId = context.namingStrategy().getIidmId("Bus", nodeId);
             if (context.config().convertBoundary()
                 && context.boundary().containsNode(nodeId)) {
                 cgmesVoltageLevelId = Context.boundaryVoltageLevelId(nodeId);
@@ -480,7 +481,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
             }
             if (cgmesVoltageLevelId != null) {
-                String iidmVl = context.namingStrategy().getId("VoltageLevel", cgmesVoltageLevelId);
+                String iidmVl = context.namingStrategy().getIidmId("VoltageLevel", cgmesVoltageLevelId);
                 iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
@@ -615,11 +616,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         int i = 1;
         for (TerminalData td : terminals) {
             if (td == null) {
-                return;
+                break;
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             i++;
         }
+        context.namingStrategy().readIdMapping(identifiable, type);
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {

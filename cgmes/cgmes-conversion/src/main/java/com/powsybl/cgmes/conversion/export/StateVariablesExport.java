@@ -52,10 +52,10 @@ public final class StateVariablesExport {
             writeVoltagesForTopologicalNodes(network, cimNamespace, writer);
             writeVoltagesForBoundaryNodes(network, cimNamespace, writer);
             writePowerFlows(network, cimNamespace, writer, context);
-            writeShuntCompensatorSections(network, cimNamespace, writer);
+            writeShuntCompensatorSections(network, cimNamespace, writer, context);
             writeTapSteps(network, cimNamespace, writer);
             writeStatus(network, cimNamespace, writer, context);
-            writeConverters(network, cimNamespace, writer);
+            writeConverters(network, cimNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -302,7 +302,7 @@ public final class StateVariablesExport {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
-            writeSvInjection(load, bus.getId(), cimNamespace, writer);
+            writeSvInjection(load, bus.getId(), cimNamespace, writer, context);
         }
     }
 
@@ -326,9 +326,9 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeSvInjection(Load svInjection, String topologicalNode, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeSvInjection(Load svInjection, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeStartId("SvInjection", svInjection.getId(), false, cimNamespace, writer);
+            CgmesExportUtil.writeStartId("SvInjection", context.getNamingStrategy().getCgmesId(svInjection), false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvInjection.pInjection");
             writer.writeCharacters(CgmesExportUtil.format(svInjection.getP0()));
             writer.writeEndElement();
@@ -342,10 +342,10 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeShuntCompensatorSections(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeShuntCompensatorSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
-            CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator",  s.getId(), cimNamespace, writer);
+            CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator",  context.getNamingStrategy().getCgmesId(s), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
@@ -389,11 +389,10 @@ public final class StateVariablesExport {
     }
 
     private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        // create SvStatus, iterate on Connectables, check Terminal status, add
-        // to SvStatus
+        // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
         network.getConnectableStream().forEach(c -> {
             if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer);
+                writeConnectableStatus(c, cimNamespace, writer, context);
             }
         });
 
@@ -401,8 +400,8 @@ public final class StateVariablesExport {
         // If it is disconnected on the boundary side, it might not appear on the SV file.
     }
 
-    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer) {
-        writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), connectable.getId(), cimNamespace, writer);
+    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer);
     }
 
     private static void writeStatus(String inService, String conductingEquipmentId, String cimNamespace, XMLStreamWriter writer) {
@@ -418,9 +417,9 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), converterStation.getId(), cimNamespace, writer);
+            CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), context.getNamingStrategy().getCgmesId(converterStation), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
             writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation)));
             writer.writeEndElement();

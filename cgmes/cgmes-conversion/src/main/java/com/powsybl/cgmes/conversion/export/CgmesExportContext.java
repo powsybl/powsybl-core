@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion.export;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.NamingStrategy;
+import com.powsybl.cgmes.conversion.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -40,6 +42,8 @@ public class CgmesExportContext {
     private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
     private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfile("SV"));
     private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfile("SSH"));
+
+    private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
@@ -160,6 +164,11 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network) {
+        this(network, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
+    }
+
+    public CgmesExportContext(Network network, NamingStrategy namingStrategy) {
+        this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
             setCimVersion(cimCharacteristics.getCimVersion());
@@ -217,18 +226,23 @@ public class CgmesExportContext {
 
     private void addIidmMappingsSubstations(Network network) {
         for (Substation substation : network.getSubstations()) {
-            String country = substation.getCountry().map(Country::name).orElseGet(network::getNameOrId);
+            String regionName = substation.getCountry().map(Country::name).orElse("default region");
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
-                String id = regionsIdsByRegionName.computeIfAbsent(country, k -> CgmesExportUtil.getUniqueId());
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", id);
+                String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId());
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
             } else {
-                regionsIdsByRegionName.computeIfAbsent(country, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId"));
+                // Only add with this name if the id is not already mapped
+                // We can not have the same id mapped to two different names
+                String regionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
+                if (!regionsIdsByRegionName.containsValue(regionId)) {
+                    regionsIdsByRegionName.computeIfAbsent(regionName, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId"));
+                }
             }
             String geoTag;
             if (substation.getGeographicalTags().size() == 1) {
                 geoTag = substation.getGeographicalTags().iterator().next();
             } else {
-                geoTag = country;
+                geoTag = regionName;
             }
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
                 String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> CgmesExportUtil.getUniqueId());
@@ -541,6 +555,15 @@ public class CgmesExportContext {
 
     public CgmesNamespace.Cim getCim() {
         return cim;
+    }
+
+    public NamingStrategy getNamingStrategy() {
+        return namingStrategy;
+    }
+
+    public CgmesExportContext setNamingStrategy(NamingStrategy namingStrategy) {
+        this.namingStrategy = Objects.requireNonNull(namingStrategy);
+        return this;
     }
 
     public BaseVoltageMapping.BaseVoltageSource getBaseVoltageByNominalVoltage(double nominalV) {
