@@ -321,14 +321,4 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         }
     }
-
-    @Override
-    public IdentifiableType getType() {
-        return null;
-    }
-
-    @Override
-    protected String getTypeDescription() {
-        return null;
-    }
 }
