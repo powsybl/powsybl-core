@@ -7,10 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
@@ -20,12 +16,16 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -303,16 +303,13 @@ public class CgmesDcConversion {
         if (!isAcDcConverter(propertyBag.getId("dcConductingEquipmentType"))) {
             return false;
         }
-        return isSameProperty(propertyBag.getId("DCConductingEquipment"), acDcConverterId)
-            && isSameProperty(propertyBag.getId("DCNode"), dcNodeId);
+        return acDcConverterId.equals(propertyBag.getId("DCConductingEquipment"))
+            && (dcNodeId.equals(propertyBag.getId("DCNode"))
+                || dcNodeId.equals(propertyBag.getId("DCTopologicalNode")));
     }
 
     private static boolean isAcDcConverter(String type) {
         return type != null && (type.equals("CsConverter") || type.equals("VsConverter"));
-    }
-
-    private static boolean isSameProperty(String property, String reference) {
-        return property != null && property.equals(reference);
     }
 
     private boolean createHvdc() {
