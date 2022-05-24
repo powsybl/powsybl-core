@@ -35,9 +35,11 @@ public class AmplExporter implements Exporter {
     public static final String EXPORT_RATIOTAPCHANGER_VT = "iidm.export.ampl.export-ratio-tap-changer-voltage-target";
     public static final String TWT_SPLIT_SHUNT_ADMITTANCE = "iidm.export.ampl.twt-split-shunt-admittance";
 
-    private static final Parameter EXPORT_SCOPE_PARAMETER = new Parameter(EXPORT_SCOPE, ParameterType.STRING, "Export scope", "ALL");
+    private static final Parameter EXPORT_SCOPE_PARAMETER = new Parameter(EXPORT_SCOPE, ParameterType.STRING, "Export scope", "ALL",
+            List.of("ALL", "ONLY_MAIN_CC", "ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS", "ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS"));
     private static final Parameter EXPORT_XNODES_PARAMETER = new Parameter(EXPORT_XNODES, ParameterType.BOOLEAN, "Export Xnodes of tie-lines", Boolean.FALSE);
-    private static final Parameter EXPORT_ACTION_TYPE_PARAMETER = new Parameter(EXPORT_ACTION_TYPE, ParameterType.STRING, "Type of the remedial actions (preventive or curative)", "CURATIVE");
+    private static final Parameter EXPORT_ACTION_TYPE_PARAMETER = new Parameter(EXPORT_ACTION_TYPE, ParameterType.STRING, "Type of the remedial actions (preventive or curative)", "CURATIVE",
+            List.of("CURATIVE", "PREVENTIVE"));
     private static final Parameter EXPORT_RATIOTAPCHANGER_VT_PARAMETER = new Parameter(EXPORT_RATIOTAPCHANGER_VT, ParameterType.BOOLEAN, "Export ratio tap changer voltage target", Boolean.FALSE)
             .addAdditionalNames("iidm.export.ampl.exportRatioTapChangerVoltageTarget");
     private static final Parameter TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER = new Parameter(TWT_SPLIT_SHUNT_ADMITTANCE, ParameterType.BOOLEAN, "Export twt split shunt admittance", Boolean.FALSE)
