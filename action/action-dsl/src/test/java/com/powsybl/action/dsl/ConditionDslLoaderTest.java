@@ -159,7 +159,7 @@ public class ConditionDslLoaderTest {
         evalAndAssert(false, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
         line1.newCurrentLimits1().setPermanentLimit(0.00001).add();
-        assertTrue(line1.getActiveCurrentLimits1().isPresent());
+        assertTrue(line1.getCurrentLimits1().isPresent());
         evalAndAssert(true, "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
 
         line1.getTerminal1().setP(600.0).setQ(300.0); // i = 1019.2061

@@ -253,7 +253,7 @@ public interface LimitViolationDetector {
                     toLimitViolationType(type),
                     null,
                     Integer.MAX_VALUE,
-                    branch.getActiveLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
+                    branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
                     1.0f,
                     value,
                     side));

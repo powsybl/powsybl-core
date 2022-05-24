@@ -455,27 +455,27 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     private void compareBranchLimits(Branch<?> expected, Branch<?> actual) {
-        actual.getActiveActivePowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActiveActivePowerLimits1().orElse(null), lim));
-        actual.getActiveActivePowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActiveActivePowerLimits2().orElse(null), lim));
-        actual.getActiveApparentPowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActiveApparentPowerLimits1().orElse(null), lim));
-        actual.getActiveApparentPowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActiveApparentPowerLimits2().orElse(null), lim));
-        actual.getActiveCurrentLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActiveCurrentLimits1().orElse(null), lim));
-        actual.getActiveCurrentLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActiveCurrentLimits2().orElse(null), lim));
+        actual.getActivePowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits1().orElse(null), lim));
+        actual.getActivePowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits2().orElse(null), lim));
+        actual.getApparentPowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits1().orElse(null), lim));
+        actual.getApparentPowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits2().orElse(null), lim));
+        actual.getCurrentLimits1().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits1().orElse(null), lim));
+        actual.getCurrentLimits2().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits2().orElse(null), lim));
     }
 
     private void compareFlowBranchLimits(FlowsLimitsHolder expected, Line actual) {
-        actual.getActiveActivePowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActiveActivePowerLimits().orElse(null), lim));
-        actual.getActiveActivePowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActiveActivePowerLimits().orElse(null), lim));
-        actual.getActiveApparentPowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActiveApparentPowerLimits().orElse(null), lim));
-        actual.getActiveApparentPowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActiveApparentPowerLimits().orElse(null), lim));
-        actual.getActiveCurrentLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActiveCurrentLimits().orElse(null), lim));
-        actual.getActiveCurrentLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActiveCurrentLimits().orElse(null), lim));
+        actual.getActivePowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits().orElse(null), lim));
+        actual.getActivePowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits().orElse(null), lim));
+        actual.getApparentPowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits().orElse(null), lim));
+        actual.getApparentPowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits().orElse(null), lim));
+        actual.getCurrentLimits1().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits().orElse(null), lim));
+        actual.getCurrentLimits2().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits().orElse(null), lim));
     }
 
     private void compareFlowLimits(FlowsLimitsHolder expected, FlowsLimitsHolder actual) {
-        actual.getActiveActivePowerLimits().ifPresent(lim -> compareLoadingLimits(expected.getActiveActivePowerLimits().orElse(null), lim));
-        actual.getActiveApparentPowerLimits().ifPresent(lim -> compareLoadingLimits(expected.getActiveApparentPowerLimits().orElse(null), lim));
-        actual.getActiveCurrentLimits().ifPresent(lim -> compareLoadingLimits(expected.getActiveCurrentLimits().orElse(null), lim));
+        actual.getActivePowerLimits().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits().orElse(null), lim));
+        actual.getApparentPowerLimits().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits().orElse(null), lim));
+        actual.getCurrentLimits().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits().orElse(null), lim));
     }
 
     private void compareLoadingLimits(LoadingLimits expected, LoadingLimits actual) {

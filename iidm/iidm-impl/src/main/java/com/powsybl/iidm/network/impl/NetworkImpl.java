@@ -974,9 +974,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.b2 = brp2.getB2();
             l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimitsSet();
-            l.activeLimits1Id = dl1.getActiveCurrentLimits().flatMap(OperationalLimits::getId).orElse(null);
+            l.activeLimits1Id = dl1.getCurrentLimits().flatMap(OperationalLimits::getId).orElse(null);
             l.limits2 = dl2.getCurrentLimitsSet();
-            l.activeLimits2Id = dl2.getActiveCurrentLimits().flatMap(OperationalLimits::getId).orElse(null);
+            l.activeLimits2Id = dl2.getCurrentLimits().flatMap(OperationalLimits::getId).orElse(null);
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
                 Bus b1 = t1.getBusBreakerView().getBus();
                 if (b1 != null) {

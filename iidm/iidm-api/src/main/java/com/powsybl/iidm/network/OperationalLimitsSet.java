@@ -16,7 +16,13 @@ public interface OperationalLimitsSet<L extends OperationalLimits> {
 
     L getLimits(String id);
 
-    Optional<L> getActiveLimits();
+    Optional<L> getActivatedLimits();
+
+    /**
+     * Define the activated limits by the ID.
+     * If there is only one limits table (without ID), it is the active current limits.
+     */
+    void setActivatedLimits(String id);
 
     Collection<L> getLimits();
 

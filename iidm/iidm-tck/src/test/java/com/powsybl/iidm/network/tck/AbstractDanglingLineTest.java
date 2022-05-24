@@ -120,17 +120,17 @@ public abstract class AbstractDanglingLineTest {
         danglingLine.newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .add();
-        assertEquals(100.0, danglingLine.getActiveCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(100.0, danglingLine.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         danglingLine.newActivePowerLimits()
                 .setPermanentLimit(60.0)
                 .add();
-        assertEquals(60.0, danglingLine.getActiveActivePowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(60.0, danglingLine.getActivePowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         danglingLine.newApparentPowerLimits()
                 .setPermanentLimit(132.0)
                 .add();
-        assertEquals(132.0, danglingLine.getActiveApparentPowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(132.0, danglingLine.getApparentPowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         Bus bus = voltageLevel.getBusBreakerView().getBus(BUS_VL_ID);
         Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();

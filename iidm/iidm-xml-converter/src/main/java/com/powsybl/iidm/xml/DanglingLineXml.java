@@ -97,18 +97,18 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }
-        Optional<ActivePowerLimits> activePowerLimits = dl.getActiveActivePowerLimits();
+        Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
         if (activePowerLimits.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
                     context.getVersion(), context.isValid(), context.getOptions()));
         }
-        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getActiveApparentPowerLimits();
+        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
         if (apparentPowerLimits.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
-        Optional<CurrentLimits> currentLimits = dl.getActiveCurrentLimits();
+        Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
         if (currentLimits.isPresent()) {
             writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }

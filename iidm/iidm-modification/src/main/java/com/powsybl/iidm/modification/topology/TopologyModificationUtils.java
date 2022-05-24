@@ -56,18 +56,18 @@ final class TopologyModificationUtils {
     static void addLoadingLimits(Line created, Line original, Branch.Side side) {
         if (side == Branch.Side.ONE) {
             original.getActivePowerLimitsSet1().getLimits().forEach(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
-            original.getActiveActivePowerLimits1().flatMap(OperationalLimits::getId).ifPresent(created::setActiveActivePowerLimits1);
+            original.getActivePowerLimits1().flatMap(OperationalLimits::getId).ifPresent(id -> created.getActivePowerLimitsSet1().setActivatedLimits(id));
             original.getApparentPowerLimitsSet1().getLimits().forEach(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
-            original.getActiveApparentPowerLimits1().flatMap(OperationalLimits::getId).ifPresent(created::setActiveApparentPowerLimits1);
+            original.getApparentPowerLimits1().flatMap(OperationalLimits::getId).ifPresent(id -> created.getApparentPowerLimitsSet1().setActivatedLimits(id));
             original.getCurrentLimitsSet1().getLimits().forEach(lim -> addLoadingLimits(created.newCurrentLimits1(), lim));
-            original.getActiveCurrentLimits1().flatMap(OperationalLimits::getId).ifPresent(created::setActiveCurrentLimits1);
+            original.getCurrentLimits1().flatMap(OperationalLimits::getId).ifPresent(id -> created.getCurrentLimitsSet1().setActivatedLimits(id));
         } else {
             original.getActivePowerLimitsSet2().getLimits().forEach(lim -> addLoadingLimits(created.newActivePowerLimits2(), lim));
-            original.getActiveActivePowerLimits2().flatMap(OperationalLimits::getId).ifPresent(created::setActiveActivePowerLimits2);
+            original.getActivePowerLimits2().flatMap(OperationalLimits::getId).ifPresent(id -> created.getActivePowerLimitsSet2().setActivatedLimits(id));
             original.getApparentPowerLimitsSet2().getLimits().forEach(lim -> addLoadingLimits(created.newApparentPowerLimits2(), lim));
-            original.getActiveApparentPowerLimits2().flatMap(OperationalLimits::getId).ifPresent(created::setActiveApparentPowerLimits2);
+            original.getApparentPowerLimits2().flatMap(OperationalLimits::getId).ifPresent(id -> created.getApparentPowerLimitsSet2().setActivatedLimits(id));
             original.getCurrentLimitsSet2().getLimits().forEach(lim -> addLoadingLimits(created.newCurrentLimits2(), lim));
-            original.getActiveCurrentLimits2().flatMap(OperationalLimits::getId).ifPresent(created::setActiveCurrentLimits2);
+            original.getCurrentLimits2().flatMap(OperationalLimits::getId).ifPresent(id -> created.getCurrentLimitsSet2().setActivatedLimits(id));
         }
     }
 

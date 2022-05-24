@@ -98,8 +98,8 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
         private static double getPermanentLimit(Branch<?> branch, Branch.Side side) {
             Objects.requireNonNull(branch);
             Objects.requireNonNull(side);
-            double permanentLimit1 = branch.getActiveCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
-            double permanentLimit2 = branch.getActiveCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
+            double permanentLimit1 = branch.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
+            double permanentLimit2 = branch.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
             return side == Branch.Side.ONE ? permanentLimit1 : permanentLimit2;
         }
 

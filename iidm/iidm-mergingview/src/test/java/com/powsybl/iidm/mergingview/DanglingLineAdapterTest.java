@@ -92,7 +92,7 @@ public class DanglingLineAdapterTest {
         danglingLine.newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .add();
-        assertEquals(100.0, danglingLine.getActiveCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(100.0, danglingLine.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         assertTrue(danglingLine.getTerminal() instanceof TerminalAdapter);
         danglingLine.getTerminals().forEach(t -> {
@@ -156,8 +156,8 @@ public class DanglingLineAdapterTest {
         assertSame(dl1.getTerminal(), mergedLine.getTerminal1());
         assertSame(dl2.getTerminal(), mergedLine.getTerminal(Branch.Side.TWO));
         assertSame(dl2.getTerminal(), mergedLine.getTerminal2());
-        assertSame(dl1.getActiveCurrentLimits().orElse(null), mergedLine.getActiveCurrentLimits1().orElse(null));
-        assertSame(dl2.getActiveCurrentLimits().orElse(null), mergedLine.getActiveCurrentLimits2().orElse(null));
+        assertSame(dl1.getCurrentLimits().orElse(null), mergedLine.getCurrentLimits1().orElse(null));
+        assertSame(dl2.getCurrentLimits().orElse(null), mergedLine.getCurrentLimits2().orElse(null));
         final CurrentLimits currentLimits1 = mergedLine.newCurrentLimits1()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
@@ -186,12 +186,12 @@ public class DanglingLineAdapterTest {
         final ApparentPowerLimits apparentPowerLimits2 = mergedLine.newApparentPowerLimits2()
                 .setPermanentLimit(132.4)
                 .add();
-        assertSame(currentLimits1, mergedLine.getActiveCurrentLimits1().orElse(null));
-        assertSame(activePowerLimits1, mergedLine.getActiveActivePowerLimits1().orElse(null));
-        assertSame(apparentPowerLimits1, mergedLine.getActiveApparentPowerLimits1().orElse(null));
-        assertSame(currentLimits2, mergedLine.getActiveCurrentLimits2().orElse(null));
-        assertSame(activePowerLimits2, mergedLine.getActiveActivePowerLimits2().orElse(null));
-        assertSame(apparentPowerLimits2, mergedLine.getActiveApparentPowerLimits2().orElse(null));
+        assertSame(currentLimits1, mergedLine.getCurrentLimits1().orElse(null));
+        assertSame(activePowerLimits1, mergedLine.getActivePowerLimits1().orElse(null));
+        assertSame(apparentPowerLimits1, mergedLine.getApparentPowerLimits1().orElse(null));
+        assertSame(currentLimits2, mergedLine.getCurrentLimits2().orElse(null));
+        assertSame(activePowerLimits2, mergedLine.getActivePowerLimits2().orElse(null));
+        assertSame(apparentPowerLimits2, mergedLine.getApparentPowerLimits2().orElse(null));
         assertEquals("dl1 + dl2", mergedLine.getId());
         assertEquals("dl1 + dl2", mergedLine.getOptionalName().orElse(null));
         assertEquals("dl1 + dl2", mergedLine.getNameOrId());

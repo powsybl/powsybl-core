@@ -43,11 +43,16 @@ abstract class AbstractOperationalLimitsSet<L extends OperationalLimits> impleme
     }
 
     @Override
-    public Optional<L> getActiveLimits() {
+    public Optional<L> getActivatedLimits() {
         if (limitsMap.isEmpty()) {
             return Optional.ofNullable(limits);
         }
         return owner.getActiveLimitId(getType()).map(limitsMap::get).or(Optional::empty);
+    }
+
+    @Override
+    public void setActivatedLimits(String id) {
+        owner.setActiveLimitId(getType(), id);
     }
 
     @Override

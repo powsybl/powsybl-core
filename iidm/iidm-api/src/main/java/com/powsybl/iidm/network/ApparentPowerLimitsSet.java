@@ -23,8 +23,13 @@ public interface ApparentPowerLimitsSet extends LoadingLimitsSet<ApparentPowerLi
         }
 
         @Override
-        public Optional<ApparentPowerLimits> getActiveLimits() {
+        public Optional<ApparentPowerLimits> getActivatedLimits() {
             return Optional.empty();
+        }
+
+        @Override
+        public void setActivatedLimits(String id) {
+            throw new UnsupportedOperationException("Set has not been initialized");
         }
 
         @Override

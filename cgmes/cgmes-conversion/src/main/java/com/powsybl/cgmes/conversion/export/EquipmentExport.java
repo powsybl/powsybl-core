@@ -595,42 +595,42 @@ public final class EquipmentExport {
     }
 
     private static void writeBranchLimits(Branch<?> branch, String terminalId1, String terminalId2, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        Optional<ActivePowerLimits> activePowerLimits1 = branch.getActiveActivePowerLimits1();
+        Optional<ActivePowerLimits> activePowerLimits1 = branch.getActivePowerLimits1();
         if (activePowerLimits1.isPresent()) {
             writeLoadingLimits(activePowerLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        Optional<ActivePowerLimits> activePowerLimits2 = branch.getActiveActivePowerLimits2();
+        Optional<ActivePowerLimits> activePowerLimits2 = branch.getActivePowerLimits2();
         if (activePowerLimits2.isPresent()) {
             writeLoadingLimits(activePowerLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        Optional<ApparentPowerLimits> apparentPowerLimits1 = branch.getActiveApparentPowerLimits1();
+        Optional<ApparentPowerLimits> apparentPowerLimits1 = branch.getApparentPowerLimits1();
         if (apparentPowerLimits1.isPresent()) {
             writeLoadingLimits(apparentPowerLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        Optional<ApparentPowerLimits> apparentPowerLimits2 = branch.getActiveApparentPowerLimits2();
+        Optional<ApparentPowerLimits> apparentPowerLimits2 = branch.getApparentPowerLimits2();
         if (apparentPowerLimits2.isPresent()) {
             writeLoadingLimits(apparentPowerLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        Optional<CurrentLimits> currentLimits1 = branch.getActiveCurrentLimits1();
+        Optional<CurrentLimits> currentLimits1 = branch.getCurrentLimits1();
         if (currentLimits1.isPresent()) {
             writeLoadingLimits(currentLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        Optional<CurrentLimits> currentLimits2 = branch.getActiveCurrentLimits2();
+        Optional<CurrentLimits> currentLimits2 = branch.getCurrentLimits2();
         if (currentLimits2.isPresent()) {
             writeLoadingLimits(currentLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
     }
 
     private static void writeFlowsLimits(FlowsLimitsHolder holder, String terminalId, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        Optional<ActivePowerLimits> activePowerLimits = holder.getActiveActivePowerLimits();
+        Optional<ActivePowerLimits> activePowerLimits = holder.getActivePowerLimits();
         if (activePowerLimits.isPresent()) {
             writeLoadingLimits(activePowerLimits.get(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        Optional<ApparentPowerLimits> apparentPowerLimits = holder.getActiveApparentPowerLimits();
+        Optional<ApparentPowerLimits> apparentPowerLimits = holder.getApparentPowerLimits();
         if (apparentPowerLimits.isPresent()) {
             writeLoadingLimits(apparentPowerLimits.get(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        Optional<CurrentLimits> currentLimits = holder.getActiveCurrentLimits();
+        Optional<CurrentLimits> currentLimits = holder.getCurrentLimits();
         if (currentLimits.isPresent()) {
             writeLoadingLimits(currentLimits.get(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }

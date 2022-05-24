@@ -23,8 +23,13 @@ public interface CurrentLimitsSet extends LoadingLimitsSet<CurrentLimits> {
         }
 
         @Override
-        public Optional<CurrentLimits> getActiveLimits() {
+        public Optional<CurrentLimits> getActivatedLimits() {
             return Optional.empty();
+        }
+
+        @Override
+        public void setActivatedLimits(String id) {
+            throw new UnsupportedOperationException("Set has not been initialized");
         }
 
         @Override

@@ -142,27 +142,21 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     Side getSide(Terminal terminal);
 
-    CurrentLimits getCurrentLimits1(String id);
+    Optional<CurrentLimits> getCurrentLimits1();
 
-    Optional<CurrentLimits> getActiveCurrentLimits1();
-
-    void setActiveCurrentLimits1(String id);
+    CurrentLimits getNullableCurrentLimits1();
 
     CurrentLimitsSet getCurrentLimitsSet1();
 
-    ActivePowerLimits getActivePowerLimits1(String id);
+    Optional<ActivePowerLimits> getActivePowerLimits1();
 
-    Optional<ActivePowerLimits> getActiveActivePowerLimits1();
-
-    void setActiveActivePowerLimits1(String id);
+    ActivePowerLimits getNullableActivePowerLimits1();
 
     ActivePowerLimitsSet getActivePowerLimitsSet1();
 
-    ApparentPowerLimits getApparentPowerLimits1(String id);
+    Optional<ApparentPowerLimits> getApparentPowerLimits1();
 
-    Optional<ApparentPowerLimits> getActiveApparentPowerLimits1();
-
-    void setActiveApparentPowerLimits1(String id);
+    ApparentPowerLimits getNullableApparentPowerLimits1();
 
     ApparentPowerLimitsSet getApparentPowerLimitsSet1();
 
@@ -172,27 +166,21 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     ApparentPowerLimitsAdder newApparentPowerLimits1();
 
-    CurrentLimits getCurrentLimits2(String id);
+    Optional<CurrentLimits> getCurrentLimits2();
 
-    Optional<CurrentLimits> getActiveCurrentLimits2();
-
-    void setActiveCurrentLimits2(String id);
+    CurrentLimits getNullableCurrentLimits2();
 
     CurrentLimitsSet getCurrentLimitsSet2();
 
-    ActivePowerLimits getActivePowerLimits2(String id);
+    Optional<ActivePowerLimits> getActivePowerLimits2();
 
-    Optional<ActivePowerLimits> getActiveActivePowerLimits2();
-
-    void setActiveActivePowerLimits2(String id);
+    ActivePowerLimits getNullableActivePowerLimits2();
 
     ActivePowerLimitsSet getActivePowerLimitsSet2();
 
-    ApparentPowerLimits getApparentPowerLimits2(String id);
+    Optional<ApparentPowerLimits> getApparentPowerLimits2();
 
-    Optional<ApparentPowerLimits> getActiveApparentPowerLimits2();
-
-    void setActiveApparentPowerLimits2(String id);
+    ApparentPowerLimits getNullableApparentPowerLimits2();
 
     ApparentPowerLimitsSet getApparentPowerLimitsSet2();
 
@@ -242,14 +230,93 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         }
     }
 
-    default Optional<? extends LoadingLimits> getActiveLimits(LimitType type, Branch.Side side) {
+    default Optional<CurrentLimits> getCurrentLimits(Branch.Side side) {
+        switch (side) {
+            case ONE:
+                return getCurrentLimits1();
+            case TWO:
+                return getCurrentLimits2();
+            default:
+                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
+        }
+    }
+
+    default Optional<ActivePowerLimits> getActivePowerLimits(Branch.Side side) {
+        switch (side) {
+            case ONE:
+                return getActivePowerLimits1();
+            case TWO:
+                return getActivePowerLimits2();
+            default:
+                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
+        }
+    }
+
+    default Optional<ApparentPowerLimits> getApparentPowerLimits(Branch.Side side) {
+        switch (side) {
+            case ONE:
+                return getApparentPowerLimits1();
+            case TWO:
+                return getApparentPowerLimits2();
+            default:
+                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
+        }
+    }
+
+    default Optional<? extends LoadingLimits> getLimits(LimitType type, Branch.Side side) {
         switch (type) {
             case CURRENT:
-                return getCurrentLimitsSet(side).getActiveLimits();
+                return getCurrentLimits(side);
             case ACTIVE_POWER:
-                return getActivePowerLimitsSet(side).getActiveLimits();
+                return getActivePowerLimits(side);
             case APPARENT_POWER:
-                return getApparentPowerLimitsSet(side).getActiveLimits();
+                return getApparentPowerLimits(side);
+            default:
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        }
+    }
+
+    default CurrentLimits getNullableCurrentLimits(Branch.Side side) {
+        switch (side) {
+            case ONE:
+                return getNullableCurrentLimits1();
+            case TWO:
+                return getNullableCurrentLimits2();
+            default:
+                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
+        }
+    }
+
+    default ActivePowerLimits getNullableActivePowerLimits(Branch.Side side) {
+        switch (side) {
+            case ONE:
+                return getNullableActivePowerLimits1();
+            case TWO:
+                return getNullableActivePowerLimits2();
+            default:
+                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
+        }
+    }
+
+    default ApparentPowerLimits getNullableApparentPowerLimits(Branch.Side side) {
+        switch (side) {
+            case ONE:
+                return getNullableApparentPowerLimits1();
+            case TWO:
+                return getNullableApparentPowerLimits2();
+            default:
+                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
+        }
+    }
+
+    default LoadingLimits getNullableLimits(LimitType type, Branch.Side side) {
+        switch (type) {
+            case CURRENT:
+                return getNullableCurrentLimits(side);
+            case ACTIVE_POWER:
+                return getNullableActivePowerLimits(side);
+            case APPARENT_POWER:
+                return getNullableApparentPowerLimits(side);
             default:
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         }

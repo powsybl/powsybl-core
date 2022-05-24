@@ -13,34 +13,24 @@ import java.util.Optional;
  */
 public interface FlowsLimitsHolder {
 
-    CurrentLimits getCurrentLimits(String id);
-
     /**
      * Get the active current limits.
      */
-    Optional<CurrentLimits> getActiveCurrentLimits();
+    Optional<CurrentLimits> getCurrentLimits();
 
-    /**
-     * Define the active current limits by the ID.
-     * If there is only one limits table (without ID), it is the active current limits
-     */
-    void setActiveCurrentLimits(String id);
+    CurrentLimits getNullableCurrentLimits();
 
     CurrentLimitsSet getCurrentLimitsSet();
 
-    ActivePowerLimits getActivePowerLimits(String id);
+    Optional<ActivePowerLimits> getActivePowerLimits();
 
-    Optional<ActivePowerLimits> getActiveActivePowerLimits();
-
-    void setActiveActivePowerLimits(String id);
+    ActivePowerLimits getNullableActivePowerLimits();
 
     ActivePowerLimitsSet getActivePowerLimitsSet();
 
-    ApparentPowerLimits getApparentPowerLimits(String id);
+    Optional<ApparentPowerLimits> getApparentPowerLimits();
 
-    Optional<ApparentPowerLimits> getActiveApparentPowerLimits();
-
-    void setActiveApparentPowerLimits(String id);
+    ApparentPowerLimits getNullableApparentPowerLimits();
 
     ApparentPowerLimitsSet getApparentPowerLimitsSet();
 

@@ -82,18 +82,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public CurrentLimits getCurrentLimits1(String id) {
-        return operationalLimitsHolder1.getOperationalLimitsSet(LimitType.CURRENT, CurrentLimitsSet.class).getLimits(id);
-    }
-
-    @Override
-    public Optional<CurrentLimits> getActiveCurrentLimits1() {
+    public Optional<CurrentLimits> getCurrentLimits1() {
         return operationalLimitsHolder1.getActiveLimits(LimitType.CURRENT, CurrentLimitsSet.class);
     }
 
     @Override
-    public void setActiveCurrentLimits1(String id) {
-        operationalLimitsHolder1.setActiveLimitId(LimitType.CURRENT, id);
+    public CurrentLimits getNullableCurrentLimits1() {
+        return operationalLimitsHolder1.getActiveLimits(LimitType.CURRENT, CurrentLimitsSet.class).orElse(null);
     }
 
     @Override
@@ -102,18 +97,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits1(String id) {
-        return operationalLimitsHolder1.getOperationalLimitsSet(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class).getLimits(id);
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActiveActivePowerLimits1() {
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
         return operationalLimitsHolder1.getActiveLimits(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class);
     }
 
     @Override
-    public void setActiveActivePowerLimits1(String id) {
-        operationalLimitsHolder1.setActiveLimitId(LimitType.ACTIVE_POWER, id);
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return operationalLimitsHolder1.getActiveLimits(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class).orElse(null);
     }
 
     @Override
@@ -122,18 +112,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1(String id) {
-        return operationalLimitsHolder1.getOperationalLimitsSet(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class).getLimits(id);
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits1() {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
         return operationalLimitsHolder1.getActiveLimits(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class);
     }
 
     @Override
-    public void setActiveApparentPowerLimits1(String id) {
-        operationalLimitsHolder1.setActiveLimitId(LimitType.APPARENT_POWER, id);
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return operationalLimitsHolder1.getActiveLimits(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class).orElse(null);
     }
 
     @Override
@@ -152,18 +137,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2(String id) {
-        return operationalLimitsHolder2.getOperationalLimitsSet(LimitType.CURRENT, CurrentLimitsSet.class).getLimits(id);
-    }
-
-    @Override
-    public Optional<CurrentLimits> getActiveCurrentLimits2() {
+    public Optional<CurrentLimits> getCurrentLimits2() {
         return operationalLimitsHolder2.getActiveLimits(LimitType.CURRENT, CurrentLimitsSet.class);
     }
 
     @Override
-    public void setActiveCurrentLimits2(String id) {
-        operationalLimitsHolder2.setActiveLimitId(LimitType.CURRENT, id);
+    public CurrentLimits getNullableCurrentLimits2() {
+        return operationalLimitsHolder2.getActiveLimits(LimitType.CURRENT, CurrentLimitsSet.class).orElse(null);
     }
 
     @Override
@@ -172,18 +152,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits2(String id) {
-        return operationalLimitsHolder2.getOperationalLimitsSet(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class).getLimits(id);
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActiveActivePowerLimits2() {
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
         return operationalLimitsHolder2.getActiveLimits(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class);
     }
 
     @Override
-    public void setActiveActivePowerLimits2(String id) {
-        operationalLimitsHolder2.setActiveLimitId(LimitType.ACTIVE_POWER, id);
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return operationalLimitsHolder2.getActiveLimits(LimitType.ACTIVE_POWER, ActivePowerLimitsSet.class).orElse(null);
     }
 
     @Override
@@ -192,18 +167,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits2(String id) {
-        return operationalLimitsHolder2.getOperationalLimitsSet(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class).getLimits(id);
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits2() {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
         return operationalLimitsHolder2.getActiveLimits(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class);
     }
 
     @Override
-    public void setActiveApparentPowerLimits2(String id) {
-        operationalLimitsHolder2.setActiveLimitId(LimitType.APPARENT_POWER, id);
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return operationalLimitsHolder2.getActiveLimits(LimitType.APPARENT_POWER, ApparentPowerLimitsSet.class).orElse(null);
     }
 
     @Override
@@ -350,5 +320,15 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
             default:
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         }
+    }
+
+    @Override
+    public IdentifiableType getType() {
+        return null;
+    }
+
+    @Override
+    protected String getTypeDescription() {
+        return null;
     }
 }

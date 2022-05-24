@@ -343,7 +343,7 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUndefinedPatl().dataSource(),
                 NetworkFactory.findDefault(), null);
         Line line = network.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
-        CurrentLimits limits = line.getActiveCurrentLimits1().orElse(null);
+        CurrentLimits limits = line.getCurrentLimits1().orElse(null);
         assertNotNull(limits);
         assertEquals(2, limits.getTemporaryLimits().size());
         assertEquals(1312.0, limits.getPermanentLimit(), 0.0);
@@ -438,11 +438,11 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
         assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
-        assertTrue(twt3.getLeg1().getActiveApparentPowerLimits().isEmpty());
-        assertTrue(twt3.getLeg2().getActiveApparentPowerLimits().isEmpty());
-        assertTrue(twt3.getLeg3().getActiveApparentPowerLimits().isEmpty());
+        assertTrue(twt3.getLeg1().getApparentPowerLimits().isEmpty());
+        assertTrue(twt3.getLeg2().getApparentPowerLimits().isEmpty());
+        assertTrue(twt3.getLeg3().getApparentPowerLimits().isEmpty());
         TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
-        ApparentPowerLimits apparentPowerLimits = twt2.getActiveApparentPowerLimits1().orElse(null);
+        ApparentPowerLimits apparentPowerLimits = twt2.getApparentPowerLimits1().orElse(null);
         assertNotNull(apparentPowerLimits);
         assertEquals(22863.1, apparentPowerLimits.getPermanentLimit(), 0.0);
         assertTrue(apparentPowerLimits.getTemporaryLimits().isEmpty());
@@ -473,7 +473,7 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingLimitValue().dataSource(),
                 NetworkFactory.findDefault(), null);
         DanglingLine line = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
-        CurrentLimits limits = line.getActiveCurrentLimits().orElse(null);
+        CurrentLimits limits = line.getCurrentLimits().orElse(null);
         assertNotNull(limits);
         assertNull(limits.getTemporaryLimit(10));
     }
@@ -702,10 +702,10 @@ public class CgmesConformity1ModifiedConversionTest {
         // In the modified case both ends have to see the same value
         Line l0 = network0.getLine("1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
         Line l1 = network1.getLine("1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
-        assertEquals(525, l0.getActiveCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertTrue(l0.getActiveCurrentLimits2().isEmpty());
-        assertEquals(525, l1.getActiveCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertEquals(525, l1.getActiveCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(525, l0.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertTrue(l0.getCurrentLimits2().isEmpty());
+        assertEquals(525, l1.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(525, l1.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 2 - PATL Current defined for an ACTransmissionLine
         // that will be mapped to a DanglingLine in IIDM
@@ -714,16 +714,16 @@ public class CgmesConformity1ModifiedConversionTest {
         // In network0 limit is defined for the Terminal
         // In network1 limit is defined for the Equipment
         // In both cases the limit should be mapped to IIDM
-        assertEquals(1000, dl0.getActiveCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertEquals(1000, dl1.getActiveCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(1000, dl0.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(1000, dl1.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 3 - PATL Current defined for a PowerTransformer, should be rejected
         TwoWindingsTransformer tx0 = network0.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
         TwoWindingsTransformer tx1 = network1.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
-        assertEquals(158, tx0.getActiveCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertEquals(1732, tx0.getActiveCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertTrue(tx1.getActiveCurrentLimits1().isEmpty());
-        assertEquals(1732, tx1.getActiveCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(158, tx0.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(1732, tx0.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertTrue(tx1.getCurrentLimits1().isEmpty());
+        assertEquals(1732, tx1.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 4 - PATL Current defined for Switch, will be ignored
         // The transformer that had the original limit will lose it
@@ -732,8 +732,8 @@ public class CgmesConformity1ModifiedConversionTest {
         TwoWindingsTransformer tx1s = network1.getTwoWindingsTransformer("6c89588b-3df5-4120-88e5-26164afb43e9");
         Switch sw0 = network0.getSwitch("d0119330-220f-4ed3-ad3c-f893ad0534fb");
         Switch sw1 = network0.getSwitch("d0119330-220f-4ed3-ad3c-f893ad0534fb");
-        assertEquals(1732, tx0s.getActiveCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertTrue(tx1s.getActiveCurrentLimits2().isEmpty());
+        assertEquals(1732, tx0s.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertTrue(tx1s.getCurrentLimits2().isEmpty());
         assertNotNull(sw0);
         assertNotNull(sw1);
     }

@@ -17,14 +17,14 @@ import com.powsybl.iidm.network.FlowsLimitsHolder
 class FlowLimitsHolderExtension {
 
     static ActivePowerLimits getActivePowerLimits(FlowsLimitsHolder self) {
-        self.getActiveActivePowerLimits().orElse(null)
+        self.getNullableActivePowerLimits()
     }
 
     static ApparentPowerLimits getApparentPowerLimits(FlowsLimitsHolder self) {
-        self.getActiveApparentPowerLimits().orElse(null)
+        self.getNullableApparentPowerLimits()
     }
 
     static CurrentLimits getCurrentLimits(FlowsLimitsHolder self) {
-        self.getActiveCurrentLimits().orElse(null)
+        self.getNullableCurrentLimits()
     }
 }

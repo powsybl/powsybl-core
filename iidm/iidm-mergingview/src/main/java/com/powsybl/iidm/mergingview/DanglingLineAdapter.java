@@ -113,18 +113,13 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public CurrentLimits getCurrentLimits(String id) {
-        return getDelegate().getCurrentLimits(id);
+    public Optional<CurrentLimits> getCurrentLimits() {
+        return getDelegate().getCurrentLimits();
     }
 
     @Override
-    public Optional<CurrentLimits> getActiveCurrentLimits() {
-        return getDelegate().getActiveCurrentLimits();
-    }
-
-    @Override
-    public void setActiveCurrentLimits(String id) {
-        getDelegate().setActiveCurrentLimits(id);
+    public CurrentLimits getNullableCurrentLimits() {
+        return getDelegate().getNullableCurrentLimits();
     }
 
     @Override
@@ -133,18 +128,13 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits(String id) {
-        return getDelegate().getActivePowerLimits(id);
+    public Optional<ActivePowerLimits> getActivePowerLimits() {
+        return getDelegate().getActivePowerLimits();
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActiveActivePowerLimits() {
-        return getDelegate().getActiveActivePowerLimits();
-    }
-
-    @Override
-    public void setActiveActivePowerLimits(String id) {
-        getDelegate().setActiveActivePowerLimits(id);
+    public ActivePowerLimits getNullableActivePowerLimits() {
+        return getDelegate().getNullableActivePowerLimits();
     }
 
     @Override
@@ -153,18 +143,13 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits(String id) {
-        return getDelegate().getApparentPowerLimits(id);
+    public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+        return getDelegate().getApparentPowerLimits();
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits() {
-        return getDelegate().getActiveApparentPowerLimits();
-    }
-
-    @Override
-    public void setActiveApparentPowerLimits(String id) {
-        getDelegate().setActiveApparentPowerLimits(id);
+    public ApparentPowerLimits getNullableApparentPowerLimits() {
+        return getDelegate().getNullableApparentPowerLimits();
     }
 
     @Override

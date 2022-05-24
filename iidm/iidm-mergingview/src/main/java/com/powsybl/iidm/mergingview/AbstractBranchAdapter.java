@@ -51,19 +51,15 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
+
     @Override
-    public CurrentLimits getCurrentLimits1(String id) {
-        return getDelegate().getCurrentLimits1(id);
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        return getDelegate().getCurrentLimits1();
     }
 
     @Override
-    public Optional<CurrentLimits> getActiveCurrentLimits1() {
-        return getDelegate().getActiveCurrentLimits1();
-    }
-
-    @Override
-    public void setActiveCurrentLimits1(String id) {
-        getDelegate().setActiveCurrentLimits1(id);
+    public CurrentLimits getNullableCurrentLimits1() {
+        return getDelegate().getNullableCurrentLimits1();
     }
 
     @Override
@@ -72,18 +68,13 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits1(String id) {
-        return getDelegate().getActivePowerLimits1(id);
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return getDelegate().getActivePowerLimits1();
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActiveActivePowerLimits1() {
-        return getDelegate().getActiveActivePowerLimits1();
-    }
-
-    @Override
-    public void setActiveActivePowerLimits1(String id) {
-        getDelegate().setActiveActivePowerLimits1(id);
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return getDelegate().getNullableActivePowerLimits1();
     }
 
     @Override
@@ -92,18 +83,13 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1(String id) {
-        return getDelegate().getApparentPowerLimits1(id);
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return getDelegate().getApparentPowerLimits1();
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits1() {
-        return getDelegate().getActiveApparentPowerLimits1();
-    }
-
-    @Override
-    public void setActiveApparentPowerLimits1(String id) {
-        getDelegate().setActiveApparentPowerLimits1(id);
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getDelegate().getNullableApparentPowerLimits1();
     }
 
     @Override
@@ -127,38 +113,28 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2(String id) {
-        return getDelegate().getCurrentLimits2(id);
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        return getDelegate().getCurrentLimits2();
     }
 
     @Override
-    public Optional<CurrentLimits> getActiveCurrentLimits2() {
-        return getDelegate().getActiveCurrentLimits2();
-    }
-
-    @Override
-    public void setActiveCurrentLimits2(String id) {
-        getDelegate().setActiveCurrentLimits2(id);
+    public CurrentLimits getNullableCurrentLimits2() {
+        return getDelegate().getNullableCurrentLimits2();
     }
 
     @Override
     public CurrentLimitsSet getCurrentLimitsSet2() {
-        return getCurrentLimitsSet2();
+        return getDelegate().getCurrentLimitsSet2();
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits2(String id) {
-        return getDelegate().getActivePowerLimits2(id);
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return getDelegate().getActivePowerLimits2();
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActiveActivePowerLimits2() {
-        return getDelegate().getActiveActivePowerLimits2();
-    }
-
-    @Override
-    public void setActiveActivePowerLimits2(String id) {
-        getDelegate().setActiveActivePowerLimits2(id);
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return getDelegate().getNullableActivePowerLimits2();
     }
 
     @Override
@@ -167,18 +143,13 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits2(String id) {
-        return getDelegate().getApparentPowerLimits2(id);
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return getDelegate().getApparentPowerLimits2();
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits2() {
-        return getDelegate().getActiveApparentPowerLimits2();
-    }
-
-    @Override
-    public void setActiveApparentPowerLimits2(String id) {
-        getDelegate().setActiveApparentPowerLimits2(id);
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getDelegate().getNullableApparentPowerLimits2();
     }
 
     @Override

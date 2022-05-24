@@ -154,18 +154,13 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2(String id) {
-        return getDanglingLine2().getCurrentLimits(id);
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        return getDanglingLine2().getCurrentLimits();
     }
 
     @Override
-    public Optional<CurrentLimits> getActiveCurrentLimits2() {
-        return getDanglingLine2().getActiveCurrentLimits();
-    }
-
-    @Override
-    public void setActiveCurrentLimits2(String id) {
-        getDanglingLine2().setActiveCurrentLimits(id);
+    public CurrentLimits getNullableCurrentLimits2() {
+        return getDanglingLine2().getNullableCurrentLimits();
     }
 
     @Override
@@ -174,18 +169,13 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits2(String id) {
-        return getDanglingLine2().getActivePowerLimits(id);
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return getDanglingLine2().getActivePowerLimits();
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActiveActivePowerLimits2() {
-        return getDanglingLine2().getActiveActivePowerLimits();
-    }
-
-    @Override
-    public void setActiveActivePowerLimits2(String id) {
-        getDanglingLine2().setActiveActivePowerLimits(id);
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return getDanglingLine2().getNullableActivePowerLimits();
     }
 
     @Override
@@ -194,18 +184,13 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits2(String id) {
-        return getDanglingLine2().getApparentPowerLimits(id);
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return getDanglingLine2().getApparentPowerLimits();
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits2() {
-        return getDanglingLine2().getActiveApparentPowerLimits();
-    }
-
-    @Override
-    public void setActiveApparentPowerLimits2(String id) {
-        getDanglingLine2().setActiveApparentPowerLimits(id);
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getDanglingLine2().getNullableApparentPowerLimits();
     }
 
     @Override
@@ -337,18 +322,13 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public CurrentLimits getCurrentLimits1(String id) {
-        return getDanglingLine1().getCurrentLimits(id);
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        return getDanglingLine1().getCurrentLimits();
     }
 
     @Override
-    public Optional<CurrentLimits> getActiveCurrentLimits1() {
-        return getDanglingLine1().getActiveCurrentLimits();
-    }
-
-    @Override
-    public void setActiveCurrentLimits1(String id) {
-        getDanglingLine1().setActiveCurrentLimits(id);
+    public CurrentLimits getNullableCurrentLimits1() {
+        return getDanglingLine1().getNullableCurrentLimits();
     }
 
     @Override
@@ -357,18 +337,13 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits1(String id) {
-        return getDanglingLine1().getActivePowerLimits(id);
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return getDanglingLine1().getActivePowerLimits();
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActiveActivePowerLimits1() {
-        return getDanglingLine1().getActiveActivePowerLimits();
-    }
-
-    @Override
-    public void setActiveActivePowerLimits1(String id) {
-        getDanglingLine1().setActiveActivePowerLimits(id);
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return getDanglingLine1().getNullableActivePowerLimits();
     }
 
     @Override
@@ -377,18 +352,13 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1(String id) {
-        return getDanglingLine1().getApparentPowerLimits(id);
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return getDanglingLine1().getApparentPowerLimits();
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getActiveApparentPowerLimits1() {
-        return getDanglingLine1().getActiveApparentPowerLimits();
-    }
-
-    @Override
-    public void setActiveApparentPowerLimits1(String id) {
-        getDanglingLine1().setActiveApparentPowerLimits(id);
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getDanglingLine1().getNullableApparentPowerLimits();
     }
 
     @Override

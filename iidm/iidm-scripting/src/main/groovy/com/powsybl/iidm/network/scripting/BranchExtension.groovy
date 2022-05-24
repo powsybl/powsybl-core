@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.ActivePowerLimits
 import com.powsybl.iidm.network.ApparentPowerLimits
 import com.powsybl.iidm.network.Branch
 import com.powsybl.iidm.network.CurrentLimits
+import com.powsybl.iidm.network.LimitType
+import com.powsybl.iidm.network.LoadingLimits
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -17,26 +19,42 @@ import com.powsybl.iidm.network.CurrentLimits
 class BranchExtension {
 
     static ActivePowerLimits getActivePowerLimits1(Branch self) {
-        self.getActiveActivePowerLimits1().orElse(null)
+        self.getNullableActivePowerLimits1()
     }
 
     static ApparentPowerLimits getApparentPowerLimits1(Branch self) {
-        self.getActiveApparentPowerLimits1().orElse(null)
+        self.getNullableApparentPowerLimits1()
     }
 
     static CurrentLimits getCurrentLimits1(Branch self) {
-        self.getActiveCurrentLimits1().orElse(null)
+        self.getNullableCurrentLimits1()
     }
 
     static ActivePowerLimits getActivePowerLimits2(Branch self) {
-        self.getActiveActivePowerLimits2().orElse(null)
+        self.getNullableActivePowerLimits2()
     }
 
     static ApparentPowerLimits getApparentPowerLimits2(Branch self) {
-        self.getActiveApparentPowerLimits2().orElse(null)
+        self.getNullableApparentPowerLimits2()
     }
 
     static CurrentLimits getCurrentLimits2(Branch self) {
-        self.getActiveCurrentLimits2().orElse(null)
+        self.getNullableCurrentLimits2()
+    }
+
+    static CurrentLimits getCurrentLimits(Branch self, Branch.Side side) {
+        self.getNullableCurrentLimits(side)
+    }
+
+    static ActivePowerLimits getActivePowerLimits(Branch self, Branch.Side side) {
+        self.getNullableActivePowerLimits(side)
+    }
+
+    static ApparentPowerLimits getApparentPowerLimits(Branch self, Branch.Side side) {
+        self.getNullableApparentPowerLimits(side)
+    }
+
+    static LoadingLimits getLimits(Branch self, LimitType type, Branch.Side side) {
+        self.getNullableLimits(type, side)
     }
 }

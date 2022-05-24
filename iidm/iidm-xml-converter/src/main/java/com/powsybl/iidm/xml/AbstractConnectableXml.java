@@ -42,18 +42,18 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     protected static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
-            return branch.getActiveActivePowerLimits1().isPresent() || branch.getActiveActivePowerLimits2().isPresent()
-                    || branch.getActiveApparentPowerLimits1().isPresent() || branch.getActiveApparentPowerLimits2().isPresent()
-                    || branch.getActiveCurrentLimits1().isPresent() || branch.getActiveCurrentLimits2().isPresent();
+            return branch.getActivePowerLimits1().isPresent() || branch.getActivePowerLimits2().isPresent()
+                    || branch.getApparentPowerLimits1().isPresent() || branch.getApparentPowerLimits2().isPresent()
+                    || branch.getCurrentLimits1().isPresent() || branch.getCurrentLimits2().isPresent();
         }
-        return branch.getActiveCurrentLimits1().isPresent() || branch.getActiveCurrentLimits2().isPresent();
+        return branch.getCurrentLimits1().isPresent() || branch.getCurrentLimits2().isPresent();
     }
 
     protected static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
-            return limitsHolder.getActiveActivePowerLimits().isPresent() || limitsHolder.getActiveApparentPowerLimits().isPresent() || limitsHolder.getActiveCurrentLimits().isPresent();
+            return limitsHolder.getActivePowerLimits().isPresent() || limitsHolder.getApparentPowerLimits().isPresent() || limitsHolder.getCurrentLimits().isPresent();
         }
-        return limitsHolder.getActiveCurrentLimits().isPresent();
+        return limitsHolder.getCurrentLimits().isPresent();
     }
 
     protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {

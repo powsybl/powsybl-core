@@ -36,7 +36,7 @@ public final class LimitViolationUtils {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
 
-        LoadingLimits limits = branch.getActiveLimits(type, side).orElse(null);
+        LoadingLimits limits = branch.getLimits(type, side).orElse(null);
 
         if (limits != null && !Double.isNaN(limits.getPermanentLimit()) && !Double.isNaN(i)) {
             String previousLimitName = null;
@@ -61,7 +61,7 @@ public final class LimitViolationUtils {
     }
 
     public static boolean checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
-        LoadingLimits limits = branch.getActiveLimits(type, side).orElse(null);
+        LoadingLimits limits = branch.getLimits(type, side).orElse(null);
         return limits != null &&
                 !Double.isNaN(limits.getPermanentLimit()) &&
                 !Double.isNaN(i) &&

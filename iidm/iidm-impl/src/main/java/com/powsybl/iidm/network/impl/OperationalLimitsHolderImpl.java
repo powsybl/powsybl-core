@@ -89,7 +89,7 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         if (set == null) {
             return Optional.empty();
         }
-        return set.getActiveLimits();
+        return set.getActivatedLimits();
     }
 
     CurrentLimitsAdder newCurrentLimits() {
