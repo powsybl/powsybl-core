@@ -24,9 +24,9 @@ import java.util.List;
  *
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityAnalysisParametersJsonDeserializer extends StdDeserializer<SensitivityAnalysisParameters> {
+public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<SensitivityAnalysisParameters> {
 
-    SensitivityAnalysisParametersJsonDeserializer() {
+    SensitivityAnalysisParametersDeserializer() {
         super(SensitivityAnalysisParameters.class);
     }
 
@@ -53,16 +53,14 @@ public class SensitivityAnalysisParametersJsonDeserializer extends StdDeserializ
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, SensitivityJson.getExtensionSerializers(), parameters);
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get, parameters);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        SensitivityJson.getExtensionSerializers().addExtensions(parameters, extensions);
-
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }
 
