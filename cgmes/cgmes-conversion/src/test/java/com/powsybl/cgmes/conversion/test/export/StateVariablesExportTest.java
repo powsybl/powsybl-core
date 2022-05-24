@@ -83,13 +83,13 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
     @Test
     public void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
-        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource(), 4);
+        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(), 4);
     }
 
     @Test
     public void miniBusBranchWithSvInjectionExportPQ() throws IOException, XMLStreamException {
 
-        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource());
         String loadId = "0448d86a-c766-11e1-8775-005056c00008";
         Load load = network.getLoad(loadId);
         String cgmesTerminal = getCgmesTerminal(load.getTerminal());
@@ -120,7 +120,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     @Test
     public void miniBusBranchWithSvInjectionExportQ() throws IOException, XMLStreamException {
 
-        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource());
         String shuntCompensatorId = "04553478-c766-11e1-8775-005056c00008";
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         String cgmesTerminal = getCgmesTerminal(shuntCompensator.getTerminal());
