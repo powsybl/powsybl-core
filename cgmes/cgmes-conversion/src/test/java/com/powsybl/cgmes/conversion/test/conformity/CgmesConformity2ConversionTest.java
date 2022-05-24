@@ -20,6 +20,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -45,6 +47,10 @@ public class CgmesConformity2ConversionTest {
     @Test
     public void microGridBaseCaseType2Assembled() throws IOException {
         tester.testConversion(null, CgmesConformity2Catalog.microGridType2Assembled());
+        // FIXME(Luma) One of the DC Links (the one that lies in BE) is not imported because it contains a DCSeriesDevice
+        //   This kind of DC devices is not yet supported
+        assertEquals(2, tester.lastConvertedNetwork().getVscConverterStationCount());
+        assertEquals(1, tester.lastConvertedNetwork().getHvdcLineCount());
     }
 
     private static ConversionTester tester;
