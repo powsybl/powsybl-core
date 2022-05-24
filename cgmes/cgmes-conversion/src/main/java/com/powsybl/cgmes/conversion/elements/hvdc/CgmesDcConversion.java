@@ -293,19 +293,17 @@ public class CgmesDcConversion {
     }
 
     private String findAcDcConverterDcTerminal(String acDcConverterId, String dcNodeId) {
-        PropertyBag propertyBag = context.cgmes().dcTerminals().stream()
-            .filter(pb -> isAcDcConverterDcTerminalOk(pb, acDcConverterId, dcNodeId)).findFirst().orElse(null);
-        Objects.requireNonNull(propertyBag);
-        return propertyBag.getId("DCTerminal");
-    }
-
-    private static boolean isAcDcConverterDcTerminalOk(PropertyBag propertyBag, String acDcConverterId, String dcNodeId) {
-        if (!isAcDcConverter(propertyBag.getId("dcConductingEquipmentType"))) {
-            return false;
-        }
-        return acDcConverterId.equals(propertyBag.getId("DCConductingEquipment"))
-            && (dcNodeId.equals(propertyBag.getId("DCNode"))
-                || dcNodeId.equals(propertyBag.getId("DCTopologicalNode")));
+        String terminalNodeProperty = context.nodeBreaker() ? "DCNode" : "DCTopologicalNode";
+        return context.cgmes().dcTerminals().stream()
+                // A terminal of this converter
+                .filter(t -> acDcConverterId.equals(t.getId("DCConductingEquipment")))
+                // The equipment type of the terminal must be a converter (redundant, but safer)
+                .filter(t -> isAcDcConverter(t.getId("dcConductingEquipmentType")))
+                // The terminal is connectd to the node we are looking for
+                .filter(t -> dcNodeId.equals(t.getId(terminalNodeProperty)))
+                .findFirst()
+                .map(t -> t.getId("DCTerminal"))
+                .orElseThrow(() -> new PowsyblException(String.format("Missing terminal for converter %s at %s %s", acDcConverterId, terminalNodeProperty, dcNodeId)));
     }
 
     private static boolean isAcDcConverter(String type) {
@@ -400,6 +398,14 @@ public class CgmesDcConversion {
             return terminal.dcNode();
         } else {
             return terminal.dcTopologicalNode();
+        }
+    }
+
+    static String getDcNode(PropertyBag xxxterminal, CgmesModel cgmesModel) {
+        if (cgmesModel.isNodeBreaker()) {
+            return xxxterminal.getId("DCNode");
+        } else {
+            return xxxterminal.getId("DCTopologicalNode");
         }
     }
 
