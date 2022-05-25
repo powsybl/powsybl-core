@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -492,9 +493,27 @@ class TransformerConverter extends AbstractConverter {
             TapChangerPar mv = TapChangerPar.create("n3tap_m", "n3tp0_m", "n3tmn_m", "n3tmx_m", "du3tp_m", "ph3tr_m", elmTr3, typTr3);
             TapChangerPar lv = TapChangerPar.create("n3tap_l", "n3tp0_l", "n3tmn_l", "n3tmx_l", "du3tp_l", "ph3tr_l", elmTr3, typTr3);
 
+            OptionalInt iMeasTap = elmTr3.findIntAttributeValue("iMeasTap");
+            Optional<RealMatrix> mTaps = elmTr3.findDoubleMatrixAttributeValue("mTaps");
+
             hv.mTaps = Optional.empty();
             mv.mTaps = Optional.empty();
             lv.mTaps = Optional.empty();
+            if (iMeasTap.isPresent() && mTaps.isPresent()) {
+                switch (iMeasTap.getAsInt()) {
+                    case 0:
+                        hv.mTaps = mTaps;
+                        break;
+                    case 1:
+                        mv.mTaps = mTaps;
+                        break;
+                    case 2:
+                        lv.mTaps = mTaps;
+                        break;
+                    default:
+                        throw new PowsyblException("Unexpected iMeasTap attribute");
+                }
+            }
 
             return new TapChangerPar3w(hv, mv, lv);
         }
@@ -574,14 +593,40 @@ class TransformerConverter extends AbstractConverter {
         }
 
         private static TapChanger createTapChangerFromResourceTable(TapChangerPar tapChangerPar) {
+            if (tapChangerPar.mTaps.get().getColumnDimension() == 5) {
+                return createTapChangerFromResourceTableForTwoWindingsTansformer(tapChangerPar);
+            }
+            if (tapChangerPar.mTaps.get().getColumnDimension() == 8) {
+                return createTapChangerFromResourceTableForThreeWindingsTansformer(tapChangerPar);
+            }
+            throw new PowsyblException("Unexpected number of columns in mTaps");
+        }
+
+        private static TapChanger createTapChangerFromResourceTableForTwoWindingsTansformer(TapChangerPar tapChangerPar) {
 
             int rows = tapChangerPar.mTaps.get().getRowDimension();
-            if (rows != tapChangerPar.ntpmx - tapChangerPar.ntpmn + 1 || tapChangerPar.mTaps.get().getColumnDimension() != 5) {
-                throw new PowsyblException("Unexpected mTaps dimension");
+            if (rows != tapChangerPar.ntpmx - tapChangerPar.ntpmn + 1) {
+                throw new PowsyblException("Unexpected number of rows in mTaps");
             }
             TapChanger tapChanger = new TapChanger(tapChangerPar.ntpmn, tapChangerPar.nntap);
             for (int row = 0; row < rows; row++) {
                 double ratio = tapChangerPar.mTaps.get().getEntry(row, 4);
+                double angle = tapChangerPar.mTaps.get().getEntry(row, 1);
+
+                tapChanger.steps.add(new TapChangerStep(ratio, angle));
+            }
+            return tapChanger;
+        }
+
+        private static TapChanger createTapChangerFromResourceTableForThreeWindingsTansformer(TapChangerPar tapChangerPar) {
+
+            int rows = tapChangerPar.mTaps.get().getRowDimension();
+            if (rows != tapChangerPar.ntpmx - tapChangerPar.ntpmn + 1) {
+                throw new PowsyblException("Unexpected mTaps dimension");
+            }
+            double ratio = 1.0;
+            TapChanger tapChanger = new TapChanger(tapChangerPar.ntpmn, tapChangerPar.nntap);
+            for (int row = 0; row < rows; row++) {
                 double angle = tapChangerPar.mTaps.get().getEntry(row, 1);
 
                 tapChanger.steps.add(new TapChangerStep(ratio, angle));

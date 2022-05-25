@@ -170,6 +170,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importJsonAndCompareXiidm("Transformer-Phase-GB-complete"));
     }
 
+    @Test
+    public void threeMibPhaseWinding1Complete() {
+        assertTrue(importJsonAndCompareXiidm("ThreeMIB_T3W_phase_winding1_complete"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
@@ -324,7 +329,7 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void threeMibT3wPhaseTest() {
         Network network = importAndCompareXml("ThreeMIB_T3W_phase_solved");
-        threeMibT3wPhaseTestNetworkBalance(network, 0.09);
+        threeMibT3wPhaseTestNetworkBalance(network, 435.876560, 0.09);
         assertTrue(true);
     }
 
@@ -334,7 +339,7 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
      * Bus 2 (18 kV) : Generator "sym_1_2_1" and  threeWindingsTransformer "trf_4_2_7_1" are connected
      * Bus 7 (16 kV) : Load "lod_7_1" and threeWindingsTransformer "trf_4_2_7_1" are connected
      */
-    private static void threeMibT3wPhaseTestNetworkBalance(Network network, double tol) {
+    private static void threeMibT3wPhaseTestNetworkBalance(Network network, double targetQ, double tol) {
 
         Load load4 = network.getLoad("lod_4_1");
         assertNotNull(load4);
@@ -355,7 +360,7 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
 
         // The case does not have the reactive of the generator. We set it manually
-        generator2.setTargetQ(435.876560);
+        generator2.setTargetQ(targetQ);
 
         assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
@@ -364,4 +369,83 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + load7.getP0(), tol);
         assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + load7.getQ0(), tol);
     }
+
+    @Test
+    public void threeMibPhaseWinding1() {
+        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding1");
+        threeMibPhaseWindingTestNetworkBalance(network, 514.75293551, 0.09);
+        assertTrue(true);
+    }
+
+    @Test
+    public void threeMibPhaseWinding1Ratio() {
+        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding1_ratio");
+        threeMibPhaseWindingTestNetworkBalance(network, 591.898015, 0.09);
+        assertTrue(true);
+    }
+
+    @Test
+    public void threeMibPhaseWinding2() {
+        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding2");
+        threeMibPhaseWindingTestNetworkBalance(network, 658.367984, 0.09);
+        assertTrue(true);
+    }
+
+    @Test
+    public void threeMibPhaseWinding3() {
+        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding3");
+        threeMibPhaseWindingTestNetworkBalance(network, 596.52371, 0.09);
+        assertTrue(true);
+    }
+
+    @Test
+    public void threeMibPhaseWinding12() {
+        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding12");
+        threeMibPhaseWindingTestNetworkBalance(network, 575.835158, 0.09);
+        assertTrue(true);
+    }
+
+    /**
+     * Only the balance at the three buses of the three windings transformer is done:
+     * Bus 4 (500 kV): Load "lod_4_1", line "lne_4_1_1", twoWindingsTransformer "trf_4_1_1" and threeWindingsTransformer "trf_4_2_7_1" are connected
+     * Bus 2 (18 kV) : Generator "sym_1_2_1", twoWindingsTransformer "trf_6_2_1" and  threeWindingsTransformer "trf_4_2_7_1" are connected
+     * Bus 7 (16 kV) : Load "lod_7_1", twoWindingsTransformer "trf_5_7_1" and threeWindingsTransformer "trf_4_2_7_1" are connected
+     */
+    private static void threeMibPhaseWindingTestNetworkBalance(Network network, double targetQ, double tol) {
+
+        Load load4 = network.getLoad("lod_4_1");
+        assertNotNull(load4);
+        Load load7 = network.getLoad("lod_7_1");
+        assertNotNull(load7);
+        Generator generator2 = network.getGenerator("sym_2_1");
+        assertNotNull(generator2);
+
+        Line line45 = network.getLine("lne_4_5_1");
+        assertNotNull(line45);
+        TwoWindingsTransformer t2wt41 = network.getTwoWindingsTransformer("trf_4_1_1");
+        assertNotNull(t2wt41);
+        TwoWindingsTransformer t2wt62 = network.getTwoWindingsTransformer("trf_6_2_1");
+        assertNotNull(t2wt62);
+        TwoWindingsTransformer t2wt57 = network.getTwoWindingsTransformer("trf_5_7_1");
+        assertNotNull(t2wt57);
+        ThreeWindingsTransformer t3wt427 = network.getThreeWindingsTransformer("tr3_4_2_7_1");
+        assertNotNull(t2wt41);
+
+        BranchData line45Data = new BranchData(line45, 0.0, false);
+        BranchData t2wtData41 = new BranchData(t2wt41, 0.0, false, true);
+        BranchData t2wtData62 = new BranchData(t2wt62, 0.0, false, true);
+        BranchData t2wtData57 = new BranchData(t2wt57, 0.0, false, true);
+        TwtData t3wtData427 = new TwtData(t3wt427, 0.0, false, true);
+
+        // The case does not have the reactive of the generator. We set it manually
+        generator2.setTargetQ(targetQ);
+
+        assertEquals(0.0, t3wtData427.getComputedP(Side.ONE) + line45Data.getComputedP1() + t2wtData41.getComputedP1() + load4.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(Side.ONE) + line45Data.getComputedQ1() + t2wtData41.getComputedQ1() + load4.getQ0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(Side.TWO) + t2wtData62.getComputedP2() - generator2.getTargetP(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(Side.TWO) + t2wtData62.getComputedQ2() - generator2.getTargetQ(), tol);
+        assertEquals(0.0, t3wtData427.getComputedP(Side.THREE) + t2wtData57.getComputedP2() + load7.getP0(), tol);
+        assertEquals(0.0, t3wtData427.getComputedQ(Side.THREE) + t2wtData57.getComputedQ2() + load7.getQ0(), tol);
+    }
+
 }
