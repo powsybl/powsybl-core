@@ -87,7 +87,7 @@ public class CgmesGLExporter {
         modelProperties.setClassPropertyNames(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON));
         modelProperties.put(MODEL_SCENARIO_TIME, network.getCaseDate().toString());
         modelProperties.put(MODEL_CREATED, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(new Date()));
-        modelProperties.put(MODEL_DESCRIPTION, network.getName());
+        modelProperties.put(MODEL_DESCRIPTION, network.getNameOrId());
         modelProperties.put(MODEL_VERSION, "4");
         modelProperties.put(MODEL_PROFILE, "http://entsoe.eu/CIM/GeographicalLocation/2/1");
         modelProperties.put(MODEL_DEPENDENT_ON, network.getId());

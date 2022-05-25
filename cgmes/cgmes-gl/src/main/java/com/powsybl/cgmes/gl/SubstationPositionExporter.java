@@ -30,10 +30,10 @@ public class SubstationPositionExporter extends AbstractPositionExporter {
         Objects.requireNonNull(substation);
         SubstationPosition substationPosition = substation.getExtension(SubstationPosition.class);
         if (substationPosition == null) {
-            LOG.warn("Cannot find position data of substation {}, name {}: skipping export of substation position", substation.getId(), substation.getName());
+            LOG.warn("Cannot find position data of substation {}, name {}: skipping export of substation position", substation.getId(), substation.getNameOrId());
             return;
         }
-        String locationId = addLocation(substation.getId(), substation.getName());
+        String locationId = addLocation(substation.getId(), substation.getNameOrId());
         addLocationPoint(locationId, substationPosition.getCoordinate(), 0);
     }
 

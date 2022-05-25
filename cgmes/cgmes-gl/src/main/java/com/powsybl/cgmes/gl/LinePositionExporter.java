@@ -30,13 +30,13 @@ public class LinePositionExporter extends AbstractPositionExporter {
     public void exportPosition(Line line) {
         Objects.requireNonNull(line);
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
-        exportPosition(line.getId(), line.getName(), linePosition);
+        exportPosition(line.getId(), line.getNameOrId(), linePosition);
     }
 
     public void exportPosition(DanglingLine danglingLine) {
         Objects.requireNonNull(danglingLine);
         LinePosition<DanglingLine> linePosition = danglingLine.getExtension(LinePosition.class);
-        exportPosition(danglingLine.getId(), danglingLine.getName(), linePosition);
+        exportPosition(danglingLine.getId(), danglingLine.getNameOrId(), linePosition);
     }
 
     private void exportPosition(String id, String name, LinePosition<?> linePosition) {

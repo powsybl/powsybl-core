@@ -32,7 +32,7 @@ public abstract class AbstractPositionExporter {
     private static final String Y_POSITION = "yPosition";
     private static final String SEQUENCE_NUMBER = "sequenceNumber";
 
-    public AbstractPositionExporter(TripleStore tripleStore, ExportContext context) {
+    protected AbstractPositionExporter(TripleStore tripleStore, ExportContext context) {
         this.tripleStore = Objects.requireNonNull(tripleStore);
         this.context = Objects.requireNonNull(context);
     }
