@@ -387,7 +387,9 @@ public class CgmesExportContext {
     public boolean isExportedEquipment(Identifiable<?> c) {
         // We ignore fictitious loads used to model CGMES SvInjection objects that represent calculation mismatches
         // We also ignore fictitious switches used to model CGMES disconnected Terminals
-        boolean ignored = c.isFictitious() && (c instanceof Load || c instanceof Switch);
+        boolean ignored = c.isFictitious() &&
+                (c instanceof Load && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_SV_INJECTION))
+                        || c instanceof Switch && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL)));
         return !ignored;
     }
 

@@ -230,7 +230,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testDoNotExportFictitiousSwitches() throws IOException {
+    public void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerTerminalDisconnected().dataSource();
         Network network = Importers.importData("CGMES", ds, null);
 
@@ -241,20 +241,15 @@ public class CgmesExportTest {
         Switch fictitiousSwitch = network.getSwitch(fictitiousSwitchId);
         assertNotNull(fictitiousSwitch);
         assertTrue(fictitiousSwitch.isFictitious());
+        assertTrue(fictitiousSwitch.isOpen());
+        assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
 
         String exportFolder = "/test-terminal-disconnected-fictitious-switch";
-        String baseName = "testTerminalDisconnectedFictitiousSwitch";
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             // Export to CGMES and add boundary EQ for reimport
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
-            Exporters.export("CGMES", network, null, tmpDir.resolve(baseName));
-            String eqbd = ds.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
-            if (eqbd != null) {
-                try (InputStream is = ds.newInputStream(eqbd)) {
-                    Files.copy(is, tmpDir.resolve(baseName + "_EQ_BD.xml"));
-                }
-            }
-            ReadOnlyDataSource exportedCgmes = new GenericReadOnlyDataSource(tmpDir, baseName);
+            String baseName = "testTerminalDisconnectedFictitiousSwitchExported";
+            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
 
             // Check that the exported CGMES model does not contain the fictitious switch
             // And that the corresponding terminal is disconnected
@@ -265,11 +260,35 @@ public class CgmesExportTest {
 
             // Verify that the fictitious switch is created again when we re-import the exported CGMES data
             Network networkReimported = Importers.loadNetwork(exportedCgmes, null);
-            fictitiousSwitch = networkReimported.getSwitch(fictitiousSwitchId);
-            assertNotNull(fictitiousSwitch);
-            assertTrue(fictitiousSwitch.isFictitious());
-            assertTrue(fictitiousSwitch.isOpen());
+            Switch fictitiousSwitchReimported = networkReimported.getSwitch(fictitiousSwitchId);
+            assertNotNull(fictitiousSwitchReimported);
+            assertTrue(fictitiousSwitchReimported.isFictitious());
+            assertTrue(fictitiousSwitchReimported.isOpen());
+            assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
+
+            // Verify that if close the switch the terminal is exported as connected
+            // And the fictitious switch is not crated when re-importing
+            fictitiousSwitch.setOpen(false);
+            String baseName1 = "testTerminalDisconnectedFictitiousSwitchClosedExported";
+            ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir, baseName1, ds);
+            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, null, TripleStoreFactory.defaultImplementation());
+            assertTrue(cgmes1.isNodeBreaker());
+            assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
+            assertTrue(cgmes1.terminal(disconnectedTerminalId).connected());
+            Network networkReimported1 = Importers.loadNetwork(exportedCgmes1, null);
+            Switch fictitiousSwitchReimported1 = networkReimported1.getSwitch(fictitiousSwitchId);
+            assertNull(fictitiousSwitchReimported1);
         }
     }
 
+    private static ReadOnlyDataSource exportAndAddBoundaries(Network network, Path tmpDir, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
+        Exporters.export("CGMES", network, null, tmpDir.resolve(baseName));
+        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
+        if (eqbd != null) {
+            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
+                Files.copy(is, tmpDir.resolve(baseName + "_EQ_BD.xml"));
+            }
+        }
+        return new GenericReadOnlyDataSource(tmpDir, baseName);
+    }
 }
