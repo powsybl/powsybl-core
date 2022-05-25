@@ -137,9 +137,7 @@ public final class LinkData {
     }
 
     static double getPhaseAngleClockDegrees(int phaseAngleClock) {
-        double phaseAngleClockDegree = 0.0;
-        phaseAngleClockDegree += phaseAngleClock * 30.0;
-        phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClockDegree, 360.0);
+        double phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClock * 30.0, 360.0);
         if (phaseAngleClockDegree > 180.0) {
             phaseAngleClockDegree -= 360.0;
         }
