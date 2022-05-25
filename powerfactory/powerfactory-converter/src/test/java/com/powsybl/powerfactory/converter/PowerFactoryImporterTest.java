@@ -372,37 +372,33 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
 
     @Test
     public void threeMibPhaseWinding1() {
-        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding1");
-        threeMibPhaseWindingTestNetworkBalance(network, 514.75293551, 0.09);
-        assertTrue(true);
+        assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding1", 514.75293551, 0.09));
     }
 
     @Test
     public void threeMibPhaseWinding1Ratio() {
-        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding1_ratio");
-        threeMibPhaseWindingTestNetworkBalance(network, 591.898015, 0.09);
-        assertTrue(true);
+        assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding1_ratio", 591.898015, 0.09));
     }
 
     @Test
     public void threeMibPhaseWinding2() {
-        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding2");
-        threeMibPhaseWindingTestNetworkBalance(network, 658.367984, 0.09);
-        assertTrue(true);
+        assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding2", 658.367984, 0.09));
     }
 
     @Test
     public void threeMibPhaseWinding3() {
-        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding3");
-        threeMibPhaseWindingTestNetworkBalance(network, 596.52371, 0.09);
-        assertTrue(true);
+        assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding3", 596.52371, 0.09));
     }
 
     @Test
     public void threeMibPhaseWinding12() {
-        Network network = importAndCompareXml("ThreeMIB_T3W_phase_winding12");
-        threeMibPhaseWindingTestNetworkBalance(network, 575.835158, 0.09);
-        assertTrue(true);
+        assertTrue(threeWindingPhaseImportCompareXmlAndNetworkBalance("ThreeMIB_T3W_phase_winding12", 575.835158, 0.09));
+    }
+
+    private boolean threeWindingPhaseImportCompareXmlAndNetworkBalance(String caseFile, double targetQ, double tol) {
+        Network network = importAndCompareXml(caseFile);
+        threeMibPhaseWindingTestNetworkBalance(network, targetQ, tol);
+        return true;
     }
 
     /**
