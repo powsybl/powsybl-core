@@ -312,13 +312,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             if (loadingLimitsAdder != null) {
-                addTatl(context.namingStrategy().getId("TATL", id), value, acceptableDuration, loadingLimitsAdder);
+                addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder);
             } else {
                 if (loadingLimitsAdder1 != null) {
-                    addTatl(context.namingStrategy().getId("TATL", id), value, acceptableDuration, loadingLimitsAdder1);
+                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder1);
                 }
                 if (loadingLimitsAdder2 != null) {
-                    addTatl(context.namingStrategy().getId("TATL", id), value, acceptableDuration, loadingLimitsAdder2);
+                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder2);
                 }
             }
         } else if (direction.endsWith("low")) {

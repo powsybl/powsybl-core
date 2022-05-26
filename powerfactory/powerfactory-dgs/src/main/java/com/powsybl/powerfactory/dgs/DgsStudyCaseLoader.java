@@ -9,7 +9,7 @@ package com.powsybl.powerfactory.dgs;
 import com.google.auto.service.AutoService;
 import com.google.common.io.Files;
 import com.powsybl.powerfactory.model.StudyCase;
-import com.powsybl.powerfactory.model.StudyCaseLoader;
+import com.powsybl.powerfactory.model.PowerFactoryDataLoader;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,8 +17,13 @@ import java.io.InputStreamReader;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@AutoService(StudyCaseLoader.class)
-public class DgsStudyCaseLoader implements StudyCaseLoader {
+@AutoService(PowerFactoryDataLoader.class)
+public class DgsStudyCaseLoader implements PowerFactoryDataLoader<StudyCase> {
+
+    @Override
+    public Class<StudyCase> getDataClass() {
+        return StudyCase.class;
+    }
 
     @Override
     public String getExtension() {

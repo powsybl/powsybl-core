@@ -9,7 +9,6 @@ package com.powsybl.cgmes.measurements;
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -67,14 +66,14 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
                     analog.getId("powerSystemResource"),
                     analog.getId("type"),
                     bays,
-                    createTypesMapping(ConversionParameters.readStringListParameter("CGMES", null, ANALOG_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
+                    createTypesMapping(Parameter.readStringList("CGMES", null, ANALOG_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
         }
         for (PropertyBag discrete : model.discretes()) {
             CgmesDiscretePostProcessor.process(network, discrete.getId("Discrete"), discrete.getId("Terminal"),
                     discrete.getId("powerSystemResource"),
                     discrete.getId("type"),
                     bays,
-                    createTypesMapping(ConversionParameters.readStringListParameter("CGMES", null, DISCRETE_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
+                    createTypesMapping(Parameter.readStringList("CGMES", null, DISCRETE_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
         }
     }
 

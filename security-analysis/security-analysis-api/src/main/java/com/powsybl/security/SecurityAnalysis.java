@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -56,7 +57,8 @@ public final class SecurityAnalysis {
                                                                   LimitViolationFilter filter,
                                                                   LimitViolationDetector detector,
                                                                   List<SecurityAnalysisInterceptor> interceptors,
-                                                                  List<StateMonitor> monitors) {
+                                                                  List<StateMonitor> monitors,
+                                                                  Reporter reporter) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingStateId, "WorkingVariantId should not be null");
             Objects.requireNonNull(detector, "LimitViolation detector should not be null");
@@ -65,11 +67,12 @@ public final class SecurityAnalysis {
             Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
             Objects.requireNonNull(parameters, "Security analysis parameters should not be null");
             Objects.requireNonNull(interceptors, "Interceptor list should not be null");
-            return provider.run(network, workingStateId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors, monitors);
+            Objects.requireNonNull(interceptors, "Reporter should not be null");
+            return provider.run(network, workingStateId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors, monitors, reporter);
         }
 
         public CompletableFuture<SecurityAnalysisReport>  runAsync(Network network, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
-            return runAsync(network, network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, new DefaultLimitViolationDetector(), Collections.emptyList(), Collections.emptyList());
+            return runAsync(network, network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, new DefaultLimitViolationDetector(), Collections.emptyList(), Collections.emptyList(), Reporter.NO_OP);
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager) {
@@ -91,8 +94,10 @@ public final class SecurityAnalysis {
                                           ComputationManager computationManager,
                                           LimitViolationFilter filter,
                                           LimitViolationDetector detector,
-                                          List<SecurityAnalysisInterceptor> interceptors) {
-            return runAsync(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, Collections.emptyList()).join();
+                                          List<SecurityAnalysisInterceptor> interceptors,
+                                          List<StateMonitor> monitors,
+                                          Reporter reporter) {
+            return runAsync(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, monitors, reporter).join();
         }
 
         public SecurityAnalysisReport run(Network network,
@@ -102,9 +107,8 @@ public final class SecurityAnalysis {
                                           ComputationManager computationManager,
                                           LimitViolationFilter filter,
                                           LimitViolationDetector detector,
-                                          List<SecurityAnalysisInterceptor> interceptors,
-                                          List<StateMonitor> monitors) {
-            return runAsync(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, monitors).join();
+                                          List<SecurityAnalysisInterceptor> interceptors) {
+            return runAsync(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, Collections.emptyList(), Reporter.NO_OP).join();
         }
 
         public SecurityAnalysisReport run(Network network, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
@@ -164,8 +168,9 @@ public final class SecurityAnalysis {
                                                                      ComputationManager computationManager,
                                                                      LimitViolationFilter filter,
                                                                      LimitViolationDetector detector,
-                                                                     List<SecurityAnalysisInterceptor> interceptors) {
-        return find().runAsync(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, Collections.emptyList());
+                                                                     List<SecurityAnalysisInterceptor> interceptors,
+                                                                     Reporter reporter) {
+        return find().runAsync(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, Collections.emptyList(), reporter);
     }
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, ContingenciesProvider contingenciesProvider,
@@ -207,8 +212,9 @@ public final class SecurityAnalysis {
                                              LimitViolationFilter filter,
                                              LimitViolationDetector detector,
                                              List<SecurityAnalysisInterceptor> interceptors,
-                                             List<StateMonitor> monitors) {
-        return find().run(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, monitors);
+                                             List<StateMonitor> monitors,
+                                             Reporter reporter) {
+        return find().run(network, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, monitors, reporter);
     }
 
     public static SecurityAnalysisReport run(Network network, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {

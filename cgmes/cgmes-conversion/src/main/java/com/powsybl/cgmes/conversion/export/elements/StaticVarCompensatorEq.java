@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
@@ -58,8 +59,12 @@ public final class StaticVarCompensatorEq {
             return "SVCControlMode.voltage";
         } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
             return "SVCControlMode.reactivePower";
+        } else if (StaticVarCompensator.RegulationMode.OFF.equals(svcControlMode)) {
+            // CGMES does not have a "none" value for SVCControlMode enumeration,
+            // so we have to take a default here
+            return "SVCControlMode.reactivePower";
         }
-        return "";
+        throw new PowsyblException("Invalid regulation mode for Static Var Compensator " + svcControlMode);
     }
 
     private StaticVarCompensatorEq() {
