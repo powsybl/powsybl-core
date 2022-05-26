@@ -206,13 +206,18 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void transformerVhVlGBNonNeutralProportion() {
+        assertTrue(transformerBalance("Transformer-VhVl-GB-Non-Neutral-proportion", 0.000025));
+    }
+
+    @Test
     public void transformerVlVh() {
         assertTrue(transformerBalance("Transformer-VlVh", 0.0009));
     }
 
     @Test
     public void transformerVlVhNonNeutral() {
-        assertTrue(transformerBalance("Transformer-VlVh-Non-Neutral", 0.0009));
+        assertTrue(transformerBalance("Transformer-VlVh-Non-Neutral", 0.0003));
     }
 
     @Test
@@ -223,6 +228,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void transformerVlVhGBNonNeutral() {
         assertTrue(transformerBalance("Transformer-VlVh-GB-Non-Neutral", 0.09));
+    }
+
+    @Test
+    public void transformerVlVhGBNonNeutralProportion() {
+        assertTrue(transformerBalance("Transformer-VlVh-GB-Non-Neutral-proportion", 0.0003));
     }
 
     private boolean transformerBalance(String powerfactoryCase, double tol) {

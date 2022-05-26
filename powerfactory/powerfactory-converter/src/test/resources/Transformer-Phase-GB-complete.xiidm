@@ -30,7 +30,7 @@
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="1"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.08712000000000002" x="8.306374538308905" g="3.1588613406795225E-4" b="-0.002920117589454412" ratedU1="165.0" ratedU2="165.0" ratedS="400.0" node1="2" voltageLevelId1="VL1" node2="3" voltageLevelId2="VL2">
+        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.08272846419289497" x="8.356852297791427" g="3.1227095417161836E-4" b="-0.002902681037437016" ratedU1="165.0" ratedU2="165.0" ratedS="400.0" node1="2" voltageLevelId1="VL1" node2="3" voltageLevelId2="VL2">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="9.98"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.002"/>

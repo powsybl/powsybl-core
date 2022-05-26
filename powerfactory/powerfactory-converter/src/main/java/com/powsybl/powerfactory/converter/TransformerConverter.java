@@ -266,7 +266,13 @@ class TransformerConverter extends AbstractConverter {
 
             Complex impedance = createImpedance("uktr", "pcutr", typTr2, ratedApparentPower, nominalVoltageEnd2);
             Complex shuntAdmittance = createShuntAdmittance("curmg", "pfe", typTr2, ratedApparentPower, nominalVoltageEnd2);
-            return new TransformerModel(impedance, shuntAdmittance);
+            Complex proportion = createProportion("itrdr", "itrdl", typTr2);
+
+            if (isProportionDefined(proportion) && shuntAdmittance.abs() != 0.0) {
+                return tModelToPiModel(impedance, shuntAdmittance, proportion);
+            } else {
+                return aproximatePiModel(impedance, shuntAdmittance);
+            }
         }
 
         private static Complex createImpedance(String uktrT, String pcutrT, DataObject typTr2,  double ratedApparentPower, double nominalVoltage) {
@@ -281,6 +287,44 @@ class TransformerConverter extends AbstractConverter {
             float pfe = typTr2.getFloatAttributeValue(pfeT);
 
             return createShuntAdmittanceFromMeasures(curmg, pfe, ratedApparentPower, nominalVoltage);
+        }
+
+        private static Complex createProportion(String itrdrT, String itrdlT, DataObject typTr2) {
+            Optional<Float> itrdr = typTr2.findFloatAttributeValue(itrdrT);
+            Optional<Float> itrdl = typTr2.findFloatAttributeValue(itrdlT);
+            return new Complex(itrdr.isPresent() ? itrdr.get() : Double.NaN, itrdl.isPresent() ? itrdl.get() : Double.NaN);
+        }
+
+        private static boolean isProportionDefined(Complex proportion) {
+            return !Double.isNaN(proportion.getReal()) && !Double.isNaN(proportion.getImaginary());
+        }
+
+        private static TransformerModel tModelToPiModel(Complex z, Complex ym, Complex proportion) {
+            Complex zh = new Complex(z.getReal() * proportion.getReal(), z.getImaginary() * proportion.getImaginary());
+            Complex zl = new Complex(z.getReal() * (1 - proportion.getReal()), z.getImaginary() * (1 - proportion.getImaginary()));
+
+            Complex y11h = zh.reciprocal();
+            Complex y12h = zh.reciprocal().negate();
+            Complex y21h = zh.reciprocal().negate();
+            Complex y22h = zh.reciprocal().add(ym);
+
+            Complex y11l = zl.reciprocal();
+            Complex y12l = zl.reciprocal().negate();
+            Complex y21l = zl.reciprocal().negate();
+            Complex y22l = zl.reciprocal();
+
+            Complex y11pi = y11h.subtract(y12h.multiply(y21h).divide(y22h.add(y11l)));
+            Complex y12pi = y12h.multiply(y12l).divide(y22h.add(y11l)).negate();
+            Complex y21pi = y21l.multiply(y21h).divide(y22h.add(y11l)).negate();
+            Complex y22pi = y22l.subtract(y21l.multiply(y12l).divide(y22h.add(y11l)));
+
+            return new TransformerModel(
+                y12pi.reciprocal().negate().multiply(0.5).add(y21pi.reciprocal().negate().multiply(0.5)),
+                y11pi.add(y12pi).add(y22pi.add(y21pi)));
+        }
+
+        private static TransformerModel aproximatePiModel(Complex z, Complex ym) {
+            return new TransformerModel(z, ym);
         }
 
         /**
