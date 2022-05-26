@@ -407,7 +407,18 @@ class TransformerConverter extends AbstractConverter {
             Complex zLv = zMvLv.add(zLvHv).subtract(zHvMv).multiply(0.5);
 
             Complex ysh = TransformerModel.createShuntAdmittance("curm3", "pfe", typTr3, ratedModel.hv.ratedS, nominalVoltage);
-            return new Transformer3wModel(new TransformerModel(zHv, ysh), new TransformerModel(zMv, Complex.ZERO), new TransformerModel(zLv, Complex.ZERO));
+            OptionalInt i3loc = typTr3.findIntAttributeValue("i3loc");
+
+            Complex yshHv = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.HV);
+            Complex yshMv = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.MV);
+            Complex yshLv = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.LV);
+
+            return new Transformer3wModel(new TransformerModel(zHv, yshHv), new TransformerModel(zMv, yshMv), new TransformerModel(zLv, yshLv));
+        }
+
+        private static Complex assignShuntAdmittanceToWinding(Complex ysh, OptionalInt i3loc, WindingType winding) {
+            int position = i3loc.isPresent() ? i3loc.getAsInt() : 0; // by default position 0
+            return winding.equals(positionToWinding(position)) ? ysh : Complex.ZERO;
         }
     }
 
@@ -540,26 +551,16 @@ class TransformerConverter extends AbstractConverter {
             OptionalInt iMeasTap = elmTr3.findIntAttributeValue("iMeasTap");
             Optional<RealMatrix> mTaps = elmTr3.findDoubleMatrixAttributeValue("mTaps");
 
-            hv.mTaps = Optional.empty();
-            mv.mTaps = Optional.empty();
-            lv.mTaps = Optional.empty();
-            if (iMeasTap.isPresent() && mTaps.isPresent()) {
-                switch (iMeasTap.getAsInt()) {
-                    case 0:
-                        hv.mTaps = mTaps;
-                        break;
-                    case 1:
-                        mv.mTaps = mTaps;
-                        break;
-                    case 2:
-                        lv.mTaps = mTaps;
-                        break;
-                    default:
-                        throw new PowsyblException("Unexpected iMeasTap attribute");
-                }
-            }
+            hv.mTaps = assignResourceTableToWinding(mTaps, iMeasTap, WindingType.HV);
+            mv.mTaps = assignResourceTableToWinding(mTaps, iMeasTap, WindingType.MV);
+            lv.mTaps = assignResourceTableToWinding(mTaps, iMeasTap, WindingType.LV);
 
             return new TapChangerPar3w(hv, mv, lv);
+        }
+
+        private static Optional<RealMatrix> assignResourceTableToWinding(Optional<RealMatrix> mTaps, OptionalInt iMeasTap, WindingType winding) {
+            int position = iMeasTap.isPresent() ? iMeasTap.getAsInt() : 0; // by default position 0
+            return winding.equals(positionToWinding(position)) ? mTaps : Optional.empty();
         }
     }
 
@@ -790,6 +791,19 @@ class TransformerConverter extends AbstractConverter {
             Collections.addAll(windingTypeEnds, WindingType.LV, WindingType.MV, WindingType.HV);
         }
         return windingTypeEnds;
+    }
+
+    private static WindingType positionToWinding(int position) {
+        switch (position) {
+            case 0:
+                return WindingType.HV;
+            case 1:
+                return WindingType.MV;
+            case 2:
+                return WindingType.LV;
+            default:
+                throw new PowsyblException("Unexpected position: " + position);
+        }
     }
 }
 
