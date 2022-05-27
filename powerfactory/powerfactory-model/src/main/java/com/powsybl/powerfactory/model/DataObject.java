@@ -371,14 +371,11 @@ public class DataObject {
         return this;
     }
 
+    // from json, recorded as a RealMatrix
+    // from dgs, recorded as a flat list
     public Optional<RealMatrix> findDoubleMatrixAttributeValue(String name) {
-        // from json, recorded as a RealMatrix
         Optional<RealMatrix> realMatrix = findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
-        if (realMatrix.isPresent()) {
-            return realMatrix;
-        }
-        // from dgs, recorded as a flat list
-        return findAndParseDoubleMatrixAttributeValueFromDgs(name);
+        return realMatrix.isPresent() ? realMatrix : findAndParseDoubleMatrixAttributeValueFromDgs(name);
     }
 
     private Optional<RealMatrix> findAndParseDoubleMatrixAttributeValueFromDgs(String name) {
