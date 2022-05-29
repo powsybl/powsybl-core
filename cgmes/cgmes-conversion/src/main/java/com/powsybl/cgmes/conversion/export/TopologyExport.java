@@ -60,7 +60,9 @@ public final class TopologyExport {
     private static void writeBusTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusView().getBuses()) {
             for (Terminal t : b.getConnectedTerminals()) {
-                writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
+                if (context.isExportedEquipment(t.getConnectable())) {
+                    writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeFromIidmBus(b, context), cimNamespace, writer);
+                }
             }
         }
     }
@@ -194,7 +196,7 @@ public final class TopologyExport {
             for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
                 if (topologicalNode.getSource().equals(Source.IGM)) {
                     String baseVoltage = context.getBaseVoltageByNominalVoltage(b.getVoltageLevel().getNominalV()).getId();
-                    writeTopologicalNode(topologicalNode.getCgmesId(), topologicalNode.getName(), b.getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
+                    writeTopologicalNode(topologicalNode.getCgmesId(), topologicalNode.getName(), context.getNamingStrategy().getCgmesId(b.getVoltageLevel()), baseVoltage, cimNamespace, writer);
                 }
             }
         }
@@ -207,7 +209,7 @@ public final class TopologyExport {
                 CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode = context.getUnmappedTopologicalNode(topologicalNodeId.get());
                 if (cgmesTopologicalNode != null && cgmesTopologicalNode.getSource().equals(Source.IGM)) {
                     String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getBoundary().getVoltageLevel().getNominalV()).getId();
-                    writeTopologicalNode(cgmesTopologicalNode.getCgmesId(), dl.getNameOrId(), dl.getBoundary().getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
+                    writeTopologicalNode(cgmesTopologicalNode.getCgmesId(), dl.getNameOrId(), context.getNamingStrategy().getCgmesId(dl.getBoundary().getVoltageLevel()), baseVoltage, cimNamespace, writer);
                 }
             }
         }

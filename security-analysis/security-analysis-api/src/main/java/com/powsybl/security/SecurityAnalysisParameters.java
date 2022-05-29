@@ -7,16 +7,12 @@
 package com.powsybl.security;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionConfigLoader;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * Parameters for security analysis computation.
@@ -27,20 +23,9 @@ import java.util.function.Supplier;
  */
 public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnalysisParameters> {
 
-    /**
-     * A configuration loader interface for the SecurityAnalysisParameters extensions loaded from the platform configuration
-     *
-     * @param <E> The extension class
-     */
-    public interface ConfigLoader<E extends Extension<SecurityAnalysisParameters>> extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
-    }
-
     // VERSION = 1.0
     // VERSION = 1.1 IncreasedViolationsParameters adding.
     public static final String VERSION = "1.1";
-
-    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "security-analysis-parameters"));
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
@@ -176,17 +161,15 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
                             .setLowVoltageAbsoluteThreshold(config.getDoubleProperty("increased-low-voltage-violations-absolute-threshold", IncreasedViolationsParameters.DEFAULT_LOW_VOLTAGE_ABSOLUTE_THRESHOLD))
                             .setHighVoltageAbsoluteThreshold(config.getDoubleProperty("increased-high-voltage-violations-absolute-threshold", IncreasedViolationsParameters.DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD));
                 });
-
         parameters.readExtensions(platformConfig);
-
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
-
         return parameters;
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
-        for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
-            addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+        for (SecurityAnalysisProvider provider : new ServiceLoaderCache<>(SecurityAnalysisProvider.class).getServices()) {
+            provider.loadSpecificParameters(platformConfig).ifPresent(securityAnalysisParametersExtension ->
+                    addExtension((Class) securityAnalysisParametersExtension.getClass(), securityAnalysisParametersExtension));
         }
     }
 
