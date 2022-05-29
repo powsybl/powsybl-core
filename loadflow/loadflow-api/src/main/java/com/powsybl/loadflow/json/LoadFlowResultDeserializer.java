@@ -41,6 +41,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         Integer iterationCount = null;
         String slackBusId = null;
         Double slackBusActivePowerMismatch = null;
+        Double distributedActivePower = null;
         ModuleDescriptor.Version cVersion = ModuleDescriptor.Version.parse(version);
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -83,8 +84,14 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     slackBusActivePowerMismatch = parser.getValueAsDouble();
                     break;
 
+                case "distributedActivePower":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.3");
+                    parser.nextToken();
+                    distributedActivePower = parser.getValueAsDouble();
+                    break;
+
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
@@ -105,8 +112,11 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         if (slackBusActivePowerMismatch == null) {
             throw new IllegalStateException("Slack bus active power mismatch field not found.");
         }
+        if (distributedActivePower == null) {
+            throw new IllegalStateException("Distributed active power field not found.");
+        }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch);
+        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch, distributedActivePower);
     }
 
     public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults, String version) throws IOException {

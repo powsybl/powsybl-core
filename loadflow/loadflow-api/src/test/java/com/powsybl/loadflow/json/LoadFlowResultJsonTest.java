@@ -44,7 +44,7 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     private static LoadFlowResult createVersion12() {
-        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3)));
+        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, 0)));
     }
 
     @Test
