@@ -34,7 +34,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   List<PostContingencyResult> postContingencyResults,
                                   List<BranchResult> preContingencyBranchResults,
-                                  List<BusResults> preContingencyBusResults,
+                                  List<BusResult> preContingencyBusResults,
                                   List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
         this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults,
                 preContingencyBusResults,
