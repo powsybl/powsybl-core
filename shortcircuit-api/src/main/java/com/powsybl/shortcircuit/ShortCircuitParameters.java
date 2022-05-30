@@ -36,7 +36,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
-    private boolean withFeederResult = WITH_FEEDER_RESULT;
+    private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
+    private boolean withVoltageMap = DEFAULT_WITH_VOLTAGE_MAP;
+    private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
 
@@ -53,7 +55,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         ShortCircuitParameters parameters = new ShortCircuitParameters();
 
         platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
-                parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", WITH_FEEDER_RESULT))
+                parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
+                        .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
+                        .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
 
@@ -66,6 +70,24 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         for (ConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
+    }
+
+    public boolean isWithLimitViolations() {
+        return withLimitViolations;
+    }
+
+    public ShortCircuitParameters setWithLimitViolations(boolean withLimitViolations) {
+        this.withLimitViolations = withLimitViolations;
+        return this;
+    }
+
+    public boolean isWithVoltageMap() {
+        return withVoltageMap;
+    }
+
+    public ShortCircuitParameters setWithVoltageMap(boolean withVoltageMap) {
+        this.withVoltageMap = withVoltageMap;
+        return this;
     }
 
     public boolean isWithFeederResult() {

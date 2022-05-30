@@ -41,6 +41,14 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "version":
                     parser.nextToken(); // skip
                     break;
+                case "withLimitViolations":
+                    parser.nextToken();
+                    parameters.setWithLimitViolations(parser.readValueAs(Boolean.class));
+                    break;
+                case "withVoltageMap":
+                    parser.nextToken();
+                    parameters.setWithVoltageMap(parser.readValueAs(Boolean.class));
+                    break;
                 case "withFeederResult":
                     parser.nextToken();
                     parameters.setWithFeederResult(parser.readValueAs(Boolean.class));

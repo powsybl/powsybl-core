@@ -184,8 +184,11 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/config.yml"), cfgFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
-        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageMap());
         assertFalse(parameters.isWithFeederResult());
+        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
     }
 
     @AutoService(ShortCircuitParameters.ConfigLoader.class)

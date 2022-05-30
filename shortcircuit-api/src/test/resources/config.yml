@@ -1,3 +1,6 @@
 short-circuit-parameters:
+  with-limit-violations: false
+  with-voltage-map: false
   study-type: "SUB_TRANSIENT"
-  withFeederResult: false
+  with-feeder-result: false
+  min-voltage-drop-proportional-threshold: 1.2
