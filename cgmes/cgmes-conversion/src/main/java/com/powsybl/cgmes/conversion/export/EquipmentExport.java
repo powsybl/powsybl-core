@@ -248,7 +248,7 @@ public final class EquipmentExport {
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-            String regulatingControlId = RegulatingControlEq.write(generator, exportedTerminalId(exportedTerminals, generator.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer);
+            String regulatingControlId = RegulatingControlEq.writeKindVoltage(generator, exportedTerminalId(exportedTerminals, generator.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer);
             String reactiveLimitsId = null;
             double minQ = 0.0;
             double maxQ = 0.0;
@@ -290,7 +290,7 @@ public final class EquipmentExport {
                 bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
                 gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
             }
-            String regulatingControlId = RegulatingControlEq.write(s, exportedTerminalId(exportedTerminals, s.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer);
+            String regulatingControlId = RegulatingControlEq.writeKindVoltage(s, exportedTerminalId(exportedTerminals, s.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer);
             ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId, cimNamespace, writer);
             if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
                 double b = 0.0;
@@ -307,7 +307,7 @@ public final class EquipmentExport {
     private static void writeStaticVarCompensators(Network network, Map<Terminal, String> exportedTerminals, Set<String> regulatingControlsWritten, String cimNamespace,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            String regulatingControlId = RegulatingControlEq.write(svc, exportedTerminalId(exportedTerminals, svc.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer);
+            String regulatingControlId = RegulatingControlEq.writeKindVoltage(svc, exportedTerminalId(exportedTerminals, svc.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer);
             StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(), regulatingControlId, 1 / svc.getBmin(), 1 / svc.getBmax(), svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, writer);
         }
     }

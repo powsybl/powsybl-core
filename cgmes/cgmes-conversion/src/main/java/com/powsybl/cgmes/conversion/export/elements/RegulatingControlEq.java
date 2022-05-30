@@ -24,17 +24,17 @@ public final class RegulatingControlEq {
 
     public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
 
-    public static String write(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static String writeKindVoltage(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         String regulatingControlId = c.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
         if (regulatingControlId != null && !regulatingControlsWritten.contains(regulatingControlId)) {
             String regulatingControlName = "RC_" + c.getNameOrId();
-            RegulatingControlEq.write(regulatingControlId, regulatingControlName, terminalId, cimNamespace, writer);
+            RegulatingControlEq.writeKindVoltage(regulatingControlId, regulatingControlName, terminalId, cimNamespace, writer);
             regulatingControlsWritten.add(regulatingControlId);
         }
         return regulatingControlId;
     }
 
-    private static void write(String id, String regulatingControlName, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeKindVoltage(String id, String regulatingControlName, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("RegulatingControl", id, regulatingControlName, cimNamespace, writer);
         CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
