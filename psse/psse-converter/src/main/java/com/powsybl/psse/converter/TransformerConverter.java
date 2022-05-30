@@ -92,7 +92,11 @@ class TransformerConverter extends AbstractConverter {
         TapChanger tapChangerAdjustedRatio = tapChangerAdjustmentAfterMovingRatio(tapChanger, w2);
 
         // move ysh between w1 and z
-        TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChangerAdjustedRatio);
+        // Ysh_eu = Ysh_pu * sbase / (vn1 *vn1) Convert Ysh per unit to engineering units
+        // Ysh_eu_moved = Ysh_eu * (ratedU1 / ratedU2) * (ratedU1 / ratedU2) Apply the structural ratio when moving
+        // Ysh_eu_moved = Ysh_eu * sbase / (vn2 * vn2) as ratedU1 = vn1 and ratedU2 ) vn2
+        // As vn2 is used to convert to eu, only the ratio remains to be applied
+        TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChangerAdjustedRatio);
 
         TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newTwoWindingsTransformer())
             .setId(id)
@@ -173,7 +177,7 @@ class TransformerConverter extends AbstractConverter {
         ysh = admittanceToEngineeringUnits(ysh, v0, perUnitContext.getSb());
 
         // move ysh between w1 and z
-        TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChanger1);
+        TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChanger1);
 
         ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation().map(Substation::newThreeWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newThreeWindingsTransformer())
             .setRatedU0(v0)
@@ -474,8 +478,8 @@ class TransformerConverter extends AbstractConverter {
         return impedance.multiply(a * a);
     }
 
-    private static double admittanceAdjustmentAfterMovingRatio(double admittance, Complex a) {
-        return admittance / (a.abs() * a.abs());
+    private static double admittanceAdjustmentAfterMovingItBetweenRatioAndTransmissionImpedance(double admittance, Complex a) {
+        return admittance * a.abs() * a.abs();
     }
 
     private TapChanger tapChangerAdjustmentAfterMovingRatio(TapChanger tapChanger, double a) {
@@ -483,12 +487,12 @@ class TransformerConverter extends AbstractConverter {
         return tapChanger;
     }
 
-    private TapChanger tapChangerAdjustmentAfterMovingShuntAdmittance(TapChanger tapChanger) {
+    private TapChanger tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(TapChanger tapChanger) {
         tapChanger.getSteps().forEach(step -> {
 
             Complex a = new Complex(step.getRatio() * Math.cos(Math.toRadians(step.getAngle())), step.getRatio() * Math.sin(Math.toRadians(step.getAngle())));
-            step.setG1(100 * (admittanceAdjustmentAfterMovingRatio(1 + step.getG1() / 100, a) - 1));
-            step.setB1(100 * (admittanceAdjustmentAfterMovingRatio(1 + step.getB1() / 100, a) - 1));
+            step.setG1(100 * (admittanceAdjustmentAfterMovingItBetweenRatioAndTransmissionImpedance(1 + step.getG1() / 100, a) - 1));
+            step.setB1(100 * (admittanceAdjustmentAfterMovingItBetweenRatioAndTransmissionImpedance(1 + step.getB1() / 100, a) - 1));
         });
 
         return tapChanger;

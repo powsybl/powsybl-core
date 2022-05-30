@@ -6,8 +6,7 @@
  */
 package com.powsybl.security.results;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.commons.extensions.AbstractExtendable;
 
 import java.util.Objects;
 
@@ -18,7 +17,7 @@ import java.util.Objects;
  * it is the result of the bus id specified in StateMonitor.
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class BusResults {
+public class BusResult extends AbstractExtendable<BusResult> {
 
     private final String voltageLevelId;
 
@@ -28,13 +27,11 @@ public class BusResults {
 
     private final double angle;
 
-    @JsonCreator
-    public BusResults(@JsonProperty("voltageLevelId") String voltageLevelId, @JsonProperty("busId") String busId,
-                      @JsonProperty("v") double v, @JsonProperty("angle") double angle) {
+    public BusResult(String voltageLevelId, String busId, double v, double angle) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.busId = Objects.requireNonNull(busId);
-        this.v = Objects.requireNonNull(v);
-        this.angle = Objects.requireNonNull(angle);
+        this.v = v;
+        this.angle = angle;
     }
 
     @Override
@@ -45,7 +42,7 @@ public class BusResults {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        BusResults that = (BusResults) o;
+        BusResult that = (BusResult) o;
         return Double.compare(that.v, v) == 0 &&
             Double.compare(that.angle, angle) == 0 &&
             Objects.equals(voltageLevelId, that.voltageLevelId) &&
