@@ -1,5 +1,7 @@
 [ {
   "id" : "f00",
+  "withFeederResult" : true,
+  "studyType" : "STEADY_STATE",
   "minVoltageDropProportionalThreshold" : 1.0
 }, {
   "id" : "f01",

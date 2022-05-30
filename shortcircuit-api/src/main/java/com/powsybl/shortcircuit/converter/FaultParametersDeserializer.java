@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.StudyType;
 
 import java.io.IOException;
 
@@ -28,6 +29,8 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         String id = null;
         boolean withLimitViolations = false;
         boolean withVoltageMap = false;
+        boolean withFeederResult = false;
+        StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -47,6 +50,16 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     withVoltageMap = parser.readValueAs(Boolean.class);
                     break;
 
+                case "withFeederResult":
+                    parser.nextToken();
+                    withFeederResult = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "studyType":
+                    parser.nextToken();
+                    type = StudyType.valueOf(parser.readValueAs(String.class));
+                    break;
+
                 case "minVoltageDropProportionalThreshold":
                     parser.nextToken();
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
@@ -56,6 +69,6 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageMap, minVoltageDropProportionalThreshold);
+        return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold);
     }
 }

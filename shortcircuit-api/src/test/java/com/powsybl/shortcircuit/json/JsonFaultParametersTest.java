@@ -8,12 +8,15 @@ package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.StudyType;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -23,11 +26,16 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, 1.0));
-        parameters.add(new FaultParameters("f01", false, true, Double.NaN));
-        parameters.add(new FaultParameters("f10", true, false, Double.NaN));
-        parameters.add(new FaultParameters("f11", true, true, Double.NaN));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN));
+        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
+
+        assertNotNull(parameters.get(0));
+        assertNotEquals(parameters.get(0), parameters.get(1));
+        assertNotEquals(parameters.get(0).hashCode(), parameters.get(2).hashCode());
+        assertEquals(parameters.get(0), parameters.get(0));
     }
 
     @Test
