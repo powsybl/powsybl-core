@@ -504,6 +504,8 @@ public final class NetworkXml {
             checkExtensionsNotFound(context, extensionNamesNotFound);
 
             context.getEndTasks().forEach(Runnable::run);
+            reader.close();
+            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
