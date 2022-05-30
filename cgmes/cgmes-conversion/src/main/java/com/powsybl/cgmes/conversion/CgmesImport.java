@@ -336,7 +336,8 @@ public class CgmesImport implements Importer {
         PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
         ParameterType.STRING,
         "Profile used for initial state values",
-        "SSH")
+        "SSH",
+            List.of("SSH", "SV"))
         .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
