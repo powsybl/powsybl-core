@@ -18,9 +18,11 @@ import com.powsybl.iidm.parameters.ParameterType;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -36,10 +38,10 @@ public class AmplExporter implements Exporter {
     public static final String TWT_SPLIT_SHUNT_ADMITTANCE = "iidm.export.ampl.twt-split-shunt-admittance";
 
     private static final Parameter EXPORT_SCOPE_PARAMETER = new Parameter(EXPORT_SCOPE, ParameterType.STRING, "Export scope", "ALL",
-            List.of("ALL", "ONLY_MAIN_CC", "ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS", "ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS"));
+            Arrays.stream(AmplExportConfig.ExportScope.values()).map(Enum::toString).collect(Collectors.toList()));
     private static final Parameter EXPORT_XNODES_PARAMETER = new Parameter(EXPORT_XNODES, ParameterType.BOOLEAN, "Export Xnodes of tie-lines", Boolean.FALSE);
     private static final Parameter EXPORT_ACTION_TYPE_PARAMETER = new Parameter(EXPORT_ACTION_TYPE, ParameterType.STRING, "Type of the remedial actions (preventive or curative)", "CURATIVE",
-            List.of("CURATIVE", "PREVENTIVE"));
+            Arrays.stream(AmplExportConfig.ExportActionType.values()).map(Enum::toString).collect(Collectors.toList()));
     private static final Parameter EXPORT_RATIOTAPCHANGER_VT_PARAMETER = new Parameter(EXPORT_RATIOTAPCHANGER_VT, ParameterType.BOOLEAN, "Export ratio tap changer voltage target", Boolean.FALSE)
             .addAdditionalNames("iidm.export.ampl.exportRatioTapChangerVoltageTarget");
     private static final Parameter TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER = new Parameter(TWT_SPLIT_SHUNT_ADMITTANCE, ParameterType.BOOLEAN, "Export twt split shunt admittance", Boolean.FALSE)
