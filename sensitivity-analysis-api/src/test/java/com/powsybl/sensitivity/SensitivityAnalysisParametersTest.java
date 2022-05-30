@@ -13,12 +13,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.json.SensitivityJson;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
-    private final ObjectMapper objectMapper = SensitivityJson.createObjectMapper();
+    private final ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
 
     static class DummyExtension extends AbstractExtension<SensitivityAnalysisParameters> {
         public double parameterDouble;
@@ -79,8 +78,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         }
     }
 
-    @AutoService(SensitivityJson.ExtensionSerializer.class)
-    public static class DummySerializer implements SensitivityJson.ExtensionSerializer<DummyExtension> {
+    public static class DummySerializer implements ExtensionJsonSerializer<SensitivityAnalysisParameters, DummyExtension> {
         private interface SerializationSpec {
 
             @JsonIgnore
@@ -159,30 +157,6 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
-    @AutoService(SensitivityAnalysisParameters.ConfigLoader.class)
-    public static class DummyLoader implements SensitivityAnalysisParameters.ConfigLoader<DummyExtension> {
-
-        @Override
-        public DummyExtension load(PlatformConfig platformConfig) {
-            return new DummyExtension();
-        }
-
-        @Override
-        public String getExtensionName() {
-            return DUMMY_EXTENSION_NAME;
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "sensitivity-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
-    }
-
     @Test
     public void roundTrip() throws IOException {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
@@ -196,7 +170,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
-            AbstractConverterTest::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
+                AbstractConverterTest::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
     @Test

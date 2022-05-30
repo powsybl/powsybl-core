@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion.export;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.NamingStrategy;
+import com.powsybl.cgmes.conversion.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -41,6 +43,8 @@ public class CgmesExportContext {
     private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
     private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfile("SV"));
     private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfile("SSH"));
+
+    private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
@@ -172,6 +176,11 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network, boolean withTopologicalMapping) {
+        this(network, withTopologicalMapping, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
+    }
+
+    public CgmesExportContext(Network network, boolean withTopologicalMapping, NamingStrategy namingStrategy) {
+        this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
             setCimVersion(cimCharacteristics.getCimVersion());
@@ -233,18 +242,23 @@ public class CgmesExportContext {
 
     private void addIidmMappingsSubstations(Network network) {
         for (Substation substation : network.getSubstations()) {
-            String country = substation.getCountry().map(Country::name).orElseGet(network::getNameOrId);
+            String regionName = substation.getCountry().map(Country::name).orElse("default region");
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
-                String id = regionsIdsByRegionName.computeIfAbsent(country, k -> CgmesExportUtil.getUniqueId());
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", id);
+                String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId());
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
             } else {
-                regionsIdsByRegionName.computeIfAbsent(country, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId"));
+                // Only add with this name if the id is not already mapped
+                // We can not have the same id mapped to two different names
+                String regionId = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
+                if (!regionsIdsByRegionName.containsValue(regionId)) {
+                    regionsIdsByRegionName.computeIfAbsent(regionName, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId"));
+                }
             }
             String geoTag;
             if (substation.getGeographicalTags().size() == 1) {
                 geoTag = substation.getGeographicalTags().iterator().next();
             } else {
-                geoTag = country;
+                geoTag = regionName;
             }
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
                 String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> CgmesExportUtil.getUniqueId());
@@ -256,7 +270,7 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsTopologicalNodes(CgmesIidmMapping mapping, Network network) {
-        updateTopologicalNodesMapping(mapping, network);
+        updateTopologicalNodesMapping(mapping, network, namingStrategy);
         Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> tnsByBus = mapping.topologicalNodesByBusViewBusMap();
         topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
         unmappedTopologicalNodes.addAll(mapping.getUnmappedTopologicalNodes());
@@ -267,25 +281,29 @@ public class CgmesExportContext {
     }
 
     public static void updateTopologicalNodesMapping(Network network) {
+        updateTopologicalNodesMapping(network, new NamingStrategy.Identity());
+    }
+
+    public static void updateTopologicalNodesMapping(Network network, NamingStrategy namingStrategy) {
         CgmesIidmMapping mapping = network.getExtension(CgmesIidmMapping.class);
         if (mapping != null) {
-            updateTopologicalNodesMapping(mapping, network);
+            updateTopologicalNodesMapping(mapping, network, namingStrategy);
         }
     }
 
-    private static void updateTopologicalNodesMapping(CgmesIidmMapping mapping, Network network) {
+    private static void updateTopologicalNodesMapping(CgmesIidmMapping mapping, Network network, NamingStrategy namingStrategy) {
         if (mapping.isTopologicalNodeEmpty()) {
             // If we do not have an explicit mapping
             // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
             // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
             // If we consider only connected terminals we would miss configured buses that only have connections through switches
             // Switches do not add as terminals
-            // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
+            // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    computeBusBreakerTopologicalNodeMapping(vl, mapping::putTopologicalNode);
+                    computeBusBreakerTopologicalNodeMapping(vl, namingStrategy, mapping::putTopologicalNode);
                 } else {
-                    computeNodeBreakerTopologicalNodesMapping(vl, mapping::putTopologicalNode);
+                    computeNodeBreakerTopologicalNodesMapping(vl, namingStrategy, mapping::putTopologicalNode);
                 }
             }
         }
@@ -294,34 +312,33 @@ public class CgmesExportContext {
     private void addIidmMappingsTopologicalNodes(Network network) {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                computeBusBreakerTopologicalNodeMapping(vl, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
+                computeBusBreakerTopologicalNodeMapping(vl, namingStrategy, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
                         .computeIfAbsent(iidmId, key -> new HashSet<>())
                         .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
             } else {
-                computeNodeBreakerTopologicalNodesMapping(vl, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
+                computeNodeBreakerTopologicalNodesMapping(vl, namingStrategy, (iidmId, cgmesId, cgmesName, source) -> topologicalNodeByBusViewBusMapping
                         .computeIfAbsent(iidmId, key -> new HashSet<>())
                         .add(new CgmesIidmMapping.CgmesTopologicalNode(cgmesId, cgmesName, source)));
             }
         }
     }
 
-    private static void computeBusBreakerTopologicalNodeMapping(VoltageLevel vl, TopologicalConsumer addTnMapping) {
+    private static void computeBusBreakerTopologicalNodeMapping(VoltageLevel vl, NamingStrategy namingStrategy, TopologicalConsumer addTnMapping) {
         for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
             Bus busViewBus;
-            String topologicalNode;
             // Bus/breaker IIDM networks have been created from bus/branch CGMES data
             // CGMES Topological Nodes have been used as configured bus identifiers
-            topologicalNode = configuredBus.getId();
+            String topologicalNodeId = namingStrategy.getCgmesId(configuredBus);
 
             busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
-            if (busViewBus != null && topologicalNode != null) {
+            if (busViewBus != null && topologicalNodeId != null) {
                 String topologicalNodeName = configuredBus.getNameOrId();
-                addTnMapping.accept(busViewBus.getId(), configuredBus.getId(), topologicalNodeName, Source.IGM);
+                addTnMapping.accept(busViewBus.getId(), topologicalNodeId, topologicalNodeName, Source.IGM);
             }
         }
     }
 
-    private static void computeNodeBreakerTopologicalNodesMapping(VoltageLevel vl, TopologicalConsumer addTnMapping) {
+    private static void computeNodeBreakerTopologicalNodesMapping(VoltageLevel vl, NamingStrategy namingStrategy, TopologicalConsumer addTnMapping) {
         for (int node : vl.getNodeBreakerView().getNodes()) {
             Bus busViewBus;
             String topologicalNode;
@@ -334,8 +351,9 @@ public class CgmesExportContext {
                     topologicalNode = bus.getId();
                     busViewBus = terminal.getBusView().getBus();
                     if (topologicalNode != null && busViewBus != null) {
+                        String topologicalNodeId = namingStrategy.getCgmesId(bus);
                         String topologicalNodeName = bus.getNameOrId();
-                        addTnMapping.accept(busViewBus.getId(), bus.getId(), topologicalNodeName, Source.IGM);
+                        addTnMapping.accept(busViewBus.getId(), topologicalNodeId, topologicalNodeName, Source.IGM);
                     }
                 }
             }
@@ -644,6 +662,15 @@ public class CgmesExportContext {
 
     public CgmesNamespace.Cim getCim() {
         return cim;
+    }
+
+    public NamingStrategy getNamingStrategy() {
+        return namingStrategy;
+    }
+
+    public CgmesExportContext setNamingStrategy(NamingStrategy namingStrategy) {
+        this.namingStrategy = Objects.requireNonNull(namingStrategy);
+        return this;
     }
 
     public Set<CgmesIidmMapping.CgmesTopologicalNode> getTopologicalNodesByBusViewBus(String busId) {
