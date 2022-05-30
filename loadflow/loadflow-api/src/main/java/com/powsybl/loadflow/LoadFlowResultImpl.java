@@ -30,13 +30,17 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final double slackBusActivePowerMismatch;
 
-        public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status, int iterationCount, String slackBusId, double slackBusActivePowerMismatch) {
+        private final double distributedActivePower;
+
+        public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status, int iterationCount,
+                                   String slackBusId, double slackBusActivePowerMismatch, double distributedActivePower) {
             this.connectedComponentNum = checkComponentNum(connectedComponentNum);
+            this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
             this.status = Objects.requireNonNull(status);
             this.iterationCount = checkIterationCount(iterationCount);
             this.slackBusId = Objects.requireNonNull(slackBusId);
             this.slackBusActivePowerMismatch = slackBusActivePowerMismatch;
-            this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
+            this.distributedActivePower = distributedActivePower;
         }
 
         private static int checkComponentNum(int componentNum) {
@@ -81,6 +85,11 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         @Override
         public double getSlackBusActivePowerMismatch() {
             return slackBusActivePowerMismatch;
+        }
+
+        @Override
+        public double getDistributedActivePower() {
+            return distributedActivePower;
         }
     }
 

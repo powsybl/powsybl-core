@@ -18,7 +18,7 @@ import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.assertj.core.api.Assertions;
@@ -66,17 +66,13 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
 
-        List<BranchResult> preContingencyBranchResults = new ArrayList<>();
-        preContingencyBranchResults.add(new BranchResult("branch1", 0, 0, 0, 0, 0, 0));
-        preContingencyBranchResults.add(new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
-        List<BusResults> preContingencyBusResults = new ArrayList<>();
-        preContingencyBusResults.add(new BusResults("voltageLevelId", "busId", 400, 3.14));
-        List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
-        threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
-            0, 0, 0, 0, 0, 0, 0, 0, 0));
+        List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
+                                                                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
+        List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
+        List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
 
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult),
-            preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults);
+                                                                   preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
     }
