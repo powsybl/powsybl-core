@@ -30,7 +30,7 @@ public final class EquipmentExport {
     private static final String CONNECTIVITY_NODE_SUFFIX = "CN";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
-    private static final String PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
+    private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -490,7 +490,7 @@ public final class EquipmentExport {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal());
                 // Regulating control mode is always "voltage"
-                TapChangerEq.writeControl(regulatingControlId.get(), controlName, PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE, terminalId, cimNamespace, writer);
+                TapChangerEq.writeControl(regulatingControlId.get(), controlName, RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE, terminalId, cimNamespace, writer);
                 regulatingControlsWritten.add(regulatingControlId.get());
             }
         }
