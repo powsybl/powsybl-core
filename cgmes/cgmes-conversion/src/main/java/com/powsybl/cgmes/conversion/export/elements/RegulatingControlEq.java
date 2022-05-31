@@ -22,6 +22,7 @@ public final class RegulatingControlEq {
     public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
 
     public static void write(String id, String regulatingControlName, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        // FIXME(Luma) Obtain id through naming strategy after #2148 is merged
         CgmesExportUtil.writeStartIdName("RegulatingControl", id, regulatingControlName, cimNamespace, writer);
         CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");

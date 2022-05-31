@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -25,6 +26,18 @@ public interface NamingStrategy {
 
     default String getCgmesId(Identifiable<?> identifiable, String subObject) {
         return identifiable.getId() + "_" + subObject;
+    }
+
+    default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
+        return identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+    }
+
+    default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
+        return identifiable.getProperty(propertyName);
+    }
+
+    default String getCgmesId(String identifier) {
+        return identifier;
     }
 
     String getName(String type, String name);

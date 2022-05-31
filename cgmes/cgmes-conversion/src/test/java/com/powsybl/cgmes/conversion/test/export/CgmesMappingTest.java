@@ -198,7 +198,9 @@ public class CgmesMappingTest extends AbstractConverterTest {
                         cgmes.regulatingControls().stream().map(o -> o.getId("RegulatingControl")),
                         cgmes.controlAreas().stream().map(o -> o.getId("ControlArea")),
                         cgmes.synchronousMachines().stream().map(o -> o.getId("GeneratingUnit")),
-                        cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit"))
+                        cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit")),
+                        cgmes.substations().stream().map(o -> o.getId("Region")),
+                        cgmes.substations().stream().map(o -> o.getId("SubRegion"))
                 )
                 .flatMap(id -> id)
                 .filter(id -> !CgmesExportUtil.isValidCimMasterRID(id));
