@@ -18,7 +18,6 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.lang.module.ModuleDescriptor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -41,7 +40,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         Integer iterationCount = null;
         String slackBusId = null;
         Double slackBusActivePowerMismatch = null;
-        ModuleDescriptor.Version cVersion = ModuleDescriptor.Version.parse(version);
+        Double distributedActivePower = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -83,13 +82,19 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     slackBusActivePowerMismatch = parser.getValueAsDouble();
                     break;
 
+                case "distributedActivePower":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.3");
+                    parser.nextToken();
+                    distributedActivePower = parser.getValueAsDouble();
+                    break;
+
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
         if (connectedComponentNum == null) {
-            if (cVersion.compareTo(ModuleDescriptor.Version.parse("1.2")) < 0) {
+            if (version.compareTo("1.2") < 0) {
                 connectedComponentNum = 0;
             } else {
                 throw new IllegalStateException("Connected component number field not found.");
@@ -105,8 +110,15 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         if (slackBusActivePowerMismatch == null) {
             throw new IllegalStateException("Slack bus active power mismatch field not found.");
         }
+        if (distributedActivePower == null) {
+            if (version.compareTo("1.3") < 0) {
+                distributedActivePower = Double.NaN;
+            } else {
+                throw new IllegalStateException("Distributed active power field not found.");
+            }
+        }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch);
+        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch, distributedActivePower);
     }
 
     public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults, String version) throws IOException {

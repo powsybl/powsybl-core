@@ -124,6 +124,12 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
     }
 
     /**
+     * Updates implementation-specific parameters from a Map.
+     */
+    default void updateSpecificParameters(Extension<SecurityAnalysisParameters> extension, Map<String, String> properties) {
+    }
+
+    /**
      *
      * @return The name of the loadflow used for the security analysis.
      */

@@ -11,7 +11,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.*;
 import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.junit.Test;
@@ -42,11 +42,11 @@ public class PostContingencyResultTest extends AbstractConverterTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0));
         Map<String, BranchResult> branchResults = new HashMap<>();
         branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
-        Map<String, BusResults> busResults = new HashMap<>();
-        busResults.put("busId", new BusResults("voltageLevelId", "busId", 400, 3.14));
+        Map<String, BusResult> busResults = new HashMap<>();
+        busResults.put("busId", new BusResult("voltageLevelId", "busId", 400, 3.14));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, result, branchResults, busResults, threeWindingsTransformerResults);
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getBranchResult("branchId"));
-        assertEquals(new BusResults("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getBusResult("busId"));
+        assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getThreeWindingsTransformerResult("threeWindingsTransformerId"));
     }
@@ -61,8 +61,8 @@ public class PostContingencyResultTest extends AbstractConverterTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0));
         Map<String, BranchResult> branchResults = new HashMap<>();
         branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
-        Map<String, BusResults> busResults = new HashMap<>();
-        busResults.put("busId", new BusResults("voltageLevelId", "busId", 400, 3.14));
+        Map<String, BusResult> busResults = new HashMap<>();
+        busResults.put("busId", new BusResult("voltageLevelId", "busId", 400, 3.14));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, result, branchResults, busResults, threeWindingsTransformerResults);
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
