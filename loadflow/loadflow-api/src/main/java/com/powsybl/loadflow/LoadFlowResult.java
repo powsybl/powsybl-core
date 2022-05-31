@@ -64,6 +64,13 @@ public interface LoadFlowResult {
          * @return the slack bus active power mismatch in MW
          */
         double getSlackBusActivePowerMismatch();
+
+        /**
+         * If distributed slack is activated {@link LoadFlowParameters#isDistributedSlack()}, the active power in MW
+         * that has been distributed from slack bus to generators/loads (depending of {@link LoadFlowParameters#getBalanceType()} value)
+         * @return the active power in MW that has been distributed
+         */
+        double getDistributedActivePower();
     }
 
     /**

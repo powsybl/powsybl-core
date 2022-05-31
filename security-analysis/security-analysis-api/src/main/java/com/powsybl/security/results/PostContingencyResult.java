@@ -27,7 +27,7 @@ public class PostContingencyResult {
 
     private final Map<String, BranchResult> branchResults;
 
-    private final Map<String, BusResults> busResults;
+    private final Map<String, BusResult> busResults;
 
     private final Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults;
 
@@ -35,14 +35,14 @@ public class PostContingencyResult {
         this(contingency, limitViolationsResult, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults, List<BusResults> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults, List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
         this(contingency, limitViolationsResult,
             branchResults.stream().collect(Collectors.toMap(BranchResult::getBranchId, Function.identity())),
-            busResults.stream().collect(Collectors.toMap(BusResults::getBusId, Function.identity())),
+            busResults.stream().collect(Collectors.toMap(BusResult::getBusId, Function.identity())),
             threeWindingsTransformerResults.stream().collect(Collectors.toMap(ThreeWindingsTransformerResult::getThreeWindingsTransformerId, Function.identity())));
     }
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, Map<String, BranchResult> branchResults, Map<String, BusResults> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, Map<String, BranchResult> branchResults, Map<String, BusResult> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
         this.contingency = Objects.requireNonNull(contingency);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.branchResults = ImmutableMap.copyOf(Objects.requireNonNull(branchResults));
@@ -51,7 +51,7 @@ public class PostContingencyResult {
     }
 
     public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations,
-                                 Map<String, BranchResult> branchResults, Map<String, BusResults> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+                                 Map<String, BranchResult> branchResults, Map<String, BusResult> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
         this(contingency, new LimitViolationsResult(computationOk, limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults);
     }
 
@@ -64,7 +64,7 @@ public class PostContingencyResult {
     }
 
     public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations,
-                                 List<String> actionsTaken, Map<String, BranchResult> branchResults, Map<String, BusResults> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+                                 List<String> actionsTaken, Map<String, BranchResult> branchResults, Map<String, BusResult> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
         this(contingency, new LimitViolationsResult(computationOk, limitViolations, actionsTaken), branchResults, busResults, threeWindingsTransformerResults);
     }
 
@@ -85,12 +85,12 @@ public class PostContingencyResult {
         return List.copyOf(branchResults.values());
     }
 
-    public BusResults getBusResult(String id) {
+    public BusResult getBusResult(String id) {
         Objects.requireNonNull(id);
         return busResults.get(id);
     }
 
-    public List<BusResults> getBusResults() {
+    public List<BusResult> getBusResults() {
         return List.copyOf(busResults.values());
     }
 
