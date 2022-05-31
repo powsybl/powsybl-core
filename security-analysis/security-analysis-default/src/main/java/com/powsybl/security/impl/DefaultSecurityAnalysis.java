@@ -23,7 +23,7 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.monitor.StateMonitorIndex;
 import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,7 +241,7 @@ public class DefaultSecurityAnalysis {
     }
 
     private void addMonitorInfos(Network network, StateMonitor monitor, Consumer<BranchResult> branchResultConsumer,
-                                 Consumer<BusResults> busResultsConsumer, Consumer<ThreeWindingsTransformerResult> threeWindingsTransformerResultConsumer) {
+                                 Consumer<BusResult> busResultsConsumer, Consumer<ThreeWindingsTransformerResult> threeWindingsTransformerResultConsumer) {
         monitor.getBranchIds().forEach(branchId -> {
             Branch branch = network.getBranch(branchId);
             if (branch != null) {
@@ -269,8 +269,8 @@ public class DefaultSecurityAnalysis {
             branch.getTerminal2().getP(), branch.getTerminal2().getQ(), branch.getTerminal2().getI(), 0.0);
     }
 
-    private BusResults createBusResult(Bus bus, String voltageLevelId) {
-        return new BusResults(voltageLevelId, bus.getId(), bus.getV(), bus.getAngle());
+    private BusResult createBusResult(Bus bus, String voltageLevelId) {
+        return new BusResult(voltageLevelId, bus.getId(), bus.getV(), bus.getAngle());
     }
 
     private ThreeWindingsTransformerResult createThreeWindingsTransformerResult(ThreeWindingsTransformer threeWindingsTransformer) {

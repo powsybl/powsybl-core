@@ -31,7 +31,7 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
     public PreContingencyResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         LimitViolationsResult preContingencyResult = null;
         List<BranchResult> branchResults = Collections.emptyList();
-        List<BusResults> busResults = Collections.emptyList();
+        List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -48,7 +48,7 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
                     break;
                 case "busResults":
                     parser.nextToken();
-                    busResults = parser.readValueAs(new TypeReference<List<BusResults>>() {
+                    busResults = parser.readValueAs(new TypeReference<List<BusResult>>() {
                     });
                     break;
                 case "threeWindingsTransformerResults":

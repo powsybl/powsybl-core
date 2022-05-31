@@ -44,12 +44,22 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     private static LoadFlowResult createVersion12() {
-        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3)));
+        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, Double.NaN)));
+    }
+
+    private static LoadFlowResult createVersion13() {
+        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3, 356.78)));
     }
 
     @Test
-    public void roundTripVersion12Test() throws IOException {
-        roundTripTest(createVersion12(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion12.json");
+    public void roundTripVersion13Test() throws IOException {
+        roundTripTest(createVersion13(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion13.json");
+    }
+
+    @Test
+    public void readJsonVersion12() throws IOException {
+        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12.json"));
+        assertTrue(Double.isNaN(result.getComponentResults().get(0).getDistributedActivePower()));
     }
 
     @Test
