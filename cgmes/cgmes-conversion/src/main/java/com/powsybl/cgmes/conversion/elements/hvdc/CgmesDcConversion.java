@@ -7,10 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
@@ -20,12 +16,16 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -293,26 +293,21 @@ public class CgmesDcConversion {
     }
 
     private String findAcDcConverterDcTerminal(String acDcConverterId, String dcNodeId) {
-        PropertyBag propertyBag = context.cgmes().dcTerminals().stream()
-            .filter(pb -> isAcDcConverterDcTerminalOk(pb, acDcConverterId, dcNodeId)).findFirst().orElse(null);
-        Objects.requireNonNull(propertyBag);
-        return propertyBag.getId("DCTerminal");
-    }
-
-    private static boolean isAcDcConverterDcTerminalOk(PropertyBag propertyBag, String acDcConverterId, String dcNodeId) {
-        if (!isAcDcConverter(propertyBag.getId("dcConductingEquipmentType"))) {
-            return false;
-        }
-        return isSameProperty(propertyBag.getId("DCConductingEquipment"), acDcConverterId)
-            && isSameProperty(propertyBag.getId("DCNode"), dcNodeId);
+        String terminalNodeProperty = context.nodeBreaker() ? "DCNode" : "DCTopologicalNode";
+        return context.cgmes().dcTerminals().stream()
+                // A terminal of this converter
+                .filter(t -> acDcConverterId.equals(t.getId("DCConductingEquipment")))
+                // The equipment type of the terminal must be a converter (redundant, but safer)
+                .filter(t -> isAcDcConverter(t.getId("dcConductingEquipmentType")))
+                // The terminal is connectd to the node we are looking for
+                .filter(t -> dcNodeId.equals(t.getId(terminalNodeProperty)))
+                .findFirst()
+                .map(t -> t.getId("DCTerminal"))
+                .orElseThrow(() -> new PowsyblException(String.format("Missing terminal for converter %s at %s %s", acDcConverterId, terminalNodeProperty, dcNodeId)));
     }
 
     private static boolean isAcDcConverter(String type) {
         return type != null && (type.equals("CsConverter") || type.equals("VsConverter"));
-    }
-
-    private static boolean isSameProperty(String property, String reference) {
-        return property != null && property.equals(reference);
     }
 
     private boolean createHvdc() {

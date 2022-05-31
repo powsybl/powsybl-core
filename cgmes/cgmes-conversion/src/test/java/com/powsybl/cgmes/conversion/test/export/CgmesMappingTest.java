@@ -66,12 +66,12 @@ public class CgmesMappingTest extends AbstractConverterTest {
     public void testExportUsingCgmesNamingStrategy(Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds) throws IOException {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
-        DataSource exportedCgmes = tmpDataSource("exportedCgmes", baseName);
+        DataSource exportedCgmes = tmpDataSource("exportedCgmes" + baseName, baseName);
         Exporters.export("CGMES", network, exportParams, exportedCgmes);
 
         // Load the exported CGMES model without the ID mapping,
         // to ensure that all objects have valid CGMES identifiers
-        Network network1 = importExportedCgmesWithoutMapping(exportedCgmes, reimportParams);
+        Network network1 = importExportedCgmesWithoutMapping(exportedCgmes, baseName, reimportParams);
         checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
 
         // Compare original network with re-imported using ID mapping
@@ -80,7 +80,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         // Even if original was node/breaker, we may have introduced fictitious switches during import,
         // resulting in different number of nodes and connections
         Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams);
-        Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual);
+        Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));
         checkDiffs(diffs, knownErrorsSubstationsIds);
     }
 
@@ -119,7 +119,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         }
     }
 
-    private Collection<Diff> compareNetworksUsingConnectedEquipment(Network expected, Network actual) {
+    private Collection<Diff> compareNetworksUsingConnectedEquipment(Network expected, Network actual, Path tmp) {
         Collection<Diff> diffs = new ArrayList<>();
         for (Substation se : expected.getSubstations()) {
             Substation sa = actual.getSubstation(se.getId());
@@ -144,12 +144,19 @@ public class CgmesMappingTest extends AbstractConverterTest {
 
                     SortedSet<String> busesExpectedBusBreakerView = buildBusIdsBasedOnConnectedEquipment(vle.getBusBreakerView().getBuses());
                     SortedSet<String> busesActualBusBreakerView = buildBusIdsBasedOnConnectedEquipment(vla.getBusBreakerView().getBuses());
+
                     //assertEquals(busesExpectedBusBreakerView, busesActualBusBreakerView);
                     // At least all the expected buses must be present in actual network,
                     // and maybe the actual contains additional buses
                     boolean isRelevantDiff = busesExpectedBusBreakerView.stream()
                             .anyMatch(b -> !busesActualBusBreakerView.contains(b));
                     if (isRelevantDiff) {
+                        try {
+                            vle.exportTopology(tmp.resolve(se.getNameOrId() + "-expected.gv"));
+                            vla.exportTopology(tmp.resolve(se.getNameOrId() + "-actual.gv"));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         Diff diff = new Diff();
                         diff.substationId = se.getId();
                         diff.busesExpectedBusView = busesExpectedBusView;
@@ -164,9 +171,9 @@ public class CgmesMappingTest extends AbstractConverterTest {
         return diffs;
     }
 
-    private Network importExportedCgmesWithoutMapping(ReadOnlyDataSource dataSource, Properties reimportParams) throws IOException {
+    private Network importExportedCgmesWithoutMapping(ReadOnlyDataSource dataSource, String baseName, Properties reimportParams) throws IOException {
         // Build a zip file that does not contain the CSV file for the id mappings, only CGMES exported files
-        Path repackaged = tmpDir.resolve("exportedCgmes").resolve("repackaged.zip");
+        Path repackaged = tmpDir.resolve("exportedCgmes" + baseName).resolve("repackaged.zip");
         Repackager r = new Repackager(dataSource)
                 .with(dataSource.getBaseName() + "_EQ.xml", Repackager::eq)
                 .with(dataSource.getBaseName() + "_SSH.xml", Repackager::ssh)
@@ -180,13 +187,17 @@ public class CgmesMappingTest extends AbstractConverterTest {
         CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
         Supplier<Stream<String>> badIds = () -> Stream.of(
                         network.getIdentifiables().stream().filter(i -> !i.isFictitious()).map(Identifiable::getId),
-                        // Some CGMES identifiers do not end Network identifiables
+                        // Some CGMES identifiers do not end as Network identifiables
+                        cgmes.terminals().stream().map(o -> o.getId(CgmesNames.TERMINAL)),
                         cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
                         cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
                         cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_ISLAND)),
                         cgmes.transformerEnds().stream().map(o -> o.getId(CgmesNames.TRANSFORMER_END)),
                         cgmes.phaseTapChangers().stream().map(o -> o.getId(CgmesNames.PHASE_TAP_CHANGER)),
                         cgmes.ratioTapChangers().stream().map(o -> o.getId(CgmesNames.RATIO_TAP_CHANGER)),
+                        cgmes.regulatingControls().stream().map(o -> o.getId("RegulatingControl")),
+                        cgmes.controlAreas().stream().map(o -> o.getId("ControlArea")),
+                        cgmes.synchronousMachines().stream().map(o -> o.getId("GeneratingUnit")),
                         cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit"))
                 )
                 .flatMap(id -> id)
@@ -202,8 +213,11 @@ public class CgmesMappingTest extends AbstractConverterTest {
             // Build an id for the bus based on the concat of ids of connected equipment
             SortedSet<String> eqIds = new TreeSet<>();
             be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(t.getConnectable().getId()));
-            String busId = String.join(",", eqIds);
-            busIds.add(busId);
+            // Ignore empty buses
+            if (!eqIds.isEmpty()) {
+                String busId = String.join(",", eqIds);
+                busIds.add(busId);
+            }
         }
         return busIds;
     }

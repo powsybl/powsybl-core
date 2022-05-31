@@ -12,6 +12,9 @@ import com.powsybl.commons.PowsyblException;
 import javanet.staxutils.IndentingXMLStreamWriter;
 
 import javax.xml.stream.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +23,15 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class XmlUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlUtil.class);
 
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
@@ -283,5 +291,18 @@ public final class XmlUtil {
         }
         xmlWriter.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
         return xmlWriter;
+    }
+
+    public static void gcXmlInputFactory(XMLInputFactory xmlInputFactory) {
+        // Workaround: Manually force XMLInputFactory and XmlStreamReader to clear the reference to the last inputstream.
+        // jdk xerces XmlInputFactory keeps a ref to the last created XmlStreamReader (so that the factory
+        // can optionally reuse it. But the XmlStreamReader keeps a ref to it's inputstream. There is
+        // no public API in XmlStreamReader to clear the previous input stream, close doesn't do it).
+        try (InputStream is = new ByteArrayInputStream(new byte[] {})) {
+            XMLStreamReader xmlsr = xmlInputFactory.createXMLStreamReader(is);
+            xmlsr.close();
+        } catch (XMLStreamException | IOException e) {
+            LOGGER.error(e.toString(), e);
+        }
     }
 }

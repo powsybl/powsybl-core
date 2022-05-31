@@ -27,7 +27,7 @@ import com.powsybl.security.impl.interceptors.SecurityAnalysisInterceptorMock;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -232,11 +232,11 @@ public class SecurityAnalysisTest {
         DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, Reporter.NO_OP);
         SecurityAnalysisReport report = defaultSecurityAnalysis.run(network.getVariantManager().getWorkingVariantId(), saParameters, contingenciesProvider).join();
         SecurityAnalysisResult result = report.getResult();
-        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBusResults()).containsExactly(new BusResults("VLHV1", "VLHV1_0", 380.0, 0.0));
-        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBusResult("VLHV1_0")).isEqualToComparingOnlyGivenFields(new BusResults("VLHV1", "VLHV1_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBusResults()).containsExactly(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBusResult("VLHV1_0")).isEqualToComparingOnlyGivenFields(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
         Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583, 0.0));
         Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBranchResult("NHV1_NHV2_1")).isEqualToComparingOnlyGivenFields(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583, 0.0));
         Assertions.assertThat(result.getPostContingencyResults().get(0).getBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_2",  600.0, 500.0,  1186.6446717954987, 600.0,  500.0, 1186.6446717954987, 0.0));
-        Assertions.assertThat(result.getPostContingencyResults().get(0).getBusResults()).containsExactly(new BusResults("VLHV2", "VLHV2_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPostContingencyResults().get(0).getBusResults()).containsExactly(new BusResult("VLHV2", "VLHV2_0", 380.0, 0.0));
     }
 }
