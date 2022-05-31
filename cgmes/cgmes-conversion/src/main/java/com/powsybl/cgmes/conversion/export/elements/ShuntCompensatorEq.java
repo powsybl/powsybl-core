@@ -30,7 +30,7 @@ public final class ShuntCompensatorEq {
     private static final String EQ_NONLINEARSHUNTCOMPENSATOR_B = "NonlinearShuntCompensatorPoint.b";
     private static final String EQ_NONLINEARSHUNTCOMPENSATOR_G = "NonlinearShuntCompensatorPoint.g";
 
-    public static void write(String id, String shuntCompensatorName, int normalSections, int maximumSections, double nomU, ShuntCompensatorModelType modelType, double bPerSection, double gPerSection, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String shuntCompensatorName, int normalSections, int maximumSections, double nomU, ShuntCompensatorModelType modelType, double bPerSection, double gPerSection, String regulatingControlId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(shuntCompensatorModelClassName(modelType), id, shuntCompensatorName, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_SHUNTCOMPENSATOR_NORMALSECTIONS);
         writer.writeCharacters(CgmesExportUtil.format(normalSections));
@@ -54,6 +54,9 @@ public final class ShuntCompensatorEq {
                 writer.writeCharacters(CgmesExportUtil.format(gPerSection));
                 writer.writeEndElement();
             }
+        }
+        if (regulatingControlId != null) {
+            CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer);
         }
         writer.writeEndElement();
     }
