@@ -16,7 +16,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
@@ -132,6 +132,7 @@ public class XMLImporter implements Importer {
                     } finally {
                         try {
                             xmlsr.close();
+                            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
                         } catch (XMLStreamException e) {
                             LOGGER.error(e.toString(), e);
                         }
@@ -193,8 +194,8 @@ public class XMLImporter implements Importer {
 
     private ImportOptions createImportOptions(Properties parameters) {
         return new ImportOptions()
-                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
+                .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
     }
 }
 

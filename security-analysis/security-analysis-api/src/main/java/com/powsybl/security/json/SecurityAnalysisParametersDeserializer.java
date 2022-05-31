@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.security.json.JsonSecurityAnalysisParameters.getExtensionSerializers;
+
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
@@ -56,13 +58,13 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     break;
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSecurityAnalysisParameters.getExtensionSerializers(), parameters);
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        JsonSecurityAnalysisParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }
 }

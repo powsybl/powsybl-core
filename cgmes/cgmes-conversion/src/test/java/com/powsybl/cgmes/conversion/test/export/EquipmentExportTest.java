@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -123,6 +124,209 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Network reimported = exportReimport(network, ds);
         sh = (ShuntCompensatorLinearModel) reimported.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(1E-14, sh.getBPerSection(), 0.0);
+    }
+
+    @Test
+    public void threeWindingsTransformerTest() throws IOException, XMLStreamException {
+        Network network = createThreeWindingTransformerNetwork();
+        String t3id = "threeWindingsTransformer1";
+
+        // Export an IIDM Network created from scratch, identifiers for tap changers will be created and stored in aliases
+        exportToCgmesEQ(network);
+        ThreeWindingsTransformer expected = network.getThreeWindingsTransformer(t3id);
+
+        // The 3-winding transformer has a ratio and phase tap changer at every end
+        Network network1 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        ThreeWindingsTransformer actual1 = network1.getThreeWindingsTransformer(t3id);
+        for (int k = 1; k <= 3; k++) {
+            String aliasType;
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual1.getAliasFromType(aliasType).get());
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual1.getAliasFromType(aliasType).get());
+        }
+
+        // Export an IIDM Network that has been imported from CGMES,
+        // identifiers for tap changers must be preserved
+        exportToCgmesEQ(network1);
+        Network network2 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        ThreeWindingsTransformer actual2 = network2.getThreeWindingsTransformer(t3id);
+        for (int k = 1; k <= 3; k++) {
+            String aliasType;
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual2.getAliasFromType(aliasType).get());
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + k;
+            assertEquals(
+                    expected.getAliasFromType(aliasType).get(),
+                    actual2.getAliasFromType(aliasType).get());
+        }
+    }
+
+    private Network createThreeWindingTransformerNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        Substation substation1 = network.newSubstation()
+                .setId("substation1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("voltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel voltageLevel2 = substation1.newVoltageLevel()
+                .setId("voltageLevel2")
+                .setNominalV(220)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel voltageLevel3 = substation1.newVoltageLevel()
+                .setId("voltageLevel3")
+                .setNominalV(60)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel.NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+        BusbarSection voltageLevel1BusbarSection1 = topology1.newBusbarSection()
+                .setId("voltageLevel1BusbarSection1")
+                .setNode(0)
+                .add();
+        VoltageLevel.NodeBreakerView topology2 = voltageLevel2.getNodeBreakerView();
+        BusbarSection voltageLevel1BusbarSection2 = topology2.newBusbarSection()
+                .setId("voltageLevel1BusbarSection2")
+                .setNode(0)
+                .add();
+        VoltageLevel.NodeBreakerView topology3 = voltageLevel3.getNodeBreakerView();
+        BusbarSection voltageLevel1BusbarSection3 = topology3.newBusbarSection()
+                .setId("voltageLevel1BusbarSection3")
+                .setNode(0)
+                .add();
+        ThreeWindingsTransformerAdder threeWindingsTransformerAdder1 = substation1.newThreeWindingsTransformer()
+                .setId("threeWindingsTransformer1")
+                .setRatedU0(400);
+        threeWindingsTransformerAdder1.newLeg1()
+                .setNode(1)
+                .setR(0.001)
+                .setX(0.000001)
+                .setB(0)
+                .setG(0)
+                .setRatedU(400)
+                .setVoltageLevel("voltageLevel1")
+                .add();
+        threeWindingsTransformerAdder1.newLeg2()
+                .setNode(1)
+                .setR(0.1)
+                .setX(0.00001)
+                .setB(0)
+                .setG(0)
+                .setRatedU(220)
+                .setVoltageLevel("voltageLevel2")
+                .add();
+        threeWindingsTransformerAdder1.newLeg3()
+                .setNode(1)
+                .setR(0.01)
+                .setX(0.0001)
+                .setB(0)
+                .setG(0)
+                .setRatedU(60)
+                .setVoltageLevel("voltageLevel3")
+                .add();
+        ThreeWindingsTransformer threeWindingsTransformer1 = threeWindingsTransformerAdder1.add();
+        threeWindingsTransformer1.getLeg1().newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.01)
+                    .setX(0.0001)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.1)
+                    .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg2().newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.02)
+                    .setX(0.0002)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.2)
+                    .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg3().newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.03)
+                    .setX(0.0003)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.3)
+                .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg1().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.01)
+                    .setX(0.0001)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.1)
+                    .setAlpha(10)
+                .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg2().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.02)
+                    .setX(0.0002)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.2)
+                    .setAlpha(20)
+                .endStep()
+                .add();
+        threeWindingsTransformer1.getLeg3().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                    .setR(0.03)
+                    .setX(0.0003)
+                    .setB(0)
+                    .setG(0)
+                    .setRho(1.3)
+                    .setAlpha(30)
+                .endStep()
+                .add();
+
+        topology1.newDisconnector()
+                .setId("Disconnector1")
+                .setOpen(false)
+                .setNode1(threeWindingsTransformer1.getLeg1().getTerminal().getNodeBreakerView().getNode())
+                .setNode2(voltageLevel1BusbarSection1.getTerminal().getNodeBreakerView().getNode())
+                .add();
+        topology2.newDisconnector()
+                .setId("Disconnector2")
+                .setOpen(false)
+                .setNode1(threeWindingsTransformer1.getLeg2().getTerminal().getNodeBreakerView().getNode())
+                .setNode2(voltageLevel1BusbarSection2.getTerminal().getNodeBreakerView().getNode())
+                .add();
+        topology3.newDisconnector()
+                .setId("Disconnector3")
+                .setOpen(false)
+                .setNode1(threeWindingsTransformer1.getLeg3().getTerminal().getNodeBreakerView().getNode())
+                .setNode2(voltageLevel1BusbarSection3.getTerminal().getNodeBreakerView().getNode())
+                .add();
+
+        return network;
     }
 
     private void testExportReimport(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {

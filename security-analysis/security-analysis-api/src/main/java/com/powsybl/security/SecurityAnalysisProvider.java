@@ -7,15 +7,21 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.Versionable;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -83,4 +89,60 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   List<SecurityAnalysisInterceptor> interceptors,
                                                   List<StateMonitor> monitors,
                                                   Reporter reporter);
+
+    /**
+     * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation
+     * does not have any specific parameters, or does not support JSON serialization.
+     *
+     * <p>Note that the actual serializer type should be {@code ExtensionJsonSerializer<SecurityAnalysisParameters, MyParametersExtension>}
+     * where {@code MyParametersExtension} is the specific parameters class.
+     *
+     * @return The serializer for implementation-specific parameters.
+     */
+    default Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.empty();
+    }
+
+    /**
+     * Reads implementation-specific parameters from platform config, or return {@link Optional#empty()}
+     * if the implementation does not have any specific parameters, or does not support loading from config.
+     *
+     * @return The specific parameters read from platform config.
+     */
+    default Optional<Extension<SecurityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.empty();
+    }
+
+    /**
+     * Reads implementation-specific parameters from a Map, or return {@link Optional#empty()}
+     * if the implementation does not have any specific parameters, or does not support loading from config.
+     *
+     * @return The specific parameters read from Map.
+     */
+    default Optional<Extension<SecurityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
+        return Optional.empty();
+    }
+
+    /**
+     * Updates implementation-specific parameters from a Map.
+     */
+    default void updateSpecificParameters(Extension<SecurityAnalysisParameters> extension, Map<String, String> properties) {
+    }
+
+    /**
+     *
+     * @return The name of the loadflow used for the security analysis.
+     */
+    default Optional<String> getLoadFlowProviderName() {
+        return Optional.empty();
+    }
+
+    /**
+     * get the list of the specific parameters names.
+     *
+     * @return the list of the specific parameters names.
+     */
+    default List<String> getSpecificParametersNames() {
+        return Collections.emptyList();
+    }
 }

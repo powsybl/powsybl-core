@@ -105,6 +105,12 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     }
 
     /**
+     * Updates implementation-specific parameters from a Map.
+     */
+    default void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> properties) {
+    }
+
+    /**
      * get the list of the specific parameters names.
      *
      * @return the list of the specific parameters names.
@@ -112,5 +118,4 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     default List<String> getSpecificParametersNames() {
         return Collections.emptyList();
     }
-
 }

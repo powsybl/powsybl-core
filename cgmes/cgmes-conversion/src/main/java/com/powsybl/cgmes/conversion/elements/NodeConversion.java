@@ -65,18 +65,22 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         String vlName = "boundary";
         SubstationAdder adder = context.network()
             .newSubstation()
-            .setId(context.namingStrategy().getId("Substation", substationId))
+            .setId(context.namingStrategy().getIidmId("Substation", substationId))
             .setName(substationName)
             .setCountry(boundaryCountryCode());
         if (boundaryCountryCode() != null) {
             adder.setGeographicalTags(boundaryCountryCode().toString());
         }
-        return adder.add().newVoltageLevel()
-            .setId(context.namingStrategy().getId("VoltageLevel", vlId))
+        Substation substation = adder.add();
+        context.namingStrategy().readIdMapping(substation, "Substation");
+        VoltageLevel vl = substation.newVoltageLevel()
+            .setId(context.namingStrategy().getIidmId("VoltageLevel", vlId))
             .setName(vlName)
             .setNominalV(nominalVoltage)
             .setTopologyKind(context.nodeBreaker() ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER)
             .add();
+        context.namingStrategy().readIdMapping(vl, "VoltageLevel");
+        return vl;
     }
 
     private Country boundaryCountryCode() {
@@ -162,7 +166,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             String containerId = p.getId("ConnectivityNodeContainer");
             String cgmesId = context.cgmes().container(containerId).voltageLevel();
 
-            String iidm = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
+            String iidm = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
             String iidmId = context.substationIdMapping().voltageLevelIidm(iidm);
             return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
         }
@@ -179,7 +183,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // against the topology present in the CGMES model
         if (context.config().createBusbarSectionForEveryConnectivityNode()) {
             BusbarSection bus = nbv.newBusbarSection()
-                .setId(context.namingStrategy().getId("Bus", id))
+                .setId(context.namingStrategy().getIidmId("Bus", id))
                 .setName(context.namingStrategy().getName("Bus", name))
                 .setNode(iidmNode)
                 .add();
@@ -189,12 +193,13 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private void newBus(VoltageLevel voltageLevel) {
         Bus bus = voltageLevel.getBusBreakerView().newBus()
-            .setId(context.namingStrategy().getId("Bus", id))
+            .setId(context.namingStrategy().getIidmId("Bus", id))
             .setName(context.namingStrategy().getName("Bus", name))
             .add();
         if (checkValidVoltageAngle(bus)) {
             setVoltageAngle(bus);
         }
+        context.namingStrategy().readIdMapping(bus, "Bus");
     }
 
     private boolean checkValidVoltageAngle(Bus bus) {

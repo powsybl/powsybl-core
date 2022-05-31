@@ -15,7 +15,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         Contingency contingency = null;
         LimitViolationsResult limitViolationsResult = null;
         List<BranchResult> branchResults = Collections.emptyList();
-        List<BusResults> busResults = Collections.emptyList();
+        List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -57,7 +57,7 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                     break;
                 case "busResults":
                     parser.nextToken();
-                    busResults = parser.readValueAs(new TypeReference<List<BusResults>>() {
+                    busResults = parser.readValueAs(new TypeReference<List<BusResult>>() {
                     });
                     break;
                 case "threeWindingsTransformerResults":
