@@ -16,7 +16,7 @@ import java.util.*;
 public class PreContingencyResult {
     private LimitViolationsResult limitViolationsResult;
     private final Map<String, BranchResult> preContingencyBranchResults = new HashMap<>();
-    private final Map<String, BusResults> preContingencyBusResults = new HashMap<>();
+    private final Map<String, BusResult> preContingencyBusResults = new HashMap<>();
     private final Map<String, ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults = new HashMap<>();
 
     public PreContingencyResult() {
@@ -24,7 +24,7 @@ public class PreContingencyResult {
     }
 
     public PreContingencyResult(LimitViolationsResult preContingencyResult, Collection<BranchResult> preContingencyBranchResults,
-                                Collection<BusResults> preContingencyBusResults,
+                                Collection<BusResult> preContingencyBusResults,
                                 Collection<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
         this.limitViolationsResult = preContingencyResult;
         Objects.requireNonNull(preContingencyBranchResults).forEach(r -> this.preContingencyBranchResults.put(r.getBranchId(), r));
@@ -40,7 +40,7 @@ public class PreContingencyResult {
         Objects.requireNonNull(branchResults).forEach(r -> this.preContingencyBranchResults.put(r.getBranchId(), r));
     }
 
-    public void addPreContingencyBusResults(Collection<BusResults> busResults) {
+    public void addPreContingencyBusResults(Collection<BusResult> busResults) {
         Objects.requireNonNull(busResults).forEach(r -> this.preContingencyBusResults.put(r.getBusId(), r));
     }
 
@@ -52,11 +52,11 @@ public class PreContingencyResult {
         return limitViolationsResult;
     }
 
-    public List<BusResults> getPreContingencyBusResults() {
+    public List<BusResult> getPreContingencyBusResults() {
         return List.copyOf(preContingencyBusResults.values());
     }
 
-    public BusResults getPreContingencyBusResult(String id) {
+    public BusResult getPreContingencyBusResult(String id) {
         return preContingencyBusResults.get(Objects.requireNonNull(id));
     }
 

@@ -52,7 +52,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         List<Extension<SecurityAnalysisResult>> extensions = Collections.emptyList();
         PreContingencyResult preContingencyResult = null;
         List<BranchResult> branchResults = Collections.emptyList();
-        List<BusResults> busResults = Collections.emptyList();
+        List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
