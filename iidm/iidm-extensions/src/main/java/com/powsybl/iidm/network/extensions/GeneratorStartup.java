@@ -16,26 +16,41 @@ public interface GeneratorStartup extends Extension<Generator> {
 
     @Override
     default String getName() {
-        return "startup";
+        return "generatorStartup";
     }
 
-    float getPredefinedActivePowerSetpoint();
+    /**
+     * The active power target planned by the market (in MW).
+     */
+    double getPlannedActivePowerSetpoint();
 
-    GeneratorStartup setPredefinedActivePowerSetpoint(float predefinedActivePowerSetpoint);
+    GeneratorStartup setPlannedActivePowerSetpoint(double plannedActivePowerSetpoint);
 
-    float getStartUpCost();
+    /**
+     * What does it cost to start this generator.
+     */
+    double getStartupCost();
 
-    GeneratorStartup setStartUpCost(float startUpCost);
+    GeneratorStartup setStartupCost(double startUpCost);
 
-    float getMarginalCost();
+    /**
+     * What does it cost to increase the production of one unit (in general one MW).
+     */
+    double getMarginalCost();
 
-    GeneratorStartup setMarginalCost(float marginalCost);
+    GeneratorStartup setMarginalCost(double marginalCost);
 
-    float getPlannedOutageRate();
+    /**
+     * Rate of planned unavailability (no unit).
+     */
+    double getPlannedOutageRate();
 
-    GeneratorStartup setPlannedOutageRate(float plannedOutageRate);
+    GeneratorStartup setPlannedOutageRate(double plannedOutageRate);
 
-    float getForcedOutageRate();
+    /**
+     * Rate of force unavailability (not forecast, no unit)
+     */
+    double getForcedOutageRate();
 
-    GeneratorStartup setForcedOutageRate(float forcedOutageRate);
+    GeneratorStartup setForcedOutageRate(double forcedOutageRate);
 }

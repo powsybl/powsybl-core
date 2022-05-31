@@ -16,15 +16,15 @@ import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
  */
 public class GeneratorStartupAdderImpl extends AbstractExtensionAdder<Generator, GeneratorStartup> implements GeneratorStartupAdder {
 
-    private float predefinedActivePowerSetpoint = Float.NaN;
+    private double plannedActivePowerSetpoint = Double.NaN;
 
-    private float startUpCost = Float.NaN;
+    private double startupCost = Double.NaN;
 
-    private float marginalCost = Float.NaN;
+    private double marginalCost = Double.NaN;
 
-    private float plannedOutageRate = Float.NaN;
+    private double plannedOutageRate = Double.NaN;
 
-    private float forcedOutageRate = Float.NaN;
+    private double forcedOutageRate = Double.NaN;
 
     public GeneratorStartupAdderImpl(Generator generator) {
         super(generator);
@@ -32,35 +32,35 @@ public class GeneratorStartupAdderImpl extends AbstractExtensionAdder<Generator,
 
     @Override
     protected GeneratorStartup createExtension(Generator extendable) {
-        return new GeneratorStartupImpl(extendable, predefinedActivePowerSetpoint, startUpCost, marginalCost, plannedOutageRate, forcedOutageRate);
+        return new GeneratorStartupImpl(extendable, plannedActivePowerSetpoint, startupCost, marginalCost, plannedOutageRate, forcedOutageRate);
     }
 
     @Override
-    public GeneratorStartupAdderImpl withPredefinedActivePowerSetpoint(float predefinedActivePowerSetpoint) {
-        this.predefinedActivePowerSetpoint = predefinedActivePowerSetpoint;
+    public GeneratorStartupAdderImpl withPlannedActivePowerSetpoint(double plannedActivePowerSetpoint) {
+        this.plannedActivePowerSetpoint = plannedActivePowerSetpoint;
         return this;
     }
 
     @Override
-    public GeneratorStartupAdder withStartUpCost(float startUpCost) {
-        this.startUpCost = startUpCost;
+    public GeneratorStartupAdder withStartupCost(double startUpCost) {
+        this.startupCost = startUpCost;
         return this;
     }
 
     @Override
-    public GeneratorStartupAdderImpl withMarginalCost(float marginalCost) {
+    public GeneratorStartupAdderImpl withMarginalCost(double marginalCost) {
         this.marginalCost = marginalCost;
         return this;
     }
 
     @Override
-    public GeneratorStartupAdderImpl withPlannedOutageRate(float plannedOutageRate) {
+    public GeneratorStartupAdderImpl withPlannedOutageRate(double plannedOutageRate) {
         this.plannedOutageRate = plannedOutageRate;
         return this;
     }
 
     @Override
-    public GeneratorStartupAdderImpl withForcedOutageRate(float forcedOutageRate) {
+    public GeneratorStartupAdderImpl withForcedOutageRate(double forcedOutageRate) {
         this.forcedOutageRate = forcedOutageRate;
         return this;
     }

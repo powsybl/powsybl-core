@@ -26,7 +26,7 @@ public class GeneratorStartupXmlSerializer implements ExtensionXmlSerializer<Gen
 
     @Override
     public String getExtensionName() {
-        return "startup";
+        return "generatorStartup";
     }
 
     @Override
@@ -61,23 +61,23 @@ public class GeneratorStartupXmlSerializer implements ExtensionXmlSerializer<Gen
 
     @Override
     public void write(GeneratorStartup startup, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("predefinedActivePowerSetpoint", startup.getPredefinedActivePowerSetpoint(), context.getWriter());
-        XmlUtil.writeFloat("startUpCost", startup.getStartUpCost(), context.getWriter());
-        XmlUtil.writeFloat("marginalCost", startup.getMarginalCost(), context.getWriter());
-        XmlUtil.writeFloat("plannedOutageRate", startup.getPlannedOutageRate(), context.getWriter());
-        XmlUtil.writeFloat("forcedOutageRate", startup.getForcedOutageRate(), context.getWriter());
+        XmlUtil.writeDouble("plannedActivePowerSetpoint", startup.getPlannedActivePowerSetpoint(), context.getWriter());
+        XmlUtil.writeDouble("startupCost", startup.getStartupCost(), context.getWriter());
+        XmlUtil.writeDouble("marginalCost", startup.getMarginalCost(), context.getWriter());
+        XmlUtil.writeDouble("plannedOutageRate", startup.getPlannedOutageRate(), context.getWriter());
+        XmlUtil.writeDouble("forcedOutageRate", startup.getForcedOutageRate(), context.getWriter());
     }
 
     @Override
     public GeneratorStartup read(Generator generator, XmlReaderContext context) throws XMLStreamException {
-        float predefinedActivePowerSetpoint = XmlUtil.readOptionalFloatAttribute(context.getReader(), "predefinedActivePowerSetpoint");
-        float startUpCost = XmlUtil.readOptionalFloatAttribute(context.getReader(), "startUpCost");
-        float marginalCost = XmlUtil.readOptionalFloatAttribute(context.getReader(), "marginalCost");
-        float plannedOutageRate = XmlUtil.readOptionalFloatAttribute(context.getReader(), "plannedOutageRate");
-        float forcedOutageRate = XmlUtil.readOptionalFloatAttribute(context.getReader(), "forcedOutageRate");
+        double plannedActivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedActivePowerSetpoint");
+        double startUpCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "startupCost");
+        double marginalCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "marginalCost");
+        double plannedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedOutageRate");
+        double forcedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "forcedOutageRate");
         generator.newExtension(GeneratorStartupAdder.class)
-                .withPredefinedActivePowerSetpoint(predefinedActivePowerSetpoint)
-                .withStartUpCost(startUpCost)
+                .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
+                .withStartupCost(startUpCost)
                 .withMarginalCost(marginalCost)
                 .withPlannedOutageRate(plannedOutageRate)
                 .withForcedOutageRate(forcedOutageRate)

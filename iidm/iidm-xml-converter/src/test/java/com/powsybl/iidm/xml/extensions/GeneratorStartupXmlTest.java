@@ -33,11 +33,11 @@ public class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
         Generator generator = network.getGenerator("G");
         assertNotNull(generator);
         generator.newExtension(GeneratorStartupAdder.class)
-                .withPredefinedActivePowerSetpoint(90f)
-                .withStartUpCost(5f)
-                .withMarginalCost(10f)
-                .withPlannedOutageRate(0.8f)
-                .withForcedOutageRate(0.7f)
+                .withPlannedActivePowerSetpoint(90)
+                .withStartupCost(5)
+                .withMarginalCost(10)
+                .withPlannedOutageRate(0.8)
+                .withForcedOutageRate(0.7)
                 .add();
         GeneratorStartup startup = generator.getExtension(GeneratorStartup.class);
         generator.addExtension(GeneratorStartup.class, startup);
@@ -51,11 +51,11 @@ public class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
         assertNotNull(generator2);
         GeneratorStartup startup2 = generator2.getExtension(GeneratorStartup.class);
         assertNotNull(startup2);
-        assertEquals(startup.getPredefinedActivePowerSetpoint(), startup2.getPredefinedActivePowerSetpoint(), 0f);
-        assertEquals(startup.getStartUpCost(), startup2.getStartUpCost(), 0f);
-        assertEquals(startup.getMarginalCost(), startup2.getMarginalCost(), 0f);
-        assertEquals(startup.getPlannedOutageRate(), startup2.getPlannedOutageRate(), 0f);
-        assertEquals(startup.getForcedOutageRate(), startup2.getForcedOutageRate(), 0f);
+        assertEquals(startup.getPlannedActivePowerSetpoint(), startup2.getPlannedActivePowerSetpoint(), 0);
+        assertEquals(startup.getStartupCost(), startup2.getStartupCost(), 0);
+        assertEquals(startup.getMarginalCost(), startup2.getMarginalCost(), 0);
+        assertEquals(startup.getPlannedOutageRate(), startup2.getPlannedOutageRate(), 0);
+        assertEquals(startup.getForcedOutageRate(), startup2.getForcedOutageRate(), 0);
     }
 
     private static Network createTestNetwork() {
