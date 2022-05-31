@@ -596,12 +596,18 @@ public final class FakeCgmesModel implements CgmesModel {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
+     */
     @Override
     @Deprecated
     public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
+     */
     @Override
     @Deprecated
     public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
