@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.export.AbstractCgmesProfileWriter;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -113,7 +113,9 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
             context.getSshModelDescription().setVersion(version);
-            SteadyStateHypothesisExport.write(expected, writer, context);
+            AbstractCgmesProfileWriter sshWriter = AbstractCgmesProfileWriter.create("SSH", context);
+            sshWriter.setXmlWriter(writer);
+            sshWriter.write();
         }
 
         // Compare the exported SSH with the original one

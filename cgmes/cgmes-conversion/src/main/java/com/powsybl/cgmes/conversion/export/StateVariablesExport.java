@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public final class StateVariablesExport {
+public final class StateVariablesExport extends AbstractCgmesProfileWriter {
 
     private static final String SV_VOLTAGE_ANGLE = "SvVoltage.angle";
     private static final String SV_VOLTAGE_V = "SvVoltage.v";
@@ -36,11 +36,19 @@ public final class StateVariablesExport {
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
-    public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+    StateVariablesExport(CgmesExportContext context) {
+        super(context);
     }
 
-    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+    public String getProfile() {
+        return "SV";
+    }
+
+    public void write() {
+        write(context.getNetwork(), xmlWriter, context);
+    }
+
+    private static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
             String cimNamespace = context.getCim().getNamespace();
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
@@ -480,8 +488,5 @@ public final class StateVariablesExport {
             poleLoss = pDCInverter * converterStation.getLossFactor() / 100;
         }
         return poleLoss;
-    }
-
-    private StateVariablesExport() {
     }
 }

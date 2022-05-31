@@ -28,16 +28,25 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public final class SteadyStateHypothesisExport {
+public final class SteadyStateHypothesisExport extends AbstractCgmesProfileWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
 
-    private SteadyStateHypothesisExport() {
+    SteadyStateHypothesisExport(CgmesExportContext context) {
+        super(context);
     }
 
-    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+    public String getProfile() {
+        return "SSH";
+    }
+
+    public void write() {
+        write(context.getNetwork(), xmlWriter, context);
+    }
+
+    private static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
         String cimNamespace = context.getCim().getNamespace();
 

@@ -10,8 +10,8 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.export.AbstractCgmesProfileWriter;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
@@ -148,7 +148,9 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
         context.getSvModelDescription().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
-        StateVariablesExport.write(network, writer, context);
+        AbstractCgmesProfileWriter svWriter = AbstractCgmesProfileWriter.create("SV", context);
+        svWriter.setXmlWriter(writer);
+        svWriter.write();
 
         return stringWriter.toString();
     }
@@ -211,7 +213,9 @@ public class StateVariablesExportTest extends AbstractConverterTest {
             context.getSvModelDescription().setVersion(svVersion);
             context.setExportBoundaryPowerFlows(true);
             context.setExportFlowsForSwitches(exportFlowsForSwitches);
-            StateVariablesExport.write(expected, writer, context);
+            AbstractCgmesProfileWriter svWriter = AbstractCgmesProfileWriter.create("SV", context);
+            svWriter.setXmlWriter(writer);
+            svWriter.write();
         }
 
         // Zip with new SV

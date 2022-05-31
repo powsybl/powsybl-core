@@ -8,8 +8,8 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.export.AbstractCgmesProfileWriter;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -60,7 +60,9 @@ public class TopologyExportTest extends AbstractConverterTest {
         try (OutputStream os = Files.newOutputStream(exportedTp)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected, true);
-            TopologyExport.write(expected, writer, context);
+            AbstractCgmesProfileWriter tpWriter = AbstractCgmesProfileWriter.create("TP", context);
+            tpWriter.setXmlWriter(writer);
+            tpWriter.write();
         }
 
         // Zip with new TP

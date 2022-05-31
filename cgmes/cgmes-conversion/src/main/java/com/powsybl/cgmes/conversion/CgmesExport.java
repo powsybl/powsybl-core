@@ -56,10 +56,6 @@ public class CgmesExport implements Exporter {
     public void export(Network network, Properties params, DataSource ds) {
         Objects.requireNonNull(network);
         String baseName = baseName(params, ds, network);
-        String filenameEq = baseName + "_EQ.xml";
-        String filenameTp = baseName + "_TP.xml";
-        String filenameSsh = baseName + "_SSH.xml";
-        String filenameSv = baseName + "_SV.xml";
         CgmesExportContext context = new CgmesExportContext(
                 network,
                 Parameter.readBoolean(getFormat(), params, WITH_TOPOLOGICAL_MAPPING_PARAMETER, defaultValueConfig),
@@ -73,28 +69,14 @@ public class CgmesExport implements Exporter {
         }
         try {
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER);
-            if (profiles.contains("EQ")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameEq, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    EquipmentExport.write(network, writer, context);
-                }
-            }
-            if (profiles.contains("TP")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameTp, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    TopologyExport.write(network, writer, context);
-                }
-            }
-            if (profiles.contains("SSH")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    SteadyStateHypothesisExport.write(network, writer, context);
-                }
-            }
-            if (profiles.contains("SV")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    StateVariablesExport.write(network, writer, context);
+            // FIXME(Luma) sort the profiles so they are processed in the "natural" order in case dependencies would be generated
+            //   EQ, TP, SSH, SV
+            for (String profile : profiles) {
+                AbstractCgmesProfileWriter profileWriter = AbstractCgmesProfileWriter.create(profile, context);
+                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(profileWriter.getFileName(baseName), false))) {
+                    XMLStreamWriter xmlWriter = XmlUtil.initializeWriter(true, INDENT, out);
+                    profileWriter.setXmlWriter(xmlWriter);
+                    profileWriter.write();
                 }
             }
             context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);

@@ -24,16 +24,24 @@ import java.util.Set;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public final class TopologyExport {
+public final class TopologyExport extends AbstractCgmesProfileWriter {
 
     private static final String TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER = "TopologicalNode.ConnectivityNodeContainer";
     private static final String TOPOLOGICAL_NODE_BASE_VOLTAGE = "TopologicalNode.BaseVoltage";
 
-    public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+    TopologyExport(CgmesExportContext context) {
+        super(context);
     }
 
-    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+    public String getProfile() {
+        return "TP";
+    }
+
+    public void write() {
+        write(context.getNetwork(), xmlWriter, context);
+    }
+
+    private static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
             String cimNamespace = context.getCim().getNamespace();
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
@@ -259,8 +267,5 @@ public final class TopologyExport {
         CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER, connectivityNodeContainerId, cimNamespace, writer);
         CgmesExportUtil.writeReference(TOPOLOGICAL_NODE_BASE_VOLTAGE, baseVoltageId, cimNamespace, writer);
         writer.writeEndElement();
-    }
-
-    private TopologyExport() {
     }
 }

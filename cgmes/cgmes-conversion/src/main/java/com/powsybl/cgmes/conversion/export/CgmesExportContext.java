@@ -39,6 +39,7 @@ public class CgmesExportContext {
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
+    private final Network network;
     private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfile("EQ"));
     private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
     private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfile("SV"));
@@ -82,6 +83,10 @@ public class CgmesExportContext {
                 getSvModelDescription().addDependency(sshModelId);
             }
         }
+    }
+
+    public Network getNetwork() {
+        return this.network;
     }
 
     public static final class ModelDescription {
@@ -169,6 +174,8 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext() {
+        // FIXME(Luma) review how this is used, no default constructor should be allowed
+        this.network = null;
     }
 
     public CgmesExportContext(Network network) {
@@ -180,6 +187,7 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network, boolean withTopologicalMapping, NamingStrategy namingStrategy) {
+        this.network = network;
         this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {

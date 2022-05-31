@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public final class EquipmentExport {
+public final class EquipmentExport extends AbstractCgmesProfileWriter {
 
     private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
     private static final String CONNECTIVITY_NODE_SUFFIX = "CN";
@@ -32,11 +32,19 @@ public final class EquipmentExport {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
 
-    public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+    EquipmentExport(CgmesExportContext context) {
+        super(context);
     }
 
-    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+    public String getProfile() {
+        return "EQ";
+    }
+
+    public void write() {
+        write(context.getNetwork(), xmlWriter, context);
+    }
+
+    private static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
             String cimNamespace = context.getCim().getNamespace();
             String euNamespace = context.getCim().getEuNamespace();
@@ -894,8 +902,5 @@ public final class EquipmentExport {
         Map<Integer, List<Integer>> get() {
             return adjacency;
         }
-    }
-
-    private EquipmentExport() {
     }
 }
