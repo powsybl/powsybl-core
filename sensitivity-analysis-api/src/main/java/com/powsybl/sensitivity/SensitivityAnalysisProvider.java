@@ -101,6 +101,12 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
     }
 
     /**
+     * Updates implementation-specific parameters from a Map.
+     */
+    default void updateSpecificParameters(Extension<SensitivityAnalysisParameters> extension, Map<String, String> properties) {
+    }
+
+    /**
      *
      * @return The name of the loadflow used for the sensitivity analysis.
      */

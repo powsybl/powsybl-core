@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
+  <md:FullModel rdf:about="urn:uuid:2b5b0420-e505-4650-a094-6708f94d4aad">
+    <md:Model.created>2014-10-24T15:43:46</md:Model.created>
+    <md:Model.scenarioTime>2017-10-02T09:30:00Z</md:Model.scenarioTime>
+    <md:Model.version>1</md:Model.version>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+    <md:Model.DependentOn rdf:resource="urn:uuid:eaa2449e-f8f5-4ce2-a228-80fb84e45126"/>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"/>
+    <md:Model.description>CGMES Conformity Assessment: MicroGridTestConfiguration T2 (MAS NL). The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://tennet.eu/HVDC/CAS2.0/MicroGridTestConfiguration</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/Topology/4/1</md:Model.profile>
+  </md:FullModel>
+  <cim:ConnectivityNode rdf:about="#_c38adab3-5168-4004-a83d-28d890dedd36">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_b01fe92f-68ab-4123-ae45-f22d3e8daad1"/>
+  </cim:ConnectivityNode>
+  <cim:TopologicalNode rdf:ID="_b01fe92f-68ab-4123-ae45-f22d3e8daad1">
+    <cim:IdentifiedObject.name>NL_Busbar_HVDC2</cim:IdentifiedObject.name>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_39100880-cb7a-4a8d-9ac0-de8c6a35eb7e"/>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_c68f0a24-46cb-42aa-b91d-0b49b8310cc9"/>
+  </cim:TopologicalNode>
+  <cim:ConnectivityNode rdf:about="#_6ddcc71c-19f8-4171-9814-75f9001b50f1">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_ac772dd8-7910-443f-8af0-a7fca0fb57f9"/>
+  </cim:ConnectivityNode>
+  <cim:TopologicalNode rdf:ID="_ac772dd8-7910-443f-8af0-a7fca0fb57f9">
+    <cim:IdentifiedObject.name>NL_Busbar_HVDC1</cim:IdentifiedObject.name>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_39100880-cb7a-4a8d-9ac0-de8c6a35eb7e"/>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_10dff29d-ff80-49dc-b34e-3a58603bf0c6"/>
+  </cim:TopologicalNode>
+  <cim:ConnectivityNode rdf:about="#_1fdcc8f7-e491-43db-b8f9-7c1f7b9d7315">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_c142012a-b652-4c03-9c35-aa0833e71831"/>
+  </cim:ConnectivityNode>
+  <cim:TopologicalNode rdf:ID="_c142012a-b652-4c03-9c35-aa0833e71831">
+    <cim:IdentifiedObject.name>NL_PCC2</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-00017X</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:IdentifiedObject.description>10T-AT-DE-00017X</cim:IdentifiedObject.description>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_7891a026ba2c42098556665efd13ba94"/>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_613bf445-d1a8-409a-95f8-45b41f9a2eec"/>
+  </cim:TopologicalNode>
+  <cim:ConnectivityNode rdf:about="#_8971465b-6092-4118-a67d-c86d43bba847">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_9f1860f9-2110-4a36-b0a0-f75126040d29"/>
+  </cim:ConnectivityNode>
+  <cim:TopologicalNode rdf:ID="_9f1860f9-2110-4a36-b0a0-f75126040d29">
+    <cim:IdentifiedObject.name>NL_PCC1</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-00017X</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:IdentifiedObject.description>10T-AT-DE-00017X</cim:IdentifiedObject.description>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_7891a026ba2c42098556665efd13ba94"/>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_613bf445-d1a8-409a-95f8-45b41f9a0eec"/>
+  </cim:TopologicalNode>
+  <cim:DCTopologicalNode rdf:ID="_e468941a-d3ca-4cdc-909d-1005000d52fe">
+    <cim:IdentifiedObject.name>NL_DC2</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_e2373e17-8083-46b9-afe9-bf6ce6476545"/>
+  </cim:DCTopologicalNode>
+  <cim:DCNode rdf:about="#_f1695a13-59f8-4e99-8c21-98ce4d4b16cd">
+    <cim:DCNode.DCTopologicalNode rdf:resource="#_e468941a-d3ca-4cdc-909d-1005000d52fe"/>
+  </cim:DCNode>
+  <cim:DCTopologicalNode rdf:ID="_8e17e2d1-8b97-492f-a5bd-65b1b350f40f">
+    <cim:IdentifiedObject.name>NL_DC1</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_8ed4c2fe-e95b-4190-bcd2-7b7de1c432b7"/>
+  </cim:DCTopologicalNode>
+  <cim:DCNode rdf:about="#_da07ef60-a51f-40f1-abdc-bf5868838a97">
+    <cim:DCNode.DCTopologicalNode rdf:resource="#_8e17e2d1-8b97-492f-a5bd-65b1b350f40f"/>
+  </cim:DCNode>
+  <cim:DCTopologicalNode rdf:ID="_ead7aff5-6110-4863-9a8d-b9071b872102">
+    <cim:IdentifiedObject.name>DC_Ground1</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_8ed4c2fe-e95b-4190-bcd2-7b7de1c432b7"/>
+  </cim:DCTopologicalNode>
+  <cim:DCNode rdf:about="#_f72a5e8b-3b60-4f69-aac5-4ae4146339e8">
+    <cim:DCNode.DCTopologicalNode rdf:resource="#_ead7aff5-6110-4863-9a8d-b9071b872102"/>
+  </cim:DCNode>
+  <cim:DCTopologicalNode rdf:ID="_5ee57d5c-e4f8-4fd0-bff5-e751d816c5f9">
+    <cim:IdentifiedObject.name>DC_Ground2</cim:IdentifiedObject.name>
+    <cim:DCTopologicalNode.DCEquipmentContainer rdf:resource="#_e2373e17-8083-46b9-afe9-bf6ce6476545"/>
+  </cim:DCTopologicalNode>
+  <cim:DCNode rdf:about="#_b3a455e9-2a91-48fa-a27a-71e45ce288b9">
+    <cim:DCNode.DCTopologicalNode rdf:resource="#_5ee57d5c-e4f8-4fd0-bff5-e751d816c5f9"/>
+  </cim:DCNode>
+  <cim:Terminal rdf:about="#_2e47e822-459d-41fc-babd-bfa083d91e69">
+    <cim:Terminal.TopologicalNode rdf:resource="#_1098b1c9-dc85-40ce-b65c-39ae02a3afaa"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_b67eba20-5e8e-4d1a-954d-fa7938de74a3">
+    <cim:Terminal.TopologicalNode rdf:resource="#_c142012a-b652-4c03-9c35-aa0833e71831"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_f5cfda4b-3087-4bd3-9752-7a6b4f1bec2d">
+    <cim:Terminal.TopologicalNode rdf:resource="#_1fa19c281c8f4e1eaad9e1cab70f923e"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_608ea2f0-a506-4c39-904a-3f5b726dfe3f">
+    <cim:Terminal.TopologicalNode rdf:resource="#_9f1860f9-2110-4a36-b0a0-f75126040d29"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_fd64173b-8fb5-4b66-afe5-9a832e6bcb45">
+    <cim:Terminal.TopologicalNode rdf:resource="#_c142012a-b652-4c03-9c35-aa0833e71831"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_5b52e14e-550a-4084-91cc-14ec5d38e042">
+    <cim:Terminal.TopologicalNode rdf:resource="#_b01fe92f-68ab-4123-ae45-f22d3e8daad1"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_a2a8f829-f6fd-441f-b4c1-b354316e141f">
+    <cim:Terminal.TopologicalNode rdf:resource="#_9f1860f9-2110-4a36-b0a0-f75126040d29"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_44132906-2926-4018-b7d0-2997c0d0d678">
+    <cim:Terminal.TopologicalNode rdf:resource="#_ac772dd8-7910-443f-8af0-a7fca0fb57f9"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_7f8e72f1-9595-4b2a-9f02-40a72fbd8904">
+    <cim:Terminal.TopologicalNode rdf:resource="#_1098b1c9-dc85-40ce-b65c-39ae02a3afaa"/>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_26e50b4b-9a19-420d-98ce-bc4f11971cd7">
+    <cim:Terminal.TopologicalNode rdf:resource="#_1fa19c281c8f4e1eaad9e1cab70f923e"/>
+  </cim:Terminal>
+  <cim:DCTerminal rdf:about="#_3ed56d3d-f113-4b51-b45a-fb681ae880a5">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_8e17e2d1-8b97-492f-a5bd-65b1b350f40f"/>
+  </cim:DCTerminal>
+  <cim:DCTerminal rdf:about="#_5da31c8a-9f57-46d4-947d-49faa64d6c1d">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_e468941a-d3ca-4cdc-909d-1005000d52fe"/>
+  </cim:DCTerminal>
+  <cim:DCTerminal rdf:about="#_6e975317-3a8b-488d-915b-386324031791">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_ead7aff5-6110-4863-9a8d-b9071b872102"/>
+  </cim:DCTerminal>
+  <cim:DCTerminal rdf:about="#_2da6bc1b-86bc-42f0-90de-16d51e6f1931">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_5ee57d5c-e4f8-4fd0-bff5-e751d816c5f9"/>
+  </cim:DCTerminal>
+  <cim:Terminal rdf:about="#_efdb79f6-ae2f-49ab-a561-397fb88faca7">
+    <cim:Terminal.TopologicalNode rdf:resource="#_b01fe92f-68ab-4123-ae45-f22d3e8daad1"/>
+  </cim:Terminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_a44c960a-3281-47a6-b064-ce88fe0139c0">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_e468941a-d3ca-4cdc-909d-1005000d52fe"/>
+  </cim:ACDCConverterDCTerminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_201a58d2-80ca-4d91-a086-d53feb5aa77b">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_5ee57d5c-e4f8-4fd0-bff5-e751d816c5f9"/>
+  </cim:ACDCConverterDCTerminal>
+  <cim:Terminal rdf:about="#_385fa00a-808d-4973-a415-e93bcdfd3d52">
+    <cim:Terminal.TopologicalNode rdf:resource="#_ac772dd8-7910-443f-8af0-a7fca0fb57f9"/>
+  </cim:Terminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_846ca997-4c1e-4244-85a6-ad967450a2c8">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_8e17e2d1-8b97-492f-a5bd-65b1b350f40f"/>
+  </cim:ACDCConverterDCTerminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_4cefd102-4e85-4d1a-b5c1-78c55cecda95">
+    <cim:DCBaseTerminal.DCTopologicalNode rdf:resource="#_ead7aff5-6110-4863-9a8d-b9071b872102"/>
+  </cim:ACDCConverterDCTerminal>
+</rdf:RDF>
