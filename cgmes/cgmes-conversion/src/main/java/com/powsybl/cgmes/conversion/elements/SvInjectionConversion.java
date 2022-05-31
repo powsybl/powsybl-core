@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
@@ -50,7 +49,6 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         identify(adder);
         connect(adder);
         Load load = adder.add();
-        load.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_SV_INJECTION, "true");
         if (cgmesTerminal != null) {
             PowerFlow f = cgmesTerminal.flow();
             if (!f.defined()) {
