@@ -423,10 +423,10 @@ public final class EquipmentExport {
                 TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer);
             }
 
-            if (regulatingControlId.isPresent()) {
+            if (regulatingControlId.isPresent() && !regulatingControlsWritten.contains(regulatingControlId.get())) {
                 String mode = getPhaseTapChangerRegulationMode(ptc);
                 // Only export the regulating control if mode is valid
-                if (mode != null && !regulatingControlsWritten.contains(regulatingControlId.get())) {
+                if (mode != null) {
                     String controlName = twtName + "_PTC_RC";
                     String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal());
                     TapChangerEq.writeControl(regulatingControlId.get(), controlName, mode, terminalId, cimNamespace, writer);
