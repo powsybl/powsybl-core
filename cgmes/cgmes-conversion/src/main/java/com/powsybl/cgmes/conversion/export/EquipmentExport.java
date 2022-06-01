@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public final class EquipmentExport extends AbstractCgmesProfileWriter {
+public final class EquipmentExport extends AbstractCgmesExporter {
 
     private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
     private static final String CONNECTIVITY_NODE_SUFFIX = "CN";
@@ -53,7 +53,7 @@ public final class EquipmentExport extends AbstractCgmesProfileWriter {
         writeInitialP = context.getCim().writeGeneratingUnitInitialP();
     }
 
-    public void write() {
+    public void export() {
         try {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, xmlWriter);
 

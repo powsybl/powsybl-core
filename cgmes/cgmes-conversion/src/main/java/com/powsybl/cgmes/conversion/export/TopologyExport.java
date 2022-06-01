@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public final class TopologyExport extends AbstractCgmesProfileWriter {
+public final class TopologyExport extends AbstractCgmesExporter {
 
     private static final String TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER = "TopologicalNode.ConnectivityNodeContainer";
     private static final String TOPOLOGICAL_NODE_BASE_VOLTAGE = "TopologicalNode.BaseVoltage";
@@ -33,7 +33,7 @@ public final class TopologyExport extends AbstractCgmesProfileWriter {
         super(context, xmlWriter);
     }
 
-    public void write() {
+    public void export() {
         try {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), xmlWriter);
             if (context.getCimVersion() >= 16) {

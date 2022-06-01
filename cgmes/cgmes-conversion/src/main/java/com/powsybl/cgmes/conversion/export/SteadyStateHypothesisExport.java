@@ -28,7 +28,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public final class SteadyStateHypothesisExport extends AbstractCgmesProfileWriter {
+public final class SteadyStateHypothesisExport extends AbstractCgmesExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
@@ -40,7 +40,7 @@ public final class SteadyStateHypothesisExport extends AbstractCgmesProfileWrite
         super(context, xmlWriter);
     }
 
-    public void write() {
+    public void export() {
         try {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), xmlWriter);
 

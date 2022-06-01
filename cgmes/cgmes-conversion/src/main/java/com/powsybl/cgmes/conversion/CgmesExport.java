@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.conversion.export.AbstractCgmesProfileWriter;
+import com.powsybl.cgmes.conversion.export.CgmesProfileExporterFactory;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -81,7 +81,7 @@ public class CgmesExport implements Exporter {
             String filename = baseName + "_" + profile + ".xml";
             try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filename, false))) {
                 XMLStreamWriter xmlWriter = XmlUtil.initializeWriter(true, INDENT, out);
-                AbstractCgmesProfileWriter.create(profile, context, xmlWriter).write();
+                CgmesProfileExporterFactory.create(profile, context, xmlWriter).export();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

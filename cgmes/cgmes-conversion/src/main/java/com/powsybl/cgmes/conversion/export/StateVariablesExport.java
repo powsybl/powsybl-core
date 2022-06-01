@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public final class StateVariablesExport extends AbstractCgmesProfileWriter {
+public final class StateVariablesExport extends AbstractCgmesExporter {
 
     private static final String SV_VOLTAGE_ANGLE = "SvVoltage.angle";
     private static final String SV_VOLTAGE_V = "SvVoltage.v";
@@ -40,7 +40,7 @@ public final class StateVariablesExport extends AbstractCgmesProfileWriter {
         super(context, xmlWriter);
     }
 
-    public void write() {
+    public void export() {
         try {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), xmlWriter);
 
