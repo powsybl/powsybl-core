@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/generator_startup/1_0"
+           elementFormDefault="qualified">
+    <xs:element name="startup">
+        <xs:complexType>
+            <xs:attribute name="predefinedActivePowerSetpoint" use="optional" type="xs:float"/>
+            <xs:attribute name="startUpCost" use="optional" type="xs:float"/>
+            <xs:attribute name="marginalCost" use="optional" type="xs:float"/>
+            <xs:attribute name="plannedOutageRate" use="optional" type="xs:float"/>
+            <xs:attribute name="forcedOutageRate" use="optional" type="xs:float"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

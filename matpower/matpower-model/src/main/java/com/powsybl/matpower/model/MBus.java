@@ -6,6 +6,8 @@
  */
 package com.powsybl.matpower.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Bus data
  *
@@ -53,6 +55,11 @@ public class MBus {
      * bus type (1 = PQ, 2 = PV, 3 = ref, 4 = isolated)
      */
     private Type type;
+
+    /**
+     * bus name (optional)
+     */
+    private String name;
 
     /**
      * real power demand (MW)
@@ -115,6 +122,15 @@ public class MBus {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Type getType() {
