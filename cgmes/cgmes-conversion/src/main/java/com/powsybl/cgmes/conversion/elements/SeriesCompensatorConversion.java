@@ -9,8 +9,6 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -26,17 +24,8 @@ public class SeriesCompensatorConversion extends AbstractBranchConversion {
     public void convert() {
         double r = p.asDouble("r");
         double x = p.asDouble("x");
-        final LineAdder adder = context.network().newLine()
-                .setR(r)
-                .setX(x)
-                .setG1(0)
-                .setG2(0)
-                .setB1(0)
-                .setB2(0);
-        identify(adder);
-        connect(adder);
-        final Line l = adder.add();
-        addAliasesAndProperties(l);
-        convertedTerminals(l.getTerminal1(), l.getTerminal2());
+        double gch = 0;
+        double bch = 0;
+        convertBranch(r, x, gch, bch);
     }
 }
