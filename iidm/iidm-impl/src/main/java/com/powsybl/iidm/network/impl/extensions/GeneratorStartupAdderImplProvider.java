@@ -24,6 +24,11 @@ public class GeneratorStartupAdderImplProvider
     }
 
     @Override
+    public String getExtensionName() {
+        return GeneratorStartup.NAME;
+    }
+
+    @Override
     public Class<GeneratorStartupAdderImpl> getAdderClass() {
         return GeneratorStartupAdderImpl.class;
     }

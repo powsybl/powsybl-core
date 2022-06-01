@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
@@ -16,47 +17,16 @@ import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.InputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class GeneratorStartupXmlSerializer implements ExtensionXmlSerializer<Generator, GeneratorStartup> {
+public class GeneratorStartupXmlSerializer extends AbstractExtensionXmlSerializer<Generator, GeneratorStartup> implements ExtensionXmlSerializer<Generator, GeneratorStartup> {
 
-    @Override
-    public String getExtensionName() {
-        return "generatorStartup";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super GeneratorStartup> getExtensionClass() {
-        return GeneratorStartup.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/generatorStartup.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.powsybl.org/schema/iidm/ext/generator_startup/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "gs";
+    public GeneratorStartupXmlSerializer() {
+        super(GeneratorStartup.NAME, "network", GeneratorStartup.class, false, "generatorStartup.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/generator_startup/1_0", "gs");
     }
 
     @Override

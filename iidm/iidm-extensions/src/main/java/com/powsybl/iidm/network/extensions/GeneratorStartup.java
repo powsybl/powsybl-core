@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.Generator;
  */
 public interface GeneratorStartup extends Extension<Generator> {
 
+    String NAME = "startup";
+
     @Override
     default String getName() {
-        return "generatorStartup";
+        return NAME;
     }
 
     /**

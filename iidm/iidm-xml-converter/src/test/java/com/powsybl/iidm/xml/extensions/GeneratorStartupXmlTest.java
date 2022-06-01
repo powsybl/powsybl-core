@@ -44,7 +44,7 @@ public class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkXml::validateAndRead,
                 getVersionedNetworkPath("generatorStartupRef.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
 
         Generator generator2 = network2.getGenerator("G");

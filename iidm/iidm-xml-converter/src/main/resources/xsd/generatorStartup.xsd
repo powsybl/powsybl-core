@@ -3,7 +3,7 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/generator_startup/1_0"
            elementFormDefault="qualified">
-    <xs:element name="generatorStartup">
+    <xs:element name="startup">
         <xs:complexType>
             <xs:attribute name="plannedActivePowerSetpoint" use="optional" type="xs:double"/>
             <xs:attribute name="startupCost" use="optional" type="xs:double"/>
