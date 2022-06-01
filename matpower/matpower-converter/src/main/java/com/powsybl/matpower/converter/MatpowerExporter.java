@@ -7,6 +7,7 @@
 package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.export.Exporter;
@@ -389,6 +390,15 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(reporter);
+        if (network.getHvdcLineCount() > 0) {
+            throw new PowsyblException("HVDC line conversion not supported");
+        }
+        if (network.getStaticVarCompensatorCount() > 0) {
+            throw new PowsyblException("Static var compensator conversion not supported");
+        }
+        if (network.getBatteryCount() > 0) {
+            throw new PowsyblException("Battery conversion not supported");
+        }
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
