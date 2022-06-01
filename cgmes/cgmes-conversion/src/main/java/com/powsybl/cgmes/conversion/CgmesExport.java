@@ -8,7 +8,8 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.conversion.export.*;
+import com.powsybl.cgmes.conversion.export.AbstractCgmesProfileWriter;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -25,9 +26,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -55,7 +55,6 @@ public class CgmesExport implements Exporter {
     @Override
     public void export(Network network, Properties params, DataSource ds) {
         Objects.requireNonNull(network);
-        String baseName = baseName(params, ds, network);
         CgmesExportContext context = new CgmesExportContext(
                 network,
                 Parameter.readBoolean(getFormat(), params, WITH_TOPOLOGICAL_MAPPING_PARAMETER, defaultValueConfig),
@@ -67,18 +66,23 @@ public class CgmesExport implements Exporter {
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
+        String baseName = baseName(params, ds, network);
+        // Process the requested profiles in the proper order
+        // First export EQ, then TP, then SSH, then SV
+        Set<String> requestedProfiles = new HashSet<>(Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER));
+        Stream.of("EQ", "TP", "SSH", "SV")
+                .filter(requestedProfiles::contains)
+                .forEachOrdered(profile -> export(profile, baseName, ds, context));
+        context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);
+    }
+
+    private void export(String profile, String baseName, DataSource ds, CgmesExportContext context) {
         try {
-            List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER);
-            // FIXME(Luma) sort the profiles so they are processed in the "natural" order in case dependencies would be generated
-            //   EQ, TP, SSH, SV
-            for (String profile : profiles) {
-                String filename = baseName + "_" + profile + ".xml";
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filename, false))) {
-                    XMLStreamWriter xmlWriter = XmlUtil.initializeWriter(true, INDENT, out);
-                    AbstractCgmesProfileWriter.create(profile, context, xmlWriter).write();
-                }
+            String filename = baseName + "_" + profile + ".xml";
+            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filename, false))) {
+                XMLStreamWriter xmlWriter = XmlUtil.initializeWriter(true, INDENT, out);
+                AbstractCgmesProfileWriter.create(profile, context, xmlWriter).write();
             }
-            context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {
