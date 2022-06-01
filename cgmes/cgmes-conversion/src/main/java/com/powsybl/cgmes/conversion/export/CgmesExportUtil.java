@@ -80,6 +80,7 @@ public final class CgmesExportUtil {
         return UUID.randomUUID().toString();
     }
 
+    // FIXME(Luma) move this method to abstract cgmes writer
     public static void writeRdfRoot(String cimNamespace, String euPrefix, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.setPrefix(euPrefix, euNamespace);
         writer.setPrefix("rdf", RDF_NAMESPACE);
@@ -92,6 +93,7 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
+    // FIXME(Luma) move this method to abstract cgmes writer
     public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
@@ -125,6 +127,8 @@ public final class CgmesExportUtil {
         writer.writeEndElement();
     }
 
+    // FIXME(Luma) these methods will be moved to AbstractCgmesProfileWriter [begin]
+    //  (or AbstractCgmesWriter, if we separate the profile in multiple parts by elements, like we do in EQ)
     private static String toRdfId(String id) {
         // Handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
         // We have to be careful with "resource" and "about" references, and apply the same conversions
@@ -165,6 +169,7 @@ public final class CgmesExportUtil {
         writer.writeStartElement(cimNamespace, className);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id));
     }
+    // FIXME(Luma) these methods will be moved to AbstractCgmesProfileWriter [end]
 
     public static Complex complexVoltage(double r, double x, double g, double b,
                                          double v, double angle, double p, double q) {
