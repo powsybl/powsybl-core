@@ -35,7 +35,6 @@ public final class TopologyExport extends AbstractCgmesProfileWriter {
 
     public void write() {
         try {
-            String cimNamespace = context.getCim().getNamespace();
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), xmlWriter);
             if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(xmlWriter, context.getTpModelDescription(), context);
