@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema version="1.0"
+<xs:schema version="1.1"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/generator_startup/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/generator_startup/1_1"
            elementFormDefault="qualified">
     <xs:element name="startup">
         <xs:complexType>
