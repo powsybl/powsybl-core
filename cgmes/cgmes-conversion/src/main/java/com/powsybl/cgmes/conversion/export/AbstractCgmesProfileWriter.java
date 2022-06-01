@@ -15,34 +15,25 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public abstract class AbstractCgmesProfileWriter {
     protected final CgmesExportContext context;
-    protected XMLStreamWriter xmlWriter;
+    protected final XMLStreamWriter xmlWriter;
 
-    protected AbstractCgmesProfileWriter(CgmesExportContext context) {
+    protected AbstractCgmesProfileWriter(CgmesExportContext context, XMLStreamWriter xmlWriter) {
         this.context = context;
+        this.xmlWriter = xmlWriter;
     }
 
-    public static AbstractCgmesProfileWriter create(String profile, CgmesExportContext context) {
+    public static AbstractCgmesProfileWriter create(String profile, CgmesExportContext context, XMLStreamWriter xmlWriter) {
         if ("EQ".equals(profile)) {
-            return new EquipmentExport(context);
+            return new EquipmentExport(context, xmlWriter);
         } else if ("TP".equals(profile)) {
-            return new TopologyExport(context);
+            return new TopologyExport(context, xmlWriter);
         } else if ("SSH".equals(profile)) {
-            return new SteadyStateHypothesisExport(context);
+            return new SteadyStateHypothesisExport(context, xmlWriter);
         } else if ("SV".equals(profile)) {
-            return new StateVariablesExport(context);
+            return new StateVariablesExport(context, xmlWriter);
         }
         throw new PowsyblException("No CGMES profile writer for profile " + profile);
     }
 
-    public abstract String getProfile();
-
     public abstract void write();
-
-    public void setXmlWriter(XMLStreamWriter xmlWriter) {
-        this.xmlWriter = xmlWriter;
-    }
-
-    public String getFileName(String baseName) {
-        return baseName + "_" + getProfile() + ".xml";
-    }
 }

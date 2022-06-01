@@ -365,9 +365,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            AbstractCgmesProfileWriter eqWriter = AbstractCgmesProfileWriter.create("EQ", new CgmesExportContext(network));
-            eqWriter.setXmlWriter(writer);
-            eqWriter.write();
+            AbstractCgmesProfileWriter.create("EQ", new CgmesExportContext(network), writer).write();
         }
 
         return exportedEq;

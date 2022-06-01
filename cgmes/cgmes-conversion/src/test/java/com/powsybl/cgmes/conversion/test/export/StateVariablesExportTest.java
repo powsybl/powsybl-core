@@ -148,9 +148,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
         context.getSvModelDescription().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
-        AbstractCgmesProfileWriter svWriter = AbstractCgmesProfileWriter.create("SV", context);
-        svWriter.setXmlWriter(writer);
-        svWriter.write();
+        AbstractCgmesProfileWriter.create("SV", context, writer).write();
 
         return stringWriter.toString();
     }
@@ -213,9 +211,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
             context.getSvModelDescription().setVersion(svVersion);
             context.setExportBoundaryPowerFlows(true);
             context.setExportFlowsForSwitches(exportFlowsForSwitches);
-            AbstractCgmesProfileWriter svWriter = AbstractCgmesProfileWriter.create("SV", context);
-            svWriter.setXmlWriter(writer);
-            svWriter.write();
+            AbstractCgmesProfileWriter.create("SV", context, writer).write();
         }
 
         // Zip with new SV

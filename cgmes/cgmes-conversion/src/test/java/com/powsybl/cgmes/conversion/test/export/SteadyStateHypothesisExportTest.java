@@ -113,9 +113,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
             context.getSshModelDescription().setVersion(version);
-            AbstractCgmesProfileWriter sshWriter = AbstractCgmesProfileWriter.create("SSH", context);
-            sshWriter.setXmlWriter(writer);
-            sshWriter.write();
+            AbstractCgmesProfileWriter.create("SSH", context, writer).write();
         }
 
         // Compare the exported SSH with the original one

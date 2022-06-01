@@ -36,12 +36,8 @@ public final class StateVariablesExport extends AbstractCgmesProfileWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
-    StateVariablesExport(CgmesExportContext context) {
-        super(context);
-    }
-
-    public String getProfile() {
-        return "SV";
+    StateVariablesExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
+        super(context, xmlWriter);
     }
 
     public void write() {

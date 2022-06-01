@@ -32,12 +32,8 @@ public final class EquipmentExport extends AbstractCgmesProfileWriter {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
 
-    EquipmentExport(CgmesExportContext context) {
-        super(context);
-    }
-
-    public String getProfile() {
-        return "EQ";
+    EquipmentExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
+        super(context, xmlWriter);
     }
 
     public void write() {

@@ -60,9 +60,7 @@ public class TopologyExportTest extends AbstractConverterTest {
         try (OutputStream os = Files.newOutputStream(exportedTp)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected, true);
-            AbstractCgmesProfileWriter tpWriter = AbstractCgmesProfileWriter.create("TP", context);
-            tpWriter.setXmlWriter(writer);
-            tpWriter.write();
+            AbstractCgmesProfileWriter.create("TP", context, writer).write();
         }
 
         // Zip with new TP

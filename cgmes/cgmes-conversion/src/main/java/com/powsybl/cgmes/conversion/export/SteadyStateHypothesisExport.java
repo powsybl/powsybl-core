@@ -34,12 +34,8 @@ public final class SteadyStateHypothesisExport extends AbstractCgmesProfileWrite
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
 
-    SteadyStateHypothesisExport(CgmesExportContext context) {
-        super(context);
-    }
-
-    public String getProfile() {
-        return "SSH";
+    SteadyStateHypothesisExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
+        super(context, xmlWriter);
     }
 
     public void write() {

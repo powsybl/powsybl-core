@@ -29,12 +29,8 @@ public final class TopologyExport extends AbstractCgmesProfileWriter {
     private static final String TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER = "TopologicalNode.ConnectivityNodeContainer";
     private static final String TOPOLOGICAL_NODE_BASE_VOLTAGE = "TopologicalNode.BaseVoltage";
 
-    TopologyExport(CgmesExportContext context) {
-        super(context);
-    }
-
-    public String getProfile() {
-        return "TP";
+    TopologyExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
+        super(context, xmlWriter);
     }
 
     public void write() {

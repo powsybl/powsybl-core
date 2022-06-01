@@ -72,11 +72,10 @@ public class CgmesExport implements Exporter {
             // FIXME(Luma) sort the profiles so they are processed in the "natural" order in case dependencies would be generated
             //   EQ, TP, SSH, SV
             for (String profile : profiles) {
-                AbstractCgmesProfileWriter profileWriter = AbstractCgmesProfileWriter.create(profile, context);
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(profileWriter.getFileName(baseName), false))) {
+                String filename = baseName + "_" + profile + ".xml";
+                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filename, false))) {
                     XMLStreamWriter xmlWriter = XmlUtil.initializeWriter(true, INDENT, out);
-                    profileWriter.setXmlWriter(xmlWriter);
-                    profileWriter.write();
+                    AbstractCgmesProfileWriter.create(profile, context, xmlWriter).write();
                 }
             }
             context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);
