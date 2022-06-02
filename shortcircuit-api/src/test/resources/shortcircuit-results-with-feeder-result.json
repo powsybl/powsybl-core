@@ -10,7 +10,7 @@
       "connection" : "SERIES",
       "faultType" : "THREE_PHASE"
     },
-    "threePhaseFaultActivePower" : 0.1,
+    "shortCircuitPower" : 0.1,
     "timeConstant" : "PT1S",
     "feederResult" : [ {
       "connectableId" : "connectableId",

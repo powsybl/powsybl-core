@@ -40,7 +40,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
     @Override
     public FaultResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Fault fault = null;
-        double threePhaseFaultActivePower = Double.NaN;
+        double shortCircuitPower = Double.NaN;
         Duration timeConstant = null;
         List<FeederResult> feederResults = Collections.emptyList();
         List<LimitViolation> limitViolations = Collections.emptyList();
@@ -56,9 +56,9 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     fault = parser.readValueAs(Fault.class);
                     break;
 
-                case "threePhaseFaultActivePower":
+                case "shortCircuitPower":
                     parser.nextToken();
-                    threePhaseFaultActivePower = parser.readValueAs(Double.class);
+                    shortCircuitPower = parser.readValueAs(Double.class);
                     break;
 
                 case "timeConstant":
@@ -100,7 +100,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        FaultResult faultResult = new FaultResult(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant);
+        FaultResult faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant);
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;

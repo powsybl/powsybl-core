@@ -24,7 +24,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final Fault fault;
 
-    private final double threePhaseFaultActivePower;
+    private final double shortCircuitPower;
 
     private final Duration timeConstant;
 
@@ -38,11 +38,11 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final List<ShortCircuitBusResults> shortCircuitBusResults;
 
-    public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
                        Duration timeConstant) {
         this.fault = Objects.requireNonNull(fault);
-        this.threePhaseFaultActivePower = threePhaseFaultActivePower;
+        this.shortCircuitPower = shortCircuitPower;
         this.feederResults = feederResults;
         this.limitViolations = limitViolations;
         this.current = Objects.requireNonNull(current);
@@ -51,14 +51,14 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         this.timeConstant = timeConstant;
     }
 
-    public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant) {
-        this(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant);
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant);
     }
 
-    public FaultResult(Fault fault, double threePhaseFaultActivePower, List<FeederResult> feederResults,
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current) {
-        this(fault, threePhaseFaultActivePower, feederResults, limitViolations, current, null, Collections.emptyList(), null);
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null);
     }
 
     /**
@@ -76,10 +76,10 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     /**
-     * Value of the 3-phase short-circuit active power for this fault (in MVA).
+     * Value of the short-circuit power for this fault (in MVA).
      */
-    public double getThreePhaseFaultActivePower() {
-        return threePhaseFaultActivePower;
+    public double getShortCircuitPower() {
+        return shortCircuitPower;
     }
 
     /**
