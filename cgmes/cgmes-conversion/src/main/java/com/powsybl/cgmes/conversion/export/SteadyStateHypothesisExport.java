@@ -70,7 +70,9 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
-            writeSwitch(sw, cimNamespace, writer, context);
+            if (context.isExportedEquipment(sw)) {
+                writeSwitch(sw, cimNamespace, writer, context);
+            }
         }
     }
 
