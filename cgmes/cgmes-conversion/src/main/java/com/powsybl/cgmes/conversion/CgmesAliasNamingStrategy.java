@@ -189,7 +189,8 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
     public void readIdMapping(Identifiable<?> identifiable, String type) {
         if (idByUuid.containsValue(identifiable.getId())) {
             String uuid = idByUuid.inverse().get(identifiable.getId());
-            // FIXME(Luma) be aware of "special" hacks prefix_subObject_UUID and prefix_<aliasType>_UUID
+            // alias UUID is only created on request, for selected IIDM objects.
+            // There is no problem if the mapping contains more objects than the ones that are stored in UUID aliases
             identifiable.addAlias(uuid, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
         }
     }
