@@ -9,8 +9,6 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -47,7 +45,9 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
             // EquivalentBranch is a result of network reduction prior to the data exchange.
             invalid("Impedance 21 different of impedance 12 not supported");
         }
-        convertEquivalentBranch();
+        double gch = 0;
+        double bch = 0;
+        convertBranch(r, x, gch, bch);
     }
 
     @Override
@@ -70,35 +70,16 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         return boundaryLine;
     }
 
-    private void convertEquivalentBranch() {
+    private void convertEquivalentBranchAtBoundary(int boundarySide) {
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         double bch = 0;
         double gch = 0;
-        final LineAdder adder = context.network().newLine()
-                .setR(r)
-                .setX(x)
-                .setG1(gch / 2)
-                .setG2(gch / 2)
-                .setB1(bch / 2)
-                .setB2(bch / 2);
-        identify(adder);
-        connect(adder);
-        Line l = adder.add();
-        addAliasesAndProperties(l);
-        convertedTerminals(l.getTerminal1(), l.getTerminal2());
-    }
-
-    private void convertEquivalentBranchAtBoundary(int boundarySide) {
         // If we have created buses and substations for boundary nodes,
         // convert as a regular line
         if (context.config().convertBoundary()) {
-            convertEquivalentBranch();
+            convertBranch(r, x, bch, gch);
         } else {
-            double r = p.asDouble("r");
-            double x = p.asDouble("x");
-            double bch = 0;
-            double gch = 0;
             convertToDanglingLine(boundarySide, r, x, gch, bch);
         }
     }
