@@ -759,25 +759,32 @@ public final class EquipmentExport {
             TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(mapTerminal2Id, terminal), cimNamespace, writer);
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), getBoundaryTerminal(boundary), cimNamespace, writer);
+            TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), getTieFlowBoundaryTerminal(boundary), cimNamespace, writer);
         }
     }
 
-    private static String getBoundaryTerminal(Boundary boundary) {
-        String terminalId = null;
+    private static String getTieFlowBoundaryTerminal(Boundary boundary) {
         Connectable<?> c = boundary.getConnectable();
         if (c instanceof DanglingLine) {
-            terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
+            return c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
         } else {
-            int sequenceNumber = 0;
-            if (boundary.getSide().equals(Branch.Side.ONE)) {
-                sequenceNumber = 1;
-            } else if (boundary.getSide().equals(Branch.Side.TWO)) {
-                sequenceNumber = 2;
-            }
-            terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElseThrow(PowsyblException::new);
+            // This means the boundary corresponds to a TieLine.
+            // Because the network should not be a merging view,
+            // the only way to have a TieLine in the model is that
+            // the original data for the network contained both halves of the TieLine.
+            // That is, the initial CGMES data contains the two ACLSs at each side of one boundary point.
+
+            // Currently, we are exporting TieLines in the EQ as a single ACLS,
+            // We are not exporting the individual halves of the tie line as separate equipment.
+            // So we do not have terminals for the boundary points.
+
+            // This error should be fixed exporting the two halves of the TieLine to the EQ,
+            // with their corresponding terminals.
+            // Also, the boundary node should not be exported but referenced,
+            // as it should be defined in the boundary, not in the instance EQ file.
+
+            throw new PowsyblException("Unsupported tie flow at TieLine boundary " + c.getId());
         }
-        return terminalId;
     }
 
     private static void writeTerminals(Network network, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
