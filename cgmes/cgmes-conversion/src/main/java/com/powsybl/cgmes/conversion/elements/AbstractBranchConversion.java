@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -15,7 +16,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public abstract class AbstractBranchConversion extends AbstractConductingEquipmentConversion {
 
-    public AbstractBranchConversion(
+    protected AbstractBranchConversion(
             String type,
             PropertyBag p,
             Context context) {
@@ -39,5 +40,49 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
             return false;
         }
         return true;
+    }
+
+    protected void convertBranch(double r, double x, double gch, double bch) {
+        if (isZeroImpedanceInsideVoltageLevel(r, x)) {
+            // Convert to switch
+            Switch sw;
+            boolean open = !(terminalConnected(1) && terminalConnected(2));
+            if (context.nodeBreaker()) {
+                VoltageLevel.NodeBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getNodeBreakerView().newSwitch()
+                        .setKind(SwitchKind.BREAKER)
+                        .setRetained(true)
+                        .setFictitious(true);
+                identify(adder);
+                connect(adder, open);
+                sw = adder.add();
+            } else {
+                VoltageLevel.BusBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getBusBreakerView().newSwitch()
+                        .setFictitious(true);
+                identify(adder);
+                connect(adder, open);
+                sw = adder.add();
+            }
+            addAliasesAndProperties(sw);
+        } else {
+            final LineAdder adder = context.network().newLine()
+                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                    .setR(r)
+                    .setX(x)
+                    .setG1(gch / 2)
+                    .setG2(gch / 2)
+                    .setB1(bch / 2)
+                    .setB2(bch / 2);
+            identify(adder);
+            connect(adder);
+            final Line l = adder.add();
+            addAliasesAndProperties(l);
+            convertedTerminals(l.getTerminal1(), l.getTerminal2());
+        }
+    }
+
+    private boolean isZeroImpedanceInsideVoltageLevel(double r, double x) {
+        return r == 0.0 && x == 0.0 && voltageLevel(1) == voltageLevel(2);
     }
 }
