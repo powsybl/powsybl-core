@@ -10,13 +10,26 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ZipFileDataSourceTest extends AbstractDataSourceTest {
+
+    private static final String WORK_DIR = "/work/";
+    private static final String MAIN_EXT = "xml";
+    private static final String BASENAME = "network";
+    private static final String MAIN_FILE =  BASENAME + "." + MAIN_EXT;
+    private static final String ZIP_FILENAME = MAIN_FILE + ".zip";
+    private static final String ZIP_PATH = WORK_DIR + ZIP_FILENAME;
+    private static final String ADDITIONAL_SUFFIX = "_mapping";
+    private static final String ADDITIONAL_EXT = "csv";
+    private static final String ADDITIONAL_FILE = BASENAME + ADDITIONAL_SUFFIX + "." + ADDITIONAL_EXT;
+    private static final String UNRELATED_FILE = "other.de";
 
     @Override
     protected boolean appendTest() {
@@ -33,4 +46,37 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
         Files.createFile(testDir.resolve("fake.zip"));
         assertFalse(new ZipFileDataSource(testDir, "fake").exists("e"));
     }
+
+    @Test
+    public void createZipDataSourceWithMoreThanOneDot() throws IOException {
+        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(ZIP_PATH)));) {
+            // create an entry
+            ZipEntry e = new ZipEntry(UNRELATED_FILE);
+            out.putNextEntry(e);
+            byte[] data = "Test String".getBytes();
+            out.write(data, 0, data.length);
+
+            e = new ZipEntry(MAIN_FILE);
+            out.putNextEntry(e);
+            data = "Test String 2".getBytes();
+            out.write(data, 0, data.length);
+            out.closeEntry();
+
+            e = new ZipEntry(ADDITIONAL_FILE);
+            out.putNextEntry(e);
+            data = "Test String 2".getBytes();
+            out.write(data, 0, data.length);
+            out.closeEntry();
+
+        }
+        var workdirPath = fileSystem.getPath(WORK_DIR);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, ZIP_FILENAME, null);
+        assertTrue(dataSource.exists(UNRELATED_FILE));
+        assertFalse(dataSource.exists("not.zip"));
+        assertTrue(dataSource.exists(null, MAIN_EXT));
+        assertTrue(dataSource.exists(ADDITIONAL_SUFFIX, ADDITIONAL_EXT));
+        assertFalse(dataSource.exists("-not", "there"));
+        assertEquals("Test String", new String(dataSource.newInputStream(UNRELATED_FILE).readAllBytes()));
+    }
+
 }
