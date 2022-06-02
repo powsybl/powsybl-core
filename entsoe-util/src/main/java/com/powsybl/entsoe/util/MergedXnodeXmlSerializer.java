@@ -50,7 +50,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/V1_1/mergedXnode.xsd");
+        return getClass().getResourceAsStream("/xsd/mergedXnode_V1_1.xsd");
     }
 
     @Override

@@ -39,7 +39,6 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
                 .orElseGet(() -> CountryConversion.fromSubregionName(subRegionName)
                         .orElse(null));
 
-        // TODO add naminStrategy (for regions and substations)
         // After applying naming strategy it is possible that two CGMES substations are mapped
         // to the same Network substation, so we should check if corresponding substation has
         // already been created
@@ -57,10 +56,10 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
             adder.setGeographicalTags(geoTag);
         }
         Substation s = adder.add();
-        addAliasesAndProperties(s, p.getId("SubRegion"), p.getId("Region"));
+        addAliasesAndProperties(s, p.getId("SubRegion"), p.getId("Region"), regionName);
     }
 
-    private void addAliasesAndProperties(Substation s, String subRegionId, String regionId) {
+    private void addAliasesAndProperties(Substation s, String subRegionId, String regionId, String regionName) {
         int index = 0;
         for (String mergedSub : context.substationIdMapping().mergedSubstations(s.getId())) {
             index++;
@@ -68,6 +67,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         }
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
         s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName", regionName);
         context.namingStrategy().readIdMapping(s, "Substation");
     }
 }

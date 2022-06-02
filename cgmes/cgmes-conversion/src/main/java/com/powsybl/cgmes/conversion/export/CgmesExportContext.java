@@ -34,6 +34,10 @@ public class CgmesExportContext {
 
     private static final String TERMINAL_NETWORK = "Terminal_Network";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
+    private static final String REGION_ID = "regionId";
+    private static final String REGION_NAME = "regionName";
+    private static final String DEFAULT_REGION = "default region";
+    public static final String SUB_REGION_ID = "subRegionId";
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
@@ -242,16 +246,19 @@ public class CgmesExportContext {
 
     private void addIidmMappingsSubstations(Network network) {
         for (Substation substation : network.getSubstations()) {
-            String regionName = substation.getCountry().map(Country::name).orElse("default region");
-            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId")) {
+            String regionName;
+            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID)) {
+                regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
                 String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId());
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID, regionId);
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME, regionName);
             } else {
                 // Only add with this name if the id is not already mapped
                 // We can not have the same id mapped to two different names
-                String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
+                String regionId = namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID);
+                regionName = substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME);
                 if (!regionsIdsByRegionName.containsValue(regionId)) {
-                    regionsIdsByRegionName.computeIfAbsent(regionName, k -> substation.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId"));
+                    regionsIdsByRegionName.computeIfAbsent(regionName, k -> regionId);
                 }
             }
             String geoTag;
@@ -260,11 +267,11 @@ public class CgmesExportContext {
             } else {
                 geoTag = regionName;
             }
-            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId")) {
+            if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID)) {
                 String id = subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> CgmesExportUtil.getUniqueId());
-                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", id);
+                substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID, id);
             } else {
-                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId"));
+                subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID));
             }
         }
     }
@@ -384,11 +391,12 @@ public class CgmesExportContext {
         addIidmMappingsHvdcTerminals(network);
     }
 
-    public boolean isExportedEquipment(Connectable<?> c) {
-        // We only ignore fictitious loads,
-        // as they are used to model CGMES SvInjection objects
-        // representing calculation mismatches
-        boolean ignored = c.isFictitious() && c instanceof Load;
+    public boolean isExportedEquipment(Identifiable<?> c) {
+        // We ignore fictitious loads used to model CGMES SvInjection objects that represent calculation mismatches
+        // We also ignore fictitious switches used to model CGMES disconnected Terminals
+        boolean ignored = c.isFictitious() &&
+                (c instanceof Load
+                        || c instanceof Switch && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL)));
         return !ignored;
     }
 
@@ -494,7 +502,7 @@ public class CgmesExportContext {
             String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
             if (regulatingControlId == null && (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
-                svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);
+                svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
     }
