@@ -150,7 +150,9 @@ public final class FakeCgmesModel implements CgmesModel {
         // Add a default SubRegion to every substation
         substations.forEach(s -> {
             s.put("SubRegion", "SubRegion0");
+            s.put("subRegionName", "SubRegionName0");
             s.put("Region", "Region0");
+            s.put("regionName", "regionName0");
         });
         return this;
     }
@@ -175,7 +177,7 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
-    public FakeCgmesModel busbarSections(String... ids) {
+    public FakeCgmesModel busBarSections(String... ids) {
         fakeObjectsFromIdentifiers("BusbarSection", ids, busbarSections);
         return this;
     }
@@ -594,12 +596,20 @@ public final class FakeCgmesModel implements CgmesModel {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
+     */
     @Override
+    @Deprecated
     public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
+     */
     @Override
+    @Deprecated
     public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
         return null;
     }
