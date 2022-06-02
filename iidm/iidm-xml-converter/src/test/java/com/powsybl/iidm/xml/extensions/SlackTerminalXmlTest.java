@@ -124,7 +124,7 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
         vl.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
 
         Properties properties = new Properties();
-        properties.put("iidm.export.xml.extensions", "none");
+        properties.put("iidm.export.xml.extensions", "");
 
         MemDataSource ds = new MemDataSource();
 
