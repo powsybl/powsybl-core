@@ -306,7 +306,7 @@ class TransformerConverter extends AbstractConverter {
             Complex y22pi = y22l.subtract(y21l.multiply(y12l).divide(y22h.add(y11l)));
 
             return new TransformerModel(
-                y12pi.reciprocal().negate().multiply(0.5).add(y21pi.reciprocal().negate().multiply(0.5)),
+                y12pi.reciprocal().negate().add(y21pi.reciprocal().negate()).multiply(0.5),
                 y11pi.add(y12pi).add(y22pi.add(y21pi)));
         }
 
@@ -757,4 +757,3 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 }
-
