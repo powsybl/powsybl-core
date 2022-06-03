@@ -16,6 +16,8 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,6 +33,7 @@ public final class EquipmentExport {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
+    private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -70,11 +73,11 @@ public final class EquipmentExport {
             writeLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             writeTwoWindingsTransformers(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             writeThreeWindingsTransformers(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-            Map <Boundary, String> danglingLineBoundaries = new HashMap<>();
-            writeDanglingLines(network, mapTerminal2Id, danglingLineBoundaries, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+
+            writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
 
-            writeControlAreas(network, mapTerminal2Id, danglingLineBoundaries, cimNamespace, euNamespace, writer, context);
+            writeControlAreas(network, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -514,13 +517,14 @@ public final class EquipmentExport {
         return neutralStep;
     }
 
-    private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName,
+                                           String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
 
             String substationId = writeDanglingLineSubstation(danglingLine, cimNamespace, writer);
             String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer, context);
             String voltageLevelId = writeDanglingLineVoltageLevel(danglingLine, substationId, baseVoltageId, cimNamespace, writer);
-            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId, danglingLineBoundaries, cimNamespace, writer, context);
+            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId, cimNamespace, writer, context);
 
             // New Load
             String loadId = CgmesExportUtil.getUniqueId();
@@ -583,15 +587,14 @@ public final class EquipmentExport {
         return voltageLevelId;
     }
 
-    private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId, Map<Boundary, String> danglingLineBoundaries,
-                                                        String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId, String cimNamespace, XMLStreamWriter writer,
+                                                        CgmesExportContext context) throws XMLStreamException {
         // New ConnectivityNode
         String connectivityNodeId = CgmesExportUtil.getUniqueId();
         ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
         // New Terminal
         String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, writer);
-        danglingLineBoundaries.put(danglingLine.getBoundary(), terminalId);
 
         return connectivityNodeId;
     }
@@ -752,14 +755,14 @@ public final class EquipmentExport {
         DCTerminalEq.write(AC_DC_CONVERTER_DC_TERMINAL, id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
     }
 
-    private static void writeControlAreas(Network network, Map<Terminal, String> mapTerminal2Id, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeControlAreas(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-            writeControlArea(cgmesControlArea, mapTerminal2Id, danglingLineBoundaries, cimNamespace, euNamespace, writer, context);
+            writeControlArea(cgmesControlArea, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
         }
     }
 
-    private static void writeControlArea(CgmesControlArea cgmesControlArea, Map<Terminal, String> mapTerminal2Id, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeControlArea(CgmesControlArea cgmesControlArea, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
@@ -768,9 +771,35 @@ public final class EquipmentExport {
             TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(mapTerminal2Id, terminal), cimNamespace, writer);
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            if (cgmesControlArea.getBoundaries().contains(boundary)) {
-                TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId, danglingLineBoundaries.get(boundary), cimNamespace, writer);
+            String terminalId = getTieFlowBoundaryTerminal(boundary);
+            if (terminalId != null) {
+                TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId, terminalId, cimNamespace, writer);
             }
+        }
+    }
+
+    private static String getTieFlowBoundaryTerminal(Boundary boundary) {
+        Connectable<?> c = boundary.getConnectable();
+        if (c instanceof DanglingLine) {
+            return c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
+        } else {
+            // This means the boundary corresponds to a TieLine.
+            // Because the network should not be a merging view,
+            // the only way to have a TieLine in the model is that
+            // the original data for the network contained both halves of the TieLine.
+            // That is, the initial CGMES data contains the two ACLSs at each side of one boundary point.
+
+            // Currently, we are exporting TieLines in the EQ as a single ACLS,
+            // We are not exporting the individual halves of the tie line as separate equipment.
+            // So we do not have terminals for the boundary points.
+
+            // This error should be fixed exporting the two halves of the TieLine to the EQ,
+            // with their corresponding terminals.
+            // Also, the boundary node should not be exported but referenced,
+            // as it should be defined in the boundary, not in the instance EQ file.
+
+            LOG.error("Unsupported tie flow at TieLine boundary {}", c.getId());
+            return null;
         }
     }
 
