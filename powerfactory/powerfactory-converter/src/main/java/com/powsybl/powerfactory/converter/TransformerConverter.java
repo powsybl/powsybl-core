@@ -7,28 +7,15 @@
 package com.powsybl.powerfactory.converter;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
-
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.linear.RealMatrix;
+
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -37,10 +24,8 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 class TransformerConverter extends AbstractConverter {
 
-    private static final String UNEXPECTED_WINDING_TYPE = "Unexpected windingType: '";
-
     private enum WindingType {
-        HV, MV, LV;
+        HIGH, MEDIUM, LOW
     }
 
     TransformerConverter(ImportContext importContext, Network network) {
@@ -58,10 +43,10 @@ class TransformerConverter extends AbstractConverter {
         VoltageLevel vl1 = getNetwork().getVoltageLevel(nodeRef1.voltageLevelId);
         VoltageLevel vl2 = getNetwork().getVoltageLevel(nodeRef2.voltageLevelId);
 
-        boolean hvAtEnd1 = highVoltageAtEnd1(vl1, vl2);
-        boolean tapChangerAtEnd1 = tapChangerAtEnd1(typTr2, hvAtEnd1);
+        boolean highAtEnd1 = highVoltageAtEnd1(vl1, vl2);
+        boolean tapChangerAtEnd1 = tapChangerAtEnd1(typTr2, highAtEnd1);
 
-        RatedModel ratedModel = RatedModel.create(typTr2, hvAtEnd1);
+        RatedModel ratedModel = RatedModel.create(typTr2, highAtEnd1);
         double nominalVoltageEnd2 = vl2.getNominalV();
         TransformerModel transformerModel = TransformerModel.create(typTr2, ratedModel.ratedS, nominalVoltageEnd2);
 
@@ -70,8 +55,8 @@ class TransformerConverter extends AbstractConverter {
             transformerModel.moveStructuralRatioFromEnd2ToEnd1(ratedModel.ratedU2 / vl2.getNominalV());
         }
 
-        TapChangerPar tapChangerPar = TapChangerPar.create(elmTr2, typTr2);
-        Optional<TapChanger> tc = TapChanger.create(tapChangerPar, tapChangerAtEnd1);
+        PowerFactoryTapChanger powerFactoryTapChanger = PowerFactoryTapChanger.create(elmTr2, typTr2);
+        Optional<TapChangerModel> tc = TapChangerModel.create(powerFactoryTapChanger, tapChangerAtEnd1);
 
         Substation substation = vl1.getSubstation().orElseThrow();
         TwoWindingsTransformer t2wt = substation.newTwoWindingsTransformer()
@@ -90,7 +75,7 @@ class TransformerConverter extends AbstractConverter {
             .setB(transformerModel.b)
             .add();
 
-        tapChangerToIidm(tc, t2wt);
+        tc.ifPresent(t -> tapChangerToIidm(t, t2wt));
     }
 
     void createThreeWindings(DataObject elmTr3) {
@@ -102,6 +87,15 @@ class TransformerConverter extends AbstractConverter {
         NodeRef nodeRef2 = nodeRefs.get(1);
         NodeRef nodeRef3 = nodeRefs.get(2);
 
+        // The three connection buses of the transformer are defined in power factory
+        // using the attribute busIndexIn: 0, 1, 2
+        // But all the characteristics are given by winding type: high, medium or low
+        // The order of busIndexIn may not always follow high, medium, low
+        // So we need to map the busIndexIn to its winding type
+
+        // Additionally, IIDM model will respect the order defined by busIndexIn
+        // So IIDM Leg 1, 2, 3 will correspond to busIndexIn 0, 1, 2
+
         VoltageLevel vl1 = getNetwork().getVoltageLevel(nodeRef1.voltageLevelId);
         VoltageLevel vl2 = getNetwork().getVoltageLevel(nodeRef2.voltageLevelId);
         VoltageLevel vl3 = getNetwork().getVoltageLevel(nodeRef3.voltageLevelId);
@@ -109,18 +103,18 @@ class TransformerConverter extends AbstractConverter {
 
         double vn0 = 1.0;
         double ratedU0 = vn0;
-        RatedModel3w ratedModel3w = RatedModel3w.create(typTr3, ratedU0);
-        RatedModel ratedModel1 = ratedModel3w.getEnd(windingTypeEnds.get(0));
-        RatedModel ratedModel2 = ratedModel3w.getEnd(windingTypeEnds.get(1));
-        RatedModel ratedModel3 = ratedModel3w.getEnd(windingTypeEnds.get(2));
+        Rated3WModel rated3WModel = Rated3WModel.create(typTr3, ratedU0);
+        RatedModel ratedModel1 = rated3WModel.getEnd(windingTypeEnds.get(0));
+        RatedModel ratedModel2 = rated3WModel.getEnd(windingTypeEnds.get(1));
+        RatedModel ratedModel3 = rated3WModel.getEnd(windingTypeEnds.get(2));
         double ratedU1 = ratedModel1.ratedU1;
         double ratedU2 = ratedModel2.ratedU1;
         double ratedU3 = ratedModel3.ratedU1;
 
-        Transformer3wModel transformer3wModel = Transformer3wModel.create(typTr3, ratedModel3w, vn0);
-        TransformerModel transformerModel1 = transformer3wModel.getEnd(windingTypeEnds.get(0));
-        TransformerModel transformerModel2 = transformer3wModel.getEnd(windingTypeEnds.get(1));
-        TransformerModel transformerModel3 = transformer3wModel.getEnd(windingTypeEnds.get(2));
+        Transformer3WModel transformer3WModel = Transformer3WModel.create(typTr3, rated3WModel, vn0);
+        TransformerModel transformerModel1 = transformer3WModel.getEnd(windingTypeEnds.get(0));
+        TransformerModel transformerModel2 = transformer3WModel.getEnd(windingTypeEnds.get(1));
+        TransformerModel transformerModel3 = transformer3WModel.getEnd(windingTypeEnds.get(2));
 
         Substation substation = vl1.getSubstation().orElseThrow();
         ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
@@ -160,69 +154,62 @@ class TransformerConverter extends AbstractConverter {
 
         ThreeWindingsTransformer t3wt = adder.add();
 
-        TapChangerPar3w tapChangerPar3w = TapChangerPar3w.create(elmTr3, typTr3);
-        TapChanger3w tapChanger3w = TapChanger3w.create(tapChangerPar3w);
-        Optional<TapChanger> tc1 = tapChanger3w.getEnd(windingTypeEnds.get(0));
-        Optional<TapChanger> tc2 = tapChanger3w.getEnd(windingTypeEnds.get(1));
-        Optional<TapChanger> tc3 = tapChanger3w.getEnd(windingTypeEnds.get(2));
+        PowerFactoryTapChangers3W powerFactoryTapChangers3W = PowerFactoryTapChangers3W.create(elmTr3, typTr3);
+        TapChanger3W tapChanger3w = TapChanger3W.create(powerFactoryTapChangers3W);
+        Optional<TapChangerModel> tc1 = tapChanger3w.getEnd(windingTypeEnds.get(0));
+        Optional<TapChangerModel> tc2 = tapChanger3w.getEnd(windingTypeEnds.get(1));
+        Optional<TapChangerModel> tc3 = tapChanger3w.getEnd(windingTypeEnds.get(2));
 
-        tapChangerToIidm(tc1, t3wt.getLeg1());
-        tapChangerToIidm(tc2, t3wt.getLeg2());
-        tapChangerToIidm(tc3, t3wt.getLeg3());
+        tc1.ifPresent(tc -> tapChangerToIidm(tc, t3wt.getLeg1()));
+        tc2.ifPresent(tc -> tapChangerToIidm(tc, t3wt.getLeg2()));
+        tc3.ifPresent(tc -> tapChangerToIidm(tc, t3wt.getLeg3()));
     }
 
     private static boolean highVoltageAtEnd1(VoltageLevel vl1, VoltageLevel vl2) {
         return vl1.getNominalV() >= vl2.getNominalV();
     }
 
-    // tap_side = 0 then tap_side = Hv, tap_side = 1 then tap_side = Lv
-    private static boolean tapChangerAtEnd1(DataObject typTr2, boolean hvAtEnd1) {
-        int tapside = typTr2.getIntAttributeValue("tap_side");
-        return tapside == 0 && hvAtEnd1 || tapside == 1 && !hvAtEnd1;
+    private static boolean tapChangerAtEnd1(DataObject typTr2, boolean highAtEnd1) {
+        int tapSide = typTr2.getIntAttributeValue("tap_side");
+        // tap_side = 0 then tap_side = High voltage winding, tap_side = 1 then tap_side = Low voltage
+        // tap_side is not an bus index
+        return tapSide == 0 && highAtEnd1 || tapSide == 1 && !highAtEnd1;
     }
 
-    private static void tapChangerToIidm(Optional<TapChanger> opTapChanger, TwoWindingsTransformer twt) {
-        if (opTapChanger.isEmpty()) {
-            return;
-        }
-        TapChanger tapChanger = opTapChanger.get();
-        if (isPhaseTapChanger(tapChanger)) {
+    private static void tapChangerToIidm(TapChangerModel tapChangerModel, TwoWindingsTransformer twt) {
+        if (isPhaseTapChanger(tapChangerModel)) {
             PhaseTapChangerAdder ptc = twt.newPhaseTapChanger();
-            tapChangerToPhaseTapChanger(tapChanger, ptc);
-        } else if (isRatioTapChanger(tapChanger)) {
+            tapChangerToPhaseTapChanger(tapChangerModel, ptc);
+        } else if (isRatioTapChanger(tapChangerModel)) {
             RatioTapChangerAdder rtc = twt.newRatioTapChanger();
-            tapChangerToRatioTapChanger(tapChanger, rtc);
+            tapChangerToRatioTapChanger(tapChangerModel, rtc);
         }
     }
 
-    private static void tapChangerToIidm(Optional<TapChanger> opTapChanger, Leg leg) {
-        if (opTapChanger.isEmpty()) {
-            return;
-        }
-        TapChanger tapChanger = opTapChanger.get();
-        if (isPhaseTapChanger(tapChanger)) {
+    private static void tapChangerToIidm(TapChangerModel tapChangerModel, Leg leg) {
+        if (isPhaseTapChanger(tapChangerModel)) {
             PhaseTapChangerAdder ptc = leg.newPhaseTapChanger();
-            tapChangerToPhaseTapChanger(tapChanger, ptc);
-        } else if (isRatioTapChanger(tapChanger)) {
+            tapChangerToPhaseTapChanger(tapChangerModel, ptc);
+        } else if (isRatioTapChanger(tapChangerModel)) {
             RatioTapChangerAdder rtc = leg.newRatioTapChanger();
-            tapChangerToRatioTapChanger(tapChanger, rtc);
+            tapChangerToRatioTapChanger(tapChangerModel, rtc);
         }
     }
 
-    private static boolean isPhaseTapChanger(TapChanger tapChanger) {
-        return tapChanger.steps.stream().anyMatch(step -> step.angle != 0.0);
+    private static boolean isPhaseTapChanger(TapChangerModel tapChangerModel) {
+        return tapChangerModel.steps.stream().anyMatch(step -> step.angle != 0.0);
     }
 
-    private static boolean isRatioTapChanger(TapChanger tapChanger) {
-        return tapChanger.steps.stream().anyMatch(step -> step.ratio != 1.0);
+    private static boolean isRatioTapChanger(TapChangerModel tapChangerModel) {
+        return tapChangerModel.steps.stream().anyMatch(step -> step.ratio != 1.0);
     }
 
-    private static void tapChangerToRatioTapChanger(TapChanger tapChanger, RatioTapChangerAdder rtc) {
+    private static void tapChangerToRatioTapChanger(TapChangerModel tapChangerModel, RatioTapChangerAdder rtc) {
         rtc.setLoadTapChangingCapabilities(false)
-            .setLowTapPosition(tapChanger.lowTapPosition)
-            .setTapPosition(tapChanger.tapPosition);
+            .setLowTapPosition(tapChangerModel.lowTapPosition)
+            .setTapPosition(tapChangerModel.tapPosition);
 
-        tapChanger.steps.forEach(step ->
+        tapChangerModel.steps.forEach(step ->
             rtc.beginStep()
                 .setRho(1 / step.ratio)
                 .setR(step.r)
@@ -233,11 +220,11 @@ class TransformerConverter extends AbstractConverter {
         rtc.add();
     }
 
-    private static void tapChangerToPhaseTapChanger(TapChanger tapChanger, PhaseTapChangerAdder ptc) {
-        ptc.setLowTapPosition(tapChanger.lowTapPosition)
-            .setTapPosition(tapChanger.tapPosition);
+    private static void tapChangerToPhaseTapChanger(TapChangerModel tapChangerModel, PhaseTapChangerAdder ptc) {
+        ptc.setLowTapPosition(tapChangerModel.lowTapPosition)
+            .setTapPosition(tapChangerModel.tapPosition);
 
-        tapChanger.steps.forEach(step ->
+        tapChangerModel.steps.forEach(step ->
             ptc.beginStep()
                 .setRho(1 / step.ratio)
                 .setAlpha(-step.angle)
@@ -269,7 +256,7 @@ class TransformerConverter extends AbstractConverter {
             Complex proportion = createProportion("itrdr", "itrdl", typTr2);
 
             if (isProportionDefined(proportion) && shuntAdmittance.abs() != 0.0) {
-                return tModelToPiModel(impedance, shuntAdmittance, proportion);
+                return transformerTModelToPiModel(impedance, shuntAdmittance, proportion);
             } else {
                 return aproximatePiModel(impedance, shuntAdmittance);
             }
@@ -299,7 +286,7 @@ class TransformerConverter extends AbstractConverter {
             return !Double.isNaN(proportion.getReal()) && !Double.isNaN(proportion.getImaginary());
         }
 
-        private static TransformerModel tModelToPiModel(Complex z, Complex ym, Complex proportion) {
+        private static TransformerModel transformerTModelToPiModel(Complex z, Complex ym, Complex proportion) {
             Complex zh = new Complex(z.getReal() * proportion.getReal(), z.getImaginary() * proportion.getImaginary());
             Complex zl = new Complex(z.getReal() * (1 - proportion.getReal()), z.getImaginary() * (1 - proportion.getImaginary()));
 
@@ -366,59 +353,55 @@ class TransformerConverter extends AbstractConverter {
 
         private void moveStructuralRatioFromEnd2ToEnd1(double a02) {
             Complex a0 = new Complex(a02, 0.0);
-            r = TapChanger.impedanceConversion(r, a0);
-            x = TapChanger.impedanceConversion(x, a0);
-            g = TapChanger.admittanceConversion(g, a0);
-            b = TapChanger.admittanceConversion(b, a0);
+            r = TapChangerModel.impedanceConversion(r, a0);
+            x = TapChangerModel.impedanceConversion(x, a0);
+            g = TapChangerModel.admittanceConversion(g, a0);
+            b = TapChangerModel.admittanceConversion(b, a0);
         }
     }
 
-    private static final class Transformer3wModel {
-        private final TransformerModel hv;
-        private final TransformerModel mv;
-        private final TransformerModel lv;
-
-        private Transformer3wModel(TransformerModel hv, TransformerModel mv, TransformerModel lv) {
-            this.hv = hv;
-            this.mv = mv;
-            this.lv = lv;
-        }
+    private static final class Transformer3WModel {
+        private final Map<WindingType, TransformerModel> transformerModels = new EnumMap<>(WindingType.class);
 
         private TransformerModel getEnd(WindingType windingType) {
-            switch (windingType) {
-                case HV:
-                    return hv;
-                case MV:
-                    return mv;
-                case LV:
-                    return lv;
-                default:
-                    throw new PowsyblException(UNEXPECTED_WINDING_TYPE + windingType + "'");
-            }
+            return transformerModels.get(windingType);
         }
 
-        private static Transformer3wModel create(DataObject typTr3, RatedModel3w ratedModel, double nominalVoltage) {
-            Complex zHvMv = TransformerModel.createImpedance("uktr3_h", "pcut3_h", typTr3, Math.min(ratedModel.hv.ratedS, ratedModel.mv.ratedS), nominalVoltage);
-            Complex zMvLv = TransformerModel.createImpedance("uktr3_m", "pcut3_m", typTr3, Math.min(ratedModel.mv.ratedS, ratedModel.lv.ratedS), nominalVoltage);
-            Complex zLvHv = TransformerModel.createImpedance("uktr3_l", "pcut3_l", typTr3, Math.min(ratedModel.lv.ratedS, ratedModel.hv.ratedS), nominalVoltage);
+        private static Transformer3WModel create(DataObject typTr3, Rated3WModel rated3WModel, double nominalVoltage) {
+            double ratedSH = rated3WModel.getEnd(WindingType.HIGH).ratedS;
+            double ratedSM = rated3WModel.getEnd(WindingType.MEDIUM).ratedS;
+            double ratedSL = rated3WModel.getEnd(WindingType.LOW).ratedS;
+            double apparentPowerH = Math.min(ratedSH, ratedSM);
+            double apparentPowerM = Math.min(ratedSM, ratedSL);
+            double apparentPowerL = Math.min(ratedSL, ratedSH);
+            Complex zHM = TransformerModel.createImpedance("uktr3_h", "pcut3_h", typTr3, apparentPowerH, nominalVoltage);
+            Complex zML = TransformerModel.createImpedance("uktr3_m", "pcut3_m", typTr3, apparentPowerM, nominalVoltage);
+            Complex zLH = TransformerModel.createImpedance("uktr3_l", "pcut3_l", typTr3, apparentPowerL, nominalVoltage);
 
-            Complex zHv = zHvMv.add(zLvHv).subtract(zMvLv).multiply(0.5);
-            Complex zMv = zHvMv.add(zMvLv).subtract(zLvHv).multiply(0.5);
-            Complex zLv = zMvLv.add(zLvHv).subtract(zHvMv).multiply(0.5);
+            Complex zH = zHM.add(zLH).subtract(zML).multiply(0.5);
+            Complex zM = zHM.add(zML).subtract(zLH).multiply(0.5);
+            Complex zL = zML.add(zLH).subtract(zHM).multiply(0.5);
 
-            Complex ysh = TransformerModel.createShuntAdmittance("curm3", "pfe", typTr3, ratedModel.hv.ratedS, nominalVoltage);
-            OptionalInt i3loc = typTr3.findIntAttributeValue("i3loc");
+            Complex ysh = TransformerModel.createShuntAdmittance("curm3", "pfe", typTr3, ratedSH, nominalVoltage);
+            int i3loc = typTr3.findIntAttributeValue("i3loc").orElse(0);
 
-            Complex yshHv = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.HV);
-            Complex yshMv = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.MV);
-            Complex yshLv = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.LV);
+            Complex yshH = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.HIGH);
+            Complex yshM = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.MEDIUM);
+            Complex yshL = assignShuntAdmittanceToWinding(ysh, i3loc, WindingType.LOW);
 
-            return new Transformer3wModel(new TransformerModel(zHv, yshHv), new TransformerModel(zMv, yshMv), new TransformerModel(zLv, yshLv));
+            Transformer3WModel transformer3WModel = new Transformer3WModel();
+            transformer3WModel.transformerModels.put(WindingType.HIGH, new TransformerModel(zH, yshH));
+            transformer3WModel.transformerModels.put(WindingType.MEDIUM, new TransformerModel(zM, yshM));
+            transformer3WModel.transformerModels.put(WindingType.LOW, new TransformerModel(zL, yshL));
+            return transformer3WModel;
         }
 
-        private static Complex assignShuntAdmittanceToWinding(Complex ysh, OptionalInt i3loc, WindingType winding) {
-            int position = i3loc.isPresent() ? i3loc.getAsInt() : 0; // by default position 0
-            return winding.equals(positionToWinding(position)) ? ysh : Complex.ZERO;
+        private static Complex assignShuntAdmittanceToWinding(Complex ysh, int i3loc, WindingType windingType) {
+            // location here is not a busIndexIn, it is not a bus index
+            // loc = 0 refers to high voltage winding,
+            // loc = 1 means medium,
+            // loc = 2 means low
+            return windingType.equals(positionToWindingType(i3loc)) ? ysh : Complex.ZERO;
         }
     }
 
@@ -433,7 +416,7 @@ class TransformerConverter extends AbstractConverter {
             this.ratedS = ratedS;
         }
 
-        private static RatedModel create(DataObject typTr2, boolean hvAtEnd1) {
+        private static RatedModel create(DataObject typTr2, boolean highAtEnd1) {
 
             float strn = typTr2.getFloatAttributeValue("strn");
             float utrnL = typTr2.getFloatAttributeValue("utrn_l");
@@ -441,7 +424,7 @@ class TransformerConverter extends AbstractConverter {
 
             double ratedU1;
             double ratedU2;
-            if (hvAtEnd1) {
+            if (highAtEnd1) {
                 ratedU1 = utrnH;
                 ratedU2 = utrnL;
             } else {
@@ -452,31 +435,14 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static final class RatedModel3w {
-        private final RatedModel hv;
-        private final RatedModel mv;
-        private final RatedModel lv;
-
-        private RatedModel3w(RatedModel hv, RatedModel mv, RatedModel lv) {
-            this.hv = hv;
-            this.mv = mv;
-            this.lv = lv;
-        }
+    private static final class Rated3WModel {
+        private final Map<WindingType, RatedModel> ratedModels = new EnumMap<>(WindingType.class);
 
         private RatedModel getEnd(WindingType windingType) {
-            switch (windingType) {
-                case HV:
-                    return hv;
-                case MV:
-                    return mv;
-                case LV:
-                    return lv;
-                default:
-                    throw new PowsyblException(UNEXPECTED_WINDING_TYPE + windingType + "'");
-            }
+            return ratedModels.get(windingType);
         }
 
-        private static RatedModel3w create(DataObject typTr3, double ratedU0) {
+        private static Rated3WModel create(DataObject typTr3, double ratedU0) {
 
             float strnL = typTr3.getFloatAttributeValue("strn3_l");
             float strnM = typTr3.getFloatAttributeValue("strn3_m");
@@ -485,20 +451,24 @@ class TransformerConverter extends AbstractConverter {
             float utrnM = typTr3.getFloatAttributeValue("utrn3_m");
             float utrnH = typTr3.getFloatAttributeValue("utrn3_h");
 
-            return new RatedModel3w(new RatedModel(utrnH, ratedU0, strnH), new RatedModel(utrnM, ratedU0, strnM), new RatedModel(utrnL, ratedU0, strnL));
+            Rated3WModel rated3WModel = new Rated3WModel();
+            rated3WModel.ratedModels.put(WindingType.HIGH, new RatedModel(utrnH, ratedU0, strnH));
+            rated3WModel.ratedModels.put(WindingType.MEDIUM, new RatedModel(utrnM, ratedU0, strnM));
+            rated3WModel.ratedModels.put(WindingType.LOW, new RatedModel(utrnL, ratedU0, strnL));
+            return rated3WModel;
         }
     }
 
-    private static final class TapChangerPar {
+    private static final class PowerFactoryTapChanger {
         private final int nntap;
         private final int nntap0;
         private final int ntpmn;
         private final int ntpmx;
         private final double dutap;
         private final double phitr;
-        private Optional<RealMatrix> mTaps;
+        private RealMatrix mTaps = null;
 
-        private TapChangerPar(int nntap, int nntap0, int ntpmn, int ntpmx, double dutap, double phitr) {
+        private PowerFactoryTapChanger(int nntap, int nntap0, int ntpmn, int ntpmx, double dutap, double phitr) {
             this.nntap = nntap;
             this.nntap0 = nntap0;
             this.ntpmn = ntpmn;
@@ -507,15 +477,15 @@ class TransformerConverter extends AbstractConverter {
             this.phitr = phitr;
         }
 
-        private static TapChangerPar create(DataObject elmTr2, DataObject typTr2) {
-            TapChangerPar tapChangerPar = create("nntap", "nntap0", "ntpmn", "ntpmx", "dutap", "phitr", elmTr2, typTr2);
+        private static PowerFactoryTapChanger create(DataObject elmTr2, DataObject typTr2) {
+            PowerFactoryTapChanger powerFactoryTapChanger = create("nntap", "nntap0", "ntpmn", "ntpmx", "dutap", "phitr", elmTr2, typTr2);
 
-            tapChangerPar.mTaps = elmTr2.findDoubleMatrixAttributeValue("mTaps");
-            return tapChangerPar;
+            powerFactoryTapChanger.mTaps = elmTr2.findDoubleMatrixAttributeValue("mTaps").orElse(null);
+            return powerFactoryTapChanger;
         }
 
-        private static TapChangerPar create(String nntapT, String nntap0T, String ntpmnT, String ntpmxT, String duTapT,
-            String phitrT, DataObject elmTr2, DataObject typTr2) {
+        private static PowerFactoryTapChanger create(String nntapT, String nntap0T, String ntpmnT, String ntpmxT, String duTapT,
+                                                     String phitrT, DataObject elmTr2, DataObject typTr2) {
             int nntap = elmTr2.getIntAttributeValue(nntapT);
 
             int nntap0 = typTr2.getIntAttributeValue(nntap0T);
@@ -528,48 +498,47 @@ class TransformerConverter extends AbstractConverter {
             double dutap = opdutap.isPresent() ? opdutap.get() : 0.0;
             double phitr = opphitr.isPresent() ? opphitr.get() : 0.0;
 
-            return new TapChangerPar(nntap, nntap0, ntpmn, ntpmx, dutap, phitr);
+            return new PowerFactoryTapChanger(nntap, nntap0, ntpmn, ntpmx, dutap, phitr);
         }
     }
 
-    private static final class TapChangerPar3w {
-        private final TapChangerPar hv;
-        private final TapChangerPar mv;
-        private final TapChangerPar lv;
+    private static final class PowerFactoryTapChangers3W {
+        private PowerFactoryTapChanger high;
+        private PowerFactoryTapChanger medium;
+        private PowerFactoryTapChanger low;
 
-        private TapChangerPar3w(TapChangerPar hv, TapChangerPar mv, TapChangerPar lv) {
-            this.hv = hv;
-            this.mv = mv;
-            this.lv = lv;
-        }
+        private static PowerFactoryTapChangers3W create(DataObject elmTr3, DataObject typTr3) {
+            PowerFactoryTapChangers3W pft = new PowerFactoryTapChangers3W();
 
-        private static TapChangerPar3w create(DataObject elmTr3, DataObject typTr3) {
-            TapChangerPar hv = TapChangerPar.create("n3tap_h", "n3tp0_h", "n3tmn_h", "n3tmx_h", "du3tp_h", "ph3tr_h", elmTr3, typTr3);
-            TapChangerPar mv = TapChangerPar.create("n3tap_m", "n3tp0_m", "n3tmn_m", "n3tmx_m", "du3tp_m", "ph3tr_m", elmTr3, typTr3);
-            TapChangerPar lv = TapChangerPar.create("n3tap_l", "n3tp0_l", "n3tmn_l", "n3tmx_l", "du3tp_l", "ph3tr_l", elmTr3, typTr3);
+            pft.high = PowerFactoryTapChanger.create("n3tap_h", "n3tp0_h", "n3tmn_h", "n3tmx_h", "du3tp_h", "ph3tr_h", elmTr3, typTr3);
+            pft.medium = PowerFactoryTapChanger.create("n3tap_m", "n3tp0_m", "n3tmn_m", "n3tmx_m", "du3tp_m", "ph3tr_m", elmTr3, typTr3);
+            pft.low = PowerFactoryTapChanger.create("n3tap_l", "n3tp0_l", "n3tmn_l", "n3tmx_l", "du3tp_l", "ph3tr_l", elmTr3, typTr3);
 
-            OptionalInt iMeasTap = elmTr3.findIntAttributeValue("iMeasTap");
-            Optional<RealMatrix> mTaps = elmTr3.findDoubleMatrixAttributeValue("mTaps");
+            int iMeasTap = elmTr3.findIntAttributeValue("iMeasTap").orElse(0);
+            elmTr3.findDoubleMatrixAttributeValue("mTaps").ifPresent(mTaps -> {
+                switch (positionToWindingType(iMeasTap)) {
+                    case HIGH:
+                        pft.high.mTaps = mTaps;
+                        break;
+                    case MEDIUM:
+                        pft.medium.mTaps = mTaps;
+                        break;
+                    case LOW:
+                        pft.low.mTaps = mTaps;
+                        break;
+                }
+            });
 
-            hv.mTaps = assignResourceTableToWinding(mTaps, iMeasTap, WindingType.HV);
-            mv.mTaps = assignResourceTableToWinding(mTaps, iMeasTap, WindingType.MV);
-            lv.mTaps = assignResourceTableToWinding(mTaps, iMeasTap, WindingType.LV);
-
-            return new TapChangerPar3w(hv, mv, lv);
-        }
-
-        private static Optional<RealMatrix> assignResourceTableToWinding(Optional<RealMatrix> mTaps, OptionalInt iMeasTap, WindingType winding) {
-            int position = iMeasTap.isPresent() ? iMeasTap.getAsInt() : 0; // by default position 0
-            return winding.equals(positionToWinding(position)) ? mTaps : Optional.empty();
+            return pft;
         }
     }
 
-    private static final class TapChanger {
+    private static final class TapChangerModel {
         private final int lowTapPosition;
         private final int tapPosition;
         private final List<TapChangerStep> steps;
 
-        private TapChanger(int lowTapPosition, int tapPosition) {
+        private TapChangerModel(int lowTapPosition, int tapPosition) {
             this.lowTapPosition = lowTapPosition;
             this.tapPosition = tapPosition;
             steps = new ArrayList<>();
@@ -598,8 +567,8 @@ class TransformerConverter extends AbstractConverter {
             }
         }
 
-        private static Optional<TapChanger> create(TapChangerPar tapChangerPar, boolean tapChangerAtEnd1) {
-            Optional<TapChanger> tapChanger = TapChanger.create(tapChangerPar);
+        private static Optional<TapChangerModel> create(PowerFactoryTapChanger powerFactoryTapChanger, boolean tapChangerAtEnd1) {
+            Optional<TapChangerModel> tapChanger = TapChangerModel.create(powerFactoryTapChanger);
             if (tapChanger.isPresent()) {
                 if (tapChangerAtEnd1) {
                     return tapChanger;
@@ -610,83 +579,83 @@ class TransformerConverter extends AbstractConverter {
             return tapChanger;
         }
 
-        private static Optional<TapChanger> create(TapChangerPar tapChangerPar) {
-            if (tapChangerPar.dutap == 0.0 && tapChangerPar.phitr == 0.0 && tapChangerPar.mTaps.isEmpty()) {
+        private static Optional<TapChangerModel> create(PowerFactoryTapChanger powerFactoryTapChanger) {
+            if (powerFactoryTapChanger.dutap == 0.0 && powerFactoryTapChanger.phitr == 0.0 && powerFactoryTapChanger.mTaps == null) {
                 return Optional.empty();
             }
 
-            TapChangerPar fixedTapchangerPar = fixAndCheckTapChangerPar(tapChangerPar);
+            PowerFactoryTapChanger fixedTapchangerPar = fixAndCheckTapChangerPar(powerFactoryTapChanger);
 
-            if (fixedTapchangerPar.mTaps.isPresent()) {
+            if (fixedTapchangerPar.mTaps != null) {
                 return Optional.of(createTapChangerFromResourceTable(fixedTapchangerPar));
             }
             return Optional.of(createTapChangerFromAtributes(fixedTapchangerPar));
         }
 
-        private static TapChangerPar fixAndCheckTapChangerPar(TapChangerPar tapChangerPar) {
+        private static PowerFactoryTapChanger fixAndCheckTapChangerPar(PowerFactoryTapChanger powerFactoryTapChanger) {
 
             // In IIDM always minTap = 0
-            int nntap = tapChangerPar.nntap - tapChangerPar.ntpmn;
-            int nntap0 = tapChangerPar.nntap0 - tapChangerPar.ntpmn;
+            int nntap = powerFactoryTapChanger.nntap - powerFactoryTapChanger.ntpmn;
+            int nntap0 = powerFactoryTapChanger.nntap0 - powerFactoryTapChanger.ntpmn;
             int ntpmn = 0;
-            int ntpmx = tapChangerPar.ntpmx - tapChangerPar.ntpmn;
+            int ntpmx = powerFactoryTapChanger.ntpmx - powerFactoryTapChanger.ntpmn;
 
-            TapChangerPar fixedTapChangerPar = new TapChangerPar(nntap, nntap0, ntpmn, ntpmx, tapChangerPar.dutap, tapChangerPar.phitr);
-            fixedTapChangerPar.mTaps = tapChangerPar.mTaps;
+            PowerFactoryTapChanger fixedPowerFactoryTapChanger = new PowerFactoryTapChanger(nntap, nntap0, ntpmn, ntpmx, powerFactoryTapChanger.dutap, powerFactoryTapChanger.phitr);
+            fixedPowerFactoryTapChanger.mTaps = powerFactoryTapChanger.mTaps;
 
-            return fixedTapChangerPar;
+            return fixedPowerFactoryTapChanger;
         }
 
-        private static TapChanger createTapChangerFromResourceTable(TapChangerPar tapChangerPar) {
-            if (tapChangerPar.mTaps.get().getColumnDimension() == 5) {
-                return createTapChangerFromResourceTableForTwoWindingsTansformer(tapChangerPar);
+        private static TapChangerModel createTapChangerFromResourceTable(PowerFactoryTapChanger powerFactoryTapChanger) {
+            if (powerFactoryTapChanger.mTaps.getColumnDimension() == 5) {
+                return createTapChangerFromResourceTableForTwoWindingsTansformer(powerFactoryTapChanger);
             }
-            if (tapChangerPar.mTaps.get().getColumnDimension() == 8) {
-                return createTapChangerFromResourceTableForThreeWindingsTansformer(tapChangerPar);
+            if (powerFactoryTapChanger.mTaps.getColumnDimension() == 8) {
+                return createTapChangerFromResourceTableForThreeWindingsTansformer(powerFactoryTapChanger);
             }
             throw new PowsyblException("Unexpected number of columns in mTaps");
         }
 
-        private static TapChanger createTapChangerFromResourceTableForTwoWindingsTansformer(TapChangerPar tapChangerPar) {
+        private static TapChangerModel createTapChangerFromResourceTableForTwoWindingsTansformer(PowerFactoryTapChanger powerFactoryTapChanger) {
 
-            int rows = tapChangerPar.mTaps.get().getRowDimension();
-            if (rows != tapChangerPar.ntpmx - tapChangerPar.ntpmn + 1) {
+            int rows = powerFactoryTapChanger.mTaps.getRowDimension();
+            if (rows != powerFactoryTapChanger.ntpmx - powerFactoryTapChanger.ntpmn + 1) {
                 throw new PowsyblException("Unexpected number of rows in mTaps");
             }
-            TapChanger tapChanger = new TapChanger(tapChangerPar.ntpmn, tapChangerPar.nntap);
+            TapChangerModel tapChangerModel = new TapChangerModel(powerFactoryTapChanger.ntpmn, powerFactoryTapChanger.nntap);
             for (int row = 0; row < rows; row++) {
-                double ratio = tapChangerPar.mTaps.get().getEntry(row, 4);
-                double angle = tapChangerPar.mTaps.get().getEntry(row, 1);
+                double ratio = powerFactoryTapChanger.mTaps.getEntry(row, 4);
+                double angle = powerFactoryTapChanger.mTaps.getEntry(row, 1);
 
-                tapChanger.steps.add(new TapChangerStep(ratio, angle));
+                tapChangerModel.steps.add(new TapChangerStep(ratio, angle));
             }
-            return tapChanger;
+            return tapChangerModel;
         }
 
-        private static TapChanger createTapChangerFromResourceTableForThreeWindingsTansformer(TapChangerPar tapChangerPar) {
+        private static TapChangerModel createTapChangerFromResourceTableForThreeWindingsTansformer(PowerFactoryTapChanger powerFactoryTapChanger) {
 
-            int rows = tapChangerPar.mTaps.get().getRowDimension();
-            if (rows != tapChangerPar.ntpmx - tapChangerPar.ntpmn + 1) {
+            int rows = powerFactoryTapChanger.mTaps.getRowDimension();
+            if (rows != powerFactoryTapChanger.ntpmx - powerFactoryTapChanger.ntpmn + 1) {
                 throw new PowsyblException("Unexpected mTaps dimension");
             }
             double ratio = 1.0;
-            TapChanger tapChanger = new TapChanger(tapChangerPar.ntpmn, tapChangerPar.nntap);
+            TapChangerModel tapChangerModel = new TapChangerModel(powerFactoryTapChanger.ntpmn, powerFactoryTapChanger.nntap);
             for (int row = 0; row < rows; row++) {
-                double angle = tapChangerPar.mTaps.get().getEntry(row, 1);
+                double angle = powerFactoryTapChanger.mTaps.getEntry(row, 1);
 
-                tapChanger.steps.add(new TapChangerStep(ratio, angle));
+                tapChangerModel.steps.add(new TapChangerStep(ratio, angle));
             }
-            return tapChanger;
+            return tapChangerModel;
         }
 
-        private static TapChanger createTapChangerFromAtributes(TapChangerPar tapChangerPar) {
+        private static TapChangerModel createTapChangerFromAtributes(PowerFactoryTapChanger powerFactoryTapChanger) {
 
-            TapChanger tapChanger = new TapChanger(tapChangerPar.ntpmn, tapChangerPar.nntap);
-            for (int tap = tapChangerPar.ntpmn; tap <= tapChangerPar.ntpmx; tap++) {
-                TapChangerStep tapChangerStep = createTapChangerStep(tap, tapChangerPar.nntap0, tapChangerPar.dutap, tapChangerPar.phitr);
-                tapChanger.steps.add(tapChangerStep);
+            TapChangerModel tapChangerModel = new TapChangerModel(powerFactoryTapChanger.ntpmn, powerFactoryTapChanger.nntap);
+            for (int tap = powerFactoryTapChanger.ntpmn; tap <= powerFactoryTapChanger.ntpmx; tap++) {
+                TapChangerStep tapChangerStep = createTapChangerStep(tap, powerFactoryTapChanger.nntap0, powerFactoryTapChanger.dutap, powerFactoryTapChanger.phitr);
+                tapChangerModel.steps.add(tapChangerStep);
             }
-            return tapChanger;
+            return tapChangerModel;
         }
 
         private static TapChangerStep createTapChangerStep(int tap, int nntap0, double dutap, double phitr) {
@@ -703,7 +672,7 @@ class TransformerConverter extends AbstractConverter {
          * G = G * (1 + g / 100)
          * B = B * (1 + b / 100)
          */
-        private static TapChanger moveTapChanger(TapChanger tc) {
+        private static TapChangerModel moveTapChanger(TapChangerModel tc) {
             tc.steps.forEach(step -> {
                 double ratio = step.ratio;
                 double angle = step.angle;
@@ -739,35 +708,19 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static final class TapChanger3w {
-        private final Optional<TapChanger> hv;
-        private final Optional<TapChanger> mv;
-        private final Optional<TapChanger> lv;
+    private static final class TapChanger3W {
+        private final Map<WindingType, Optional<TapChangerModel>> tapChangers = new EnumMap<>(WindingType.class);
 
-        private TapChanger3w(Optional<TapChanger> hv, Optional<TapChanger> mv, Optional<TapChanger> lv) {
-            this.hv = hv;
-            this.mv = mv;
-            this.lv = lv;
+        private Optional<TapChangerModel> getEnd(WindingType windingType) {
+            return tapChangers.get(windingType);
         }
 
-        private Optional<TapChanger> getEnd(WindingType windingType) {
-            switch (windingType) {
-                case HV:
-                    return hv;
-                case MV:
-                    return mv;
-                case LV:
-                    return lv;
-                default:
-                    throw new PowsyblException(UNEXPECTED_WINDING_TYPE + windingType + "'");
-            }
-        }
-
-        private static TapChanger3w create(TapChangerPar3w tapChangerTap3w) {
-            Optional<TapChanger> tcHv = TapChanger.create(tapChangerTap3w.hv);
-            Optional<TapChanger> tcMv = TapChanger.create(tapChangerTap3w.mv);
-            Optional<TapChanger> tcLv = TapChanger.create(tapChangerTap3w.lv);
-            return new TapChanger3w(tcHv, tcMv, tcLv);
+        private static TapChanger3W create(PowerFactoryTapChangers3W tapChangerTap3w) {
+            TapChanger3W tapChanger3W = new TapChanger3W();
+            tapChanger3W.tapChangers.put(WindingType.HIGH, TapChangerModel.create(tapChangerTap3w.high));
+            tapChanger3W.tapChangers.put(WindingType.MEDIUM, TapChangerModel.create(tapChangerTap3w.medium));
+            tapChanger3W.tapChangers.put(WindingType.LOW, TapChangerModel.create(tapChangerTap3w.low));
+            return tapChanger3W;
         }
     }
 
@@ -776,31 +729,29 @@ class TransformerConverter extends AbstractConverter {
         double vn2 = vl2.getNominalV();
         double vn3 = vl3.getNominalV();
 
-        List<WindingType> windingTypeEnds = new ArrayList<>(3);
         if (vn1 >= vn2 && vn2 >= vn3) {
-            Collections.addAll(windingTypeEnds, WindingType.HV, WindingType.MV, WindingType.LV);
+            return List.of(WindingType.HIGH, WindingType.MEDIUM, WindingType.LOW);
         } else if (vn1 >= vn3 && vn3 >= vn2) {
-            Collections.addAll(windingTypeEnds, WindingType.HV, WindingType.LV, WindingType.MV);
+            return List.of(WindingType.HIGH, WindingType.LOW, WindingType.MEDIUM);
         } else if (vn2 >= vn1 && vn1 >= vn3) {
-            Collections.addAll(windingTypeEnds, WindingType.MV, WindingType.HV, WindingType.LV);
+            return List.of(WindingType.MEDIUM, WindingType.HIGH, WindingType.LOW);
         } else if (vn1 >= vn2) {
-            Collections.addAll(windingTypeEnds, WindingType.MV, WindingType.LV, WindingType.HV);
+            return List.of(WindingType.MEDIUM, WindingType.LOW, WindingType.HIGH);
         } else if (vn2 >= vn3) {
-            Collections.addAll(windingTypeEnds, WindingType.LV, WindingType.HV, WindingType.MV);
+            return List.of(WindingType.LOW, WindingType.HIGH, WindingType.MEDIUM);
         } else {
-            Collections.addAll(windingTypeEnds, WindingType.LV, WindingType.MV, WindingType.HV);
+            return List.of(WindingType.LOW, WindingType.MEDIUM, WindingType.HIGH);
         }
-        return windingTypeEnds;
     }
 
-    private static WindingType positionToWinding(int position) {
+    private static WindingType positionToWindingType(int position) {
         switch (position) {
             case 0:
-                return WindingType.HV;
+                return WindingType.HIGH;
             case 1:
-                return WindingType.MV;
+                return WindingType.MEDIUM;
             case 2:
-                return WindingType.LV;
+                return WindingType.LOW;
             default:
                 throw new PowsyblException("Unexpected position: " + position);
         }
