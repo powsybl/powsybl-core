@@ -7,7 +7,6 @@
 package com.powsybl.shortcircuit;
 
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
@@ -17,6 +16,8 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
+
 /**
  * Generic parameters for short circuit-computations.
  * May contain extensions for implementation-specific parameters.
@@ -25,17 +26,25 @@ import java.util.function.Supplier;
  */
 public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParameters> {
 
-    private boolean subTransStudy = ShortCircuitConstants.SUBTRANS_STUDY;
-
-    private boolean withFeederResult = ShortCircuitConstants.WITH_FEEDER_RESULT;
-
     public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {
     }
 
+    // VERSION = 1.0
+    public static final String VERSION = "1.0";
+
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
+    private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
+    private boolean withVoltageMap = DEFAULT_WITH_VOLTAGE_MAP;
+    private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
+    private StudyType studyType = DEFAULT_STUDY_TYPE;
+    private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
+
+    /**
+     * Load parameters from platform default config.
+     */
     public static ShortCircuitParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -44,14 +53,16 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         Objects.requireNonNull(platformConfig);
 
         ShortCircuitParameters parameters = new ShortCircuitParameters();
+
+        platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
+                parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
+                        .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
+                        .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
+                        .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
+
         parameters.readExtensions(platformConfig);
 
-        ModuleConfig config = platformConfig.getOptionalModuleConfig("short-circuit-parameters").orElse(null);
-        if (config != null) {
-            parameters.setSubTransStudy(config.getBooleanProperty("subTransStudy", ShortCircuitConstants.SUBTRANS_STUDY));
-            parameters.setWithFeederResult(config.getBooleanProperty("withFeederResult", ShortCircuitConstants.WITH_FEEDER_RESULT));
-
-        }
         return parameters;
     }
 
@@ -61,12 +72,21 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         }
     }
 
-    public boolean isSubTransStudy() {
-        return subTransStudy;
+    public boolean isWithLimitViolations() {
+        return withLimitViolations;
     }
 
-    public ShortCircuitParameters setSubTransStudy(boolean subTransStudy) {
-        this.subTransStudy = subTransStudy;
+    public ShortCircuitParameters setWithLimitViolations(boolean withLimitViolations) {
+        this.withLimitViolations = withLimitViolations;
+        return this;
+    }
+
+    public boolean isWithVoltageMap() {
+        return withVoltageMap;
+    }
+
+    public ShortCircuitParameters setWithVoltageMap(boolean withVoltageMap) {
+        this.withVoltageMap = withVoltageMap;
         return this;
     }
 
@@ -79,4 +99,22 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    public StudyType getStudyType() {
+        return studyType;
+    }
+
+    public ShortCircuitParameters setStudyType(StudyType studyType) {
+        this.studyType = studyType;
+        return this;
+    }
+
+    /** The maximum voltage drop threshold in %. */
+    public double getMinVoltageDropProportionalThreshold() {
+        return minVoltageDropProportionalThreshold;
+    }
+
+    public ShortCircuitParameters setMinVoltageDropProportionalThreshold(double minVoltageDropProportionalThreshold) {
+        this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
+        return this;
+    }
 }

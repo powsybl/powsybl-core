@@ -17,8 +17,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.NetworkMetadata;
 import com.powsybl.shortcircuit.FaultResult;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
@@ -48,9 +46,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
 
     @Override
     public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        NetworkMetadata networkMetadata = null;
         List<FaultResult> faultResults = null;
-        List<LimitViolation> limitViolations = Collections.emptyList();
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -59,20 +55,9 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     parser.nextToken(); // skip
                     break;
 
-                case "network":
-                    parser.nextToken();
-                    networkMetadata = parser.readValueAs(NetworkMetadata.class);
-                    break;
-
                 case "faultResults":
                     parser.nextToken();
                     faultResults = parser.readValueAs(new TypeReference<ArrayList<FaultResult>>() {
-                    });
-                    break;
-
-                case "limitViolations":
-                    parser.nextToken();
-                    limitViolations = parser.readValueAs(new TypeReference<ArrayList<LimitViolation>>() {
                     });
                     break;
 
@@ -86,8 +71,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
             }
         }
 
-        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults, limitViolations);
-        result.setNetworkMetadata(networkMetadata);
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);
         SUPPLIER.get().addExtensions(result, extensions);
 
         return result;

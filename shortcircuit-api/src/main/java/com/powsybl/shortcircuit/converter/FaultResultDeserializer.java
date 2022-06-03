@@ -17,11 +17,11 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.FeederResult;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,27 +39,56 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
     @Override
     public FaultResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String id = "";
-        double threePhaseFaultCurrent = Double.NaN;
-        List<Extension<FaultResult>> extensions = Collections.emptyList();
+        Fault fault = null;
+        double shortCircuitPower = Double.NaN;
+        Duration timeConstant = null;
         List<FeederResult> feederResults = Collections.emptyList();
+        List<LimitViolation> limitViolations = Collections.emptyList();
+        List<Extension<FaultResult>> extensions = Collections.emptyList();
+        FortescueValue current = null;
+        FortescueValue voltage = null;
+        List<ShortCircuitBusResults> shortCircuitBusResults = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "id":
+                case "fault":
                     parser.nextToken();
-                    id = parser.readValueAs(String.class);
+                    fault = parser.readValueAs(Fault.class);
                     break;
 
-                case "threePhaseFaultCurrent":
+                case "shortCircuitPower":
                     parser.nextToken();
-                    threePhaseFaultCurrent = parser.readValueAs(Double.class);
+                    shortCircuitPower = parser.readValueAs(Double.class);
+                    break;
+
+                case "timeConstant":
+                    parser.nextToken();
+                    timeConstant = Duration.parse(parser.readValueAs(String.class));
                     break;
 
                 case "feederResult":
                     parser.nextToken();
-                    feederResults = parser.readValueAs(new TypeReference<ArrayList<FeederResult>>() {
-                    });
+                    feederResults = parser.readValueAs(new TypeReference<List<FeederResult>>() { });
+                    break;
+
+                case "limitViolations":
+                    parser.nextToken();
+                    limitViolations = parser.readValueAs(new TypeReference<List<LimitViolation>>() { });
+                    break;
+
+                case "current":
+                    parser.nextToken();
+                    current = parser.readValueAs(FortescueValue.class);
+                    break;
+
+                case "voltage":
+                    parser.nextToken();
+                    voltage = parser.readValueAs(FortescueValue.class);
+                    break;
+
+                case "shortCircuitBusResults":
+                    parser.nextToken();
+                    shortCircuitBusResults = parser.readValueAs(new TypeReference<List<ShortCircuitBusResults>>() { });
                     break;
 
                 case "extensions":
@@ -71,8 +100,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        FaultResult faultResult = new FaultResult(id, threePhaseFaultCurrent, feederResults);
+        FaultResult faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant);
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;
