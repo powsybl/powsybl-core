@@ -122,14 +122,14 @@ public final class TopologyExport {
     private static void writeHvdcTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcLine line : network.getHvdcLines()) {
             Bus b1 = line.getConverterStation1().getTerminal().getBusView().getBus();
-            writeHvdcBusTerminals(line, b1, 1, cimNamespace, writer, context);
+            writeHvdcBusTerminals(line, line.getConverterStation1(), b1, 1, cimNamespace, writer, context);
 
             Bus b2 = line.getConverterStation2().getTerminal().getBusView().getBus();
-            writeHvdcBusTerminals(line, b2, 2, cimNamespace, writer, context);
+            writeHvdcBusTerminals(line, line.getConverterStation2(), b2, 2, cimNamespace, writer, context);
         }
     }
 
-    private static void writeHvdcBusTerminals(HvdcLine line, Bus bus, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeHvdcBusTerminals(HvdcLine line, HvdcConverterStation<?> converter, Bus bus, int side, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String iidmId;
         if (bus == null) {
             iidmId = line.getId() + side;
@@ -142,7 +142,7 @@ public final class TopologyExport {
             writeDCNode(dcNode, dcTopologicalNode, cimNamespace, writer);
             String dcTerminal = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal" + side).orElseThrow(PowsyblException::new);
             writeDCTerminal(dcTerminal, dcTopologicalNode, cimNamespace, writer);
-            String acdcConverterDcTerminal = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal, dcTopologicalNode, cimNamespace, writer);
         }
     }

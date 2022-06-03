@@ -7,57 +7,53 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.NetworkMetadata;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
- * Results of a short-circuit computation.
- * Will contain an exhaustive list of computed short-circuit current values,
- * and a list of {@link LimitViolation}s.
+ * Results of an localized short-circuit computation.
+ * Will contain a fault result, with feeder results.
+ * Will contain a list of short-circuit bus result for each buses of the network.
  *
  * @author Boubakeur Brahimi
  */
 public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitAnalysisResult> {
 
-    private NetworkMetadata networkMetadata;
+    private final Map<String, FaultResult> resultByFaultId = new TreeMap<>();
+    private final Map<String, List<FaultResult>> resultByElementId = new TreeMap<>();
 
-    private final List<FaultResult> faultResults = new ArrayList<>();
-
-    private final List<LimitViolation> limitViolations = new ArrayList<>();
-
-    public ShortCircuitAnalysisResult(List<FaultResult> faultResults, List<LimitViolation> limitViolations) {
-        this.faultResults.addAll(Objects.requireNonNull(faultResults));
-        this.limitViolations.addAll(Objects.requireNonNull(limitViolations));
+    public ShortCircuitAnalysisResult(List<FaultResult> faultResults) {
+        Objects.requireNonNull(faultResults);
+        faultResults.forEach(r -> {
+            this.resultByFaultId.put(r.getFault().getId(), r);
+            this.resultByElementId.computeIfAbsent(r.getFault().getElementId(), k -> new ArrayList<>()).add(r);
+        });
     }
 
     /**
-     * A list of results, for each fault which have been simulated.
+     * The associated fault results.
      */
     public List<FaultResult> getFaultResults() {
-        return Collections.unmodifiableList(faultResults);
+        return new ArrayList<>(resultByFaultId.values());
     }
 
     /**
-     * The list of limit violations: for instance when the computed short-circuit current on a given equipment is higher
-     * than the maximum admissible value for that equipment. In general, the equipment ID can be completed by the side where
-     * the violation occurs. In a first simple approach, the equipment is a voltage level, and no side is needed.
+     * Get a computation result associated to a given fault ID
+     *
+     * @param id the ID of the considered fault.
+     * @return the computation result associated to a given fault ID.
      */
-    public List<LimitViolation> getLimitViolations() {
-        return Collections.unmodifiableList(limitViolations);
+    public FaultResult getFaultResult(String id) {
+        return resultByFaultId.get(id);
     }
 
-    public NetworkMetadata getNetworkMetadata() {
-        return networkMetadata;
+    /**
+     * Get a list of computation result associated to a given fault element ID
+     *
+     * @param elementId the ID of the considered element.
+     * @return the computation result associated to a given element ID.
+     */
+    public List<FaultResult> getFaultResults(String elementId) {
+        return resultByElementId.getOrDefault(elementId, Collections.emptyList());
     }
-
-    public ShortCircuitAnalysisResult setNetworkMetadata(NetworkMetadata networkMetadata) {
-        this.networkMetadata = networkMetadata;
-        return this;
-    }
-
 }
