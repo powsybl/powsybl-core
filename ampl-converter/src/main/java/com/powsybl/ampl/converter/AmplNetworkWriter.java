@@ -1603,8 +1603,8 @@ public class AmplNetworkWriter {
                 context.batteryIdsToExport.add(id);
                 int num = mapper.getInt(AmplSubset.BATTERY, id);
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                double p0 = b.getP0();
-                double q0 = b.getQ0();
+                double targetP = b.getTargetP();
+                double targetQ = b.getTargetQ();
                 double minP = b.getMinP();
                 double maxP = b.getMaxP();
 
@@ -1613,8 +1613,8 @@ public class AmplNetworkWriter {
                         .writeCell(busNum)
                         .writeCell(conBusNum != -1 ? conBusNum : busNum)
                         .writeCell(vlNum)
-                        .writeCell(p0)
-                        .writeCell(q0)
+                        .writeCell(targetP)
+                        .writeCell(targetQ)
                         .writeCell(minP)
                         .writeCell(maxP)
                         .writeCell(b.getReactiveLimits().getMinQ(maxP))
