@@ -85,8 +85,8 @@ public class VoltageLevelAdapterTest {
                     .setBus("busA")
                     .setMaxP(9999.99)
                     .setMinP(-9999.99)
-                    .setP0(15)
-                    .setQ0(-15)
+                    .setTargetP(15)
+                    .setTargetQ(-15)
                 .add();
         vlActual.getBatteries().forEach(b -> {
             assertTrue(b instanceof BatteryAdapter);

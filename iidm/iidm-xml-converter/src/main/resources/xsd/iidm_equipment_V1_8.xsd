@@ -260,8 +260,8 @@
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
                 </xs:sequence>
-                <xs:attribute name="p0" use="optional" type="xs:double"/>
-                <xs:attribute name="q0" use="optional" type="xs:double"/>
+                <xs:attribute name="targetP" use="optional" type="xs:double"/>
+                <xs:attribute name="targetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="minP" use="required" type="xs:double"/>
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
             </xs:extension>
