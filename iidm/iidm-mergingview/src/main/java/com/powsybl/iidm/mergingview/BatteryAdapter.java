@@ -41,24 +41,24 @@ public class BatteryAdapter extends AbstractInjectionAdapter<Battery> implements
     }
 
     @Override
-    public double getP0() {
-        return getDelegate().getP0();
+    public double getTargetP() {
+        return getDelegate().getTargetP();
     }
 
     @Override
-    public BatteryAdapter setP0(final double p0) {
-        getDelegate().setP0(p0);
+    public BatteryAdapter setTargetP(final double targetP) {
+        getDelegate().setTargetP(targetP);
         return this;
     }
 
     @Override
-    public double getQ0() {
-        return getDelegate().getQ0();
+    public double getTargetQ() {
+        return getDelegate().getTargetQ();
     }
 
     @Override
-    public BatteryAdapter setQ0(final double q0) {
-        getDelegate().setQ0(q0);
+    public BatteryAdapter setTargetQ(final double targetQ) {
+        getDelegate().setTargetQ(targetQ);
         return this;
     }
 
