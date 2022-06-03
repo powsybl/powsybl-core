@@ -12,9 +12,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.shortcircuit.FaultResult;
-import com.powsybl.shortcircuit.FeederResult;
-import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
+import com.powsybl.shortcircuit.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,6 +27,28 @@ import static org.junit.Assert.assertEquals;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
+
+    private static ShortCircuitAnalysisResult createResultWithExtension() {
+        Fault fault = new BusFault("id", "busId", 0.0, 0.0);
+        List<LimitViolation> limitViolations = new ArrayList<>();
+        String subjectId = "vlId";
+        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
+        float limit = 2000;
+        float limitReduction = 1;
+        float value = 2500;
+        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        limitViolation.addExtension(ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension());
+        limitViolations.add(limitViolation);
+        List<ShortCircuitBusResults> busResults = new ArrayList<>();
+        busResults.add(new ShortCircuitBusResults(subjectId, "busId", new FortescueValue(2004, 2005)));
+        List<FaultResult> faultResults = new ArrayList<>();
+        FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null);
+        faultResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension());
+        faultResults.add(faultResult);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults);
+        shortCircuitAnalysisResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension());
+        return shortCircuitAnalysisResult;
+    }
 
     @Test
     public void testGetFormats() {
@@ -49,56 +69,6 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         assertEquals("Export a result in JSON format", ShortCircuitAnalysisResultExporters.getExporter("JSON").getComment());
     }
 
-    private static ShortCircuitAnalysisResult createResult() {
-        List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult("faultResultID", 1);
-        faultResults.add(faultResult);
-        List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "id";
-        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
-        float limit = 2000;
-        float limitReduction = 1;
-        float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
-        limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
-    }
-
-    private static ShortCircuitAnalysisResult createResultWithExtension() {
-        List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult("faultResultID", 1);
-        faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
-        faultResults.add(faultResult);
-        List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "id";
-        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
-        float limit = 2000;
-        float limitReduction = 1;
-        float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
-        limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
-        limitViolations.add(limitViolation);
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults, limitViolations);
-        shortCircuitAnalysisResult.addExtension(DummyShortCircuitAnalysisResultExtension.class, new DummyShortCircuitAnalysisResultExtension());
-        return shortCircuitAnalysisResult;
-    }
-
-    private static ShortCircuitAnalysisResult createWithFeederResults() {
-        List<FaultResult> faultResults = new ArrayList<>();
-        FeederResult feederResult = new FeederResult("connectableId", 1);
-        FaultResult faultResult = new FaultResult("faultResultID", 1, Collections.singletonList(feederResult));
-        faultResults.add(faultResult);
-        List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "id";
-        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
-        float limit = 2000;
-        float limitReduction = 1;
-        float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
-        limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
-    }
-
     public void writeJson(ShortCircuitAnalysisResult results, Path path) {
         ShortCircuitAnalysisResultExporters.export(results, path, "JSON", null);
     }
@@ -117,13 +87,13 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
 
     @Test
     public void testJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisResult result = createWithFeederResults();
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
         writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
     public void roundTripJsonWithFeederResult() throws IOException {
-        ShortCircuitAnalysisResult result = createWithFeederResults();
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
     }
 
@@ -134,24 +104,8 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
 
     @Test
     public void testWriteCsv() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-        ShortCircuitAnalysisResult result = createResult(network);
+        ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
         writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/shortcircuit-results.csv");
-    }
-
-    public ShortCircuitAnalysisResult createResult(Network network) {
-        List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult("VLGEN", 2500);
-        faultResults.add(faultResult);
-        List<LimitViolation> limitViolations = new ArrayList<>();
-        String subjectId = "VLGEN";
-        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
-        float limit = 2000;
-        float limitReduction = 1;
-        float value = 2500;
-        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
-        limitViolations.add(limitViolation);
-        return new ShortCircuitAnalysisResult(faultResults, limitViolations);
     }
 
     static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {

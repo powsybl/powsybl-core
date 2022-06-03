@@ -7,7 +7,9 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.security.LimitViolation;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -16,45 +18,79 @@ import java.util.Objects;
  * Results for one fault computation.
  *
  * @author Boubakeur Brahimi
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public final class FaultResult extends AbstractExtendable<FaultResult> {
 
-    private final String id;
+    private final Fault fault;
 
-    private final double threePhaseFaultCurrent;
+    private final double shortCircuitPower;
 
-    private final List<FeederResult> feederResults; // optional
+    private final Duration timeConstant;
 
-    public FaultResult(String id, double threePhaseFaultCurrent, List<FeederResult> feederResults) {
-        this.id = Objects.requireNonNull(id);
-        this.threePhaseFaultCurrent = threePhaseFaultCurrent;
-        this.feederResults = List.copyOf(feederResults);
+    private final List<FeederResult> feederResults;
+
+    private final List<LimitViolation> limitViolations;
+
+    private final FortescueValue current;
+
+    private final FortescueValue voltage;
+
+    private final List<ShortCircuitBusResults> shortCircuitBusResults;
+
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
+                       Duration timeConstant) {
+        this.fault = Objects.requireNonNull(fault);
+        this.shortCircuitPower = shortCircuitPower;
+        this.feederResults = feederResults;
+        this.limitViolations = limitViolations;
+        this.current = Objects.requireNonNull(current);
+        this.voltage = voltage;
+        this.shortCircuitBusResults = shortCircuitBusResults;
+        this.timeConstant = timeConstant;
     }
 
-    public FaultResult(String id, double threePhaseFaultCurrent) {
-        this(id, threePhaseFaultCurrent, Collections.emptyList());
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant);
+    }
+
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null);
     }
 
     /**
-     * ID of the equipment for which a fault has been simulated. In a first simple approach, the equipment is a voltage
-     * level, and no side is needed.
+     * The fault associated to the results.
      */
-    public String getId() {
-        return id;
+    public Fault getFault() {
+        return fault;
     }
 
     /**
      * Value of the 3-phase short-circuit current for this fault (in A).
      */
     public double getThreePhaseFaultCurrent() {
-        return threePhaseFaultCurrent;
+        return current.getDirectMagnitude();
+    }
+
+    /**
+     * Value of the short-circuit power for this fault (in MVA).
+     */
+    public double getShortCircuitPower() {
+        return shortCircuitPower;
     }
 
     /**
      * List of contributions to the three phase fault current of each connectable connected to the equipment
      */
     public List<FeederResult> getFeederResults() {
-        return Collections.unmodifiableList(feederResults);
+        return feederResults;
+    }
+
+    public List<LimitViolation> getLimitViolations() {
+        return limitViolations;
     }
 
     public double getFeederCurrent(String feederId) {
@@ -66,4 +102,29 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         return Double.NaN;
     }
 
+    /**
+     * The results on three phases for current.
+     */
+    public FortescueValue getCurrent() {
+        return current;
+    }
+
+    /**
+     * The results on three phases for voltage.
+     */
+    public FortescueValue getVoltage() {
+        return voltage;
+    }
+
+    /**
+     *
+     * The duration before reaching the permanent current.
+     */
+    public Duration getTimeConstant() {
+        return timeConstant;
+    }
+
+    public List<ShortCircuitBusResults> getShortCircuitBusResults() {
+        return shortCircuitBusResults;
+    }
 }
