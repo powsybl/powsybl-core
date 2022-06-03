@@ -694,8 +694,8 @@ public final class ValidationUtil {
             Validable validable = (Validable) identifiable;
             if (identifiable instanceof Battery) {
                 Battery battery = (Battery) identifiable;
-                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getP0(), throwException, reporter));
-                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getQ0(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getTargetP(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getTargetQ(), throwException, reporter));
             } else if (identifiable instanceof DanglingLine) {
                 DanglingLine danglingLine = (DanglingLine) identifiable;
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), throwException, reporter));

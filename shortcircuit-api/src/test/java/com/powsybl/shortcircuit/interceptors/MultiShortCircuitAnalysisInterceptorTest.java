@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class ShortCircuitAnalysisInterceptorTest {
+public class MultiShortCircuitAnalysisInterceptorTest {
     @Test
     public void test() {
         Assert.assertEquals(Collections.singleton("ShortCircuitInterceptorExtensionMock"), ShortCircuitAnalysisInterceptors.getExtensionNames());

@@ -28,14 +28,14 @@ public class BatteryAdderAdapter extends AbstractInjectionAdderAdapter<BatteryAd
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public BatteryAdder setP0(final double p0) {
-        getDelegate().setP0(p0);
+    public BatteryAdder setTargetP(final double targetP) {
+        getDelegate().setTargetP(targetP);
         return this;
     }
 
     @Override
-    public BatteryAdder setQ0(final double q0) {
-        getDelegate().setQ0(q0);
+    public BatteryAdder setTargetQ(final double targetQ) {
+        getDelegate().setTargetQ(targetQ);
         return this;
     }
 
