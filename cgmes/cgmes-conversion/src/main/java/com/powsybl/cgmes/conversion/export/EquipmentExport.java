@@ -115,7 +115,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         mapNodeKey2NodeId.computeIfAbsent(nodeKey, k -> {
             try {
                 String node = CgmesExportUtil.getUniqueId();
-                ConnectivityNodeEq.write(node, nodeKey, context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
+                exportConnectivityNode(node, nodeKey, context.getNamingStrategy().getCgmesId(vl));
                 return node;
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
@@ -131,13 +131,19 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         return bus.getId() + "_" + CONNECTIVITY_NODE_SUFFIX;
     }
 
+    private void exportConnectivityNode(String id, String nodeName, String connectivityNodeContainerId) throws XMLStreamException {
+        writeStartIdName("ConnectivityNode", id, nodeName);
+        writeReference("ConnectivityNode.ConnectivityNodeContainer", connectivityNodeContainerId);
+        xmlWriter.writeEndElement();
+    }
+
     private void writeBusbarSectionsConnectivity() throws XMLStreamException {
         for (BusbarSection bus : context.getNetwork().getBusbarSections()) {
             String connectivityNodeId = connectivityNodeId(bus.getTerminal());
             if (connectivityNodeId == null) {
                 VoltageLevel vl = bus.getTerminal().getVoltageLevel();
                 String node = CgmesExportUtil.getUniqueId();
-                ConnectivityNodeEq.write(node, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
+                exportConnectivityNode(node, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl));
                 String key = buildNodeKey(vl, bus.getTerminal().getNodeBreakerView().getNode());
                 mapNodeKey2NodeId.put(key, node);
             }
@@ -147,7 +153,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private void writeNodes(VoltageLevel vl, VoltageLevelAdjacency vlAdjacencies) throws XMLStreamException {
         for (List<Integer> nodes : vlAdjacencies.getNodes()) {
             String cgmesNodeId = CgmesExportUtil.getUniqueId();
-            ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
+            exportConnectivityNode(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), context.getNamingStrategy().getCgmesId(vl));
             for (Integer nodeNumber : nodes) {
                 mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), cgmesNodeId);
             }
@@ -157,7 +163,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private void writeBuses(VoltageLevel vl) throws XMLStreamException {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
             String cgmesNodeId = context.getNamingStrategy().getCgmesId(bus, CONNECTIVITY_NODE_SUFFIX);
-            ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
+            exportConnectivityNode(cgmesNodeId, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl));
             mapNodeKey2NodeId.put(buildNodeKey(bus), cgmesNodeId);
         }
     }
@@ -581,7 +587,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId) throws XMLStreamException {
         // New ConnectivityNode
         String connectivityNodeId = CgmesExportUtil.getUniqueId();
-        ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, xmlWriter);
+        exportConnectivityNode(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId);
         // New Terminal
         String terminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
         TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, xmlWriter);
