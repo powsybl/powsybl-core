@@ -16,7 +16,6 @@ import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -86,7 +85,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridBaseCaseAssembledSwitchAtBoundary() {
+    public void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
@@ -103,16 +102,17 @@ public class EquipmentExportTest extends AbstractConverterTest {
         TieLine tieLine = (TieLine) network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
         cgmesControlArea.add(tieLine.getHalf2().getBoundary());
 
-        // TODO(Luma) updated expected result after halves of tie lines are exported as equipmen
-        //  instead of an exception being thrown,
+        // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
+        //  instead of an error logged and the tie flow ignored,
         //  the reimported network control area should contain one tie flow
-        Network[] actual = {null};
-        Exception exception = assertThrows(PowsyblException.class, () -> actual[0] = exportReimport(network, dataSource));
-        assertTrue(exception.getMessage().contains("Unsupported tie flow at TieLine boundary"));
-        if (actual[0] != null) {
-            CgmesControlArea actualCgmesControlArea = actual[0].getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
+        Network actual = exportReimport(network, dataSource);
+        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
+        boolean tieFlowsAtTieLinesAreSupported = false;
+        if (tieFlowsAtTieLinesAreSupported) {
             assertEquals(1, actualCgmesControlArea.getBoundaries().size());
             assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getConnectable().getId());
+        } else {
+            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
         }
     }
 

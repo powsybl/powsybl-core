@@ -16,6 +16,8 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,6 +33,7 @@ public final class EquipmentExport {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
+    private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -759,7 +762,10 @@ public final class EquipmentExport {
             TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(mapTerminal2Id, terminal), cimNamespace, writer);
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), getTieFlowBoundaryTerminal(boundary), cimNamespace, writer);
+            String terminalId = getTieFlowBoundaryTerminal(boundary);
+            if (terminalId != null) {
+                TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), terminalId, cimNamespace, writer);
+            }
         }
     }
 
@@ -783,7 +789,8 @@ public final class EquipmentExport {
             // Also, the boundary node should not be exported but referenced,
             // as it should be defined in the boundary, not in the instance EQ file.
 
-            throw new PowsyblException("Unsupported tie flow at TieLine boundary " + c.getId());
+            LOG.error("Unsupported tie flow at TieLine boundary {}", c.getId());
+            return null;
         }
     }
 
