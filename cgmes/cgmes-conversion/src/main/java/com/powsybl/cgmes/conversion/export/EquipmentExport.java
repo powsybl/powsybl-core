@@ -26,11 +26,11 @@ import java.util.*;
  */
 public final class EquipmentExport extends AbstractCgmesExporter {
 
-    private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
+    private static final String AC_DC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
     private static final String CONNECTIVITY_NODE_SUFFIX = "CN";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
-    private static final String PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
+    private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
 
     private final String euNamespace;
     private final String limitValueAttributeName;
@@ -39,9 +39,10 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private final boolean writeInfiniteDuration;
     private final boolean writeInitialP;
 
-    Map<String, String> exportedNodes = new HashMap<>();
-    Map<Terminal, String> exportedTerminals = new HashMap<>();
-    Map<Boundary, String> danglingLineBoundaries = new HashMap<>();
+    private final Map<String, String> mapNodeKey2NodeId = new HashMap<>();
+    private final Map<Terminal, String> mapTerminal2Id = new HashMap<>();
+    private final Set<String> regulatingControlsWritten = new HashSet<>();
+    private final Map<Boundary, String> danglingLineBoundaries = new HashMap<>();
 
     EquipmentExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
         super(context, xmlWriter);
@@ -90,7 +91,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private void writeConnectivity() throws XMLStreamException {
         for (VoltageLevel vl : context.getNetwork().getVoltageLevels()) {
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                writeNodes(vl, new VoltageLevelAdjacency(vl));
+                writeNodes(vl, new VoltageLevelAdjacency(vl, context));
             } else {
                 writeBuses(vl);
             }
@@ -100,28 +101,34 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     }
 
     private void writeSwitchesConnectivity(VoltageLevel vl) {
+        String[] nodeKeys = new String[2];
         for (Switch sw : vl.getSwitches()) {
-            String node1Key = getSwitchNode1Id(vl, sw);
-            exportedNodes.computeIfAbsent(node1Key, k -> {
-                try {
-                    String node = CgmesExportUtil.getUniqueId();
-                    ConnectivityNodeEq.write(node, node1Key, context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
-                    return node;
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
-            String node2Key = getSwitchNode2Id(vl, sw);
-            exportedNodes.computeIfAbsent(node2Key, k -> {
-                try {
-                    String node = CgmesExportUtil.getUniqueId();
-                    ConnectivityNodeEq.write(node, node2Key, context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
-                    return node;
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
-            });
+            fillSwitchNodeKeys(vl, sw, nodeKeys);
+            // We have to go through all switches, even if they are not exported as equipment,
+            // to be sure that all required mappings between IIDM node number and CGMES Connectivity Node are created
+            writeSwitchConnectivity(nodeKeys[0], vl);
+            writeSwitchConnectivity(nodeKeys[1], vl);
         }
+    }
+
+    private void writeSwitchConnectivity(String nodeKey, VoltageLevel vl) {
+        mapNodeKey2NodeId.computeIfAbsent(nodeKey, k -> {
+            try {
+                String node = CgmesExportUtil.getUniqueId();
+                ConnectivityNodeEq.write(node, nodeKey, context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
+                return node;
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
+    }
+
+    private static String buildNodeKey(VoltageLevel vl, int node) {
+        return vl.getId() + "_" + node + "_" + CONNECTIVITY_NODE_SUFFIX;
+    }
+
+    private static String  buildNodeKey(Bus bus) {
+        return bus.getId() + "_" + CONNECTIVITY_NODE_SUFFIX;
     }
 
     private void writeBusbarSectionsConnectivity() throws XMLStreamException {
@@ -131,8 +138,8 @@ public final class EquipmentExport extends AbstractCgmesExporter {
                 VoltageLevel vl = bus.getTerminal().getVoltageLevel();
                 String node = CgmesExportUtil.getUniqueId();
                 ConnectivityNodeEq.write(node, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
-                String key = vl.getId() + bus.getTerminal().getNodeBreakerView().getNode() + CONNECTIVITY_NODE_SUFFIX; // We are already in NODE-BREAKER
-                exportedNodes.put(key, node);
+                String key = buildNodeKey(vl, bus.getTerminal().getNodeBreakerView().getNode());
+                mapNodeKey2NodeId.put(key, node);
             }
         }
     }
@@ -142,7 +149,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
             String cgmesNodeId = CgmesExportUtil.getUniqueId();
             ConnectivityNodeEq.write(cgmesNodeId, CgmesExportUtil.format(nodes.get(0)), context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
             for (Integer nodeNumber : nodes) {
-                exportedNodes.put(vl.getId() + nodeNumber + CONNECTIVITY_NODE_SUFFIX, cgmesNodeId);
+                mapNodeKey2NodeId.put(buildNodeKey(vl, nodeNumber), cgmesNodeId);
             }
         }
     }
@@ -151,30 +158,26 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
             String cgmesNodeId = context.getNamingStrategy().getCgmesId(bus, CONNECTIVITY_NODE_SUFFIX);
             ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, xmlWriter);
-            exportedNodes.put(bus.getId() + CONNECTIVITY_NODE_SUFFIX, cgmesNodeId);
+            mapNodeKey2NodeId.put(buildNodeKey(bus), cgmesNodeId);
         }
     }
 
     private void writeSwitches() throws XMLStreamException {
         for (Switch sw : context.getNetwork().getSwitches()) {
-            VoltageLevel vl = sw.getVoltageLevel();
-            SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isRetained(), cimNamespace, xmlWriter);
+            if (context.isExportedEquipment(sw)) {
+                VoltageLevel vl = sw.getVoltageLevel();
+                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isRetained(), cimNamespace, xmlWriter);
+            }
         }
     }
 
-    private static String getSwitchNode1Id(VoltageLevel vl, Switch sw) {
+    private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys) {
         if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            return vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId()) + CONNECTIVITY_NODE_SUFFIX;
+            nodeKeys[0] = buildNodeKey(vl, vl.getNodeBreakerView().getNode1(sw.getId()));
+            nodeKeys[1] = buildNodeKey(vl, vl.getNodeBreakerView().getNode2(sw.getId()));
         } else {
-            return vl.getBusBreakerView().getBus1(sw.getId()).getId() + CONNECTIVITY_NODE_SUFFIX;
-        }
-    }
-
-    private static String getSwitchNode2Id(VoltageLevel vl, Switch sw) {
-        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            return vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId()) + CONNECTIVITY_NODE_SUFFIX;
-        } else {
-            return vl.getBusBreakerView().getBus2(sw.getId()).getId() + CONNECTIVITY_NODE_SUFFIX;
+            nodeKeys[0] = buildNodeKey(vl.getBusBreakerView().getBus1(sw.getId()));
+            nodeKeys[1] = buildNodeKey(vl.getBusBreakerView().getBus2(sw.getId()));
         }
     }
 
@@ -250,11 +253,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : context.getNetwork().getGenerators()) {
             String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-            String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            if (regulatingControlId != null) {
-                String regulatingControlName = "RC_" + generator.getNameOrId();
-                RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(generator.getRegulatingTerminal()), cimNamespace, xmlWriter);
-            }
+            String regulatingControlId = RegulatingControlEq.writeKindVoltage(generator, exportedTerminalId(generator.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, xmlWriter);
             String reactiveLimitsId = null;
             double minQ = 0.0;
             double maxQ = 0.0;
@@ -296,7 +295,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
                 bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
                 gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
             }
-            String regulatingControlId = s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            String regulatingControlId = RegulatingControlEq.writeKindVoltage(s, exportedTerminalId(s.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, xmlWriter);
             ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId, cimNamespace, xmlWriter);
             if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
                 double b = 0.0;
@@ -307,18 +306,12 @@ public final class EquipmentExport extends AbstractCgmesExporter {
                     g = s.getG(section);
                 }
             }
-            String regulatingControlName = "RC_" + s.getNameOrId();
-            RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(s.getRegulatingTerminal()), cimNamespace, xmlWriter);
         }
     }
 
     private void writeStaticVarCompensators() throws XMLStreamException {
         for (StaticVarCompensator svc : context.getNetwork().getStaticVarCompensators()) {
-            String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
-            if (regulatingControlId != null) {
-                String regulatingControlName = "RC_" + svc.getNameOrId();
-                RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(svc.getRegulatingTerminal()), cimNamespace, xmlWriter);
-            }
+            String regulatingControlId = RegulatingControlEq.writeKindVoltage(svc, exportedTerminalId(svc.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, xmlWriter);
             StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(), regulatingControlId, 1 / svc.getBmin(), 1 / svc.getBmax(), svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, xmlWriter);
         }
     }
@@ -432,13 +425,14 @@ public final class EquipmentExport extends AbstractCgmesExporter {
                 TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, xmlWriter);
             }
 
-            if (regulatingControlId.isPresent()) {
+            if (regulatingControlId.isPresent() && !regulatingControlsWritten.contains(regulatingControlId.get())) {
                 String mode = getPhaseTapChangerRegulationMode(ptc);
                 // Only export the regulating control if mode is valid
                 if (mode != null) {
                     String controlName = twtName + "_PTC_RC";
                     String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal());
                     TapChangerEq.writeControl(regulatingControlId.get(), controlName, mode, terminalId, cimNamespace, xmlWriter);
+                    regulatingControlsWritten.add(regulatingControlId.get());
                 }
             }
         }
@@ -494,11 +488,12 @@ public final class EquipmentExport extends AbstractCgmesExporter {
                 TapChangerEq.writeRatioTablePoint(CgmesExportUtil.getUniqueId(), ratioTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), step.getKey(), cimNamespace, xmlWriter);
             }
 
-            if (regulatingControlId.isPresent()) {
+            if (regulatingControlId.isPresent() && !regulatingControlsWritten.contains(regulatingControlId.get())) {
                 String controlName = twtName + "_RTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal());
                 // Regulating control mode is always "voltage"
-                TapChangerEq.writeControl(regulatingControlId.get(), controlName, PHASE_TAP_CHANGER_REGULATION_MODE_VOLTAGE, terminalId, cimNamespace, xmlWriter);
+                TapChangerEq.writeControl(regulatingControlId.get(), controlName, RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE, terminalId, cimNamespace, xmlWriter);
+                regulatingControlsWritten.add(regulatingControlId.get());
             }
         }
     }
@@ -677,13 +672,13 @@ public final class EquipmentExport extends AbstractCgmesExporter {
             HvdcConverterStation<?> converter = line.getConverterStation1();
             writeTerminal(converter.getTerminal(), CgmesExportUtil.getUniqueId(), converter1Id, connectivityNodeId(converter.getTerminal()), 1);
             String capabilityCurveId1 = writeVsCapabilityCurve(converter);
-            String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter1Id, dcNode1, 2);
 
             converter = line.getConverterStation2();
             writeTerminal(converter.getTerminal(), CgmesExportUtil.getUniqueId(), converter2Id, connectivityNodeId(converter.getTerminal()), 1);
             String capabilityCurveId2 = writeVsCapabilityCurve(converter);
-            String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + AC_DC_CONVERTER_DC_TERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter2Id, dcNode2, 2);
 
             DCLineSegmentEq.write(lineId, line.getNameOrId(), line.getR(), cimNamespace, xmlWriter);
@@ -747,7 +742,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     }
 
     private void writeAcdcConverterDCTerminal(String id, String conductingEquipmentId, String dcNodeId, int sequenceNumber) throws XMLStreamException {
-        DCTerminalEq.write(ACDCCONVERTERDCTERMINAL, id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, xmlWriter);
+        DCTerminalEq.write(AC_DC_CONVERTER_DC_TERMINAL, id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, xmlWriter);
     }
 
     private void writeControlAreas() throws XMLStreamException {
@@ -778,14 +773,16 @@ public final class EquipmentExport extends AbstractCgmesExporter {
             }
         }
 
+        String[] switchNodesKeys = new String[2];
         for (Switch sw : context.getNetwork().getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
-            String node1 = exportedNodes.get(getSwitchNode1Id(vl, sw));
+            fillSwitchNodeKeys(vl, sw, switchNodesKeys);
+            String nodeId1 = mapNodeKey2NodeId.get(switchNodesKeys[0]);
             String terminalId1 = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1).orElseThrow(PowsyblException::new);
-            TerminalEq.write(terminalId1, context.getNamingStrategy().getCgmesId(sw), node1, 1, cimNamespace, xmlWriter);
-            String node2 = exportedNodes.get(getSwitchNode2Id(vl, sw));
+            TerminalEq.write(terminalId1, context.getNamingStrategy().getCgmesId(sw), nodeId1, 1, cimNamespace, xmlWriter);
+            String nodeId2 = mapNodeKey2NodeId.get(switchNodesKeys[1]);
             String terminalId2 = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2).orElseThrow(PowsyblException::new);
-            TerminalEq.write(terminalId2, context.getNamingStrategy().getCgmesId(sw), node2, 2, cimNamespace, xmlWriter);
+            TerminalEq.write(terminalId2, context.getNamingStrategy().getCgmesId(sw), nodeId2, 2, cimNamespace, xmlWriter);
         }
     }
 
@@ -795,7 +792,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     }
 
     private void writeTerminal(Terminal terminal, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber) {
-        exportedTerminals.computeIfAbsent(terminal, k -> {
+        mapTerminal2Id.computeIfAbsent(terminal, k -> {
             try {
                 TerminalEq.write(id, conductingEquipmentId, connectivityNodeId, sequenceNumber, cimNamespace, xmlWriter);
                 return id;
@@ -806,8 +803,8 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     }
 
     private String exportedTerminalId(Terminal terminal) {
-        if (exportedTerminals.containsKey(terminal)) {
-            return exportedTerminals.get(terminal);
+        if (mapTerminal2Id.containsKey(terminal)) {
+            return mapTerminal2Id.get(terminal);
         } else {
             throw new PowsyblException("Terminal has not been exported");
         }
@@ -816,21 +813,21 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private String connectivityNodeId(Terminal terminal) {
         String key;
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            key = terminal.getVoltageLevel().getId() + terminal.getNodeBreakerView().getNode() + CONNECTIVITY_NODE_SUFFIX;
+            key = buildNodeKey(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode());
         } else {
-            key = terminal.getBusBreakerView().getConnectableBus().getId() + CONNECTIVITY_NODE_SUFFIX;
+            key = buildNodeKey(terminal.getBusBreakerView().getConnectableBus());
         }
-        return exportedNodes.get(key);
+        return mapNodeKey2NodeId.get(key);
     }
 
     private static class VoltageLevelAdjacency {
 
         private final List<List<Integer>> voltageLevelNodes;
 
-        VoltageLevelAdjacency(VoltageLevel vl) {
+        VoltageLevelAdjacency(VoltageLevel vl, CgmesExportContext context) {
             voltageLevelNodes = new ArrayList<>();
 
-            NodeAdjacency adjacency = new NodeAdjacency(vl);
+            NodeAdjacency adjacency = new NodeAdjacency(vl, context);
             Set<Integer> visitedNodes = new HashSet<>();
             adjacency.get().keySet().forEach(node -> {
                 if (visitedNodes.contains(node)) {
@@ -873,15 +870,26 @@ public final class EquipmentExport extends AbstractCgmesExporter {
 
         private final Map<Integer, List<Integer>> adjacency;
 
-        NodeAdjacency(VoltageLevel vl) {
+        NodeAdjacency(VoltageLevel vl, CgmesExportContext context) {
             adjacency = new HashMap<>();
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                vl.getNodeBreakerView().getInternalConnections().forEach(this::computeInternalConnectionAdjacency);
+                vl.getNodeBreakerView().getInternalConnections().forEach(this::addAdjacency);
+                // When computing the connectivity nodes for the voltage level,
+                // switches that are not exported as equipment (they are fictitious)
+                // are equivalent to internal connections
+                vl.getNodeBreakerView().getSwitchStream()
+                        .filter(Objects::nonNull)
+                        .filter(sw -> !context.isExportedEquipment(sw))
+                        .forEach(this::addAdjacency);
             }
         }
 
-        private void computeInternalConnectionAdjacency(VoltageLevel.NodeBreakerView.InternalConnection ic) {
+        private void addAdjacency(VoltageLevel.NodeBreakerView.InternalConnection ic) {
             addAdjacency(ic.getNode1(), ic.getNode2());
+        }
+
+        private void addAdjacency(Switch sw) {
+            addAdjacency(sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId()), sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId()));
         }
 
         private void addAdjacency(int node1, int node2) {

@@ -69,7 +69,7 @@ public class CgmesExport implements Exporter {
         String baseName = baseName(params, ds, network);
         // Process the requested profiles in the proper order
         // First export EQ, then TP, then SSH, then SV
-        Set<String> requestedProfiles = new HashSet<>(Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER));
+        Set<String> requestedProfiles = new HashSet<>(Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig));
         Stream.of("EQ", "TP", "SSH", "SV")
                 .filter(requestedProfiles::contains)
                 .forEachOrdered(profile -> export(profile, baseName, ds, context));

@@ -70,7 +70,9 @@ public final class SteadyStateHypothesisExport extends AbstractCgmesExporter {
 
     private void writeSwitches() {
         for (Switch sw : context.getNetwork().getSwitches()) {
-            writeSwitch(sw);
+            if (context.isExportedEquipment(sw)) {
+                writeSwitch(sw);
+            }
         }
     }
 
