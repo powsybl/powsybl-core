@@ -43,7 +43,7 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
 
     private Injection getInjectionOrNull(Network n) {
         Identifiable identifiable = n.getIdentifiable(id);
-        if (identifiable != null && identifiable instanceof Injection) {
+        if (identifiable instanceof Injection) {
             return (Injection) identifiable;
         } else {
             return null;

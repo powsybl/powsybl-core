@@ -548,26 +548,13 @@ public class ScalableTest {
 
     @Test
     public void testExceptionWhenIncorrectArgumentsInProportionalScalableConstructor() {
-        try {
-            Scalable.proportional(null, Arrays.asList(g1, g2, g3));
-            fail();
-        } catch (NullPointerException e) {
-            // Exception thrown
-        }
+        var gens = Arrays.asList(g1, g2, g3);
+        assertThrows(NullPointerException.class, () -> Scalable.proportional(null, gens));
 
-        try {
-            Scalable.proportional(Arrays.asList(50.f, 50.f), null);
-            fail();
-        } catch (NullPointerException e) {
-            // Exception thrown
-        }
+        var percents = Arrays.asList(50.f, 50.f);
+        assertThrows(NullPointerException.class, () -> Scalable.proportional(percents, null));
 
-        try {
-            Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, g2, g3));
-            fail();
-        } catch (IllegalArgumentException e) {
-            // Exception thrown
-        }
+        assertThrows(IllegalArgumentException.class, () -> Scalable.proportional(percents, gens));
     }
 
     @Test

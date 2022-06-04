@@ -182,9 +182,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     private void reinitIterationPercentage() {
-        scalablePercentageList.forEach(scalablePercentage -> {
-            scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage());
-        });
+        scalablePercentageList.forEach(scalablePercentage -> scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage()));
     }
 
 }
