@@ -2,5 +2,18 @@ short-circuit-parameters:
   with-limit-violations: false
   with-voltage-map: false
   study-type: "SUB_TRANSIENT"
+  sub-transient-study-reactance-coefficient: 50
   with-feeder-result: false
   min-voltage-drop-proportional-threshold: 1.2
+  voltage-map-type: CEI_909
+  use-resistances: true
+  use-capacities: false
+  use-loads: false
+  use-shunts: false
+  use-tap-changers: true
+  use-mutuals: true
+  model-vsc: false
+  started-groups-inside-zone: ALL
+  started-groups-inside-zone-threshold: 50
+  started-groups-out-of-zone: ALL
+  started-groups-out-of-zone-threshold: 100

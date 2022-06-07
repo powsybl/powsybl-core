@@ -168,6 +168,12 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testSubTransientReactanceCoefficient() {
+        ShortCircuitParameters parameters = ShortCircuitParameters.load();
+        assertEquals(70, parameters.getSubTransStudyReactanceCoefficient(), 0);
+    }
+
+    @Test
     public void testWithFeederResult() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load();
         assertTrue(parameters.isWithFeederResult());
@@ -188,7 +194,20 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         assertFalse(parameters.isWithVoltageMap());
         assertFalse(parameters.isWithFeederResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(50, parameters.getSubTransStudyReactanceCoefficient(), 0.0);
         assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
+        assertEquals(ShortCircuitConstants.VoltageMapType.CEI_909, parameters.getVoltageMapType());
+        assertTrue(parameters.isUseResistances());
+        assertFalse(parameters.isUseCapacities());
+        assertFalse(parameters.isUseLoads());
+        assertFalse(parameters.isUseShunts());
+        assertTrue(parameters.isUseTapChangers());
+        assertTrue(parameters.isUseMutuals());
+        assertFalse(parameters.isModelVSC());
+        assertEquals(ShortCircuitConstants.StartedGroups.ALL, parameters.getStartedGroupsInsideZone());
+        assertEquals(50, parameters.getStartedGroupsInsideZoneThreshold(), 0.0);
+        assertEquals(ShortCircuitConstants.StartedGroups.ALL, parameters.getStartedGroupsOutOfZone());
+        assertEquals(100, parameters.getStartedGroupsOutOfZoneThreshold(), 0.0);
     }
 
     @AutoService(ShortCircuitParameters.ConfigLoader.class)

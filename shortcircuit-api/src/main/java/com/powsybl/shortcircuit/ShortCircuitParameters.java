@@ -51,7 +51,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean useMutuals = DEFAULT_USE_MUTUALS;
     private boolean modelVSC = DEFAULT_MODEL_VSC;
     private StartedGroups startedGroupsInsideZone = StartedGroups.ALL;
-    private double startedGroupsInZoneThreshold = DEFAULT_STARTED_GROUP_THRESHOLD;
+    private double startedGroupsInsideZoneThreshold = DEFAULT_STARTED_GROUP_THRESHOLD;
     private StartedGroups startedGroupsOutOfZone = StartedGroups.STARTED;
     private double startedGroupsOutOfZoneThreshold = DEFAULT_STARTED_GROUP_THRESHOLD;
 
@@ -73,19 +73,19 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
-                        .setSubTransStudyReactanceCoefficient(config.getDoubleProperty("subTransStudyReactanceCoefficient", DEFAULT_SUB_TRANSIENT_STUDY_REACTANCE_COEFFICIENT))
+                        .setSubTransStudyReactanceCoefficient(config.getDoubleProperty("sub-transient-study-reactance-coefficient", DEFAULT_SUB_TRANSIENT_STUDY_REACTANCE_COEFFICIENT))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
-                        .setVoltageMapType(config.getEnumProperty("voltageMapType", VoltageMapType.class, VoltageMapType.NORMALIZED))
-                        .setUseResistances(config.getBooleanProperty("useResistances", DEFAULT_USE_RESISTANCES))
-                        .setUseCapacities(config.getBooleanProperty("useCapacities", DEFAULT_USE_CAPACITIES))
-                        .setUseLoads(config.getBooleanProperty("useLoads", DEFAULT_USE_LOADS))
-                        .setUseTapChangers(config.getBooleanProperty("useTapChangers", DEFAULT_USE_TAP_CHANGERS))
-                        .setUseMutuals(config.getBooleanProperty("useMutuals", DEFAULT_USE_MUTUALS))
-                        .setModelVSC(config.getBooleanProperty("modelVSC", DEFAULT_MODEL_VSC))
-                        .setStartedGroupsInsideZone(config.getEnumProperty("startedGroupsInZone", StartedGroups.class, StartedGroups.ALL))
-                        .setStartedGroupsInZoneThreshold(config.getDoubleProperty("startedGroupsInZoneThreshold", DEFAULT_STARTED_GROUP_THRESHOLD))
-                        .setStartedGroupsOutOfZone(config.getEnumProperty("startedGroupsOutOfZone", StartedGroups.class, StartedGroups.STARTED))
-                        .setStartedGroupsOutOfZoneThreshold(config.getDoubleProperty("startedGroupsOutOfZoneThreshold", DEFAULT_STARTED_GROUP_THRESHOLD)));
+                        .setVoltageMapType(config.getEnumProperty("voltage-map-type", VoltageMapType.class, VoltageMapType.NORMALIZED))
+                        .setUseResistances(config.getBooleanProperty("use-resistances", DEFAULT_USE_RESISTANCES))
+                        .setUseCapacities(config.getBooleanProperty("use-capacities", DEFAULT_USE_CAPACITIES))
+                        .setUseLoads(config.getBooleanProperty("use-loads", DEFAULT_USE_LOADS))
+                        .setUseTapChangers(config.getBooleanProperty("use-tap-changers", DEFAULT_USE_TAP_CHANGERS))
+                        .setUseMutuals(config.getBooleanProperty("use-mutuals", DEFAULT_USE_MUTUALS))
+                        .setModelVSC(config.getBooleanProperty("model-vsc", DEFAULT_MODEL_VSC))
+                        .setStartedGroupsInsideZone(config.getEnumProperty("started-groups-inside-zone", StartedGroups.class, StartedGroups.ALL))
+                        .setStartedGroupsInsideZoneThreshold(config.getDoubleProperty("started-groups-inside-zone-threshold", DEFAULT_STARTED_GROUP_THRESHOLD))
+                        .setStartedGroupsOutOfZone(config.getEnumProperty("started-groups-out-of-zone", StartedGroups.class, StartedGroups.STARTED))
+                        .setStartedGroupsOutOfZoneThreshold(config.getDoubleProperty("started-groups-out-of-zone-threshold", DEFAULT_STARTED_GROUP_THRESHOLD)));
 
         parameters.readExtensions(platformConfig);
 
@@ -235,12 +235,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    public double getStartedGroupsInZoneThreshold() {
-        return startedGroupsInZoneThreshold;
+    public double getStartedGroupsInsideZoneThreshold() {
+        return startedGroupsInsideZoneThreshold;
     }
 
-    public ShortCircuitParameters setStartedGroupsInZoneThreshold(double startedGroupsInZoneThreshold) {
-        this.startedGroupsInZoneThreshold = startedGroupsInZoneThreshold;
+    public ShortCircuitParameters setStartedGroupsInsideZoneThreshold(double startedGroupsInsideZoneThreshold) {
+        this.startedGroupsInsideZoneThreshold = startedGroupsInsideZoneThreshold;
         return this;
     }
 
