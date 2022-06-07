@@ -375,10 +375,10 @@ public class DataObject {
     // from dgs, recorded as a flat list
     public Optional<RealMatrix> findDoubleMatrixAttributeValue(String name) {
         Optional<RealMatrix> realMatrix = findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
-        return realMatrix.isPresent() ? realMatrix : findAndParseDoubleMatrixAttributeValueFromDgs(name);
+        return realMatrix.isPresent() ? realMatrix : findAndParseDoubleMatrixAttributeValueFromFlatFormat(name);
     }
 
-    private Optional<RealMatrix> findAndParseDoubleMatrixAttributeValueFromDgs(String name) {
+    private Optional<RealMatrix> findAndParseDoubleMatrixAttributeValueFromFlatFormat(String name) {
         OptionalInt opRows = findIntAttributeValue(name + ":SIZEROW");
         OptionalInt opCols = findIntAttributeValue(name + ":SIZECOL");
         int rows = opRows.isPresent() ? opRows.getAsInt() : 0;
