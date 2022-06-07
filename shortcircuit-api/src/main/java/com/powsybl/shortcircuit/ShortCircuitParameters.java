@@ -40,7 +40,20 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withVoltageMap = DEFAULT_WITH_VOLTAGE_MAP;
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
+    private double subTransStudyReactanceCoefficient = DEFAULT_SUB_TRANSIENT_STUDY_REACTANCE_COEFFICIENT; //in % of the transient reactance
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
+    private VoltageMapType voltageMapType = VoltageMapType.NORMALIZED;
+    private boolean useResistances = DEFAULT_USE_RESISTANCES;
+    private boolean useLoads = DEFAULT_USE_LOADS;
+    private boolean useCapacities = DEFAULT_USE_CAPACITIES;
+    private boolean useShunts = DEFAULT_USE_SHUNTS;
+    private boolean useTapChangers = DEFAULT_USE_TAP_CHANGERS;
+    private boolean useMutuals = DEFAULT_USE_MUTUALS;
+    private boolean modelVSC = DEFAULT_MODEL_VSC;
+    private StartedGroups startedGroupsInsideZone = StartedGroups.ALL;
+    private double startedGroupsInZoneThreshold = DEFAULT_STARTED_GROUP_THRESHOLD;
+    private StartedGroups startedGroupsOutOfZone = StartedGroups.STARTED;
+    private double startedGroupsOutOfZoneThreshold = DEFAULT_STARTED_GROUP_THRESHOLD;
 
     /**
      * Load parameters from platform default config.
@@ -55,11 +68,24 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         ShortCircuitParameters parameters = new ShortCircuitParameters();
 
         platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
+
                 parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
                         .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
-                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
+                        .setSubTransStudyReactanceCoefficient(config.getDoubleProperty("subTransStudyReactanceCoefficient", DEFAULT_SUB_TRANSIENT_STUDY_REACTANCE_COEFFICIENT))
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
+                        .setVoltageMapType(config.getEnumProperty("voltageMapType", VoltageMapType.class, VoltageMapType.NORMALIZED))
+                        .setUseResistances(config.getBooleanProperty("useResistances", DEFAULT_USE_RESISTANCES))
+                        .setUseCapacities(config.getBooleanProperty("useCapacities", DEFAULT_USE_CAPACITIES))
+                        .setUseLoads(config.getBooleanProperty("useLoads", DEFAULT_USE_LOADS))
+                        .setUseTapChangers(config.getBooleanProperty("useTapChangers", DEFAULT_USE_TAP_CHANGERS))
+                        .setUseMutuals(config.getBooleanProperty("useMutuals", DEFAULT_USE_MUTUALS))
+                        .setModelVSC(config.getBooleanProperty("modelVSC", DEFAULT_MODEL_VSC))
+                        .setStartedGroupsInsideZone(config.getEnumProperty("startedGroupsInZone", StartedGroups.class, StartedGroups.ALL))
+                        .setStartedGroupsInZoneThreshold(config.getDoubleProperty("startedGroupsInZoneThreshold", DEFAULT_STARTED_GROUP_THRESHOLD))
+                        .setStartedGroupsOutOfZone(config.getEnumProperty("startedGroupsOutOfZone", StartedGroups.class, StartedGroups.STARTED))
+                        .setStartedGroupsOutOfZoneThreshold(config.getDoubleProperty("startedGroupsOutOfZoneThreshold", DEFAULT_STARTED_GROUP_THRESHOLD)));
 
         parameters.readExtensions(platformConfig);
 
@@ -108,6 +134,16 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** In case of a sub-transient study, the coefficient to apply to the transient reactance to get the subtransient one. */
+    public double getSubTransStudyReactanceCoefficient() {
+        return subTransStudyReactanceCoefficient;
+    }
+
+    public ShortCircuitParameters setSubTransStudyReactanceCoefficient(double subTransStudyReactanceCoefficient) {
+        this.subTransStudyReactanceCoefficient = subTransStudyReactanceCoefficient;
+        return this;
+    }
+
     /** The maximum voltage drop threshold in %. */
     public double getMinVoltageDropProportionalThreshold() {
         return minVoltageDropProportionalThreshold;
@@ -115,6 +151,114 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setMinVoltageDropProportionalThreshold(double minVoltageDropProportionalThreshold) {
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
+        return this;
+    }
+
+    public VoltageMapType getVoltageMapType() {
+        return voltageMapType;
+    }
+
+    public ShortCircuitParameters setVoltageMapType(VoltageMapType voltageMapType) {
+        this.voltageMapType = voltageMapType;
+        return this;
+    }
+
+    public boolean isUseResistances() {
+        return useResistances;
+    }
+
+    public ShortCircuitParameters setUseResistances(boolean useResistances) {
+        this.useResistances = useResistances;
+        return this;
+    }
+
+    public boolean isUseLoads() {
+        return useLoads;
+    }
+
+    public ShortCircuitParameters setUseLoads(boolean useLoads) {
+        this.useLoads = useLoads;
+        return this;
+    }
+
+    public boolean isUseCapacities() {
+        return useCapacities;
+    }
+
+    public ShortCircuitParameters setUseCapacities(boolean useCapacities) {
+        this.useCapacities = useCapacities;
+        return this;
+    }
+
+    public boolean isUseShunts() {
+        return useShunts;
+    }
+
+    public ShortCircuitParameters setUseShunts(boolean useShunts) {
+        this.useShunts = useShunts;
+        return this;
+    }
+
+    public boolean isUseTapChangers() {
+        return useTapChangers;
+    }
+
+    public ShortCircuitParameters setUseTapChangers(boolean useTapChangers) {
+        this.useTapChangers = useTapChangers;
+        return this;
+    }
+
+    public boolean isUseMutuals() {
+        return useMutuals;
+    }
+
+    public ShortCircuitParameters setUseMutuals(boolean useMutuals) {
+        this.useMutuals = useMutuals;
+        return this;
+    }
+
+    public boolean isModelVSC() {
+        return modelVSC;
+    }
+
+    public ShortCircuitParameters setModelVSC(boolean modelVSC) {
+        this.modelVSC = modelVSC;
+        return this;
+    }
+
+    public StartedGroups getStartedGroupsInsideZone() {
+        return startedGroupsInsideZone;
+    }
+
+    public ShortCircuitParameters setStartedGroupsInsideZone(StartedGroups startedGroupsInsideZone) {
+        this.startedGroupsInsideZone = startedGroupsInsideZone;
+        return this;
+    }
+
+    public double getStartedGroupsInZoneThreshold() {
+        return startedGroupsInZoneThreshold;
+    }
+
+    public ShortCircuitParameters setStartedGroupsInZoneThreshold(double startedGroupsInZoneThreshold) {
+        this.startedGroupsInZoneThreshold = startedGroupsInZoneThreshold;
+        return this;
+    }
+
+    public StartedGroups getStartedGroupsOutOfZone() {
+        return startedGroupsOutOfZone;
+    }
+
+    public ShortCircuitParameters setStartedGroupsOutOfZone(StartedGroups startedGroupsOutOfZone) {
+        this.startedGroupsOutOfZone = startedGroupsOutOfZone;
+        return this;
+    }
+
+    public double getStartedGroupsOutOfZoneThreshold() {
+        return startedGroupsOutOfZoneThreshold;
+    }
+
+    public ShortCircuitParameters setStartedGroupsOutOfZoneThreshold(double startedGroupsOutOfZoneThreshold) {
+        this.startedGroupsOutOfZoneThreshold = startedGroupsOutOfZoneThreshold;
         return this;
     }
 }
