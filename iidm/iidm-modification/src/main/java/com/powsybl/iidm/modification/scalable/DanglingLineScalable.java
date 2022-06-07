@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.util;
+package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Injection;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
+import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
