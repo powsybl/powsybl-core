@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.util;
+package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.iidm.network.Network;
 
@@ -182,9 +182,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     private void reinitIterationPercentage() {
-        scalablePercentageList.forEach(scalablePercentage -> {
-            scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage());
-        });
+        scalablePercentageList.forEach(scalablePercentage -> scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage()));
     }
 
 }

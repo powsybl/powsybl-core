@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.util;
+package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.action.util.Scalable.ScalingConvention;
+import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
 import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.*;
-import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
+import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
 import static org.junit.Assert.*;
 
 /**
@@ -548,26 +548,13 @@ public class ScalableTest {
 
     @Test
     public void testExceptionWhenIncorrectArgumentsInProportionalScalableConstructor() {
-        try {
-            Scalable.proportional(null, Arrays.asList(g1, g2, g3));
-            fail();
-        } catch (NullPointerException e) {
-            // Exception thrown
-        }
+        var gens = Arrays.asList(g1, g2, g3);
+        assertThrows(NullPointerException.class, () -> Scalable.proportional(null, gens));
 
-        try {
-            Scalable.proportional(Arrays.asList(50.f, 50.f), null);
-            fail();
-        } catch (NullPointerException e) {
-            // Exception thrown
-        }
+        var percents = Arrays.asList(50.f, 50.f);
+        assertThrows(NullPointerException.class, () -> Scalable.proportional(percents, null));
 
-        try {
-            Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, g2, g3));
-            fail();
-        } catch (IllegalArgumentException e) {
-            // Exception thrown
-        }
+        assertThrows(IllegalArgumentException.class, () -> Scalable.proportional(percents, gens));
     }
 
     @Test
