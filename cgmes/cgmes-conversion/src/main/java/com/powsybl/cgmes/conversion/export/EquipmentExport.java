@@ -425,7 +425,7 @@ public final class EquipmentExport {
                     String controlName = twtName + "_PTC_RC";
                     String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
                     cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
-                    if (regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
+                    if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
                         TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, mode, terminalId, cimNamespace, writer);
                         regulatingControlsWritten.add(cgmesRegulatingControlId);
                     }
