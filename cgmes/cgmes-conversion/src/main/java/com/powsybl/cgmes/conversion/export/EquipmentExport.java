@@ -768,20 +768,20 @@ public final class EquipmentExport {
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
         ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), cimNamespace, euNamespace, writer);
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
-            TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(mapTerminal2Id, terminal), cimNamespace, writer);
+            TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId, exportedTerminalId(mapTerminal2Id, terminal), cimNamespace, writer);
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            String terminalId = getTieFlowBoundaryTerminal(boundary);
+            String terminalId = getTieFlowBoundaryTerminal(boundary, context);
             if (terminalId != null) {
                 TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId, terminalId, cimNamespace, writer);
             }
         }
     }
 
-    private static String getTieFlowBoundaryTerminal(Boundary boundary) {
+    private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
         Connectable<?> c = boundary.getConnectable();
         if (c instanceof DanglingLine) {
-            return c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
+            return context.getNamingStrategy().getCgmesIdFromAlias(c, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         } else {
             // This means the boundary corresponds to a TieLine.
             // Because the network should not be a merging view,
