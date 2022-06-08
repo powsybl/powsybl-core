@@ -25,6 +25,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(BusResult.class, new BusResultSerializer());
         addSerializer(BranchResult.class, new BranchResultSerializer());
         addSerializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultSerializer());
+        addSerializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
@@ -35,5 +36,6 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(BusResult.class, new BusResultDeserializer());
         addDeserializer(BranchResult.class, new BranchResultDeserializer());
         addDeserializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultDeserializer());
+        addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
     }
 }
