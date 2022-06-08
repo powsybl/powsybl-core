@@ -79,6 +79,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setUseResistances(config.getBooleanProperty("use-resistances", DEFAULT_USE_RESISTANCES))
                         .setUseCapacities(config.getBooleanProperty("use-capacities", DEFAULT_USE_CAPACITIES))
                         .setUseLoads(config.getBooleanProperty("use-loads", DEFAULT_USE_LOADS))
+                        .setUseShunts(config.getBooleanProperty("use-shunts", DEFAULT_USE_SHUNTS))
                         .setUseTapChangers(config.getBooleanProperty("use-tap-changers", DEFAULT_USE_TAP_CHANGERS))
                         .setUseMutuals(config.getBooleanProperty("use-mutuals", DEFAULT_USE_MUTUALS))
                         .setModelVSC(config.getBooleanProperty("model-vsc", DEFAULT_MODEL_VSC))
