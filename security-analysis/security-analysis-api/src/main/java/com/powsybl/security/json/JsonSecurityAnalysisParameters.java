@@ -135,6 +135,6 @@ public final class JsonSecurityAnalysisParameters {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisParametersJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule());
     }
 }
