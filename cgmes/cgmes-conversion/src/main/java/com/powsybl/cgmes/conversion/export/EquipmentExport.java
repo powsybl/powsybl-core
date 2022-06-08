@@ -36,7 +36,7 @@ public final class EquipmentExport {
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+        write(network, writer, new CgmesExportContext(network).setExportEquipment(true));
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
