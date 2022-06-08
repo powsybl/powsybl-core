@@ -92,10 +92,12 @@ public final class SteadyStateHypothesisExport {
             // The status of the switch is "open" if any of the original terminals were not connected
             // An original "closed" switch with any terminal disconnected
             // will be exported as "open" with terminals connected
-            sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1)
-                .ifPresent(tid1 -> writeTerminal(tid1, true, cimNamespace, writer));
-            sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2)
-                .ifPresent(tid2 -> writeTerminal(tid2, true, cimNamespace, writer));
+            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1).isPresent()) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1), true, cimNamespace, writer);
+            }
+            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2).isPresent()) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2), true, cimNamespace, writer);
+            }
         }
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected

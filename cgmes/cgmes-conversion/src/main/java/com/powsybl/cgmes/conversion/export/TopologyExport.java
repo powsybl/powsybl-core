@@ -73,15 +73,6 @@ public final class TopologyExport {
         }
     }
 
-    private static String cgmesTerminalFromAlias(Identifiable<?> i, String aliasType0) {
-        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasType0;
-        Optional<String> cgmesTerminalId = i.getAliasFromType(aliasType);
-        if (cgmesTerminalId.isEmpty()) {
-            throw new PowsyblException("Missing CGMES terminal in aliases of " + i.getId() + ", aliasType " + aliasType);
-        }
-        return cgmesTerminalId.get();
-    }
-
     private static String topologicalNodeFromIidmBus(Bus b, CgmesExportContext context) {
         return b != null ? context.getTopologicalNodesByBusViewBus(b.getId()).stream().findFirst().orElseThrow(PowsyblException::new).getCgmesId() : null;
     }
@@ -100,8 +91,8 @@ public final class TopologyExport {
                 bus2 = vl.getBusView().getMergedBus(vl.getBusBreakerView().getBus2(sw.getId()).getId());
             }
 
-            String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
-            String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
+            String cgmesTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
+            String cgmesTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2);
 
             writeSwitchTerminal(bus1, sw.getVoltageLevel(), cgmesTerminal1, cimNamespace, writer, context);
             writeSwitchTerminal(bus2, sw.getVoltageLevel(), cgmesTerminal2, cimNamespace, writer, context);
