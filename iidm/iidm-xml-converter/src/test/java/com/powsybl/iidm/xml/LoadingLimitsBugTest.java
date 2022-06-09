@@ -50,6 +50,6 @@ public class LoadingLimitsBugTest extends AbstractConverterTest {
         // these new limits should not be in the XIIDM.
         ExportOptions options = new ExportOptions()
                 .setVersion(IidmXmlVersion.V_1_5.toString("."));
-        roundTripTest(network, (n, path) -> NetworkXml.write(n, options, path), NetworkXml::read, "/loading-limits-bug.xml");
+        roundTripXmlTest(network, (n, path) -> NetworkXml.writeAndValidate(n, options, path), NetworkXml::validateAndRead, "/loading-limits-bug.xml");
     }
 }
