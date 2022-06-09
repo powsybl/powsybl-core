@@ -282,7 +282,7 @@ public class PowerFactoryImporter implements Importer {
         Optional<Float> u = elmTerm.findFloatAttributeValue("m:u");
         Optional<Float> phiu = elmTerm.findFloatAttributeValue("m:phiu");
 
-        if (uknom.isPresent() && u.isPresent() && phiu.isPresent() && importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
+        if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
             NodeRef nodeRef = importContext.elmTermIdToNode.get(elmTerm.getId());
             Terminal terminal = network.getVoltageLevel(nodeRef.voltageLevelId).getNodeBreakerView().getTerminal(nodeRef.node);
             Bus bus = terminal.getBusView().getBus();
