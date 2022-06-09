@@ -44,10 +44,7 @@ public class LoadingLimitsBugTest extends AbstractConverterTest {
         twt.newApparentPowerLimits1()
                 .setPermanentLimit(100)
                 .add();
-        // export in 1.5 version, in 1.5 there is only current limits suppported
-        // new limits (apparent power and active power) have been added from 1.6 and so
-        // event if present in the network model, when asking for a <= 1.5 version export
-        // these new limits should not be in the XIIDM.
+        // check that XIIDM 1.5 is not ill-formed
         ExportOptions options = new ExportOptions()
                 .setVersion(IidmXmlVersion.V_1_5.toString("."));
         roundTripXmlTest(network, (n, path) -> NetworkXml.writeAndValidate(n, options, path), NetworkXml::validateAndRead, "/loading-limits-bug.xml");
