@@ -31,22 +31,27 @@ import java.util.List;
 @AutoService(ExtensionXmlSerializer.class)
 public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Generator, GeneratorStartup> implements ExtensionXmlSerializer<Generator, GeneratorStartup> {
 
+    private static final String ITESLA_1_0 = "1.0-itesla";
+    private static final String V_1_0 = "1.0";
+    private static final String V_1_1 = "1.1";
+
     public GeneratorStartupXmlSerializer() {
         super(GeneratorStartup.NAME, GeneratorStartup.class, false, "gs",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
-                        .put("1.0", "http://www.powsybl.org/schema/iidm/ext/generator_startup/1_0")
-                        .put("1.1", "http://www.powsybl.org/schema/iidm/ext/generator_startup/1_1")
+                        .put(ITESLA_1_0, "http://www.itesla_project.eu/schema/iidm/ext/generator_startup/1_0")
+                        .put(V_1_0, "http://www.powsybl.org/schema/iidm/ext/generator_startup/1_0")
+                        .put(V_1_1, "http://www.powsybl.org/schema/iidm/ext/generator_startup/1_1")
                         .build());
     }
 
@@ -57,7 +62,8 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return List.of(getClass().getResourceAsStream("/xsd/generatorStartup_V1_0.xsd"),
+        return List.of(getClass().getResourceAsStream("/xsd/generatorStartup_itesla_V1_0.xsd"),
+                getClass().getResourceAsStream("/xsd/generatorStartup_V1_0.xsd"),
                 getClass().getResourceAsStream("/xsd/generatorStartup_V1_1.xsd"));
     }
 
@@ -69,11 +75,12 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         String plannedActivePowerSetpoint;
         String startupCost;
         switch (extVersionStr) {
-            case "1.0":
+            case ITESLA_1_0:
+            case V_1_0:
                 plannedActivePowerSetpoint = "predefinedActivePowerSetpoint";
                 startupCost = "startUpCost";
                 break;
-            case "1.1":
+            case V_1_1:
                 plannedActivePowerSetpoint = "plannedActivePowerSetpoint";
                 startupCost = "startupCost";
                 break;
@@ -94,11 +101,12 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
         String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
         switch (extensionVersionStr) {
-            case "1.0":
+            case ITESLA_1_0:
+            case V_1_0:
                 plannedActivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "predefinedActivePowerSetpoint");
                 startUpCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "startUpCost");
                 break;
-            case "1.1":
+            case V_1_1:
                 plannedActivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedActivePowerSetpoint");
                 startUpCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "startupCost");
                 break;
