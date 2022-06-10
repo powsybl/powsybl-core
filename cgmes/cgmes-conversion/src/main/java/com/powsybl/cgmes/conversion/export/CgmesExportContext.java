@@ -52,6 +52,7 @@ public class CgmesExportContext {
 
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
+    private boolean exportEquipment = false;
 
     private final Map<String, Set<CgmesIidmMapping.CgmesTopologicalNode>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<CgmesIidmMapping.CgmesTopologicalNode> unmappedTopologicalNodes = new HashSet<>();
@@ -389,6 +390,15 @@ public class CgmesExportContext {
         }
         addIidmMappingsSwitchTerminals(network);
         addIidmMappingsHvdcTerminals(network);
+    }
+
+    public boolean isExportEquipment() {
+        return exportEquipment;
+    }
+
+    public CgmesExportContext setExportEquipment(boolean exportEquipment) {
+        this.exportEquipment = exportEquipment;
+        return this;
     }
 
     public boolean isExportedEquipment(Identifiable<?> c) {
