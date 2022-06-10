@@ -74,7 +74,6 @@ public class CgmesExport implements Exporter {
         try {
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
             if (profiles.contains("EQ")) {
-                context.setExportEquipment(true);
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameEq, false))) {
                     XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
                     EquipmentExport.write(network, writer, context);

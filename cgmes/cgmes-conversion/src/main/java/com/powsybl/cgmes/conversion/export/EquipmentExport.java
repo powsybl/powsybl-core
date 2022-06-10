@@ -36,10 +36,11 @@ public final class EquipmentExport {
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network).setExportEquipment(true));
+        write(network, writer, new CgmesExportContext(network));
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+        context.setExportEquipment(true);
         try {
             String cimNamespace = context.getCim().getNamespace();
             String euNamespace = context.getCim().getEuNamespace();
