@@ -284,10 +284,12 @@ public class PowerFactoryImporter implements Importer {
         if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
             NodeRef nodeRef = importContext.elmTermIdToNode.get(elmTerm.getId());
             Terminal terminal = network.getVoltageLevel(nodeRef.voltageLevelId).getNodeBreakerView().getTerminal(nodeRef.node);
-            Bus bus = terminal.getBusView().getBus();
-            if (bus != null) {
-                bus.setV(u.get() * uknom.get());
-                bus.setAngle(phiu.get());
+            if (terminal != null) {
+                Bus bus = terminal.getBusView().getBus();
+                if (bus != null) {
+                    bus.setV(u.get() * uknom.get());
+                    bus.setAngle(phiu.get());
+                }
             }
         }
     }
