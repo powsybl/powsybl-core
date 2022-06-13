@@ -10,9 +10,6 @@ import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptorMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,16 +38,6 @@ public class ShortCircuitAnalysisTest {
             @Override
             public String getVersion() {
                 return "0.0";
-            }
-
-            @Override
-            public void addInterceptor(final ShortCircuitAnalysisInterceptor interceptor) {
-
-            }
-
-            @Override
-            public boolean removeInterceptor(final ShortCircuitAnalysisInterceptor interceptor) {
-                return false;
             }
 
             @Override
@@ -138,19 +125,6 @@ public class ShortCircuitAnalysisTest {
         assertEquals("MockShortCircuit", subReporter.getTaskKey());
         assertEquals("Running mock short circuit", subReporter.getDefaultName());
         assertTrue(subReporter.getReports().isEmpty());
-    }
-
-    @Test
-    public void testInterceptor() {
-        Network network = EurostagTutorialExample1Factory.create();
-        ShortCircuitAnalysisInterceptorMock interceptorMock = new ShortCircuitAnalysisInterceptorMock();
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysisMock.runWithNonEmptyResult();
-        assertNotNull(result);
-
-        List<FaultResult> faultResult = result.getFaultResults();
-        interceptorMock.onFaultResult(network, faultResult.get(0));
-        interceptorMock.onLimitViolation(network, faultResult.get(0).getLimitViolations().get(0));
-        interceptorMock.onShortCircuitResult(network, result);
     }
 
     @Test
