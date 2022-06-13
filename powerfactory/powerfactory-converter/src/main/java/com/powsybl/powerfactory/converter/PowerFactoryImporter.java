@@ -112,14 +112,17 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
+    // TODO move to AbstractConverter at the end
     static class NodeRef {
 
         final String voltageLevelId;
         final int node;
+        final int busIndexIn;
 
-        NodeRef(String voltageLevelId, int node) {
+        NodeRef(String voltageLevelId, int node, int busIndexIn) {
             this.voltageLevelId = voltageLevelId;
             this.node = node;
+            this.busIndexIn = busIndexIn;
         }
 
         @Override
@@ -130,13 +133,14 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
+    // TODO delete at the end
     private static List<NodeRef> checkNodes(DataObject obj, Map<Long, List<NodeRef>> objIdToNode, int connections) {
         List<NodeRef> nodeRefs = objIdToNode.get(obj.getId());
         if (nodeRefs == null || nodeRefs.size() != connections) {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connection for '" + obj + "'");
         }
-        return nodeRefs;
+        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
     }
 
     private static PowerFactoryException createNotYetSupportedException() {
@@ -381,6 +385,7 @@ public class PowerFactoryImporter implements Importer {
             throw new PowsyblException("Multiple staSwitch not supported");
         }
         DataObject staSwitch = staSwitches.isEmpty() ? null : staSwitches.get(0);
+        int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
 
         int node;
         if (staSwitch != null) {
@@ -410,7 +415,7 @@ public class PowerFactoryImporter implements Importer {
             }
         }
         importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
-                .add(new NodeRef(vl.getId(), node));
+                .add(new NodeRef(vl.getId(), node, busIndexIn));
     }
 
     private void createNode(Network network, ImportContext importContext, DataObject elmTerm) {
