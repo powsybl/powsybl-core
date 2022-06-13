@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-powerfactory</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.9.0-RC1</version>
+        <version>4.9.0</version>
     </parent>
 
     <artifactId>powsybl-powerfactory-model</artifactId>
