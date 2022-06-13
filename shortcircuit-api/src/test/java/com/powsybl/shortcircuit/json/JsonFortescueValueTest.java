@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueValue;
-import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -14,7 +14,6 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
-import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
 
 import java.io.IOException;
 import java.io.InputStream;
