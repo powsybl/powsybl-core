@@ -14,7 +14,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -51,7 +50,7 @@ class NodeConverter extends AbstractConverter {
         getImportContext().elmTermIdToNode.putIfAbsent(elmTerm.getId(), new NodeRef(vl.getId(), node, 0));
 
         NodeModel nodeModel = NodeModel.create(vl, elmTerm);
-        createBusbarSectionIfNodeHasBeenDefinedAsSuch(vl, node, nodeModel, elmTerm);
+        createBusbarSectionIfNodeHasBeenDefinedAsSuch(vl, node, nodeModel);
 
         // Create additional nodes associated to switches (staSwitch) included in cubicles
         createAddtionalNodesAndMapConnectedObjs(vl, node, elmTerm);
@@ -94,11 +93,11 @@ class NodeConverter extends AbstractConverter {
         return node;
     }
 
-    private void createBusbarSectionIfNodeHasBeenDefinedAsSuch(VoltageLevel vl, int node, NodeModel nodeModel, DataObject elmTerm) {
+    private void createBusbarSectionIfNodeHasBeenDefinedAsSuch(VoltageLevel vl, int node, NodeModel nodeModel) {
         if (!nodeModel.isBusbarSection) {
             return;
         }
-        BusbarSection busbar = vl.getNodeBreakerView().newBusbarSection()
+        vl.getNodeBreakerView().newBusbarSection()
             .setId(nodeModel.busbarId)
             .setEnsureIdUnicity(true)
             .setNode(node)
@@ -127,8 +126,7 @@ class NodeConverter extends AbstractConverter {
 
         int referenceNode = node;
 
-        // An internalConnection is created, as in iidm only one element can be connected to a node,
-        // except when the element is a switch (ElmCoup)
+        // An internalConnection is created, as in iidm only one element can be connected to a node (except when the element is a switch (ElmCoup)).
         if (staSwitches.isEmpty()) {
             if (!isConnectedObjSwitch) {
                 int additionalNode = createNode(vl);
