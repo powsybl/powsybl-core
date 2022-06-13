@@ -30,7 +30,7 @@ public final class TopologyExport {
     private static final String TOPOLOGICAL_NODE_BASE_VOLTAGE = "TopologicalNode.BaseVoltage";
 
     public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+        write(network, writer, new CgmesExportContext(network).setExportEquipment(false));
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {

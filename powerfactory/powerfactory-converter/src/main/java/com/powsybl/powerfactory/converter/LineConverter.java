@@ -51,7 +51,7 @@ class LineConverter extends AbstractConverter {
             .add();
     }
 
-    static class LineModel {
+    private static final class LineModel {
         private final double r;
         private final double x;
         private final double g1;
@@ -59,7 +59,7 @@ class LineConverter extends AbstractConverter {
         private final double g2;
         private final double b2;
 
-        LineModel(double r, double x, double g1, double b1, double g2, double b2) {
+        private LineModel(double r, double x, double g1, double b1, double g2, double b2) {
             this.r = r;
             this.x = x;
             this.g1 = g1;
@@ -68,7 +68,7 @@ class LineConverter extends AbstractConverter {
             this.b2 = b2;
         }
 
-        static Optional<LineModel> createFromTypLne(DataObject elmLne) {
+        private static Optional<LineModel> createFromTypLne(DataObject elmLne) {
             return elmLne.findObjectAttributeValue(DataAttributeNames.TYP_ID).flatMap(DataObjectRef::resolve).map(typLne -> typeLneModel(elmLne, typLne));
         }
 

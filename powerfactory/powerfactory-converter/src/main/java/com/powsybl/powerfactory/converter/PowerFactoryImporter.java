@@ -41,7 +41,6 @@ public class PowerFactoryImporter implements Importer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PowerFactoryImporter.class);
 
     private static final String FORMAT = "POWER-FACTORY";
-    private static final String TYP_ID = "typ_id";
 
     @Override
     public String getFormat() {
@@ -105,6 +104,9 @@ public class PowerFactoryImporter implements Importer {
 
         final Map<String, MutableInt> nodeCountByVoltageLevelId = new HashMap<>();
 
+        // elmTerm object id to busbarSection id mapping
+        final Map<Long, NodeRef> elmTermIdToNode = new HashMap<>();
+
         List<DataObject> cubiclesObjectNotFound = new ArrayList<>();
 
         ImportContext(ContainersMapping containerMapping) {
@@ -112,14 +114,17 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
+    // TODO move to AbstractConverter at the end
     static class NodeRef {
 
         final String voltageLevelId;
         final int node;
+        final int busIndexIn;
 
-        NodeRef(String voltageLevelId, int node) {
+        NodeRef(String voltageLevelId, int node, int busIndexIn) {
             this.voltageLevelId = voltageLevelId;
             this.node = node;
+            this.busIndexIn = busIndexIn;
         }
 
         @Override
@@ -130,13 +135,14 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
+    // TODO delete at the end
     private static List<NodeRef> checkNodes(DataObject obj, Map<Long, List<NodeRef>> objIdToNode, int connections) {
         List<NodeRef> nodeRefs = objIdToNode.get(obj.getId());
         if (nodeRefs == null || nodeRefs.size() != connections) {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connection for '" + obj + "'");
         }
-        return nodeRefs;
+        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
     }
 
     private static PowerFactoryException createNotYetSupportedException() {
@@ -209,10 +215,12 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmTr2":
-                    create2wTransformer(network, importContext, obj);
+                    new TransformerConverter(importContext, network).createTwoWindings(obj);
                     break;
 
                 case "ElmTr3":
+                    new TransformerConverter(importContext, network).createThreeWindings(obj);
+                    break;
                 case "ElmZpu":
                     throw createNotYetSupportedException();
 
@@ -229,6 +237,7 @@ public class PowerFactoryImporter implements Importer {
                 case "TypSym":
                 case "TypLod":
                 case "TypTr2":
+                case "TypTr3":
                     // Referenced by other objects
                     break;
 
@@ -241,6 +250,7 @@ public class PowerFactoryImporter implements Importer {
                 case "StaVmea":
                 case "ElmFile":
                 case "ElmZone":
+                case "ElmRelay":
                     // not interesting
                     break;
 
@@ -253,7 +263,34 @@ public class PowerFactoryImporter implements Importer {
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
                 network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
 
+        setVoltagesAndAngles(network, importContext, elmTerms);
+
         return network;
+    }
+
+    private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
+        for (DataObject elmTerm : elmTerms) {
+            setVoltageAndAngle(network, importContext, elmTerm);
+        }
+    }
+
+    private static void setVoltageAndAngle(Network network, ImportContext importContext, DataObject elmTerm) {
+        if (!importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
+            return;
+        }
+        Optional<Float> uknom = elmTerm.findFloatAttributeValue("uknom");
+        Optional<Float> u = elmTerm.findFloatAttributeValue("m:u");
+        Optional<Float> phiu = elmTerm.findFloatAttributeValue("m:phiu");
+
+        if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
+            NodeRef nodeRef = importContext.elmTermIdToNode.get(elmTerm.getId());
+            Terminal terminal = network.getVoltageLevel(nodeRef.voltageLevelId).getNodeBreakerView().getTerminal(nodeRef.node);
+            Bus bus = terminal.getBusView().getBus();
+            if (bus != null) {
+                bus.setV(u.get() * uknom.get());
+                bus.setAngle(phiu.get());
+            }
+        }
     }
 
     private void createShunt(Network network, ImportContext importContext, DataObject elmShnt) {
@@ -294,65 +331,6 @@ public class PowerFactoryImporter implements Importer {
                 .add();
     }
 
-    private void create2wTransformer(Network network, ImportContext importContext, DataObject elmTr2) {
-        Collection<NodeRef> nodeRefs = checkNodes(elmTr2, importContext.objIdToNode, 2);
-        Iterator<NodeRef> it = nodeRefs.iterator();
-        NodeRef nodeRef1 = it.next();
-        NodeRef nodeRef2 = it.next();
-        VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
-        VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
-        Substation s = vl1.getSubstation().orElseThrow();
-        DataObject typTr2 = elmTr2.getObjectAttributeValue(TYP_ID)
-                .resolve()
-                .orElseThrow();
-        float strn = typTr2.getFloatAttributeValue("strn");
-        float utrnL = typTr2.getFloatAttributeValue("utrn_l");
-        float utrnH = typTr2.getFloatAttributeValue("utrn_h");
-        float uktr = typTr2.getFloatAttributeValue("uktr");
-        float pcutr = typTr2.getFloatAttributeValue("pcutr");
-        float curmg = typTr2.getFloatAttributeValue("curmg");
-        float pfe = typTr2.getFloatAttributeValue("pfe");
-        double ratedU1;
-        double ratedU2;
-        double primaryNominalV;
-        if (vl1.getNominalV() > vl2.getNominalV()) {
-            ratedU1 = utrnH;
-            ratedU2 = utrnL;
-            primaryNominalV = vl1.getNominalV();
-        } else {
-            ratedU1 = utrnL;
-            ratedU2 = utrnH;
-            primaryNominalV = vl2.getNominalV();
-        }
-
-        TransformerModel transformerModel = TransformerModel.fromMeasures(uktr, pcutr, curmg, pfe, strn, primaryNominalV);
-        double r = transformerModel.getR();
-        double x = transformerModel.getX();
-        if (vl1.getNominalV() > vl2.getNominalV()) {
-            double rho = ratedU2 / ratedU1;
-            r *= rho * rho;
-            x *= rho * rho;
-        }
-
-        // TODO ratio and phase tap changer
-
-        s.newTwoWindingsTransformer()
-                .setId(elmTr2.getLocName())
-                .setEnsureIdUnicity(true)
-                .setVoltageLevel1(nodeRef1.voltageLevelId)
-                .setVoltageLevel2(nodeRef2.voltageLevelId)
-                .setNode1(nodeRef1.node)
-                .setNode2(nodeRef2.node)
-                .setRatedU1(ratedU1)
-                .setRatedU2(ratedU2)
-                .setRatedS(strn)
-                .setR(r)
-                .setX(x)
-                .setG(0)
-                .setB(0)
-                .add();
-    }
-
     private VoltageLevel createVoltageLevel(Network network, ImportContext importContext, DataObject elmTerm) {
         String voltageLevelId = importContext.containerMapping.getVoltageLevelId(Ints.checkedCast(elmTerm.getId()));
         String substationId = importContext.containerMapping.getSubstationId(voltageLevelId);
@@ -381,6 +359,7 @@ public class PowerFactoryImporter implements Importer {
             throw new PowsyblException("Multiple staSwitch not supported");
         }
         DataObject staSwitch = staSwitches.isEmpty() ? null : staSwitches.get(0);
+        int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
 
         int node;
         if (staSwitch != null) {
@@ -410,7 +389,7 @@ public class PowerFactoryImporter implements Importer {
             }
         }
         importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
-                .add(new NodeRef(vl.getId(), node));
+                .add(new NodeRef(vl.getId(), node, busIndexIn));
     }
 
     private void createNode(Network network, ImportContext importContext, DataObject elmTerm) {
@@ -419,6 +398,9 @@ public class PowerFactoryImporter implements Importer {
         MutableInt nodeCount = importContext.nodeCountByVoltageLevelId.computeIfAbsent(vl.getId(), k -> new MutableInt());
         int bbNode = nodeCount.intValue();
         nodeCount.increment();
+
+        importContext.elmTermIdToNode.putIfAbsent(elmTerm.getId(), new NodeRef(vl.getId(), bbNode, 0));
+
         if (iUsage == 0) { // busbar
             vl.getNodeBreakerView().newBusbarSection()
                     .setId(vl.getId() + "_" + elmTerm.getLocName())

@@ -404,7 +404,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network);
+            CgmesExportContext context = new CgmesExportContext(network).setExportEquipment(true);
             EquipmentExport.write(network, writer, context);
         }
 

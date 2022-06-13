@@ -8,6 +8,8 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.extensions.CgmesTapChanger;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -37,7 +39,7 @@ public final class StateVariablesExport {
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+        write(network, writer, new CgmesExportContext(network).setExportEquipment(false));
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
@@ -214,6 +216,7 @@ public final class StateVariablesExport {
             if (context.exportBoundaryPowerFlows()) {
                 writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }
+            writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network", dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer, context);
             writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", -dl.getBoundary().getP(), -dl.getBoundary().getQ(), cimNamespace, writer, context);
         });
 
@@ -380,10 +383,12 @@ public final class StateVariablesExport {
                 int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).isPresent() ? 1 : 2;
                 String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                 writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition(), cimNamespace, writer);
+                writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
             } else if (twt.hasRatioTapChanger()) {
                 int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).isPresent() ? 1 : 2;
                 String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                 writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition(), cimNamespace, writer);
+                writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
             }
         }
 
@@ -393,11 +398,28 @@ public final class StateVariablesExport {
                 if (leg.hasPhaseTapChanger()) {
                     String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                     writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition(), cimNamespace, writer);
+                    writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                     writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition(), cimNamespace, writer);
+                    writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
                 }
                 endNumber++;
+            }
+        }
+    }
+
+    private static <C extends Connectable<C>> void writeSvTapStepHidden(Connectable<C> eq, String tcId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        // If we are exporting equipment definitions the hidden tap changer will not be exported
+        // because it has been included in the model for the only tap changer left in IIDM
+        // If we are exporting only SSH, SV, ... we have to write the step we have saved for it
+        if (cgmesTcs != null && !context.isExportEquipment()) {
+            for (CgmesTapChanger cgmesTc : cgmesTcs.getTapChangers()) {
+                if (cgmesTc.isHidden() && cgmesTc.getCombinedTapChangerId().equals(tcId)) {
+                    int step = cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId()));
+                    writeSvTapStep(cgmesTc.getId(), step, cimNamespace, writer);
+                }
             }
         }
     }
