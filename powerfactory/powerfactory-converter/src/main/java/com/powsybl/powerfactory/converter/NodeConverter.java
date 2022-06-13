@@ -126,7 +126,8 @@ class NodeConverter extends AbstractConverter {
 
         int referenceNode = node;
 
-        // An internalConnection is created, as in iidm only one element can be connected to a node (except when the element is a switch (ElmCoup)).
+        // An internalConnection is created, as in iidm only one element can be connected to a node,
+        // except when the element is a ElmCoup (breaker).
         if (staSwitches.isEmpty()) {
             if (!isConnectedObjSwitch) {
                 int additionalNode = createNode(vl);
