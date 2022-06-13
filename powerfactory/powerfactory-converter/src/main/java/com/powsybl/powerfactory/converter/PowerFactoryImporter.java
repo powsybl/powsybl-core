@@ -9,7 +9,6 @@ package com.powsybl.powerfactory.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
-import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -175,7 +174,7 @@ public class PowerFactoryImporter implements Importer {
 
         // process terminals
         for (DataObject elmTerm : elmTerms) {
-            createNode(network, importContext, elmTerm);
+            new NodeConverter(importContext, network).createAndMapConnectedObjs(elmTerm);
         }
 
         if (!importContext.cubiclesObjectNotFound.isEmpty()) {
@@ -193,7 +192,7 @@ public class PowerFactoryImporter implements Importer {
         for (DataObject obj : objs) {
             switch (obj.getDataClassName()) {
                 case "ElmCoup":
-                    createSwitch(network, importContext, obj);
+                    new SwitchConverter(importContext, network).createFromElmCoup(obj);
                     break;
 
                 case "ElmSym":
@@ -328,129 +327,6 @@ public class PowerFactoryImporter implements Importer {
                     .setBPerSection(bPerSection)
                     .setMaximumSectionCount(ncapx)
                 .add()
-                .add();
-    }
-
-    private VoltageLevel createVoltageLevel(Network network, ImportContext importContext, DataObject elmTerm) {
-        String voltageLevelId = importContext.containerMapping.getVoltageLevelId(Ints.checkedCast(elmTerm.getId()));
-        String substationId = importContext.containerMapping.getSubstationId(voltageLevelId);
-        Substation s = network.getSubstation(substationId);
-        if (s == null) {
-            s = network.newSubstation()
-                    .setId(substationId)
-                    .add();
-        }
-        VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
-        if (vl == null) {
-            float uknom = elmTerm.getFloatAttributeValue("uknom");
-            vl = s.newVoltageLevel()
-                    .setId(voltageLevelId)
-                    .setNominalV(uknom)
-                    .setTopologyKind(TopologyKind.NODE_BREAKER)
-                    .add();
-        }
-        return vl;
-    }
-
-    private void createSwitch(ImportContext importContext, VoltageLevel vl, MutableInt nodeCount, int bbNode,
-                              DataObject staCubic, DataObject connectedObj) {
-        List<DataObject> staSwitches = staCubic.getChildrenByClass("StaSwitch");
-        if (staSwitches.size() > 1) {
-            throw new PowsyblException("Multiple staSwitch not supported");
-        }
-        DataObject staSwitch = staSwitches.isEmpty() ? null : staSwitches.get(0);
-        int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
-
-        int node;
-        if (staSwitch != null) {
-            node = nodeCount.intValue();
-            nodeCount.increment();
-            String switchId = vl.getId() + "_" + staSwitch.getLocName();
-            boolean open = staSwitch.findIntAttributeValue("on_off").orElse(0) == 0;
-            vl.getNodeBreakerView().newSwitch()
-                    .setId(switchId)
-                    .setEnsureIdUnicity(true)
-                    .setKind(SwitchKind.BREAKER)
-                    .setNode1(bbNode)
-                    .setNode2(node)
-                    .setOpen(open)
-                    .add();
-        } else {
-            if (connectedObj.getDataClassName().equals("ElmCoup")) {
-                // no need to create an intermediate internal node
-                node = bbNode;
-            } else {
-                node = nodeCount.intValue();
-                nodeCount.increment();
-                vl.getNodeBreakerView().newInternalConnection()
-                        .setNode1(bbNode)
-                        .setNode2(node)
-                        .add();
-            }
-        }
-        importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
-                .add(new NodeRef(vl.getId(), node, busIndexIn));
-    }
-
-    private void createNode(Network network, ImportContext importContext, DataObject elmTerm) {
-        VoltageLevel vl = createVoltageLevel(network, importContext, elmTerm);
-        int iUsage = elmTerm.getIntAttributeValue("iUsage");
-        MutableInt nodeCount = importContext.nodeCountByVoltageLevelId.computeIfAbsent(vl.getId(), k -> new MutableInt());
-        int bbNode = nodeCount.intValue();
-        nodeCount.increment();
-
-        importContext.elmTermIdToNode.putIfAbsent(elmTerm.getId(), new NodeRef(vl.getId(), bbNode, 0));
-
-        if (iUsage == 0) { // busbar
-            vl.getNodeBreakerView().newBusbarSection()
-                    .setId(vl.getId() + "_" + elmTerm.getLocName())
-                    .setEnsureIdUnicity(true)
-                    .setNode(bbNode)
-                    .add();
-        }
-        for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
-            DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
-                    .flatMap(DataObjectRef::resolve)
-                    .orElse(null);
-            if (connectedObj == null) {
-                importContext.cubiclesObjectNotFound.add(staCubic);
-            } else {
-                createSwitch(importContext, vl, nodeCount, bbNode, staCubic, connectedObj);
-            }
-        }
-    }
-
-    private void createSwitch(Network network, ImportContext importContext, DataObject elmCoup) {
-        Collection<NodeRef> nodeRefs = checkNodes(elmCoup, importContext.objIdToNode, 2);
-        Iterator<NodeRef> it = nodeRefs.iterator();
-        NodeRef nodeRef1 = it.next();
-        NodeRef nodeRef2 = it.next();
-        if (!nodeRef1.voltageLevelId.equals(nodeRef2.voltageLevelId)) {
-            throw new PowsyblException("ElmCoup not connected to same ElmSubstat at both sides: " + elmCoup);
-        }
-        String switchId = nodeRef1.voltageLevelId + "_" + elmCoup.getLocName();
-        boolean open = elmCoup.findIntAttributeValue("on_off").orElse(0) == 0;
-        String aUsage = elmCoup.getStringAttributeValue("aUsage");
-        SwitchKind switchKind;
-        switch (aUsage) {
-            case "cbk":
-            case "swt":
-                switchKind = SwitchKind.BREAKER;
-                break;
-            case "dct":
-                switchKind = SwitchKind.DISCONNECTOR;
-                break;
-            default:
-                throw new PowsyblException("Unknown switch type: " + aUsage);
-        }
-        VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
-        vl1.getNodeBreakerView().newSwitch()
-                .setId(switchId)
-                .setEnsureIdUnicity(true)
-                .setKind(switchKind)
-                .setNode1(nodeRef1.node)
-                .setNode2(nodeRef2.node)
-                .setOpen(open)
                 .add();
     }
 
