@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;
@@ -56,6 +57,16 @@ public class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
         assertEquals(startup.getMarginalCost(), startup2.getMarginalCost(), 0);
         assertEquals(startup.getPlannedOutageRate(), startup2.getPlannedOutageRate(), 0);
         assertEquals(startup.getForcedOutageRate(), startup2.getForcedOutageRate(), 0);
+
+        // backward compatibility
+        roundTripXmlTest(network, (n, path) -> NetworkXml.writeAndValidate(n,
+                        new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0"), path),
+                NetworkXml::validateAndRead,
+                getVersionedNetworkPath("generatorStartupRef-1.0.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+        roundTripXmlTest(network, (n, path) -> NetworkXml.writeAndValidate(n,
+                        new ExportOptions().addExtensionVersion(GeneratorStartup.NAME, "1.0-itesla"), path),
+                NetworkXml::validateAndRead,
+                getVersionedNetworkPath("generatorStartupRef-1.0-itesla.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
     }
 
     private static Network createTestNetwork() {

@@ -87,32 +87,64 @@ package com.powsybl.iidm.network;
 public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
 
     /**
-     * Get the constant active power in MW.
-     * <p>Depends on the working variant.
-     * @see VariantManager
+     * @deprecated Use {@link #getTargetP()} instead.
      */
-    double getP0();
+    @Deprecated(since = "4.9.0")
+    default double getP0() {
+        return getTargetP();
+    }
 
     /**
-     * Set the constant active power in MW.
+     * Get the target active power in MW.
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    Battery setP0(double p0);
+    double getTargetP();
 
     /**
-     * Get the constant reactive power in MVar.
-     * <p>Depends on the working variant.
-     * @see VariantManager
+     * @deprecated Use {@link #setTargetP(double)} instead.
      */
-    double getQ0();
+    @Deprecated(since = "4.9.0")
+    default Battery setP0(double p0) {
+        return setTargetP(p0);
+    }
 
     /**
-     * Set the constant reactive power in MVar.
+     * Set the target active power in MW.
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    Battery setQ0(double q0);
+    Battery setTargetP(double targetP);
+
+    /**
+     * @deprecated Use {@link #getTargetQ()} instead.
+     */
+    @Deprecated(since = "4.9.0")
+    default double getQ0() {
+        return getTargetQ();
+    }
+
+    /**
+     * Get the target reactive power in MVar.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    double getTargetQ();
+
+    /**
+     * @deprecated Use {@link #setTargetP(double)} instead.
+     */
+    @Deprecated(since = "4.9.0")
+    default Battery setQ0(double q0) {
+        return setTargetQ(q0);
+    }
+
+    /**
+     * Set the target reactive power in MVar.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    Battery setTargetQ(double targetQ);
 
     /**
      * Get the minimal active power in MW.

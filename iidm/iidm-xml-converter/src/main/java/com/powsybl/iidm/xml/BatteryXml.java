@@ -10,6 +10,7 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -34,8 +35,10 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
 
     @Override
     protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("p0", b.getP0(), context.getWriter());
-        XmlUtil.writeDouble("q0", b.getQ0(), context.getWriter());
+        XmlUtil.writeDouble(IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8),
+                b.getTargetP(), context.getWriter());
+        XmlUtil.writeDouble(IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8),
+                b.getTargetQ(), context.getWriter());
         XmlUtil.writeDouble("minP", b.getMinP(), context.getWriter());
         XmlUtil.writeDouble("maxP", b.getMaxP(), context.getWriter());
         writeNodeOrBus(null, b.getTerminal(), context);
@@ -54,13 +57,15 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
 
     @Override
     protected Battery readRootElementAttributes(BatteryAdder adder, NetworkXmlReaderContext context) {
-        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
-        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
+        double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(),
+                IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8));
+        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(),
+                IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8));
         double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
         double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
         readNodeOrBus(adder, context);
-        Battery b = adder.setP0(p0)
-                .setQ0(q0)
+        Battery b = adder.setTargetP(targetP)
+                .setTargetQ(targetQ)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .add();

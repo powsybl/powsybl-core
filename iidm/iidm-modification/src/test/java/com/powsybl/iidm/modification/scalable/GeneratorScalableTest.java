@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.util;
+package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.action.util.Scalable.ScalingConvention;
+import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.Before;
@@ -14,8 +14,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.*;
-import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
+import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
 import static org.junit.Assert.*;
 
 /**
