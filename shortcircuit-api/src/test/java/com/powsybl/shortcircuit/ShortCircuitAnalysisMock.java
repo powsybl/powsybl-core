@@ -12,7 +12,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,18 +24,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(ShortCircuitAnalysisProvider.class)
 public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
-
-    private final List<ShortCircuitAnalysisInterceptor> interceptors = new ArrayList<>();
-
-    @Override
-    public void addInterceptor(ShortCircuitAnalysisInterceptor interceptor) {
-        interceptors.add(interceptor);
-    }
-
-    @Override
-    public boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor) {
-        return interceptors.remove(interceptor);
-    }
 
     @Override
     public String getName() {

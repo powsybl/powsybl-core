@@ -11,7 +11,6 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -22,17 +21,9 @@ import java.util.concurrent.CompletableFuture;
  *
  *  <p>Implementations of that interface may typically rely on an external tool.
  *
- *  <p>{@link ShortCircuitAnalysisInterceptor Interceptors} might be used to execute client user-specific code
- *  on events such as the availability of N-situation results, for example to further customize the results content
- *  through {@link com.powsybl.commons.extensions.Extension Extensions}.
- *
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
 public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
-
-    void addInterceptor(ShortCircuitAnalysisInterceptor interceptor);
-
-    boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor);
 
     /**
      * Run an asynchronous single short circuit analysis job.
