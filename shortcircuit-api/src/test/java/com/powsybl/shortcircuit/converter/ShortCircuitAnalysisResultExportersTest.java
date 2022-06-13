@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.shortcircuit.*;
+import com.powsybl.shortcircuit.json.ShortCircuitAnalysisResultDeserializer;
 import org.junit.Test;
 
 import java.io.IOException;
