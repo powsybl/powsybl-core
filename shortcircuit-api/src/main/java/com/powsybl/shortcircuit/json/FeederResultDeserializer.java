@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.shortcircuit.converter;
+package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -17,39 +17,33 @@ import java.io.IOException;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBusResults> {
+class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
-    ShortCircuitBusResultsDeserializer() {
-        super(ShortCircuitBusResults.class);
+    FeederResultDeserializer() {
+        super(FeederResult.class);
     }
 
     @Override
-    public ShortCircuitBusResults deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String voltageLevelId = null;
-        String busId = null;
-        FortescueValue voltage = null;
+    public FeederResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        String connectableId = null;
+        FortescueValue current = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "voltageLevelId":
+                case "connectableId":
                     parser.nextToken();
-                    voltageLevelId = parser.readValueAs(String.class);
+                    connectableId = parser.readValueAs(String.class);
                     break;
 
-                case "busId":
+                case "current":
                     parser.nextToken();
-                    busId = parser.readValueAs(String.class);
-                    break;
-
-                case "voltage":
-                    parser.nextToken();
-                    voltage = parser.readValueAs(FortescueValue.class);
+                    current = parser.readValueAs(FortescueValue.class);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new ShortCircuitBusResults(voltageLevelId, busId, voltage);
+        return new FeederResult(connectableId, current);
     }
 }

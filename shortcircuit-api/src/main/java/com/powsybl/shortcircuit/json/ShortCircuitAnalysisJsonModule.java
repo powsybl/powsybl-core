@@ -4,15 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.shortcircuit.converter;
+package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.json.LimitViolationDeserializer;
 import com.powsybl.security.json.LimitViolationSerializer;
 import com.powsybl.shortcircuit.*;
-import com.powsybl.shortcircuit.json.ShortCircuitParametersDeserializer;
-import com.powsybl.shortcircuit.json.ShortCircuitParametersSerializer;
 import com.powsybl.shortcircuit.FaultParameters;
 
 /**
