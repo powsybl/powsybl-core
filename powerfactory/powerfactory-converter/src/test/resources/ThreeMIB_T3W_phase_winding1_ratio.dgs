@@ -1,0 +1,169 @@
+********************************************************************************
+*
+* DIgSILENT (R) DGS Export V1.8.4
+* Copyright (C) DIgSILENT GmbH 2022. All rights reserved.
+*
+* DIgSILENT (C) PowerFactory V22.0.4.0
+*
+* Date:     05/23/2022 10:23
+* Project:  ThreeMIB_T3W_phase_winding1_ratio (Study Case: Study Case)
+*
+********************************************************************************
+
+
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+  1;Version;5.0
+
+
+$$ChaRef;ID(a:40);loc_name(a:40);fold_id(p)
+  2;fline;20
+  3;fline;21
+  4;ratfac_h;43
+  5;ratfac_l;43
+  6;ratfac_m;43
+  7;ratfac;39
+  8;ratfac;40
+  9;ratfac;41
+  10;ratfac;42
+
+
+$$ChaVec;ID(a:40);loc_name(a:40);fold_id(p);scale(p);usage(i);approx(i);vector:SIZEROW(i);vector:0(r);vector:1(r);vector:2(r)
+  11;vec_1;;;0;0;3;100;100,009568462348;100,019136924696
+  12;vec_2;;;0;0;3;100;100,009468800303;100,018937600606
+  13;vec_3;;;0;0;3;10140;10141;10142
+  14;vec_4;;;0;0;3;10000;99999;99999
+  15;vec_5;;;0;0;3;10000;99999;99999
+  16;vec_6;;;0;0;3;10000;99999;99999
+  17;vec_7;;;0;0;3;100;100,990099009901;101,980198019802
+  18;vec_8;;;0;0;3;100;100,497512437811;100,995024875622
+  19;vec_9;;;0;0;3;100;100,332225913621;100,664451827243
+
+
+$$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fline(r);GPScoords:SIZEROW(i);GPScoords:SIZECOL(i);nlnum(i);inAir(i)
+  20;lne_4_5_1;;27;93;1;1;0;0;1;0
+  21;lne_5_6_1;;27;94;1;1;0;0;1;0
+
+
+$$ElmLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);mode_inp(a:3);slini(r);plini(r);qlini(r);coslini(r);pf_recap(i);scale0(r);i_scale(i);outserv(i);classif(a:20)
+  22;lod_4_1;;27;95;PQ;1403,567;1400;100;0,997458;0;1;0;0;
+  23;lod_5_1;;27;95;PQ;2002,498;2000;100;0,998752;0;1;0;0;
+  24;lod_5_2;;27;95;PQ;50;0;50;0;0;1;0;1;
+  25;lod_6_1;;27;95;PQ;10198,04;10000;2000;0,980580;0;1;0;0;
+  26;lod_7_1;;27;95;PQ;1,414214;1;1;0,707106;0;1;0;0;
+
+
+$$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
+  27;1 1;;;60;
+
+
+$$ElmSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);cCategory(a);ngnum(i);i_mot(i);pgini(r);qgini(r);cosgini(r);usetp(r);pf_recap(i);q_min(r);q_max(r);outserv(i);av_mode(a);phtech(i)
+  28;sym_1_1;;27;96;Others;1;0;1404;0;1;1,04;0;-6,346154;6,346154;0;constv;1
+  29;sym_2_1;;27;97;Others;1;0;1404;0;1;1,04;0;-6,346154;6,346154;0;constv;1
+  30;sym_3_1;;27;98;Others;1;0;800;0;1;1,02;0;-11,1236;11,1236;0;constv;1
+  31;sym_6_1;;27;99;Others;1;0;9796,685;0;1;1;0;-0,099;0,099;0;constv;1
+
+
+$$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i);outserv(i);GPSlat(r);GPSlon(r);vtarget(r);m:u(r);m:phiu(r)
+  32;1 1;;27;;0;0;18;10,3923;0;0;0;0;1;1,03999996185527;-3,74709375649975
+  33;2 2;;27;;0;0;18;10,3923;0;0;0;0;1;1,03999996185304;3,03092988285488
+  34;3 3;;27;;0;0;18;10,3923;0;0;0;0;1;1,01999998096852;-15,1428076346997
+  35;4 4;;27;;0;0;500;288,6751;0;0;0;0;1;1,02137113048185;-8,60726769065401
+  36;5 5;;27;;0;0;500;288,6751;0;0;0;0;1;0,99351486790517;-20,2153253242776
+  37;6 6;;27;;0;0;500;288,6751;0;0;0;0;1;1;0
+  38;7 7;;27;;0;0;16;9,237604;0;0;0;0;1;0,98604939713171;-17,9434814214568
+
+
+$$ElmTr2;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);typ_id(p);ntnum(i);outserv(i);nntap(i);i_auto(i);ntrcn(i);usetp(r);usp_low(r);usp_up(r);t2ldc(i);mTaps:SIZEROW(i);mTaps:SIZECOL(i)
+  39;trf_4_1_1;27;;100;1;0;0;0;0;1,005;0,51;1,5;0;1;0
+  40;trf_5_3_1;27;;101;1;0;0;0;0;1,025;0,95;1,1;0;1;0
+  41;trf_5_7_1;27;;102;1;0;0;0;0;1,025;0,95;1,1;0;1;0
+  42;trf_6_2_1;27;;103;1;0;0;0;0;1,025;0,95;1,1;0;1;0
+
+
+$$ElmTr3;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);nt3nm(i);typ_id(p);outserv(i);n3tap_h(i);n3tap_m(i);n3tap_l(i);i_auto_hl(i);ictrlside(i);ntrcn(i);t3ldc(i);usetp(r);usp_low(r);usp_up(r);mTaps:SIZEROW(i);mTaps:SIZECOL(i);mTaps:0:0(r);mTaps:0:1(r);mTaps:0:2(r);mTaps:0:3(r);mTaps:0:4(r);mTaps:0:5(r);mTaps:0:6(r);mTaps:0:7(r);mTaps:1:0(r);mTaps:1:1(r);mTaps:1:2(r);mTaps:1:3(r);mTaps:1:4(r);mTaps:1:5(r);mTaps:1:6(r);mTaps:1:7(r);mTaps:2:0(r);mTaps:2:1(r);mTaps:2:2(r);mTaps:2:3(r);mTaps:2:4(r);mTaps:2:5(r);mTaps:2:6(r);mTaps:2:7(r);iMeasTap(i)
+  43;tr3_4_2_7_1;27;;1;104;0;0;0;0;0;0;1;0;0;0;0;3;8;515;0;3,08325450313794;14,9364535433502;6,72407502656624;17,61355665;135,16720164;0,60369518;515;2;3,08325450313794;14,9364535433502;6,72407502656624;17,61355665;135,16720164;0,60369518;515;25;3,08325450313794;14,9364535433502;6,72407502656624;17,61355665;135,16720164;0,60369518;0
+
+
+$$ElmZone;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);icolor(i);curscale(r)
+  44;1_1;;;1;1
+
+
+$$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_bus(i);obj_id(p);it2p1(i);it2p2(i);it2p3(i)
+  45;sym_1_1;;32;0;28;0;1;2
+  46;trf_4_1_1;;32;1;39;0;1;2
+  47;sym_2_1;;33;0;29;0;1;2
+  48;tr3_4_2_7_1;;33;1;43;0;1;2
+  49;trf_6_2_1;;33;1;42;0;1;2
+  50;sym_3_1;;34;0;30;0;1;2
+  51;trf_5_3_1;;34;1;40;0;1;2
+  52;lne_4_5_1;;35;0;20;0;1;2
+  53;lod_4_1;;35;0;22;0;1;2
+  54;tr3_4_2_7_1;;35;0;43;0;1;2
+  55;trf_4_1_1;;35;0;39;0;1;2
+  56;lne_4_5_1;;36;1;20;0;1;2
+  57;lne_5_6_1;;36;0;21;0;1;2
+  58;lod_5_1;;36;0;23;0;1;2
+  59;lod_5_2;;36;0;24;0;1;2
+  60;trf_5_3_1;;36;0;40;0;1;2
+  61;trf_5_7_1;;36;0;41;0;1;2
+  62;lne_5_6_1;;37;1;21;0;1;2
+  63;lod_6_1;;37;0;25;0;1;2
+  64;sym_6_1;;37;0;31;0;1;2
+  65;trf_6_2_1;;37;0;42;0;1;2
+  66;lod_7_1;;38;0;26;0;1;2
+  67;tr3_4_2_7_1;;38;2;43;0;1;2
+  68;trf_5_7_1;;38;1;41;0;1;2
+
+
+$$StaSwitch;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);on_off(i);typ_id(p);aUsage(a)
+  69;Switch;;45;1;;cbk
+  70;Switch;;46;1;;cbk
+  71;Switch;;47;1;;cbk
+  72;Switch;;48;1;;cbk
+  73;Switch;;49;1;;cbk
+  74;Switch;;50;1;;cbk
+  75;Switch;;51;1;;cbk
+  76;Switch;;52;1;;cbk
+  77;Switch;;53;1;;cbk
+  78;Switch;;54;1;;cbk
+  79;Switch;;55;1;;cbk
+  80;Switch;;56;1;;cbk
+  81;Switch;;57;1;;cbk
+  82;Switch;;58;1;;cbk
+  83;Switch;;59;0;;cbk
+  84;Switch;;60;1;;cbk
+  85;Switch;;61;1;;cbk
+  86;Switch;;62;1;;cbk
+  87;Switch;;63;1;;cbk
+  88;Switch;;64;1;;cbk
+  89;Switch;;65;1;;cbk
+  90;Switch;;66;1;;cbk
+  91;Switch;;67;1;;cbk
+  92;Switch;;68;1;;cbk
+
+
+$$TypLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);uline(r);sline(r);InomAir(r);cohl_(i);rline(r);xline(r);rline0(r);xline0(r);Ithr(r);tmax(r);rtemp(r);systp(i);nlnph(i);nneutral(i);frnom(r);mlei(a:2);bline(r);bline0(r)
+  93;tlne_4_5_1;;27;500;12,06778;1;0;0;90;999999;999999;0;80;80;0;3;0;60;Cu;0;0
+  94;tlne_5_6_1;;27;500;12,19479;1;0;0;300;999999;999999;0;80;80;0;3;0;60;Cu;0;0
+
+
+$$TypLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);systp(i);phtech(i);aP(r);bP(r);kpu0(r);kpu1(r);kpu(r);aQ(r);bQ(r);kqu0(r);kqu1(r);kqu(r)
+  95;lodtyp_pq;;27;0;0;1;0;0;1;2;1;0;0;1;2
+
+
+$$TypSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sgn(r);ugn(r);cosn(r);xd(r);xq(r);xdsss(r);rstr(r);xdsat(r);satur(i);nphase(i);nslty(i);x0sy(r);r0sy(r);x2sy(r);r2sy(r);iopt_data(i);xds(r);xqs(r);xl(r);xdss(r);xqss(r);xrlq(r);tds(r);tqs(r);tdss(r);tqss(r)
+  96;tsym_1_1;;27;1560;18;1;2;2;0,29;0,0019;1,2;0;3;2;0,29;0,0019;0,29;0,0019;1;0,3;0,3;0,145;0,29;0,29;0;1;0;0,05;0,05
+  97;tsym_2_1;;27;1560;18;1;2;2;0,29;0,0019;1,2;0;3;2;0,29;0,0019;0,29;0,0019;1;0,3;0,3;0,145;0,29;0,29;0;1;0;0,05;0,05
+  98;tsym_3_1;;27;890;18;1;2;2;0,337;0;1,2;0;3;2;0,337;0;0,337;0;1;0,3;0,3;0,1685;0,337;0,337;0;1;0;0,05;0,05
+  99;tsym_6_1;;27;100000;500;1;2;2;0,2;0;1,2;0;3;2;0,2;0;0,2;0;1;0,3;0,3;0,1;0,2;0,2;0;1;0;0,05;0,05
+
+
+$$TypTr2;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);nt2ph(i);strn(r);frnom(r);utrn_h(r);utrn_l(r);uktr(r);pcutr(r);uk0tr(r);ur0tr(r);tr2cn_h(a:2);tr2cn_l(a:2);nt2ag(r);curmg(r);pfe(r);zx0hl_n(r);itapch(i);tap_side(i);dutap(r);phitr(r);nntap0(i);ntpmn(i);ntpmx(i);manuf(a:20)
+  100;ttrf_4_1_1;;27;3;100;60;500;18;0,641;0;0;0;D;D;0;0;0;100;1;0;-99;0;0;0;0;
+  101;ttrf_5_3_1;;27;3;100;60;500;18;1,12;0;0;0;D;D;0;0;0;100;1;0;-10;0;0;0;0;
+  102;ttrf_5_7_1;;27;3;100;60;500;16;1,12;0;0;0;D;D;0;0;0;100;1;0;-10;0;0;0;0;
+  103;ttrf_6_2_1;;27;3;100;60;500;18;1,12;0;0;0;D;D;0;0;0;100;1;0;-10;0;0;0;0;
+
+
+$$TypTr3;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);strn3_h(r);strn3_m(r);strn3_l(r);utrn3_h(r);utrn3_m(r);utrn3_l(r);uktr3_h(r);uktr3_m(r);uktr3_l(r);pcut3_h(r);pcut3_m(r);pcut3_l(r);uk0hm(r);uk0ml(r);uk0hl(r);ur0hm(r);ur0ml(r);ur0hl(r);tr3cn_h(a:2);tr3cn_m(a:2);tr3cn_l(a:2);nt3ag_h(r);nt3ag_m(r);nt3ag_l(r);curm3(r);pfe(r);du3tp_h(r);ph3tr_h(r);n3tp0_h(i);n3tmn_h(i);n3tmx_h(i);du3tp_m(r);ph3tr_m(r);n3tp0_m(i);n3tmn_m(i);n3tmx_m(i);du3tp_l(r);ph3tr_l(r);n3tp0_l(i);n3tmn_l(i);n3tmx_l(i);itapos(i);i3loc(i)
+  104;ttr3_4_2_7_1;;27;101;201;301;515;18,36;15,68;3,083255;14,93645;6,724075;17,61356;135,1672;0,603695;0;0;0;0;0;0;YN;YN;YN;-0;-0;-0;0,178613;144,572;0;0;0;-1;1;0;0;0;-1;1;0;0;0;-1;1;1;0

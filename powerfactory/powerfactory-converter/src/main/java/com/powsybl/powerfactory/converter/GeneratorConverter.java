@@ -52,7 +52,7 @@ class GeneratorConverter extends AbstractConverter {
                         .add());
     }
 
-    static class GeneratorModel {
+    private static final class GeneratorModel {
         private final double targetP;
         private final double targetQ;
         private final double targetVpu;
@@ -60,7 +60,7 @@ class GeneratorConverter extends AbstractConverter {
         private final double minP;
         private final double maxP;
 
-        GeneratorModel(double targetP, double targetQ, double targetVpu, boolean voltageRegulatorOn, double minP, double maxP) {
+        private GeneratorModel(double targetP, double targetQ, double targetVpu, boolean voltageRegulatorOn, double minP, double maxP) {
             this.targetP = targetP;
             this.targetQ = targetQ;
             this.targetVpu = targetVpu;
@@ -69,7 +69,7 @@ class GeneratorConverter extends AbstractConverter {
             this.maxP = maxP;
         }
 
-        static GeneratorModel create(DataObject elmSym) {
+        private static GeneratorModel create(DataObject elmSym) {
             boolean voltageRegulatorOn = voltageRegulatorOn(elmSym);
 
             float pgini = elmSym.getFloatAttributeValue("pgini");
@@ -106,16 +106,16 @@ class GeneratorConverter extends AbstractConverter {
         }
     }
 
-    static class ReactiveLimits {
+    private static final class ReactiveLimits {
         private final double minQ;
         private final double maxQ;
 
-        ReactiveLimits(double minQ, double maxQ) {
+        private ReactiveLimits(double minQ, double maxQ) {
             this.minQ = minQ;
             this.maxQ = maxQ;
         }
 
-        static Optional<ReactiveLimits> create(DataObject elmSym) {
+        private static Optional<ReactiveLimits> create(DataObject elmSym) {
             Optional<DataObject> pQlimType = elmSym.findObjectAttributeValue("pQlimType").flatMap(DataObjectRef::resolve);
             if (pQlimType.isPresent()) {
                 throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");

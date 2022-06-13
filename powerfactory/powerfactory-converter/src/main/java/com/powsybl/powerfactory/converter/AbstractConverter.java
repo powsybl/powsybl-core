@@ -44,13 +44,20 @@ public abstract class AbstractConverter {
         return susceptance * 1.0e-6;
     }
 
+    static double impedanceFromPerUnitToEngineeringUnits(double impedance, double vnom, double sbase) {
+        return impedance * vnom * vnom / sbase;
+    }
+
+    static double admittanceFromPerUnitToEngineeringUnits(double admitance, double vnom, double sbase) {
+        return admitance * sbase / (vnom * vnom);
+    }
+
     List<NodeRef> checkNodes(DataObject obj, int connections) {
         List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
         if (nodeRefs == null || nodeRefs.size() != connections) {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connections for '" + obj + "'");
         }
-        // Return nodes sorted by its index
-        return nodeRefs.stream().sorted(Comparator.comparing(nodeRef -> nodeRef.busIndexIn)).collect(Collectors.toList());
+        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
     }
 }
