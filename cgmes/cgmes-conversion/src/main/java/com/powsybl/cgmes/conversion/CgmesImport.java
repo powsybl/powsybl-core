@@ -222,11 +222,12 @@ public class CgmesImport implements Importer {
                                 p,
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
                                 defaultValueConfig));
+        String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
-            config.setNamingStrategy(NamingStrategyFactory.create(ds, ds.getBaseName() + "_id_mapping.csv"));
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
         } else {
-            config.setNamingStrategy(NamingStrategyFactory.create(ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
         }
         return config;
     }
@@ -266,6 +267,7 @@ public class CgmesImport implements Importer {
     public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
     public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
+    public static final String ID_MAPPING_FILE_NAMING_STRATEGY = "iidm.import.cgmes.id-mapping-file-naming-strategy";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
@@ -316,6 +318,11 @@ public class CgmesImport implements Importer {
             ParameterType.STRING,
             "Path of ID mapping file",
             null);
+    private static final Parameter ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER = new Parameter(
+            ID_MAPPING_FILE_NAMING_STRATEGY,
+            ParameterType.STRING,
+            "Configure what type of naming strategy you want to use for the provided ID mapping file",
+            "cgmes");
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
@@ -360,6 +367,7 @@ public class CgmesImport implements Importer {
             CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
             ID_MAPPING_FILE_PATH_PARAMETER,
+            ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,

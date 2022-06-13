@@ -22,34 +22,31 @@ import java.util.Objects;
 public final class NamingStrategyFactory {
 
     public static final String IDENTITY = "identity";
-    public static final String CGMES = "cgmes";
+    public static final String CGMES = "cgmes"; // This naming strategy will fix only IIDM identifiables
+    public static final String CGMES_FIX_ALL_INVALID_IDS = "cgmes-fix-all-invalid-ids";
 
-    public static NamingStrategy create(ReadOnlyDataSource ds, String mappingFileName, Path defaultPath) {
+    public static NamingStrategy create(String impl, ReadOnlyDataSource ds, String mappingFileName, Path defaultPath) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(mappingFileName);
         try {
             if (ds.exists(mappingFileName)) {
-                try (InputStream is = ds.newInputStream(mappingFileName)) {
-                    return new CgmesAliasNamingStrategy(is);
-                }
+                return readFromDataSource(impl, ds, mappingFileName);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         if (defaultPath != null) {
-            return create(defaultPath);
+            return create(impl, defaultPath);
         }
         return new NamingStrategy.Identity();
     }
 
-    public static NamingStrategy create(ReadOnlyDataSource ds, String mappingFileName) {
+    public static NamingStrategy create(String impl, ReadOnlyDataSource ds, String mappingFileName) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(mappingFileName);
         try {
             if (ds.exists(mappingFileName)) {
-                try (InputStream is = ds.newInputStream(mappingFileName)) {
-                    return new CgmesAliasNamingStrategy(is);
-                }
+                return readFromDataSource(impl, ds, mappingFileName);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -57,23 +54,47 @@ public final class NamingStrategyFactory {
         return new NamingStrategy.Identity();
     }
 
-    public static NamingStrategy create(Path path) {
+    public static NamingStrategy create(String impl, Path path) {
         Objects.requireNonNull(path);
         try (InputStream is = Files.newInputStream(path)) {
-            return new CgmesAliasNamingStrategy(is);
+            return createWithMapping(impl).readFrom(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    private static NamingStrategy readFromDataSource(String impl, ReadOnlyDataSource ds, String mappingFileName) throws IOException {
+        try (InputStream is = ds.newInputStream(mappingFileName)) {
+            return createWithMapping(impl).readFrom(is);
+        }
+    }
+
+    public static CgmesAliasNamingStrategyFixInvalidIds createWithMapping(String impl) {
+        Objects.requireNonNull(impl);
+        switch (impl) {
+            case IDENTITY:
+                throw new PowsyblException("Identity naming strategy not expected when using an ID mapping file");
+            case CGMES:
+                return new CgmesAliasNamingStrategyFixOnlyIidmIdentifiableInvalidIds();
+            case CGMES_FIX_ALL_INVALID_IDS:
+                return new CgmesAliasNamingStrategyFixInvalidIds();
+            default:
+                throw new PowsyblException("Unknown naming strategy: " + impl);
+        }
+    }
+
     public static NamingStrategy create(String impl) {
         Objects.requireNonNull(impl);
-        if (IDENTITY.equals(impl)) {
-            return new NamingStrategy.Identity();
-        } else if (CGMES.equals(impl)) {
-            return new CgmesAliasNamingStrategy();
+        switch (impl) {
+            case IDENTITY:
+                return new NamingStrategy.Identity();
+            case CGMES:
+                return new CgmesAliasNamingStrategyFixOnlyIidmIdentifiableInvalidIds();
+            case CGMES_FIX_ALL_INVALID_IDS:
+                return new CgmesAliasNamingStrategyFixInvalidIds();
+            default:
+                throw new PowsyblException("Unknown naming strategy: " + impl);
         }
-        throw new PowsyblException("Unknown naming strategy: " + impl);
     }
 
     private NamingStrategyFactory() {

@@ -47,25 +47,25 @@ public class CgmesMappingTest extends AbstractConverterTest {
 
     @Test
     public void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
-        testExportUsingCgmesNamingStrategy("nordic32", "G9_______SM");
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "nordic32", "G9_______SM");
     }
 
     @Test
     public void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
-        testExportUsingCgmesNamingStrategy("ieee14", "GEN____8_SM");
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "ieee14", "GEN____8_SM");
     }
 
-    private void testExportUsingCgmesNamingStrategy(String baseName, String generatorForSlack) throws IOException {
+    private void testExportUsingCgmesNamingStrategy(String namingStrategy, String baseName, String generatorForSlack) throws IOException {
         ReadOnlyDataSource inputIidm = new ResourceDataSource(baseName, new ResourceSet("/cim14", baseName + ".xiidm"));
         Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), null);
         // Force writing CGMES topological island by assigning a slack bus
         SlackTerminal.attach(network.getGenerator(generatorForSlack).getTerminal().getBusBreakerView().getBus());
-        testExportUsingCgmesNamingStrategy(network, baseName, null, Collections.emptySet());
+        testExportUsingCgmesNamingStrategy(namingStrategy, network, baseName, null, Collections.emptySet());
     }
 
-    public void testExportUsingCgmesNamingStrategy(Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds) throws IOException {
+    public void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds) throws IOException {
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
         DataSource exportedCgmes = tmpDataSource("exportedCgmes" + baseName, baseName);
         Exporters.export("CGMES", network, exportParams, exportedCgmes);
 

@@ -20,24 +20,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CgmesAliasNamingStrategy implements NamingStrategy {
+public class CgmesAliasNamingStrategyFixInvalidIds implements NamingStrategy {
 
     private final BiMap<String, String> idByUuid = HashBiMap.create();
 
-    public CgmesAliasNamingStrategy() {
-    }
-
-    public CgmesAliasNamingStrategy(Map<String, String> idByUuid) {
-        this.idByUuid.putAll(Objects.requireNonNull(idByUuid));
-    }
-
-    public CgmesAliasNamingStrategy(InputStream is) {
+    public CgmesAliasNamingStrategyFixInvalidIds readFrom(InputStream is) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             CsvParserSettings settings = new CsvParserSettings();
             setFormat(settings.getFormat());
@@ -51,6 +43,7 @@ public class CgmesAliasNamingStrategy implements NamingStrategy {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        return this;
     }
 
     private static void setFormat(CsvFormat format) {
