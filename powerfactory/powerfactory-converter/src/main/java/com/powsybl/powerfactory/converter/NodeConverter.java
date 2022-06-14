@@ -42,7 +42,7 @@ class NodeConverter extends AbstractConverter {
      * An iidm node is created by each elmTerm and by each staSwitch connected to an element.
      */
     void createAndMapConnectedObjs(DataObject elmTerm) {
-        VoltageLevel vl = findVoltageLevel(getNetwork(), getImportContext(), elmTerm);
+        VoltageLevel vl = findVoltageLevel(elmTerm);
 
         // Create the node defined by elmTerm
         int node = createNode(vl);
@@ -53,25 +53,25 @@ class NodeConverter extends AbstractConverter {
         createBusbarSectionIfNodeHasBeenDefinedAsSuch(vl, node, nodeModel);
 
         // Create additional nodes associated to switches (staSwitch) included in cubicles
-        createAddtionalNodesAndMapConnectedObjs(vl, node, elmTerm);
+        createAdditionalNodesAndMapConnectedObjs(vl, node, elmTerm);
     }
 
-    private static VoltageLevel findVoltageLevel(Network network, ImportContext importContext, DataObject elmTerm) {
-        String voltageLevelId = importContext.containerMapping.getVoltageLevelId(Ints.checkedCast(elmTerm.getId()));
+    private VoltageLevel findVoltageLevel(DataObject elmTerm) {
+        String voltageLevelId = getImportContext().containerMapping.getVoltageLevelId(Ints.checkedCast(elmTerm.getId()));
 
         Objects.requireNonNull(voltageLevelId);
-        VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
+        VoltageLevel vl = getNetwork().getVoltageLevel(voltageLevelId);
         if (vl == null) {
-            vl = createVoltageLevel(network, importContext, voltageLevelId, getNominalVoltage(elmTerm));
+            vl = createVoltageLevel(voltageLevelId, getNominalVoltage(elmTerm));
         }
         return vl;
     }
 
-    private static VoltageLevel createVoltageLevel(Network network, ImportContext importContext, String voltageLevelId, double nominalV) {
-        String substationId = importContext.containerMapping.getSubstationId(voltageLevelId);
-        Substation s = network.getSubstation(substationId);
+    private VoltageLevel createVoltageLevel(String voltageLevelId, double nominalV) {
+        String substationId = getImportContext().containerMapping.getSubstationId(voltageLevelId);
+        Substation s = getNetwork().getSubstation(substationId);
         if (s == null) {
-            s = network.newSubstation()
+            s = getNetwork().newSubstation()
                 .setId(substationId)
                 .add();
         }
@@ -82,7 +82,7 @@ class NodeConverter extends AbstractConverter {
             .add();
     }
 
-    static double getNominalVoltage(DataObject elmTerm) {
+    private static double getNominalVoltage(DataObject elmTerm) {
         return elmTerm.getFloatAttributeValue("uknom");
     }
 
@@ -104,7 +104,7 @@ class NodeConverter extends AbstractConverter {
             .add();
     }
 
-    private void createAddtionalNodesAndMapConnectedObjs(VoltageLevel vl, int node, DataObject elmTerm) {
+    private void createAdditionalNodesAndMapConnectedObjs(VoltageLevel vl, int node, DataObject elmTerm) {
         for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
             DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
                     .flatMap(DataObjectRef::resolve)

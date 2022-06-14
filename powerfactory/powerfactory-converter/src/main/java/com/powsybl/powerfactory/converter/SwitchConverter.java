@@ -44,20 +44,15 @@ class SwitchConverter extends AbstractConverter {
         }
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef1.voltageLevelId);
-        SwitchModel switchModel = SwitchModel.create(vl.getId(), elmCoup);
-
-        vl.getNodeBreakerView().newSwitch()
-            .setId(switchModel.switchId)
-            .setEnsureIdUnicity(true)
-            .setKind(switchModel.switchKind)
-            .setNode1(nodeRef1.node)
-            .setNode2(nodeRef2.node)
-            .setOpen(switchModel.open)
-            .add();
+        createSwitch(vl, nodeRef1.node, nodeRef2.node, elmCoup);
     }
 
     void createFromStaSwitch(VoltageLevel vl, int node1, int node2, DataObject staSwitch) {
-        SwitchModel switchModel = SwitchModel.create(vl.getId(), staSwitch);
+        createSwitch(vl, node1, node2, staSwitch);
+    }
+
+    private static void createSwitch(VoltageLevel vl, int node1, int node2, DataObject dataObject) {
+        SwitchModel switchModel = SwitchModel.create(vl.getId(), dataObject);
 
         vl.getNodeBreakerView().newSwitch()
             .setId(switchModel.switchId)
@@ -80,24 +75,24 @@ class SwitchConverter extends AbstractConverter {
             this.open = open;
         }
 
-        private static SwitchModel create(String voltageLevelId, DataObject elmCoup) {
+        private static SwitchModel create(String voltageLevelId, DataObject dataObject) {
 
-            String switchId = createSwitchId(voltageLevelId, elmCoup);
-            SwitchKind switchKind = createSwitchKind(elmCoup);
+            String switchId = createSwitchId(voltageLevelId, dataObject);
+            SwitchKind switchKind = createSwitchKind(dataObject);
 
             // State, 1=Closed, 0=Open
-            boolean open = elmCoup.findIntAttributeValue("on_off").orElse(0) == 0;
+            boolean open = dataObject.findIntAttributeValue("on_off").orElse(0) == 0;
 
             return new SwitchModel(switchId, switchKind, open);
         }
 
-        private static String createSwitchId(String voltageLevelId, DataObject elmCoup) {
-            return voltageLevelId + "_" + elmCoup.getLocName();
+        private static String createSwitchId(String voltageLevelId, DataObject dataObject) {
+            return voltageLevelId + "_" + dataObject.getLocName();
         }
 
         // Switch Type cbk=Circuit-Breaker, dct=Disconnector, sdc=Load-Break-Disconnector, swt=Load-Switch
-        private static SwitchKind createSwitchKind(DataObject elmCoup) {
-            Optional<String> aUsage = elmCoup.findStringAttributeValue("aUsage");
+        private static SwitchKind createSwitchKind(DataObject dataObject) {
+            Optional<String> aUsage = dataObject.findStringAttributeValue("aUsage");
 
             SwitchKind switchKind;
 
