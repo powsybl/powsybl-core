@@ -13,7 +13,6 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
@@ -409,19 +408,19 @@ public final class Importers {
     }
 
     /**
-     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter)} instead
+     * @deprecated Use {@link Parameter#read(String, Properties, Parameter)} instead
      */
     @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter) {
-        return ConversionParameters.readParameter(format, parameters, configuredParameter);
+        return Parameter.read(format, parameters, configuredParameter);
     }
 
     /**
-     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter, ParameterDefaultValueConfig)} instead
+     * @deprecated Use {@link Parameter#read(String, Properties, Parameter, ParameterDefaultValueConfig)} instead
      */
     @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        return ConversionParameters.readParameter(format, parameters, configuredParameter, defaultValueConfig);
+        return Parameter.read(format, parameters, configuredParameter, defaultValueConfig);
     }
 
     public static DataSource createDataSource(Path file) {

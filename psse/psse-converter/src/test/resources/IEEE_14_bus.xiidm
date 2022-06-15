@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4" id="IEEE_14_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_14_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S6">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -57,12 +57,12 @@
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-4-7-1 " r="0.0" x="39.8248128" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B7" connectableBus2="B7" voltageLevelId2="VL7">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
-                <iidm:step r="0.0" x="0.0" g="4.54957950159125" b="4.54957950159125" rho="1.0224948875255624"/>
+                <iidm:step r="0.0" x="0.0" g="-4.3515999999999995" b="-4.3515999999999995" rho="1.0224948875255624"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="T-4-9-1 " r="0.0" x="105.9189192" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
-                <iidm:step r="0.0" x="0.0" g="6.500695982048255" b="6.500695982048255" rho="1.0319917440660475"/>
+                <iidm:step r="0.0" x="0.0" g="-6.1039000000000065" b="-6.1039000000000065" rho="1.0319917440660475"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
@@ -85,7 +85,7 @@
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-5-6-1 " r="0.0" x="47.994688800000006" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
-                <iidm:step r="0.0" x="0.0" g="15.124610878815226" b="15.124610878815226" rho="1.0729613733905579"/>
+                <iidm:step r="0.0" x="0.0" g="-13.137599999999994" b="-13.137599999999994" rho="1.0729613733905579"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>

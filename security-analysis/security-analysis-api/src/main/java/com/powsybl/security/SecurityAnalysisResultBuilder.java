@@ -56,7 +56,7 @@ public class SecurityAnalysisResultBuilder {
         this.preContingencyResult.addPreContingencyBranchResults(Objects.requireNonNull(preContingencyBranchResults.values()));
     }
 
-    private void addPreContingencyBusResults(Map<String, BusResults> preContingencyBusResults) {
+    private void addPreContingencyBusResults(Map<String, BusResult> preContingencyBusResults) {
         this.preContingencyResult.addPreContingencyBusResults(Objects.requireNonNull(preContingencyBusResults.values()));
     }
 
@@ -130,7 +130,7 @@ public class SecurityAnalysisResultBuilder {
 
         protected final Map<String, BranchResult> branchResults = new HashMap<>();
 
-        protected final Map<String, BusResults> busResults = new HashMap<>();
+        protected final Map<String, BusResult> busResults = new HashMap<>();
 
         protected final Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults = new HashMap<>();
 
@@ -191,8 +191,8 @@ public class SecurityAnalysisResultBuilder {
             return (B) this;
         }
 
-        public B addBusResult(BusResults busResults) {
-            this.busResults.put(busResults.getBusId(), busResults);
+        public B addBusResult(BusResult busResult) {
+            this.busResults.put(busResult.getBusId(), busResult);
             return (B) this;
         }
 

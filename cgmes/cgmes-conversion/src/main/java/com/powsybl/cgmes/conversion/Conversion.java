@@ -214,7 +214,7 @@ public class Conversion {
             network.newExtension(CgmesControlAreasAdder.class).add();
             CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
             cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf, cgmes, network));
+            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
             cgmesControlAreas.cleanIfEmpty();
         }
 
@@ -282,8 +282,7 @@ public class Conversion {
                 .add();
     }
 
-    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf,
-        CgmesModel cgmesModel, Network network) {
+    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         if (cgmesControlArea == null) {
@@ -291,15 +290,12 @@ public class Conversion {
             return;
         }
         String terminalId = tf.getId("terminal");
-        Boundary boundary = context.terminalMapping().findBoundary(terminalId, cgmesModel);
+        Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {
             cgmesControlArea.add(boundary);
             return;
         }
-        Terminal terminal = context.terminalMapping().find(terminalId, cgmesModel, network);
-        if (terminal != null) {
-            cgmesControlArea.add(terminal);
-        }
+        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
     }
 
     private void convert(
@@ -363,9 +359,9 @@ public class Conversion {
         PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         if (svDescription != null && !svDescription.isEmpty()) {
             CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
-                    .setDescription(svDescription.get(0).getId("description"))
+                    .setDescription(svDescription.get(0).get("description"))
                     .setSvVersion(readVersion(svDescription, context))
-                    .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
+                    .setModelingAuthoritySet(svDescription.get(0).get("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }
@@ -375,9 +371,9 @@ public class Conversion {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
-                    .setDescription(sshDescription.get(0).getId("description"))
+                    .setDescription(sshDescription.get(0).get("description"))
                     .setSshVersion(readVersion(sshDescription, context))
-                    .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));
+                    .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
             sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }
@@ -405,9 +401,9 @@ public class Conversion {
                                                               Supplier<String> terminalId2,
                                                               Map<String, VoltageLevel> nominalVoltageByLineContainerId,
                                                               Context context) {
-        String vlId = Optional.ofNullable(context.namingStrategy().getId("VoltageLevel",
+        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId("VoltageLevel",
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
-                .orElseGet(() -> context.namingStrategy().getId("VoltageLevel",
+                .orElseGet(() -> context.namingStrategy().getIidmId("VoltageLevel",
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId2.get()), context.nodeBreaker())));
         if (vlId != null) {
             VoltageLevel vl = context.network().getVoltageLevel(vlId);
@@ -467,7 +463,7 @@ public class Conversion {
         vldata.lineName = lineSegment.get("lineName");
         CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
         vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-        String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+        String vlId = context.namingStrategy().getIidmId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
         if (vlId != null) {
             vldata.vl = context.network().getVoltageLevel(vlId);
         } else {
@@ -806,6 +802,15 @@ public class Conversion {
             return this;
         }
 
+        public NamingStrategy getNamingStrategy() {
+            return namingStrategy;
+        }
+
+        public Config setNamingStrategy(NamingStrategy namingStrategy) {
+            this.namingStrategy = Objects.requireNonNull(namingStrategy);
+            return this;
+        }
+
         public Xfmr2RatioPhaseInterpretationAlternative getXfmr2RatioPhase() {
             return xfmr2RatioPhase;
         }
@@ -871,6 +876,8 @@ public class Conversion {
 
         private boolean createCgmesExportMapping = false;
 
+        private NamingStrategy namingStrategy = new NamingStrategy.Identity();
+
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
         private Xfmr2ShuntInterpretationAlternative xfmr2Shunt = Xfmr2ShuntInterpretationAlternative.END1_END2;
@@ -894,4 +901,5 @@ public class Conversion {
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
+    public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
 }

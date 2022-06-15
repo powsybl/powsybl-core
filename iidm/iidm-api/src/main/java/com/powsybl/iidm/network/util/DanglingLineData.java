@@ -13,6 +13,8 @@ import org.apache.commons.math3.complex.ComplexUtils;
 
 import com.powsybl.iidm.network.DanglingLine;
 
+import java.util.Objects;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -45,11 +47,14 @@ public class DanglingLineData {
     double boundaryP;
     double boundaryQ;
 
+    private final DanglingLine danglingLine;
+
     public DanglingLineData(DanglingLine danglingLine) {
         this(danglingLine, true);
     }
 
     public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
+        this.danglingLine = Objects.requireNonNull(danglingLine);
 
         id = danglingLine.getId();
         r = danglingLine.getR();
@@ -80,9 +85,9 @@ public class DanglingLineData {
         u1 = getV(danglingLine);
         theta1 = getTheta(danglingLine);
 
-        boundaryBusU = Double.NaN;
-        boundaryBusTheta = Double.NaN;
         if (!valid(u1, theta1)) {
+            boundaryBusU = Double.NaN;
+            boundaryBusTheta = Double.NaN;
             return;
         }
 
@@ -109,6 +114,7 @@ public class DanglingLineData {
             // Two buses Loadflow
             Complex sBoundary = new Complex(boundaryP, boundaryQ);
             Complex ytr = new Complex(r, x).reciprocal();
+
             Complex ysh2 = new Complex(g2, b2);
             Complex zt = ytr.add(ysh2).reciprocal();
             Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
@@ -174,7 +180,7 @@ public class DanglingLineData {
     }
 
     public String getId() {
-        return id;
+        return danglingLine.getId();
     }
 
     public double getBoundaryBusU() {
@@ -193,4 +199,3 @@ public class DanglingLineData {
         return q;
     }
 }
-

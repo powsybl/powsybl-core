@@ -13,6 +13,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
@@ -225,7 +226,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
             String suffix = "_" + busNum;
-            String mergedBusId = BusBreakerVoltageLevel.this.id + suffix;
+            String mergedBusId = Identifiables.getUniqueId(BusBreakerVoltageLevel.this.id + suffix, getNetwork().getIndex()::contains);
             String mergedBusName = BusBreakerVoltageLevel.this.name != null ? BusBreakerVoltageLevel.this.name + suffix : null;
             return new MergedBus(mergedBusId, mergedBusName, BusBreakerVoltageLevel.this.fictitious, busSet);
         }
@@ -398,6 +399,26 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
+        @Override
+        public double getFictitiousP0(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public NodeBreakerView setFictitiousP0(int node, double p0) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public double getFictitiousQ0(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public NodeBreakerView setFictitiousQ0(int node, double q0) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
         @Override
         public int getMaximumNodeIndex() {
             throw createNotSupportedBusBreakerTopologyException();

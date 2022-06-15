@@ -7,15 +7,17 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.*;
-
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -46,6 +48,17 @@ public class TerminalMapping {
         terminalNumbers.put(cgmesTerminal, terminalNumber);
     }
 
+    public Terminal get(String cgmesTerminalId) {
+        if (terminals.get(cgmesTerminalId) != null) {
+            return terminals.get(cgmesTerminalId);
+        }
+        return null;
+    }
+
+    public String getTopologicalNode(String cgmesTerminalId) {
+        return cgmesTerminalsMapping.get(cgmesTerminalId);
+    }
+
     public Terminal find(String cgmesTerminalId) {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
@@ -53,24 +66,12 @@ public class TerminalMapping {
         return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
     }
 
+    /**
+     * @deprecated Not used anymore.
+     */
+    @Deprecated(since = "4.8.0")
     public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network) {
-        CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-
-        if (isSwitch(cgmesTerminal.conductingEquipmentType())) {
-            Switch sw = network.getSwitch(cgmesTerminal.conductingEquipment());
-            if (sw == null) {
-                return find(cgmesTerminalId);
-            }
-            Terminal terminal = new SwitchesChain(sw.getVoltageLevel(), sw, cgmesModel.isNodeBreaker()).getBestTerminalChain();
-            if (terminal != null) {
-                return terminal;
-            }
-        }
-        return find(cgmesTerminalId);
-    }
-
-    private static boolean isSwitch(String conductingEquipmentType) {
-        return conductingEquipmentType.equals("Breaker") || conductingEquipmentType.equals("Disconnector");
+        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     public Boundary findBoundary(String cgmesTerminalId) {

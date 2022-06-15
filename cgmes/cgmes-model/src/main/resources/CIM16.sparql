@@ -735,6 +735,7 @@ WHERE {
         cim:GeneratingUnit.maxOperatingP ?maxP ;
         cim:GeneratingUnit.initialP ?initialP ;
         cim:IdentifiedObject.name ?nameGeneratingUnit .
+    OPTIONAL { ?GeneratingUnit cim:IdentifiedObject.description ?generatingUnitDescription }
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }

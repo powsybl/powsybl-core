@@ -7,12 +7,9 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -27,11 +24,7 @@ public final class EquivalentInjectionEq {
     private static final String EQ_EQUIVALENTINJECTION_MAXQ = "EquivalentInjection.maxQ";
 
     public static void write(String id, String name, boolean regulationCapability, boolean regulationStatus, double minP, double maxP, double minQ, double maxQ, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "EquivalentInjection");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name);
-        writer.writeEndElement();
+        CgmesExportUtil.writeStartIdName("EquivalentInjection", id, name, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY);
         writer.writeCharacters(CgmesExportUtil.format(regulationCapability));
         writer.writeEndElement();
@@ -50,8 +43,7 @@ public final class EquivalentInjectionEq {
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXQ);
         writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "ConductingEquipment.BaseVoltage");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + baseVoltageId);
+        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, cimNamespace, writer);
         writer.writeEndElement();
     }
 

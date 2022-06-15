@@ -40,6 +40,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
                         .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0")
@@ -49,7 +50,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/V1_1/mergedXnode.xsd");
+        return getClass().getResourceAsStream("/xsd/mergedXnode_V1_1.xsd");
     }
 
     @Override

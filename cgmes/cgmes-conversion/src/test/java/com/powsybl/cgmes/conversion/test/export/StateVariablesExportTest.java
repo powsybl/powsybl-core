@@ -6,8 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -83,14 +83,14 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
     @Test
     public void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
-        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource(), 4);
+        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(), 4);
     }
 
     @Test
     public void miniBusBranchWithSvInjectionExportPQ() throws IOException, XMLStreamException {
 
-        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
-        String loadId = "_0448d86a-c766-11e1-8775-005056c00008";
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource());
+        String loadId = "0448d86a-c766-11e1-8775-005056c00008";
         Load load = network.getLoad(loadId);
         String cgmesTerminal = getCgmesTerminal(load.getTerminal());
 
@@ -120,8 +120,8 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     @Test
     public void miniBusBranchWithSvInjectionExportQ() throws IOException, XMLStreamException {
 
-        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
-        String shuntCompensatorId = "_04553478-c766-11e1-8775-005056c00008";
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource());
+        String shuntCompensatorId = "04553478-c766-11e1-8775-005056c00008";
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         String cgmesTerminal = getCgmesTerminal(shuntCompensator.getTerminal());
 
@@ -134,6 +134,14 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         shuntCompensator.getTerminal().setQ(Double.NaN);
         String sv1 = exportSvAsString(network, 4);
         assertFalse(sv1.contains(cgmesTerminal));
+    }
+
+    @Test
+    public void microGridBEWithHiddenTapChangers() throws XMLStreamException {
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource());
+        String sv = exportSvAsString(network, 2);
+        String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
+        assertTrue(sv.contains(hiddenTapChangerId));
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {

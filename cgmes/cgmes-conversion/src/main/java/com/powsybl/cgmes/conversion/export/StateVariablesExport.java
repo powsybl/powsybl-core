@@ -8,6 +8,8 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.extensions.CgmesTapChanger;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -25,8 +27,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -39,15 +39,15 @@ public final class StateVariablesExport {
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
-        write(network, writer, new CgmesExportContext(network));
+        write(network, writer, new CgmesExportContext(network).setExportEquipment(false));
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
-            String cimNamespace = context.getCimNamespace();
+            String cimNamespace = context.getCim().getNamespace();
+            CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
-            if (context.getCimVersion() == 16) {
+            if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getSvModelDescription(), context);
                 writeTopologicalIslands(network, cimNamespace, writer, context);
                 // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
@@ -59,10 +59,10 @@ public final class StateVariablesExport {
                 writeVoltage(tn.getCgmesId(), 0.0, 0.0, cimNamespace, writer);
             }
             writePowerFlows(network, cimNamespace, writer, context);
-            writeShuntCompensatorSections(network, cimNamespace, writer);
-            writeTapSteps(network, cimNamespace, writer);
-            writeStatus(network, cimNamespace, writer);
-            writeConverters(network, cimNamespace, writer);
+            writeShuntCompensatorSections(network, cimNamespace, writer, context);
+            writeTapSteps(network, cimNamespace, writer, context);
+            writeStatus(network, cimNamespace, writer, context);
+            writeConverters(network, cimNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -80,16 +80,13 @@ public final class StateVariablesExport {
                 continue;
             }
             String islandId = CgmesExportUtil.getUniqueId();
-            writer.writeStartElement(cimNamespace, CgmesNames.TOPOLOGICAL_ISLAND);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, islandId);
+            CgmesExportUtil.writeStartId(CgmesNames.TOPOLOGICAL_ISLAND, islandId, false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, CgmesNames.NAME);
             writer.writeCharacters(islandId); // Use id as name
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "TopologicalIsland.AngleRefTopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.get(island.getKey()));
+            CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.getKey()), cimNamespace, writer);
             for (String tn : island.getValue()) {
-                writer.writeEmptyElement(cimNamespace, "TopologicalIsland.TopologicalNodes");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
+                CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, cimNamespace, writer);
             }
             writer.writeEndElement();
         }
@@ -188,16 +185,14 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltage(String topologicalNode, double v, double angle, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "SvVoltage");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+        CgmesExportUtil.writeStartId("SvVoltage", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_ANGLE);
         writer.writeCharacters(CgmesExportUtil.format(angle));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_V);
         writer.writeCharacters(CgmesExportUtil.format(v));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, SV_VOLTAGE_TOPOLOGICAL_NODE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
+        CgmesExportUtil.writeReference(SV_VOLTAGE_TOPOLOGICAL_NODE, topologicalNode, cimNamespace, writer);
         writer.writeEndElement();
     }
 
@@ -208,6 +203,13 @@ public final class StateVariablesExport {
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getStaticVarCompensatorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
 
+        // Fictitious loads are not exported as Equipment, they are just added to SV as SvInjection
+        for (Load load : network.getLoads()) {
+            if (load.isFictitious()) {
+                writeSvInjection(load, cimNamespace, writer, context);
+            }
+        }
+
         network.getDanglingLineStream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
@@ -215,6 +217,8 @@ public final class StateVariablesExport {
                 dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary")
                         .ifPresent(terminal -> writePowerFlow(terminal, dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer));
             }
+            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network")
+                            .ifPresent(terminal -> writePowerFlow(terminal, dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer));
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
                     .ifPresent(eit -> writePowerFlow(eit, -dl.getBoundary().getP(), -dl.getBoundary().getQ(), cimNamespace, writer));
         });
@@ -266,15 +270,17 @@ public final class StateVariablesExport {
     }
 
     private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
-        getInjectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), cimNamespace, writer, context));
+        getInjectionStream.apply(network).forEach(i -> {
+            if (context.isExportedEquipment(i)) {
+                writePowerFlow(i.getTerminal(), cimNamespace, writer);
+            }
+        });
     }
 
-    private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
             writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ(), cimNamespace, writer);
-        } else if (terminal.getConnectable() instanceof Load && terminal.getConnectable().isFictitious()) {
-            writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer, context);
         } else {
             LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());
         }
@@ -299,23 +305,19 @@ public final class StateVariablesExport {
         return p;
     }
 
-    private static void writeFictitiousLoadPowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer,
-        CgmesExportContext context) {
+    private static void writeSvInjection(Load load, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         // Fictitious loads are created in IIDM to keep track of mismatches in the input case,
         // These mismatches are given by SvInjection CGMES objects
         // These loads have been taken into account as inputs for potential power flow analysis
-        // TODO(Luma) Not sure that its values should be written back as SvInjection objects
-        // Because in our output we should write our current mismatches
-        // Original mismatches, if they have been used, should be written as loads
-        // But that would mean to introduce a new object in the Equipment profile
-        Load svInjection = (Load) terminal.getConnectable();
-        Bus bus = svInjection.getTerminal().getBusView().getBus();
+        // They will be written back as SvInjection objects in the SV profile
+        // We do not want to export them back as new objects in the EQ profile
+        Bus bus = load.getTerminal().getBusView().getBus();
         if (bus == null) {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
             CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(bus.getId()).iterator().next();
-            writeSvInjection(svInjection, topologicalNode.getCgmesId(), cimNamespace, writer);
+            writeSvInjection(load, topologicalNode.getCgmesId(), cimNamespace, writer, context);
         }
     }
 
@@ -325,46 +327,40 @@ public final class StateVariablesExport {
             return;
         }
         try {
-            writer.writeStartElement(cimNamespace, "SvPowerFlow");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+            CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvPowerFlow.p");
             writer.writeCharacters(CgmesExportUtil.format(p));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SvPowerFlow.q");
             writer.writeCharacters(CgmesExportUtil.format(q));
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SvPowerFlow.Terminal");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminal);
+            CgmesExportUtil.writeReference("SvPowerFlow.Terminal", terminal, cimNamespace, writer);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    private static void writeSvInjection(Load svInjection, String topologicalNode, String cimNamespace, XMLStreamWriter writer) {
+    private static void writeSvInjection(Load svInjection, String topologicalNode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            writer.writeStartElement(cimNamespace, "SvInjection");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, svInjection.getId());
+            CgmesExportUtil.writeStartId("SvInjection", context.getNamingStrategy().getCgmesId(svInjection), false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvInjection.pInjection");
             writer.writeCharacters(CgmesExportUtil.format(svInjection.getP0()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SvInjection.qInjection");
             writer.writeCharacters(CgmesExportUtil.format(svInjection.getQ0()));
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SvInjection.TopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
+            CgmesExportUtil.writeReference("SvInjection.TopologicalNode", topologicalNode, cimNamespace, writer);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    private static void writeShuntCompensatorSections(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeShuntCompensatorSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
-            writer.writeEmptyElement(cimNamespace, "SvShuntCompensatorSections.ShuntCompensator");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
+            CgmesExportUtil.writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
+            CgmesExportUtil.writeReference("SvShuntCompensatorSections.ShuntCompensator",  context.getNamingStrategy().getCgmesId(s), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
@@ -372,14 +368,16 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeTapSteps(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTapSteps(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
                 String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition(), cimNamespace, writer);
+                writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
             } else if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition(), cimNamespace, writer);
+                writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
             }
         }
 
@@ -389,58 +387,73 @@ public final class StateVariablesExport {
                 if (leg.hasPhaseTapChanger()) {
                     String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition(), cimNamespace, writer);
+                    writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition(), cimNamespace, writer);
+                    writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
                 }
                 i++;
             }
         }
     }
 
+    private static <C extends Connectable<C>> void writeSvTapStepHidden(Connectable<C> eq, String tcId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        // If we are exporting equipment definitions the hidden tap changer will not be exported
+        // because it has been included in the model for the only tap changer left in IIDM
+        // If we are exporting only SSH, SV, ... we have to write the step we have saved for it
+        if (cgmesTcs != null && !context.isExportEquipment()) {
+            for (CgmesTapChanger cgmesTc : cgmesTcs.getTapChangers()) {
+                if (cgmesTc.isHidden() && cgmesTc.getCombinedTapChangerId().equals(tcId)) {
+                    int step = cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId()));
+                    writeSvTapStep(cgmesTc.getId(), step, cimNamespace, writer);
+                }
+            }
+        }
+    }
+
     private static void writeSvTapStep(String tapChangerId, int tapPosition, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "SvTapStep");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+        CgmesExportUtil.writeStartId("SvTapStep", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "SvTapStep.position");
         writer.writeCharacters(CgmesExportUtil.format(tapPosition));
         writer.writeEndElement();
-        writer.writeEmptyElement(cimNamespace, "SvTapStep.TapChanger");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tapChangerId);
+        CgmesExportUtil.writeReference("SvTapStep.TapChanger", tapChangerId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
-    private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer) {
-        // create SvStatus, iterate on Connectables, check Terminal status, add
-        // to SvStatus
-        network.getConnectableStream().forEach(c -> writeConnectableStatus((Connectable<?>) c, cimNamespace, writer));
+    private static void writeStatus(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
+        network.getConnectableStream().forEach(c -> {
+            if (context.isExportedEquipment(c)) {
+                writeConnectableStatus(c, cimNamespace, writer, context);
+            }
+        });
 
         // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.
     }
 
-    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer) {
-        writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), connectable.getId(), cimNamespace, writer);
+    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer);
     }
 
     private static void writeStatus(String inService, String conductingEquipmentId, String cimNamespace, XMLStreamWriter writer) {
         try {
-            writer.writeStartElement(cimNamespace, "SvStatus");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
+            CgmesExportUtil.writeStartId("SvStatus", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "SvStatus.inService");
             writer.writeCharacters(inService);
             writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SvStatus.ConductingEquipment");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
+            CgmesExportUtil.writeReference("SvStatus.ConductingEquipment", conductingEquipmentId, cimNamespace, writer);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
-            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
+            CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), context.getNamingStrategy().getCgmesId(converterStation), cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
             writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation)));
             writer.writeEndElement();

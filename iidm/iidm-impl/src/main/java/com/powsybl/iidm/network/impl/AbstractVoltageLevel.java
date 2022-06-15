@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -28,15 +29,17 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
 
-    private Ref<NetworkImpl> networkRef;
+    private final Ref<NetworkImpl> networkRef;
 
-    private SubstationImpl substation;
+    private final SubstationImpl substation;
 
     private double nominalV;
 
     private double lowVoltageLimit;
 
     private double highVoltageLimit;
+
+    private boolean removed = false;
 
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
                          double nominalV, double lowVoltageLimit, double highVoltageLimit) {
@@ -62,6 +65,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public Optional<Substation> getSubstation() {
+        if (removed) {
+            throw new PowsyblException("Cannot access substation of removed voltage level " + id);
+        }
         return Optional.ofNullable(substation);
     }
 
@@ -72,11 +78,14 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public NetworkImpl getNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed voltage level " + id);
+        }
         return Optional.ofNullable(networkRef)
                 .map(Ref::get)
                 .orElseGet(() -> Optional.ofNullable(substation)
                         .map(SubstationImpl::getNetwork)
-                        .orElse(null));
+                        .orElseThrow(() -> new PowsyblException(String.format("Voltage level %s has no container", id))));
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
@@ -461,8 +470,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
-        networkRef = null;
-        substation = null;
+        removed = true;
     }
 
     protected abstract void removeTopology();

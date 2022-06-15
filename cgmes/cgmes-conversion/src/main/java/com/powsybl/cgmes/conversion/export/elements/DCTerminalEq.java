@@ -7,12 +7,9 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -20,12 +17,9 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class DCTerminalEq {
 
     public static void write(String element, String id, String dcConductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, element);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeEmptyElement(cimNamespace, element + ".DCConductingEquipment");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcConductingEquipmentId);
-        writer.writeEmptyElement(cimNamespace, "DCBaseTerminal.DCNode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcNodeId);
+        CgmesExportUtil.writeStartId(element, id, true, cimNamespace, writer);
+        CgmesExportUtil.writeReference(element + ".DCConductingEquipment", dcConductingEquipmentId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("DCBaseTerminal.DCNode", dcNodeId, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));
         writer.writeEndElement();

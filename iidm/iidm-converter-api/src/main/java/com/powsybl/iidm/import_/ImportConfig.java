@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.import_;
 
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Arrays;
@@ -33,13 +32,9 @@ public class ImportConfig {
 
     public static ImportConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        List<String> postProcessors;
-        if (platformConfig.moduleExists("import")) {
-            ModuleConfig config = platformConfig.getModuleConfig("import");
-            postProcessors = config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS);
-        } else {
-            postProcessors = DEFAULT_POST_PROCESSORS;
-        }
+        List<String> postProcessors = platformConfig.getOptionalModuleConfig("import")
+                .flatMap(config -> config.getOptionalStringListProperty("postProcessors"))
+                .orElse(DEFAULT_POST_PROCESSORS);
         return new ImportConfig(postProcessors);
     }
 

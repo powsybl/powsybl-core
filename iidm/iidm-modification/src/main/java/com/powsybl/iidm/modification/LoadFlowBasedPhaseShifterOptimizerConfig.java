@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -23,8 +22,9 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig {
 
     public static LoadFlowBasedPhaseShifterOptimizerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        ModuleConfig config = platformConfig.getModuleConfig("load-flow-based-phase-shifter-optimizer");
-        String loadFlowName = config.getOptionalStringProperty("load-flow-name").orElse(null);
+        String loadFlowName = platformConfig.getOptionalModuleConfig("load-flow-based-phase-shifter-optimizer")
+                .flatMap(moduleConfig -> moduleConfig.getOptionalStringProperty("load-flow-name"))
+                .orElse(null);
         return new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowName);
 
     }

@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.tripping.Tripping;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GeneratorContingency extends AbstractInjectionContingency {
+public class GeneratorContingency extends AbstractContingency {
 
     public GeneratorContingency(String id) {
         super(id);

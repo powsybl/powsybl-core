@@ -12,8 +12,8 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,18 +24,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @AutoService(ShortCircuitAnalysisProvider.class)
 public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
-
-    private final List<ShortCircuitAnalysisInterceptor> interceptors = new ArrayList<>();
-
-    @Override
-    public void addInterceptor(ShortCircuitAnalysisInterceptor interceptor) {
-        interceptors.add(interceptor);
-    }
-
-    @Override
-    public boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor) {
-        return interceptors.remove(interceptor);
-    }
 
     @Override
     public String getName() {
@@ -48,20 +36,31 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager) {
-        return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>(), new ArrayList<>()));
+    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
+                                                             List<Fault> faults,
+                                                             ShortCircuitParameters parameters,
+                                                             ComputationManager computationManager,
+                                                             List<FaultParameters> faultParameters) {
+        return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>()));
     }
 
     @Override
-    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
+                                                             List<Fault> faults,
+                                                             ShortCircuitParameters parameters,
+                                                             ComputationManager computationManager,
+                                                             List<FaultParameters> faultParameters,
+                                                             Reporter reporter) {
         reporter.createSubReporter("MockShortCircuit", "Running mock short circuit");
-        return run(network, parameters, computationManager);
+        return run(network, faults, parameters, computationManager, faultParameters);
     }
 
     public static ShortCircuitAnalysisResult runWithNonEmptyResult() {
+        Fault fault = new BusFault("F1", "VLGEN", 0.0, 0.0, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE);
         FeederResult feederResult = new FeederResult("GEN", 5);
-        FaultResult faultResult = new FaultResult("VLGEN", 10, Collections.singletonList(feederResult));
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
-        return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), Collections.singletonList(limitViolation));
+        FaultResult faultResult = new FaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),
+                new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1));
+        return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
     }
 }

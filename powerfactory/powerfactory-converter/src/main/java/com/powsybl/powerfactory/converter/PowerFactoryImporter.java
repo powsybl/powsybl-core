@@ -41,7 +41,6 @@ public class PowerFactoryImporter implements Importer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PowerFactoryImporter.class);
 
     private static final String FORMAT = "POWER-FACTORY";
-    private static final String TYP_ID = "typ_id";
 
     @Override
     public String getFormat() {
@@ -58,8 +57,8 @@ public class PowerFactoryImporter implements Importer {
         return "PowerFactory to IIDM converter";
     }
 
-    private Optional<StudyCaseLoader> findProjectLoader(ReadOnlyDataSource dataSource) {
-        for (StudyCaseLoader studyCaseLoader : ServiceLoader.load(StudyCaseLoader.class)) {
+    private Optional<PowerFactoryDataLoader<StudyCase>> findProjectLoader(ReadOnlyDataSource dataSource) {
+        for (PowerFactoryDataLoader<StudyCase> studyCaseLoader : PowerFactoryDataLoader.find(StudyCase.class)) {
             try {
                 if (dataSource.exists(null, studyCaseLoader.getExtension())) {
                     return Optional.of(studyCaseLoader);
@@ -105,6 +104,9 @@ public class PowerFactoryImporter implements Importer {
 
         final Map<String, MutableInt> nodeCountByVoltageLevelId = new HashMap<>();
 
+        // elmTerm object id to busbarSection id mapping
+        final Map<Long, NodeRef> elmTermIdToNode = new HashMap<>();
+
         List<DataObject> cubiclesObjectNotFound = new ArrayList<>();
 
         ImportContext(ContainersMapping containerMapping) {
@@ -112,14 +114,17 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
+    // TODO move to AbstractConverter at the end
     static class NodeRef {
 
         final String voltageLevelId;
         final int node;
+        final int busIndexIn;
 
-        NodeRef(String voltageLevelId, int node) {
+        NodeRef(String voltageLevelId, int node, int busIndexIn) {
             this.voltageLevelId = voltageLevelId;
             this.node = node;
+            this.busIndexIn = busIndexIn;
         }
 
         @Override
@@ -130,13 +135,14 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
+    // TODO delete at the end
     private static List<NodeRef> checkNodes(DataObject obj, Map<Long, List<NodeRef>> objIdToNode, int connections) {
         List<NodeRef> nodeRefs = objIdToNode.get(obj.getId());
         if (nodeRefs == null || nodeRefs.size() != connections) {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connection for '" + obj + "'");
         }
-        return nodeRefs;
+        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
     }
 
     private static PowerFactoryException createNotYetSupportedException() {
@@ -146,7 +152,7 @@ public class PowerFactoryImporter implements Importer {
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
-        List<DataObject> elmNets = studyCase.getIndex().getDataObjectsByClass("ElmNet");
+        List<DataObject> elmNets = studyCase.getElmNets();
         if (elmNets.isEmpty()) {
             throw new PowsyblException("No ElmNet object found");
         }
@@ -156,7 +162,9 @@ public class PowerFactoryImporter implements Importer {
         DateTime caseDate = new Instant(studyCase.getTime().toEpochMilli()).toDateTime();
         network.setCaseDate(caseDate);
 
-        List<DataObject> elmTerms = studyCase.getIndex().getDataObjectsByClass("ElmTerm");
+        List<DataObject> elmTerms = studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*.ElmTerm").stream())
+                .collect(Collectors.toList());
 
         LOGGER.info("Creating containers...");
 
@@ -179,7 +187,10 @@ public class PowerFactoryImporter implements Importer {
 
         LOGGER.info("Creating equipments...");
 
-        for (DataObject obj : studyCase.getIndex().getDataObjects()) {
+        var objs = studyCase.getElmNets().stream()
+                .flatMap(elmNet -> elmNet.search(".*").stream())
+                .collect(Collectors.toList());
+        for (DataObject obj : objs) {
             switch (obj.getDataClassName()) {
                 case "ElmCoup":
                     createSwitch(network, importContext, obj);
@@ -188,11 +199,11 @@ public class PowerFactoryImporter implements Importer {
                 case "ElmSym":
                 case "ElmAsm":
                 case "ElmGenstat":
-                    createGenerator(network, importContext, obj);
+                    new GeneratorConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmLod":
-                    createLoad(network, importContext, obj);
+                    new LoadConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmShnt":
@@ -200,14 +211,16 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmLne":
-                    createLine(network, importContext, obj);
+                    new LineConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmTr2":
-                    create2wTransformer(network, importContext, obj);
+                    new TransformerConverter(importContext, network).createTwoWindings(obj);
                     break;
 
                 case "ElmTr3":
+                    new TransformerConverter(importContext, network).createThreeWindings(obj);
+                    break;
                 case "ElmZpu":
                     throw createNotYetSupportedException();
 
@@ -220,6 +233,14 @@ public class PowerFactoryImporter implements Importer {
                     // already processed
                     break;
 
+                case "TypLne":
+                case "TypSym":
+                case "TypLod":
+                case "TypTr2":
+                case "TypTr3":
+                    // Referenced by other objects
+                    break;
+
                 case "ElmDsl":
                 case "ElmComp":
                 case "ElmStactrl":
@@ -229,6 +250,7 @@ public class PowerFactoryImporter implements Importer {
                 case "StaVmea":
                 case "ElmFile":
                 case "ElmZone":
+                case "ElmRelay":
                     // not interesting
                     break;
 
@@ -241,21 +263,34 @@ public class PowerFactoryImporter implements Importer {
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
                 network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
 
+        setVoltagesAndAngles(network, importContext, elmTerms);
+
         return network;
     }
 
-    private void createLoad(Network network, ImportContext importContext, DataObject elmLod) {
-        NodeRef nodeRef = checkNodes(elmLod, importContext.objIdToNode, 1).iterator().next();
-        VoltageLevel vl = network.getVoltageLevel(nodeRef.voltageLevelId);
-        float p0 = elmLod.getFloatAttributeValue("plini");
-        float q0 = elmLod.getFloatAttributeValue("qlini");
-        vl.newLoad()
-                .setId(elmLod.getLocName())
-                .setEnsureIdUnicity(true)
-                .setNode(nodeRef.node)
-                .setP0(p0)
-                .setQ0(q0)
-                .add();
+    private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
+        for (DataObject elmTerm : elmTerms) {
+            setVoltageAndAngle(network, importContext, elmTerm);
+        }
+    }
+
+    private static void setVoltageAndAngle(Network network, ImportContext importContext, DataObject elmTerm) {
+        if (!importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
+            return;
+        }
+        Optional<Float> uknom = elmTerm.findFloatAttributeValue("uknom");
+        Optional<Float> u = elmTerm.findFloatAttributeValue("m:u");
+        Optional<Float> phiu = elmTerm.findFloatAttributeValue("m:phiu");
+
+        if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
+            NodeRef nodeRef = importContext.elmTermIdToNode.get(elmTerm.getId());
+            Terminal terminal = network.getVoltageLevel(nodeRef.voltageLevelId).getNodeBreakerView().getTerminal(nodeRef.node);
+            Bus bus = terminal.getBusView().getBus();
+            if (bus != null) {
+                bus.setV(u.get() * uknom.get());
+                bus.setAngle(phiu.get());
+            }
+        }
     }
 
     private void createShunt(Network network, ImportContext importContext, DataObject elmShnt) {
@@ -296,159 +331,6 @@ public class PowerFactoryImporter implements Importer {
                 .add();
     }
 
-    private void createGenerator(Network network, ImportContext importContext, DataObject elmSym) {
-        NodeRef nodeRef = checkNodes(elmSym, importContext.objIdToNode, 1).iterator().next();
-        VoltageLevel vl = network.getVoltageLevel(nodeRef.voltageLevelId);
-        int ivMode = elmSym.getIntAttributeValue("iv_mode");
-        float pgini = elmSym.getFloatAttributeValue("pgini");
-        float qgini = elmSym.getFloatAttributeValue("qgini");
-        double usetp = elmSym.getFloatAttributeValue("usetp") * vl.getNominalV();
-        double pMinUc = elmSym.getFloatAttributeValue("Pmin_uc");
-        double pMaxUc = elmSym.getFloatAttributeValue("Pmax_uc");
-        Generator g = vl.newGenerator()
-                .setId(elmSym.getLocName())
-                .setEnsureIdUnicity(true)
-                .setNode(nodeRef.node)
-                .setTargetP(pgini)
-                .setTargetQ(qgini)
-                .setTargetV(usetp)
-                .setVoltageRegulatorOn(ivMode == 1)
-                .setMinP(pMinUc)
-                .setMaxP(pMaxUc)
-                .add();
-        elmSym.findObjectAttributeValue(TYP_ID)
-                .flatMap(DataObjectRef::resolve)
-                .ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
-    }
-
-    private void createReactiveLimits(DataObject elmSym, DataObject typSym, Generator g) {
-        if (typSym.getDataClassName().equals("TypSym")) {
-            DataObject pQlimType = elmSym.findObjectAttributeValue("pQlimType")
-                    .flatMap(DataObjectRef::resolve)
-                    .orElse(null);
-            if (pQlimType != null) {
-                throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");
-            } else {
-                int iqtype = elmSym.getIntAttributeValue("iqtype");
-                float qMinPu;
-                float qMaxPu;
-                if (iqtype == 0) { // use limits specified in element
-                    qMinPu = elmSym.getFloatAttributeValue("q_min");
-                    qMaxPu = elmSym.getFloatAttributeValue("q_max");
-                } else { // use limits specified in type
-                    qMinPu = typSym.getFloatAttributeValue("q_min");
-                    qMaxPu = typSym.getFloatAttributeValue("q_max");
-                }
-                float qMinTyp = typSym.getFloatAttributeValue("Q_min");
-                float qMaxTyp = typSym.getFloatAttributeValue("Q_max");
-                double minQ = -1 * qMinPu * qMinTyp;
-                double maxQ = qMaxPu * qMaxTyp;
-                g.newMinMaxReactiveLimits()
-                        .setMinQ(minQ)
-                        .setMaxQ(maxQ)
-                        .add();
-            }
-        } else {
-            // TODO
-        }
-    }
-
-    private void createLine(Network network, ImportContext importContext, DataObject elmLne) {
-        Collection<NodeRef> nodeRefs = checkNodes(elmLne, importContext.objIdToNode, 2);
-        Iterator<NodeRef> it = nodeRefs.iterator();
-        NodeRef nodeRef1 = it.next();
-        NodeRef nodeRef2 = it.next();
-        float dline = elmLne.getFloatAttributeValue("dline");
-        DataObject typLne = elmLne.getObjectAttributeValue(TYP_ID)
-                .resolve()
-                .orElseThrow();
-        float rline = typLne.getFloatAttributeValue("rline");
-        float xline = typLne.getFloatAttributeValue("xline");
-        float bline = typLne.getFloatAttributeValue("bline");
-        float tline = typLne.getFloatAttributeValue("tline");
-        double r = rline * dline;
-        double x = xline * dline;
-        double g = tline * dline * 10e-6;
-        double b = bline * dline * 10e-6;
-        double g1 = g / 2;
-        double g2 = g / 2;
-        double b1 = b / 2;
-        double b2 = b / 2;
-        network.newLine()
-                .setId(elmLne.getLocName())
-                .setEnsureIdUnicity(true)
-                .setVoltageLevel1(nodeRef1.voltageLevelId)
-                .setVoltageLevel2(nodeRef2.voltageLevelId)
-                .setNode1(nodeRef1.node)
-                .setNode2(nodeRef2.node)
-                .setR(r)
-                .setX(x)
-                .setG1(g1)
-                .setG2(g2)
-                .setB1(b1)
-                .setB2(b2)
-                .add();
-    }
-
-    private void create2wTransformer(Network network, ImportContext importContext, DataObject elmTr2) {
-        Collection<NodeRef> nodeRefs = checkNodes(elmTr2, importContext.objIdToNode, 2);
-        Iterator<NodeRef> it = nodeRefs.iterator();
-        NodeRef nodeRef1 = it.next();
-        NodeRef nodeRef2 = it.next();
-        VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
-        VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
-        Substation s = vl1.getSubstation().orElseThrow();
-        DataObject typTr2 = elmTr2.getObjectAttributeValue(TYP_ID)
-                .resolve()
-                .orElseThrow();
-        float strn = typTr2.getFloatAttributeValue("strn");
-        float utrnL = typTr2.getFloatAttributeValue("utrn_l");
-        float utrnH = typTr2.getFloatAttributeValue("utrn_h");
-        float uktr = typTr2.getFloatAttributeValue("uktr");
-        float pcutr = typTr2.getFloatAttributeValue("pcutr");
-        float curmg = typTr2.getFloatAttributeValue("curmg");
-        float pfe = typTr2.getFloatAttributeValue("pfe");
-        double ratedU1;
-        double ratedU2;
-        double primaryNominalV;
-        if (vl1.getNominalV() > vl2.getNominalV()) {
-            ratedU1 = utrnH;
-            ratedU2 = utrnL;
-            primaryNominalV = vl1.getNominalV();
-        } else {
-            ratedU1 = utrnL;
-            ratedU2 = utrnH;
-            primaryNominalV = vl2.getNominalV();
-        }
-
-        TransformerModel transformerModel = TransformerModel.fromMeasures(uktr, pcutr, curmg, pfe, strn, primaryNominalV);
-        double r = transformerModel.getR();
-        double x = transformerModel.getX();
-        if (vl1.getNominalV() > vl2.getNominalV()) {
-            double rho = ratedU2 / ratedU1;
-            r *= rho * rho;
-            x *= rho * rho;
-        }
-
-        // TODO ratio and phase tap changer
-
-        s.newTwoWindingsTransformer()
-                .setId(elmTr2.getLocName())
-                .setEnsureIdUnicity(true)
-                .setVoltageLevel1(nodeRef1.voltageLevelId)
-                .setVoltageLevel2(nodeRef2.voltageLevelId)
-                .setNode1(nodeRef1.node)
-                .setNode2(nodeRef2.node)
-                .setRatedU1(ratedU1)
-                .setRatedU2(ratedU2)
-                .setRatedS(strn)
-                .setR(r)
-                .setX(x)
-                .setG(0)
-                .setB(0)
-                .add();
-    }
-
     private VoltageLevel createVoltageLevel(Network network, ImportContext importContext, DataObject elmTerm) {
         String voltageLevelId = importContext.containerMapping.getVoltageLevelId(Ints.checkedCast(elmTerm.getId()));
         String substationId = importContext.containerMapping.getSubstationId(voltageLevelId);
@@ -477,6 +359,7 @@ public class PowerFactoryImporter implements Importer {
             throw new PowsyblException("Multiple staSwitch not supported");
         }
         DataObject staSwitch = staSwitches.isEmpty() ? null : staSwitches.get(0);
+        int busIndexIn = staCubic.getIntAttributeValue("obj_bus");
 
         int node;
         if (staSwitch != null) {
@@ -506,7 +389,7 @@ public class PowerFactoryImporter implements Importer {
             }
         }
         importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
-                .add(new NodeRef(vl.getId(), node));
+                .add(new NodeRef(vl.getId(), node, busIndexIn));
     }
 
     private void createNode(Network network, ImportContext importContext, DataObject elmTerm) {
@@ -515,6 +398,9 @@ public class PowerFactoryImporter implements Importer {
         MutableInt nodeCount = importContext.nodeCountByVoltageLevelId.computeIfAbsent(vl.getId(), k -> new MutableInt());
         int bbNode = nodeCount.intValue();
         nodeCount.increment();
+
+        importContext.elmTermIdToNode.putIfAbsent(elmTerm.getId(), new NodeRef(vl.getId(), bbNode, 0));
+
         if (iUsage == 0) { // busbar
             vl.getNodeBreakerView().newBusbarSection()
                     .setId(vl.getId() + "_" + elmTerm.getLocName())

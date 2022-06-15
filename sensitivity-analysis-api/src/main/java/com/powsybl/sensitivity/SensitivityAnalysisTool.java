@@ -23,7 +23,7 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
-import com.powsybl.sensitivity.json.SensitivityJson;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -147,7 +147,7 @@ public class SensitivityAnalysisTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
-        ObjectMapper objectMapper = SensitivityJson.createObjectMapper()
+        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper()
                 .registerModule(new ContingencyJsonModule());
 
         SensitivityAnalysisParameters params = SensitivityAnalysisParameters.load();

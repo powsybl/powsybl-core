@@ -13,6 +13,7 @@ import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.network.util.Networks;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -79,6 +80,21 @@ public abstract class AbstractNetworkTest {
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel1.getTopologyKind());
 
         NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+
+        assertEquals(0.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(0.0, topology1.getFictitiousQ0(0), 0.0);
+        topology1.setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
+        assertEquals(1.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
+        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(voltageLevel1);
+        nodesByBus.forEach((busId, nodes) -> {
+            if (nodes.contains(0)) {
+                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+            } else if (nodes.contains(1)) {
+                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+            }
+        });
+
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
         assertEquals(2, topology1.getBusbarSectionCount());
@@ -207,6 +223,7 @@ public abstract class AbstractNetworkTest {
         network.runValidationChecks();
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.getLoad("load1").setP0(0.0);
         voltageLevel1.newLoad()
                 .setId("unchecked")
                 .setP0(1.0)
@@ -306,8 +323,8 @@ public abstract class AbstractNetworkTest {
         Battery battery1 = network.getBattery("BAT");
         assertNotNull(battery1);
         assertEquals("BAT", battery1.getId());
-        assertEquals(9999.99, battery1.getP0(), 0.0);
-        assertEquals(9999.99, battery1.getQ0(), 0.0);
+        assertEquals(9999.99, battery1.getTargetP(), 0.0);
+        assertEquals(9999.99, battery1.getTargetQ(), 0.0);
         assertEquals(-9999.99, battery1.getMinP(), 0.0);
         assertEquals(9999.99, battery1.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery1.getTerminal().getBusBreakerView().getBus().getId());
@@ -315,8 +332,8 @@ public abstract class AbstractNetworkTest {
         Battery battery2 = network.getBattery("BAT2");
         assertNotNull(battery2);
         assertEquals("BAT2", battery2.getId());
-        assertEquals(100, battery2.getP0(), 0.0);
-        assertEquals(200, battery2.getQ0(), 0.0);
+        assertEquals(100, battery2.getTargetP(), 0.0);
+        assertEquals(200, battery2.getTargetQ(), 0.0);
         assertEquals(-200, battery2.getMinP(), 0.0);
         assertEquals(200, battery2.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery2.getTerminal().getBusBreakerView().getBus().getId());

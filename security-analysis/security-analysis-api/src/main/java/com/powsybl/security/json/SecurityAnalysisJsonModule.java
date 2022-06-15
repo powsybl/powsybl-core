@@ -8,8 +8,7 @@ package com.powsybl.security.json;
 
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
-import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.results.PreContingencyResult;
+import com.powsybl.security.results.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,6 +22,10 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         addSerializer(LimitViolation.class, new LimitViolationSerializer());
         addSerializer(PreContingencyResult.class, new PreContingencyResultSerializer());
+        addSerializer(BusResult.class, new BusResultSerializer());
+        addSerializer(BranchResult.class, new BranchResultSerializer());
+        addSerializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultSerializer());
+        addSerializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
@@ -30,5 +33,9 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(LimitViolationsResult.class, new LimitViolationResultDeserializer());
         addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
         addDeserializer(PreContingencyResult.class, new PreContingencyResultDeserializer());
+        addDeserializer(BusResult.class, new BusResultDeserializer());
+        addDeserializer(BranchResult.class, new BranchResultDeserializer());
+        addDeserializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultDeserializer());
+        addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
     }
 }

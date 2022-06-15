@@ -10,7 +10,6 @@ package com.powsybl.ampl.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
@@ -19,9 +18,11 @@ import com.powsybl.iidm.parameters.ParameterType;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -36,9 +37,13 @@ public class AmplExporter implements Exporter {
     public static final String EXPORT_RATIOTAPCHANGER_VT = "iidm.export.ampl.export-ratio-tap-changer-voltage-target";
     public static final String TWT_SPLIT_SHUNT_ADMITTANCE = "iidm.export.ampl.twt-split-shunt-admittance";
 
-    private static final Parameter EXPORT_SCOPE_PARAMETER = new Parameter(EXPORT_SCOPE, ParameterType.STRING, "Export scope", "ALL");
+    private static final Parameter EXPORT_SCOPE_PARAMETER = new Parameter(EXPORT_SCOPE, ParameterType.STRING, "Export scope",
+            AmplExportConfig.ExportScope.ALL.name(),
+            Arrays.stream(AmplExportConfig.ExportScope.values()).map(Enum::name).collect(Collectors.toList()));
     private static final Parameter EXPORT_XNODES_PARAMETER = new Parameter(EXPORT_XNODES, ParameterType.BOOLEAN, "Export Xnodes of tie-lines", Boolean.FALSE);
-    private static final Parameter EXPORT_ACTION_TYPE_PARAMETER = new Parameter(EXPORT_ACTION_TYPE, ParameterType.STRING, "Type of the remedial actions (preventive or curative)", "CURATIVE");
+    private static final Parameter EXPORT_ACTION_TYPE_PARAMETER = new Parameter(EXPORT_ACTION_TYPE, ParameterType.STRING, "Type of the remedial actions (preventive or curative)",
+            AmplExportConfig.ExportActionType.CURATIVE.name(),
+            Arrays.stream(AmplExportConfig.ExportActionType.values()).map(Enum::name).collect(Collectors.toList()));
     private static final Parameter EXPORT_RATIOTAPCHANGER_VT_PARAMETER = new Parameter(EXPORT_RATIOTAPCHANGER_VT, ParameterType.BOOLEAN, "Export ratio tap changer voltage target", Boolean.FALSE)
             .addAdditionalNames("iidm.export.ampl.exportRatioTapChangerVoltageTarget");
     private static final Parameter TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER = new Parameter(TWT_SPLIT_SHUNT_ADMITTANCE, ParameterType.BOOLEAN, "Export twt split shunt admittance", Boolean.FALSE)
@@ -73,11 +78,11 @@ public class AmplExporter implements Exporter {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
         try {
-            AmplExportConfig.ExportScope scope = AmplExportConfig.ExportScope.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_SCOPE_PARAMETER, defaultValueConfig));
-            boolean exportXnodes = ConversionParameters.readBooleanParameter(getFormat(), parameters, EXPORT_XNODES_PARAMETER, defaultValueConfig);
-            AmplExportConfig.ExportActionType actionType = AmplExportConfig.ExportActionType.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_ACTION_TYPE_PARAMETER, defaultValueConfig));
-            boolean exportRatioTapChangerVoltageTarget = ConversionParameters.readBooleanParameter(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
-            boolean twtSplitShuntAdmittance = ConversionParameters.readBooleanParameter(getFormat(), parameters, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER, defaultValueConfig);
+            AmplExportConfig.ExportScope scope = AmplExportConfig.ExportScope.valueOf(Parameter.readString(getFormat(), parameters, EXPORT_SCOPE_PARAMETER, defaultValueConfig));
+            boolean exportXnodes = Parameter.readBoolean(getFormat(), parameters, EXPORT_XNODES_PARAMETER, defaultValueConfig);
+            AmplExportConfig.ExportActionType actionType = AmplExportConfig.ExportActionType.valueOf(Parameter.readString(getFormat(), parameters, EXPORT_ACTION_TYPE_PARAMETER, defaultValueConfig));
+            boolean exportRatioTapChangerVoltageTarget = Parameter.readBoolean(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
+            boolean twtSplitShuntAdmittance = Parameter.readBoolean(getFormat(), parameters, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER, defaultValueConfig);
 
             AmplExportConfig config = new AmplExportConfig(scope, exportXnodes, actionType, exportRatioTapChangerVoltageTarget, twtSplitShuntAdmittance);
 

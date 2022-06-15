@@ -6,9 +6,11 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
+import com.powsybl.cgmes.extensions.CgmesTapChanger;
+import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
@@ -25,9 +27,12 @@ import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
+import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -41,14 +46,19 @@ public final class CgmesExportUtil {
 
     private static final DecimalFormatSymbols DOUBLE_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", DOUBLE_FORMAT_SYMBOLS);
-    private static final DecimalFormat SCIENFIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
+    private static final DecimalFormat SCIENTIFIC_FORMAT = new DecimalFormat("0.####E0", DOUBLE_FORMAT_SYMBOLS);
+
+    private static final Pattern CIM_MRID_PATTERN = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
+    private static final Pattern URN_UUID_PATTERN = Pattern.compile("(?i)urn:uuid:[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
+    private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
     public static String format(double value) {
         return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String scientificFormat(double value) {
-        return SCIENFIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        return SCIENTIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String format(int value) {
@@ -59,25 +69,35 @@ public final class CgmesExportUtil {
         return String.valueOf(value);
     }
 
-    public static String getUniqueId() {
-        return "_" + UUID.randomUUID();
+    public static boolean isValidCimMasterRID(String id) {
+        return CIM_MRID_PATTERN.matcher(id).matches()
+                || URN_UUID_PATTERN.matcher(id).matches()
+                || ENTSOE_BD_EXCEPTIONS_PATTERN1.matcher(id).matches()
+                || ENTSOE_BD_EXCEPTIONS_PATTERN2.matcher(id).matches();
     }
 
-    public static void writeRdfRoot(int cimVersion, XMLStreamWriter writer) throws XMLStreamException {
-        writer.setPrefix("entsoe", ENTSOE_NAMESPACE);
+    public static String getUniqueId() {
+        return UUID.randomUUID().toString();
+    }
+
+    public static void writeRdfRoot(String cimNamespace, String euPrefix, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.setPrefix(euPrefix, euNamespace);
         writer.setPrefix("rdf", RDF_NAMESPACE);
-        writer.setPrefix("cim", CgmesNamespace.getCim(cimVersion));
+        writer.setPrefix("cim", cimNamespace);
         writer.setPrefix("md", MD_NAMESPACE);
         writer.writeStartElement(RDF_NAMESPACE, "RDF");
-        writer.writeNamespace("entsoe", ENTSOE_NAMESPACE);
+        writer.writeNamespace(euPrefix, euNamespace);
         writer.writeNamespace("rdf", RDF_NAMESPACE);
-        writer.writeNamespace("cim", CgmesNamespace.getCim(cimVersion));
+        writer.writeNamespace("cim", cimNamespace);
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
     public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
+        String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
+        modelDescription.setId(modelId);
+        context.updateDependencies();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();
@@ -103,6 +123,47 @@ public final class CgmesExportUtil {
         writer.writeCharacters(modelDescription.getModelingAuthoritySet());
         writer.writeEndElement();
         writer.writeEndElement();
+    }
+
+    private static String toRdfId(String id) {
+        // Handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
+        // We have to be careful with "resource" and "about" references, and apply the same conversions
+        return id.startsWith("_") ? id : "_" + id;
+    }
+
+    private static String toMasterResourceId(String id) {
+        // Handling ids: if received id is prefixed by "_", remove it. Assuming it was added to comply with URN rules
+        return id.startsWith("_") ? id.substring(1) : id;
+    }
+
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, className);
+        // Writing mRID was optional in CIM 16, but is required since CIM 100
+        // Only classes extending IdentifiedObject have an mRID
+        // points of tables and curve data objects do not have mRID, although they have an RDF:ID
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id));
+        if (writeMasterResourceId) {
+            writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
+            writer.writeCharacters(toMasterResourceId(id));
+            writer.writeEndElement();
+        }
+    }
+
+    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+        writeStartId(className, id, true, cimNamespace, writer);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(name);
+        writer.writeEndElement();
+    }
+
+    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEmptyElement(cimNamespace, refName);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
+    }
+
+    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, className);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id));
     }
 
     public static Complex complexVoltage(double r, double x, double g, double b,
@@ -131,7 +192,20 @@ public final class CgmesExportUtil {
         return "EnergyConsumer";
     }
 
+    /**
+     * @deprecated Use {@link #getTerminalSequenceNumber(Terminal)} instead
+     */
+    @Deprecated(since = "4.9.0", forRemoval = true)
     public static int getTerminalSide(Terminal t, Connectable<?> c) {
+        // There is no need to provide the connectable explicitly, it must always be the one associated with the terminal
+        if (c != t.getConnectable()) {
+            throw new PowsyblException("Wrong connectable in getTerminalSide : " + c.getId());
+        }
+        return getTerminalSequenceNumber(t);
+    }
+
+    public static int getTerminalSequenceNumber(Terminal t) {
+        Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             return 1;
         } else {
@@ -187,5 +261,43 @@ public final class CgmesExportUtil {
         }
     }
 
+    public static <C extends Connectable<C>> Optional<String> cgmesTapChangerType(C eq, String tcId) {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tcId);
+            if (cgmesTc != null) {
+                return Optional.ofNullable(cgmesTc.getType());
+            }
+        }
+        return Optional.empty();
+    }
+
+    public static <C extends Connectable<C>> void setCgmesTapChangerType(C eq, String tapChangerId, String type) {
+        CgmesTapChangers<C> cgmesTcs = eq.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
+            if (cgmesTc != null) {
+                cgmesTc.setType(type);
+            }
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
+
+    public static String getTerminalId(Terminal t) {
+        String aliasType;
+        Connectable<?> c = t.getConnectable();
+        if (c instanceof DanglingLine) {
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network";
+        } else {
+            int sequenceNumber = getTerminalSequenceNumber(t);
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
+        }
+        Optional<String> terminalId = c.getAliasFromType(aliasType);
+        if (terminalId.isEmpty()) {
+            LOG.error("Alias for type {} not found in connectable {}", aliasType, t.getConnectable().getId());
+            throw new PowsyblException("Alias for type " + aliasType + " not found in connectable " + t.getConnectable().getId());
+        }
+        return terminalId.get();
+    }
 }
