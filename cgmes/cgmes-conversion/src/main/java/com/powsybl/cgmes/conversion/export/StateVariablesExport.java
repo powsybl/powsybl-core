@@ -40,7 +40,6 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
 
     StateVariablesExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
         super(context, xmlWriter);
-        context.setExportEquipment(false);
     }
 
     public void export() {

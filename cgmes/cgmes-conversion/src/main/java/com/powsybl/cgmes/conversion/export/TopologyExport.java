@@ -31,7 +31,6 @@ public final class TopologyExport extends AbstractCgmesExporter {
 
     TopologyExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
         super(context, xmlWriter);
-        context.setExportEquipment(false);
     }
 
     public void export() {
