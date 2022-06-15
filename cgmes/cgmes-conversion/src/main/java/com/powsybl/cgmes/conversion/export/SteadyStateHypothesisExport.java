@@ -154,7 +154,10 @@ public final class SteadyStateHypothesisExport extends AbstractCgmesExporter {
             cgmesTc = cgmesTcs.getTapChanger(tcId);
         }
         addRegulatingControlView(tc, cgmesTc);
-        if (cgmesTcs != null) {
+        // If we are exporting equipment definitions the hidden tap changer will not be exported
+        // because it has been included in the model for the only tap changer left in IIDM
+        // If we are exporting only SSH, SV, ... we have to write the step we have saved for it
+        if (cgmesTcs != null && !context.isExportEquipment()) {
             for (CgmesTapChanger tapChanger : cgmesTcs.getTapChangers()) {
                 if (tapChanger.isHidden() && tapChanger.getCombinedTapChangerId().equals(tcId)) {
                     writeHiddenTapChanger(tapChanger, defaultType);

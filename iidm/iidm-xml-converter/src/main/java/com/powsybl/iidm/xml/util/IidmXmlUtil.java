@@ -351,6 +351,18 @@ public final class IidmXmlUtil {
     }
 
     /**
+     * Get an attribute name depending on IIDM-XML version.
+     * @return oldName if version strictly older than comparisonVersion, else newName.
+     */
+    public static String getAttributeName(String oldName, String newName, IidmXmlVersion version, IidmXmlVersion comparisonVersion) {
+        if (version.compareTo(comparisonVersion) < 0) {
+            return oldName;
+        } else {
+            return newName;
+        }
+    }
+
+    /**
      * Sort identifiables by their ids.
      */
     public static <T extends Identifiable> Iterable<T> sorted(Iterable<T> identifiables, ExportOptions exportOptions) {

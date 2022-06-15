@@ -41,14 +41,14 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
-        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) > 0) {
+        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
         }
         return branch.getCurrentLimits1() != null || branch.getCurrentLimits2() != null;
     }
 
     protected static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkXmlWriterContext context) {
-        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) > 0) {
+        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !limitsHolder.getOperationalLimits().isEmpty();
         }
         return limitsHolder.getCurrentLimits() != null;

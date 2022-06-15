@@ -20,9 +20,9 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     private final VoltageLevelExt voltageLevel;
 
-    private double p0 = Double.NaN;
+    private double targetP = Double.NaN;
 
-    private double q0 = Double.NaN;
+    private double targetQ = Double.NaN;
 
     private double minP = Double.NaN;
 
@@ -52,8 +52,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
      * {@inheritDoc}
      */
     @Override
-    public BatteryAdderImpl setP0(double p0) {
-        this.p0 = p0;
+    public BatteryAdderImpl setTargetP(double targetP) {
+        this.targetP = targetP;
         return this;
     }
 
@@ -61,8 +61,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
      * {@inheritDoc}
      */
     @Override
-    public BatteryAdderImpl setQ0(double q0) {
-        this.q0 = q0;
+    public BatteryAdderImpl setTargetQ(double targetQ) {
+        this.targetQ = targetQ;
         return this;
     }
 
@@ -92,13 +92,13 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel()));
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        BatteryImpl battery = new BatteryImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, minP, maxP);
+        BatteryImpl battery = new BatteryImpl(network.getRef(), id, getName(), isFictitious(), targetP, targetQ, minP, maxP);
 
         battery.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

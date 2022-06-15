@@ -136,6 +136,14 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         assertFalse(sv1.contains(cgmesTerminal));
     }
 
+    @Test
+    public void microGridBEWithHiddenTapChangers() throws XMLStreamException {
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource());
+        String sv = exportSvAsString(network, 2);
+        String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
+        assertTrue(sv.contains(hiddenTapChangerId));
+    }
+
     private static Network importNetwork(ReadOnlyDataSource ds) {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");

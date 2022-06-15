@@ -16,6 +16,8 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -31,6 +33,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
+    private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     private final String euNamespace;
     private final String limitValueAttributeName;
@@ -42,7 +45,6 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private final Map<String, String> mapNodeKey2NodeId = new HashMap<>();
     private final Map<Terminal, String> mapTerminal2Id = new HashMap<>();
     private final Set<String> regulatingControlsWritten = new HashSet<>();
-    private final Map<Boundary, String> danglingLineBoundaries = new HashMap<>();
 
     EquipmentExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
         super(context, xmlWriter);
@@ -55,6 +57,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     }
 
     public void export() {
+        context.setExportEquipment(true);
         try {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, xmlWriter);
 
@@ -591,7 +594,6 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         // New Terminal
         String terminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
         TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, xmlWriter);
-        danglingLineBoundaries.put(danglingLine.getBoundary(), terminalId);
 
         return connectivityNodeId;
     }
@@ -764,9 +766,35 @@ public final class EquipmentExport extends AbstractCgmesExporter {
             TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(terminal), cimNamespace, xmlWriter);
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            if (cgmesControlArea.getBoundaries().contains(boundary)) {
-                TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), danglingLineBoundaries.get(boundary), cimNamespace, xmlWriter);
+            String terminalId = getTieFlowBoundaryTerminal(boundary);
+            if (terminalId != null) {
+                TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), terminalId, cimNamespace, xmlWriter);
             }
+        }
+    }
+
+    private static String getTieFlowBoundaryTerminal(Boundary boundary) {
+        Connectable<?> c = boundary.getConnectable();
+        if (c instanceof DanglingLine) {
+            return c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
+        } else {
+            // This means the boundary corresponds to a TieLine.
+            // Because the network should not be a merging view,
+            // the only way to have a TieLine in the model is that
+            // the original data for the network contained both halves of the TieLine.
+            // That is, the initial CGMES data contains the two ACLSs at each side of one boundary point.
+
+            // Currently, we are exporting TieLines in the EQ as a single ACLS,
+            // We are not exporting the individual halves of the tie line as separate equipment.
+            // So we do not have terminals for the boundary points.
+
+            // This error should be fixed exporting the two halves of the TieLine to the EQ,
+            // with their corresponding terminals.
+            // Also, the boundary node should not be exported but referenced,
+            // as it should be defined in the boundary, not in the instance EQ file.
+
+            LOG.error("Unsupported tie flow at TieLine boundary {}", c.getId());
+            return null;
         }
     }
 

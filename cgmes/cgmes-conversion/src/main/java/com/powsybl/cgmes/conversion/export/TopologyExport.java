@@ -31,6 +31,7 @@ public final class TopologyExport extends AbstractCgmesExporter {
 
     TopologyExport(CgmesExportContext context, XMLStreamWriter xmlWriter) {
         super(context, xmlWriter);
+        context.setExportEquipment(false);
     }
 
     public void export() {
@@ -119,14 +120,14 @@ public final class TopologyExport extends AbstractCgmesExporter {
     private void writeHvdcTerminals() throws XMLStreamException {
         for (HvdcLine line : context.getNetwork().getHvdcLines()) {
             Bus b1 = line.getConverterStation1().getTerminal().getBusView().getBus();
-            writeHvdcBusTerminals(line, b1, 1);
+            writeHvdcBusTerminals(line, line.getConverterStation1(), b1, 1);
 
             Bus b2 = line.getConverterStation2().getTerminal().getBusView().getBus();
-            writeHvdcBusTerminals(line, b2, 2);
+            writeHvdcBusTerminals(line, line.getConverterStation2(), b2, 2);
         }
     }
 
-    private void writeHvdcBusTerminals(HvdcLine line, Bus bus, int side) throws XMLStreamException {
+    private void writeHvdcBusTerminals(HvdcLine line, HvdcConverterStation<?> converter, Bus bus, int side) throws XMLStreamException {
         String iidmId;
         if (bus == null) {
             iidmId = line.getId() + side;
@@ -139,7 +140,7 @@ public final class TopologyExport extends AbstractCgmesExporter {
             writeDCNode(dcNode, dcTopologicalNode);
             String dcTerminal = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal" + side).orElseThrow(PowsyblException::new);
             writeDCTerminal(dcTerminal, dcTopologicalNode);
-            String acdcConverterDcTerminal = line.getConverterStation2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal, dcTopologicalNode);
         }
     }

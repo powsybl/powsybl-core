@@ -8,7 +8,7 @@ package com.powsybl.shortcircuit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
+import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
 
 import java.io.IOException;
 import java.io.InputStream;
