@@ -8,6 +8,7 @@ package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.ShortCircuitConstants;
 import com.powsybl.shortcircuit.StudyType;
 import org.junit.Test;
 
@@ -26,10 +27,10 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN));
-        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 0, 1.0, ShortCircuitConstants.VoltageMapType.CEI_909, true, true, false, false, false, false, false, ShortCircuitConstants.StartedGroups.ALL, 0, ShortCircuitConstants.StartedGroups.STARTED, 0));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, Double.NaN, null, false, false, false, false, false, false, false, null, Double.NaN, null, Double.NaN));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, Double.NaN, null, false, false, false, false, false, false, false, null, Double.NaN, null, Double.NaN));
+        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, Double.NaN, null, true, false, false, false, false, false, false, null, Double.NaN, null, Double.NaN));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.ShortCircuitConstants;
 import com.powsybl.shortcircuit.StudyType;
 
 import java.io.IOException;
@@ -31,7 +32,20 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withVoltageMap = false;
         boolean withFeederResult = false;
         StudyType type = null;
+        double subTransStudyReactanceCoefficient = Double.NaN;
         double minVoltageDropProportionalThreshold = Double.NaN;
+        ShortCircuitConstants.VoltageMapType voltageMapType = null;
+        boolean useResistances = false;
+        boolean useLoads = false;
+        boolean useCapacities = false;
+        boolean useShunts = false;
+        boolean useTapChangers = false;
+        boolean useMutuals = false;
+        boolean modelVSC = false;
+        ShortCircuitConstants.StartedGroups startedGroupsInsideZone = null;
+        double startedGroupsInsideZoneThreshold = Double.NaN;
+        ShortCircuitConstants.StartedGroups startedGroupsOutOfZone = null;
+        double startedGroupsOutOfZoneThreshold = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -60,15 +74,75 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     type = StudyType.valueOf(parser.readValueAs(String.class));
                     break;
 
+                case "subTransStudyReactanceCoefficient":
+                    parser.nextToken();
+                    subTransStudyReactanceCoefficient = parser.readValueAs(Double.class);
+                    break;
+
                 case "minVoltageDropProportionalThreshold":
                     parser.nextToken();
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
+                    break;
+
+                case "useResistances":
+                    parser.nextToken();
+                    useResistances = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "useLoads":
+                    parser.nextToken();
+                    useLoads = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "useCapacities":
+                    parser.nextToken();
+                    useCapacities = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "useShunts":
+                    parser.nextToken();
+                    useShunts = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "useTapChangers":
+                    parser.nextToken();
+                    useTapChangers = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "useMutuals":
+                    parser.nextToken();
+                    useMutuals = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "modelVSC":
+                    parser.nextToken();
+                    modelVSC = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "startedGroupsInsideZone":
+                    parser.nextToken();
+                    startedGroupsInsideZone = ShortCircuitConstants.StartedGroups.valueOf(parser.readValueAs(String.class));
+                    break;
+
+                case "startedGroupsInsideZoneThreshold":
+                    parser.nextToken();
+                    startedGroupsInsideZoneThreshold = parser.readValueAs(Double.class);
+                    break;
+
+                case "startedGroupsOutOfZone":
+                    parser.nextToken();
+                    startedGroupsOutOfZone = ShortCircuitConstants.StartedGroups.valueOf(parser.readValueAs(String.class));
+                    break;
+
+                case "startedGroupsOutOfZoneThreshold":
+                    parser.nextToken();
+                    startedGroupsOutOfZoneThreshold = parser.readValueAs(Double.class);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold);
+        return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, subTransStudyReactanceCoefficient, minVoltageDropProportionalThreshold, voltageMapType, useResistances, useLoads, useCapacities, useShunts, useTapChangers, useMutuals, modelVSC, startedGroupsInsideZone, startedGroupsInsideZoneThreshold, startedGroupsOutOfZone, startedGroupsOutOfZoneThreshold);
     }
 }

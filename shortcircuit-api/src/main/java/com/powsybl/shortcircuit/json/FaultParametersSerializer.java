@@ -32,7 +32,20 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageMap", parameters.isWithVoltageMap(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withFeederResult", parameters.isWithFeederResult(), false);
         JsonUtil.writeOptionalStringField(jsonGenerator, "studyType", parameters.getStudyType() != null ? parameters.getStudyType().name() : null);
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransStudyReactanceCoefficient", parameters.getSubTransStudyReactanceCoefficient());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
+        JsonUtil.writeOptionalStringField(jsonGenerator, "voltageMapType", parameters.getVoltageMapType() != null ? parameters.getVoltageMapType().name() : null);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useResistances", parameters.isUseResistances(), true);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useLoads", parameters.isUseLoads(), true);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useCapacities", parameters.isUseCapacities(), true);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useShunts", parameters.isUseShunts(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useTapChangers", parameters.isUseTapChangers(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useMutuals", parameters.isUseMutuals(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "modelVSC", parameters.isModelVSC(), false);
+        JsonUtil.writeOptionalStringField(jsonGenerator, "startedGroupsInsideZone", parameters.getStartedGroupsInsideZone() != null ? parameters.getStartedGroupsInsideZone().name() : null);
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "startedGroupsInsideZoneThreshold", parameters.getStartedGroupsInsideZoneThreshold());
+        JsonUtil.writeOptionalStringField(jsonGenerator, "startedGroupsOutOfZone", parameters.getStartedGroupsOutOfZone() != null ? parameters.getStartedGroupsOutOfZone().name() : null);
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "startedGroupsOutOfZoneThreshold", parameters.getStartedGroupsOutOfZoneThreshold());
         jsonGenerator.writeEndObject();
     }
 }

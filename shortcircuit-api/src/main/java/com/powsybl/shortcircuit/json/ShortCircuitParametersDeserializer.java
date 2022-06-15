@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.ShortCircuitConstants;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
 import com.powsybl.shortcircuit.StudyType;
 
@@ -57,9 +58,57 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setStudyType(parser.readValueAs(StudyType.class));
                     break;
+                case "subTransStudyReactanceCoefficient":
+                    parser.nextToken();
+                    parameters.setSubTransStudyReactanceCoefficient(parser.readValueAs(Double.class));
+                    break;
                 case "minVoltageDropProportionalThreshold":
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
+                    break;
+                case "useResistances":
+                    parser.nextToken();
+                    parameters.setUseResistances(parser.readValueAs(Boolean.class));
+                    break;
+                case "useLoads":
+                    parser.nextToken();
+                    parameters.setUseLoads(parser.readValueAs(Boolean.class));
+                    break;
+                case "useCapacities":
+                    parser.nextToken();
+                    parameters.setUseCapacities(parser.readValueAs(Boolean.class));
+                    break;
+                case "useShunts":
+                    parser.nextToken();
+                    parameters.setUseShunts(parser.readValueAs(Boolean.class));
+                    break;
+                case "useTapChangers":
+                    parser.nextToken();
+                    parameters.setUseTapChangers(parser.readValueAs(Boolean.class));
+                    break;
+                case "useMutuals":
+                    parser.nextToken();
+                    parameters.setUseMutuals(parser.readValueAs(Boolean.class));
+                    break;
+                case "modelVSC":
+                    parser.nextToken();
+                    parameters.setModelVSC(parser.readValueAs(Boolean.class));
+                    break;
+                case "startedGroupsInsideZone":
+                    parser.nextToken();
+                    parameters.setStartedGroupsInsideZone(ShortCircuitConstants.StartedGroups.valueOf(parser.readValueAs(String.class)));
+                    break;
+                case "startedGroupsInsideZoneThreshold":
+                    parser.nextToken();
+                    parameters.setStartedGroupsInsideZoneThreshold(parser.readValueAs(Double.class));
+                    break;
+                case "startedGroupsOutOfZone":
+                    parser.nextToken();
+                    parameters.setStartedGroupsOutOfZone(ShortCircuitConstants.StartedGroups.valueOf(parser.readValueAs(String.class)));
+                    break;
+                case "startedGroupsOutOfZoneThreshold":
+                    parser.nextToken();
+                    parameters.setStartedGroupsOutOfZoneThreshold(parser.readValueAs(Double.class));
                     break;
                 case "extensions":
                     parser.nextToken();
