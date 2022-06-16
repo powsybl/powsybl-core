@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -110,6 +111,11 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     @Override
     public String getUcteXnodeCode() {
         return getDelegate().getUcteXnodeCode();
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits() {
+        return getDelegate().getOperationalLimits();
     }
 
     @Override

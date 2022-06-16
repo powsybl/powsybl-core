@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -86,6 +87,11 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         public ThreeWindingsTransformer.Leg setRatedU(final double ratedU) {
             getDelegate().setRatedU(ratedU);
             return this;
+        }
+
+        @Override
+        public Collection<OperationalLimits> getOperationalLimits() {
+            return getDelegate().getOperationalLimits();
         }
 
         @Override

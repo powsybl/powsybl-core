@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -142,6 +144,12 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     Side getSide(Terminal terminal);
 
+    default Collection<OperationalLimits> getOperationalLimits1() {
+        return getCurrentLimits1()
+                .map(l -> Collections.singletonList((OperationalLimits) l))
+                .orElseGet(Collections::emptyList);
+    }
+
     Optional<CurrentLimits> getCurrentLimits1();
 
     CurrentLimits getNullableCurrentLimits1();
@@ -159,6 +167,12 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     ActivePowerLimitsAdder newActivePowerLimits1();
 
     ApparentPowerLimitsAdder newApparentPowerLimits1();
+
+    default Collection<OperationalLimits> getOperationalLimits2() {
+        return getCurrentLimits2()
+                .map(l -> Collections.singletonList((OperationalLimits) l))
+                .orElseGet(Collections::emptyList);
+    }
 
     Optional<CurrentLimits> getCurrentLimits2();
 

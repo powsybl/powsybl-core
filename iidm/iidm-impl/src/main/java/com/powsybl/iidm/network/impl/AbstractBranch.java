@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -82,6 +83,11 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        return operationalLimitsHolder1.getOperationalLimits();
+    }
+
+    @Override
     public Optional<CurrentLimits> getCurrentLimits1() {
         return operationalLimitsHolder1.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
     }
@@ -109,6 +115,11 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return operationalLimitsHolder1.newApparentPowerLimits();
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        return operationalLimitsHolder2.getOperationalLimits();
     }
 
     @Override

@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -13,9 +15,12 @@ import java.util.Optional;
  */
 public interface FlowsLimitsHolder {
 
-    /**
-     * Get the active current limits.
-     */
+    default Collection<OperationalLimits> getOperationalLimits() {
+        return getCurrentLimits()
+                .map(l -> Collections.singletonList((OperationalLimits) l))
+                .orElseGet(Collections::emptyList);
+    }
+
     Optional<CurrentLimits> getCurrentLimits();
 
     CurrentLimits getNullableCurrentLimits();
