@@ -4,5 +4,14 @@
   "withVoltageMap" : true,
   "withFeederResult" : true,
   "studyType" : "TRANSIENT",
-  "minVoltageDropProportionalThreshold" : 0.0
+  "subTransStudyReactanceCoefficient" : 70.0,
+  "minVoltageDropProportionalThreshold" : 0.0,
+  "voltageMapType" : "NORMALIZED",
+  "useResistances" : true,
+  "useLoads" : true,
+  "useCapacities" : true,
+  "startedGroupsInsideZone" : "ALL",
+  "startedGroupsInsideZoneThreshold" : 1.0,
+  "startedGroupsOutOfZone" : "STARTED",
+  "startedGroupsOutOfZoneThreshold" : 1.0
 }

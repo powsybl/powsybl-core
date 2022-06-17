@@ -84,6 +84,10 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                     break;
 
+                case "voltageMapType":
+                    parser.nextToken();
+                    voltageMapType = ShortCircuitConstants.VoltageMapType.valueOf(parser.readValueAs(String.class));
+
                 case "useResistances":
                     parser.nextToken();
                     useResistances = parser.readValueAs(Boolean.class);

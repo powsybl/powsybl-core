@@ -66,6 +66,9 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
                     break;
+                case "voltageMapType":
+                    parser.nextToken();
+                    parameters.setVoltageMapType(parser.readValueAs(ShortCircuitConstants.VoltageMapType.class));
                 case "useResistances":
                     parser.nextToken();
                     parameters.setUseResistances(parser.readValueAs(Boolean.class));

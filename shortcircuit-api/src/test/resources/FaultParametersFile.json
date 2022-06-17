@@ -2,7 +2,15 @@
   "id" : "f00",
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
-  "minVoltageDropProportionalThreshold" : 1.0
+  "subTransStudyReactanceCoefficient" : 0.0,
+  "minVoltageDropProportionalThreshold" : 1.0,
+  "voltageMapType" : "CEI_909",
+  "useResistances" : true,
+  "useLoads" : true,
+  "startedGroupsInsideZone" : "ALL",
+  "startedGroupsInsideZoneThreshold" : 0.0,
+  "startedGroupsOutOfZone" : "STARTED",
+  "startedGroupsOutOfZoneThreshold" : 0.0
 }, {
   "id" : "f01",
   "withVoltageMap" : true
@@ -12,5 +20,6 @@
 }, {
   "id" : "f11",
   "withLimitViolations" : true,
-  "withVoltageMap" : true
+  "withVoltageMap" : true,
+  "useResistances" : true
 } ]

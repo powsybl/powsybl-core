@@ -34,9 +34,9 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransStudyReactanceCoefficient", parameters.getSubTransStudyReactanceCoefficient());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
         JsonUtil.writeOptionalStringField(jsonGenerator, "voltageMapType", parameters.getVoltageMapType() != null ? parameters.getVoltageMapType().name() : null);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useResistances", parameters.isUseResistances(), true);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useLoads", parameters.isUseLoads(), true);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useCapacities", parameters.isUseCapacities(), true);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useResistances", parameters.isUseResistances(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useLoads", parameters.isUseLoads(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "useCapacities", parameters.isUseCapacities(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "useShunts", parameters.isUseShunts(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "useTapChangers", parameters.isUseTapChangers(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "useMutuals", parameters.isUseMutuals(), false);

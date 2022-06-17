@@ -182,15 +182,25 @@ public class FaultParameters {
             return false;
         }
         FaultParameters that = (FaultParameters) o;
-        return withLimitViolations == that.withLimitViolations && withVoltageMap == that.withVoltageMap && withFeederResult == that.withFeederResult &&
-                Double.compare(that.subTransStudyReactanceCoefficient, subTransStudyReactanceCoefficient) == 0 &&
-                Double.compare(that.minVoltageDropProportionalThreshold, minVoltageDropProportionalThreshold) == 0 &&
-                useResistances == that.useResistances && useLoads == that.useLoads && useCapacities == that.useCapacities &&
-                useShunts == that.useShunts && useTapChangers == that.useTapChangers && useMutuals == that.useMutuals && modelVSC == that.modelVSC &&
-                Double.compare(that.startedGroupsInsideZoneThreshold, startedGroupsInsideZoneThreshold) == 0 &&
-                Double.compare(that.startedGroupsOutOfZoneThreshold, startedGroupsOutOfZoneThreshold) == 0 && id.equals(that.id) &&
-                studyType == that.studyType && voltageMapType == that.voltageMapType && startedGroupsInsideZone == that.startedGroupsInsideZone &&
-                startedGroupsOutOfZone == that.startedGroupsOutOfZone;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(withLimitViolations, that.withLimitViolations) &&
+                Objects.equals(withVoltageMap, that.withVoltageMap) &&
+                Objects.equals(withFeederResult, that.withFeederResult) &&
+                Objects.equals(studyType, that.studyType) &&
+                Objects.equals(subTransStudyReactanceCoefficient, that.subTransStudyReactanceCoefficient) &&
+                Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold) &&
+                Objects.equals(voltageMapType, that.voltageMapType) &&
+                Objects.equals(useResistances, that.useResistances) &&
+                Objects.equals(useLoads, that.useLoads) &&
+                Objects.equals(useCapacities, that.useCapacities) &&
+                Objects.equals(useShunts, that.useShunts) &&
+                Objects.equals(useTapChangers, that.useTapChangers) &&
+                Objects.equals(useMutuals, that.useMutuals) &&
+                Objects.equals(modelVSC, that.modelVSC) &&
+                Objects.equals(startedGroupsInsideZone, that.startedGroupsInsideZone) &&
+                Objects.equals(startedGroupsInsideZoneThreshold, that.startedGroupsInsideZoneThreshold) &&
+                Objects.equals(startedGroupsOutOfZone, that.startedGroupsOutOfZone) &&
+                Objects.equals(startedGroupsOutOfZoneThreshold, that.startedGroupsOutOfZoneThreshold);
     }
 
     @Override

@@ -99,6 +99,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         }
     }
 
+    /** Whether the result should indicate a limit violation */
     public boolean isWithLimitViolations() {
         return withLimitViolations;
     }
@@ -108,6 +109,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the results should include the voltage map on the whole network */
     public boolean isWithVoltageMap() {
         return withVoltageMap;
     }
@@ -117,6 +119,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the results should include the currents from connectables */
     public boolean isWithFeederResult() {
         return withFeederResult;
     }
