@@ -141,6 +141,51 @@ public class DanglingLineDataTest {
         assertTrue(ok);
     }
 
+    @Test
+    public void testIncreaseQ0ToForceVoltageCollapse() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setP0Q0ToForceVoltageCollapse();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, Double.NaN, Double.NaN);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, Double.NaN, Double.NaN);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, Double.NaN, Double.NaN);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testGenerationControlVoltageCollapseHighVsetpoint() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setGenerationControlVoltageCollapseHighVsetpoint();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.9021364892158, -8.569386864781194);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, -550.9507830807831, -435.8385869096061);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 551.10, 436.27);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testGenerationControlVoltageCollapseLowVsetpoint() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setGenerationControlVoltageCollapseLowVsetpoint();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.4102798132545, -8.552014194201389);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, -550.9118870878652, 564.3171970786386);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 551.10, -563.73);
+        assertTrue(ok);
+    }
+
     private static boolean dlCompareBoundaryBusVoltage(DanglingLineData dlData, double boundaryBusU, double boundaryBusAngle) {
         double tol = 0.00001;
         if (!compareNaN(boundaryBusU, dlData.getBoundaryBusU())

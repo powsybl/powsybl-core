@@ -142,4 +142,33 @@ class DanglingLineTestData {
         Mockito.when(reactiveLimits.getMinQ(-P0 * 0.5)).thenReturn(-10.0);
         Mockito.when(reactiveLimits.getMaxQ(-P0 * 0.5)).thenReturn(100.0);
     }
+
+    public void setP0Q0ToForceVoltageCollapse() {
+        Mockito.when(danglingLine.getP0()).thenReturn(160000.0);
+        Mockito.when(danglingLine.getQ0()).thenReturn(160000.0);
+    }
+
+    public void setGenerationControlVoltageCollapseHighVsetpoint() {
+        Mockito.when(generation.isVoltageRegulationOn()).thenReturn(true);
+        Mockito.when(generation.getTargetP()).thenReturn(-P0 * 0.5);
+        Mockito.when(generation.getTargetV()).thenReturn(2000.0);
+
+        reactiveLimits = Mockito.mock(ReactiveLimits.class);
+        Mockito.when(generation.getReactiveLimits()).thenReturn(reactiveLimits);
+
+        Mockito.when(reactiveLimits.getMinQ(-P0 * 0.5)).thenReturn(-500.0);
+        Mockito.when(reactiveLimits.getMaxQ(-P0 * 0.5)).thenReturn(500.0);
+    }
+
+    public void setGenerationControlVoltageCollapseLowVsetpoint() {
+        Mockito.when(generation.isVoltageRegulationOn()).thenReturn(true);
+        Mockito.when(generation.getTargetP()).thenReturn(-P0 * 0.5);
+        Mockito.when(generation.getTargetV()).thenReturn(0.1);
+
+        reactiveLimits = Mockito.mock(ReactiveLimits.class);
+        Mockito.when(generation.getReactiveLimits()).thenReturn(reactiveLimits);
+
+        Mockito.when(reactiveLimits.getMinQ(-P0 * 0.5)).thenReturn(-500.0);
+        Mockito.when(reactiveLimits.getMaxQ(-P0 * 0.5)).thenReturn(500.0);
+    }
 }
