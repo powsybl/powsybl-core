@@ -30,6 +30,8 @@ public class DanglingLineDataTest {
         assertTrue(ok);
         ok = dlCompareNetworkActiveAndReactivePower(dlData, -367.35795801563415, 63.73282249057797);
         assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 367.40, -63.73);
+        assertTrue(ok);
     }
 
     @Test
@@ -43,6 +45,8 @@ public class DanglingLineDataTest {
         boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.6200406620039, -8.60000143239463);
         assertTrue(ok);
         ok = dlCompareNetworkActiveAndReactivePower(dlData, 0.000000002048243, -0.1653398325668502);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 0.0, 0.0);
         assertTrue(ok);
     }
 
@@ -58,6 +62,8 @@ public class DanglingLineDataTest {
         assertTrue(ok);
         ok = dlCompareNetworkActiveAndReactivePower(dlData, -367.35795801563415, 63.73282249057797);
         assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 367.40, -63.73);
+        assertTrue(ok);
     }
 
     @Test
@@ -67,15 +73,80 @@ public class DanglingLineDataTest {
         DanglingLine danglingLine = dlTestData.getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
 
-        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.62, -8.60);
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, Double.NaN, Double.NaN);
         assertTrue(ok);
-        ok = dlCompareNetworkActiveAndReactivePower(dlData, -367.40, 63.73);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, Double.NaN, Double.NaN);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, Double.NaN, Double.NaN);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testNetworkFlow() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setNetworkFlow();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.63382758266334, -8.573434828294932);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, -367.35795801563415, 63.73282249057797);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 367.40, -63.73);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testGenerationControl() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setGenerationControl();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.60, -8.558715082646454);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, -550.9985402563893, 178.54356710697186);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 551.10, -178.3030598246199);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testGenerationControlSaturatedAtQmin() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setGenerationControlSaturatedAtQmin();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.6514429130987, -8.560532069207145);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, -551.0065296776671, 73.93852867914545);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 551.10, -73.73);
+        assertTrue(ok);
+    }
+
+    @Test
+    public void testGenerationControlSaturatedAtQmax() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setGenerationControlSaturatedAtQmax();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.7055410334431, -8.562442852961746);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, -551.0077946191535, -36.06655308730602);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 551.10, 36.27);
         assertTrue(ok);
     }
 
     private static boolean dlCompareBoundaryBusVoltage(DanglingLineData dlData, double boundaryBusU, double boundaryBusAngle) {
         double tol = 0.00001;
-        if (Math.abs(dlData.getBoundaryBusU() - boundaryBusU) > tol || Math.abs(Math.toDegrees(dlData.getBoundaryBusTheta()) - boundaryBusAngle) > tol) {
+        if (!compareNaN(boundaryBusU, dlData.getBoundaryBusU())
+            || !compareNaN(boundaryBusAngle, dlData.getBoundaryBusTheta())
+            || Math.abs(dlData.getBoundaryBusU() - boundaryBusU) > tol
+            || Math.abs(Math.toDegrees(dlData.getBoundaryBusTheta()) - boundaryBusAngle) > tol) {
             LOG.info("DanglingLine {} Expected {} {} Actual {} {}", dlData.getId(),
                 boundaryBusU, boundaryBusAngle, dlData.getBoundaryBusU(), Math.toDegrees(dlData.getBoundaryBusTheta()));
             return false;
@@ -85,12 +156,32 @@ public class DanglingLineDataTest {
 
     private static boolean dlCompareNetworkActiveAndReactivePower(DanglingLineData dlData, double activePower, double reactivePower) {
         double tol = 0.00001;
-        if (Math.abs(dlData.getP() - activePower) > tol || Math.abs(dlData.getQ() - reactivePower) > tol) {
+        if (!compareNaN(activePower, dlData.getNetworkFlowP())
+            || !compareNaN(reactivePower, dlData.getNetworkFlowQ())
+            || Math.abs(dlData.getNetworkFlowP() - activePower) > tol
+            || Math.abs(dlData.getNetworkFlowQ() - reactivePower) > tol) {
             LOG.info("DanglingLine {} Expected {} {} Actual {} {}", dlData.getId(),
-                activePower, reactivePower, dlData.getP(), dlData.getQ());
+                activePower, reactivePower, dlData.getNetworkFlowP(), dlData.getNetworkFlowQ());
             return false;
         }
         return true;
+    }
+
+    private static boolean dlCompareBoundaryActiveAndReactivePower(DanglingLineData dlData, double activePower, double reactivePower) {
+        double tol = 0.00001;
+        if (!compareNaN(activePower, dlData.getBoundaryFlowP())
+            || !compareNaN(reactivePower, dlData.getBoundaryFlowQ())
+            || Math.abs(dlData.getBoundaryFlowP() - activePower) > tol
+            || Math.abs(dlData.getBoundaryFlowQ() - reactivePower) > tol) {
+            LOG.info("DanglingLine {} Expected {} {} Actual {} {}", dlData.getId(),
+                activePower, reactivePower, dlData.getBoundaryFlowP(), dlData.getBoundaryFlowQ());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean compareNaN(double expected, double actual) {
+        return !(Double.isNaN(expected) && !Double.isNaN(actual) || !Double.isNaN(expected) && Double.isNaN(actual));
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(DanglingLineDataTest.class);

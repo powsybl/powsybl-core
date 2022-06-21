@@ -25,45 +25,26 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getV() {
-        if (valid(parent.getP0(), parent.getQ0())) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-            return danglingLineData.getBoundaryBusU();
-        }
-
-        Terminal t = parent.getTerminal();
-        Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideU(parent, true);
+        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+        return danglingLineData.getBoundaryBusU();
     }
 
     @Override
     public double getAngle() {
-        if (valid(parent.getP0(), parent.getQ0())) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-            return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
-        }
-        Terminal t = parent.getTerminal();
-        Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideA(parent, true);
+        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+        return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
     }
 
     @Override
     public double getP() {
-        if (valid(parent.getP0(), parent.getQ0())) {
-            return -parent.getP0();
-        }
-        Terminal t = parent.getTerminal();
-        Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
+        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+        return danglingLineData.getBoundaryFlowP();
     }
 
     @Override
     public double getQ() {
-        if (valid(parent.getP0(), parent.getQ0())) {
-            return -parent.getQ0();
-        }
-        Terminal t = parent.getTerminal();
-        Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
+        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+        return danglingLineData.getBoundaryFlowQ();
     }
 
     @Override
@@ -79,17 +60,5 @@ public class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public VoltageLevel getVoltageLevel() {
         return parent.getTerminal().getVoltageLevel();
-    }
-
-    private static double getV(Bus b) {
-        return b == null ? Double.NaN : b.getV();
-    }
-
-    private static double getAngle(Bus b) {
-        return b == null ? Double.NaN : b.getAngle();
-    }
-
-    private static boolean valid(double p0, double q0) {
-        return !Double.isNaN(p0) && !Double.isNaN(q0);
     }
 }
