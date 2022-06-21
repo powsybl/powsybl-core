@@ -11,6 +11,9 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreFactory;
+import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -43,6 +46,19 @@ public class SourceForIidmIdentifiersTest {
         importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_RDFID);
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
         network.getIdentifiables().forEach(idf -> assertTrue(idf.getId().startsWith("_") || idf.getId().startsWith("urn:uuid:")));
+    }
+
+    @Test
+    public void tipleStoreOptions() {
+        TripleStoreOptions options0 = new TripleStoreOptions();
+        assertTrue(options0.isRemoveInitialUnderscoreForIdentifiers());
+        TripleStoreOptions options1 = new TripleStoreOptions(true);
+        assertTrue(options1.isRemoveInitialUnderscoreForIdentifiers());
+        TripleStoreOptions options2 = new TripleStoreOptions(false);
+        assertFalse(options2.isRemoveInitialUnderscoreForIdentifiers());
+
+        TripleStore ts = TripleStoreFactory.create(options2);
+        assertFalse(ts.getOptions().isRemoveInitialUnderscoreForIdentifiers());
     }
 
 }
