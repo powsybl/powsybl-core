@@ -166,6 +166,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void switches() {
+        assertTrue(importAndCompareXiidm("Switches"));
+    }
+
+    @Test
     public void transformerPhaseGBComplete() {
         assertTrue(importJsonAndCompareXiidm("Transformer-Phase-GB-complete"));
     }
