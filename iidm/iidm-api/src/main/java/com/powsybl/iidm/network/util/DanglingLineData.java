@@ -43,8 +43,8 @@ public class DanglingLineData {
             boundaryBusTheta = Double.NaN;
             boundaryFlowP = Double.NaN;
             boundaryFlowQ = Double.NaN;
-            networkFlowP = Double.isNaN(danglingLine.getTerminal().getP()) ? Double.NaN : danglingLine.getTerminal().getP();
-            networkFlowQ = Double.isNaN(danglingLine.getTerminal().getQ()) ? Double.NaN : danglingLine.getTerminal().getQ();
+            networkFlowP = danglingLine.getTerminal().getP();
+            networkFlowQ = danglingLine.getTerminal().getQ();
             return;
         }
 
@@ -66,8 +66,8 @@ public class DanglingLineData {
         } else {
             boundaryFlowP = Double.NaN;
             boundaryFlowQ = Double.NaN;
-            networkFlowP = Double.isNaN(danglingLine.getTerminal().getP()) ? Double.NaN : danglingLine.getTerminal().getP();
-            networkFlowQ = Double.isNaN(danglingLine.getTerminal().getQ()) ? Double.NaN : danglingLine.getTerminal().getQ();
+            networkFlowP = danglingLine.getTerminal().getP();
+            networkFlowQ = danglingLine.getTerminal().getQ();
         }
     }
 
