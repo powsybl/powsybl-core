@@ -8,7 +8,11 @@ package com.powsybl.powerfactory.converter;
 
 import org.junit.Test;
 
+import com.powsybl.powerfactory.converter.TransformerConverter.TransformerModel;
+
 import static org.junit.Assert.assertEquals;
+
+import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,10 +21,11 @@ public class TransformerModelTest {
 
     @Test
     public void test() {
-        TransformerModel transformerModel = TransformerModel.fromMeasures(13.806, 3.42, 0, 0, 85.5, 225);
-        assertEquals(4.5143440105263144E-4, transformerModel.getR(), 0);
-        assertEquals(11.285860017287098, transformerModel.getX(), 0);
-        assertEquals(0, transformerModel.getG(), 0);
-        assertEquals(0, transformerModel.getB(), 0);
+        Complex impedance = TransformerModel.createImpedanceFromMeasures(13.806, 3.42, 85.5, 225);
+        Complex shuntAdmittance = TransformerModel.createShuntAdmittanceFromMeasures(0, 0, 85.5, 225);
+        assertEquals(0.023684210526315787, impedance.getReal(), 0);
+        assertEquals(81.74604920057632, impedance.getImaginary(), 0);
+        assertEquals(0, shuntAdmittance.getReal(), 0);
+        assertEquals(0, shuntAdmittance.getImaginary(), 0);
     }
 }

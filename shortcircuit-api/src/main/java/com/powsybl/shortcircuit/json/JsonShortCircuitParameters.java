@@ -14,7 +14,6 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
-import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisJsonModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,18 +28,27 @@ import java.util.function.Supplier;
  * @author Boubakeur Brahimi
  */
 public final class JsonShortCircuitParameters {
+    /**
+     * A configuration loader interface for the {@link JsonShortCircuitParameters} extensions loaded from the platform configuration
+     * @param <E> The extension class
+     */
     public interface ExtensionSerializer<E extends Extension<ShortCircuitParameters>> extends ExtensionJsonSerializer<ShortCircuitParameters, E> {
     }
 
+    /**
+     *  Lazily initialized list of extension serializers.
+     */
     private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "short-circuit-parameters"));
 
+    /**
+     *  Gets the known extension serializers.
+     */
     public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
         return SUPPLIER.get();
     }
 
     private JsonShortCircuitParameters() {
-
     }
 
     public static ShortCircuitParameters update(ShortCircuitParameters parameters, Path jsonFile) {

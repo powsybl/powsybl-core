@@ -10,9 +10,6 @@ import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptorMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -44,27 +41,19 @@ public class ShortCircuitAnalysisTest {
             }
 
             @Override
-            public void addInterceptor(final ShortCircuitAnalysisInterceptor interceptor) {
+            public CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
+                                                                     List<Fault> fault,
+                                                                     ShortCircuitParameters parameters,
+                                                                     ComputationManager computationManager,
+                                                                     List<FaultParameters> faultParameters) {
 
-            }
-
-            @Override
-            public boolean removeInterceptor(final ShortCircuitAnalysisInterceptor interceptor) {
-                return false;
-            }
-
-            @Override
-            public CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters,
-                                                                     ComputationManager computationManager) {
-
-                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList(), Collections.emptyList()));
+                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
             }
         };
 
-        ShortCircuitAnalysisResult res = provider.run(null, null, null).join();
+        ShortCircuitAnalysisResult res = provider.run(null, null, null, null, null).join();
 
         assertEquals(0, res.getFaultResults().size());
-        assertEquals(0, res.getLimitViolations().size());
     }
 
     private static final String DEFAULT_PROVIDER_NAME = "ShortCircuitAnalysisMock";
@@ -72,6 +61,8 @@ public class ShortCircuitAnalysisTest {
     private Network network;
     private ComputationManager computationManager;
     private ShortCircuitParameters shortCircuitParameters;
+    private List<Fault> faults;
+    private List<FaultParameters> faultParameters;
 
     @Before
     public void setUp() {
@@ -81,6 +72,15 @@ public class ShortCircuitAnalysisTest {
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
         computationManager = Mockito.mock(ComputationManager.class);
         shortCircuitParameters = Mockito.mock(ShortCircuitParameters.class);
+        faults = Mockito.mock(List.class);
+        faultParameters = Mockito.mock(List.class);
+    }
+
+    @Test
+    public void test() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
+        assertNotNull(result.getFaultResult("Fault_ID_1"));
+        assertEquals(2, result.getFaultResults("BusId").size());
     }
 
     @Test
@@ -92,32 +92,32 @@ public class ShortCircuitAnalysisTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, shortCircuitParameters, computationManager);
+        CompletableFuture<ShortCircuitAnalysisResult> result = ShortCircuitAnalysis.runAsync(network, faults, shortCircuitParameters, computationManager, faultParameters);
         assertNotNull(result.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutComputationManager() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, faultParameters);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithoutParameters() {
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults);
         assertNotNull(result);
     }
 
     @Test
     public void testWithReporter() {
         ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, shortCircuitParameters, computationManager, reporter);
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
         assertNotNull(result);
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
@@ -128,15 +128,14 @@ public class ShortCircuitAnalysisTest {
     }
 
     @Test
-    public void testInterceptor() {
-        Network network = EurostagTutorialExample1Factory.create();
-        ShortCircuitAnalysisInterceptorMock interceptorMock = new ShortCircuitAnalysisInterceptorMock();
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysisMock.runWithNonEmptyResult();
-        assertNotNull(result);
-
-        List<FaultResult> faultResult = result.getFaultResults();
-        interceptorMock.onFaultResult(network, faultResult.get(0));
-        interceptorMock.onLimitViolation(network, result.getLimitViolations().get(0));
-        interceptorMock.onShortCircuitResult(network, result);
+    public void testFortescueTransformation() {
+        // test based on a result given in degrees for both fortescue and phase
+        double pi = Math.PI;
+        FortescueValue fortescueValue = new FortescueValue(86.8086319, 0., 0., 1.83823431 * pi / 180, 0., 0.);
+        FortescueValue.ThreePhaseValue threePhaseValue = fortescueValue.toThreePhaseValue();
+        assertEquals(50.118988, threePhaseValue.getMagnitude1(), 0.00001);
+        assertEquals(1.83823431 * pi / 180, threePhaseValue.getAngle1(), 0.00001);
+        assertEquals(-118.161751 * pi / 180, threePhaseValue.getAngle2(), 0.00001);
+        assertEquals(121.838219 * pi / 180, threePhaseValue.getAngle3(), 0.00001);
     }
 }

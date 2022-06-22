@@ -14,9 +14,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -109,6 +107,48 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
         Network actual = exportImportBusBranchNoBoundaries(expected, dataSource);
         compareNetworksEQdata(expected, actual);
+    }
+
+    @Test
+    public void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection().dataSource();
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network actual = exportImportBusBranch(expected, dataSource);
+        compareNetworksEQdata(expected, actual);
+    }
+
+    @Test
+    public void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+
+        network.newExtension(CgmesControlAreasAdder.class).add();
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                .setId("controlAreaId")
+                .setName("controlAreaName")
+                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
+                .setNetInterchange(Double.NaN)
+                .add();
+        TieLine tieLine = (TieLine) network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        cgmesControlArea.add(tieLine.getHalf2().getBoundary());
+
+        // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
+        //  instead of an error logged and the tie flow ignored,
+        //  the reimported network control area should contain one tie flow
+        Network actual = exportImportNodeBreaker(network, dataSource);
+        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
+        boolean tieFlowsAtTieLinesAreSupported = false;
+        if (tieFlowsAtTieLinesAreSupported) {
+            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
+            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getConnectable().getId());
+        } else {
+            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
+        }
     }
 
     @Test
@@ -410,7 +450,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network);
+            CgmesExportContext context = new CgmesExportContext(network).setExportEquipment(true);
             EquipmentExport.write(network, writer, context);
         }
 

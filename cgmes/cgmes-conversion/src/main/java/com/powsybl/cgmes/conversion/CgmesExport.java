@@ -71,7 +71,7 @@ public class CgmesExport implements Exporter {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
         try {
-            List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER);
+            List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
             if (profiles.contains("EQ")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameEq, false))) {
                     XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);

@@ -1,0 +1,18 @@
+[ {
+  "type" : "BRANCH",
+  "id" : "F1",
+  "elementId" : "branchId",
+  "r" : 1.0,
+  "x" : 2.0,
+  "connection" : "PARALLEL",
+  "faultType" : "SINGLE_PHASE",
+  "proportionalLocation" : 3.0
+}, {
+  "type" : "BUS",
+  "id" : "F2",
+  "elementId" : "busId",
+  "r" : 1.1,
+  "x" : 2.2,
+  "connection" : "SERIES",
+  "faultType" : "THREE_PHASE"
+} ]

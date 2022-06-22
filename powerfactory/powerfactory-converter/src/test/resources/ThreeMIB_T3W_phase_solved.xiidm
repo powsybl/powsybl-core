@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="ThreeMIB_T3W_phase_solved" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="VL0" nominalV="18.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL0_1 1" node="0"/>
+                <iidm:switch id="VL0_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL0_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:bus v="18.719999313354492" angle="51.73326110839844" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="1404.0" voltageRegulatorOn="true" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="1">
+                <iidm:minMaxReactiveLimits minQ="-9900.0009765625" maxQ="9900.0009765625"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL1" nominalV="18.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL1_2 2" node="0"/>
+                <iidm:switch id="VL1_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL1_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:bus v="18.719999313354492" angle="69.67826080322266" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="sym_2_1" energySource="OTHER" minP="0.0" maxP="1404.0" voltageRegulatorOn="true" targetP="1404.0" targetV="18.719999313354492" targetQ="0.0" node="1">
+                <iidm:minMaxReactiveLimits minQ="-9900.0009765625" maxQ="9900.0009765625"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL3" nominalV="500.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL3_4 4" node="0"/>
+                <iidm:switch id="VL3_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL3_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL3_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL3_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
+                <iidm:bus v="493.4682312011719" angle="46.70308303833008" nodes="0,1,2,3,4"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="lod_4_1" loadType="UNDEFINED" p0="1400.0" q0="100.0" node="2"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL6" nominalV="16.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL6_7 7" node="0"/>
+                <iidm:switch id="VL6_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL6_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:bus v="15.624289512634277" angle="54.178287506103516" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="lod_7_1" loadType="UNDEFINED" p0="1.0" q0="1.0" node="1"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="trf_4_1_1" r="0.0" x="0.020768399119377133" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="4" voltageLevelId1="VL3" node2="2" voltageLevelId2="VL0">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" loadTapChangingCapabilities="false">
+                <iidm:step r="-76.82265450419209" x="-76.82265450419209" g="331.4557938400971" b="331.4557938400971" rho="0.4814285564422608"/>
+                <iidm:step r="-72.06122593003874" x="-72.06122593003874" g="257.9255115116748" b="257.9255115116748" rho="0.5285714149475098"/>
+                <iidm:step r="-66.85530753427622" x="-66.85530753427622" g="201.70743054386128" b="201.70743054386128" rho="0.5757142734527587"/>
+                <iidm:step r="-61.20489931690448" x="-61.20489931690448" g="157.76450695892575" b="157.76450695892575" rho="0.6228571319580078"/>
+                <iidm:step r="-55.11000127792358" x="-55.11000127792358" g="122.76676954063062" b="122.76676954063062" rho="0.6699999904632568"/>
+                <iidm:step r="-48.570613417333476" x="-48.570613417333476" g="94.44136250636022" b="94.44136250636022" rho="0.7171428489685059"/>
+                <iidm:step r="-41.5867357351342" x="-41.5867357351342" g="71.19399379320019" b="71.19399379320019" rho="0.764285707473755"/>
+                <iidm:step r="-34.15836823132573" x="-34.15836823132573" g="51.879589423507255" b="51.879589423507255" rho="0.8114285659790039"/>
+                <iidm:step r="-26.285510905908072" x="-26.285510905908072" g="35.658540442919254" b="35.658540442919254" rho="0.8585714244842528"/>
+                <iidm:step r="-17.96816375888124" x="-17.96816375888124" g="21.903890711487726" b="21.903890711487726" rho="0.905714282989502"/>
+                <iidm:step r="-9.206326790245212" x="-9.206326790245212" g="10.139832947364535" b="10.139832947364535" rho="0.9528571414947511"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="9.65081661185443" x="9.65081661185443" g="-8.801408790247967" b="-8.801408790247967" rho="1.0471428585052491"/>
+                <iidm:step r="19.746123045317976" x="19.746123045317976" g="-16.489989440280283" b="-16.489989440280283" rho="1.094285717010498"/>
+                <iidm:step r="30.28591930039073" x="30.28591930039073" g="-23.245734813877085" b="-23.245734813877085" rho="1.141428575515747"/>
+                <iidm:step r="41.27020537707271" x="41.27020537707271" g="-29.21366558993522" b="-29.21366558993522" rho="1.188571434020996"/>
+                <iidm:step r="52.69898127536388" x="52.69898127536388" g="-34.511678359092116" b="-34.511678359092116" rho="1.2357142925262452"/>
+                <iidm:step r="64.57224699526417" x="64.57224699526417" g="-39.236413292164826" b="-39.236413292164826" rho="1.2828571510314941"/>
+                <iidm:step r="76.89000253677372" x="76.89000253677372" g="-43.467692596583596" b="-43.467692596583596" rho="1.3300000095367432"/>
+                <iidm:step r="89.65224789989239" x="89.65224789989239" g="-47.271914196986046" b="-47.271914196986046" rho="1.3771428680419922"/>
+                <iidm:step r="102.85898308462032" x="102.85898308462032" g="-50.704672536839965" b="-50.704672536839965" rho="1.4242857265472413"/>
+                <iidm:step r="116.51020809095733" x="116.51020809095733" g="-53.81280130773818" b="-53.81280130773818" rho="1.4714285850524902"/>
+                <iidm:step r="130.60592291890356" x="130.60592291890356" g="-56.635979365037095" b="-56.635979365037095" rho="1.518571443557739"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:threeWindingsTransformer id="tr3_4_2_7_1" r1="-7.799049110263946E-7" x1="1.1395922102037156E-4" g1="0.14457200622558594" b1="-0.10790173166599534" ratedU1="500.0" ratedS1="101.0" r2="2.5065552122616057E-6" x2="1.9130867337766516E-4" g2="0.0" b2="0.0" ratedU2="18.23699951171875" ratedS2="201.0" r3="8.390848909671972E-7" x3="5.517907605617501E-4" g3="0.0" b3="0.0" ratedU3="15.998000144958496" ratedS3="301.0" ratedU0="1.0" node1="3" voltageLevelId1="VL3" node2="2" voltageLevelId2="VL1" node3="2" voltageLevelId3="VL6">
+            <iidm:phaseTapChanger1 lowTapPosition="0" tapPosition="2" regulationMode="FIXED_TAP">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="2.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.0"/>
+            </iidm:phaseTapChanger1>
+        </iidm:threeWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="S2">
+        <iidm:voltageLevel id="VL2" nominalV="18.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL2_3 3" node="0"/>
+                <iidm:switch id="VL2_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL2_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:bus v="18.360000610351562" angle="19.876766204833984" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="sym_3_1" energySource="OTHER" minP="0.0" maxP="800.0" voltageRegulatorOn="true" targetP="800.0" targetV="18.359999656677246" targetQ="0.0" node="1">
+                <iidm:minMaxReactiveLimits minQ="-9900.00390625" maxQ="9900.00390625"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL4" nominalV="500.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL4_5 5" node="0"/>
+                <iidm:switch id="VL4_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL4_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL4_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL4_Switch#2" kind="BREAKER" retained="false" open="true" node1="0" node2="4"/>
+                <iidm:switch id="VL4_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:bus v="482.2877502441406" angle="14.651644706726074" nodes="0,1,2,3,5"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="2000.0" q0="100.0" node="3"/>
+            <iidm:load id="lod_5_2" loadType="UNDEFINED" p0="0.0" q0="50.0" node="4"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="trf_5_3_1" r="0.0" x="0.036288000154495244" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="5" voltageLevelId1="VL4" node2="2" voltageLevelId2="VL2">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" loadTapChangingCapabilities="false">
+                <iidm:step r="-10.201804147623294" x="-10.201804147623294" g="11.360811930336002" b="11.360811930336002" rho="0.9476190999150276"/>
+                <iidm:step r="-9.297043098613834" x="-9.297043098613834" g="10.249988992885584" b="10.249988992885584" rho="0.9523809999227525"/>
+                <iidm:step r="-8.387746911267657" x="-8.387746911267657" g="9.15570420819536" b="9.15570420819536" rho="0.9571428999304772"/>
+                <iidm:step r="-7.473915585584779" x="-7.473915585584779" g="8.077630900395437" b="8.077630900395437" rho="0.9619047999382018"/>
+                <iidm:step r="-6.555549121565174" x="-6.555549121565174" g="7.015450419943625" b="7.015450419943625" rho="0.9666666999459267"/>
+                <iidm:step r="-5.632647519208877" x="-5.632647519208877" g="5.968851908137851" b="5.968851908137851" rho="0.9714285999536514"/>
+                <iidm:step r="-4.705210778515845" x="-4.705210778515845" g="4.937532069649686" b="4.937532069649686" rho="0.9761904999613762"/>
+                <iidm:step r="-3.7732388994860866" x="-3.7732388994860866" g="3.9211949527686363" b="3.9211949527686363" rho="0.980952399969101"/>
+                <iidm:step r="-2.8367318821196474" x="-2.8367318821196474" g="2.9195517370598" b="2.9195517370598" rho="0.9857142999768257"/>
+                <iidm:step r="-1.8956897264164718" x="-1.8956897264164718" g="1.9323205281500444" b="1.9323205281500444" rho="0.9904761999845505"/>
+                <iidm:step r="-0.9501124323766041" x="-0.9501124323766041" g="0.9592261593714069" b="0.9592261593714069" rho="0.9952380999922752"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="0.9546475707133073" x="0.9546475707133073" g="-0.9456202301579286" b="-0.9456202301579286" rho="1.0047619000077248"/>
+                <iidm:step r="1.913830279763351" x="1.913830279763351" g="-1.877890640072799" b="-1.877890640072799" rho="1.0095238000154496"/>
+                <iidm:step r="2.8775481271500425" x="2.8775481271500425" g="-2.7970613409191825" b="-2.7970613409191825" rho="1.0142857000231742"/>
+                <iidm:step r="3.845801112873515" x="3.845801112873515" g="-3.703376613844389" b="-3.703376613844389" rho="1.019047600030899"/>
+                <iidm:step r="4.818589236933679" x="4.818589236933679" g="-4.5970750722867155" b="-4.5970750722867155" rho="1.0238095000386238"/>
+                <iidm:step r="5.79591249933058" x="5.79591249933058" g="-5.478389819046415" b="-5.478389819046415" rho="1.0285714000463486"/>
+                <iidm:step r="6.777770900064173" x="6.777770900064173" g="-6.347548598301089" b="-6.347548598301089" rho="1.0333333000540734"/>
+                <iidm:step r="7.7641644391344355" x="7.7641644391344355" g="-7.204773942751319" b="-7.204773942751319" rho="1.038095200061798"/>
+                <iidm:step r="8.75509311654148" x="8.75509311654148" g="-8.050283316073815" b="-8.050283316073815" rho="1.0428571000695228"/>
+                <iidm:step r="9.750556932285214" x="9.750556932285214" g="-8.884289250851996" b="-8.884289250851996" rho="1.0476190000772476"/>
+                <iidm:step r="10.750555886365664" x="10.750555886365664" g="-9.706999482148104" b="-9.706999482148104" rho="1.0523809000849724"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="S3">
+        <iidm:voltageLevel id="VL5" nominalV="500.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL5_6 6" node="0"/>
+                <iidm:switch id="VL5_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL5_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL5_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:bus v="500.0" angle="0.0" nodes="0,1,2,3"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="sym_6_1" energySource="OTHER" minP="0.0" maxP="9796.6845703125" voltageRegulatorOn="true" targetP="9796.6845703125" targetV="500.0" targetQ="0.0" node="3">
+                <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
+            </iidm:generator>
+            <iidm:load id="lod_6_1" loadType="UNDEFINED" p0="10000.0" q0="2000.0" node="2"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="lne_4_5_1" r="0.0" x="90.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL3" node2="1" voltageLevelId2="VL4"/>
+    <iidm:line id="lne_5_6_1" r="0.0" x="300.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL4" node2="1" voltageLevelId2="VL5"/>
+</iidm:network>
