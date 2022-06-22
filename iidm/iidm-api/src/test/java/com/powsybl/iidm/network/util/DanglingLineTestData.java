@@ -95,6 +95,11 @@ class DanglingLineTestData {
         Mockito.when(generation.getTargetQ()).thenReturn(-Q0 * 0.5);
     }
 
+    public void setInvalidNetworkVoltage() {
+        Mockito.when(bus.getV()).thenReturn(Double.NaN);
+        Mockito.when(bus.getAngle()).thenReturn(Double.NaN);
+    }
+
     public void setZ0() {
         Mockito.when(danglingLine.getR()).thenReturn(0.0);
         Mockito.when(danglingLine.getX()).thenReturn(0.0);

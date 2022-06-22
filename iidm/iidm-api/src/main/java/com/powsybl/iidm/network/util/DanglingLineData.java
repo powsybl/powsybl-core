@@ -38,11 +38,21 @@ public class DanglingLineData {
         double networkU = getV(danglingLine);
         double networkTheta = getTheta(danglingLine);
 
-        if (isZ0(danglingLine) || !isVoltageValid(networkU, networkTheta)) {
+        if (!isVoltageValid(networkU, networkTheta)) {
             boundaryBusU = Double.NaN;
             boundaryBusTheta = Double.NaN;
-            boundaryFlowP = Double.NaN;
-            boundaryFlowQ = Double.NaN;
+            boundaryFlowP = isZ0(danglingLine) ? danglingLine.getTerminal().getP() : Double.NaN;
+            boundaryFlowQ = isZ0(danglingLine) ? danglingLine.getTerminal().getQ() : Double.NaN;
+            networkFlowP = danglingLine.getTerminal().getP();
+            networkFlowQ = danglingLine.getTerminal().getQ();
+            return;
+        }
+
+        if (isZ0(danglingLine)) {
+            boundaryBusU = networkU;
+            boundaryBusTheta = networkTheta;
+            boundaryFlowP = danglingLine.getTerminal().getP();
+            boundaryFlowQ = danglingLine.getTerminal().getQ();
             networkFlowP = danglingLine.getTerminal().getP();
             networkFlowQ = danglingLine.getTerminal().getQ();
             return;
@@ -193,7 +203,7 @@ public class DanglingLineData {
             new Complex(g1, b1), new Complex(g2, b2));
     }
 
-    private static boolean isZ0(DanglingLine dl) {
+    public static boolean isZ0(DanglingLine dl) {
         return dl.getR() == 0.0 && dl.getX() == 0.0 && dl.getG() == 0.0 && dl.getB() == 0.0;
     }
 
