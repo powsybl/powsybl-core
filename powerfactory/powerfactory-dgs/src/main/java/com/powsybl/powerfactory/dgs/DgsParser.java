@@ -77,13 +77,13 @@ public class DgsParser {
             } else if (isVectorHeader(fields, index)) {
                 index = readVectorHeader(fields, index, fields.length, handler, context);
             } else {
-                readSingleHeader(fields, index, handler, context);
+                readAttributeHeader(fields, index, handler, context);
             }
             index++;
         }
     }
 
-    private static int readSingleHeader(String[] fields, int index, DgsHandler handler, ParsingContext context) {
+    private static int readAttributeHeader(String[] fields, int index, DgsHandler handler, ParsingContext context) {
         AttributeHeader attributeHeader = readAttributeHeader(fields, index);
 
         handler.onAttributeDescription(attributeHeader.attributeName, attributeHeader.attributeType);
