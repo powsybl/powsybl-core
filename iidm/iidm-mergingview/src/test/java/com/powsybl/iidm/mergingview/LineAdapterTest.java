@@ -79,12 +79,21 @@ public class LineAdapterTest {
         assertEquals(b2, lineAdapted.getB2(), 0.0);
         lineAdapted.setB2(++b2);
         assertEquals(b2, lineAdapted.getB2(), 0.0);
+
         assertSame(lineRef.getCurrentLimits1().orElse(null), lineAdapted.getCurrentLimits1().orElse(null));
         assertSame(lineRef.getActivePowerLimits1().orElse(null), lineAdapted.getActivePowerLimits1().orElse(null));
         assertSame(lineRef.getApparentPowerLimits1().orElse(null), lineAdapted.getApparentPowerLimits1().orElse(null));
         assertSame(lineRef.getCurrentLimits2().orElse(null), lineAdapted.getCurrentLimits2().orElse(null));
         assertSame(lineRef.getActivePowerLimits2().orElse(null), lineAdapted.getActivePowerLimits2().orElse(null));
         assertSame(lineRef.getApparentPowerLimits2().orElse(null), lineAdapted.getApparentPowerLimits2().orElse(null));
+        assertSame(lineRef.getCurrentLimits(Branch.Side.ONE).orElse(null), lineAdapted.getCurrentLimits(Branch.Side.ONE).orElse(null));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.ONE).orElse(null), lineAdapted.getActivePowerLimits(Branch.Side.ONE).orElse(null));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.ONE).orElse(null), lineAdapted.getApparentPowerLimits(Branch.Side.ONE).orElse(null));
+        assertSame(lineRef.getCurrentLimits(Branch.Side.TWO).orElse(null), lineAdapted.getCurrentLimits(Branch.Side.TWO).orElse(null));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.TWO).orElse(null), lineAdapted.getActivePowerLimits(Branch.Side.TWO).orElse(null));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.TWO).orElse(null), lineAdapted.getApparentPowerLimits(Branch.Side.TWO).orElse(null));
+        assertEquals(lineRef.getOperationalLimits1().size(), lineAdapted.getOperationalLimits1().size());
+        assertEquals(lineRef.getOperationalLimits2().size(), lineAdapted.getOperationalLimits2().size());
 
         assertEquals(lineRef.isOverloaded(), lineAdapted.isOverloaded());
         assertEquals(lineRef.isOverloaded(0.0f), lineAdapted.isOverloaded(0.0f));

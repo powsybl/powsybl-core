@@ -154,6 +154,11 @@ class MergedLine implements TieLine {
     }
 
     @Override
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        return getDanglingLine2().getOperationalLimits();
+    }
+
+    @Override
     public Optional<CurrentLimits> getCurrentLimits2() {
         return getDanglingLine2().getCurrentLimits();
     }
@@ -304,6 +309,11 @@ class MergedLine implements TieLine {
         } else {
             throw new PowsyblException("The terminal is not connected to this branch");
         }
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        return getDanglingLine1().getOperationalLimits();
     }
 
     @Override

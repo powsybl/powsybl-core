@@ -45,17 +45,7 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
     }
 
     <L extends OperationalLimits> Optional<L> getOperationalLimits(LimitType type, Class<L> limitClazz) {
-        if (type == null) {
-            throw new IllegalArgumentException("limit type is null");
-        }
-        OperationalLimits ol = this.operationalLimits.get(type);
-        if (ol == null) {
-            return Optional.empty();
-        }
-        if (limitClazz.isInstance(ol)) {
-            return Optional.of((L) ol);
-        }
-        throw new AssertionError("Unexpected class for operational limits of type " + type + ". Expected: " + ol.getClass().getName() + ", actual: " + limitClazz.getName() + ".");
+        return Optional.ofNullable(getNullableOperationalLimits(type, limitClazz));
     }
 
     <L extends OperationalLimits> L getNullableOperationalLimits(LimitType type, Class<L> limitClazz) {
