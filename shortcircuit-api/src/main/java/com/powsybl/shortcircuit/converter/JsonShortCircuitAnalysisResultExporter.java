@@ -12,6 +12,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
+import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
 
 import java.io.IOException;
 import java.io.Writer;
