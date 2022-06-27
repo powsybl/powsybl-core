@@ -193,8 +193,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return charset;
     }
 
-    public void setCharset(Charset charset) {
+    public ExportOptions setCharset(Charset charset) {
+        Objects.requireNonNull(charset);
         this.charset = charset;
+        return this;
     }
 
     /**

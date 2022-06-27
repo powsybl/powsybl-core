@@ -132,9 +132,9 @@ public final class NetworkXml {
         // Get the list of the serializers needed to export the current network
         IidmXmlVersion networkVersion = getNetworkVersion(options);
         Set<ExtensionXmlSerializer<?, ?>> serializers = n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
-                .stream()
-                .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
-                .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
+                        .stream()
+                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
+                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
                 .collect(Collectors.toSet());
         // Export the prefix and namespace of each serializer and ensure that there is no conflict
         for (ExtensionXmlSerializer<?, ?> extensionXmlSerializer : serializers) {

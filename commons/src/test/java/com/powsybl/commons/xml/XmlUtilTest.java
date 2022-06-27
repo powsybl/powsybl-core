@@ -128,6 +128,7 @@ public class XmlUtilTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, " ", baos);
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", baos.toString());
+        writer.close();
     }
 
     @Test
@@ -136,5 +137,6 @@ public class XmlUtilTest {
         XMLStreamWriter writer = XmlUtil.initializeWriter(false, " ", baos, StandardCharsets.ISO_8859_1);
         writer.flush();
         assertEquals("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>", baos.toString());
+        writer.close();
     }
 }
