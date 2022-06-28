@@ -221,7 +221,8 @@ public class PowerFactoryImporter implements Importer {
                     new TransformerConverter(importContext, network).createThreeWindings(obj);
                     break;
                 case "ElmZpu":
-                    throw createNotYetSupportedException();
+                    new CommonImpedanceConverter(importContext, network).create(obj);
+                    break;
 
                 case "ElmNet":
                 case "StaCubic":
