@@ -144,10 +144,6 @@ public class PowerFactoryImporter implements Importer {
         return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
     }
 
-    private static PowerFactoryException createNotYetSupportedException() {
-        return new PowerFactoryException("Not yet supported");
-    }
-
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
