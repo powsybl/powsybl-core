@@ -8,6 +8,8 @@ package com.powsybl.powerfactory.dgs;
 
 import com.google.common.base.Stopwatch;
 import com.powsybl.powerfactory.model.*;
+
+import org.apache.commons.math3.linear.RealMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,27 +50,6 @@ public class DgsReader {
         }
     }
 
-    private static DataAttributeType getDataAttributeType(char attributeType) {
-        DataAttributeType type;
-        switch (attributeType) {
-            case 'a':
-                type = DataAttributeType.STRING;
-                break;
-            case 'i':
-                type = DataAttributeType.INTEGER;
-                break;
-            case 'r':
-                type = DataAttributeType.FLOAT;
-                break;
-            case 'p':
-                type = DataAttributeType.OBJECT;
-                break;
-            default:
-                throw new AssertionError("Unexpected attribute type: " + attributeType);
-        }
-        return type;
-    }
-
     private void buildObjectTree() {
         for (DataObject obj : index.getDataObjects()) {
             obj.findObjectAttributeValue(DataAttribute.FOLD_ID)
@@ -94,10 +75,9 @@ public class DgsReader {
         }
 
         @Override
-        public void onAttributeDescription(String attributeName, char attributeType) {
+        public void onAttributeDescription(String attributeName, DataAttributeType attributeType) {
             if (clazz != null && !attributeName.equals("ID")) {
-                DataAttributeType type = getDataAttributeType(attributeType);
-                clazz.addAttribute(new DataAttribute(attributeName, type, ""));
+                clazz.addAttribute(new DataAttribute(attributeName, attributeType, ""));
             }
         }
 
@@ -132,6 +112,31 @@ public class DgsReader {
         @Override
         public void onObjectValue(String attributeName, long id) {
             object.setObjectAttributeValue(attributeName, id);
+        }
+
+        @Override
+        public void onDoubleMatrixValue(String attributeName, RealMatrix value) {
+            object.setDoubleMatrixAttributeValue(attributeName, value);
+        }
+
+        @Override
+        public void onStringVectorValue(String attributeName, List<String> values) {
+            object.setStringVectorAttributeValue(attributeName, values);
+        }
+
+        @Override
+        public void onIntVectorValue(String attributeName, List<Integer> values) {
+            object.setIntVectorAttributeValue(attributeName, values);
+        }
+
+        @Override
+        public void onDoubleVectorValue(String attributeName, List<Double> values) {
+            object.setDoubleVectorAttributeValue(attributeName, values);
+        }
+
+        @Override
+        public void onObjectVectorValue(String attributeName, List<Long> ids) {
+            object.setObjectVectorAttributeValue(attributeName, ids);
         }
     }
 

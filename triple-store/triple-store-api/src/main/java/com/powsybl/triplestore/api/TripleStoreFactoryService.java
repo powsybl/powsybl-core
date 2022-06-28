@@ -22,6 +22,16 @@ public interface TripleStoreFactoryService {
     TripleStore create();
 
     /**
+     * Create an instance of a Triplestore with given options.
+     *
+     * @param options that configure the Triplestore behaviour
+     * @return Triplestore instance
+     */
+    default TripleStore create(TripleStoreOptions options) {
+        return create();
+    }
+
+    /**
      * Create an instance of a Triplestore that is a copy of a given Triplestore.
      *
      * @param source the source Triplestore

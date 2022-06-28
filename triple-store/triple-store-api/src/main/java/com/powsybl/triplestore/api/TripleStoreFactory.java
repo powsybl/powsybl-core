@@ -7,13 +7,13 @@
 
 package com.powsybl.triplestore.api;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.ServiceLoaderCache;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.ServiceLoaderCache;
 
 /**
  * Factory for the creation of Triplestore databases.
@@ -35,6 +35,16 @@ public final class TripleStoreFactory {
      */
     public static TripleStore create() {
         return create(DEFAULT_IMPLEMENTATION);
+    }
+
+    /**
+     * Create a Triplestore database using the default implementation and given options.
+     *
+     * @param options Triplestore configuration options
+     * @return a Triplestore based on the default implementation
+     */
+    public static TripleStore create(TripleStoreOptions options) {
+        return create(DEFAULT_IMPLEMENTATION, options);
     }
 
     /**
@@ -66,6 +76,23 @@ public final class TripleStoreFactory {
         for (TripleStoreFactoryService ts : LOADER.getServices()) {
             if (ts.getImplementationName().equals(impl)) {
                 return ts.create();
+            }
+        }
+        throw new PowsyblException("No implementation available for triple store " + impl);
+    }
+
+    /**
+     * Create a Triplestore database using the given implementation and options.
+     *
+     * @param impl the name of the Triplestore implementation that must be used
+     * @param options for Triplestore configuration
+     * @return a Triplestore based on the given implementation
+     */
+    public static TripleStore create(String impl, TripleStoreOptions options) {
+        Objects.requireNonNull(impl);
+        for (TripleStoreFactoryService ts : LOADER.getServices()) {
+            if (ts.getImplementationName().equals(impl)) {
+                return ts.create(options);
             }
         }
         throw new PowsyblException("No implementation available for triple store " + impl);
