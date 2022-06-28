@@ -190,6 +190,16 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importAndCompareXiidm("CommonImpedanceOnlyImpedance12"));
     }
 
+    @Test
+    public void twoBusesGeneratorAndShuntRL() {
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRL"));
+    }
+
+    @Test
+    public void twoBusesGeneratorAndShuntC() {
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntC"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
