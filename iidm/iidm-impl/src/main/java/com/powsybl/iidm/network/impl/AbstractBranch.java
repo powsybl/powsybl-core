@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -87,8 +88,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public CurrentLimits getCurrentLimits1() {
+    public Optional<CurrentLimits> getCurrentLimits1() {
         return operationalLimitsHolder1.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits1() {
+        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
     }
 
     @Override
@@ -97,8 +103,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1() {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
         return operationalLimitsHolder1.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
     }
 
     @Override
@@ -107,8 +118,18 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits1() {
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        return operationalLimitsHolder2.getOperationalLimits();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
         return operationalLimitsHolder1.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
     }
 
     @Override
@@ -117,13 +138,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits();
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        return operationalLimitsHolder2.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public CurrentLimits getNullableCurrentLimits2() {
+        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
     }
 
     @Override
@@ -132,8 +153,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits2() {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
         return operationalLimitsHolder2.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
     }
 
     @Override
@@ -142,8 +168,13 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits2() {
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
         return operationalLimitsHolder2.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
     }
 
     @Override
@@ -152,7 +183,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public CurrentLimits getCurrentLimits(Branch.Side side) {
+    public Optional<CurrentLimits> getCurrentLimits(Branch.Side side) {
         if (side == Branch.Side.ONE) {
             return getCurrentLimits1();
         } else if (side == Branch.Side.TWO) {
@@ -162,7 +193,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits(Branch.Side side) {
+    public Optional<ActivePowerLimits> getActivePowerLimits(Branch.Side side) {
         if (side == Branch.Side.ONE) {
             return getActivePowerLimits1();
         } else if (side == Branch.Side.TWO) {
@@ -172,7 +203,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits(Branch.Side side) {
+    public Optional<ApparentPowerLimits> getApparentPowerLimits(Branch.Side side) {
         if (side == Branch.Side.ONE) {
             return getApparentPowerLimits1();
         } else if (side == Branch.Side.TWO) {

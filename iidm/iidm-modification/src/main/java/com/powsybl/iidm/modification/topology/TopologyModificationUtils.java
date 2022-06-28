@@ -55,13 +55,13 @@ final class TopologyModificationUtils {
 
     static void addLoadingLimits(Line created, Line original, Branch.Side side) {
         if (side == Branch.Side.ONE) {
-            addLoadingLimits(created.newCurrentLimits1(), original.getCurrentLimits1());
-            addLoadingLimits(created.newActivePowerLimits1(), original.getActivePowerLimits1());
-            addLoadingLimits(created.newApparentPowerLimits1(), original.getApparentPowerLimits1());
+            original.getActivePowerLimits1().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
+            original.getApparentPowerLimits1().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
+            original.getCurrentLimits1().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits1(), lim));
         } else {
-            addLoadingLimits(created.newCurrentLimits2(), original.getCurrentLimits2());
-            addLoadingLimits(created.newActivePowerLimits2(), original.getActivePowerLimits2());
-            addLoadingLimits(created.newApparentPowerLimits2(), original.getApparentPowerLimits2());
+            original.getActivePowerLimits2().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits2(), lim));
+            original.getApparentPowerLimits2().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits2(), lim));
+            original.getCurrentLimits2().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits2(), lim));
         }
     }
 
