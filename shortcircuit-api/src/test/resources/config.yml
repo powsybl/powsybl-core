@@ -4,3 +4,4 @@ short-circuit-parameters:
   study-type: "SUB_TRANSIENT"
   with-feeder-result: false
   min-voltage-drop-proportional-threshold: 1.2
+  use-resistances: true

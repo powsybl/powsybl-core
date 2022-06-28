@@ -2,10 +2,15 @@
   "id" : "f00",
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
-  "minVoltageDropProportionalThreshold" : 1.0
+  "minVoltageDropProportionalThreshold" : 1.0,
+  "useResistances" : true,
+  "useLoads" : true,
+  "voltageMapType" : "NOMINAL",
+  "nominalVoltageMapType" : "IEC909"
 }, {
   "id" : "f01",
-  "withVoltageMap" : true
+  "withVoltageMap" : true,
+  "voltageMapType" : "PREVIOUS"
 }, {
   "id" : "f10",
   "withLimitViolations" : true

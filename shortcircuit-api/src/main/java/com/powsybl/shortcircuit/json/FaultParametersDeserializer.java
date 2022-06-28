@@ -11,7 +11,9 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.NominalVoltageMapType;
 import com.powsybl.shortcircuit.StudyType;
+import com.powsybl.shortcircuit.VoltageMapType;
 
 import java.io.IOException;
 
@@ -32,6 +34,10 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withFeederResult = false;
         StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
+        boolean useResistances = false;
+        boolean useLoads = false;
+        VoltageMapType voltageMapType = null;
+        NominalVoltageMapType nominalVoltageMapType = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -65,10 +71,31 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                     break;
 
+                case "useResistances":
+                    parser.nextToken();
+                    useResistances = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "useLoads":
+                    parser.nextToken();
+                    useLoads = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "voltageMapType":
+                    parser.nextToken();
+                    voltageMapType = VoltageMapType.valueOf(parser.readValueAs(String.class));
+                    break;
+
+                case "nominalVoltageMapType":
+                    parser.nextToken();
+                    nominalVoltageMapType = NominalVoltageMapType.valueOf(parser.readValueAs(String.class));
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold);
+        return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold,
+                useResistances, useLoads, voltageMapType, nominalVoltageMapType);
     }
 }

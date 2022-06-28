@@ -189,6 +189,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         assertFalse(parameters.isWithFeederResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
+        assertTrue(parameters.isUseResistances());
     }
 
     @AutoService(ShortCircuitParameters.ConfigLoader.class)

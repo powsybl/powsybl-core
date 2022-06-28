@@ -4,5 +4,9 @@
   "withVoltageMap" : true,
   "withFeederResult" : true,
   "studyType" : "TRANSIENT",
-  "minVoltageDropProportionalThreshold" : 0.0
+  "minVoltageDropProportionalThreshold" : 0.0,
+  "useResistances" : true,
+  "useLoads" : true,
+  "voltageMapType" : "NOMINAL",
+  "nominalVoltageMapType" : "IEC909"
 }

@@ -41,6 +41,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
+    private boolean useResistances = DEFAULT_USE_RESISTANCES;
+    private boolean useLoads = DEFAULT_USE_LOADS;
+    private VoltageMapType voltageMapType = DEFAULT_VOLTAGE_MAP_TYPE;
+    private NominalVoltageMapType nominalVoltageMapType = DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE;
 
     /**
      * Load parameters from platform default config.
@@ -59,7 +63,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
-                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
+                        .setUseResistances(config.getBooleanProperty("use-resistances", DEFAULT_USE_RESISTANCES))
+                        .setVoltageMapType(config.getEnumProperty("voltage-map-type", VoltageMapType.class, DEFAULT_VOLTAGE_MAP_TYPE))
+                        .setNominalVoltageMapType(config.getEnumProperty("nominal-voltage-map-type", NominalVoltageMapType.class, DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE)));
 
         parameters.readExtensions(platformConfig);
 
@@ -115,6 +122,48 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setMinVoltageDropProportionalThreshold(double minVoltageDropProportionalThreshold) {
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
+        return this;
+    }
+
+    /** Indicates if the resistances should be taken into account in the calculation of
+     * the impedance of the branches, tap changer and transformers.
+     */
+    public boolean isUseResistances() {
+        return useResistances;
+    }
+
+    public ShortCircuitParameters setUseResistances(boolean useResistances) {
+        this.useResistances = useResistances;
+        return this;
+    }
+
+    /** Indicates if the loads should be taken into account in the calculation.
+     * If set to true, the direct reactance of the transformer connecting the load is used.
+     * If set to false, the direct admittance of the loads is equal to zero, as well as the active and reactive power.
+     */
+    public boolean isUseLoads() {
+        return useLoads;
+    }
+
+    public void setUseLoads(boolean useLoads) {
+        this.useLoads = useLoads;
+    }
+
+    public VoltageMapType getVoltageMapType() {
+        return voltageMapType;
+    }
+
+    public ShortCircuitParameters setVoltageMapType(VoltageMapType voltageMapType) {
+        this.voltageMapType = voltageMapType;
+        return this;
+    }
+
+    public NominalVoltageMapType getNominalVoltageMapType() {
+        return nominalVoltageMapType;
+    }
+
+    public ShortCircuitParameters setNominalVoltageMapType(NominalVoltageMapType nominalVoltageMapType) {
+        this.nominalVoltageMapType = nominalVoltageMapType;
         return this;
     }
 }

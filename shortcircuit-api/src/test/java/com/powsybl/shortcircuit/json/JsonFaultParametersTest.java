@@ -8,7 +8,9 @@ package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.NominalVoltageMapType;
 import com.powsybl.shortcircuit.StudyType;
+import com.powsybl.shortcircuit.VoltageMapType;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,10 +28,10 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN));
-        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, true, VoltageMapType.NOMINAL, NominalVoltageMapType.IEC909));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, false, false, VoltageMapType.PREVIOUS, null));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, false, null, null));
+        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, false, null, null));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));
