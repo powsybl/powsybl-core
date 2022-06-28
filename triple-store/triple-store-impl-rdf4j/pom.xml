@@ -49,6 +49,10 @@
             <artifactId>rdf4j-sail-memory</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.eclipse.rdf4j</groupId>
+            <artifactId>rdf4j-common-transaction</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
