@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends OperationalLimitsAdder<L> {
+public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> extends OperationalLimitsAdder<L, A> {
 
     interface TemporaryLimitAdder<A> {
 
