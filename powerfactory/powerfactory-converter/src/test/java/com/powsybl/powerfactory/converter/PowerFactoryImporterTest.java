@@ -180,6 +180,16 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importJsonAndCompareXiidm("ThreeMIB_T3W_phase_winding1_complete"));
     }
 
+    @Test
+    public void commonImpedance() {
+        assertTrue(importAndCompareXiidm("CommonImpedance"));
+    }
+
+    @Test
+    public void commonImpedanceOnlyImpedance12() {
+        assertTrue(importAndCompareXiidm("CommonImpedanceOnlyImpedance12"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
