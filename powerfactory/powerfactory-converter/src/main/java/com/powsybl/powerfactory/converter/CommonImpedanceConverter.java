@@ -13,7 +13,6 @@ import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -92,23 +91,17 @@ class CommonImpedanceConverter extends AbstractConverter {
         }
 
         private static CommonImpedanceModel commonImpedancePerUnitModel(DataObject elmZpu) {
-            double r12 = elmZpu.getFloatAttributeValue("r_pu");
-            double x12 = elmZpu.getFloatAttributeValue("x_pu");
+            float r12 = elmZpu.getFloatAttributeValue("r_pu");
+            float x12 = elmZpu.getFloatAttributeValue("x_pu");
 
-            Optional<Float> opr21 = elmZpu.findFloatAttributeValue("r_pu_ji");
-            double r21 = opr21.isPresent() ? opr21.get() : r12;
-            Optional<Float> opx21 = elmZpu.findFloatAttributeValue("x_pu_ji");
-            double x21 = opx21.isPresent() ? opx21.get() : x12;
+            float r21 = elmZpu.findFloatAttributeValue("r_pu_ji").orElse(r12);
+            float x21 = elmZpu.findFloatAttributeValue("x_pu_ji").orElse(x12);
 
-            Optional<Float> opg1 = elmZpu.findFloatAttributeValue("gi_pu");
-            double g1 = opg1.isPresent() ? opg1.get() : 0.0;
-            Optional<Float> opb1 = elmZpu.findFloatAttributeValue("bi_pu");
-            double b1 = opb1.isPresent() ? opb1.get() : 0.0;
+            float g1 = elmZpu.findFloatAttributeValue("gi_pu").orElse(0f);
+            float b1 = elmZpu.findFloatAttributeValue("bi_pu").orElse(0f);
 
-            Optional<Float> opg2 = elmZpu.findFloatAttributeValue("gj_pu");
-            double g2 = opg2.isPresent() ? opg2.get() : 0.0;
-            Optional<Float> opb2 = elmZpu.findFloatAttributeValue("bj_pu");
-            double b2 = opb2.isPresent() ? opb2.get() : 0.0;
+            float g2 = elmZpu.findFloatAttributeValue("gj_pu").orElse(0f);
+            float b2 = elmZpu.findFloatAttributeValue("bj_pu").orElse(0f);
 
             return new CommonImpedanceModel(r12, x12, r21, x21, g1, b1, g2, b2);
         }
