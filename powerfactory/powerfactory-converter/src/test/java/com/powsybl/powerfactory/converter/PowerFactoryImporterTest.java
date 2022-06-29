@@ -196,6 +196,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void twoBusesGeneratorAndShuntRLrxrea() {
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRLrxrea"));
+    }
+
+    @Test
     public void twoBusesGeneratorAndShuntC() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntC"));
     }
