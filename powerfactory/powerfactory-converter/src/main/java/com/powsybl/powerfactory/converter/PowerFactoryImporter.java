@@ -16,6 +16,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.*;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
@@ -110,27 +111,6 @@ public class PowerFactoryImporter implements Importer {
 
         ImportContext(ContainersMapping containerMapping) {
             this.containerMapping = containerMapping;
-        }
-    }
-
-    // TODO move to AbstractConverter at the end
-    static class NodeRef {
-
-        final String voltageLevelId;
-        final int node;
-        final int busIndexIn;
-
-        NodeRef(String voltageLevelId, int node, int busIndexIn) {
-            this.voltageLevelId = voltageLevelId;
-            this.node = node;
-            this.busIndexIn = busIndexIn;
-        }
-
-        @Override
-        public String toString() {
-            return "NodeRef(voltageLevelId='" + voltageLevelId + '\'' +
-                    ", node=" + node +
-                    ')';
         }
     }
 
@@ -255,29 +235,9 @@ public class PowerFactoryImporter implements Importer {
     }
 
     private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
+        VoltageAndAngle va = new VoltageAndAngle(importContext, network);
         for (DataObject elmTerm : elmTerms) {
-            setVoltageAndAngle(network, importContext, elmTerm);
-        }
-    }
-
-    private static void setVoltageAndAngle(Network network, ImportContext importContext, DataObject elmTerm) {
-        if (!importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
-            return;
-        }
-        Optional<Float> uknom = elmTerm.findFloatAttributeValue("uknom");
-        Optional<Float> u = elmTerm.findFloatAttributeValue("m:u");
-        Optional<Float> phiu = elmTerm.findFloatAttributeValue("m:phiu");
-
-        if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
-            NodeRef nodeRef = importContext.elmTermIdToNode.get(elmTerm.getId());
-            Terminal terminal = network.getVoltageLevel(nodeRef.voltageLevelId).getNodeBreakerView().getTerminal(nodeRef.node);
-            if (terminal != null) {
-                Bus bus = terminal.getBusView().getBus();
-                if (bus != null) {
-                    bus.setV(u.get() * uknom.get());
-                    bus.setAngle(phiu.get());
-                }
-            }
+            va.update(elmTerm);
         }
     }
 
