@@ -15,7 +15,6 @@ import com.powsybl.powerfactory.model.DataObject;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -62,10 +61,6 @@ public abstract class AbstractConverter {
             .setNode1(node1)
             .setNode2(node2)
             .add();
-    }
-
-    Optional<NodeRef> findNodeFromElmTerm(DataObject elmTerm) {
-        return Optional.ofNullable(importContext.elmTermIdToNode.get(elmTerm.getId()));
     }
 
     List<NodeRef> findNodes(DataObject obj) {
