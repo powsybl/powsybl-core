@@ -10,12 +10,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +64,18 @@ public abstract class AbstractConverter {
             .add();
     }
 
+    Optional<NodeRef> findNodeFromElmTerm(DataObject elmTerm) {
+        return Optional.ofNullable(importContext.elmTermIdToNode.get(elmTerm.getId()));
+    }
+
+    NodeRef getNodeFromElmTerm(DataObject elmTerm) {
+        if (importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
+            return importContext.elmTermIdToNode.get(elmTerm.getId());
+        } else {
+            throw new PowsyblException("NodeRef not found for elmTerm '" + elmTerm + "'");
+        }
+    }
+
     List<NodeRef> findNodes(DataObject obj) {
         List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
         return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
@@ -76,5 +88,25 @@ public abstract class AbstractConverter {
                     + ") of connections for '" + obj + "'");
         }
         return nodeRefs;
+    }
+
+    static class NodeRef {
+
+        final String voltageLevelId;
+        final int node;
+        final int busIndexIn;
+
+        NodeRef(String voltageLevelId, int node, int busIndexIn) {
+            this.voltageLevelId = voltageLevelId;
+            this.node = node;
+            this.busIndexIn = busIndexIn;
+        }
+
+        @Override
+        public String toString() {
+            return "NodeRef(voltageLevelId='" + voltageLevelId + '\'' +
+                    ", node=" + node +
+                    ')';
+        }
     }
 }
