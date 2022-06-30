@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 
 import java.util.Comparator;
@@ -76,5 +75,25 @@ public abstract class AbstractConverter {
                     + ") of connections for '" + obj + "'");
         }
         return nodeRefs;
+    }
+
+    static class NodeRef {
+
+        final String voltageLevelId;
+        final int node;
+        final int busIndexIn;
+
+        NodeRef(String voltageLevelId, int node, int busIndexIn) {
+            this.voltageLevelId = voltageLevelId;
+            this.node = node;
+            this.busIndexIn = busIndexIn;
+        }
+
+        @Override
+        public String toString() {
+            return "NodeRef(voltageLevelId='" + voltageLevelId + '\'' +
+                    ", node=" + node +
+                    ')';
+        }
     }
 }
