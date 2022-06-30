@@ -68,14 +68,6 @@ public abstract class AbstractConverter {
         return Optional.ofNullable(importContext.elmTermIdToNode.get(elmTerm.getId()));
     }
 
-    NodeRef getNodeFromElmTerm(DataObject elmTerm) {
-        if (importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
-            return importContext.elmTermIdToNode.get(elmTerm.getId());
-        } else {
-            throw new PowsyblException("NodeRef not found for elmTerm '" + elmTerm + "'");
-        }
-    }
-
     List<NodeRef> findNodes(DataObject obj) {
         List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
         return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
