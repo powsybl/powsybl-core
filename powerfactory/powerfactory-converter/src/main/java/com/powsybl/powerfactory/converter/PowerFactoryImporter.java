@@ -134,16 +134,6 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
-    // TODO delete at the end
-    private static List<NodeRef> checkNodes(DataObject obj, Map<Long, List<NodeRef>> objIdToNode, int connections) {
-        List<NodeRef> nodeRefs = objIdToNode.get(obj.getId());
-        if (nodeRefs == null || nodeRefs.size() != connections) {
-            throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
-                    + ") of connection for '" + obj + "'");
-        }
-        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
-    }
-
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
@@ -202,7 +192,7 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmShnt":
-                    createShunt(network, importContext, obj);
+                    new ShuntConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmLne":
@@ -289,44 +279,6 @@ public class PowerFactoryImporter implements Importer {
                 }
             }
         }
-    }
-
-    private void createShunt(Network network, ImportContext importContext, DataObject elmShnt) {
-        NodeRef nodeRef = checkNodes(elmShnt, importContext.objIdToNode, 1).iterator().next();
-        VoltageLevel vl = network.getVoltageLevel(nodeRef.voltageLevelId);
-        int shtype = elmShnt.getIntAttributeValue("shtype");
-        double gPerSection;
-        double bPerSection;
-        if (shtype == 1) { // RL
-            float rrea = elmShnt.getFloatAttributeValue("rrea");
-            float xrea = elmShnt.getFloatAttributeValue("xrea");
-            if (rrea == 0) {
-                gPerSection = 0;
-                bPerSection = -1 / xrea;
-            } else {
-                throw new PowsyblException("Cannot convert RL shunt");
-            }
-        } else if (shtype == 2) { // C
-            float gparac = elmShnt.getFloatAttributeValue("gparac");
-            float bcap = elmShnt.getFloatAttributeValue("bcap");
-            gPerSection = gparac * Math.pow(10, -6);
-            bPerSection = bcap * Math.pow(10, -6);
-        } else {
-            throw new PowsyblException("Shunt type not supported: " + shtype);
-        }
-        int ncapa = elmShnt.getIntAttributeValue("ncapa");
-        int ncapx = elmShnt.getIntAttributeValue("ncapx");
-        vl.newShuntCompensator()
-                .setId(elmShnt.getLocName())
-                .setEnsureIdUnicity(true)
-                .setNode(nodeRef.node)
-                .setSectionCount(ncapa)
-                .newLinearModel()
-                    .setGPerSection(gPerSection)
-                    .setBPerSection(bPerSection)
-                    .setMaximumSectionCount(ncapx)
-                .add()
-                .add();
     }
 
     @Override
