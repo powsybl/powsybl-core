@@ -502,7 +502,7 @@ public class UcteExporter implements Exporter {
                 line.getR() * mergedXnode.getRdp(),
                 line.getX() * mergedXnode.getXdp(),
                 line.getB1(),
-                (int) line.getCurrentLimits1().getPermanentLimit(),
+                line.getCurrentLimits1().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
@@ -516,7 +516,7 @@ public class UcteExporter implements Exporter {
                 line.getR() * (1.0d - mergedXnode.getRdp()),
                 line.getX() * (1.0d - mergedXnode.getXdp()),
                 line.getB2(),
-                (int) line.getCurrentLimits2().getPermanentLimit(),
+                line.getCurrentLimits2().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
@@ -545,7 +545,7 @@ public class UcteExporter implements Exporter {
                 half1.getR(),
                 half1.getX(),
                 half1.getB1() + half1.getB2(),
-                (int) tieLine.getCurrentLimits1().getPermanentLimit(),
+                tieLine.getCurrentLimits1().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
@@ -560,7 +560,7 @@ public class UcteExporter implements Exporter {
                 half2.getR(),
                 half2.getX(),
                 half2.getB1() + half2.getB2(),
-                (int) tieLine.getCurrentLimits2().getPermanentLimit(),
+                tieLine.getCurrentLimits2().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
@@ -597,7 +597,7 @@ public class UcteExporter implements Exporter {
                 danglingLine.getR(),
                 danglingLine.getX(),
                 danglingLine.getB(),
-                danglingLine.getCurrentLimits() == null ? null : (int) danglingLine.getCurrentLimits().getPermanentLimit(),
+                danglingLine.getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
@@ -886,8 +886,8 @@ public class UcteExporter implements Exporter {
     }
 
     private static Integer getPermanentLimit(Branch<?> branch) {
-        Optional<Double> permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit);
-        Optional<Double> permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit);
+        Optional<Double> permanentLimit1 = branch.getCurrentLimits1().map(CurrentLimits::getPermanentLimit);
+        Optional<Double> permanentLimit2 = branch.getCurrentLimits2().map(CurrentLimits::getPermanentLimit);
         if (permanentLimit1.isPresent() && permanentLimit2.isPresent()) {
             return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
         } else  {

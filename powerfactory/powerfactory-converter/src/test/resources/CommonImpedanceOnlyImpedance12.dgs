@@ -1,0 +1,61 @@
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+  1;Version;5.0
+
+$$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fline(r);GPScoords:SIZEROW(i);GPScoords:SIZECOL(i);nlnum(i);inAir(i)
+  2;lne_1_2_1;;4;23;52;1;0;0;1;0
+
+
+$$ElmLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);mode_inp(a:3);slini(r);plini(r);qlini(r);coslini(r);pf_recap(i);scale0(r);i_scale(i);outserv(i);classif(a:20)
+  3;lod_3_1;;4;24;PQ;55,9017;50;25;0,894427;0;1;0;0;
+
+
+$$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
+  4;1 aux_1;;;60;
+
+
+$$ElmSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);cCategory(a);ngnum(i);i_mot(i);pgini(r);qgini(r);cosgini(r);usetp(r);pf_recap(i);q_min(r);q_max(r);outserv(i);av_mode(a);phtech(i)
+  5;sym_1_1;;4;25;Others;1;0;50,47;0;1;1,06;0;0;0;0;constv;1
+
+
+$$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i);outserv(i);GPSlat(r);GPSlon(r);vtarget(r)
+  6;1 Bus 1-Slack;;4;;0;0;110;110,0;0;0;0;0;1
+  7;2 Bus 2;;4;;0;0;110;110.0;0;0;0;0;1
+  8;3 Bus 2-Load;;4;;0;0;110;110,0;0;0;0;0;1
+
+$$ElmZpu;ID(a:40);loc_name(a:40);outserv(i);Sn(r);nphases(i);nphshift(i);ag(r);fold_id(p);r_pu(r);x_pu(r)
+  9;zpu_2_3_1;0;1500;3;0;0;4;-3,162450075149536;20,544599533081055
+  
+
+$$ElmZone;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);icolor(i);curscale(r)
+  10;1_aux_1;;;1;1
+
+
+$$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_bus(i);obj_id(p);it2p1(i);it2p2(i);it2p3(i)
+  11;lne_1_2_1;;6;0;2;0;1;2
+  12;sym_1_1;;6;0;5;0;1;2
+  13;lne_1_2_1;;7;1;2;0;1;2
+  14;zpu_2_3_1;;7;0;9;0;1;2
+  15;lod_3_1;;8;0;3;0;1;2
+  16;zpu_2_3_1;;8;1;9;0;1;2
+
+
+$$StaSwitch;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);on_off(i);typ_id(p);aUsage(a)
+  17;Switch;;11;1;;cbk
+  18;Switch;;12;1;;cbk
+  19;Switch;;13;1;;cbk
+  20;Switch;;14;1;;cbk
+  21;Switch;;15;1;;cbk
+  22;Switch;;16;1;;cbk
+
+
+$$TypLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);uline(r);sline(r);InomAir(r);cohl_(i);rline(r);xline(r);rline0(r);xline0(r);Ithr(r);tmax(r);rtemp(r);systp(i);nlnph(i);nneutral(i);frnom(r);mlei(a:2);bline(r);bline0(r)
+  23;tlne_1_2_1;;4;380;7,216878;1;0;0,596307;1,820615;999999;999999;0;80;80;0;3;0;60;Cu;4,159616;0
+
+
+$$TypLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);systp(i);phtech(i);aP(r);bP(r);kpu0(r);kpu1(r);kpu(r);aQ(r);bQ(r);kqu0(r);kqu1(r);kqu(r)
+  24;lodtyp_pq;;4;0;0;1;0;0;1;2;1;0;0;1;2
+
+
+$$TypSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sgn(r);ugn(r);cosn(r);xd(r);xq(r);xdsss(r);rstr(r);xdsat(r);satur(i);nphase(i);nslty(i);x0sy(r);r0sy(r);x2sy(r);r2sy(r);iopt_data(i);xds(r);xqs(r);xl(r);xdss(r);xqss(r);xrlq(r);tds(r);tqs(r);tdss(r);tqss(r)
+  25;tsym_1_1;;4;615;380;1;2;2;1;0;1,2;0;3;2;1;0;1;0;1;0,3;0,3;0,1;1;1;0;1;0;0,05;0,05
+
