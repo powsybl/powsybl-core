@@ -6,7 +6,6 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
@@ -42,12 +41,12 @@ class LineConverter extends AbstractConverter {
     void createTower(DataObject elmTow) {
         Optional<List<DataObjectRef>> plines = elmTow.findObjectVectorAttributeValue("plines");
         if (plines.isEmpty() || plines.get().isEmpty()) {
-            throw new PowsyblException("ElmTow without plines '" + elmTow.getLocName() + "'");
+            throw new PowerFactoryException("ElmTow without plines '" + elmTow.getLocName() + "'");
         }
 
         plines.get().forEach(pline -> {
             DataObject elmLne = pline.resolve()
-                .orElseThrow(() -> new PowsyblException("pline dataObject not found, ElmTow Id: " + elmTow.getId()));
+                .orElseThrow(() -> new PowerFactoryException("pline dataObject not found, ElmTow Id: " + elmTow.getId()));
             createFromElmLneFromElmTow(elmTow, elmLne);
         });
     }
