@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 import java.util.List;
 import java.util.Optional;
@@ -151,14 +152,9 @@ class LineConverter extends AbstractConverter {
         }
 
         private static DataObject getTypeTow(DataObject elmTow) {
-            Optional<DataObject> typTow = elmTow.findObjectVectorAttributeValue("pGeo")
-                .flatMap(listDataObjectRef -> listDataObjectRef.stream().findFirst()).flatMap(DataObjectRef::resolve);
-
-            if (typTow.isPresent()) {
-                return typTow.get();
-            } else {
-                throw new PowsyblException("Unexpected elmTow configuration '" + elmTow.getLocName() + "'");
-            }
+            return elmTow.findObjectVectorAttributeValue("pGeo")
+                .flatMap(listDataObjectRef -> listDataObjectRef.stream().findFirst()).flatMap(DataObjectRef::resolve)
+                .orElseThrow(() -> new PowerFactoryException("Unexpected elmTow configuration '" + elmTow.getLocName() + "'"));
         }
     }
 }
