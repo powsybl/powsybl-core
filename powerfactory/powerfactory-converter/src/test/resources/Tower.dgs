@@ -1,0 +1,75 @@
+$$General;ID(a:40);Descr(a:40);Val(a:40)
+  1;Version;5.0
+
+
+$$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fline(r);GPScoords:SIZEROW(i);GPScoords:SIZECOL(i);nlnum(i);inAir(i)
+  2;lne_1_2_1;;7;34;52;1;0;0;1;0
+  3;lne_1_3_1;;7;35;52;1;0;0;1;0
+  4;lne_2_3_1;;7;;52;1;0;0;1;0
+  5;lne_2_3_2;;7;;52;1;0;0;1;0
+
+$$ElmLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);mode_inp(a:3);slini(r);plini(r);qlini(r);coslini(r);pf_recap(i);scale0(r);i_scale(i);outserv(i);classif(a:20)
+  6;lod_3_1;;7;36;PQ;55,9017;50;25;0,894427;0;1;0;0;
+
+
+$$ElmNet;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);pDiagram(p)
+  7;1 aux_1;;;60;
+
+
+$$ElmSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);cCategory(a);ngnum(i);i_mot(i);pgini(r);qgini(r);cosgini(r);usetp(r);pf_recap(i);q_min(r);q_max(r);outserv(i);av_mode(a);phtech(i)
+  8;sym_1_1;;7;37;Others;1;0;50,29;0;1;1,06;0;0;0;0;constv;1
+
+
+$$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i);outserv(i);GPSlat(r);GPSlon(r);vtarget(r);
+  9;1 Bus 1-Slack;;7;;0;0;400;230,9401;0;0;0;0;1
+  10;2 Bus 2;;7;;0;0;400;230,9401;0;0;0;0;1
+  11;3 Bus 2-Load;;7;;0;0;400;230,9401;0;0;0;0;1
+
+$$ElmTow;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);outserv(i);i_dist(i);ngeo(i);pGeo:SIZEROW(i);pGeo:0(p);plines:SIZEROW(i);plines:0(p);plines:1(p);dpolar:SIZEROW(i);dpolar:0(r);dpolar:1(r)
+  12;tow_2_3;;7;0;0;1;1;38;2;4;5;2;0;0
+
+
+$$ElmZone;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);icolor(i);curscale(r)
+  13;1_aux_1;;;1;1
+
+
+$$StaCubic;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);obj_bus(i);obj_id(p);it2p1(i);it2p2(i);it2p3(i)
+  14;lne_1_2_1;;9;0;2;0;1;2
+  15;lne_1_3_1;;9;0;3;0;1;2
+  16;sym_1_1;;9;0;8;0;1;2
+  17;lne_1_2_1;;10;1;2;0;1;2
+  18;lne_2_3_1;;10;0;4;0;1;2
+  19;lne_1_3_1;;11;1;3;0;1;2
+  20;lod_3_1;;11;0;6;0;1;2
+  21;lne_2_3_1;;11;1;4;0;1;2
+  22;lne_2_3_2;;10;0;5;0;1;2
+  23;lne_2_3_2;;11;1;5;0;1;2
+
+
+$$StaSwitch;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);on_off(i);typ_id(p);aUsage(a)
+  24;Switch;;14;1;;cbk
+  25;Switch;;15;1;;cbk
+  26;Switch;;16;1;;cbk
+  27;Switch;;17;1;;cbk
+  28;Switch;;18;1;;cbk
+  29;Switch;;19;1;;cbk
+  30;Switch;;20;1;;cbk
+  31;Switch;;21;1;;cbk
+  32;Switch;;22;1;;cbk
+  33;Switch;;23;1;;cbk
+
+$$TypLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);uline(r);sline(r);InomAir(r);cohl_(i);rline(r);xline(r);rline0(r);xline0(r);Ithr(r);tmax(r);rtemp(r);systp(i);nlnph(i);nneutral(i);frnom(r);mlei(a:2);bline(r);bline0(r)
+  34;tlne_1_2_1;;11;400;7,216878;1;0;0,596307;1,820615;999999;999999;0;80;80;0;3;0;60;Cu;4,159616;0
+  35;tlne_1_3_1;;11;400;7,216878;1;0;0,596307;1,820615;999999;999999;0;80;80;0;3;0;60;Cu;4,159616;0
+
+
+$$TypLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);systp(i);phtech(i);aP(r);bP(r);kpu0(r);kpu1(r);kpu(r);aQ(r);bQ(r);kqu0(r);kqu1(r);kqu(r)
+  36;lodtyp_pq;;11;0;0;1;0;0;1;2;1;0;0;1;2
+
+
+$$TypSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);sgn(r);ugn(r);cosn(r);xd(r);xq(r);xdsss(r);rstr(r);xdsat(r);satur(i);nphase(i);nslty(i);x0sy(r);r0sy(r);x2sy(r);r2sy(r);iopt_data(i);xds(r);xqs(r);xl(r);xdss(r);xqss(r);xrlq(r);tds(r);tqs(r);tdss(r);tqss(r)
+  37;tsym_1_1;;11;615;400;1;2;2;1;0;1,2;0;3;2;1;0;1;0;1;0,3;0,3;0,1;1;1;0;1;0;0,05;0,05
+
+$$TypTow;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);frnom(r);nlear(i);nlcir(i);gearth(r);i_mode(i);pcond_e:SIZEROW(i);pcond_e:0(p);nphas:SIZEROW(i);nphas:0(r);nphas:1(r);ktrto:SIZEROW(i);ktrto:0(r);ktrto:1(r);pcond_c:SIZEROW(i);pcond_c:0(p);pcond_c:1(p);xy_e:SIZEROW(i);xy_e:SIZECOL(i);xy_e:0:0(r);xy_e:0:1(r);xy_c:SIZEROW(i);xy_c:SIZECOL(i);xy_c:0:0(r);xy_c:0:1(r);xy_c:0:2(r);xy_c:0:3(r);xy_c:0:4(r);xy_c:0:5(r);xy_c:1:0(r);xy_c:1:1(r);xy_c:1:2(r);xy_c:1:3(r);xy_c:1:4(r);xy_c:1:5(r);R_c0:SIZEROW(i);R_c0:SIZECOL(i);R_c0:0:0(r);R_c0:0:1(r);R_c0:1:0(r);R_c0:1:1(r);X_c0:SIZEROW(i);X_c0:SIZECOL(i);X_c0:0:0(r);X_c0:0:1(r);X_c0:1:0(r);X_c0:1:1(r);R_c1:SIZEROW(i);R_c1:SIZECOL(i);R_c1:0:0(r);R_c1:0:1(r);R_c1:1:0(r);R_c1:1:1(r);X_c1:SIZEROW(i);X_c1:SIZECOL(i);X_c1:0:0(r);X_c1:0:1(r);X_c1:1:0(r);X_c1:1:1(r);B_c0:SIZEROW(i);B_c0:SIZECOL(i);B_c0:0:0(r);B_c0:0:1(r);B_c0:1:0(r);B_c0:1:1(r);B_c1:SIZEROW(i);B_c1:SIZECOL(i);B_c1:0:0(r);B_c1:0:1(r);B_c1:1:0(r);B_c1:1:1(r);G_c0:SIZEROW(i);G_c0:SIZECOL(i);G_c0:0:0(r);G_c0:0:1(r);G_c0:1:0(r);G_c0:1:1(r);G_c1:SIZEROW(i);G_c1:SIZECOL(i);G_c1:0:0(r);G_c1:0:1(r);G_c1:1:0(r);G_c1:1:1(r)
+  38;typtow_2_3;;;50;1;2;100;0;1;3753;2;3;3;2;0;0;2;3753;3753;1;2;0;50,2;2;6;-10,75;-7,75;-14,25;34,7;23,7;23,7;10,75;7,75;14,25;34,7;23,7;23,7;2;2;0,13601062552388;0,08179074453132;0,08179074453132;0,13601062552388;2;2;1,06370408498528;0,48364917237031;0,48364917237031;1,06370408498528;2;2;0,05419216181657;6,48648716602617e-05;6,48648716602617e-05;0,05419216181657;2;2;0,41555807243422;0,00611471885665;0,00611471885665;0,41555807243422;2;2;1,64433862162088;-0,35540970046801;-0,35540970046801;1,64433862162088;2;2;2,76613609203358;-0,03676511767226;-0,03676511767226;2,76613609203358;2;2;0;0;0;0;2;2;2,08166817117217e-17;-2,86229373536173e-17;2,60208521396521e-17;3,46944695195361e-17
+
