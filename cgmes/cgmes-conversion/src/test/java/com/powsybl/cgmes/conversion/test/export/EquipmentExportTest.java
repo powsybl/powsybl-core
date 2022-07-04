@@ -511,6 +511,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 shuntCompensator.setTargetV(Double.NaN);
                 shuntCompensator.setTargetDeadband(Double.NaN);
                 shuntCompensator.getTerminal().setQ(0.0);
+                shuntCompensator.getTerminal().setP(0.0);
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
                 generator.setVoltageRegulatorOn(false);
