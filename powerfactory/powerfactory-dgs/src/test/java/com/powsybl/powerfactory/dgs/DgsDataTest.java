@@ -19,6 +19,7 @@ import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -52,19 +53,26 @@ public class DgsDataTest extends AbstractConverterTest {
 
     @Test
     public void twoBusesTest() throws IOException {
-        StudyCase studyCase = loadCase("/TwoBuses.dgs");
-        String expectedJson = loadReference("/TwoBuses.json");
+        assertTrue(test("/TwoBuses.dgs", "/TwoBuses.json"));
+    }
 
-        assertNotNull(studyCase);
-        assertEquals(expectedJson, toJson(studyCase));
+    @Test
+    public void towerTest() throws IOException {
+        assertTrue(test("/Tower.dgs", "/Tower.json"));
     }
 
     @Test
     public void twoBusesCommaAsDecimalSeparatorTest() throws IOException {
-        StudyCase studyCase = loadCase("/TwoBusesCommaAsDecimalSeparator.dgs");
-        String expectedJson = loadReference("/TwoBusesCommaAsDecimalSeparator.json");
+        assertTrue(test("/TwoBusesCommaAsDecimalSeparator.dgs", "/TwoBusesCommaAsDecimalSeparator.json"));
+    }
+
+    private boolean test(String dgs, String json) throws IOException {
+        StudyCase studyCase = loadCase(dgs);
+        String expectedJson = loadReference(json);
 
         assertNotNull(studyCase);
         assertEquals(expectedJson, toJson(studyCase));
+
+        return true;
     }
 }
