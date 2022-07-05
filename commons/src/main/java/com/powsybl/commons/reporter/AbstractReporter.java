@@ -20,12 +20,12 @@ import java.util.Objects;
 public abstract class AbstractReporter implements Reporter {
 
     protected final String key;
-    protected final String defaultName;
+    protected final String defaultTitle;
     protected final Map<String, TypedValue> values;
 
-    protected AbstractReporter(String key, String defaultName, Map<String, TypedValue> values) {
+    protected AbstractReporter(String key, String defaultTitle, Map<String, TypedValue> values) {
         this.key = Objects.requireNonNull(key);
-        this.defaultName = defaultName;
+        this.defaultTitle = defaultTitle;
         this.values = new HashMap<>();
         Objects.requireNonNull(values).forEach(this::addTaskValue);
     }
@@ -36,18 +36,18 @@ public abstract class AbstractReporter implements Reporter {
     }
 
     @Override
-    public Reporter createSubReporter(String key, String defaultName) {
-        return createSubReporter(key, defaultName, Collections.emptyMap());
+    public Reporter createSubReporter(String key, String defaultTitle) {
+        return createSubReporter(key, defaultTitle, Collections.emptyMap());
     }
 
     @Override
-    public Reporter createSubReporter(String reporterKey, String defaultName, String valueKey, Object value) {
-        return createSubReporter(reporterKey, defaultName, valueKey, value, TypedValue.UNTYPED);
+    public Reporter createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value) {
+        return createSubReporter(reporterKey, defaultTitle, valueKey, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public Reporter createSubReporter(String reporterKey, String defaultName, String valueKey, Object value, String type) {
-        return createSubReporter(reporterKey, defaultName, Map.of(valueKey, new TypedValue(value, type)));
+    public Reporter createSubReporter(String reporterKey, String defaultTitle, String valueKey, Object value, String type) {
+        return createSubReporter(reporterKey, defaultTitle, Map.of(valueKey, new TypedValue(value, type)));
     }
 
     @Override

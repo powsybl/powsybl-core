@@ -38,27 +38,27 @@ public class ReporterModel extends AbstractReporter {
     /**
      * ReporterModel constructor, with no associated values.
      * @param key the key identifying the corresponding task
-     * @param defaultName the name or message describing the corresponding task
+     * @param defaultTitle the name or message describing the corresponding task
      */
-    public ReporterModel(String key, String defaultName) {
-        this(key, defaultName, Collections.emptyMap());
+    public ReporterModel(String key, String defaultTitle) {
+        this(key, defaultTitle, Collections.emptyMap());
     }
 
     /**
      * ReporterModel constructor, with no associated values.
      * @param key the key identifying the corresponding task
-     * @param defaultName the name or message describing the corresponding task, which may contain references to the
+     * @param defaultTitle the name or message describing the corresponding task, which may contain references to the
      *                    provided values
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
-     *                   defaultName or within the reports message of created ReporterModel
+     *                   defaultTitle or within the reports message of created ReporterModel
      */
-    public ReporterModel(String key, String defaultName, Map<String, TypedValue> values) {
-        super(key, defaultName, values);
+    public ReporterModel(String key, String defaultTitle, Map<String, TypedValue> values) {
+        super(key, defaultTitle, values);
     }
 
     @Override
-    public ReporterModel createSubReporter(String reporterKey, String defaultName, Map<String, TypedValue> values) {
-        ReporterModel subReporter = new ReporterModel(reporterKey, defaultName, values);
+    public ReporterModel createSubReporter(String reporterKey, String defaultTitle, Map<String, TypedValue> values) {
+        ReporterModel subReporter = new ReporterModel(reporterKey, defaultTitle, values);
         addSubReporter(subReporter);
         return subReporter;
     }
@@ -80,8 +80,8 @@ public class ReporterModel extends AbstractReporter {
         return Collections.unmodifiableCollection(reportMessages);
     }
 
-    public String getDefaultName() {
-        return defaultName;
+    public String getDefaultTitle() {
+        return defaultTitle;
     }
 
     public String getKey() {
@@ -113,7 +113,7 @@ public class ReporterModel extends AbstractReporter {
     }
 
     private void printTaskReport(ReporterModel reportTree, Writer writer, String prefix) throws IOException {
-        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultName(), reportTree.getValues())).append(System.lineSeparator());
+        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultTitle(), reportTree.getValues())).append(System.lineSeparator());
         for (ReportMessage reportMessage : reportTree.getReportMessages()) {
             writer.append(prefix).append("   ").append(formatReportMessage(reportMessage, reportTree.getValues())).append(System.lineSeparator());
         }
@@ -130,8 +130,8 @@ public class ReporterModel extends AbstractReporter {
         Map<String, TypedValue> values = valuesNode == null ? Collections.emptyMap() : codec.readValue(valuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String defaultName = dictionary.getOrDefault(key, "(missing task key in dictionary)");
-        ReporterModel reporter = new ReporterModel(key, defaultName, values);
+        String defaultTitle = dictionary.getOrDefault(key, "(missing task key in dictionary)");
+        ReporterModel reporter = new ReporterModel(key, defaultTitle, values);
 
         JsonNode reportsNode = reportTree.get("reportMessages");
         if (reportsNode != null) {
