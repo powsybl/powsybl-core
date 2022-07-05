@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.parameters;
+package com.powsybl.commons.parameters;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.MapModuleConfig;
@@ -90,62 +90,61 @@ public class Parameter {
         return defaultValue;
     }
 
-    public static Object read(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+    public static Object read(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
         Objects.requireNonNull(configuredParameter);
         switch (configuredParameter.getType()) {
             case BOOLEAN:
-                return readBoolean(format, parameters, configuredParameter, defaultValueConfig);
+                return readBoolean(prefix, parameters, configuredParameter, defaultValueConfig);
             case STRING:
-                return readString(format, parameters, configuredParameter, defaultValueConfig);
+                return readString(prefix, parameters, configuredParameter, defaultValueConfig);
             case STRING_LIST:
-                return readStringList(format, parameters, configuredParameter, defaultValueConfig);
+                return readStringList(prefix, parameters, configuredParameter, defaultValueConfig);
             case DOUBLE:
-                return readDouble(format, parameters, configuredParameter, defaultValueConfig);
+                return readDouble(prefix, parameters, configuredParameter, defaultValueConfig);
             default:
                 throw new IllegalStateException("Unknown parameter type: " + configuredParameter.getType());
         }
     }
 
-    public static Object read(String format, Properties paramaters, Parameter configuredParameter) {
-        return read(format, paramaters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static Object read(String prefix, Properties paramaters, Parameter configuredParameter) {
+        return read(prefix, paramaters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
-    public static boolean readBoolean(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        return read(format, parameters, configuredParameter, defaultValueConfig.getBooleanValue(format, configuredParameter), ModuleConfigUtil::getOptionalBooleanProperty);
+    public static boolean readBoolean(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        return read(parameters, configuredParameter, defaultValueConfig.getBooleanValue(prefix, configuredParameter), ModuleConfigUtil::getOptionalBooleanProperty);
     }
 
-    public static boolean readBoolean(String format, Properties parameters, Parameter configuredParameter) {
-        return readBoolean(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static boolean readBoolean(String prefix, Properties parameters, Parameter configuredParameter) {
+        return readBoolean(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
-    public static String readString(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        return read(format, parameters, configuredParameter, defaultValueConfig.getStringValue(format, configuredParameter), ModuleConfigUtil::getOptionalStringProperty);
+    public static String readString(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        return read(parameters, configuredParameter, defaultValueConfig.getStringValue(prefix, configuredParameter), ModuleConfigUtil::getOptionalStringProperty);
     }
 
-    public static String readString(String format, Properties parameters, Parameter configuredParameter) {
-        return readString(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static String readString(String prefix, Properties parameters, Parameter configuredParameter) {
+        return readString(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
-    public static List<String> readStringList(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        return read(format, parameters, configuredParameter, defaultValueConfig.getStringListValue(format, configuredParameter), ModuleConfigUtil::getOptionalStringListProperty);
+    public static List<String> readStringList(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        return read(parameters, configuredParameter, defaultValueConfig.getStringListValue(prefix, configuredParameter), ModuleConfigUtil::getOptionalStringListProperty);
     }
 
-    public static List<String> readStringList(String format, Properties parameters, Parameter configuredParameter) {
-        return readStringList(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static List<String> readStringList(String prefix, Properties parameters, Parameter configuredParameter) {
+        return readStringList(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
-    public static double readDouble(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        return read(format, parameters, configuredParameter, defaultValueConfig.getDoubleValue(format, configuredParameter),
+    public static double readDouble(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
+        return read(parameters, configuredParameter, defaultValueConfig.getDoubleValue(prefix, configuredParameter),
             (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> !Double.isNaN(value));
     }
 
-    public static double readDouble(String format, Properties parameters, Parameter configuredParameter) {
-        return readDouble(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static double readDouble(String prefix, Properties parameters, Parameter configuredParameter) {
+        return readDouble(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
-    private static <T> T read(String format, Properties parameters, Parameter configuredParameter, T defaultValue,
+    private static <T> T read(Properties parameters, Parameter configuredParameter, T defaultValue,
                               BiFunction<ModuleConfig, List<String>, T> supplier, Predicate<T> isPresent) {
-        Objects.requireNonNull(format);
         Objects.requireNonNull(configuredParameter);
         T value = null;
         // priority on passed parameters
@@ -168,8 +167,8 @@ public class Parameter {
         return defaultValue;
     }
 
-    private static <T> T read(String format, Properties parameters, Parameter configuredParameter, T defaultValue, BiFunction<ModuleConfig, List<String>, Optional<T>> supplier) {
-        return read(format, parameters, configuredParameter, defaultValue, (moduleConfig, strings) -> supplier.apply(moduleConfig, strings).orElse(null), Objects::nonNull);
+    private static <T> T read(Properties parameters, Parameter configuredParameter, T defaultValue, BiFunction<ModuleConfig, List<String>, Optional<T>> supplier) {
+        return read(parameters, configuredParameter, defaultValue, (moduleConfig, strings) -> supplier.apply(moduleConfig, strings).orElse(null), Objects::nonNull);
     }
 
     public Parameter addAdditionalNames(String... names) {

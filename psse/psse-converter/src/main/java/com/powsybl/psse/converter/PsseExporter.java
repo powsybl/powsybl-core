@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.psse.converter.extensions.PsseConversionContextExtension;
 import com.powsybl.psse.converter.extensions.PsseModelExtension;
 import com.powsybl.psse.model.PsseException;
