@@ -178,6 +178,9 @@ public class PowerFactoryImporter implements Importer {
                 case "ElmLne":
                     new LineConverter(importContext, network).create(obj);
                     break;
+                case "ElmTow":
+                    new LineConverter(importContext, network).createTower(obj);
+                    break;
 
                 case "ElmTr2":
                     new TransformerConverter(importContext, network).createTwoWindings(obj);
