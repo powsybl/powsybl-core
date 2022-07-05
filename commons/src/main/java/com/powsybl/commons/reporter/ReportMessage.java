@@ -39,8 +39,8 @@ public class ReportMessage extends AbstractReportNode {
         super(key, defaultMessage, values);
     }
 
-    public static ReportBuilder builder() {
-        return new ReportBuilder();
+    public static ReportMessageBuilder builder() {
+        return new ReportMessageBuilder();
     }
 
     public static ReportMessage parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectCodec codec) throws IOException {

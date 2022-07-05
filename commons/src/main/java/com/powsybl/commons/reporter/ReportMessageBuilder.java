@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportBuilder {
+public class ReportMessageBuilder {
 
     private final Map<String, TypedValue> values = new HashMap<>();
     private String key;
@@ -33,7 +33,7 @@ public class ReportBuilder {
      * @param key the key identifying the message to build
      * @return a reference to this object
      */
-    public ReportBuilder withKey(String key) {
+    public ReportMessageBuilder withKey(String key) {
         this.key = key;
         return this;
     }
@@ -44,7 +44,7 @@ public class ReportBuilder {
      *                       values or to the values of corresponding {@link Reporter}.
      * @return a reference to this object
      */
-    public ReportBuilder withDefaultMessage(String defaultMessage) {
+    public ReportMessageBuilder withDefaultMessage(String defaultMessage) {
         this.defaultMessage = defaultMessage;
         return this;
     }
@@ -56,7 +56,7 @@ public class ReportBuilder {
      * @param type the string representing the type of the string value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    public ReportBuilder withTypedValue(String key, String value, String type) {
+    public ReportMessageBuilder withTypedValue(String key, String value, String type) {
         values.put(key, new TypedValue(value, type));
         return this;
     }
@@ -67,7 +67,7 @@ public class ReportBuilder {
      * @param value the string value
      * @return a reference to this object
      */
-    public ReportBuilder withValue(String key, String value) {
+    public ReportMessageBuilder withValue(String key, String value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -78,7 +78,7 @@ public class ReportBuilder {
      * @param type the string representing the type of the double value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    public ReportBuilder withTypedValue(String key, double value, String type) {
+    public ReportMessageBuilder withTypedValue(String key, double value, String type) {
         values.put(key, new TypedValue(value, type));
         return this;
     }
@@ -89,7 +89,7 @@ public class ReportBuilder {
      * @param value the double value
      * @return a reference to this object
      */
-    public ReportBuilder withValue(String key, double value) {
+    public ReportMessageBuilder withValue(String key, double value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -100,7 +100,7 @@ public class ReportBuilder {
      * @param type the string representing the type of the float value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    public ReportBuilder withTypedValue(String key, float value, String type) {
+    public ReportMessageBuilder withTypedValue(String key, float value, String type) {
         values.put(key, new TypedValue(value, type));
         return this;
     }
@@ -111,7 +111,7 @@ public class ReportBuilder {
      * @param value the float value
      * @return a reference to this object
      */
-    public ReportBuilder withValue(String key, float value) {
+    public ReportMessageBuilder withValue(String key, float value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -122,7 +122,7 @@ public class ReportBuilder {
      * @param type the string representing the type of the int value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    public ReportBuilder withTypedValue(String key, int value, String type) {
+    public ReportMessageBuilder withTypedValue(String key, int value, String type) {
         values.put(key, new TypedValue(value, type));
         return this;
     }
@@ -133,7 +133,7 @@ public class ReportBuilder {
      * @param value the int value
      * @return a reference to this object
      */
-    public ReportBuilder withValue(String key, int value) {
+    public ReportMessageBuilder withValue(String key, int value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -144,7 +144,7 @@ public class ReportBuilder {
      * @param type the string representing the type of the long value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    public ReportBuilder withTypedValue(String key, long value, String type) {
+    public ReportMessageBuilder withTypedValue(String key, long value, String type) {
         values.put(key, new TypedValue(value, type));
         return this;
     }
@@ -155,7 +155,7 @@ public class ReportBuilder {
      * @param value the long value
      * @return a reference to this object
      */
-    public ReportBuilder withValue(String key, long value) {
+    public ReportMessageBuilder withValue(String key, long value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -166,7 +166,7 @@ public class ReportBuilder {
      * @param type the string representing the type of the boolean value provided (see {@link TypedValue} constants for some generic types)
      * @return a reference to this object
      */
-    public ReportBuilder withTypedValue(String key, boolean value, String type) {
+    public ReportMessageBuilder withTypedValue(String key, boolean value, String type) {
         values.put(key, new TypedValue(value, type));
         return this;
     }
@@ -177,7 +177,7 @@ public class ReportBuilder {
      * @param value the boolean value
      * @return a reference to this object
      */
-    public ReportBuilder withValue(String key, boolean value) {
+    public ReportMessageBuilder withValue(String key, boolean value) {
         return withTypedValue(key, value, TypedValue.UNTYPED);
     }
 
@@ -186,7 +186,7 @@ public class ReportBuilder {
      * @param severity the typed value
      * @return a reference to this object
      */
-    public ReportBuilder withSeverity(TypedValue severity) {
+    public ReportMessageBuilder withSeverity(TypedValue severity) {
         if (!severity.getType().equals(TypedValue.SEVERITY)) {
             throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
         }
