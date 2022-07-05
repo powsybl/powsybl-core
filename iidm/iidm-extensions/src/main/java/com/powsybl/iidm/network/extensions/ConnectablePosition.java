@@ -16,7 +16,7 @@ import java.util.Optional;
  */
 public interface ConnectablePosition<C extends Connectable<C>> extends Extension<C> {
 
-    static final String NAME = "position";
+    String NAME = "position";
 
     public enum Direction {
         TOP,

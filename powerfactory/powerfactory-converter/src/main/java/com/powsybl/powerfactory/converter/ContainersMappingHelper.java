@@ -159,13 +159,8 @@ final class ContainersMappingHelper {
                         edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, true, Double.MAX_VALUE, Double.MAX_VALUE));
                         break;
                     case "ElmLne":
-                        float dline = connectedObj.getFloatAttributeValue("dline");
-                        DataObject typLne = connectedObj.getObjectAttributeValue("typ_id").resolve().orElseThrow();
-                        float rline = typLne.getFloatAttributeValue("rline");
-                        float xline = typLne.getFloatAttributeValue("xline");
-                        double r = rline * dline;
-                        double x = xline * dline;
-                        edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, false, r, x));
+                        // TODO. Temporary until containersMapping PR. "typ_id" is not defined in some ElmLne
+                        edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, false, Double.MAX_VALUE, Double.MAX_VALUE));
                         break;
                     case "ElmCoup":
                         edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, false, 0, 0));
