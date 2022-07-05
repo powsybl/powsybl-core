@@ -90,29 +90,18 @@ public class ReporterModel extends AbstractReporter {
 
     public void export(Writer writer) {
         try {
-            printTaskReport(this, writer);
+            print(writer, "", new HashMap<>());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private void printTaskReport(ReporterModel reporterModel, Writer writer) throws IOException {
-        printTaskReport(reporterModel, writer, "", new HashMap<>());
-    }
-
-    private void printTaskReport(ReportNode reportNode, Writer writer, String prefix, Map<String, TypedValue> inheritedValueMap) throws IOException {
+    public void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException {
         Map<String, TypedValue> valueMap = new HashMap<>(inheritedValueMap);
-        valueMap.putAll(reportNode.getValues());
-        String formattedText = formatMessage(reportNode.getDefaultText(), valueMap);
-        writer.append(prefix);
-        if (reportNode instanceof ReporterModel) {
-            writer.append("+");
-        }
-        writer.append(" ").append(formattedText).append(System.lineSeparator());
-        if (reportNode instanceof ReporterModel) {
-            for (ReportNode child : ((ReporterModel) reportNode).getChildren()) {
-                printTaskReport(child, writer, prefix + "  ", valueMap);
-            }
+        valueMap.putAll(getValues());
+        printDefaultText(writer, indent, "+ ", valueMap);
+        for (ReportNode child : children) {
+            child.print(writer, indent + "  ", valueMap);
         }
     }
 

@@ -3,6 +3,7 @@ package com.powsybl.commons.reporter;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 
 public interface ReportNode {
@@ -19,4 +20,6 @@ public interface ReportNode {
     Map<String, TypedValue> getValues();
 
     TypedValue getValue(String valueKey);
+
+    void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException;
 }

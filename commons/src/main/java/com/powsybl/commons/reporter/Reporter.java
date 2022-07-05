@@ -9,6 +9,7 @@ package com.powsybl.commons.reporter;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.Map;
 
@@ -148,6 +149,11 @@ public interface Reporter {
 
         @Override
         public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+            // No-op
+        }
+
+        @Override
+        public void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException {
             // No-op
         }
     }

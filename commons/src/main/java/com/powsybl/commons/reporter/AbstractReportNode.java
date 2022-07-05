@@ -2,6 +2,8 @@ package com.powsybl.commons.reporter;
 
 import org.apache.commons.text.StringSubstitutor;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +45,11 @@ public abstract class AbstractReportNode implements ReportNode {
     @Override
     public TypedValue getValue(String valueKey) {
         return values.get(valueKey);
+    }
+
+    protected void printDefaultText(Writer writer, String indent, String prefix, Map<String, TypedValue> valueMap) throws IOException {
+        String formattedText = formatMessage(getDefaultText(), valueMap);
+        writer.append(indent).append(prefix).append(formattedText).append(System.lineSeparator());
     }
 
     /**

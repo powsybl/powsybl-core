@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,5 +65,12 @@ public class ReportMessage extends AbstractReportNode {
         }
         generator.writeEndObject();
         dictionary.put(getKey(), getDefaultText());
+    }
+
+    @Override
+    public void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException {
+        Map<String, TypedValue> valueMap = new HashMap<>(inheritedValueMap);
+        valueMap.putAll(getValues());
+        printDefaultText(writer, indent, " ", valueMap);
     }
 }
