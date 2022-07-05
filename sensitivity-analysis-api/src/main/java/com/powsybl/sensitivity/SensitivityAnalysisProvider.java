@@ -60,7 +60,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
     CompletableFuture<Void> run(Network network,
                                 String workingVariantId,
                                 SensitivityFactorReader factorReader,
-                                SensitivityValueWriter valueWriter,
+                                SensitivityResultWriter valueWriter,
                                 List<Contingency> contingencies,
                                 List<SensitivityVariableSet> variableSets,
                                 SensitivityAnalysisParameters parameters,

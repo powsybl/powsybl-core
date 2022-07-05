@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityValueCsvWriter implements SensitivityValueWriter {
+public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final TableFormatter formatter;
 
@@ -26,8 +26,8 @@ public class SensitivityValueCsvWriter implements SensitivityValueWriter {
 
     private final List<Contingency> contingencies;
 
-    public SensitivityValueCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyStatus,
-                                     List<Contingency> contingencies) {
+    public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyStatus,
+                                      List<Contingency> contingencies) {
         this.formatter = Objects.requireNonNull(formatter);
         this.formatterContingencyStatus = Objects.requireNonNull(formatterContingencyStatus);
         this.contingencies = Objects.requireNonNull(contingencies);
@@ -54,7 +54,7 @@ public class SensitivityValueCsvWriter implements SensitivityValueWriter {
     }
 
     @Override
-    public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
+    public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         Contingency contingency = contingencyIndex != -1 ? contingencies.get(contingencyIndex) : null;
         try {
             formatter.writeCell(contingency != null ? contingency.getId() : "");

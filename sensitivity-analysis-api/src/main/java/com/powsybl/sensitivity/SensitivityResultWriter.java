@@ -9,9 +9,9 @@ package com.powsybl.sensitivity;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface SensitivityValueWriter {
+public interface SensitivityResultWriter {
 
-    void write(int factorIndex, int contingencyIndex, double value, double functionReference);
+    void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference);
 
     void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status);
 }

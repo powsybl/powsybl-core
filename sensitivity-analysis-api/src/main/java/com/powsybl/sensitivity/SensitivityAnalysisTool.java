@@ -194,9 +194,9 @@ public class SensitivityAnalysisTool implements Tool {
             if (csv) {
                 try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
                      Writer writerStatuses = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
-                     TableFormatter formatter = SensitivityValueCsvWriter.createTableFormatter(writer);
-                     TableFormatter formatterStatus = SensitivityValueCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
-                    SensitivityValueWriter valuesWriter = new SensitivityValueCsvWriter(formatter, formatterStatus, contingencies);
+                     TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
+                     TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
+                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, contingencies);
                     SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                             factorsReader, valuesWriter, contingencies, variableSets, params,
                             computationManager, Reporter.NO_OP);
@@ -207,7 +207,7 @@ public class SensitivityAnalysisTool implements Tool {
                      BufferedWriter writerStatus = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
                      JsonGenerator generator = factory.createGenerator(writer);
                      JsonGenerator statusGenerator = factory.createGenerator(writerStatus);
-                     SensitivityValueJsonWriter valuesWriter = new SensitivityValueJsonWriter(generator, statusGenerator)) {
+                     SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, statusGenerator)) {
                     generator.useDefaultPrettyPrinter();
                     SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                             factorsReader, valuesWriter, contingencies, variableSets, params,

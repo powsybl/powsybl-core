@@ -15,12 +15,12 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityValueJsonWriter implements SensitivityValueWriter, AutoCloseable {
+public class SensitivityResultJsonWriter implements SensitivityResultWriter, AutoCloseable {
 
     private final JsonGenerator jsonGenerator;
     private final JsonGenerator jsonStatusGenerator;
 
-    public SensitivityValueJsonWriter(JsonGenerator jsonGenerator, JsonGenerator jsonStatusGenerator) {
+    public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, JsonGenerator jsonStatusGenerator) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
         this.jsonStatusGenerator = Objects.requireNonNull(jsonStatusGenerator);
         try {
@@ -32,7 +32,7 @@ public class SensitivityValueJsonWriter implements SensitivityValueWriter, AutoC
     }
 
     @Override
-    public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
+    public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         SensitivityValue.writeJson(jsonGenerator, factorIndex, contingencyIndex, value, functionReference);
     }
 

@@ -49,7 +49,7 @@ public final class SensitivityAnalysis {
         public CompletableFuture<Void> runAsync(Network network,
                                                 String workingVariantId,
                                                 SensitivityFactorReader factorReader,
-                                                SensitivityValueWriter valueWriter,
+                                                SensitivityResultWriter valueWriter,
                                                 List<Contingency> contingencies,
                                                 List<SensitivityVariableSet> variableSets,
                                                 SensitivityAnalysisParameters parameters,
@@ -86,7 +86,7 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(reporter, "Reporter should not be null");
 
             SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
-            SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
+            SensitivityResultModelWriter valueWriter = new SensitivityResultModelWriter();
 
             return provider.run(network, workingVariantId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter)
                     .thenApply(unused -> new SensitivityAnalysisResult(factors, valueWriter.getContingencyStatuses(), valueWriter.getValues()));
@@ -95,7 +95,7 @@ public final class SensitivityAnalysis {
         public void run(Network network,
                         String workingVariantId,
                         SensitivityFactorReader factorReader,
-                        SensitivityValueWriter valueWriter,
+                        SensitivityResultWriter valueWriter,
                         List<Contingency> contingencies,
                         List<SensitivityVariableSet> variableSets,
                         SensitivityAnalysisParameters parameters,
@@ -193,7 +193,7 @@ public final class SensitivityAnalysis {
     public static CompletableFuture<Void> runAsync(Network network,
                                                    String workingVariantId,
                                                    SensitivityFactorReader factorReader,
-                                                   SensitivityValueWriter valueWriter,
+                                                   SensitivityResultWriter valueWriter,
                                                    List<Contingency> contingencies,
                                                    List<SensitivityVariableSet> variableSets,
                                                    SensitivityAnalysisParameters parameters,
@@ -216,7 +216,7 @@ public final class SensitivityAnalysis {
     public static void run(Network network,
                            String workingVariantId,
                            SensitivityFactorReader factorReader,
-                           SensitivityValueWriter valueWriter,
+                           SensitivityResultWriter valueWriter,
                            List<Contingency> contingencies,
                            List<SensitivityVariableSet> variableSets,
                            SensitivityAnalysisParameters parameters,
