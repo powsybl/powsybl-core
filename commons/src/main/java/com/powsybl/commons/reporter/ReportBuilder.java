@@ -17,7 +17,7 @@ import java.util.Map;
 public class ReportBuilder {
 
     private final Map<String, TypedValue> values = new HashMap<>();
-    private String messageKey;
+    private String key;
     private String defaultMessage;
 
     /**
@@ -25,16 +25,16 @@ public class ReportBuilder {
      * @return the new {@link ReportMessage} corresponding to current <code>ReportBuilder</code>
      */
     public ReportMessage build() {
-        return new ReportMessage(messageKey, defaultMessage, values);
+        return new ReportMessage(key, defaultMessage, values);
     }
 
     /**
      * Provide the key to build the {@link ReportMessage} with.
-     * @param messageKey the key identifying the message to build
+     * @param key the key identifying the message to build
      * @return a reference to this object
      */
-    public ReportBuilder withKey(String messageKey) {
-        this.messageKey = messageKey;
+    public ReportBuilder withKey(String key) {
+        this.key = key;
         return this;
     }
 

@@ -26,20 +26,20 @@ public class ReportMessage {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
 
-    private final String messageKey;
+    private final String key;
     private final String defaultMessage;
     private final Map<String, TypedValue> values;
 
     /**
      * Constructor
-     * @param messageKey a key identifying the current report
+     * @param key a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the provided values or to the
      *                       values of corresponding {@link Reporter}.
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *               defaultMessage provided
      */
-    public ReportMessage(String messageKey, String defaultMessage, Map<String, TypedValue> values) {
-        this.messageKey = Objects.requireNonNull(messageKey);
+    public ReportMessage(String key, String defaultMessage, Map<String, TypedValue> values) {
+        this.key = Objects.requireNonNull(key);
         this.defaultMessage = defaultMessage;
         this.values = new HashMap<>();
         Objects.requireNonNull(values).forEach(this::addTypedValue);
@@ -58,8 +58,8 @@ public class ReportMessage {
         return defaultMessage;
     }
 
-    public String getMessageKey() {
-        return messageKey;
+    public String getKey() {
+        return key;
     }
 
     public TypedValue getValue(String valueKey) {
@@ -71,16 +71,16 @@ public class ReportMessage {
     }
 
     public static ReportMessage parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
-        JsonNode msgKeyNode = jsonNode.get("messageKey");
-        String messageKey = codec.readValue(msgKeyNode.traverse(), String.class);
+        JsonNode msgKeyNode = jsonNode.get("key");
+        String key = codec.readValue(msgKeyNode.traverse(), String.class);
 
         JsonNode reportValuesNode = jsonNode.get("values");
         Map<String, TypedValue> values = reportValuesNode == null ? Collections.emptyMap() : codec.readValue(reportValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String defaultMessage = dictionary.getOrDefault(messageKey, "(missing report key in dictionary)");
+        String defaultMessage = dictionary.getOrDefault(key, "(missing report key in dictionary)");
 
-        return new ReportMessage(messageKey, defaultMessage, values);
+        return new ReportMessage(key, defaultMessage, values);
     }
 
 }

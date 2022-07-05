@@ -37,23 +37,23 @@ public class ReporterModel extends AbstractReporter {
 
     /**
      * ReporterModel constructor, with no associated values.
-     * @param reporterKey the key identifying the corresponding task
+     * @param key the key identifying the corresponding task
      * @param defaultName the name or message describing the corresponding task
      */
-    public ReporterModel(String reporterKey, String defaultName) {
-        this(reporterKey, defaultName, Collections.emptyMap());
+    public ReporterModel(String key, String defaultName) {
+        this(key, defaultName, Collections.emptyMap());
     }
 
     /**
      * ReporterModel constructor, with no associated values.
-     * @param reporterKey the key identifying the corresponding task
+     * @param key the key identifying the corresponding task
      * @param defaultName the name or message describing the corresponding task, which may contain references to the
      *                    provided values
-     * @param reporterValues a map of {@link TypedValue} indexed by their key, which may be referred to within the
+     * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *                   defaultName or within the reports message of created ReporterModel
      */
-    public ReporterModel(String reporterKey, String defaultName, Map<String, TypedValue> reporterValues) {
-        super(reporterKey, defaultName, reporterValues);
+    public ReporterModel(String key, String defaultName, Map<String, TypedValue> values) {
+        super(key, defaultName, values);
     }
 
     @Override
@@ -84,12 +84,12 @@ public class ReporterModel extends AbstractReporter {
         return defaultName;
     }
 
-    public String getReporterKey() {
-        return reporterKey;
+    public String getKey() {
+        return key;
     }
 
-    public Map<String, TypedValue> getReporterValues() {
-        return Collections.unmodifiableMap(reporterValues);
+    public Map<String, TypedValue> getValues() {
+        return Collections.unmodifiableMap(values);
     }
 
     public List<ReporterModel> getSubReporters() {
@@ -113,9 +113,9 @@ public class ReporterModel extends AbstractReporter {
     }
 
     private void printTaskReport(ReporterModel reportTree, Writer writer, String prefix) throws IOException {
-        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultName(), reportTree.getReporterValues())).append(System.lineSeparator());
+        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultName(), reportTree.getValues())).append(System.lineSeparator());
         for (ReportMessage reportMessage : reportTree.getReportMessages()) {
-            writer.append(prefix).append("   ").append(formatReportMessage(reportMessage, reportTree.getReporterValues())).append(System.lineSeparator());
+            writer.append(prefix).append("   ").append(formatReportMessage(reportMessage, reportTree.getValues())).append(System.lineSeparator());
         }
         for (ReporterModel subReporter : reportTree.getSubReporters()) {
             printTaskReport(subReporter, writer, prefix + "  ");
@@ -123,15 +123,15 @@ public class ReporterModel extends AbstractReporter {
     }
 
     public static ReporterModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
-        JsonNode reporterKeyNode = reportTree.get("reporterKey");
-        String reporterKey = codec.readValue(reporterKeyNode.traverse(), String.class);
+        JsonNode keyNode = reportTree.get("key");
+        String key = codec.readValue(keyNode.traverse(), String.class);
 
-        JsonNode reporterValuesNode = reportTree.get("reporterValues");
-        Map<String, TypedValue> reporterValues = reporterValuesNode == null ? Collections.emptyMap() : codec.readValue(reporterValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
+        JsonNode valuesNode = reportTree.get("values");
+        Map<String, TypedValue> values = valuesNode == null ? Collections.emptyMap() : codec.readValue(valuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String defaultName = dictionary.getOrDefault(reporterKey, "(missing task key in dictionary)");
-        ReporterModel reporter = new ReporterModel(reporterKey, defaultName, reporterValues);
+        String defaultName = dictionary.getOrDefault(key, "(missing task key in dictionary)");
+        ReporterModel reporter = new ReporterModel(key, defaultName, values);
 
         JsonNode reportsNode = reportTree.get("reportMessages");
         if (reportsNode != null) {

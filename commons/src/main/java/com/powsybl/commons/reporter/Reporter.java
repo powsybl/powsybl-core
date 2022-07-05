@@ -40,7 +40,7 @@ public interface Reporter {
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with
      * some associated values.
-     * @param reporterKey the key identifying that task
+     * @param reporterKey the key identifying that sub-reporter
      * @param defaultName a name or message describing the corresponding task, which may contain references to the
      *                    provided values
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the defaultName
@@ -52,7 +52,7 @@ public interface Reporter {
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with no
      * associated value.
-     * @param reporterKey the key identifying that task
+     * @param reporterKey the key identifying that sub-reporter
      * @param defaultName a name or message describing the corresponding task
      * @return the new sub-reporter
      */
@@ -61,33 +61,33 @@ public interface Reporter {
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
      * associated value.
-     * @param reporterKey the key identifying that task
+     * @param reporterKey the key identifying that sub-reporter
      * @param defaultName a name or message describing the corresponding task, which may contain references to the
      *                    provided value
-     * @param key the key for the value which follows
+     * @param valueKey the key for the value which follows
      * @param value the value which may be referred to within the defaultName or within the reports message of the
      *              created sub-reporter
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value);
+    Reporter createSubReporter(String reporterKey, String defaultName, String valueKey, Object value);
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
      * associated typed value.
-     * @param reporterKey the key identifying that task
+     * @param reporterKey the key identifying that sub-reporter
      * @param defaultName a name or message describing the corresponding task, which may contain references to the
      *                    provided typed value
-     * @param key the key for the typed value which follows
+     * @param valueKey the key for the value which follows
      * @param value the value which may be referred to within the defaultName or within the reports message of the
      *              created sub-reporter
      * @param type the string representing the type of the value provided
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value, String type);
+    Reporter createSubReporter(String reporterKey, String defaultName, String valueKey, Object value, String type);
 
     /**
-     * Add a new report with its associated values.
-     * @param messageKey a key identifying the current report
+     * Add a new report message with its associated values.
+     * @param messageKey a key identifying the current report message
      * @param defaultMessage the default report message, which may contain references to the provided values or to the
      *                       values of current reporter
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the

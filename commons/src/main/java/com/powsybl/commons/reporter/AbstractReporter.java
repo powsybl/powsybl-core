@@ -19,35 +19,35 @@ import java.util.Objects;
  */
 public abstract class AbstractReporter implements Reporter {
 
-    protected final String reporterKey;
+    protected final String key;
     protected final String defaultName;
-    protected final Map<String, TypedValue> reporterValues;
+    protected final Map<String, TypedValue> values;
 
-    protected AbstractReporter(String reporterKey, String defaultName, Map<String, TypedValue> reporterValues) {
-        this.reporterKey = Objects.requireNonNull(reporterKey);
+    protected AbstractReporter(String key, String defaultName, Map<String, TypedValue> values) {
+        this.key = Objects.requireNonNull(key);
         this.defaultName = defaultName;
-        this.reporterValues = new HashMap<>();
-        Objects.requireNonNull(reporterValues).forEach(this::addTaskValue);
+        this.values = new HashMap<>();
+        Objects.requireNonNull(values).forEach(this::addTaskValue);
     }
 
     private void addTaskValue(String key, TypedValue typedValue) {
         Objects.requireNonNull(typedValue);
-        reporterValues.put(key, typedValue);
+        values.put(key, typedValue);
     }
 
     @Override
-    public Reporter createSubReporter(String reporterKey, String defaultName) {
-        return createSubReporter(reporterKey, defaultName, Collections.emptyMap());
+    public Reporter createSubReporter(String key, String defaultName) {
+        return createSubReporter(key, defaultName, Collections.emptyMap());
     }
 
     @Override
-    public Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value) {
-        return createSubReporter(reporterKey, defaultName, key, value, TypedValue.UNTYPED);
+    public Reporter createSubReporter(String reporterKey, String defaultName, String valueKey, Object value) {
+        return createSubReporter(reporterKey, defaultName, valueKey, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value, String type) {
-        return createSubReporter(reporterKey, defaultName, Map.of(key, new TypedValue(value, type)));
+    public Reporter createSubReporter(String reporterKey, String defaultName, String valueKey, Object value, String type) {
+        return createSubReporter(reporterKey, defaultName, Map.of(valueKey, new TypedValue(value, type)));
     }
 
     @Override
@@ -76,11 +76,11 @@ public abstract class AbstractReporter implements Reporter {
      * The values are first searched in the report key-value map, then in or the given key-value map.
      * {@link org.apache.commons.text.StringSubstitutor} is used for the string replacements.
      * @param reportMessage the report whose default message needs to be formatted
-     * @param reporterValues the key-value map used if any value reference is not found among the report values
+     * @param values the key-value map used if any value reference is not found among the report values
      * @return the resulting formatted string
      */
-    protected static String formatReportMessage(ReportMessage reportMessage, Map<String, TypedValue> reporterValues) {
-        return new StringSubstitutor(reporterValues).replace(new StringSubstitutor(reportMessage.getValues()).replace(reportMessage.getDefaultMessage()));
+    protected static String formatReportMessage(ReportMessage reportMessage, Map<String, TypedValue> values) {
+        return new StringSubstitutor(values).replace(new StringSubstitutor(reportMessage.getValues()).replace(reportMessage.getDefaultMessage()));
     }
 
     /**

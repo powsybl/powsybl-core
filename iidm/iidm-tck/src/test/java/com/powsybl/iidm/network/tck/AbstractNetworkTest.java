@@ -605,7 +605,7 @@ public abstract class AbstractNetworkTest {
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
         ReporterModel subReporter = subReporters.get(0);
-        assertEquals("IIDMValidation", subReporter.getReporterKey());
+        assertEquals("IIDMValidation", subReporter.getKey());
         assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
         Collection<ReportMessage> reportMessages = subReporter.getReportMessages();
         assertFalse(reportMessages.isEmpty());

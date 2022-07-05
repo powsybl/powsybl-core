@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "reportTree" : {
-    "reporterKey" : "importAllParallel",
+    "key" : "importAllParallel",
     "taskValues" : {
       "file2" : {
         "value" : "frTestGridForMerging.uct",
@@ -17,20 +17,20 @@
       }
     },
     "subReporters" : [ {
-      "reporterKey" : "importDataSource",
+      "key" : "importDataSource",
       "taskValues" : {
         "dataSource" : {
           "value" : "frTestGridForMerging"
         }
       },
       "subReporters" : [ {
-        "reporterKey" : "UcteReading",
+        "key" : "UcteReading",
         "subReporters" : [ {
-          "reporterKey" : "fixUcteNodes"
+          "key" : "fixUcteNodes"
         }, {
-          "reporterKey" : "fixUcteLines",
+          "key" : "fixUcteLines",
           "reports" : [ {
-            "messageKey" : "negativeLineResistance",
+            "key" : "negativeLineResistance",
             "values" : {
               "reportSeverity" : {
                 "value" : "ERROR",
@@ -45,7 +45,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "key" : "negativeLineResistance",
             "values" : {
               "reportSeverity" : {
                 "value" : "ERROR",
@@ -61,26 +61,26 @@
             }
           } ]
         }, {
-          "reporterKey" : "fixUcteTransformer"
+          "key" : "fixUcteTransformer"
         }, {
-          "reporterKey" : "fixUcteRegulations"
+          "key" : "fixUcteRegulations"
         } ]
       } ]
     }, {
-      "reporterKey" : "importDataSource",
+      "key" : "importDataSource",
       "taskValues" : {
         "dataSource" : {
           "value" : "frVoltageRegulatingXnode"
         }
       },
       "subReporters" : [ {
-        "reporterKey" : "UcteReading",
+        "key" : "UcteReading",
         "subReporters" : [ {
-          "reporterKey" : "fixUcteNodes"
+          "key" : "fixUcteNodes"
         }, {
-          "reporterKey" : "fixUcteLines",
+          "key" : "fixUcteLines",
           "reports" : [ {
-            "messageKey" : "negativeLineResistance",
+            "key" : "negativeLineResistance",
             "values" : {
               "reportSeverity" : {
                 "value" : "ERROR",
@@ -95,7 +95,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "key" : "negativeLineResistance",
             "values" : {
               "reportSeverity" : {
                 "value" : "ERROR",
@@ -110,7 +110,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "key" : "negativeLineResistance",
             "values" : {
               "reportSeverity" : {
                 "value" : "ERROR",
@@ -125,7 +125,7 @@
               }
             }
           }, {
-            "messageKey" : "negativeLineResistance",
+            "key" : "negativeLineResistance",
             "values" : {
               "reportSeverity" : {
                 "value" : "ERROR",
@@ -141,28 +141,28 @@
             }
           } ]
         }, {
-          "reporterKey" : "fixUcteTransformer"
+          "key" : "fixUcteTransformer"
         }, {
-          "reporterKey" : "fixUcteRegulations"
+          "key" : "fixUcteRegulations"
         } ]
       } ]
     }, {
-      "reporterKey" : "importDataSource",
+      "key" : "importDataSource",
       "taskValues" : {
         "dataSource" : {
           "value" : "germanTsos"
         }
       },
       "subReporters" : [ {
-        "reporterKey" : "UcteReading",
+        "key" : "UcteReading",
         "subReporters" : [ {
-          "reporterKey" : "fixUcteNodes"
+          "key" : "fixUcteNodes"
         }, {
-          "reporterKey" : "fixUcteLines"
+          "key" : "fixUcteLines"
         }, {
-          "reporterKey" : "fixUcteTransformer"
+          "key" : "fixUcteTransformer"
         }, {
-          "reporterKey" : "fixUcteRegulations"
+          "key" : "fixUcteRegulations"
         } ]
       } ]
     } ]

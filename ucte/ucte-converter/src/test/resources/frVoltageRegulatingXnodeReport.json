@@ -1,18 +1,18 @@
 {
   "version" : "1.0",
   "reportTree" : {
-    "reporterKey" : "roundTripReporterJsonTest",
+    "key" : "roundTripReporterJsonTest",
     "reports" : [ {
-      "messageKey" : "novalueReport"
+      "key" : "novalueReport"
     } ],
     "subReporters" : [ {
-      "reporterKey" : "UcteReading",
+      "key" : "UcteReading",
       "subReporters" : [ {
-        "reporterKey" : "fixUcteNodes"
+        "key" : "fixUcteNodes"
       }, {
-        "reporterKey" : "fixUcteLines",
+        "key" : "fixUcteLines",
         "reports" : [ {
-          "messageKey" : "negativeLineResistance",
+          "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
               "value" : "ERROR",
@@ -27,7 +27,7 @@
             }
           }
         }, {
-          "messageKey" : "negativeLineResistance",
+          "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
               "value" : "ERROR",
@@ -42,7 +42,7 @@
             }
           }
         }, {
-          "messageKey" : "negativeLineResistance",
+          "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
               "value" : "ERROR",
@@ -57,7 +57,7 @@
             }
           }
         }, {
-          "messageKey" : "negativeLineResistance",
+          "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
               "value" : "ERROR",
@@ -73,9 +73,9 @@
           }
         } ]
       }, {
-        "reporterKey" : "fixUcteTransformer"
+        "key" : "fixUcteTransformer"
       }, {
-        "reporterKey" : "fixUcteRegulations"
+        "key" : "fixUcteRegulations"
       } ]
     } ]
   },
