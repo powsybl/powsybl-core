@@ -26,7 +26,7 @@ class TypedValueTest {
         assertEquals(TypedValue.SEVERITY, TypedValue.ERROR_SEVERITY.getType());
 
         // Check that is not possible to add a Severity attribute with a TypedValue that is not a severity
-        ReportBuilder r = Report.builder().withKey("key").withDefaultMessage("defaultMessage");
+        ReportBuilder r = ReportMessage.builder().withKey("key").withDefaultMessage("defaultMessage");
         TypedValue illegalSeverity = new TypedValue("error", "OTHER_TYPE");
         assertThrows(IllegalArgumentException.class, () -> r.withSeverity(illegalSeverity));
     }

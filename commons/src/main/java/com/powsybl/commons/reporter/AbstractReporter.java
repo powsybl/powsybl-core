@@ -19,55 +19,55 @@ import java.util.Objects;
  */
 public abstract class AbstractReporter implements Reporter {
 
-    protected final String taskKey;
+    protected final String reporterKey;
     protected final String defaultName;
-    protected final Map<String, TypedValue> taskValues;
+    protected final Map<String, TypedValue> reporterValues;
 
-    protected AbstractReporter(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
-        this.taskKey = Objects.requireNonNull(taskKey);
+    protected AbstractReporter(String reporterKey, String defaultName, Map<String, TypedValue> reporterValues) {
+        this.reporterKey = Objects.requireNonNull(reporterKey);
         this.defaultName = defaultName;
-        this.taskValues = new HashMap<>();
-        Objects.requireNonNull(taskValues).forEach(this::addTaskValue);
+        this.reporterValues = new HashMap<>();
+        Objects.requireNonNull(reporterValues).forEach(this::addTaskValue);
     }
 
     private void addTaskValue(String key, TypedValue typedValue) {
         Objects.requireNonNull(typedValue);
-        taskValues.put(key, typedValue);
+        reporterValues.put(key, typedValue);
     }
 
     @Override
-    public Reporter createSubReporter(String taskKey, String defaultName) {
-        return createSubReporter(taskKey, defaultName, Collections.emptyMap());
+    public Reporter createSubReporter(String reporterKey, String defaultName) {
+        return createSubReporter(reporterKey, defaultName, Collections.emptyMap());
     }
 
     @Override
-    public Reporter createSubReporter(String taskKey, String defaultName, String key, Object value) {
-        return createSubReporter(taskKey, defaultName, key, value, TypedValue.UNTYPED);
+    public Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value) {
+        return createSubReporter(reporterKey, defaultName, key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public Reporter createSubReporter(String taskKey, String defaultName, String key, Object value, String type) {
-        return createSubReporter(taskKey, defaultName, Map.of(key, new TypedValue(value, type)));
+    public Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value, String type) {
+        return createSubReporter(reporterKey, defaultName, Map.of(key, new TypedValue(value, type)));
     }
 
     @Override
-    public void report(String reportKey, String defaultMessage, Map<String, TypedValue> values) {
-        report(new Report(reportKey, defaultMessage, values));
+    public void report(String messageKey, String defaultMessage, Map<String, TypedValue> values) {
+        report(new ReportMessage(messageKey, defaultMessage, values));
     }
 
     @Override
-    public void report(String reportKey, String defaultMessage) {
-        report(reportKey, defaultMessage, Collections.emptyMap());
+    public void report(String messageKey, String defaultMessage) {
+        report(messageKey, defaultMessage, Collections.emptyMap());
     }
 
     @Override
-    public void report(String reportKey, String defaultMessage, String valueKey, Object value) {
-        report(reportKey, defaultMessage, valueKey, value, TypedValue.UNTYPED);
+    public void report(String messageKey, String defaultMessage, String valueKey, Object value) {
+        report(messageKey, defaultMessage, valueKey, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public void report(String reportKey, String defaultMessage, String valueKey, Object value, String type) {
-        report(reportKey, defaultMessage, Map.of(valueKey, new TypedValue(value, type)));
+    public void report(String messageKey, String defaultMessage, String valueKey, Object value, String type) {
+        report(messageKey, defaultMessage, Map.of(valueKey, new TypedValue(value, type)));
     }
 
     /**
@@ -75,12 +75,12 @@ public abstract class AbstractReporter implements Reporter {
      * The values in the report default message have to be referred to with their corresponding key, using the <code>${key}</code> syntax.
      * The values are first searched in the report key-value map, then in or the given key-value map.
      * {@link org.apache.commons.text.StringSubstitutor} is used for the string replacements.
-     * @param report the report whose default message needs to be formatted
-     * @param taskValues the key-value map used if any value reference is not found among the report values
+     * @param reportMessage the report whose default message needs to be formatted
+     * @param reporterValues the key-value map used if any value reference is not found among the report values
      * @return the resulting formatted string
      */
-    protected static String formatReportMessage(Report report, Map<String, TypedValue> taskValues) {
-        return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultMessage()));
+    protected static String formatReportMessage(ReportMessage reportMessage, Map<String, TypedValue> reporterValues) {
+        return new StringSubstitutor(reporterValues).replace(new StringSubstitutor(reportMessage.getValues()).replace(reportMessage.getDefaultMessage()));
     }
 
     /**

@@ -1,16 +1,16 @@
 {
   "version" : "1.0",
   "reportTree" : {
-    "taskKey" : "testPostProcessor",
+    "reporterKey" : "testPostProcessor",
     "reports" : [ {
-      "reportKey" : "test",
+      "messageKey" : "test",
       "values" : {
         "model" : {
           "value" : "eurostagTutorialExample1"
         }
       }
     }, {
-      "reportKey" : "testImportPostProcessor"
+      "messageKey" : "testImportPostProcessor"
     } ]
   },
   "dics" : {

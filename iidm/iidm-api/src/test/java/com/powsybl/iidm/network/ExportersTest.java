@@ -10,7 +10,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReportMessage;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
 import org.junit.jupiter.api.Test;
@@ -122,7 +122,7 @@ class ExportersTest extends AbstractConvertersTest {
         DataSource dataSource = Exporters.createDataSource(path);
         ReporterModel reporter = new ReporterModel("reportTest", "Testing exporter reporter");
         testExporter.export(null, null, dataSource, reporter);
-        Optional<Report> report = reporter.getReports().stream().findFirst();
+        Optional<ReportMessage> report = reporter.getReportMessages().stream().findFirst();
         assertTrue(report.isPresent());
 
         StringWriter sw = new StringWriter();

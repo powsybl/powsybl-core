@@ -10,11 +10,10 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
@@ -45,8 +44,8 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     }
 
     private boolean inconsistentProfilesReported(ReporterModel reporter) {
-        return reporter.getReports().stream()
-                .map(Report::getReportKey)
+        return reporter.getSubReporters().stream()
+                .map(ReporterModel::getReporterKey)
                 .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));
     }
 

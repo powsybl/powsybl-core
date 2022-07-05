@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReportMessage;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
@@ -605,10 +605,10 @@ public abstract class AbstractNetworkTest {
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
         ReporterModel subReporter = subReporters.get(0);
-        assertEquals("IIDMValidation", subReporter.getTaskKey());
+        assertEquals("IIDMValidation", subReporter.getReporterKey());
         assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
-        Collection<Report> reports = subReporter.getReports();
-        assertFalse(reports.isEmpty());
+        Collection<ReportMessage> reportMessages = subReporter.getReportMessages();
+        assertFalse(reportMessages.isEmpty());
 
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
 

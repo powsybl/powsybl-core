@@ -317,7 +317,7 @@ public abstract class AbstractConnectableTest {
         network.getReporterContext().pushReporter(reporter);
         assertFalse(line1.disconnect());
         network.getReporterContext().popReporter();
-        assertEquals("alreadyDisconnectedTerminal", reporter.getReports().iterator().next().getReportKey());
+        assertEquals("alreadyDisconnectedTerminal", reporter.getSubReporters().iterator().next().getReporterKey());
 
         // Reconnect the line 1
         assertTrue(line1.connect());
@@ -367,7 +367,7 @@ public abstract class AbstractConnectableTest {
         network.getReporterContext().pushReporter(reporter);
         assertFalse(line2.connect());
         network.getReporterContext().popReporter();
-        assertEquals("alreadyConnectedTerminal", reporter.getReports().iterator().next().getReportKey());
+        assertEquals("alreadyConnectedTerminal", reporter.getSubReporters().iterator().next().getReporterKey());
 
         // Disconnect the twt
         assertTrue(twt.disconnect(SwitchPredicates.IS_CLOSED_BREAKER));

@@ -48,7 +48,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         Reporter subReporter1 = reporter1.createSubReporter("withThrowException", "throwException = true");
         assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, subReporter1), "Line line1NotFound is not found");
-        assertEquals("lineNotFound", reporter1.getSubReporters().get(0).getReports().iterator().next().getReportKey());
+        assertEquals("lineNotFound", reporter1.getSubReporters().get(0).getSubReporters().iterator().next().getReporterKey());
         final NetworkModification modificationWithError11 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("line1NotFound")
                 .withLineToBeMerged2Id("CJ_1")
@@ -57,7 +57,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError11.apply(network, false, reporter1.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        assertEquals("lineNotFound", reporter1.getSubReporters().get(1).getReports().iterator().next().getReportKey());
+        assertEquals("lineNotFound", reporter1.getSubReporters().get(1).getSubReporters().iterator().next().getReporterKey());
 
         ReporterModel reporter2 = new ReporterModel("reportTestUndefinedLine2", "Testing reporter with undefined line2");
         final NetworkModification modificationWithError2 = new RevertCreateLineOnLineBuilder()
@@ -68,7 +68,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         Reporter subReporter2 = reporter2.createSubReporter("withThrowException", "throwException = true");
         assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, subReporter2), "Line line2NotFound is not found");
-        assertEquals("lineNotFound", reporter2.getSubReporters().get(0).getReports().iterator().next().getReportKey());
+        assertEquals("lineNotFound", reporter2.getSubReporters().get(0).getSubReporters().iterator().next().getReporterKey());
         final NetworkModification modificationWithError21 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("line2NotFound")
@@ -77,7 +77,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError21.apply(network, false, reporter2.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        assertEquals("lineNotFound", reporter2.getSubReporters().get(1).getReports().iterator().next().getReportKey());
+        assertEquals("lineNotFound", reporter2.getSubReporters().get(1).getSubReporters().iterator().next().getReporterKey());
 
         ReporterModel reporter3 = new ReporterModel("reportTestUndefinedLineToBeDeleted", "Testing reporter with undefined line to be deleted");
         final NetworkModification modificationWithError3 = new RevertCreateLineOnLineBuilder()
@@ -88,7 +88,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         Reporter subReporter3 = reporter3.createSubReporter("withThrowException", "throwException = true");
         assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, subReporter3), "Line line3NotFound is not found");
-        assertEquals("lineNotFound", reporter3.getSubReporters().get(0).getReports().iterator().next().getReportKey());
+        assertEquals("lineNotFound", reporter3.getSubReporters().get(0).getSubReporters().iterator().next().getReporterKey());
         final NetworkModification modificationWithError31 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
@@ -97,7 +97,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError31.apply(network, false, reporter3.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        assertEquals("lineNotFound", reporter3.getSubReporters().get(1).getReports().iterator().next().getReportKey());
+        assertEquals("lineNotFound", reporter3.getSubReporters().get(1).getSubReporters().iterator().next().getReporterKey());
 
         ReporterModel reporter4 = new ReporterModel("reportTestNoTeePointAndOrTappedVoltageLevel", "Testing reporter without tee point");
         final NetworkModification modificationWithError4 = new RevertCreateLineOnLineBuilder()
@@ -108,7 +108,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         Reporter subReporter4 = reporter4.createSubReporter("withThrowException", "throwException = true");
         assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, subReporter4), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
-        assertEquals("noTeePointAndOrTappedVoltageLevel", reporter4.getSubReporters().get(0).getReports().iterator().next().getReportKey());
+        assertEquals("noTeePointAndOrTappedVoltageLevel", reporter4.getSubReporters().get(0).getSubReporters().iterator().next().getReporterKey());
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
@@ -117,7 +117,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError41.apply(network, false, reporter4.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        assertEquals("noTeePointAndOrTappedVoltageLevel", reporter4.getSubReporters().get(1).getReports().iterator().next().getReportKey());
+        assertEquals("noTeePointAndOrTappedVoltageLevel", reporter4.getSubReporters().get(1).getSubReporters().iterator().next().getReporterKey());
 
         ReporterModel reporter = new ReporterModel("reporterTestRevertCreateLineOnLine", "Testing reporter for reverting create line on line in node/breaker network");
         modification = new RevertCreateLineOnLineBuilder()

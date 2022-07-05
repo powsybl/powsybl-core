@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReportMessage;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Bus;
@@ -22,7 +22,7 @@ public final class CgmesReports {
 
     // INFO
     public static void importedCgmesNetworkReport(Reporter reporter, String networkId) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("importedCgmesNetwork")
                 .withDefaultMessage("CGMES network ${networkId} is imported.")
                 .withValue("networkId", networkId)
@@ -32,7 +32,7 @@ public final class CgmesReports {
 
     // WARN
     public static void badVoltageTargetValueRegulatingControlReport(Reporter reporter, String eqId, double targetValue) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("badVoltageTargetValueRegulatingControl")
                 .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
                 .withValue("equipmentId", eqId)
@@ -42,7 +42,7 @@ public final class CgmesReports {
     }
 
     public static void badTargetDeadbandRegulatingControlReport(Reporter reporter, String eqId, double targetDeadband) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("badTargetDeadbandRegulatingControl")
                 .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
                 .withValue("equipmentId", eqId)
@@ -52,7 +52,7 @@ public final class CgmesReports {
     }
 
     public static void invalidAngleVoltageBusReport(Reporter reporter, Bus bus, String nodeId, double v, double angle) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("invalidAngleVoltageBus")
                 .withDefaultMessage("Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
                 .withValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
@@ -66,7 +66,7 @@ public final class CgmesReports {
     }
 
     public static void invalidAngleVoltageNodeReport(Reporter reporter, String nodeId, double v, double angle) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("invalidAngleVoltageNode")
                 .withDefaultMessage("Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
                 .withValue("nodeId", nodeId)
@@ -78,7 +78,7 @@ public final class CgmesReports {
 
     // ERROR
     public static void inconsistentProfilesTPRequiredReport(Reporter reporter, String networkId) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("inconsistentProfilesTPRequired")
                 .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
                 .withValue("networkId", networkId)
@@ -87,7 +87,7 @@ public final class CgmesReports {
     }
 
     public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(Reporter reporter, String danglingLineId) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("danglingLineDisconnectedAtBoundaryHasBeenDisconnected")
                 .withDefaultMessage("DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
                 .withValue("danglingLineId", danglingLineId)
@@ -96,7 +96,7 @@ public final class CgmesReports {
     }
 
     public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(Reporter reporter, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("multipleUnpairedDanglingLinesAtSameBoundary")
                 .withDefaultMessage("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
                 .withValue("danglingLineId", danglingLineId)

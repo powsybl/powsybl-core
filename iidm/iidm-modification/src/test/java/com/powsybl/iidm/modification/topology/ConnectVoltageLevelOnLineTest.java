@@ -141,8 +141,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReporterNb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
         ReporterModel firstReport = reporter.getSubReporters().get(0);
-        assertEquals("notFoundBusOrBusbarSection", firstReport.getReports().iterator().next().getReportKey());
-        assertEquals("nodeBreaker", firstReport.getTaskKey());
+        assertEquals("notFoundBusOrBusbarSection", firstReport.getSubReporters().iterator().next().getReporterKey());
+        assertEquals("nodeBreaker", firstReport.getReporterKey());
 
         Network network2 = createBbNetwork();
         NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
@@ -153,8 +153,8 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReporterBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
         ReporterModel secondReport = reporter.getSubReporters().get(1);
-        assertEquals("notFoundBusOrBusbarSection", secondReport.getReports().iterator().next().getReportKey());
-        assertEquals("busBreaker", secondReport.getTaskKey());
+        assertEquals("notFoundBusOrBusbarSection", secondReport.getSubReporters().iterator().next().getReporterKey());
+        assertEquals("busBreaker", secondReport.getReporterKey());
     }
 
     @Test

@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReportMessage;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -232,7 +232,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reporter.report(Report.builder()
+        reporter.report(ReportMessage.builder()
                 .withKey("newLineOnLineCreated")
                 .withDefaultMessage("New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
                 .withValue("newLineId", newLine.getId())

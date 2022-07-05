@@ -50,7 +50,7 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         assertEquals("TypedValue expects only Float, Double, Integer, Long and String values (value is an instance of class com.powsybl.commons.datasource.ResourceDataSource)", e.getMessage());
 
         reporter.report("reportTest", "Report test ${unknownKey}", "nonPrintedString", "Non printed String");
-        Optional<Report> report = reporter.getReports().stream().findFirst();
+        Optional<ReportMessage> report = reporter.getReportMessages().stream().findFirst();
         assertTrue(report.isPresent());
         assertEquals("Report test ${unknownKey}", report.get().getDefaultMessage());
         assertEquals("Non printed String", report.get().getValue("nonPrintedString").getValue());
@@ -76,8 +76,8 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
 
         // Testing deserializing with unknown specified dictionary
         ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
-        assertEquals(1, rm.getReports().size());
-        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(1, rm.getReportMessages().size());
+        assertEquals("No value report", rm.getReportMessages().iterator().next().getDefaultMessage());
         assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
@@ -87,15 +87,15 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReporterModelJsonModule());
         ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
-        assertEquals(1, rm.getReports().size());
-        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(1, rm.getReportMessages().size());
+        assertEquals("No value report", rm.getReportMessages().iterator().next().getDefaultMessage());
         assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
         rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
-        assertEquals(1, rm.getReports().size());
-        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(1, rm.getReportMessages().size());
+        assertEquals("No value report", rm.getReportMessages().iterator().next().getDefaultMessage());
         assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }

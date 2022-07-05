@@ -6,19 +6,18 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReportMessage;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.ReporterModelDeserializer;
 import com.powsybl.commons.reporter.ReporterModelSerializer;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
-
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -41,7 +40,7 @@ class PostProcessorReporterTest extends AbstractSerDeTest {
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network1);
 
-        Optional<Report> report = reporter.getReports().stream().findFirst();
+        Optional<ReportMessage> report = reporter.getReportMessages().stream().findFirst();
         assertTrue(report.isPresent());
 
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/postProcessorReporterTest.json");

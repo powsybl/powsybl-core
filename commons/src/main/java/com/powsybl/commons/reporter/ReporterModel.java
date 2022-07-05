@@ -33,32 +33,32 @@ import java.util.*;
 public class ReporterModel extends AbstractReporter {
 
     private final List<ReporterModel> subReporters = new ArrayList<>();
-    private final List<Report> reports = new ArrayList<>();
+    private final List<ReportMessage> reportMessages = new ArrayList<>();
 
     /**
      * ReporterModel constructor, with no associated values.
-     * @param taskKey the key identifying the corresponding task
+     * @param reporterKey the key identifying the corresponding task
      * @param defaultName the name or message describing the corresponding task
      */
-    public ReporterModel(String taskKey, String defaultName) {
-        this(taskKey, defaultName, Collections.emptyMap());
+    public ReporterModel(String reporterKey, String defaultName) {
+        this(reporterKey, defaultName, Collections.emptyMap());
     }
 
     /**
      * ReporterModel constructor, with no associated values.
-     * @param taskKey the key identifying the corresponding task
+     * @param reporterKey the key identifying the corresponding task
      * @param defaultName the name or message describing the corresponding task, which may contain references to the
      *                    provided values
-     * @param taskValues a map of {@link TypedValue} indexed by their key, which may be referred to within the
+     * @param reporterValues a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *                   defaultName or within the reports message of created ReporterModel
      */
-    public ReporterModel(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
-        super(taskKey, defaultName, taskValues);
+    public ReporterModel(String reporterKey, String defaultName, Map<String, TypedValue> reporterValues) {
+        super(reporterKey, defaultName, reporterValues);
     }
 
     @Override
-    public ReporterModel createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values) {
-        ReporterModel subReporter = new ReporterModel(taskKey, defaultName, values);
+    public ReporterModel createSubReporter(String reporterKey, String defaultName, Map<String, TypedValue> values) {
+        ReporterModel subReporter = new ReporterModel(reporterKey, defaultName, values);
         addSubReporter(subReporter);
         return subReporter;
     }
@@ -72,24 +72,24 @@ public class ReporterModel extends AbstractReporter {
     }
 
     @Override
-    public void report(Report report) {
-        reports.add(report);
+    public void report(ReportMessage reportMessage) {
+        reportMessages.add(reportMessage);
     }
 
-    public Collection<Report> getReports() {
-        return Collections.unmodifiableCollection(reports);
+    public Collection<ReportMessage> getReportMessages() {
+        return Collections.unmodifiableCollection(reportMessages);
     }
 
     public String getDefaultName() {
         return defaultName;
     }
 
-    public String getTaskKey() {
-        return taskKey;
+    public String getReporterKey() {
+        return reporterKey;
     }
 
-    public Map<String, TypedValue> getTaskValues() {
-        return Collections.unmodifiableMap(taskValues);
+    public Map<String, TypedValue> getReporterValues() {
+        return Collections.unmodifiableMap(reporterValues);
     }
 
     public List<ReporterModel> getSubReporters() {
@@ -113,9 +113,9 @@ public class ReporterModel extends AbstractReporter {
     }
 
     private void printTaskReport(ReporterModel reportTree, Writer writer, String prefix) throws IOException {
-        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultName(), reportTree.getTaskValues())).append(System.lineSeparator());
-        for (Report report : reportTree.getReports()) {
-            writer.append(prefix).append("   ").append(formatReportMessage(report, reportTree.getTaskValues())).append(System.lineSeparator());
+        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultName(), reportTree.getReporterValues())).append(System.lineSeparator());
+        for (ReportMessage reportMessage : reportTree.getReportMessages()) {
+            writer.append(prefix).append("   ").append(formatReportMessage(reportMessage, reportTree.getReporterValues())).append(System.lineSeparator());
         }
         for (ReporterModel subReporter : reportTree.getSubReporters()) {
             printTaskReport(subReporter, writer, prefix + "  ");
@@ -123,20 +123,20 @@ public class ReporterModel extends AbstractReporter {
     }
 
     public static ReporterModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
-        JsonNode taskKeyNode = reportTree.get("taskKey");
-        String taskKey = codec.readValue(taskKeyNode.traverse(), String.class);
+        JsonNode reporterKeyNode = reportTree.get("reporterKey");
+        String reporterKey = codec.readValue(reporterKeyNode.traverse(), String.class);
 
-        JsonNode taskValuesNode = reportTree.get("taskValues");
-        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : codec.readValue(taskValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
+        JsonNode reporterValuesNode = reportTree.get("reporterValues");
+        Map<String, TypedValue> reporterValues = reporterValuesNode == null ? Collections.emptyMap() : codec.readValue(reporterValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String defaultName = dictionary.getOrDefault(taskKey, "(missing task key in dictionary)");
-        ReporterModel reporter = new ReporterModel(taskKey, defaultName, taskValues);
+        String defaultName = dictionary.getOrDefault(reporterKey, "(missing task key in dictionary)");
+        ReporterModel reporter = new ReporterModel(reporterKey, defaultName, reporterValues);
 
-        JsonNode reportsNode = reportTree.get("reports");
+        JsonNode reportsNode = reportTree.get("reportMessages");
         if (reportsNode != null) {
             for (JsonNode jsonNode : reportsNode) {
-                reporter.reports.add(Report.parseJsonNode(jsonNode, dictionary, codec));
+                reporter.reportMessages.add(ReportMessage.parseJsonNode(jsonNode, dictionary, codec));
             }
         }
 

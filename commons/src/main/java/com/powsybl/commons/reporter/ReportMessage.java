@@ -22,24 +22,24 @@ import java.util.Objects;
  * of corresponding {@link Reporter}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class Report {
+public class ReportMessage {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
 
-    private final String reportKey;
+    private final String messageKey;
     private final String defaultMessage;
     private final Map<String, TypedValue> values;
 
     /**
      * Constructor
-     * @param reportKey a key identifying the current report
+     * @param messageKey a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the provided values or to the
      *                       values of corresponding {@link Reporter}.
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *               defaultMessage provided
      */
-    public Report(String reportKey, String defaultMessage, Map<String, TypedValue> values) {
-        this.reportKey = Objects.requireNonNull(reportKey);
+    public ReportMessage(String messageKey, String defaultMessage, Map<String, TypedValue> values) {
+        this.messageKey = Objects.requireNonNull(messageKey);
         this.defaultMessage = defaultMessage;
         this.values = new HashMap<>();
         Objects.requireNonNull(values).forEach(this::addTypedValue);
@@ -58,8 +58,8 @@ public class Report {
         return defaultMessage;
     }
 
-    public String getReportKey() {
-        return reportKey;
+    public String getMessageKey() {
+        return messageKey;
     }
 
     public TypedValue getValue(String valueKey) {
@@ -70,17 +70,17 @@ public class Report {
         return Collections.unmodifiableMap(values);
     }
 
-    public static Report parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
-        JsonNode reportKeyNode = jsonNode.get("reportKey");
-        String reportKey = codec.readValue(reportKeyNode.traverse(), String.class);
+    public static ReportMessage parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
+        JsonNode msgKeyNode = jsonNode.get("messageKey");
+        String messageKey = codec.readValue(msgKeyNode.traverse(), String.class);
 
-        JsonNode taskValuesNode = jsonNode.get("values");
-        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : codec.readValue(taskValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
+        JsonNode reportValuesNode = jsonNode.get("values");
+        Map<String, TypedValue> values = reportValuesNode == null ? Collections.emptyMap() : codec.readValue(reportValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String defaultMessage = dictionary.getOrDefault(reportKey, "(missing report key in dictionary)");
+        String defaultMessage = dictionary.getOrDefault(messageKey, "(missing report key in dictionary)");
 
-        return new Report(reportKey, defaultMessage, taskValues);
+        return new ReportMessage(messageKey, defaultMessage, values);
     }
 
 }

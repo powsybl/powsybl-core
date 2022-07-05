@@ -33,11 +33,11 @@ public abstract class AbstractNetworkReporterTest {
         Network network = EurostagTutorialExample1Factory.create();
         ReporterModel reporter1 = new ReporterModel("key1", "name1");
         network.getReporterContext().pushReporter(reporter1);
-        assertTrue(reporter1.getReports().isEmpty());
+        assertTrue(reporter1.getSubReporters().isEmpty());
 
         // Create another reporter (reporter2)
         ReporterModel reporter2 = new ReporterModel("key2", "name2");
-        assertTrue(reporter2.getReports().isEmpty());
+        assertTrue(reporter2.getSubReporters().isEmpty());
 
         // Execute a task using reporter2
         Networks.executeWithReporter(network, reporter2, getTask(network));
@@ -45,9 +45,9 @@ public abstract class AbstractNetworkReporterTest {
         // The network's reporter is still reporter1
         assertEquals(reporter1, network.getReporterContext().getReporter());
         // reporter1 wasn't affected
-        assertTrue(reporter1.getReports().isEmpty());
+        assertTrue(reporter1.getSubReporters().isEmpty());
         // reporter2 was used by the task
-        assertEquals(1, reporter2.getReports().size());
+        assertEquals(1, reporter2.getSubReporters().size());
     }
 
     private Runnable getTask(Network network) {
@@ -60,13 +60,13 @@ public abstract class AbstractNetworkReporterTest {
         Network network = EurostagTutorialExample1Factory.create();
         ReporterModel reporter1 = new ReporterModel("key1", "name1");
         network.getReporterContext().pushReporter(reporter1);
-        assertTrue(reporter1.getReports().isEmpty());
+        assertTrue(reporter1.getSubReporters().isEmpty());
 
         // Create 2 other reporters (reporter2 and reporter3)
         ReporterModel reporter2 = new ReporterModel("key2", "name2");
         ReporterModel reporter3 = new ReporterModel("key3", "name3");
-        assertTrue(reporter2.getReports().isEmpty());
-        assertTrue(reporter3.getReports().isEmpty());
+        assertTrue(reporter2.getSubReporters().isEmpty());
+        assertTrue(reporter3.getSubReporters().isEmpty());
 
         // Switch in multi-thread management
         network.allowReporterContextMultiThreadAccess(true);
@@ -109,13 +109,13 @@ public abstract class AbstractNetworkReporterTest {
         // The network's reporter is still reporter1
         assertEquals(reporter1, network.getReporterContext().getReporter());
         // reporter1 wasn't affected
-        assertTrue(reporter1.getReports().isEmpty());
+        assertTrue(reporter1.getSubReporters().isEmpty());
         // reporter2 was used by the 1st task
-        assertEquals(1, reporter2.getReports().size());
-        assertEquals("key2", reporter2.getReports().stream().findFirst().orElseThrow().getReportKey());
+        assertEquals(1, reporter2.getSubReporters().size());
+        assertEquals("key2", reporter2.getSubReporters().stream().findFirst().orElseThrow().getReporterKey());
         // reporter3 was used by the 2nd task
-        assertEquals(1, reporter3.getReports().size());
-        assertEquals("key3", reporter3.getReports().stream().findFirst().orElseThrow().getReportKey());
+        assertEquals(1, reporter3.getSubReporters().size());
+        assertEquals("key3", reporter3.getSubReporters().stream().findFirst().orElseThrow().getReporterKey());
     }
 
     @Test

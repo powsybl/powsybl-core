@@ -51,15 +51,15 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
 
     private void writeReporterModel(ReporterModel reporter, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField("taskKey", reporter.getTaskKey());
-        if (!reporter.getTaskValues().isEmpty()) {
-            generator.writeObjectField("taskValues", reporter.getTaskValues());
+        generator.writeStringField("reporterKey", reporter.getReporterKey());
+        if (!reporter.getReporterValues().isEmpty()) {
+            generator.writeObjectField("reporterValues", reporter.getReporterValues());
         }
-        if (!reporter.getReports().isEmpty()) {
-            generator.writeFieldName("reports");
+        if (!reporter.getReportMessages().isEmpty()) {
+            generator.writeFieldName("reportMessages");
             generator.writeStartArray();
-            for (Report report : reporter.getReports()) {
-                writeReport(report, generator, dictionary);
+            for (ReportMessage reportMessage : reporter.getReportMessages()) {
+                writeReport(reportMessage, generator, dictionary);
             }
             generator.writeEndArray();
         }
@@ -73,17 +73,17 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
         }
         generator.writeEndObject();
 
-        dictionary.put(reporter.getTaskKey(), reporter.getDefaultName());
+        dictionary.put(reporter.getReporterKey(), reporter.getDefaultName());
     }
 
-    private void writeReport(Report report, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+    private void writeReport(ReportMessage reportMessage, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField("reportKey", report.getReportKey());
-        if (!report.getValues().isEmpty()) {
-            generator.writeObjectField("values", report.getValues());
+        generator.writeStringField("messageKey", reportMessage.getMessageKey());
+        if (!reportMessage.getValues().isEmpty()) {
+            generator.writeObjectField("values", reportMessage.getValues());
         }
         generator.writeEndObject();
-        dictionary.put(report.getReportKey(), report.getDefaultMessage());
+        dictionary.put(reportMessage.getMessageKey(), reportMessage.getDefaultMessage());
     }
 
     public static void write(ReporterModel reporter, Path jsonFile) {

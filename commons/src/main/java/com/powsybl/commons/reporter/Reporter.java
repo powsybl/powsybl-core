@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * A <code>Reporter</code> allows building up functional reports with a hierarchy reflecting task/subtasks of processes.
- * The enclosed reports are based on {@link Report} class.
+ * The enclosed reports are based on {@link ReportMessage} class.
  *
  * <p>A <code>Reporter</code> can create sub-reporters to separate from current reports the reports from that task.
  * Each sub-reporter is defined by a key identifying the corresponding task, a default <code>String</code> describing
@@ -26,7 +26,7 @@ import java.util.Map;
  * be passed on in methods through their arguments.
  *
  * <p>The <code>Reporter</code> can be used for multilingual support. Indeed, each <code>Reporter</code> name and
- * {@link Report} message can be translated based on their key and using the value keys in the desired order.
+ * {@link ReportMessage} message can be translated based on their key and using the value keys in the desired order.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
@@ -40,28 +40,28 @@ public interface Reporter {
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with
      * some associated values.
-     * @param taskKey the key identifying that task
+     * @param reporterKey the key identifying that task
      * @param defaultName a name or message describing the corresponding task, which may contain references to the
      *                    provided values
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the defaultName
      *               or within the reports message of the created sub-reporter
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values);
+    Reporter createSubReporter(String reporterKey, String defaultName, Map<String, TypedValue> values);
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with no
      * associated value.
-     * @param taskKey the key identifying that task
+     * @param reporterKey the key identifying that task
      * @param defaultName a name or message describing the corresponding task
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String taskKey, String defaultName);
+    Reporter createSubReporter(String reporterKey, String defaultName);
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
      * associated value.
-     * @param taskKey the key identifying that task
+     * @param reporterKey the key identifying that task
      * @param defaultName a name or message describing the corresponding task, which may contain references to the
      *                    provided value
      * @param key the key for the value which follows
@@ -69,12 +69,12 @@ public interface Reporter {
      *              created sub-reporter
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String taskKey, String defaultName, String key, Object value);
+    Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value);
 
     /**
      * Create a sub-reporter for a specific task, to separate from current reports the reports from that task, with one
      * associated typed value.
-     * @param taskKey the key identifying that task
+     * @param reporterKey the key identifying that task
      * @param defaultName a name or message describing the corresponding task, which may contain references to the
      *                    provided typed value
      * @param key the key for the typed value which follows
@@ -83,39 +83,39 @@ public interface Reporter {
      * @param type the string representing the type of the value provided
      * @return the new sub-reporter
      */
-    Reporter createSubReporter(String taskKey, String defaultName, String key, Object value, String type);
+    Reporter createSubReporter(String reporterKey, String defaultName, String key, Object value, String type);
 
     /**
      * Add a new report with its associated values.
-     * @param reportKey a key identifying the current report
+     * @param messageKey a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the provided values or to the
      *                       values of current reporter
      * @param values a map of {@link TypedValue} indexed by their key, which may be referred to within the
      *               defaultMessage provided
      */
-    void report(String reportKey, String defaultMessage, Map<String, TypedValue> values);
+    void report(String messageKey, String defaultMessage, Map<String, TypedValue> values);
 
     /**
      * Add a new report with no associated value.
-     * @param reportKey a key identifying the current report
+     * @param messageKey a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the values of current reporter
      */
-    void report(String reportKey, String defaultMessage);
+    void report(String messageKey, String defaultMessage);
 
     /**
      * Add a new report with one associated value.
-     * @param reportKey a key identifying the current report
+     * @param messageKey a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the provided value or to the
      *                       values of current reporter
      * @param valueKey the key for the value which follows
      * @param value the int, long, float, double, boolean or String value which may be referred to
      *              within the defaultMessage provided
      */
-    void report(String reportKey, String defaultMessage, String valueKey, Object value);
+    void report(String messageKey, String defaultMessage, String valueKey, Object value);
 
     /**
      * Add a new report with one associated typed value.
-     * @param reportKey a key identifying the current report
+     * @param messageKey a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the provided typed value or to
      *                       the values of current reporter
      * @param valueKey the key for the typed value which follows
@@ -123,13 +123,13 @@ public interface Reporter {
      *              defaultMessage provided
      * @param type the string representing the type of the value provided
      */
-    void report(String reportKey, String defaultMessage, String valueKey, Object value, String type);
+    void report(String messageKey, String defaultMessage, String valueKey, Object value, String type);
 
     /**
      * Add a new report
-     * @param report the report to add
+     * @param reportMessage the report to add
      */
-    void report(Report report);
+    void report(ReportMessage reportMessage);
 
     class NoOpImpl extends AbstractReporter {
         public NoOpImpl() {
@@ -137,12 +137,12 @@ public interface Reporter {
         }
 
         @Override
-        public Reporter createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values) {
+        public Reporter createSubReporter(String reporterKey, String defaultName, Map<String, TypedValue> values) {
             return new NoOpImpl();
         }
 
         @Override
-        public void report(Report report) {
+        public void report(ReportMessage reportMessage) {
             // No-op
         }
 

@@ -64,7 +64,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, reporter1));
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
-        assertEquals("notFoundBusOrBusbarSection", reporter1.getReports().iterator().next().getReportKey());
+        assertEquals("notFoundBusOrBusbarSection", reporter1.getSubReporters().iterator().next().getReporterKey());
 
         ReporterModel reporter2 = new ReporterModel("testReporterBbsInDifferentVl", "Testing reporter with busbar sections in different voltage levels");
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
@@ -73,7 +73,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, reporter2));
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
-        assertEquals("unexpectedDifferentVoltageLevels", reporter2.getReports().iterator().next().getReportKey());
+        assertEquals("unexpectedDifferentVoltageLevels", reporter2.getSubReporters().iterator().next().getReporterKey());
 
         ReporterModel reporter3 = new ReporterModel("testReporterSameBbs", "Testing reporter with same busbar section");
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
@@ -82,7 +82,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, reporter3));
         assertEquals("No coupling device can be created on a same bus or busbar section (bbs1)", e2.getMessage());
-        assertEquals("noCouplingDeviceOnSameBusOrBusbarSection", reporter3.getReports().iterator().next().getReportKey());
+        assertEquals("noCouplingDeviceOnSameBusOrBusbarSection", reporter3.getSubReporters().iterator().next().getReporterKey());
     }
 
     @Test
@@ -142,7 +142,7 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
         assertEquals(message, e2.getMessage());
-        assertEquals(reporterKey, reporter.getReports().iterator().next().getReportKey());
+        assertEquals(reporterKey, reporter.getSubReporters().iterator().next().getReporterKey());
     }
 
     private static Stream<Arguments> parameters() {
