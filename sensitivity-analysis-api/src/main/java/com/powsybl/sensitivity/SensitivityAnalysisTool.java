@@ -6,6 +6,8 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
@@ -31,8 +33,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -133,11 +134,25 @@ public class SensitivityAnalysisTool implements Tool {
         }
     }
 
+    private static String buildContingencyStatusPath(boolean csv, String outputFile) {
+        if (csv) {
+            return outputFile.replace(".csv", "ContingencyStatus.csv");
+        } else {
+            if (outputFile.endsWith(".json")) {
+                return outputFile.replace(".json", "ContingencyStatus.json");
+            } else {
+                return outputFile + "ContingencyStatus";
+            }
+        }
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
         boolean csv = isCsv(outputFile);
+        //Separate files for contingency status and sensitivity values only if sensitivity values output is csv
+        Path outputFileStatus = context.getFileSystem().getPath(buildContingencyStatusPath(csv, line.getOptionValue(OUTPUT_FILE_OPTION)));
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
@@ -178,20 +193,28 @@ public class SensitivityAnalysisTool implements Tool {
         try (ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager()) {
             if (csv) {
                 try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
-                     TableFormatter formatter = SensitivityValueCsvWriter.createTableFormatter(writer)) {
-                    SensitivityValueWriter valuesWriter = new SensitivityValueCsvWriter(formatter, contingencies);
+                     Writer writerStatuses = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
+                     TableFormatter formatter = SensitivityValueCsvWriter.createTableFormatter(writer);
+                     TableFormatter formatterStatus = SensitivityValueCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
+                    SensitivityValueWriter valuesWriter = new SensitivityValueCsvWriter(formatter, formatterStatus, contingencies);
                     SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                             factorsReader, valuesWriter, contingencies, variableSets, params,
                             computationManager, Reporter.NO_OP);
                 }
             } else {
-                JsonUtil.writeJson(outputFile, jsonGenerator -> {
-                    try (SensitivityValueJsonWriter valuesWriter = new SensitivityValueJsonWriter(jsonGenerator)) {
-                        SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
-                                factorsReader, valuesWriter, contingencies, variableSets, params,
-                                computationManager, Reporter.NO_OP);
-                    }
-                });
+                JsonFactory factory = JsonUtil.createJsonFactory();
+                try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
+                     BufferedWriter writerStatus = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
+                     JsonGenerator generator = factory.createGenerator(writer);
+                     JsonGenerator statusGenerator = factory.createGenerator(writerStatus);
+                     SensitivityValueJsonWriter valuesWriter = new SensitivityValueJsonWriter(generator, statusGenerator)) {
+                    generator.useDefaultPrettyPrinter();
+                    SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                            factorsReader, valuesWriter, contingencies, variableSets, params,
+                            computationManager, Reporter.NO_OP);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
         }
         context.getOutputStream().println("Analysis done in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");

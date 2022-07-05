@@ -18,11 +18,14 @@ import java.util.Objects;
 public class SensitivityValueJsonWriter implements SensitivityValueWriter, AutoCloseable {
 
     private final JsonGenerator jsonGenerator;
+    private final JsonGenerator jsonStatusGenerator;
 
-    public SensitivityValueJsonWriter(JsonGenerator jsonGenerator) {
+    public SensitivityValueJsonWriter(JsonGenerator jsonGenerator, JsonGenerator jsonStatusGenerator) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
+        this.jsonStatusGenerator = Objects.requireNonNull(jsonStatusGenerator);
         try {
             jsonGenerator.writeStartArray();
+            jsonStatusGenerator.writeStartArray();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -34,9 +37,15 @@ public class SensitivityValueJsonWriter implements SensitivityValueWriter, AutoC
     }
 
     @Override
+    public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
+        SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonStatusGenerator, status);
+    }
+
+    @Override
     public void close() {
         try {
             jsonGenerator.writeEndArray();
+            jsonStatusGenerator.writeEndArray();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -40,8 +41,11 @@ public class SensitivityAnalysisResultTest {
         SensitivityValue value2 = new SensitivityValue(1, -1, 3d, 4d);
         SensitivityValue value3 = new SensitivityValue(2, 0, 1d, 2d);
         SensitivityValue value4 = new SensitivityValue(3, -1, 3d, 4d);
+        List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
+        contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c, SensitivityAnalysisResult.Status.CONVERGED)));
+
         List<SensitivityValue> values = List.of(value1, value2, value3, value4);
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
         assertEquals(4, result.getValues().size());
         assertEquals(2, result.getValues("NHV1_NHV2_2").size());
 
@@ -87,7 +91,9 @@ public class SensitivityAnalysisResultTest {
         SensitivityValue value3 = new SensitivityValue(2, 0, 1d, 2d);
         SensitivityValue value4 = new SensitivityValue(3, -1, 3d, 4d);
         List<SensitivityValue> values = List.of(value1, value2, value3, value4);
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, values);
+        List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
+        contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c, SensitivityAnalysisResult.Status.CONVERGED)));
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
         assertEquals(4, result.getValues().size());
         assertEquals(2, result.getValues("NHV1_NHV2_2").size());
 
@@ -124,7 +130,9 @@ public class SensitivityAnalysisResultTest {
         SensitivityValue value1 = new SensitivityValue(0, 0, 1d, 2d);
         SensitivityValue value2 = new SensitivityValue(1, -1, 3d, 4d);
         List<SensitivityValue> values = List.of(value1, value2);
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, values);
+        List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
+        contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c, SensitivityAnalysisResult.Status.CONVERGED)));
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
         assertEquals(2, result.getValues().size());
         assertEquals(1, result.getValues("NHV1_NHV2_2").size());
 

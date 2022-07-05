@@ -16,12 +16,23 @@ public class SensitivityValueModelWriter implements SensitivityValueWriter {
 
     private final List<SensitivityValue> values = new ArrayList<>();
 
+    private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatuses = new ArrayList<>();
+
     public List<SensitivityValue> getValues() {
         return values;
+    }
+
+    public List<SensitivityAnalysisResult.SensitivityContingencyStatus> getContingencyStatuses() {
+        return contingencyStatuses;
     }
 
     @Override
     public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
         values.add(new SensitivityValue(factorIndex, contingencyIndex, value, functionReference));
+    }
+
+    @Override
+    public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
+        contingencyStatuses.add(status);
     }
 }

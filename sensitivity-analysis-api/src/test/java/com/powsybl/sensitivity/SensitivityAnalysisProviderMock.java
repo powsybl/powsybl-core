@@ -52,6 +52,9 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                     break;
             }
         });
+        for (Contingency c : contingencies) {
+            valueWriter.writeContingencyStatus(new SensitivityAnalysisResult.SensitivityContingencyStatus(c, SensitivityAnalysisResult.Status.CONVERGED));
+        }
         return CompletableFuture.completedFuture(null);
     }
 

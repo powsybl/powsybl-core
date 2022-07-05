@@ -7,10 +7,7 @@
 package com.powsybl.sensitivity.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityValue;
-import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,5 +23,7 @@ public class SensitivityJsonModule extends SimpleModule {
         addDeserializer(SensitivityValue.class, new SensitivityValueJsonDeserializer());
         addSerializer(SensitivityVariableSet.class, new SensitivityVariableSetJsonSerializer());
         addDeserializer(SensitivityVariableSet.class, new SensitivityVariableSetJsonDeserializer());
+        addSerializer(SensitivityAnalysisResult.SensitivityContingencyStatus.class, new SensitivityContingencyStatusJsonSerializer());
+        addDeserializer(SensitivityAnalysisResult.SensitivityContingencyStatus.class, new SensitivityContingencyStatusJsonDeserializer());
     }
 }

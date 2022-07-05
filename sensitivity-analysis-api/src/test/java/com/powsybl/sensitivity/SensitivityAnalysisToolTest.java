@@ -113,6 +113,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
                 CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
 
         assertTrue(Files.exists(fileSystem.getPath("output.json")));
+        assertTrue(Files.exists(fileSystem.getPath("outputContingencyStatus.json")));
         List<SensitivityValue> values;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
             values = objectMapper.readValue(reader, new TypeReference<>() {
@@ -125,6 +126,16 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
         SensitivityValue value1 = values.get(1);
         assertEquals(1, value1.getFactorIndex());
         assertEquals(0, value1.getContingencyIndex());
+
+        List<SensitivityAnalysisResult.SensitivityContingencyStatus> status;
+        try (Reader reader = Files.newBufferedReader(fileSystem.getPath("outputContingencyStatus.json"))) {
+            status = objectMapper.readValue(reader, new TypeReference<>() {
+            });
+        }
+        assertEquals(1, status.size());
+        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = status.get(0);
+        assertEquals("NHV1_NHV2_2", status0.getContingency().getId());
+        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, status0.getStatus());
     }
 
     @Test
@@ -148,6 +159,16 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
                "NHV1_NHV2_2;1;0.00000;0.00000")
                 + System.lineSeparator());
         assertEquals(outputCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputCsvFile)));
+
+        Path outputContingencyStatusCsvFile = fileSystem.getPath("outputContingencyStatus.csv");
+        assertTrue(Files.exists(outputContingencyStatusCsvFile));
+        String outputContingencyStatusCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
+                "Sensitivity analysis contingency status result",
+                "Contingency ID;Contingency Status",
+                "NHV1_NHV2_2;CONVERGED")
+                + System.lineSeparator());
+        assertEquals(outputContingencyStatusCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputContingencyStatusCsvFile)));
+
     }
 
     @Test

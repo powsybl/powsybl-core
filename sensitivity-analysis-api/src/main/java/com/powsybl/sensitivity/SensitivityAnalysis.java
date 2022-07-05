@@ -89,7 +89,7 @@ public final class SensitivityAnalysis {
             SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
 
             return provider.run(network, workingVariantId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter)
-                    .thenApply(unused -> new SensitivityAnalysisResult(factors, contingencies, valueWriter.getValues()));
+                    .thenApply(unused -> new SensitivityAnalysisResult(factors, valueWriter.getContingencyStatuses(), valueWriter.getValues()));
         }
 
         public void run(Network network,

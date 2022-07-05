@@ -6,10 +6,15 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import org.jgrapht.alg.util.Triple;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -55,7 +60,7 @@ public class SensitivityAnalysisResult {
         NO_IMPACT
     }
 
-    public class SensitivityContingencyStatus {
+    public static class SensitivityContingencyStatus {
 
         private final Contingency contingency;
 
@@ -72,6 +77,57 @@ public class SensitivityAnalysisResult {
         public SensitivityContingencyStatus(Contingency contingency, Status status) {
             this.contingency = contingency;
             this.status = status;
+        }
+
+        public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
+            try {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("ContingencyId", contingencyStatus.contingency != null ? contingencyStatus.contingency.getId() : "");
+                jsonGenerator.writeStringField("ContingencyStatus", contingencyStatus.status.name());
+                jsonGenerator.writeEndObject();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        static final class ParsingContext {
+            private Contingency contingency;
+            private Status status;
+        }
+
+        public static SensitivityContingencyStatus parseJson(JsonParser parser) {
+            Objects.requireNonNull(parser);
+
+            var context = new SensitivityContingencyStatus.ParsingContext();
+            try {
+                JsonToken token;
+                while ((token = parser.nextToken()) != null) {
+                    if (token == JsonToken.FIELD_NAME) {
+                        parseJson(parser, context);
+                    } else if (token == JsonToken.END_OBJECT) {
+                        return new SensitivityContingencyStatus(context.contingency, context.status);
+                    }
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            throw new PowsyblException("Parsing error");
+        }
+
+        private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
+            String fieldName = parser.getCurrentName();
+            switch (fieldName) {
+                case "ContingencyId":
+                    parser.nextToken();
+                    context.contingency = new Contingency(parser.getValueAsString());
+                    break;
+                case "ContingencyStatus":
+                    parser.nextToken();
+                    context.status = Status.valueOf(parser.getValueAsString());
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected field: " + fieldName);
+            }
         }
     }
 
