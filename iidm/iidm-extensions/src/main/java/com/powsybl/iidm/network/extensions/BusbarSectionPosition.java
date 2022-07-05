@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.BusbarSection;
  */
 public interface BusbarSectionPosition extends Extension<BusbarSection> {
 
-    static final String NAME = "busbarSectionPosition";
+    String NAME = "busbarSectionPosition";
 
     @Override
     default String getName() {
