@@ -6,6 +6,9 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -143,5 +146,9 @@ public interface Reporter {
             // No-op
         }
 
+        @Override
+        public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+            // No-op
+        }
     }
 }

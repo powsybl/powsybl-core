@@ -37,7 +37,7 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
         generator.writeStartObject();
         generator.writeStringField("version", VERSION);
         generator.writeFieldName("reportTree");
-        writeReporterModel(reporter, generator, dictionary);
+        reporter.writeJson(generator, dictionary);
         writeDictionaryEntries(generator, dictionary);
         generator.writeEndObject();
     }
@@ -47,43 +47,6 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
         generator.writeStartObject();
         generator.writeObjectField("default", dictionary);
         generator.writeEndObject();
-    }
-
-    private void writeReporterModel(ReporterModel reporter, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
-        generator.writeStartObject();
-        generator.writeStringField("key", reporter.getKey());
-        if (!reporter.getValues().isEmpty()) {
-            generator.writeObjectField("values", reporter.getValues());
-        }
-        if (!reporter.getReportMessages().isEmpty()) {
-            generator.writeFieldName("reportMessages");
-            generator.writeStartArray();
-            for (ReportMessage reportMessage : reporter.getReportMessages()) {
-                writeReport(reportMessage, generator, dictionary);
-            }
-            generator.writeEndArray();
-        }
-        if (!reporter.getSubReporters().isEmpty()) {
-            generator.writeFieldName("subReporters");
-            generator.writeStartArray();
-            for (ReporterModel subReporter : reporter.getSubReporters()) {
-                writeReporterModel(subReporter, generator, dictionary);
-            }
-            generator.writeEndArray();
-        }
-        generator.writeEndObject();
-
-        dictionary.put(reporter.getKey(), reporter.getDefaultTitle());
-    }
-
-    private void writeReport(ReportMessage reportMessage, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
-        generator.writeStartObject();
-        generator.writeStringField("key", reportMessage.getKey());
-        if (!reportMessage.getValues().isEmpty()) {
-            generator.writeObjectField("values", reportMessage.getValues());
-        }
-        generator.writeEndObject();
-        dictionary.put(reportMessage.getKey(), reportMessage.getDefaultMessage());
     }
 
     public static void write(ReporterModel reporter, Path jsonFile) {

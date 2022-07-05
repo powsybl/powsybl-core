@@ -1,17 +1,22 @@
 {
   "version" : "1.0",
   "reportTree" : {
+    "nodeType" : "reporter",
     "key" : "roundTripReporterJsonTest",
-    "reports" : [ {
+    "children" : [ {
+      "nodeType" : "reportMessage",
       "key" : "novalueReport"
-    } ],
-    "subReporters" : [ {
+    }, {
+      "nodeType" : "reporter",
       "key" : "UcteReading",
-      "subReporters" : [ {
+      "children" : [ {
+        "nodeType" : "reporter",
         "key" : "fixUcteNodes"
       }, {
+        "nodeType" : "reporter",
         "key" : "fixUcteLines",
-        "reports" : [ {
+        "children" : [ {
+          "nodeType" : "reportMessage",
           "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
@@ -27,6 +32,7 @@
             }
           }
         }, {
+          "nodeType" : "reportMessage",
           "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
@@ -42,6 +48,7 @@
             }
           }
         }, {
+          "nodeType" : "reportMessage",
           "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
@@ -57,6 +64,7 @@
             }
           }
         }, {
+          "nodeType" : "reportMessage",
           "key" : "negativeLineResistance",
           "values" : {
             "reportSeverity" : {
@@ -73,8 +81,10 @@
           }
         } ]
       }, {
+        "nodeType" : "reporter",
         "key" : "fixUcteTransformer"
       }, {
+        "nodeType" : "reporter",
         "key" : "fixUcteRegulations"
       } ]
     } ]

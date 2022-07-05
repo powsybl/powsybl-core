@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,8 +33,7 @@ import java.util.*;
  */
 public class ReporterModel extends AbstractReporter {
 
-    private final List<ReporterModel> subReporters = new ArrayList<>();
-    private final List<ReportMessage> reportMessages = new ArrayList<>();
+    private final List<ReportNode> children = new ArrayList<>();
 
     /**
      * ReporterModel constructor, with no associated values.
@@ -68,32 +68,16 @@ public class ReporterModel extends AbstractReporter {
      * @param reporterModel the reporterModel to add
      */
     public void addSubReporter(ReporterModel reporterModel) {
-        subReporters.add(reporterModel);
+        children.add(reporterModel);
     }
 
     @Override
     public void report(ReportMessage reportMessage) {
-        reportMessages.add(reportMessage);
+        children.add(reportMessage);
     }
 
-    public Collection<ReportMessage> getReportMessages() {
-        return Collections.unmodifiableCollection(reportMessages);
-    }
-
-    public String getDefaultTitle() {
-        return defaultTitle;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public Map<String, TypedValue> getValues() {
-        return Collections.unmodifiableMap(values);
-    }
-
-    public List<ReporterModel> getSubReporters() {
-        return Collections.unmodifiableList(subReporters);
+    public Collection<ReportNode> getChildren() {
+        return Collections.unmodifiableCollection(children);
     }
 
     public void export(Path path) {
@@ -106,19 +90,29 @@ public class ReporterModel extends AbstractReporter {
 
     public void export(Writer writer) {
         try {
-            printTaskReport(this, writer, "");
+            printTaskReport(this, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private void printTaskReport(ReporterModel reportTree, Writer writer, String prefix) throws IOException {
-        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultTitle(), reportTree.getValues())).append(System.lineSeparator());
-        for (ReportMessage reportMessage : reportTree.getReportMessages()) {
-            writer.append(prefix).append("   ").append(formatReportMessage(reportMessage, reportTree.getValues())).append(System.lineSeparator());
+    private void printTaskReport(ReporterModel reporterModel, Writer writer) throws IOException {
+        printTaskReport(reporterModel, writer, "", new HashMap<>());
+    }
+
+    private void printTaskReport(ReportNode reportNode, Writer writer, String prefix, Map<String, TypedValue> inheritedValueMap) throws IOException {
+        Map<String, TypedValue> valueMap = new HashMap<>(inheritedValueMap);
+        valueMap.putAll(reportNode.getValues());
+        String formattedText = formatMessage(reportNode.getDefaultText(), valueMap);
+        writer.append(prefix);
+        if (reportNode instanceof ReporterModel) {
+            writer.append("+");
         }
-        for (ReporterModel subReporter : reportTree.getSubReporters()) {
-            printTaskReport(subReporter, writer, prefix + "  ");
+        writer.append(" ").append(formattedText).append(System.lineSeparator());
+        if (reportNode instanceof ReporterModel) {
+            for (ReportNode child : ((ReporterModel) reportNode).getChildren()) {
+                printTaskReport(child, writer, prefix + "  ", valueMap);
+            }
         }
     }
 
@@ -133,20 +127,39 @@ public class ReporterModel extends AbstractReporter {
         String defaultTitle = dictionary.getOrDefault(key, "(missing task key in dictionary)");
         ReporterModel reporter = new ReporterModel(key, defaultTitle, values);
 
-        JsonNode reportsNode = reportTree.get("reportMessages");
+        JsonNode reportsNode = reportTree.get("children");
         if (reportsNode != null) {
             for (JsonNode jsonNode : reportsNode) {
-                reporter.reportMessages.add(ReportMessage.parseJsonNode(jsonNode, dictionary, codec));
-            }
-        }
-
-        JsonNode subReportersNode = reportTree.get("subReporters");
-        if (subReportersNode != null) {
-            for (JsonNode jsonNode : subReportersNode) {
-                reporter.addSubReporter(ReporterModel.parseJsonNode(jsonNode, dictionary, codec));
+                JsonNode nodeTypeNode = jsonNode.get("nodeType");
+                String nodeType = codec.readValue(nodeTypeNode.traverse(), String.class);
+                if (nodeType.equals(ReportNode.REPORT_MESSAGE_NODE_TYPE)) {
+                    reporter.children.add(ReportMessage.parseJsonNode(jsonNode, dictionary, codec));
+                } else if (nodeType.equals(ReportNode.REPORTER_NODE_TYPE)) {
+                    reporter.addSubReporter(ReporterModel.parseJsonNode(jsonNode, dictionary, codec));
+                }
             }
         }
 
         return reporter;
+    }
+
+    public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+        generator.writeStartObject();
+        generator.writeStringField("nodeType", REPORTER_NODE_TYPE);
+        generator.writeStringField("key", getKey());
+        if (!getValues().isEmpty()) {
+            generator.writeObjectField("values", getValues());
+        }
+        if (!children.isEmpty()) {
+            generator.writeFieldName("children");
+            generator.writeStartArray();
+            for (ReportNode reportNode : children) {
+                reportNode.writeJson(generator, dictionary);
+            }
+            generator.writeEndArray();
+        }
+        generator.writeEndObject();
+
+        dictionary.put(getKey(), getDefaultText());
     }
 }

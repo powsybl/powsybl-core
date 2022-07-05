@@ -1,8 +1,10 @@
 {
   "version" : "1.0",
   "reportTree" : {
+    "nodeType" : "reporter",
     "key" : "testPostProcessor",
-    "reports" : [ {
+    "children" : [ {
+      "nodeType" : "reportMessage",
       "key" : "test",
       "values" : {
         "model" : {
@@ -10,6 +12,7 @@
         }
       }
     }, {
+      "nodeType" : "reportMessage",
       "key" : "testImportPostProcessor"
     } ]
   },

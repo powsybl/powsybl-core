@@ -50,10 +50,11 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         assertEquals("TypedValue expects only Float, Double, Integer, Long and String values (value is an instance of class com.powsybl.commons.datasource.ResourceDataSource)", e.getMessage());
 
         reporter.report("reportTest", "Report test ${unknownKey}", "nonPrintedString", "Non printed String");
-        Optional<ReportMessage> report = reporter.getReportMessages().stream().findFirst();
-        assertTrue(report.isPresent());
-        assertEquals("Report test ${unknownKey}", report.get().getDefaultMessage());
-        assertEquals("Non printed String", report.get().getValue("nonPrintedString").getValue());
+        Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
+        assertTrue(reportNode.isPresent());
+        assertEquals("Report test ${unknownKey}", reportNode.get().getDefaultText());
+        assertEquals("Non printed String", reportNode.get().getValue("nonPrintedString").getValue());
+        assertTrue(reportNode.get() instanceof ReportMessage);
 
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
@@ -76,10 +77,16 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
 
         // Testing deserializing with unknown specified dictionary
         ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
-        assertEquals(1, rm.getReportMessages().size());
-        assertEquals("No value report", rm.getReportMessages().iterator().next().getDefaultMessage());
-        assertEquals(1, rm.getSubReporters().size());
-        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultTitle());
+        assertEquals(2, rm.getChildren().size());
+
+        Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
+        ReportNode node1 = childrenIt.next();
+        assertTrue(node1 instanceof ReportMessage);
+        assertEquals("No value report", node1.getDefaultText());
+
+        ReportNode node2 = childrenIt.next();
+        assertTrue(node2 instanceof ReporterModel);
+        assertEquals("Reading UCTE network file", node2.getDefaultText());
     }
 
     @Test
@@ -87,17 +94,27 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReporterModelJsonModule());
         ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
-        assertEquals(1, rm.getReportMessages().size());
-        assertEquals("No value report", rm.getReportMessages().iterator().next().getDefaultMessage());
-        assertEquals(1, rm.getSubReporters().size());
-        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultTitle());
+        assertEquals(2, rm.getChildren().size());
+
+        Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
+        ReportNode node1 = childrenIt.next();
+        assertTrue(node1 instanceof ReportMessage);
+        assertEquals("No value report", node1.getDefaultText());
+        ReportNode node2 = childrenIt.next();
+        assertTrue(node2 instanceof ReporterModel);
+        assertEquals("Reading UCTE network file", node2.getDefaultText());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
         rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
-        assertEquals(1, rm.getReportMessages().size());
-        assertEquals("No value report", rm.getReportMessages().iterator().next().getDefaultMessage());
-        assertEquals(1, rm.getSubReporters().size());
-        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultTitle());
+        assertEquals(2, rm.getChildren().size());
+
+        childrenIt = rm.getChildren().iterator();
+        node1 = childrenIt.next();
+        assertTrue(node1 instanceof ReportMessage);
+        node2 = childrenIt.next();
+        assertTrue(node2 instanceof ReporterModel);
+        assertEquals("Reading UCTE network file", node2.getDefaultText());
+        assertEquals("No value report", node1.getDefaultText());
     }
 
     @Test
@@ -114,7 +131,7 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
                 "file3", new TypedValue("germanTsos.uct", TypedValue.FILENAME)));
         Importers.importAll(workDir, new UcteImporter(), true, null, networkList::add, null, reporter);
         assertEquals(3, networkList.size());
-        assertEquals(3, reporter.getSubReporters().size());
+        assertEquals(3, reporter.getChildren().size());
 
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/parallelUcteImportReport.json");
     }

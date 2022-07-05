@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * A class representing a functional log, consisting of a key identifying the report, a map of {@link TypedValue} indexed
@@ -22,13 +22,9 @@ import java.util.Objects;
  * of corresponding {@link Reporter}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportMessage {
+public class ReportMessage extends AbstractReportNode {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
-
-    private final String key;
-    private final String defaultMessage;
-    private final Map<String, TypedValue> values;
 
     /**
      * Constructor
@@ -39,35 +35,11 @@ public class ReportMessage {
      *               defaultMessage provided
      */
     public ReportMessage(String key, String defaultMessage, Map<String, TypedValue> values) {
-        this.key = Objects.requireNonNull(key);
-        this.defaultMessage = defaultMessage;
-        this.values = new HashMap<>();
-        Objects.requireNonNull(values).forEach(this::addTypedValue);
-    }
-
-    private void addTypedValue(String key, TypedValue typedValue) {
-        Objects.requireNonNull(typedValue);
-        values.put(key, typedValue);
+        super(key, defaultMessage, values);
     }
 
     public static ReportBuilder builder() {
         return new ReportBuilder();
-    }
-
-    public String getDefaultMessage() {
-        return defaultMessage;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public TypedValue getValue(String valueKey) {
-        return values.get(valueKey);
-    }
-
-    public Map<String, TypedValue> getValues() {
-        return Collections.unmodifiableMap(values);
     }
 
     public static ReportMessage parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
@@ -83,4 +55,14 @@ public class ReportMessage {
         return new ReportMessage(key, defaultMessage, values);
     }
 
+    public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+        generator.writeStartObject();
+        generator.writeStringField("nodeType", REPORT_MESSAGE_NODE_TYPE);
+        generator.writeStringField("key", getKey());
+        if (!getValues().isEmpty()) {
+            generator.writeObjectField("values", getValues());
+        }
+        generator.writeEndObject();
+        dictionary.put(getKey(), getDefaultText());
+    }
 }

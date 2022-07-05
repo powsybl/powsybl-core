@@ -96,7 +96,7 @@ class ImportersTest extends AbstractConvertersTest {
         assertEquals(LoadType.FICTITIOUS, network.getLoad("LOAD").getLoadType());
 
         // Check that the wrapped importer has received the functional logs reporter and produced report items
-        assertEquals(1, reporter.getReportMessages().size());
+        assertEquals(1, reporter.getChildren().size());
         StringWriter sw = new StringWriter();
         reporter.export(sw);
         String actual = TestUtil.normalizeLineSeparator(sw.toString());

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.reporter.ReportNode;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
@@ -30,7 +31,7 @@ public abstract class AbstractModificationTest extends AbstractSerDeTest {
     }
 
     protected void testReporter(ReporterModel reporter, String reporterFile) {
-        Optional<ReporterModel> report = reporter.getSubReporters().stream().findFirst();
+        Optional<ReportNode> report = reporter.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
         StringWriter sw = new StringWriter();
