@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
@@ -16,52 +17,22 @@ import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.extensions.BranchStatusAdder;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.InputStream;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class BranchStatusXmlSerializer<C extends Connectable<C>> implements ExtensionXmlSerializer<C, BranchStatus<C>> {
+public class BranchStatusXmlSerializer<C extends Connectable<C>> extends AbstractExtensionXmlSerializer<C, BranchStatus<C>> {
 
-    @Override
-    public String getExtensionName() {
-        return  BranchStatus.NAME;
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super BranchStatus> getExtensionClass() {
-        return BranchStatus.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return true;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/branchStatus.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.powsybl.org/schema/iidm/ext/branch_status/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "bs";
+    public BranchStatusXmlSerializer() {
+        super(BranchStatus.NAME, "network", BranchStatus.class, true,
+                "branchStatus.xsd", "http://www.powsybl.org/schema/iidm/ext/branch_status/1_0",
+                "bs");
     }
 
     @Override
     public void write(BranchStatus branchStatus, XmlWriterContext context) throws XMLStreamException {
-        context.getExtensionsWriter().writeCharacters(branchStatus.getStatus().name());
+        context.getWriter().writeCharacters(branchStatus.getStatus().name());
     }
 
     @Override

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
@@ -16,53 +17,23 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.InputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class BusbarSectionPositionXmlSerializer implements ExtensionXmlSerializer<BusbarSection, BusbarSectionPosition> {
+public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionPosition> {
 
-    @Override
-    public String getExtensionName() {
-        return "busbarSectionPosition";
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super BusbarSectionPosition> getExtensionClass() {
-        return BusbarSectionPosition.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return false;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/busbarSectionPosition.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "bbsp";
+    public BusbarSectionPositionXmlSerializer() {
+        super("busbarSectionPosition", "network", BusbarSectionPosition.class, false,
+                "busbarSectionPosition.xsd", "http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0",
+                "bbsp");
     }
 
     @Override
     public void write(BusbarSectionPosition busbarSectionPosition, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeInt("busbarIndex", busbarSectionPosition.getBusbarIndex(), context.getExtensionsWriter());
-        XmlUtil.writeInt("sectionIndex", busbarSectionPosition.getSectionIndex(), context.getExtensionsWriter());
+        XmlUtil.writeInt("busbarIndex", busbarSectionPosition.getBusbarIndex(), context.getWriter());
+        XmlUtil.writeInt("sectionIndex", busbarSectionPosition.getSectionIndex(), context.getWriter());
     }
 
     @Override

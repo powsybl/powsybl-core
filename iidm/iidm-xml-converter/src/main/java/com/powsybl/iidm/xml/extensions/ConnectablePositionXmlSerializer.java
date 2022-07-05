@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
@@ -16,53 +17,23 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.InputStream;
 import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class ConnectablePositionXmlSerializer<C extends Connectable<C>> implements ExtensionXmlSerializer<C, ConnectablePosition<C>> {
+public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends AbstractExtensionXmlSerializer<C, ConnectablePosition<C>> {
 
-    @Override
-    public String getExtensionName() {
-        return  ConnectablePosition.NAME;
-    }
-
-    @Override
-    public String getCategoryName() {
-        return "network";
-    }
-
-    @Override
-    public Class<? super ConnectablePosition> getExtensionClass() {
-        return ConnectablePosition.class;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return true;
-    }
-
-    @Override
-    public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/connectablePosition.xsd");
-    }
-
-    @Override
-    public String getNamespaceUri() {
-        return "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0";
-    }
-
-    @Override
-    public String getNamespacePrefix() {
-        return "cp";
+    public ConnectablePositionXmlSerializer() {
+        super(ConnectablePosition.NAME, "network", ConnectablePosition.class, true,
+                "connectablePosition.xsd", "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0",
+                "cp");
     }
 
     private void writePosition(ConnectablePosition.Feeder feeder, Integer i, XmlWriterContext context) throws XMLStreamException {
-        context.getExtensionsWriter().writeEmptyElement(getNamespaceUri(), "feeder" + (i != null ? i : ""));
-        context.getExtensionsWriter().writeAttribute("name", feeder.getName());
+        context.getWriter().writeEmptyElement(getNamespaceUri(), "feeder" + (i != null ? i : ""));
+        context.getWriter().writeAttribute("name", feeder.getName());
         Optional<Integer> oOrder = feeder.getOrder();
         if (oOrder.isPresent()) {
             XmlUtil.writeInt("order", oOrder.get(), context.getExtensionsWriter());
