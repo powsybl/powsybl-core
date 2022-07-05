@@ -221,6 +221,6 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         SensitivityAnalysisResult.SensitivityContingencyStatus value = new SensitivityAnalysisResult.SensitivityContingencyStatus(new Contingency("C1"), SensitivityAnalysisResult.Status.CONVERGED);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
-                jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");
     }
 }
