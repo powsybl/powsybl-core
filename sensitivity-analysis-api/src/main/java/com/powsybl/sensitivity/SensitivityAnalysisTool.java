@@ -151,7 +151,7 @@ public class SensitivityAnalysisTool implements Tool {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
         boolean csv = isCsv(outputFile);
-        //Separate files for contingency status and sensitivity values only if sensitivity values output is csv
+        //Output file path for contingency status is built from output_file_option
         Path outputFileStatus = context.getFileSystem().getPath(buildContingencyStatusPath(csv, line.getOptionValue(OUTPUT_FILE_OPTION)));
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
