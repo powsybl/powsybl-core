@@ -56,6 +56,7 @@ public class SensitivityAnalysisTool implements Tool {
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
     private static final String VARIABLE_SETS_FILE_OPTION = "variable-sets-file";
     private static final String PARAMETERS_FILE = "parameters-file";
+    private static final String OUTPUT_CONTINGENCY_STATUS_FILE_OPTION = "output-contingency-file";
 
     @Override
     public Command getCommand() {
@@ -106,6 +107,11 @@ public class SensitivityAnalysisTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)
+                        .desc("contingency status output path")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
                         .desc("sensitivity analysis parameters as JSON file")
                         .hasArg()
@@ -151,8 +157,18 @@ public class SensitivityAnalysisTool implements Tool {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
         boolean csv = isCsv(outputFile);
-        //Output file path for contingency status is built from output_file_option
-        Path outputFileStatus = context.getFileSystem().getPath(buildContingencyStatusPath(csv, line.getOptionValue(OUTPUT_FILE_OPTION)));
+        Path outputFileStatus;
+        if (line.hasOption(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)) {
+            outputFileStatus = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION));
+        } else {
+            outputFileStatus = context.getFileSystem().getPath(buildContingencyStatusPath(csv, line.getOptionValue(OUTPUT_FILE_OPTION)));
+        }
+
+        boolean contingencyCsv = isCsv(outputFileStatus);
+        if ((csv && !contingencyCsv) || (!csv && contingencyCsv)) {
+            throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION  + " files must have the same format.");
+        }
+
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
