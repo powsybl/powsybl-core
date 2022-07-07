@@ -64,10 +64,6 @@ final class ContainersMappingHelper {
 
         private final DataObjectIndex index;
 
-        private int noNameSubstationCount = 0;
-
-        private int noNameVoltageLevelCount = 0;
-
         private BusesToVoltageLevelId(DataObjectIndex index) {
             this.index = index;
         }
@@ -80,13 +76,15 @@ final class ContainersMappingHelper {
         private String getVoltageLevelId(Set<Integer> ids) {
             String voltageLevelId = getPowerFactoryVoltageLevelId(ids);
             // automatic naming
-            return Objects.requireNonNullElseGet(voltageLevelId, () -> "VL" + noNameVoltageLevelCount++);
+            return Objects.requireNonNullElseGet(voltageLevelId, () -> "VL" + ids.stream().sorted().findFirst()
+                .orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set")));
         }
 
         private String getSubstationId(Set<Integer> ids) {
             String substationId = getPowerFactorySubstationId(ids);
             // automatic naming
-            return Objects.requireNonNullElseGet(substationId, () -> "S" + noNameSubstationCount++);
+            return Objects.requireNonNullElseGet(substationId, () -> "S" + ids.stream().sorted().findFirst()
+                .orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set")));
         }
 
         // Find an ElmSite with same ElmSubstats as defined by the ids argument
