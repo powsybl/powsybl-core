@@ -124,7 +124,7 @@ public class ContainersMapping {
 
     public static <N, B> ContainersMapping create(List<N> buses, List<B> branches,
         ToIntFunction<N> busToNum, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
-        Predicate<B> branchToIsTransformer, Predicate<B> branchToIsZeroImpedance,
+        Predicate<B> branchToIsZeroImpedance, Predicate<B> branchToIsTransformer,
         ToDoubleFunction<Integer> busToNominalVoltage, Function<Set<Integer>, String> busesToVoltageLevelId,
         Function<Set<Integer>, String> busesToSubstationId) {
 

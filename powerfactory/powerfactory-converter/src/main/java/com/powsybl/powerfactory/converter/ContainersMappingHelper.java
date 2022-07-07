@@ -184,13 +184,14 @@ final class ContainersMappingHelper {
             if (elmTerms.size() == 2) {
                 switch (connectedObj.getDataClassName()) {
                     case "ElmTr2":
+                        // All transformers are considered with impedance
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
                         break;
                     case "ElmLne":
-                        edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, false));
+                        // All lines are considered with impedance, only zero impedance lines are necessary
                         break;
                     case "ElmZpu":
-                        edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, false));
+                        // All lines are considered with impedance, only zero impedance lines are necessary
                         break;
                     case "ElmCoup":
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
@@ -223,8 +224,8 @@ final class ContainersMappingHelper {
             obj -> Ints.checkedCast(obj.getId()),
             edge -> Ints.checkedCast(edge.getObj1().getId()),
             edge -> Ints.checkedCast(edge.getObj2().getId()),
-            Edge::isTransformer,
             Edge::isZeroImpedance,
+            Edge::isTransformer,
             busesToVoltageLevelId::getNominalVoltage,
             busesToVoltageLevelId::getVoltageLevelId,
             busesToVoltageLevelId::getSubstationId);
