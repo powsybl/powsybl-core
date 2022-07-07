@@ -36,9 +36,9 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
         context.getWriter().writeAttribute("name", feeder.getName());
         Optional<Integer> oOrder = feeder.getOrder();
         if (oOrder.isPresent()) {
-            XmlUtil.writeInt("order", oOrder.get(), context.getExtensionsWriter());
+            XmlUtil.writeInt("order", oOrder.get(), context.getWriter());
         }
-        context.getExtensionsWriter().writeAttribute("direction", feeder.getDirection().name());
+        context.getWriter().writeAttribute("direction", feeder.getDirection().name());
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
         }
     }
 
-    private void readPosition(XmlReaderContext context, ConnectablePositionAdder.FeederAdder adder) {
+    private void readPosition(XmlReaderContext context, ConnectablePositionAdder.FeederAdder<C> adder) {
         String name = context.getReader().getAttributeValue(null, "name");
         Optional.ofNullable(XmlUtil.readOptionalIntegerAttribute(context.getReader(), "order")).
                 ifPresent(adder::withOrder);
@@ -67,7 +67,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
 
     @Override
     public ConnectablePosition read(Connectable connectable, XmlReaderContext context) throws XMLStreamException {
-        ConnectablePositionAdder adder = ((Connectable<?>) connectable).newExtension(ConnectablePositionAdder.class);
+        ConnectablePositionAdder<C> adder = ((Connectable<?>) connectable).newExtension(ConnectablePositionAdder.class);
         XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
 
             switch (context.getReader().getLocalName()) {

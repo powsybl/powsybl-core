@@ -18,6 +18,6 @@ public interface BranchStatusAdder<C extends Connectable<C>> extends ExtensionAd
         return BranchStatus.class;
     }
 
-    BranchStatusAdder withStatus(BranchStatus.Status branchStatus);
+    BranchStatusAdder<C> withStatus(BranchStatus.Status branchStatus);
 
 }
