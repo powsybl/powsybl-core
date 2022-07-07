@@ -27,7 +27,7 @@ public class BranchStatusAdderImpl<C extends Connectable<C>> extends AbstractExt
 
     @Override
     protected BranchStatus<C> createExtension(Connectable branch) {
-        return new BranchStatusImpl(branch, status);
+        return new BranchStatusImpl<>(branch, status);
     }
 
     @Override
