@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -145,6 +146,11 @@ public interface Reporter {
         @Override
         public void report(ReportMessage reportMessage) {
             // No-op
+        }
+
+        @Override
+        public Collection<MessageNode> getChildren() {
+            return Collections.emptyList();
         }
 
         @Override

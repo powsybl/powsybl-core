@@ -76,6 +76,7 @@ public class ReporterModel extends AbstractReporter {
         children.add(reportMessage);
     }
 
+    @Override
     public Collection<MessageNode> getChildren() {
         return Collections.unmodifiableCollection(children);
     }

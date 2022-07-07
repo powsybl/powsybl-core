@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +55,11 @@ public class ReportMessage extends AbstractMessageNode {
         String defaultMessage = dictionary.getOrDefault(key, "(missing report key in dictionary)");
 
         return new ReportMessage(key, defaultMessage, values);
+    }
+
+    @Override
+    public Collection<MessageNode> getChildren() {
+        return Collections.emptyList();
     }
 
     public void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException {

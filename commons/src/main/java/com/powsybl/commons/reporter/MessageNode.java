@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Map;
 
 public interface MessageNode {
@@ -15,6 +16,8 @@ public interface MessageNode {
     Map<String, TypedValue> getValues();
 
     TypedValue getValue(String valueKey);
+
+    Collection<MessageNode> getChildren();
 
     void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException;
 
