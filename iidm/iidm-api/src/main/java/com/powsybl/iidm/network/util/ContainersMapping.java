@@ -13,6 +13,7 @@ import org.jgrapht.graph.Pseudograph;
 
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.Collectors;
 
 /**
  * A utility class that create IIDM containers, i.e voltage levels and substations from a bus branch model with respect
@@ -119,5 +120,107 @@ public class ContainersMapping {
                 containersMapping.voltageLevelIdToSubstationId.put(voltageLevelId, substationId);
             }
         }
+    }
+
+    public static <N, B> ContainersMapping create(List<N> buses, List<B> branches,
+        ToIntFunction<N> busToNum, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
+        Predicate<B> branchToIsTransformer, Predicate<B> branchToIsZeroImpedance,
+        ToDoubleFunction<Integer> busToNominalVoltage, Function<Set<Integer>, String> busesToVoltageLevelId,
+        Function<Set<Integer>, String> busesToSubstationId) {
+
+        Objects.requireNonNull(buses);
+        Objects.requireNonNull(branches);
+        Objects.requireNonNull(busToNum);
+        Objects.requireNonNull(branchToNum1);
+        Objects.requireNonNull(branchToNum2);
+        Objects.requireNonNull(branchToIsTransformer);
+        Objects.requireNonNull(branchToIsZeroImpedance);
+
+        Objects.requireNonNull(busesToVoltageLevelId);
+        Objects.requireNonNull(busesToSubstationId);
+
+        ContainersMapping containersMapping = new ContainersMapping();
+
+        // graph for calculating substations
+        // group buses connected by zero impedance lines and transformers to substations
+        Graph<Integer, B> sGraph = new Pseudograph<>(null, null, false);
+        for (N bus : buses) {
+            sGraph.addVertex(busToNum.applyAsInt(bus));
+        }
+
+        for (B branch : branches) {
+            if (branchToIsZeroImpedance.test(branch) || branchToIsTransformer.test(branch)) {
+                sGraph.addEdge(branchToNum1.applyAsInt(branch), branchToNum2.applyAsInt(branch), branch);
+            }
+        }
+
+        // analyze each substation set
+        for (Set<Integer> busNums : new ConnectivityInspector<>(sGraph).connectedSets()) {
+
+            createAndMapSubstationAndVoltageLevelsInside(branchToNum1, branchToNum2, branchToIsZeroImpedance,
+                busToNominalVoltage, busesToVoltageLevelId, busesToSubstationId, busNums, sGraph, containersMapping);
+        }
+
+        return containersMapping;
+    }
+
+    private static <B> void createAndMapSubstationAndVoltageLevelsInside(ToIntFunction<B> branchToNum1,
+        ToIntFunction<B> branchToNum2, Predicate<B> branchToIsZeroImpedance,
+        ToDoubleFunction<Integer> busToNominalVoltage, Function<Set<Integer>, String> busesToVoltageLevelId,
+        Function<Set<Integer>, String> busesToSubstationId, Set<Integer> substationBusNums,
+        Graph<Integer, B> sGraph, ContainersMapping containersMapping) {
+
+        String substationId = busesToSubstationId.apply(substationBusNums);
+
+        // build the graph for splitting substation buses into voltageLevels sets
+        // avoid including edges between buses with the same nominal voltage, there are a lot
+
+        Set<B> zeroImpedanceBranchesInsideSubstation = new HashSet<>();
+        substationBusNums.forEach(bus -> zeroImpedanceBranchesInsideSubstation
+            .addAll(sGraph.edgesOf(bus).stream().filter(branchToIsZeroImpedance::test).collect(Collectors.toSet())));
+
+        Graph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
+        Iterator<Integer> iter = substationBusNums.iterator();
+        while (iter.hasNext()) {
+            vlGraph.addVertex(iter.next());
+        }
+        zeroImpedanceBranchesInsideSubstation.forEach(branch -> vlGraph.addEdge(branchToNum1.applyAsInt(branch), branchToNum2.applyAsInt(branch)));
+
+        if (busToNominalVoltage == null) {
+            new ConnectivityInspector<>(vlGraph).connectedSets()
+                .forEach(voltageLevelIds -> mapSubstationAndVoltageLevel(busesToVoltageLevelId, substationId, voltageLevelIds, containersMapping));
+        } else {
+            Map<String, Set<Integer>> vls = new HashMap<>();
+
+            new ConnectivityInspector<>(vlGraph).connectedSets()
+                .forEach(voltageLevelIds -> vls.merge(getNominalVoltage(voltageLevelIds, busToNominalVoltage), voltageLevelIds, ContainersMapping::unionSet));
+
+            vls.values().forEach(voltageLevelIds -> mapSubstationAndVoltageLevel(busesToVoltageLevelId, substationId, voltageLevelIds, containersMapping));
+        }
+    }
+
+    private static String getNominalVoltage(Set<Integer> voltageLevelIds, ToDoubleFunction<Integer> busToVoltageLevelNominal) {
+        Objects.requireNonNull(busToVoltageLevelNominal);
+        if (voltageLevelIds.isEmpty()) { // should never happen
+            throw new PowsyblException("Unexpected empty connected set");
+        }
+        return String.valueOf(busToVoltageLevelNominal.applyAsDouble(voltageLevelIds.iterator().next()));
+    }
+
+    private static Set<Integer> unionSet(Set<Integer> set1, Set<Integer> set2) {
+        Set<Integer> unionSet = new HashSet<>(set1);
+        unionSet.addAll(set2);
+        return unionSet;
+    }
+
+    private static void mapSubstationAndVoltageLevel(Function<Set<Integer>, String> busesToVoltageLevelId,
+        String substationId, Set<Integer> busNums, ContainersMapping containersMapping) {
+
+        String voltageLevelId = busesToVoltageLevelId.apply(busNums);
+        containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
+        for (int busNum : busNums) {
+            containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
+        }
+        containersMapping.voltageLevelIdToSubstationId.put(voltageLevelId, substationId);
     }
 }

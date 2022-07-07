@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="CommonImpedance" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="S2">
+    <iidm:substation id="S0">
         <iidm:voltageLevel id="VL0" nominalV="110.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="VL0_1 Bus 1-Slack" node="0"/>
@@ -21,7 +21,7 @@
             </iidm:nodeBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S3">
+    <iidm:substation id="S2">
         <iidm:voltageLevel id="VL2" nominalV="110.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="VL2_3 Bus 2-Load" node="0"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="Transformer-VlVh" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="S2">
+    <iidm:substation id="S0">
         <iidm:voltageLevel id="VL0" nominalV="110.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="VL0_1 Bus 1-Slack" node="0"/>
@@ -14,24 +14,24 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S1">
-        <iidm:voltageLevel id="VL1" nominalV="110.0" topologyKind="NODE_BREAKER">
+        <iidm:voltageLevel id="VL2" nominalV="110.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL1_2 Bus 2" node="0"/>
-                <iidm:switch id="VL1_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL1_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:busbarSection id="VL2_2 Bus 2" node="0"/>
+                <iidm:switch id="VL2_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL2_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
                 <iidm:bus v="112.57804870605469" angle="-1.1524275541305542" nodes="0,1,2"/>
             </iidm:nodeBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL2" nominalV="35.0" topologyKind="NODE_BREAKER">
+        <iidm:voltageLevel id="VL1" nominalV="35.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL2_3 Bus 2-Load" node="0"/>
-                <iidm:switch id="VL2_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL2_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:busbarSection id="VL1_3 Bus 2-Load" node="0"/>
+                <iidm:switch id="VL1_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL1_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
                 <iidm:bus v="24.30230140686035" angle="-25.546560287475586" nodes="0,1,2"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="1"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.3589249906539917" x="7.370114132992315" g="0.0" b="-0.0" ratedU1="110.0" ratedU2="35.0" ratedS="20.0" node1="2" voltageLevelId1="VL1" node2="2" voltageLevelId2="VL2">
+        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.3589249906539917" x="7.370114132992315" g="0.0" b="-0.0" ratedU1="110.0" ratedU2="35.0" ratedS="20.0" node1="2" voltageLevelId1="VL2" node2="2" voltageLevelId2="VL1">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="12" loadTapChangingCapabilities="false">
                 <iidm:step r="-26.529395662837775" x="-26.529395662837775" g="36.10885727997057" b="36.10885727997057" rho="0.8571499538421631"/>
                 <iidm:step r="-24.474492894101473" x="-24.474492894101473" g="32.405598892284715" b="32.405598892284715" rho="0.8690541243553161"/>
@@ -61,5 +61,5 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="lne_1_2_1" r="2.344939947128296" x="7.1595683097839355" g1="0.0" b1="0.0014300827178955079" g2="0.0" b2="0.0014300827178955079" node1="1" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL1"/>
+    <iidm:line id="lne_1_2_1" r="2.344939947128296" x="7.1595683097839355" g1="0.0" b1="0.0014300827178955079" g2="0.0" b2="0.0014300827178955079" node1="1" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL2"/>
 </iidm:network>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="TwoBusesGeneratorElmReactiveLimits" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="S2">
+    <iidm:substation id="S0">
         <iidm:voltageLevel id="VL0" nominalV="220.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
                 <iidm:busbarSection id="VL0_Busbar-A" node="0"/>
