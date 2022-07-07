@@ -24,9 +24,9 @@ import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
