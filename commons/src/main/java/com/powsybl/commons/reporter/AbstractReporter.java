@@ -13,7 +13,7 @@ import java.util.Map;
  * An abstract class providing some default method implementations for {@link Reporter} implementations.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public abstract class AbstractReporter extends AbstractReportNode implements Reporter {
+public abstract class AbstractReporter extends AbstractMessageNode implements Reporter {
 
     protected AbstractReporter(String key, String defaultTitle, Map<String, TypedValue> values) {
         super(key, defaultTitle, values);

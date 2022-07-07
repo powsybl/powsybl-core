@@ -33,7 +33,7 @@ import java.util.*;
  */
 public class ReporterModel extends AbstractReporter {
 
-    private final List<ReportNode> children = new ArrayList<>();
+    private final List<MessageNode> children = new ArrayList<>();
 
     /**
      * ReporterModel constructor, with no associated values.
@@ -76,7 +76,7 @@ public class ReporterModel extends AbstractReporter {
         children.add(reportMessage);
     }
 
-    public Collection<ReportNode> getChildren() {
+    public Collection<MessageNode> getChildren() {
         return Collections.unmodifiableCollection(children);
     }
 
@@ -100,7 +100,7 @@ public class ReporterModel extends AbstractReporter {
         Map<String, TypedValue> valueMap = new HashMap<>(inheritedValueMap);
         valueMap.putAll(getValues());
         printDefaultText(writer, indent, "+ ", valueMap);
-        for (ReportNode child : children) {
+        for (MessageNode child : children) {
             child.print(writer, indent + "  ", valueMap);
         }
     }
@@ -121,9 +121,9 @@ public class ReporterModel extends AbstractReporter {
             for (JsonNode jsonNode : reportsNode) {
                 JsonNode nodeTypeNode = jsonNode.get("nodeType");
                 String nodeType = codec.readValue(nodeTypeNode.traverse(), String.class);
-                if (nodeType.equals(ReportNode.REPORT_MESSAGE_NODE_TYPE)) {
+                if (nodeType.equals(REPORT_MESSAGE_NODE_TYPE)) {
                     reporter.children.add(ReportMessage.parseJsonNode(jsonNode, dictionary, codec));
-                } else if (nodeType.equals(ReportNode.REPORTER_NODE_TYPE)) {
+                } else if (nodeType.equals(REPORTER_NODE_TYPE)) {
                     reporter.addSubReporter(ReporterModel.parseJsonNode(jsonNode, dictionary, codec));
                 }
             }
@@ -142,8 +142,8 @@ public class ReporterModel extends AbstractReporter {
         if (!children.isEmpty()) {
             generator.writeFieldName("children");
             generator.writeStartArray();
-            for (ReportNode reportNode : children) {
-                reportNode.writeJson(generator, dictionary);
+            for (MessageNode messageNode : children) {
+                messageNode.writeJson(generator, dictionary);
             }
             generator.writeEndArray();
         }

@@ -9,13 +9,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class AbstractReportNode implements ReportNode {
+public abstract class AbstractMessageNode implements MessageNode {
+
+    protected static final String REPORT_MESSAGE_NODE_TYPE = "reportMessage";
+    protected static final String REPORTER_NODE_TYPE = "reporter";
 
     private final String key;
     private final String defaultText;
     private final Map<String, TypedValue> values;
 
-    protected AbstractReportNode(String key, String defaultText, Map<String, TypedValue> values) {
+    protected AbstractMessageNode(String key, String defaultText, Map<String, TypedValue> values) {
         this.key = key;
         this.defaultText = defaultText;
         this.values = new HashMap<>();

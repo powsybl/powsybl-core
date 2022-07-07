@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.MessageNode;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.ReporterModelDeserializer;
 import com.powsybl.commons.reporter.ReporterModelSerializer;
@@ -40,7 +40,7 @@ class PostProcessorReporterTest extends AbstractSerDeTest {
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network1);
 
-        Optional<ReportNode> report = reporter.getChildren().stream().findFirst();
+        Optional<MessageNode> report = reporter.getChildren().stream().findFirst();
         assertTrue(report.isPresent());
 
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/postProcessorReporterTest.json");

@@ -23,7 +23,7 @@ import java.util.Map;
  * of corresponding {@link Reporter}.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportMessage extends AbstractReportNode {
+public class ReportMessage extends AbstractMessageNode {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
 

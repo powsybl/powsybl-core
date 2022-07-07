@@ -50,7 +50,7 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         assertEquals("TypedValue expects only Float, Double, Integer, Long and String values (value is an instance of class com.powsybl.commons.datasource.ResourceDataSource)", e.getMessage());
 
         reporter.report("reportTest", "Report test ${unknownKey}", "nonPrintedString", "Non printed String");
-        Optional<ReportNode> reportNode = reporter.getChildren().stream().findFirst();
+        Optional<MessageNode> reportNode = reporter.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
         assertEquals("Report test ${unknownKey}", reportNode.get().getDefaultText());
         assertEquals("Non printed String", reportNode.get().getValue("nonPrintedString").getValue());
@@ -79,12 +79,12 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
         assertEquals(2, rm.getChildren().size());
 
-        Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
-        ReportNode node1 = childrenIt.next();
+        Iterator<MessageNode> childrenIt = rm.getChildren().iterator();
+        MessageNode node1 = childrenIt.next();
         assertTrue(node1 instanceof ReportMessage);
         assertEquals("No value report", node1.getDefaultText());
 
-        ReportNode node2 = childrenIt.next();
+        MessageNode node2 = childrenIt.next();
         assertTrue(node2 instanceof ReporterModel);
         assertEquals("Reading UCTE network file", node2.getDefaultText());
     }
@@ -96,11 +96,11 @@ class UcteImporterReporterTest extends AbstractSerDeTest {
         ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
         assertEquals(2, rm.getChildren().size());
 
-        Iterator<ReportNode> childrenIt = rm.getChildren().iterator();
-        ReportNode node1 = childrenIt.next();
+        Iterator<MessageNode> childrenIt = rm.getChildren().iterator();
+        MessageNode node1 = childrenIt.next();
         assertTrue(node1 instanceof ReportMessage);
         assertEquals("No value report", node1.getDefaultText());
-        ReportNode node2 = childrenIt.next();
+        MessageNode node2 = childrenIt.next();
         assertTrue(node2 instanceof ReporterModel);
         assertEquals("Reading UCTE network file", node2.getDefaultText());
 

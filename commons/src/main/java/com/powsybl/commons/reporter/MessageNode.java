@@ -6,12 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
-public interface ReportNode {
-
-    String REPORT_MESSAGE_NODE_TYPE = "reportMessage";
-    String REPORTER_NODE_TYPE = "reporter";
-
-    void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException;
+public interface MessageNode {
 
     String getKey();
 
@@ -20,6 +15,8 @@ public interface ReportNode {
     Map<String, TypedValue> getValues();
 
     TypedValue getValue(String valueKey);
+
+    void writeJson(JsonGenerator generator, Map<String, String> dictionary) throws IOException;
 
     void print(Writer writer, String indent, Map<String, TypedValue> inheritedValueMap) throws IOException;
 }

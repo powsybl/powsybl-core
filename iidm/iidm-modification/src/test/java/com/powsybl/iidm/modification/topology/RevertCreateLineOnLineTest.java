@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.MessageNode;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -60,7 +60,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError11.apply(network, false, reporter1.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        Iterator<ReportNode> it1b = reporter1.getChildren().iterator();
+        Iterator<MessageNode> it1b = reporter1.getChildren().iterator();
         it1b.next();
         ReporterModel subReporter1b = (ReporterModel) it1b.next();
         assertEquals("lineNotFound", subReporter1b.getChildren().iterator().next().getKey());
@@ -84,7 +84,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError21.apply(network, false, reporter2.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        Iterator<ReportNode> it2b = reporter2.getChildren().iterator();
+        Iterator<MessageNode> it2b = reporter2.getChildren().iterator();
         it2b.next();
         ReporterModel subReporter2b = (ReporterModel) it2b.next();
         assertEquals("lineNotFound", subReporter2b.getChildren().iterator().next().getKey());
@@ -108,7 +108,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError31.apply(network, false, reporter3.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        Iterator<ReportNode> it3b = reporter3.getChildren().iterator();
+        Iterator<MessageNode> it3b = reporter3.getChildren().iterator();
         it3b.next();
         ReporterModel subReporter3b = (ReporterModel) it3b.next();
         assertEquals("lineNotFound", subReporter3b.getChildren().iterator().next().getKey());
@@ -132,7 +132,7 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .build();
         modificationWithError41.apply(network, false, reporter4.createSubReporter("withoutThrowException", "throwException = false"));
         assertNull(network.getLine("CJ"));
-        Iterator<ReportNode> it4b = reporter4.getChildren().iterator();
+        Iterator<MessageNode> it4b = reporter4.getChildren().iterator();
         it4b.next();
         ReporterModel subReporter4b = (ReporterModel) it4b.next();
         assertEquals("noTeePointAndOrTappedVoltageLevel", subReporter4b.getChildren().iterator().next().getKey());

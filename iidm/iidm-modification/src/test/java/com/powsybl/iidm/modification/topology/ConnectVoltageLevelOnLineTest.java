@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReportNode;
+import com.powsybl.commons.reporter.MessageNode;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -154,7 +154,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         Reporter subReporterBb = reporter.createSubReporter("busBreaker", "Test on bus/breaker network");
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReporterBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
-        Iterator<ReportNode> iterator = reporter.getChildren().iterator();
+        Iterator<MessageNode> iterator = reporter.getChildren().iterator();
         iterator.next();
         ReporterModel secondReport = (ReporterModel) iterator.next();
         assertEquals("notFoundBusOrBusbarSection", secondReport.getChildren().iterator().next().getKey());
