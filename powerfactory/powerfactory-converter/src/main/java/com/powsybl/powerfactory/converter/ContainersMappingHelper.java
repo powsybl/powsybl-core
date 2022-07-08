@@ -102,10 +102,8 @@ final class ContainersMappingHelper {
             Set<DataObject> dataObjects = elmSite.getChildren().stream()
                 .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSUBSTAT))
                 .collect(Collectors.toSet());
-            if (!elmSubstats.equals(dataObjects)) {
-                return null;
-            }
-            return elmSite.getLocName();
+
+            return elmSubstats.equals(dataObjects) ? elmSite.getLocName() : null;
         }
 
         // Find an ElmSubstat with same ElmTerms (Nodes) as defined by the ids argument
@@ -122,10 +120,8 @@ final class ContainersMappingHelper {
             Set<DataObject> dataObjects = elmSubstat.getChildren().stream()
                 .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMTERM))
                 .collect(Collectors.toSet());
-            if (!elmTerms.equals(dataObjects)) {
-                return null;
-            }
-            return elmSubstat.getLocName();
+
+            return elmTerms.equals(dataObjects) ? elmSubstat.getLocName() : null;
         }
 
         private Set<DataObject> elmTermsAssociatedTo(Set<Integer> ids) {
@@ -143,7 +139,8 @@ final class ContainersMappingHelper {
 
         private Set<DataObject> elmSitesAssociatedTo(Set<DataObject> elmSubstats) {
             return elmSubstats.stream().map(DataObject::getParent)
-                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSITE)).collect(Collectors.toSet());
+                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSITE))
+                .collect(Collectors.toSet());
         }
     }
 
