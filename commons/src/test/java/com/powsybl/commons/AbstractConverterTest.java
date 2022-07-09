@@ -13,20 +13,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
-import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.builder.Input;
-import org.xmlunit.diff.Diff;
 
-import javax.xml.transform.Source;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -51,39 +45,6 @@ public abstract class AbstractConverterTest {
     public void tearDown() throws IOException {
         fileSystem.close();
     }
-
-    protected static void compareXml(InputStream expected, InputStream actual) {
-        Source control = Input.fromStream(expected).build();
-        Source test = Input.fromStream(actual).build();
-        Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
-        boolean hasDiff = myDiff.hasDifferences();
-        if (hasDiff) {
-            System.err.println(myDiff.toString());
-        }
-        assertFalse(hasDiff);
-    }
-
-    protected static void compareTxt(InputStream expected, InputStream actual) {
-        try {
-            compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    protected static void compareTxt(InputStream expected, InputStream actual, List<Integer> excludedLines) {
-        BufferedReader expectedReader = new BufferedReader(new InputStreamReader(expected));
-        List<String> expectedLines = expectedReader.lines().collect(Collectors.toList());
-        BufferedReader actualReader = new BufferedReader(new InputStreamReader(actual));
-        List<String> actualLines = actualReader.lines().collect(Collectors.toList());
-
-        for (int i = 0; i < expectedLines.size(); i++) {
-            if (!excludedLines.contains(i)) {
-                assertEquals(expectedLines.get(i), actualLines.get(i));
-            }
-        }
-    }
-
     protected static void compareTxt(InputStream expected, String actual) {
         try {
             String expectedStr = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
@@ -95,15 +56,15 @@ public abstract class AbstractConverterTest {
     }
 
     protected <T> T roundTripXmlTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {
-        return roundTripTest(data, out, in, AbstractConverterTest::compareXml, ref);
+        return roundTripTest(data, out, in, ComparisonUtils::compareXml, ref);
     }
 
     protected <T> T roundTripTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {
-        return roundTripTest(data, out, in, AbstractConverterTest::compareTxt, ref);
+        return roundTripTest(data, out, in, ComparisonUtils::compareTxt, ref);
     }
 
     protected <T> Path writeXmlTest(T data, BiConsumer<T, Path> out, String ref) throws IOException {
-        return writeTest(data, out, AbstractConverterTest::compareXml, ref);
+        return writeTest(data, out, ComparisonUtils::compareXml, ref);
     }
 
     protected <T> Path writeTest(T data, BiConsumer<T, Path> out, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
