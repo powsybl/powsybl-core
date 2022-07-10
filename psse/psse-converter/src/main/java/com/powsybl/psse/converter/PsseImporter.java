@@ -219,18 +219,14 @@ public class PsseImporter implements Importer {
 
     private ContainersMapping defineContainersMappging(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext) {
         List<Edge> edges = new ArrayList<>();
-        psseModel.getNonTransformerBranches().forEach(b -> {
-            if (b.getR() == 0.0 && b.getX() == 0.0) { // only zeroImpedance Lines are necessary
-                edges.add(new Edge(b.getI(), b.getJ(), false, true));
-            }
-        });
+        // only zeroImpedance Lines are necessary and they are not allowed, so nothing to do
+
         psseModel.getTransformers().forEach(t -> {
-            if (t.getK() == 0) {
-                edges.add(new Edge(t.getI(), t.getJ(), true, t.getR12() == 0.0 && t.getX12() == 0.0));
-            } else {
-                boolean isZ0 = t.getR12() == 0.0 && t.getX12() == 0.0 && t.getR23() == 0.0 && t.getX23() == 0.0 && t.getR31() == 0.0 && t.getX31() == 0.0;
-                edges.add(new Edge(t.getI(), t.getJ(), true,  isZ0));
-                edges.add(new Edge(t.getI(), t.getK(), true,  isZ0));
+            if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
+                edges.add(new Edge(t.getI(), t.getJ(), true, false));
+            } else { // threeWindingsTransformers with zero impedance are not allowed
+                edges.add(new Edge(t.getI(), t.getJ(), true,  false));
+                edges.add(new Edge(t.getI(), t.getK(), true,  false));
             }
         });
 
