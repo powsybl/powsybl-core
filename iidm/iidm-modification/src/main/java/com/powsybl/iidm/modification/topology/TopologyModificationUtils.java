@@ -85,10 +85,14 @@ final class TopologyModificationUtils {
     }
 
     static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String lineId, VoltageLevel.NodeBreakerView view) {
+        createNodeBreakerSwitches(node1, middleNode, node2, suffix, lineId, view, false);
+    }
+
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String lineId, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(lineId + "_BREAKER" + suffix)
                 .setKind(SwitchKind.BREAKER)
-                .setOpen(false)
+                .setOpen(open)
                 .setRetained(true)
                 .setNode1(node1)
                 .setNode2(middleNode)
@@ -96,8 +100,29 @@ final class TopologyModificationUtils {
         view.newSwitch()
                 .setId(lineId + "_DISCONNECTOR" + suffix)
                 .setKind(SwitchKind.DISCONNECTOR)
-                .setOpen(false)
+                .setOpen(open)
                 .setNode1(middleNode)
+                .setNode2(node2)
+                .add();
+    }
+
+    static void createNodeBreakerBreaker(int node1, int node2, String suffix, String loadId, VoltageLevel.NodeBreakerView view, boolean open) {
+        view.newSwitch()
+                .setId(loadId + "BREAKER_" + suffix)
+                .setKind(SwitchKind.BREAKER)
+                .setOpen(open)
+                .setRetained(true)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
+    }
+
+    static void createNodeBreakerDisconnector(int node1, int node2, String suffix, String loadId, VoltageLevel.NodeBreakerView view, boolean open) {
+        view.newSwitch()
+                .setId("DISCONNECTOR_" + suffix)
+                .setKind(SwitchKind.DISCONNECTOR)
+                .setOpen(open)
+                .setNode1(node1)
                 .setNode2(node2)
                 .add();
     }
@@ -115,6 +140,14 @@ final class TopologyModificationUtils {
                 .setBus1(middleBusId)
                 .setBus2(busId2)
                 .add();
+    }
+
+    static LoadAdder createLoadAdder(LoadType loadType, double p0, double q0, VoltageLevel voltageLevel) {
+        return voltageLevel.newLoad()
+                .setLoadType(loadType)
+                .setP0(p0)
+                .setQ0(q0)
+                .setId("LOAD"); //TODO: what to put?
     }
 
     private TopologyModificationUtils() {
