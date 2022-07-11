@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Connectable;
 import java.util.Optional;
 
 /**
+ * This class gives the position of a connectable relative to other equipments in the network.
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ConnectablePosition<C extends Connectable<C>> extends Extension<C> {
@@ -45,12 +46,24 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
         Feeder setDirection(Direction direction);
     }
 
+    /**
+     * Feeder in case the connectable has only one (injections)
+     */
     public Feeder getFeeder();
 
+    /**
+     * First feeder in case the connectable has two or three
+     */
     public Feeder getFeeder1();
 
+    /**
+     * Second feeder in case the connectable has two or three
+     */
     public Feeder getFeeder2();
 
+    /**
+     * Third feeder in case the connectable has three (three windings transformers)
+     */
     public Feeder getFeeder3();
 
     public static void check(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {

@@ -94,7 +94,7 @@ public class CouplingDeviceDiagramData<T extends Identifiable<T>> extends Abstra
         diagramsDetails.put(diagramName, data);
     }
 
-    public CouplingDeviceDiagramDetails getData(String diagramName) {
+    CouplingDeviceDiagramDetails getData(String diagramName) {
         Objects.requireNonNull(diagramName);
         return diagramsDetails.get(diagramName);
     }

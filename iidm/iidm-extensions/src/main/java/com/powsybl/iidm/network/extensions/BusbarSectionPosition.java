@@ -21,10 +21,16 @@ public interface BusbarSectionPosition extends Extension<BusbarSection> {
         return NAME;
     }
 
+    /**
+     * The position of the busbar relative to other busbars.
+     */
     int getBusbarIndex();
 
     BusbarSectionPosition setBusbarIndex(int busbarIndex);
 
+    /**
+     * The position of the section relative to the other section of the busbar.
+     */
     int getSectionIndex();
 
     BusbarSectionPosition setSectionIndex(int sectionIndex);
