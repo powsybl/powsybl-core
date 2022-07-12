@@ -10,6 +10,13 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.BusbarSection;
 
 /**
+ * Position information about the BusbarSection
+ *   - within the corresponding busbar ({@link BusbarSectionPosition#getSectionIndex})
+ *   - relative to other busbars of the voltage level ({@link BusbarSectionPosition#getBusbarIndex})
+ * <p>
+ * Note that a busbar is a set of BusbarSections.
+ * Hence, the BusbarSections of a same busbar should have the same busbar index, and their section index induce an order
+ * which usually reflects their physical relative position.
  * @author Jon Harper <jon.harper at rte-france.com>
  */
 public interface BusbarSectionPosition extends Extension<BusbarSection> {
@@ -22,15 +29,14 @@ public interface BusbarSectionPosition extends Extension<BusbarSection> {
     }
 
     /**
-     * The position of the busbar section relative to other busbar sections on the voltage level.
+     * Return the index of the corresponding busbar among the busbars of the voltage level
      */
     int getBusbarIndex();
 
     BusbarSectionPosition setBusbarIndex(int busbarIndex);
 
     /**
-     * The position of the busbar section in its set relative to the other busbar section sets of the voltage
-     * level seperated from them by switches.
+     * Return the index of the busbar section within the corresponding busbar
      */
     int getSectionIndex();
 
