@@ -11,7 +11,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.commons.parameters.Parameter;
 
 import java.util.Collections;
 import java.util.List;

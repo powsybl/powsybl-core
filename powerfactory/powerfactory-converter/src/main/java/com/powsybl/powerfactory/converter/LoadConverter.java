@@ -9,7 +9,6 @@ package com.powsybl.powerfactory.converter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 
 /**
@@ -38,16 +37,16 @@ class LoadConverter extends AbstractConverter {
     }
 
     // Only constant power load is considered. Powerfactory supports ZIP load model
-    static class LoadModel {
+    private static final class LoadModel {
         private final double p0;
         private final double q0;
 
-        LoadModel(double p0, double q0) {
+        private LoadModel(double p0, double q0) {
             this.p0 = p0;
             this.q0 = q0;
         }
 
-        static LoadModel create(DataObject elmLod) {
+        private static LoadModel create(DataObject elmLod) {
 
             float p0 = elmLod.getFloatAttributeValue("plini");
             float q0 = elmLod.getFloatAttributeValue("qlini");

@@ -1,84 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="ieee14" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="S6">
-        <iidm:voltageLevel id="VL0" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S37">
+        <iidm:voltageLevel id="VL37" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL0_1 Bus 1" node="0"/>
-                <iidm:switch id="VL0_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL0_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL0_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:busbarSection id="VL37_1 Bus 1" node="0"/>
+                <iidm:switch id="VL37_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL37_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL37_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_1_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="146.27999210357666" targetQ="0.0" node="3">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S5">
-        <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S38">
+        <iidm:voltageLevel id="VL38" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL1_10 Bus 10" node="0"/>
-                <iidm:switch id="VL1_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL1_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL1_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:busbarSection id="VL38_10 Bus 10" node="0"/>
+                <iidm:switch id="VL38_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL38_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL38_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_10_1" loadType="UNDEFINED" p0="9.0" q0="5.800000190734863" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S8">
-        <iidm:voltageLevel id="VL2" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S39">
+        <iidm:voltageLevel id="VL39" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL2_11 Bus 11" node="0"/>
-                <iidm:switch id="VL2_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL2_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL2_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:busbarSection id="VL39_11 Bus 11" node="0"/>
+                <iidm:switch id="VL39_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL39_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL39_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_11_1" loadType="UNDEFINED" p0="3.5" q0="1.7999999523162842" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S7">
-        <iidm:voltageLevel id="VL3" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S40">
+        <iidm:voltageLevel id="VL40" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL3_12 Bus 12" node="0"/>
-                <iidm:switch id="VL3_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL3_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL3_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:busbarSection id="VL40_12 Bus 12" node="0"/>
+                <iidm:switch id="VL40_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL40_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL40_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_12_1" loadType="UNDEFINED" p0="6.099999904632568" q0="1.600000023841858" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S10">
-        <iidm:voltageLevel id="VL4" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S41">
+        <iidm:voltageLevel id="VL41" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL4_13 Bus 13" node="0"/>
-                <iidm:switch id="VL4_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL4_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL4_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-                <iidm:switch id="VL4_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
+                <iidm:busbarSection id="VL41_13 Bus 13" node="0"/>
+                <iidm:switch id="VL41_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL41_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL41_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL41_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_13_1" loadType="UNDEFINED" p0="13.5" q0="5.800000190734863" node="4"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S9">
-        <iidm:voltageLevel id="VL5" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S42">
+        <iidm:voltageLevel id="VL42" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL5_14 Bus 14" node="0"/>
-                <iidm:switch id="VL5_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL5_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL5_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:busbarSection id="VL42_14 Bus 14" node="0"/>
+                <iidm:switch id="VL42_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL42_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL42_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_14_1" loadType="UNDEFINED" p0="14.899999618530273" q0="5.0" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S2">
-        <iidm:voltageLevel id="VL6" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S43">
+        <iidm:voltageLevel id="VL43" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL6_2 Bus 2" node="0"/>
-                <iidm:switch id="VL6_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL6_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL6_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-                <iidm:switch id="VL6_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
-                <iidm:switch id="VL6_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:switch id="VL6_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
+                <iidm:busbarSection id="VL43_2 Bus 2" node="0"/>
+                <iidm:switch id="VL43_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL43_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL43_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL43_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
+                <iidm:switch id="VL43_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="VL43_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_2_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="40.0" targetV="144.2099940776825" targetQ="0.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-40.00001907348633" maxQ="49.99998092651367"/>
@@ -86,14 +86,14 @@
             <iidm:load id="lod_2_1" loadType="UNDEFINED" p0="21.700000762939453" q0="12.699999809265137" node="5"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S1">
-        <iidm:voltageLevel id="VL7" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S44">
+        <iidm:voltageLevel id="VL44" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL7_3 Bus 3" node="0"/>
-                <iidm:switch id="VL7_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL7_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL7_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-                <iidm:switch id="VL7_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
+                <iidm:busbarSection id="VL44_3 Bus 3" node="0"/>
+                <iidm:switch id="VL44_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL44_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL44_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL44_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_3_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="139.37999868392944" targetQ="0.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="40.00001907348633"/>
@@ -101,101 +101,578 @@
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="94.19999694824219" q0="19.0" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:substation id="S4">
-        <iidm:voltageLevel id="VL8" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S45">
+        <iidm:voltageLevel id="VL45" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL8_4 Bus 4" node="0"/>
-                <iidm:switch id="VL8_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL8_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL8_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-                <iidm:switch id="VL8_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
-                <iidm:switch id="VL8_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:switch id="VL8_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
+                <iidm:busbarSection id="VL45_4 Bus 4" node="0"/>
+                <iidm:busbarSection id="VL45_7 Bus 7" node="7"/>
+                <iidm:busbarSection id="VL45_9 Bus 9" node="11"/>
+                <iidm:switch id="VL45_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL45_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL45_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL45_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
+                <iidm:switch id="VL45_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="VL45_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
+                <iidm:switch id="VL45_Switch#5" kind="BREAKER" retained="false" open="false" node1="7" node2="8"/>
+                <iidm:switch id="VL45_Switch#6" kind="BREAKER" retained="false" open="false" node1="7" node2="9"/>
+                <iidm:switch id="VL45_Switch#7" kind="BREAKER" retained="false" open="false" node1="7" node2="10"/>
+                <iidm:switch id="VL45_Switch#8" kind="BREAKER" retained="false" open="false" node1="11" node2="12"/>
+                <iidm:switch id="VL45_Switch#9" kind="BREAKER" retained="false" open="false" node1="11" node2="13"/>
+                <iidm:switch id="VL45_Switch#10" kind="BREAKER" retained="false" open="false" node1="11" node2="14"/>
+                <iidm:switch id="VL45_Switch#11" kind="BREAKER" retained="false" open="false" node1="11" node2="15"/>
+                <iidm:switch id="VL45_Switch#12" kind="BREAKER" retained="false" open="false" node1="11" node2="16"/>
+                <iidm:switch id="VL45_Switch#13" kind="BREAKER" retained="false" open="false" node1="11" node2="17"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_4_1" loadType="UNDEFINED" p0="47.79999923706055" q0="-3.9000000953674316" node="4"/>
-        </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL11" nominalV="138.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL11_7 Bus 7" node="0"/>
-                <iidm:switch id="VL11_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL11_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL11_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-            </iidm:nodeBreakerTopology>
-        </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL13" nominalV="138.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL13_9 Bus 9" node="0"/>
-                <iidm:switch id="VL13_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL13_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL13_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-                <iidm:switch id="VL13_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
-                <iidm:switch id="VL13_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:switch id="VL13_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
-            </iidm:nodeBreakerTopology>
-            <iidm:load id="lod_9_1" loadType="UNDEFINED" p0="29.5" q0="16.600000381469727" node="4"/>
-            <iidm:shunt id="shntfix_9_ 1" sectionCount="1" voltageRegulatorOn="false" node="5">
+            <iidm:load id="lod_9_1" loadType="UNDEFINED" p0="29.5" q0="16.600000381469727" node="15"/>
+            <iidm:shunt id="shntfix_9_ 1" sectionCount="1" voltageRegulatorOn="false" node="16">
                 <iidm:shuntLinearModel bPerSection="9.976895751953126E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_4_7_1" r="0.0" x="8.328165375339447" g="0.0" b="0.0" ratedU1="138.0" ratedU2="134.96400451660156" ratedS="100.0" node1="5" voltageLevelId1="VL8" node2="3" voltageLevelId2="VL11"/>
-        <iidm:twoWindingsTransformer id="trf_4_9_1" r="0.0" x="58.90998454530377" g="0.0" b="0.0" ratedU1="138.0" ratedU2="133.7220001220703" ratedS="100.0" node1="6" voltageLevelId1="VL8" node2="6" voltageLevelId2="VL13"/>
+        <iidm:twoWindingsTransformer id="trf_4_7_1" r="0.0" x="39.824814049530026" g="0.0" b="-0.0" ratedU1="134.96400451660156" ratedU2="138.0" ratedS="100.0" node1="5" voltageLevelId1="VL45" node2="10" voltageLevelId2="VL45">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="75" loadTapChangingCapabilities="false">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8865664915043474"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.864526139533094"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8429948259912872"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8219551172646782"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8013903668449625"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7812846714045094"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7616228297801737"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.742390304643878"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7235731866568458"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7051581609217403"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6871324755626629"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6694839122772003"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6522007587176122"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6352717825699672"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6186862072106745"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6024336888295505"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5865042949173673"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.570888484023872"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5555770866995926"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5405612875414445"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5258326082682618"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5113828917579868"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.497204286983357"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.483289234787646"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4696304544463006"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4562209309642815"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4430539030625449"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4301228518104316"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4174214898638147"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4049437512716725"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3926837818163695"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3806359298553217"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3687947376339495"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3571549330418615"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.345711421786107"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3344592799570918"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3233937469643562"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.312510218820933"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3018042417563724"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.291271506139828"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2809078406957788"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2707092069960784"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2606716942130543"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2507915141193333"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2410649963209632"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2314885837112324"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2220588281333524"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2127723862408992"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2036260155455685"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.194616570642434"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1857409996034742"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1769963405306823"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1683797182605826"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1598883412124483"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1515194983729644"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1432705564104932"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.135138956912489"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1271222137399777"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1192179104933475"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1114236980840317"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1037372924069544"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0961564721088919"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.088679076448176"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0813030032414002"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0740262068930357"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0668466965040755"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0597625340560322"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0527718326668118"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.045872754915167"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.039063511230599"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0323423583457554"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0257075978084982"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0191575745509878"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0126906755132428"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0063053283187724"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.993773195771305"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.987623457847621"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.98154936430663"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.975549527992686"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9696225954606931"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9637672459582516"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.95798219044446"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9522661706438463"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9466179581339667"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.941036353465284"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9355201853120012"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9300683096525849"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9246796089787788"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9193529915319544"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9140873905657054"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9088817636336382"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9037350919013605"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8986463794817144"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8936146527923425"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8886389599347159"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8837183700937936"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8788519729575182"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8740388781553842"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8692782147153567"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.864569130538441"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8599107918902381"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.85530238290885"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8507431051285232"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8462321770184481"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8417688335361523"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8373523256949547"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8329819201449634"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8286568987671286"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8243765582798754"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8201402098578665"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8159471787624585"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8117968039834369"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8076884378916309"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8036214459020201"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7995952061469735"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7956091091592573"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7916625575644801"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7877549657826459"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7838857597385018"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7800543765803808"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7762602644072489"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7725028820036807"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7687816985824927"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7650961935347821"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7614458561871184"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.757830185565655"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7542486901669281"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.750700887735125"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7471863050456091"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7437044776944967"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7402549498940905"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7368372742739798"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.733451011687625"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.730095731024251"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7267710090258799"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7234764301093409"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7202115861930993"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7169760765287532"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7137695075370503"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7105914926482892"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7074416521469619"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7043196130205108"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7012250088120743"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6981574794770956"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6951166712436799"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6921022364765844"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6891138335447328"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6861511266921455"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6832137859121875"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6803014868250307"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6774139105582372"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6745507436303719"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6717116778375535"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6688964101428575"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6661046425684912"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6633360820906553"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6605904405370175"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6578674344867227"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6551667851728639"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="trf_4_9_1" r="0.0" x="105.91891925811768" g="0.0" b="-0.0" ratedU1="133.7220001220703" ratedU2="138.0" ratedS="100.0" node1="6" voltageLevelId1="VL45" node2="17" voltageLevelId2="VL45">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="74" loadTapChangingCapabilities="false">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.864526139533094"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8429948259912872"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8219551172646782"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.8013903668449625"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7812846714045094"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7616228297801737"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.742390304643878"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7235731866568458"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7051581609217403"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6871324755626629"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6694839122772003"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6522007587176122"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6352717825699672"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6186862072106745"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6024336888295505"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5865042949173673"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.570888484023872"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5555770866995926"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5405612875414445"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5258326082682618"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5113828917579868"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.497204286983357"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.483289234787646"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4696304544463006"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4562209309642815"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4430539030625449"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4301228518104316"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4174214898638147"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4049437512716725"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3926837818163695"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3806359298553217"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3687947376339495"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3571549330418615"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.345711421786107"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3344592799570918"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3233937469643562"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.312510218820933"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3018042417563724"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.291271506139828"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2809078406957788"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2707092069960784"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2606716942130543"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2507915141193333"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2410649963209632"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2314885837112324"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2220588281333524"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2127723862408992"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2036260155455685"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.194616570642434"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1857409996034742"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1769963405306823"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1683797182605826"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1598883412124483"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1515194983729644"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1432705564104932"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.135138956912489"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1271222137399777"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1192179104933475"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1114236980840317"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1037372924069544"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0961564721088919"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.088679076448176"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0813030032414002"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0740262068930357"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0668466965040755"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0597625340560322"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0527718326668118"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.045872754915167"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.039063511230599"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0323423583457554"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0257075978084982"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0191575745509878"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0126906755132428"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0063053283187724"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.993773195771305"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.987623457847621"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.98154936430663"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.975549527992686"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9696225954606931"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9637672459582516"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.95798219044446"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9522661706438463"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9466179581339667"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.941036353465284"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9355201853120012"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9300683096525849"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9246796089787788"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9193529915319544"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9140873905657054"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9088817636336382"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9037350919013605"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8986463794817144"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8936146527923425"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8886389599347159"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8837183700937936"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8788519729575182"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8740388781553842"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8692782147153567"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.864569130538441"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8599107918902381"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.85530238290885"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8507431051285232"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8462321770184481"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8417688335361523"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8373523256949547"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8329819201449634"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8286568987671286"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8243765582798754"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8201402098578665"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8159471787624585"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8117968039834369"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8076884378916309"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8036214459020201"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7995952061469735"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7956091091592573"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7916625575644801"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7877549657826459"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7838857597385018"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7800543765803808"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7762602644072489"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7725028820036807"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7687816985824927"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7650961935347821"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7614458561871184"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.757830185565655"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7542486901669281"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.750700887735125"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7471863050456091"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7437044776944967"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7402549498940905"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7368372742739798"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.733451011687625"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.730095731024251"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7267710090258799"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7234764301093409"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7202115861930993"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7169760765287532"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7137695075370503"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7105914926482892"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7074416521469619"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7043196130205108"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7012250088120743"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6981574794770956"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6951166712436799"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6921022364765844"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6891138335447328"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6861511266921455"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6832137859121875"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6803014868250307"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6774139105582372"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6745507436303719"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6717116778375535"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6688964101428575"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6661046425684912"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6633360820906553"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6605904405370175"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6578674344867227"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6551667851728639"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6524882183873479"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S3">
-        <iidm:voltageLevel id="VL9" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S46">
+        <iidm:voltageLevel id="VL46" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL9_5 Bus 5" node="0"/>
-                <iidm:switch id="VL9_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL9_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL9_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-                <iidm:switch id="VL9_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
-                <iidm:switch id="VL9_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:busbarSection id="VL46_5 Bus 5" node="0"/>
+                <iidm:busbarSection id="VL46_6 Bus 6" node="6"/>
+                <iidm:switch id="VL46_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL46_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:switch id="VL46_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="VL46_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
+                <iidm:switch id="VL46_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="VL46_Switch#4" kind="BREAKER" retained="false" open="false" node1="6" node2="7"/>
+                <iidm:switch id="VL46_Switch#5" kind="BREAKER" retained="false" open="false" node1="6" node2="8"/>
+                <iidm:switch id="VL46_Switch#6" kind="BREAKER" retained="false" open="false" node1="6" node2="9"/>
+                <iidm:switch id="VL46_Switch#7" kind="BREAKER" retained="false" open="false" node1="6" node2="10"/>
+                <iidm:switch id="VL46_Switch#8" kind="BREAKER" retained="false" open="false" node1="6" node2="11"/>
+                <iidm:switch id="VL46_Switch#9" kind="BREAKER" retained="false" open="false" node1="6" node2="12"/>
             </iidm:nodeBreakerTopology>
-            <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="7.599999904632568" q0="1.600000023841858" node="4"/>
-        </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL10" nominalV="138.0" topologyKind="NODE_BREAKER">
-            <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL10_6 Bus 6" node="0"/>
-                <iidm:switch id="VL10_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL10_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
-                <iidm:switch id="VL10_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
-                <iidm:switch id="VL10_Switch#2" kind="BREAKER" retained="false" open="false" node1="0" node2="4"/>
-                <iidm:switch id="VL10_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:switch id="VL10_Switch#4" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
-            </iidm:nodeBreakerTopology>
-            <iidm:generator id="sym_6_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="147.66000723838806" targetQ="0.0" node="5">
+            <iidm:generator id="sym_6_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="147.66000723838806" targetQ="0.0" node="11">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
-            <iidm:load id="lod_6_1" loadType="UNDEFINED" p0="11.199999809265137" q0="7.5" node="4"/>
+            <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="7.599999904632568" q0="1.600000023841858" node="4"/>
+            <iidm:load id="lod_6_1" loadType="UNDEFINED" p0="11.199999809265137" q0="7.5" node="10"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_5_6_1" r="0.0" x="12.095621149146037" g="0.0" b="0.0" ratedU1="138.0" ratedU2="128.61599731445312" ratedS="100.0" node1="5" voltageLevelId1="VL9" node2="6" voltageLevelId2="VL10"/>
+        <iidm:twoWindingsTransformer id="trf_5_6_1" r="0.0" x="47.99468816070557" g="0.0" b="-0.0" ratedU1="128.61599731445312" ratedU2="138.0" ratedS="100.0" node1="5" voltageLevelId1="VL46" node2="12" voltageLevelId2="VL46">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="68" loadTapChangingCapabilities="false">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.742390304643878"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7235731866568458"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.7051581609217403"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6871324755626629"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6694839122772003"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6522007587176122"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6352717825699672"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6186862072106745"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.6024336888295505"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5865042949173673"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.570888484023872"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5555770866995926"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5405612875414445"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5258326082682618"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.5113828917579868"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.497204286983357"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.483289234787646"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4696304544463006"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4562209309642815"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4430539030625449"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4301228518104316"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4174214898638147"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.4049437512716725"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3926837818163695"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3806359298553217"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3687947376339495"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3571549330418615"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.345711421786107"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3344592799570918"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3233937469643562"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.312510218820933"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.3018042417563724"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.291271506139828"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2809078406957788"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2707092069960784"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2606716942130543"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2507915141193333"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2410649963209632"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2314885837112324"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2220588281333524"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2127723862408992"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.2036260155455685"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.194616570642434"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1857409996034742"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1769963405306823"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1683797182605826"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1598883412124483"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1515194983729644"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1432705564104932"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.135138956912489"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1271222137399777"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1192179104933475"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1114236980840317"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.1037372924069544"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0961564721088919"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.088679076448176"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0813030032414002"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0740262068930357"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0668466965040755"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0597625340560322"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0527718326668118"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.045872754915167"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.039063511230599"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0323423583457554"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0257075978084982"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0191575745509878"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0126906755132428"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0063053283187724"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.993773195771305"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.987623457847621"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.98154936430663"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.975549527992686"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9696225954606931"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9637672459582516"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.95798219044446"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9522661706438463"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9466179581339667"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.941036353465284"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9355201853120012"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9300683096525849"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9246796089787788"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9193529915319544"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9140873905657054"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9088817636336382"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.9037350919013605"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8986463794817144"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8936146527923425"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8886389599347159"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8837183700937936"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8788519729575182"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8740388781553842"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8692782147153567"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.864569130538441"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8599107918902381"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.85530238290885"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8507431051285232"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8462321770184481"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8417688335361523"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8373523256949547"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8329819201449634"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8286568987671286"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8243765582798754"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8201402098578665"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8159471787624585"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8117968039834369"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8076884378916309"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8036214459020201"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7995952061469735"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7956091091592573"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7916625575644801"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7877549657826459"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7838857597385018"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7800543765803808"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7762602644072489"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7725028820036807"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7687816985824927"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7650961935347821"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7614458561871184"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.757830185565655"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7542486901669281"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.750700887735125"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7471863050456091"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7437044776944967"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7402549498940905"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7368372742739798"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.733451011687625"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.730095731024251"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7267710090258799"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7234764301093409"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7202115861930993"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7169760765287532"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7137695075370503"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7105914926482892"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7074416521469619"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7043196130205108"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.7012250088120743"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6981574794770956"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6951166712436799"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6921022364765844"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6891138335447328"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6861511266921455"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6832137859121875"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6803014868250307"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6774139105582372"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6745507436303719"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6717116778375535"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6688964101428575"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6661046425684912"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6633360820906553"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6605904405370175"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6578674344867227"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6551667851728639"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6524882183873479"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6498314643880837"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6471962578084292"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.644582337568833"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.641989446790608"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6394173327117786"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.6368657466049417"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:substation id="S11">
-        <iidm:voltageLevel id="VL12" nominalV="138.0" topologyKind="NODE_BREAKER">
+    <iidm:substation id="S49">
+        <iidm:voltageLevel id="VL49" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
-                <iidm:busbarSection id="VL12_8 Bus 8" node="0"/>
-                <iidm:switch id="VL12_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
-                <iidm:switch id="VL12_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:busbarSection id="VL49_8 Bus 8" node="0"/>
+                <iidm:switch id="VL49_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL49_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="sym_8_1" energySource="OTHER" minP="-10000.0" maxP="10000.0" voltageRegulatorOn="true" targetP="0.0" targetV="150.42000460624695" targetQ="0.0" node="2">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="lne_10_11_1" r="15.62559986114502" x="36.57780075073242" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL1" node2="1" voltageLevelId2="VL2"/>
-    <iidm:line id="lne_12_13_1" r="42.071998596191406" x="38.065101623535156" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL3" node2="1" voltageLevelId2="VL4"/>
-    <iidm:line id="lne_13_14_1" r="32.55189895629883" x="66.27690124511719" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL4" node2="1" voltageLevelId2="VL5"/>
-    <iidm:line id="lne_1_2_1" r="3.690730094909668" x="11.26830005645752" g1="0.0" b1="1.386264953613281E-4" g2="0.0" b2="1.386264953613281E-4" node1="1" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL6"/>
-    <iidm:line id="lne_1_5_1" r="10.28950023651123" x="42.47570037841797" g1="0.0" b1="1.2917449951171874E-4" g2="0.0" b2="1.2917449951171874E-4" node1="2" voltageLevelId1="VL0" node2="1" voltageLevelId2="VL9"/>
-    <iidm:line id="lne_2_3_1" r="8.948780059814453" x="37.70140075683594" g1="0.0" b1="1.1499700164794922E-4" g2="0.0" b2="1.1499700164794922E-4" node1="2" voltageLevelId1="VL6" node2="1" voltageLevelId2="VL7"/>
-    <iidm:line id="lne_2_4_1" r="11.066499710083008" x="33.578399658203125" g1="0.0" b1="8.926699829101562E-5" g2="0.0" b2="8.926699829101562E-5" node1="3" voltageLevelId1="VL6" node2="1" voltageLevelId2="VL8"/>
-    <iidm:line id="lne_2_5_1" r="10.845600128173828" x="33.11370086669922" g1="0.0" b1="9.084249877929687E-5" g2="0.0" b2="9.084249877929687E-5" node1="4" voltageLevelId1="VL6" node2="2" voltageLevelId2="VL9"/>
-    <iidm:line id="lne_3_4_1" r="12.76140022277832" x="32.57099914550781" g1="0.0" b1="3.360639953613281E-5" g2="0.0" b2="3.360639953613281E-5" node1="2" voltageLevelId1="VL7" node2="2" voltageLevelId2="VL8"/>
-    <iidm:line id="lne_4_5_1" r="2.542370080947876" x="8.019430160522461" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="3" voltageLevelId1="VL8" node2="3" voltageLevelId2="VL9"/>
-    <iidm:line id="lne_6_11_1" r="18.08799934387207" x="37.878501892089844" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL2" node2="1" voltageLevelId2="VL10"/>
-    <iidm:line id="lne_6_12_1" r="23.406999588012695" x="48.71649932861328" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL3" node2="2" voltageLevelId2="VL10"/>
-    <iidm:line id="lne_6_13_1" r="12.597599983215332" x="24.8085994720459" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="3" voltageLevelId1="VL4" node2="3" voltageLevelId2="VL10"/>
-    <iidm:line id="lne_7_8_1" r="0.0" x="33.54600143432617" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL11" node2="1" voltageLevelId2="VL12"/>
-    <iidm:line id="lne_7_9_1" r="0.0" x="20.950300216674805" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL11" node2="1" voltageLevelId2="VL13"/>
-    <iidm:line id="lne_9_10_1" r="6.0578999519348145" x="16.092199325561523" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL1" node2="2" voltageLevelId2="VL13"/>
-    <iidm:line id="lne_9_14_1" r="24.20680046081543" x="51.4911994934082" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL5" node2="3" voltageLevelId2="VL13"/>
+    <iidm:line id="lne_10_11_1" r="15.62559986114502" x="36.57780075073242" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL38" node2="1" voltageLevelId2="VL39"/>
+    <iidm:line id="lne_12_13_1" r="42.071998596191406" x="38.065101623535156" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL40" node2="1" voltageLevelId2="VL41"/>
+    <iidm:line id="lne_13_14_1" r="32.55189895629883" x="66.27690124511719" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="2" voltageLevelId1="VL41" node2="1" voltageLevelId2="VL42"/>
+    <iidm:line id="lne_1_2_1" r="3.690730094909668" x="11.26830005645752" g1="0.0" b1="1.386264953613281E-4" g2="0.0" b2="1.386264953613281E-4" node1="1" voltageLevelId1="VL37" node2="1" voltageLevelId2="VL43"/>
+    <iidm:line id="lne_1_5_1" r="10.28950023651123" x="42.47570037841797" g1="0.0" b1="1.2917449951171874E-4" g2="0.0" b2="1.2917449951171874E-4" node1="2" voltageLevelId1="VL37" node2="1" voltageLevelId2="VL46"/>
+    <iidm:line id="lne_2_3_1" r="8.948780059814453" x="37.70140075683594" g1="0.0" b1="1.1499700164794922E-4" g2="0.0" b2="1.1499700164794922E-4" node1="2" voltageLevelId1="VL43" node2="1" voltageLevelId2="VL44"/>
+    <iidm:line id="lne_2_4_1" r="11.066499710083008" x="33.578399658203125" g1="0.0" b1="8.926699829101562E-5" g2="0.0" b2="8.926699829101562E-5" node1="3" voltageLevelId1="VL43" node2="1" voltageLevelId2="VL45"/>
+    <iidm:line id="lne_2_5_1" r="10.845600128173828" x="33.11370086669922" g1="0.0" b1="9.084249877929687E-5" g2="0.0" b2="9.084249877929687E-5" node1="4" voltageLevelId1="VL43" node2="2" voltageLevelId2="VL46"/>
+    <iidm:line id="lne_3_4_1" r="12.76140022277832" x="32.57099914550781" g1="0.0" b1="3.360639953613281E-5" g2="0.0" b2="3.360639953613281E-5" node1="2" voltageLevelId1="VL44" node2="2" voltageLevelId2="VL45"/>
+    <iidm:line id="lne_4_5_1" r="2.542370080947876" x="8.019430160522461" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="3" voltageLevelId1="VL45" node2="3" voltageLevelId2="VL46"/>
+    <iidm:line id="lne_6_11_1" r="18.08799934387207" x="37.878501892089844" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="7" voltageLevelId1="VL46" node2="2" voltageLevelId2="VL39"/>
+    <iidm:line id="lne_6_12_1" r="23.406999588012695" x="48.71649932861328" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="8" voltageLevelId1="VL46" node2="2" voltageLevelId2="VL40"/>
+    <iidm:line id="lne_6_13_1" r="12.597599983215332" x="24.8085994720459" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="9" voltageLevelId1="VL46" node2="3" voltageLevelId2="VL41"/>
+    <iidm:line id="lne_7_8_1" r="0.0" x="33.54600143432617" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="8" voltageLevelId1="VL45" node2="1" voltageLevelId2="VL49"/>
+    <iidm:line id="lne_7_9_1" r="0.0" x="20.950300216674805" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="9" voltageLevelId1="VL45" node2="12" voltageLevelId2="VL45"/>
+    <iidm:line id="lne_9_10_1" r="6.0578999519348145" x="16.092199325561523" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="13" voltageLevelId1="VL45" node2="2" voltageLevelId2="VL38"/>
+    <iidm:line id="lne_9_14_1" r="24.20680046081543" x="51.4911994934082" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="14" voltageLevelId1="VL45" node2="2" voltageLevelId2="VL42"/>
 </iidm:network>

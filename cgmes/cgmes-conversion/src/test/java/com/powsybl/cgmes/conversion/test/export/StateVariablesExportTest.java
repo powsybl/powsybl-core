@@ -125,15 +125,24 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         String cgmesTerminal = getCgmesTerminal(shuntCompensator.getTerminal());
 
-        // If Q are NaN is not exported
+        // If P and Q both are NaN is not exported
 
         shuntCompensator.getTerminal().setQ(-13.03);
         String sv = exportSvAsString(network, 4);
         assertTrue(sv.contains(cgmesTerminal));
 
         shuntCompensator.getTerminal().setQ(Double.NaN);
+        shuntCompensator.getTerminal().setP(Double.NaN);
         String sv1 = exportSvAsString(network, 4);
         assertFalse(sv1.contains(cgmesTerminal));
+    }
+
+    @Test
+    public void microGridBEWithHiddenTapChangers() throws XMLStreamException {
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource());
+        String sv = exportSvAsString(network, 2);
+        String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
+        assertTrue(sv.contains(hiddenTapChangerId));
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {

@@ -13,9 +13,7 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -75,6 +73,47 @@ public class EquipmentExportTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
         Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
         testExportReimport(network, dataSource);
+    }
+
+    @Test
+    public void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        testExportReimport(network, dataSource);
+    }
+
+    @Test
+    public void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+
+        network.newExtension(CgmesControlAreasAdder.class).add();
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                .setId("controlAreaId")
+                .setName("controlAreaName")
+                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
+                .setNetInterchange(Double.NaN)
+                .add();
+        TieLine tieLine = (TieLine) network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        cgmesControlArea.add(tieLine.getHalf2().getBoundary());
+
+        // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
+        //  instead of an error logged and the tie flow ignored,
+        //  the reimported network control area should contain one tie flow
+        Network actual = exportReimport(network, dataSource);
+        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
+        boolean tieFlowsAtTieLinesAreSupported = false;
+        if (tieFlowsAtTieLinesAreSupported) {
+            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
+            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getConnectable().getId());
+        } else {
+            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
+        }
     }
 
     @Test
@@ -365,7 +404,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network);
+            CgmesExportContext context = new CgmesExportContext(network).setExportEquipment(true);
             EquipmentExport.write(network, writer, context);
         }
 
@@ -416,57 +455,27 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     private void compareBranchLimits(Branch<?> expected, Branch<?> actual) {
-        if (actual.getActivePowerLimits1() != null) {
-            compareLoadingLimits(expected.getActivePowerLimits1(), actual.getActivePowerLimits1());
-        }
-        if (actual.getActivePowerLimits2() != null) {
-            compareLoadingLimits(expected.getActivePowerLimits2(), actual.getActivePowerLimits2());
-        }
-        if (actual.getApparentPowerLimits1() != null) {
-            compareLoadingLimits(expected.getApparentPowerLimits1(), actual.getApparentPowerLimits1());
-        }
-        if (actual.getApparentPowerLimits2() != null) {
-            compareLoadingLimits(expected.getApparentPowerLimits2(), actual.getApparentPowerLimits2());
-        }
-        if (actual.getCurrentLimits1() != null) {
-            compareLoadingLimits(expected.getCurrentLimits1(), actual.getCurrentLimits1());
-        }
-        if (actual.getCurrentLimits2() != null) {
-            compareLoadingLimits(expected.getCurrentLimits2(), actual.getCurrentLimits2());
-        }
+        actual.getActivePowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits1().orElse(null), lim));
+        actual.getActivePowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits2().orElse(null), lim));
+        actual.getApparentPowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits1().orElse(null), lim));
+        actual.getApparentPowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits2().orElse(null), lim));
+        actual.getCurrentLimits1().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits1().orElse(null), lim));
+        actual.getCurrentLimits2().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits2().orElse(null), lim));
     }
 
     private void compareFlowBranchLimits(FlowsLimitsHolder expected, Line actual) {
-        if (actual.getActivePowerLimits1() != null) {
-            compareLoadingLimits(expected.getActivePowerLimits(), actual.getActivePowerLimits1());
-        }
-        if (actual.getActivePowerLimits2() != null) {
-            compareLoadingLimits(expected.getActivePowerLimits(), actual.getActivePowerLimits2());
-        }
-        if (actual.getApparentPowerLimits1() != null) {
-            compareLoadingLimits(expected.getApparentPowerLimits(), actual.getApparentPowerLimits1());
-        }
-        if (actual.getApparentPowerLimits2() != null) {
-            compareLoadingLimits(expected.getApparentPowerLimits(), actual.getApparentPowerLimits2());
-        }
-        if (actual.getCurrentLimits1() != null) {
-            compareLoadingLimits(expected.getCurrentLimits(), actual.getCurrentLimits1());
-        }
-        if (actual.getCurrentLimits2() != null) {
-            compareLoadingLimits(expected.getCurrentLimits(), actual.getCurrentLimits2());
-        }
+        actual.getActivePowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits().orElse(null), lim));
+        actual.getActivePowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits().orElse(null), lim));
+        actual.getApparentPowerLimits1().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits().orElse(null), lim));
+        actual.getApparentPowerLimits2().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits().orElse(null), lim));
+        actual.getCurrentLimits1().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits().orElse(null), lim));
+        actual.getCurrentLimits2().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits().orElse(null), lim));
     }
 
     private void compareFlowLimits(FlowsLimitsHolder expected, FlowsLimitsHolder actual) {
-        if (actual.getActivePowerLimits() != null) {
-            compareLoadingLimits(expected.getActivePowerLimits(), actual.getActivePowerLimits());
-        }
-        if (actual.getApparentPowerLimits() != null) {
-            compareLoadingLimits(expected.getApparentPowerLimits(), actual.getApparentPowerLimits());
-        }
-        if (actual.getCurrentLimits() != null) {
-            compareLoadingLimits(expected.getCurrentLimits(), actual.getCurrentLimits());
-        }
+        actual.getActivePowerLimits().ifPresent(lim -> compareLoadingLimits(expected.getActivePowerLimits().orElse(null), lim));
+        actual.getApparentPowerLimits().ifPresent(lim -> compareLoadingLimits(expected.getApparentPowerLimits().orElse(null), lim));
+        actual.getCurrentLimits().ifPresent(lim -> compareLoadingLimits(expected.getCurrentLimits().orElse(null), lim));
     }
 
     private void compareLoadingLimits(LoadingLimits expected, LoadingLimits actual) {
@@ -502,6 +511,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 shuntCompensator.setTargetV(Double.NaN);
                 shuntCompensator.setTargetDeadband(Double.NaN);
                 shuntCompensator.getTerminal().setQ(0.0);
+                shuntCompensator.getTerminal().setP(0.0);
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
                 generator.setVoltageRegulatorOn(false);

@@ -8,6 +8,7 @@ package com.powsybl.iidm.network;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -15,18 +16,22 @@ import java.util.Collections;
 public interface FlowsLimitsHolder {
 
     default Collection<OperationalLimits> getOperationalLimits() {
-        return getCurrentLimits() != null ? Collections.singletonList(getCurrentLimits()) : Collections.emptyList();
+        return getCurrentLimits()
+                .map(l -> Collections.singletonList((OperationalLimits) l))
+                .orElseGet(Collections::emptyList);
     }
 
-    CurrentLimits getCurrentLimits();
+    Optional<CurrentLimits> getCurrentLimits();
 
-    default ActivePowerLimits getActivePowerLimits() {
-        return null;
-    }
+    CurrentLimits getNullableCurrentLimits();
 
-    default ApparentPowerLimits getApparentPowerLimits() {
-        return null;
-    }
+    Optional<ActivePowerLimits> getActivePowerLimits();
+
+    ActivePowerLimits getNullableActivePowerLimits();
+
+    Optional<ApparentPowerLimits> getApparentPowerLimits();
+
+    ApparentPowerLimits getNullableApparentPowerLimits();
 
     CurrentLimitsAdder newCurrentLimits();
 

@@ -21,10 +21,11 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +105,14 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
-        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
+        TripleStoreOptions options = new TripleStoreOptions();
+        String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
+        if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
+            options.setRemoveInitialUnderscoreForIdentifiers(true);
+        } else if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_RDFID)) {
+            options.setRemoveInitialUnderscoreForIdentifiers(false);
+        }
+        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), options);
         return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory).convert();
     }
 
@@ -270,8 +278,12 @@ public class CgmesImport implements Importer {
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
     public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
+    public static final String SOURCE_FOR_IIDM_ID = "iidm.import.cgmes.source-for-iidm-id";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
+
+    public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
+    public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
             ALLOW_UNSUPPORTED_TAP_CHANGERS,
@@ -350,6 +362,12 @@ public class CgmesImport implements Importer {
             "Store the initial CGMES model as a network extension",
             Boolean.TRUE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
+    private static final Parameter SOURCE_FOR_IIDM_ID_PARAMETER = new Parameter(
+            SOURCE_FOR_IIDM_ID,
+            ParameterType.STRING,
+            "Source for IIDM identifiers",
+            SOURCE_FOR_IIDM_ID_MRID,
+            List.of(SOURCE_FOR_IIDM_ID_MRID, SOURCE_FOR_IIDM_ID_RDFID));
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -364,6 +382,7 @@ public class CgmesImport implements Importer {
             POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
+            SOURCE_FOR_IIDM_ID_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
 

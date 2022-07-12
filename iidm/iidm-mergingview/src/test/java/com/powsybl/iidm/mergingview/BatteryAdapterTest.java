@@ -36,8 +36,8 @@ public class BatteryAdapterTest {
                                          .setBus("busA")
                                          .setMaxP(9999.99d)
                                          .setMinP(-9999.99d)
-                                         .setP0(15.0d)
-                                         .setQ0(-15.0d)
+                                         .setTargetP(15.0d)
+                                         .setTargetQ(-15.0d)
                                          .setEnsureIdUnicity(true)
                                      .add();
 
@@ -47,12 +47,12 @@ public class BatteryAdapterTest {
         assertSame(mergingView, battery.getNetwork());
         assertEquals("BATEST", battery.getId());
         assertTrue(battery.isFictitious());
-        assertEquals(15.0d, battery.getP0(), delta);
-        assertNotNull(battery.setP0(0.0d));
-        assertEquals(0.0d, battery.getP0(), delta);
-        assertEquals(-15.0d, battery.getQ0(), delta);
-        assertNotNull(battery.setQ0(0.0d));
-        assertEquals(0.0d, battery.getQ0(), delta);
+        assertEquals(15.0d, battery.getTargetP(), delta);
+        assertNotNull(battery.setTargetP(0.0d));
+        assertEquals(0.0d, battery.getTargetP(), delta);
+        assertEquals(-15.0d, battery.getTargetQ(), delta);
+        assertNotNull(battery.setTargetQ(0.0d));
+        assertEquals(0.0d, battery.getTargetQ(), delta);
         assertEquals(-9999.99d, battery.getMinP(), delta);
         assertNotNull(battery.setMinP(-9999.95d));
         assertEquals(-9999.95d, battery.getMinP(), delta);
