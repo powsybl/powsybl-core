@@ -22,14 +22,15 @@ public interface BusbarSectionPosition extends Extension<BusbarSection> {
     }
 
     /**
-     * The position of the busbar relative to other busbars.
+     * The position of the busbar section relative to other busbar sections on the voltage level.
      */
     int getBusbarIndex();
 
     BusbarSectionPosition setBusbarIndex(int busbarIndex);
 
     /**
-     * The position of the section relative to the other section of the busbar.
+     * The position of the busbar section in its set relative to the other busbar section sets of the voltage
+     * level seperated from them by switches.
      */
     int getSectionIndex();
 
