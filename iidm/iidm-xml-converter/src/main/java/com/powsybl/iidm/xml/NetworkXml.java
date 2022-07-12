@@ -354,7 +354,7 @@ public final class NetworkXml {
             writeExtensions(n, context, options);
             context.getWriter().writeEndElement();
             context.getWriter().writeEndDocument();
-            context.getWriter().flush();
+            context.getWriter().close();
             return context.getAnonymizer();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
