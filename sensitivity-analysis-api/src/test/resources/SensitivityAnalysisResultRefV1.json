@@ -1,0 +1,55 @@
+{
+  "version" : "1.0",
+  "sensitivityFactors" : [ {
+    "functionType" : "BRANCH_ACTIVE_POWER_1",
+    "functionId" : "l",
+    "variableType" : "INJECTION_ACTIVE_POWER",
+    "variableId" : "g",
+    "variableSet" : false,
+    "contingencyContextType" : "ALL"
+  }, {
+    "functionType" : "BRANCH_ACTIVE_POWER_1",
+    "functionId" : "l2",
+    "variableType" : "INJECTION_ACTIVE_POWER",
+    "variableId" : "g2",
+    "variableSet" : false,
+    "contingencyContextType" : "NONE"
+  }, {
+    "functionType" : "BRANCH_CURRENT_1",
+    "functionId" : "l",
+    "variableType" : "INJECTION_ACTIVE_POWER",
+    "variableId" : "g",
+    "variableSet" : false,
+    "contingencyContextType" : "ALL"
+  }, {
+    "functionType" : "BRANCH_CURRENT_1",
+    "functionId" : "l2",
+    "variableType" : "INJECTION_ACTIVE_POWER",
+    "variableId" : "g2",
+    "variableSet" : false,
+    "contingencyContextType" : "NONE"
+  } ],
+  "sensitivityValues" : [ {
+    "factorIndex" : 0,
+    "contingencyIndex" : 0,
+    "value" : 1.0,
+    "functionReference" : 2.0
+  }, {
+    "factorIndex" : 1,
+    "value" : 3.0,
+    "functionReference" : 4.0
+  }, {
+    "factorIndex" : 2,
+    "contingencyIndex" : 0,
+    "value" : 1.0,
+    "functionReference" : 2.0
+  }, {
+    "factorIndex" : 3,
+    "value" : 3.0,
+    "functionReference" : 4.0
+  } ],
+  "contingencyStatus" : [ {
+    "ContingencyId" : "NHV1_NHV2_2",
+    "ContingencyStatus" : "CONVERGED"
+  } ]
+}

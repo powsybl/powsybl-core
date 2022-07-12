@@ -25,5 +25,7 @@ public class SensitivityJsonModule extends SimpleModule {
         addDeserializer(SensitivityVariableSet.class, new SensitivityVariableSetJsonDeserializer());
         addSerializer(SensitivityAnalysisResult.SensitivityContingencyStatus.class, new SensitivityContingencyStatusJsonSerializer());
         addDeserializer(SensitivityAnalysisResult.SensitivityContingencyStatus.class, new SensitivityContingencyStatusJsonDeserializer());
+        addSerializer(SensitivityAnalysisResult.class, new SensitivityAnalysisResultSerializer());
+        addDeserializer(SensitivityAnalysisResult.class, new SensitivityAnalysisResultDeserializer());
     }
 }
