@@ -219,6 +219,7 @@ public class AttachNewLineOnLine implements NetworkModification {
         LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
 
         // Remove the existing line
+        String originalLineId = line.getId();
         line.remove();
 
         Line line1 = adder1.setNode2(0).add();
@@ -259,11 +260,11 @@ public class AttachNewLineOnLine implements NetworkModification {
             }
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(line.getId() + "_BUS")
+                    .setId(originalLineId + "_BUS")
                     .add();
             lineAdder.setBus2(bus1.getId());
             voltageLevel.getBusBreakerView().newSwitch()
-                    .setId(line.getId() + "_SW")
+                    .setId(originalLineId + "_SW")
                     .setOpen(false)
                     .setBus1(bus1.getId())
                     .setBus2(bus.getId())
@@ -276,7 +277,7 @@ public class AttachNewLineOnLine implements NetworkModification {
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             lineAdder.setNode2(firstAvailableNode);
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, line.getId(), voltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, originalLineId, voltageLevel.getNodeBreakerView());
         } else {
             throw new AssertionError();
         }

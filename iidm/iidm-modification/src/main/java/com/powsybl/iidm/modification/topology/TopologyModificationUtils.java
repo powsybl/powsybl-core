@@ -21,7 +21,7 @@ import java.util.function.Supplier;
  */
 final class TopologyModificationUtils {
 
-    static class LoadingLimitsBags {
+    static final class LoadingLimitsBags {
 
         private final LoadingLimitsBag activePowerLimits;
         private final LoadingLimitsBag apparentPowerLimits;
@@ -68,7 +68,7 @@ final class TopologyModificationUtils {
         }
     }
 
-    static final class TemporaryLimitsBag {
+    private static final class TemporaryLimitsBag {
 
         private final String name;
         private final int acceptableDuration;
