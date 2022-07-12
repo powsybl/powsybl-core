@@ -53,7 +53,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             }
         }
 
-        if (!version.equals("1.0")) {
+        if (version == null || !version.equals("1.0")) {
             //Only 1.0 version is supported for now
             throw new AssertionError("Version different than 1.0 not supported.");
         }
