@@ -11,7 +11,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
-import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -191,7 +191,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c, SensitivityAnalysisResult.Status.CONVERGED)));
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
-        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.json");
     }

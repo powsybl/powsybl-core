@@ -52,7 +52,11 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, sensitivityValues);
-        return result;
+
+        if (!version.equals("1.0")) {
+            //Only 1.0 version is supported for now
+            throw new AssertionError("Version different than 1.0 not supported.");
+        }
+        return new SensitivityAnalysisResult(factors, contingencyStatus, sensitivityValues);
     }
 }

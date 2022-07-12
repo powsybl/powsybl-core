@@ -26,6 +26,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -37,6 +38,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -57,6 +59,7 @@ public class SensitivityAnalysisTool implements Tool {
     private static final String VARIABLE_SETS_FILE_OPTION = "variable-sets-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_CONTINGENCY_STATUS_FILE_OPTION = "output-contingency-file";
+    private static final String OUTPUT_UNIFIED = "output-unified";
 
     @Override
     public Command getCommand() {
@@ -102,7 +105,7 @@ public class SensitivityAnalysisTool implements Tool {
                         .argName("FILE")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
-                        .desc("sensitivity values output path")
+                        .desc("Sensitivity values output path or result file path")
                         .hasArg()
                         .argName("FILE")
                         .required()
@@ -111,6 +114,9 @@ public class SensitivityAnalysisTool implements Tool {
                         .desc("contingency status output path")
                         .hasArg()
                         .argName("FILE")
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_UNIFIED)
+                        .desc("Output sensitivity analysis results in a single json file using output file option.")
                         .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
                         .desc("sensitivity analysis parameters as JSON file")
@@ -169,6 +175,10 @@ public class SensitivityAnalysisTool implements Tool {
             throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION  + " files must have the same format.");
         }
 
+        if (csv && line.hasOption(OUTPUT_UNIFIED)) {
+            throw new PowsyblException("Unsupported " + OUTPUT_UNIFIED + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
+        }
+
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
@@ -207,29 +217,45 @@ public class SensitivityAnalysisTool implements Tool {
         context.getOutputStream().println("Running analysis...");
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager()) {
-            if (csv) {
-                try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
-                     Writer writerStatuses = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
-                     TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
-                     TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
-                    SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, contingencies);
-                    SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
-                            factorsReader, valuesWriter, contingencies, variableSets, params,
-                            computationManager, Reporter.NO_OP);
+
+            if (line.hasOption(OUTPUT_UNIFIED)) {
+                if (csv) {
+                    throw new PowsyblException("Unsupported " + OUTPUT_UNIFIED + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
                 }
+                List<SensitivityFactor> factors = new ArrayList<>();
+                factorsReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
+                    factors.add(new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext));
+                });
+                SensitivityAnalysisResult result = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                        factors, contingencies, variableSets, params,
+                        computationManager, Reporter.NO_OP);
+                ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
+                JsonUtil.writeJson(outputFile, result, sensiObjectMapper);
             } else {
-                JsonFactory factory = JsonUtil.createJsonFactory();
-                try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
-                     BufferedWriter writerStatus = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
-                     JsonGenerator generator = factory.createGenerator(writer);
-                     JsonGenerator statusGenerator = factory.createGenerator(writerStatus);
-                     SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, statusGenerator)) {
-                    generator.useDefaultPrettyPrinter();
-                    SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
-                            factorsReader, valuesWriter, contingencies, variableSets, params,
-                            computationManager, Reporter.NO_OP);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                if (csv) {
+                    try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
+                         Writer writerStatuses = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
+                         TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
+                         TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
+                        SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, contingencies);
+                        SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                                factorsReader, valuesWriter, contingencies, variableSets, params,
+                                computationManager, Reporter.NO_OP);
+                    }
+                } else {
+                    JsonFactory factory = JsonUtil.createJsonFactory();
+                    try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
+                         BufferedWriter writerStatus = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
+                         JsonGenerator generator = factory.createGenerator(writer);
+                         JsonGenerator statusGenerator = factory.createGenerator(writerStatus);
+                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, statusGenerator)) {
+                        generator.useDefaultPrettyPrinter();
+                        SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                                factorsReader, valuesWriter, contingencies, variableSets, params,
+                                computationManager, Reporter.NO_OP);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
                 }
             }
         }
