@@ -65,18 +65,18 @@ public class ActionDeserializer extends StdDeserializer<Action> {
             }
         });
         if (context.type == null) {
-            throw new JsonMappingException(parser, "action type can not be null");
+            throw JsonMappingException.from(parser, "action type can not be null");
         }
         switch (context.type) {
             case SwitchAction.NAME:
                 if (context.open == null) {
-                    throw new JsonMappingException(parser, "for switch action open field can't be null");
+                    throw JsonMappingException.from(parser, "for switch action open field can't be null");
                 }
                 return new SwitchAction(context.id, context.switchId, context.open);
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:
-                throw new AssertionError("Unexpected action type: " + context.type);
+                throw JsonMappingException.from(parser, "Unknown action type: " + context.type);
         }
     }
 }

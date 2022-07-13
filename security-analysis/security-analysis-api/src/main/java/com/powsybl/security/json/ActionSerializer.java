@@ -7,6 +7,7 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.action.Action;
@@ -40,7 +41,7 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeObjectField("actions", ((MultipleActionsAction) action).getActions());
                 break;
             default:
-                throw new AssertionError("type unknown : " + action.getType());
+                throw JsonMappingException.from(jsonGenerator, "Unknown action type: " + action.getType());
         }
         jsonGenerator.writeEndObject();
     }
