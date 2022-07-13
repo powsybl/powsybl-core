@@ -82,5 +82,8 @@ public class BranchStatusXmlTest  extends AbstractConverterTest {
         BranchStatus lineBranchStatus2 = line2.getExtension(BranchStatus.class);
         assertNotNull(lineBranchStatus2);
         assertEquals(lineBranchStatus.getStatus(), lineBranchStatus2.getStatus());
+
+        lineBranchStatus2.setStatus(BranchStatus.Status.IN_OPERATION);
+        assertEquals(BranchStatus.Status.IN_OPERATION, lineBranchStatus2.getStatus());
     }
 }

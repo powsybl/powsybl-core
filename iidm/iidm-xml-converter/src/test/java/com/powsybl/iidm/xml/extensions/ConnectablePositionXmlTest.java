@@ -128,9 +128,14 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
         assertNotNull(linePosition2.getFeeder1());
         assertNotNull(linePosition2.getFeeder2());
         assertNull(linePosition2.getFeeder3());
-        assertEquals(linePosition2.getFeeder1().getOrder(), linePosition2.getFeeder1().getOrder());
-        assertEquals(linePosition2.getFeeder1().getDirection(), linePosition2.getFeeder1().getDirection());
-        assertEquals(linePosition2.getFeeder2().getOrder(), linePosition2.getFeeder2().getOrder());
-        assertEquals(linePosition2.getFeeder2().getDirection(), linePosition2.getFeeder2().getDirection());
+        assertEquals(linePosition2.getFeeder1().getOrder(), linePosition.getFeeder1().getOrder());
+        assertEquals(linePosition2.getFeeder1().getDirection(), linePosition.getFeeder1().getDirection());
+        assertEquals(linePosition2.getFeeder2().getOrder(), linePosition.getFeeder2().getOrder());
+        assertEquals(linePosition2.getFeeder2().getDirection(), linePosition.getFeeder2().getDirection());
+
+        linePosition2.getFeeder1().setDirection(ConnectablePosition.Direction.BOTTOM);
+        linePosition2.getFeeder1().setOrder(20);
+        assertEquals(linePosition2.getFeeder1().getDirection(), linePosition2.getFeeder2().getDirection());
+        assertEquals(linePosition2.getFeeder1().getOrder(), linePosition2.getFeeder2().getOrder());
     }
 }
