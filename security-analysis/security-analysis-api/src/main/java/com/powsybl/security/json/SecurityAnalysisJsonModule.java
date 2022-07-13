@@ -8,6 +8,11 @@ package com.powsybl.security.json;
 
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
+import com.powsybl.security.action.Action;
+import com.powsybl.security.action.ActionList;
+import com.powsybl.security.condition.Condition;
+import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.results.*;
 
 /**
@@ -26,6 +31,12 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(BranchResult.class, new BranchResultSerializer());
         addSerializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultSerializer());
         addSerializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersSerializer());
+        addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
+        addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
+        addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
+        addSerializer(Action.class, new ActionSerializer());
+        addSerializer(ActionList.class, new ActionListSerializer());
+        addSerializer(Condition.class, new ConditionSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
@@ -37,5 +48,12 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(BranchResult.class, new BranchResultDeserializer());
         addDeserializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultDeserializer());
         addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
+        addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
+        addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
+        addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
+        addDeserializer(Action.class, new ActionDeserializer());
+        addDeserializer(ActionList.class, new ActionListDeserializer());
+        addDeserializer(Condition.class, new ConditionDeserializer());
+        addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
     }
 }
