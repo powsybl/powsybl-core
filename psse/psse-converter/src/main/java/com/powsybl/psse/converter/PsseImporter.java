@@ -11,27 +11,32 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.extensions.PsseConversionContextExtensionAdder;
 import com.powsybl.psse.converter.extensions.PsseModelExtensionAdder;
-import com.powsybl.psse.model.*;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.*;
 import com.powsybl.psse.model.pf.io.PowerFlowDataFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
@@ -160,11 +165,10 @@ public class PsseImporter implements Importer {
         PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
 
         // The map gives access to PsseBus object with the int bus Number
-        Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
-        psseModel.getBuses().forEach(psseBus -> busNumToPsseBus.put(psseBus.getI(), psseBus));
+        Map<Integer, PsseBus> busNumToPsseBus = psseModel.getBuses().stream().collect(Collectors.toMap(PsseBus::getI, Function.identity()));
 
         // build container to fit IIDM requirements
-        ContainersMapping containersMapping = defineContainersMappging(psseModel, busNumToPsseBus, perUnitContext);
+        ContainersMapping containersMapping = defineContainersMapping(psseModel, busNumToPsseBus, perUnitContext);
 
         // create buses
         createBuses(psseModel, containersMapping, perUnitContext, network);
@@ -217,7 +221,7 @@ public class PsseImporter implements Importer {
         return network;
     }
 
-    private ContainersMapping defineContainersMappging(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext) {
+    private ContainersMapping defineContainersMapping(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext) {
         List<Edge> edges = new ArrayList<>();
         // only zeroImpedance Lines are necessary and they are not allowed, so nothing to do
 
@@ -236,12 +240,12 @@ public class PsseImporter implements Importer {
             Edge::getBus2,
             Edge::isZeroImpedance,
             Edge::isTransformer,
-            busNumber -> getNomvinalVBusNumber(busNumToPsseBus, busNumber, perUnitContext),
+            busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
             busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty busNums")),
             substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty substationNums")));
     }
 
-    private double getNomvinalVBusNumber(Map<Integer, PsseBus> busNumToPsseBus, int busNumber, PerUnitContext perUnitContext) {
+    private double getNominalVFromBusNumber(Map<Integer, PsseBus> busNumToPsseBus, int busNumber, PerUnitContext perUnitContext) {
         if (!busNumToPsseBus.containsKey(busNumber)) { // never should happen
             throw new PsseException("busId without PsseBus" + busNumber);
         }

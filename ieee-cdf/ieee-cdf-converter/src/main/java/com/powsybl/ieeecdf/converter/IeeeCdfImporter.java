@@ -28,7 +28,9 @@ import java.io.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -498,8 +500,7 @@ public class IeeeCdfImporter implements Importer {
             PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
 
             // build container to fit IIDM requirements
-            Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus = new HashMap<>();
-            ieeeCdfModel.getBuses().forEach(bus -> busNumToIeeeCdfBus.put(bus.getNumber(), bus));
+            Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus = ieeeCdfModel.getBuses().stream().collect(Collectors.toMap(IeeeCdfBus::getNumber, Function.identity()));
 
             ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
                 IeeeCdfBus::getNumber,
@@ -507,7 +508,7 @@ public class IeeeCdfImporter implements Importer {
                 IeeeCdfBranch::getzBusNumber,
                 branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
                 IeeeCdfImporter::isTransformer,
-                busNumber -> getNomvinalVBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
+                busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
                 busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
                 substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
 
@@ -521,7 +522,7 @@ public class IeeeCdfImporter implements Importer {
         return network;
     }
 
-    private double getNomvinalVBusNumber(Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus, int busNumber, PerUnitContext perUnitContext) {
+    private double getNominalVFromBusNumber(Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus, int busNumber, PerUnitContext perUnitContext) {
         if (!busNumToIeeeCdfBus.containsKey(busNumber)) { // never should happen
             throw new PowsyblException("busId without IeeeCdfBus" + busNumber);
         }

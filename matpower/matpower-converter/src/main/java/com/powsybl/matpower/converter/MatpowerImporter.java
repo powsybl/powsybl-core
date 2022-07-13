@@ -11,15 +11,14 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
-import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.matpower.model.*;
-
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
@@ -418,8 +419,7 @@ public class MatpowerImporter implements Importer {
                 boolean ignoreBaseVoltage = Parameter.readBoolean(MatpowerConstants.FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                     ParameterDefaultValueConfig.INSTANCE);
 
-                Map<Integer, MBus> busNumToMBus = new HashMap<>();
-                model.getBuses().forEach(bus -> busNumToMBus.put(bus.getNumber(), bus));
+                Map<Integer, MBus> busNumToMBus = model.getBuses().stream().collect(Collectors.toMap(MBus::getNumber, Function.identity()));
 
                 ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
                     MBus::getNumber,
@@ -427,7 +427,7 @@ public class MatpowerImporter implements Importer {
                     MBranch::getTo,
                     branch -> branch.getR() == 0.0 && branch.getX() == 0.0,
                     branch -> isTransformer(model, branch),
-                    busNumber -> getNomvinalVBusNumber(busNumToMBus, busNumber, ignoreBaseVoltage),
+                    busNumber -> getNominalVFromBusNumber(busNumToMBus, busNumber, ignoreBaseVoltage),
                     busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums"))),
                     substationNums -> getId(SUBSTATION_PREFIX, substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums"))));
 
@@ -448,7 +448,7 @@ public class MatpowerImporter implements Importer {
         return network;
     }
 
-    private double getNomvinalVBusNumber(Map<Integer, MBus> busNumToMBus, int busNumber, boolean ignoreBaseVoltage) {
+    private double getNominalVFromBusNumber(Map<Integer, MBus> busNumToMBus, int busNumber, boolean ignoreBaseVoltage) {
         if (!busNumToMBus.containsKey(busNumber)) { // never should happen
             throw new PowsyblException("busId without MBus" + busNumber);
         }
