@@ -36,8 +36,10 @@ import java.util.Objects;
  */
 public class SecurityAnalysisResultDeserializer extends StdDeserializer<SecurityAnalysisResult> {
 
+    private static final String CONTEXT_NAME = "SecurityAnalysisResult";
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
     SecurityAnalysisResultDeserializer() {
@@ -82,6 +84,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     break;
 
                 case "operatorStrategyResults":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyResults", version, "1.2");
                     parser.nextToken();
                     JavaType operatorStrategyResultsCollection = ctx.getTypeFactory().constructCollectionType(List.class, OperatorStrategyResult.class);
                     operatorStrategyResults = ctx.readValue(parser, operatorStrategyResultsCollection);
