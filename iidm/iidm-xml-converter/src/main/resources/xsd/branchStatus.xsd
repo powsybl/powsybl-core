@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2021, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bs="http://www.powsybl.org/schema/iidm/ext/branch_status/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/branch_status/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name="BranchStatus">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="IN_OPERATION"/>
+            <xs:enumeration value="PLANNED_OUTAGE"/>
+            <xs:enumeration value="FORCED_OUTAGE"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="branchStatus" type="bs:BranchStatus"/>
+</xs:schema>
