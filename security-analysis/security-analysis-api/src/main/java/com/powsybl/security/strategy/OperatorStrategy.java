@@ -29,7 +29,7 @@ public class OperatorStrategy {
     private final Condition condition;  // under which circumstances do I want to trigger my action
     private final List<String> actionIds;
 
-        public OperatorStrategy(String id, String contingencyId, Condition condition, List<String> actionIds) {
+    public OperatorStrategy(String id, String contingencyId, Condition condition, List<String> actionIds) {
         this.id = Objects.requireNonNull(id);
         this.contingencyId = Objects.requireNonNull(contingencyId);
         this.condition = Objects.requireNonNull(condition);

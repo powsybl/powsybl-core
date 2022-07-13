@@ -12,6 +12,7 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import com.powsybl.security.results.*;
 import com.powsybl.security.results.OperatorStrategyResult;
+import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
 
@@ -88,6 +89,26 @@ public class SecurityAnalysisResultBuilder {
      */
     public PostContingencyResultBuilder contingency(Contingency contingency, SecurityAnalysisResultContext postContingencyResultContext) {
         return new PostContingencyResultBuilder(contingency, postContingencyResultContext);
+    }
+
+    /**
+     * Initiates the creation of the result for one {@link OperatorStrategy}.
+     *
+     * @param strategy the operator strategy for which a result should be created
+     * @return a {@link OperatorStrategyResultBuilder} instance.
+     */
+    public OperatorStrategyResultBuilder operatorStrategy(OperatorStrategy strategy) {
+        return operatorStrategy(strategy, context);
+    }
+
+    /**
+     * Initiates the creation of the result for one {@link OperatorStrategy}.
+     *
+     * @param strategy the operator strategy for which a result should be created
+     * @return a {@link OperatorStrategyResultBuilder} instance.
+     */
+    public OperatorStrategyResultBuilder operatorStrategy(OperatorStrategy strategy, SecurityAnalysisResultContext strategyContext) {
+        return new OperatorStrategyResultBuilder(strategy, strategyContext);
     }
 
     /**
@@ -243,9 +264,38 @@ public class SecurityAnalysisResultBuilder {
 
             return SecurityAnalysisResultBuilder.this;
         }
+    }
 
-        public void addPostContingency(PostContingencyResult res) {
-            addPostContingencyResult(res);
+    public class OperatorStrategyResultBuilder extends AbstractLimitViolationsResultBuilder<OperatorStrategyResultBuilder> {
+
+        private final OperatorStrategy strategy;
+
+        OperatorStrategyResultBuilder(OperatorStrategy strategy, SecurityAnalysisResultContext resultContext) {
+            super(Objects.requireNonNull(resultContext));
+            this.strategy = Objects.requireNonNull(strategy);
+        }
+
+        @Override
+        public OperatorStrategyResultBuilder addViolation(LimitViolation violation, SecurityAnalysisResultContext limitViolationContext) {
+            Objects.requireNonNull(limitViolationContext);
+            violations.add(Objects.requireNonNull(violation));
+            //TODO: call to interceptors
+            return this;
+        }
+
+        /**
+         * Finalize the creation of the OperatorStrategyResult instance
+         *
+         * @return the parent {@link SecurityAnalysisResultBuilder} instance.
+         */
+        public SecurityAnalysisResultBuilder endOperatorStrategy() {
+            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
+            LimitViolationsResult limitViolationsResult = new LimitViolationsResult(computationOk, filteredViolations);
+            NetworkResult networkResult = new NetworkResult(branchResults, busResults, threeWindingsTransformerResults);
+            OperatorStrategyResult res = new OperatorStrategyResult(strategy, limitViolationsResult, networkResult);
+            //TODO: call to interceptors
+            operatorStrategyResults.add(res);
+            return SecurityAnalysisResultBuilder.this;
         }
     }
 }
