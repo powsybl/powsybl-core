@@ -12,6 +12,11 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
+ * Provides information about the state of some elements of the network, either:
+ *  - on N state
+ *  - on post-contingency states
+ *  - on post-corrective actions states
+ *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class NetworkResult {
