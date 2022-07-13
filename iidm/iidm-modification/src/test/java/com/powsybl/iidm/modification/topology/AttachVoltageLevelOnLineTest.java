@@ -27,6 +27,16 @@ public class AttachVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     @Test
     public void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
+        NetworkModification modification = new AttachVoltageLevelOnLine("VLTEST", BBS,
+                network.getLine("CJ"));
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-vl.xml");
+    }
+
+    @Test
+    public void attachVoltageLevelOnLineNbBbTest() throws IOException {
+        Network network = createNbBbNetwork();
         NetworkModification modification = new AttachVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS,
                 network.getLine("NHV1_NHV2_1"));
         modification.apply(network);
@@ -46,7 +56,7 @@ public class AttachVoltageLevelOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testConstructor() {
-        Network network = createNbNetwork();
+        Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         AttachVoltageLevelOnLine modification = new AttachVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, line);
         assertEquals(VOLTAGE_LEVEL_ID, modification.getVoltageLevelId());
@@ -61,7 +71,7 @@ public class AttachVoltageLevelOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testSetters() {
-        Network network = createNbNetwork();
+        Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         AttachVoltageLevelOnLine modification = new AttachVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, line);
         modification.setPercent(40.0)
