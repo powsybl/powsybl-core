@@ -537,10 +537,18 @@ public final class JsonUtil {
         return parseValueArray(parser, JsonToken.VALUE_STRING, JsonParser::getText);
     }
 
+    /**
+     * Saves the provided version into the context (typically a {@link DeserializationContext}),
+     * for later retrieval.
+     */
     public static void setSourceVersion(DatabindContext context, String version, String sourceVersionAttributeKey) {
         context.setAttribute(sourceVersionAttributeKey, version);
     }
 
+    /**
+     * Reads the version from the context (typically a {@link DeserializationContext}) where it has been
+     * previously stored.
+     */
     public static String getSourceVersion(DatabindContext context, String sourceVersionAttributeKey) {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * An action consisting in an ordered list of actions.
  *
- * An action that contains several actions
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class MultipleActionsAction extends AbstractAction {

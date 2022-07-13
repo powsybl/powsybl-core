@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A list of actions
+ * A container for a list of actions.
+ * The JSON representation of this object is versioned.
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */

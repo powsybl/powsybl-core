@@ -20,7 +20,7 @@ import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.distributed.ForwardedSecurityAnalysisExecution;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

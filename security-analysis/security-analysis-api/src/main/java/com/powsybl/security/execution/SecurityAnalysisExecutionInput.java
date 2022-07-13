@@ -12,7 +12,7 @@ import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
 

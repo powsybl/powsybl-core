@@ -7,7 +7,7 @@
 package com.powsybl.security.results;
 
 import com.powsybl.security.LimitViolationsResult;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.Objects;
 

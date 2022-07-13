@@ -9,8 +9,7 @@ package com.powsybl.security.action;
 import java.util.Objects;
 
 /**
- *
- * an action activating a switch
+ * An action opening or closing a switch.
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
@@ -36,6 +35,10 @@ public class SwitchAction extends AbstractAction {
         return switchId;
     }
 
+    /**
+     * If {@code true}, applying the action will open the switch,
+     * else it will close it.
+     */
     public boolean isOpen() {
         return open;
     }

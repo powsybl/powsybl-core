@@ -9,11 +9,11 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.operator.strategy.OperatorStrategyList;
+import com.powsybl.security.strategy.OperatorStrategyList;
 
 import java.io.IOException;
 
-import static com.powsybl.security.operator.strategy.OperatorStrategyList.VERSION;
+import static com.powsybl.security.strategy.OperatorStrategyList.VERSION;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>

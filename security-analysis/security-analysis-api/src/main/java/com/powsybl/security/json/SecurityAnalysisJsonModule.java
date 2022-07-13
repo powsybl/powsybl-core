@@ -11,8 +11,8 @@ import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.ActionList;
 import com.powsybl.security.condition.Condition;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
-import com.powsybl.security.operator.strategy.OperatorStrategyList;
+import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.results.*;
 
 /**

@@ -12,8 +12,8 @@ import com.powsybl.security.action.ActionList;
 import com.powsybl.security.action.MultipleActionsAction;
 import com.powsybl.security.action.SwitchAction;
 import com.powsybl.security.condition.TrueCondition;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
-import com.powsybl.security.operator.strategy.OperatorStrategyList;
+import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategyList;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -18,7 +18,7 @@ import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;

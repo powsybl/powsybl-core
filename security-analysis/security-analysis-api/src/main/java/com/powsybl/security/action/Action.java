@@ -7,8 +7,8 @@
 package com.powsybl.security.action;
 
 /**
- * an action is taken according to a operator strategy when a condition occurs
- * it aims to solved contingency
+ * An action is taken according to an operator strategy when a condition occurs.
+ * It aims at solving violations.
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */

@@ -20,7 +20,7 @@ import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategy;
 
 @AutoService(SecurityAnalysisProvider.class)
 public class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {

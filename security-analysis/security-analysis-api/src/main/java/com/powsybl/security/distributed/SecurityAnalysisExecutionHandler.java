@@ -17,8 +17,8 @@ import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
-import com.powsybl.security.operator.strategy.OperatorStrategyList;
+import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategyList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

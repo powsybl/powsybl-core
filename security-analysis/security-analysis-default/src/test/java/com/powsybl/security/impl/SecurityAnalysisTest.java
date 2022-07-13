@@ -32,7 +32,7 @@ import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.results.BranchResult;
 import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Assert;

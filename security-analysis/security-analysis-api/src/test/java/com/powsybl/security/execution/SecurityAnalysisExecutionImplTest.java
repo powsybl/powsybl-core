@@ -16,7 +16,7 @@ import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.operator.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
