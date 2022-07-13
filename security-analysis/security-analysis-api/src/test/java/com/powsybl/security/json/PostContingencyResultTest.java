@@ -70,7 +70,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
             OutputStream out = Files.newOutputStream(jsonFile);
             JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
-                .writer()
+                .writerWithDefaultPrettyPrinter()
                 .writeValue(out, postContingencyResult);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
