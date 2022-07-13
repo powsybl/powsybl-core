@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnalysisResult> {
 
-    private static final String VERSION = "1.2";
+    public static final String VERSION = "1.2";
 
     SecurityAnalysisResultSerializer() {
         super(SecurityAnalysisResult.class);

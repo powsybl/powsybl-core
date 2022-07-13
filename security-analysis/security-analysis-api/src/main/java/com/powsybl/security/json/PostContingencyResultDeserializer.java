@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
@@ -41,6 +42,11 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
         NetworkResult networkResult = null;
+
+        String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
+        if (version == null) {  // assuming current version...
+            version = SecurityAnalysisResultSerializer.VERSION;
+        }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "contingency":
@@ -54,31 +60,29 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                     break;
                 case "busResults":
                     parser.nextToken();
-                    JsonUtil.checkVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE, "1.1",
-                            "Tag: busResults", CONTEXT_NAME);
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: busResults",
+                            version, "1.1");
                     busResults = parser.readValueAs(new TypeReference<List<BusResult>>() {
                     });
                     break;
                 case "branchResults":
                     parser.nextToken();
-                    JsonUtil.checkVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE, "1.1",
-                            "Tag: branchResults", CONTEXT_NAME);
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: branchResults",
+                            version, "1.1");
                     branchResults = parser.readValueAs(new TypeReference<List<BranchResult>>() {
                     });
                     break;
                 case "threeWindingsTransformerResults":
                     parser.nextToken();
-                    JsonUtil.checkVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE, "1.1",
-                            "Tag: threeWindingsTransformerResults", CONTEXT_NAME);
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: threeWindingsTransformerResults",
+                            version, "1.1");
                     threeWindingsTransformerResults = parser.readValueAs(new TypeReference<List<ThreeWindingsTransformerResult>>() {
                     });
                     break;
                 case "networkResult":
                     parser.nextToken();
-                    if (JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE) != null) {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: networkResult",
-                                JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE), "1.2");
-                    }
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: networkResult",
+                            version, "1.2");
                     networkResult = parser.readValueAs(NetworkResult.class);
                     break;
                 default:

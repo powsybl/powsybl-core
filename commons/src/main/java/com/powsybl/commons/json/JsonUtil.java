@@ -552,11 +552,4 @@ public final class JsonUtil {
     public static String getSourceVersion(DatabindContext context, String sourceVersionAttributeKey) {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
-
-    public static void checkVersion(DatabindContext context, String sourceVersionAttributeKey, String versionRef, String attributeTag, String contextName) {
-        if (JsonUtil.getSourceVersion(context, sourceVersionAttributeKey) != null) {
-            JsonUtil.assertLessThanOrEqualToReferenceVersion(contextName, attributeTag,
-                    JsonUtil.getSourceVersion(context, sourceVersionAttributeKey), versionRef);
-        }
-    }
 }
