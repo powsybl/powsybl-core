@@ -487,12 +487,45 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(5, shunt.getSectionCount());
     }
 
+    @Test
+    public void testSetTerminalP() {
+        // For linear and non-linear shunt compensators:
+        // Allow setting active power value on a shunt with valid G and
+        // Allow setting active power value on a shunt created with an invalid G
+
+        ShuntCompensator sgb = createLinearShunt("SHUNT_GB", "SHUNT", 2.0, 1.0, 5, 10, terminal, true, 200, 10);
+        sgb.getTerminal().setP(10);
+        assertEquals(10, sgb.getTerminal().getP(), 0.0);
+        ShuntCompensator sb = createLinearShunt("SHUNT_B", "SHUNT", 2.0, Double.NaN, 5, 10, terminal, true, 200, 10);
+        sb.getTerminal().setP(10);
+        assertEquals(10, sb.getTerminal().getP(), 0.0);
+
+        ShuntCompensator sgbNonLinear = createNonLinearShunt("SHUNT_GB_NL", "SHUNT", terminal, true, 200, 10, 1.0, 2.0);
+        sgbNonLinear.getTerminal().setP(10);
+        assertEquals(10, sgbNonLinear.getTerminal().getP(), 0.0);
+        // Expect an exception when setting active power value on a shunt with invalid G
+        ShuntCompensator sbNonLinear = createNonLinearShunt("SHUNT_B_NL", "SHUNT", terminal, true, 200, 10, 2.0, Double.NaN);
+        sbNonLinear.getTerminal().setP(10);
+        assertEquals(10, sbNonLinear.getTerminal().getP(), 0.0);
+    }
+
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return createShuntAdder(id, name, sectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
                 .newLinearModel()
                 .setBPerSection(bPerSection)
                 .setGPerSection(gPerSection)
                 .setMaximumSectionCount(maxSectionCount)
+                .add()
+                .add();
+    }
+
+    private ShuntCompensator createNonLinearShunt(String id, String name, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband, double b0, double g0) {
+        return createShuntAdder(id, name, 1, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
+                .newNonLinearModel()
+                .beginSection()
+                .setB(b0)
+                .setG(g0)
+                .endSection()
                 .add()
                 .add();
     }

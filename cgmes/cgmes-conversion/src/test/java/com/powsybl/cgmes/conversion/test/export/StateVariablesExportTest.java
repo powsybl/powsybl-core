@@ -125,13 +125,14 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         String cgmesTerminal = getCgmesTerminal(shuntCompensator.getTerminal());
 
-        // If Q are NaN is not exported
+        // If P and Q both are NaN is not exported
 
         shuntCompensator.getTerminal().setQ(-13.03);
         String sv = exportSvAsString(network, 4);
         assertTrue(sv.contains(cgmesTerminal));
 
         shuntCompensator.getTerminal().setQ(Double.NaN);
+        shuntCompensator.getTerminal().setP(Double.NaN);
         String sv1 = exportSvAsString(network, 4);
         assertFalse(sv1.contains(cgmesTerminal));
     }

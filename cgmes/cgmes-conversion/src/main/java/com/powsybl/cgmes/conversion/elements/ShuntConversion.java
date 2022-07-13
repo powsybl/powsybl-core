@@ -80,14 +80,9 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         ShuntCompensator shunt = adder.add();
         addAliasesAndProperties(shunt);
 
-        // At a shunt terminal, only Q can be set
         PowerFlow f = powerFlowSV();
-        if (f.defined()) {
-            double q = f.q();
-            if (context.config().changeSignForShuntReactivePowerFlowInitialState()) {
-                q = -q;
-            }
-            f = new PowerFlow(Double.NaN, q);
+        if (f.defined() && context.config().changeSignForShuntReactivePowerFlowInitialState()) {
+            f = new PowerFlow(-f.p(), -f.q());
         }
         context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
