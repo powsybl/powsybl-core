@@ -248,10 +248,10 @@ public class SecurityAnalysisTest {
         DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, Reporter.NO_OP);
         SecurityAnalysisReport report = defaultSecurityAnalysis.run(network.getVariantManager().getWorkingVariantId(), saParameters, contingenciesProvider).join();
         SecurityAnalysisResult result = report.getResult();
-        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyNetworkResult().getBusResults()).containsExactly(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
-        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyNetworkResult().getBusResult("VLHV1_0")).isEqualToComparingOnlyGivenFields(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
-        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyNetworkResult().getBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583, 0.0));
-        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyNetworkResult().getBranchResult("NHV1_NHV2_1")).isEqualToComparingOnlyGivenFields(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getNeworkResult().getBusResults()).containsExactly(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getNeworkResult().getBusResult("VLHV1_0")).isEqualToComparingOnlyGivenFields(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getNeworkResult().getBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getNeworkResult().getBranchResult("NHV1_NHV2_1")).isEqualToComparingOnlyGivenFields(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583, 0.0));
         Assertions.assertThat(result.getPostContingencyResults().get(0).getNetworkResult().getBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_2",  600.0, 500.0,  1186.6446717954987, 600.0,  500.0, 1186.6446717954987, 0.0));
         Assertions.assertThat(result.getPostContingencyResults().get(0).getNetworkResult().getBusResults()).containsExactly(new BusResult("VLHV2", "VLHV2_0", 380.0, 0.0));
     }

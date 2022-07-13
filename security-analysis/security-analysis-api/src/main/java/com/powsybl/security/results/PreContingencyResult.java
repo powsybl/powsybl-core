@@ -14,37 +14,29 @@ import java.util.*;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public class PreContingencyResult {
-    private LimitViolationsResult limitViolationsResult;
-    private NetworkResult preContingencyNetworkResult;
+    private final LimitViolationsResult limitViolationsResult;
+    private final NetworkResult networkResult;
 
     public PreContingencyResult() {
         this(null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public PreContingencyResult(LimitViolationsResult preContingencyResult, Collection<BranchResult> preContingencyBranchResults,
-                                Collection<BusResult> preContingencyBusResults,
-                                Collection<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
-        this(preContingencyResult, new NetworkResult(preContingencyBranchResults, preContingencyBusResults, preContingencyThreeWindingsTransformerResults));
+    public PreContingencyResult(LimitViolationsResult limitViolationsResult, Collection<BranchResult> branchResults,
+                                Collection<BusResult> busResults,
+                                Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+        this(limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
     }
 
-    public PreContingencyResult(LimitViolationsResult preContingencyResult, NetworkResult preContingencyNetworkResult) {
-        this.limitViolationsResult = preContingencyResult;
-        this.preContingencyNetworkResult = Objects.requireNonNull(preContingencyNetworkResult);
-    }
-
-    public void setLimitViolationsResult(LimitViolationsResult limitViolationsResult) {
+    public PreContingencyResult(LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
         this.limitViolationsResult = limitViolationsResult;
+        this.networkResult = Objects.requireNonNull(networkResult);
     }
 
     public LimitViolationsResult getLimitViolationsResult() {
         return limitViolationsResult;
     }
 
-    public void setPreContingencyNetworkResult(NetworkResult networkResult) {
-        this.preContingencyNetworkResult = networkResult;
-    }
-
-    public NetworkResult getPreContingencyNetworkResult() {
-        return preContingencyNetworkResult;
+    public NetworkResult getNeworkResult() {
+        return networkResult;
     }
 }

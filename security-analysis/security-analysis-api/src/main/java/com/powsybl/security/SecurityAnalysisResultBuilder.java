@@ -30,7 +30,7 @@ public class SecurityAnalysisResultBuilder {
     private final List<SecurityAnalysisInterceptor> interceptors;
 
     // Below are volatile objects used for building the actual complete result
-    private final PreContingencyResult preContingencyResult;
+    private PreContingencyResult preContingencyResult;
     private final List<PostContingencyResult> postContingencyResults = Collections.synchronizedList(new ArrayList<>());
     private final List<OperatorStrategyResult> operatorStrategyResults = Collections.synchronizedList(new ArrayList<>());
 
@@ -44,10 +44,6 @@ public class SecurityAnalysisResultBuilder {
 
     public SecurityAnalysisResultBuilder(LimitViolationFilter filter, SecurityAnalysisResultContext context) {
         this(filter, context, Collections.emptyList());
-    }
-
-    private void setPreContingencyResult(LimitViolationsResult preContingencyResult) {
-        this.preContingencyResult.setLimitViolationsResult(preContingencyResult);
     }
 
     private void addPostContingencyResult(PostContingencyResult result) {
@@ -198,10 +194,6 @@ public class SecurityAnalysisResultBuilder {
      */
     public class PreContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PreContingencyResultBuilder> {
 
-        private void setNetworkResult(NetworkResult networkResult) {
-            preContingencyResult.setPreContingencyNetworkResult(Objects.requireNonNull(networkResult));
-        }
-
         PreContingencyResultBuilder(SecurityAnalysisResultContext resultContext) {
             super(resultContext);
         }
@@ -215,8 +207,7 @@ public class SecurityAnalysisResultBuilder {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
             interceptors.forEach(i -> i.onPreContingencyResult(res, resultContext));
-            setPreContingencyResult(res);
-            setNetworkResult(new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
+            preContingencyResult = new PreContingencyResult(res, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
             return SecurityAnalysisResultBuilder.this;
         }
     }
