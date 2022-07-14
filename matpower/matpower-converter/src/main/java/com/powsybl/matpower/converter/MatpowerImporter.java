@@ -8,15 +8,16 @@ package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
-import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.matpower.model.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
@@ -207,8 +210,12 @@ public class MatpowerImporter implements Importer {
         return substation;
     }
 
+    private static double getNominalV(MBus mBus, boolean ignoreBaseVoltage) {
+        return ignoreBaseVoltage || mBus.getBaseVoltage() == 0 ? 1 : mBus.getBaseVoltage();
+    }
+
     private static VoltageLevel createVoltageLevel(MBus mBus, String voltageLevelId, Substation substation, Network network, Context context) {
-        double nominalV = context.isIgnoreBaseMva() || mBus.getBaseVoltage() == 0 ? 1 : mBus.getBaseVoltage();
+        double nominalV = getNominalV(mBus, context.isIgnoreBaseMva());
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             voltageLevel = substation.newVoltageLevel()
@@ -409,12 +416,20 @@ public class MatpowerImporter implements Importer {
                 MatpowerModel model = MatpowerReader.read(iStream, dataSource.getBaseName());
                 LOGGER.debug("MATPOWER model '{}'", model.getCaseName());
 
-                ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
-                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, branch -> isTransformer(model, branch),
-                    busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next()), substationNum -> getId(SUBSTATION_PREFIX, substationNum));
-
                 boolean ignoreBaseVoltage = Parameter.readBoolean(MatpowerConstants.FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
-                        ParameterDefaultValueConfig.INSTANCE);
+                    ParameterDefaultValueConfig.INSTANCE);
+
+                Map<Integer, MBus> busNumToMBus = model.getBuses().stream().collect(Collectors.toMap(MBus::getNumber, Function.identity()));
+
+                ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
+                    MBus::getNumber,
+                    MBranch::getFrom,
+                    MBranch::getTo,
+                    branch -> branch.getR() == 0.0 && branch.getX() == 0.0,
+                    branch -> isTransformer(model, branch),
+                    busNumber -> getNominalVFromBusNumber(busNumToMBus, busNumber, ignoreBaseVoltage),
+                    busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums"))),
+                    substationNums -> getId(SUBSTATION_PREFIX, substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums"))));
 
                 Context context = new Context(model.getBaseMva(), ignoreBaseVoltage);
 
@@ -431,5 +446,12 @@ public class MatpowerImporter implements Importer {
         }
 
         return network;
+    }
+
+    private double getNominalVFromBusNumber(Map<Integer, MBus> busNumToMBus, int busNumber, boolean ignoreBaseVoltage) {
+        if (!busNumToMBus.containsKey(busNumber)) { // never should happen
+            throw new PowsyblException("busId without MBus" + busNumber);
+        }
+        return getNominalV(busNumToMBus.get(busNumber), ignoreBaseVoltage);
     }
 }

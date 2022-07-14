@@ -65,4 +65,9 @@ public final class MatpowerModelFactory {
     public static MatpowerModel create300() {
         return readModelJsonFromResources("ieee300.json");
     }
+
+    public static MatpowerModel create9zeroimpedance() {
+        return readModelJsonFromResources("ieee9zeroimpedance.json");
+    }
+
 }

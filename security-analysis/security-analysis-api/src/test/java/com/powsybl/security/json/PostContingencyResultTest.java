@@ -21,9 +21,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -37,18 +35,18 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
         LimitViolationsResult result = new LimitViolationsResult(true, Collections.singletonList(violation));
-        Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults = new HashMap<>();
-        threeWindingsTransformerResults.put("threeWindingsTransformerId", new ThreeWindingsTransformerResult("threeWindingsTransformerId",
+        List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
+        threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Map<String, BranchResult> branchResults = new HashMap<>();
-        branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
-        Map<String, BusResult> busResults = new HashMap<>();
-        busResults.put("busId", new BusResult("voltageLevelId", "busId", 400, 3.14));
+        List<BranchResult> branchResults = new ArrayList<>();
+        branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
+        List<BusResult> busResults = new ArrayList<>();
+        busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, result, branchResults, busResults, threeWindingsTransformerResults);
-        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getBranchResult("branchId"));
-        assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getBusResult("busId"));
+        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
+        assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
-            0, 0, 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getThreeWindingsTransformerResult("threeWindingsTransformerId"));
+            0, 0, 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
     }
 
     @Test
@@ -56,13 +54,13 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
         LimitViolationsResult result = new LimitViolationsResult(true, Collections.singletonList(violation));
-        Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults = new HashMap<>();
-        threeWindingsTransformerResults.put("threeWindingsTransformerId", new ThreeWindingsTransformerResult("threeWindingsTransformerId",
+        List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
+        threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));
-        Map<String, BranchResult> branchResults = new HashMap<>();
-        branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
-        Map<String, BusResult> busResults = new HashMap<>();
-        busResults.put("busId", new BusResult("voltageLevelId", "busId", 400, 3.14));
+        List<BranchResult> branchResults = new ArrayList<>();
+        branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
+        List<BusResult> busResults = new ArrayList<>();
+        busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, result, branchResults, busResults, threeWindingsTransformerResults);
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
@@ -72,7 +70,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
             OutputStream out = Files.newOutputStream(jsonFile);
             JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
-                .writer()
+                .writerWithDefaultPrettyPrinter()
                 .writeValue(out, postContingencyResult);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

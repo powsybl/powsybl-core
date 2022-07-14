@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnalysisResult> {
 
-    private static final String VERSION = "1.1";
+    public static final String VERSION = "1.2";
 
     SecurityAnalysisResultSerializer() {
         super(SecurityAnalysisResult.class);
@@ -32,13 +32,13 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
     @Override
     public void serialize(SecurityAnalysisResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-
         jsonGenerator.writeStringField("version", VERSION);
         if (result.getNetworkMetadata() != null) {
             jsonGenerator.writeObjectField("network", result.getNetworkMetadata());
         }
         jsonGenerator.writeObjectField("preContingencyResult", result.getPreContingencyResult());
         jsonGenerator.writeObjectField("postContingencyResults", result.getPostContingencyResults());
+        jsonGenerator.writeObjectField("operatorStrategyResults", result.getOperatorStrategyResults());
         JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);
 
         jsonGenerator.writeEndObject();

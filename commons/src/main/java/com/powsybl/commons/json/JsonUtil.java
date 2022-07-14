@@ -10,10 +10,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -308,11 +305,11 @@ public final class JsonUtil {
         return updateExtensions(parser, context, supplier::findProvider, extensionsNotFound, extendable);
     }
 
-        /**
-         * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
-         *
-         * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
-         */
+    /**
+     * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
+     *
+     * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
+     */
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
@@ -538,5 +535,21 @@ public final class JsonUtil {
 
     public static List<String> parseStringArray(JsonParser parser) {
         return parseValueArray(parser, JsonToken.VALUE_STRING, JsonParser::getText);
+    }
+
+    /**
+     * Saves the provided version into the context (typically a {@link DeserializationContext}),
+     * for later retrieval.
+     */
+    public static void setSourceVersion(DatabindContext context, String version, String sourceVersionAttributeKey) {
+        context.setAttribute(sourceVersionAttributeKey, version);
+    }
+
+    /**
+     * Reads the version from the context (typically a {@link DeserializationContext}) where it has been
+     * previously stored.
+     */
+    public static String getSourceVersion(DatabindContext context, String sourceVersionAttributeKey) {
+        return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
 }
