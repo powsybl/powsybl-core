@@ -91,7 +91,7 @@ public class ConversionTool implements Tool {
 
             @Override
             public String getUsageFooter() {
-                return "Where OUTPUT_FORMAT is one of " + Exporters.getFormats();
+                return "Where OUTPUT_FORMAT is one of " + Exporter.getFormats();
             }
         };
     }
@@ -102,7 +102,7 @@ public class ConversionTool implements Tool {
         String outputFormat = line.getOptionValue(OUTPUT_FORMAT);
         String outputFile = line.getOptionValue(OUTPUT_FILE);
 
-        Exporter exporter = Exporters.getExporter(outputFormat);
+        Exporter exporter = Exporter.find(outputFormat);
         if (exporter == null) {
             throw new PowsyblException("Target format " + outputFormat + " not supported");
         }
