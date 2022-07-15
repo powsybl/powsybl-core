@@ -878,5 +878,12 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(network.getGenerator("2844585c-0d35-488d-a449-685bcd57afbf").getExtension(GeneratorEntsoeCategory.class));
     }
 
+    @Test
+    public void microGridBaseCaseNLShuntCompensatorGP() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLShuntCompensatorGP().dataSource(), null);
+        assertEquals(0.0000123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getG(), 0.0);
+        assertEquals(0.123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getTerminal().getP(), 0.0);
+    }
+
     private FileSystem fileSystem;
 }

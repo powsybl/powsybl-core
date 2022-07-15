@@ -215,6 +215,10 @@ public class AttachNewLineOnLine implements NetworkModification {
         LineAdder adder2 = createLineAdder(100 - percent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+
+        // Remove the existing line
+        line.remove();
+
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
         addLoadingLimits(line1, line, Branch.Side.ONE);
@@ -277,9 +281,6 @@ public class AttachNewLineOnLine implements NetworkModification {
 
         // Create the new line
         lineAdder.add();
-
-        // Remove the existing line
-        line.remove();
     }
 
     public String getVoltageLevelId() {

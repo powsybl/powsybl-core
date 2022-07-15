@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.parameters;
+package com.powsybl.commons.parameters;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -50,48 +50,48 @@ public class ParameterDefaultValueConfig {
         return configCache;
     }
 
-    public Object getValue(String format, Parameter parameter) {
+    public Object getValue(String prefix, Parameter parameter) {
         Objects.requireNonNull(parameter);
         switch (parameter.getType()) {
             case BOOLEAN:
-                return getBooleanValue(format, parameter);
+                return getBooleanValue(prefix, parameter);
             case STRING:
-                return getStringValue(format, parameter);
+                return getStringValue(prefix, parameter);
             case STRING_LIST:
-                return getStringListValue(format, parameter);
+                return getStringListValue(prefix, parameter);
             case DOUBLE:
-                return getDoubleValue(format, parameter);
+                return getDoubleValue(prefix, parameter);
             default:
                 throw new IllegalStateException("Unsupported parameter type: " + parameter.getType());
         }
     }
 
-    public boolean getBooleanValue(String format, Parameter parameter) {
-        return getValue(format, (Boolean) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalBooleanProperty);
+    public boolean getBooleanValue(String prefix, Parameter parameter) {
+        return getValue(prefix, (Boolean) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalBooleanProperty);
     }
 
-    public String getStringValue(String format, Parameter parameter) {
-        return getValue(format, (String) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalStringProperty);
+    public String getStringValue(String prefix, Parameter parameter) {
+        return getValue(prefix, (String) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalStringProperty);
     }
 
-    public List<String> getStringListValue(String format, Parameter parameter) {
-        return getValue(format, (List<String>) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalStringListProperty);
+    public List<String> getStringListValue(String prefix, Parameter parameter) {
+        return getValue(prefix, (List<String>) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalStringListProperty);
     }
 
-    public double getDoubleValue(String format, Parameter parameter) {
-        return getValue(format, (Double) parameter.getDefaultValue(), parameter,
+    public double getDoubleValue(String prefix, Parameter parameter) {
+        return getValue(prefix, (Double) parameter.getDefaultValue(), parameter,
             (moduleConfig, name) -> moduleConfig.getOptionalDoubleProperty(name).stream().boxed().findFirst());
     }
 
-    private <T> T getValue(String format, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> valueSupplier) {
-        Objects.requireNonNull(format);
+    private <T> T getValue(String prefix, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> valueSupplier) {
+        Objects.requireNonNull(prefix);
         Objects.requireNonNull(parameter);
         ModuleConfig moduleConfig = getModuleConfig();
 
         if (moduleConfig != null) {
             for (String name : parameter.getNames()) {
                 T value = valueSupplier.apply(moduleConfig, name)
-                        .orElseGet(() -> valueSupplier.apply(moduleConfig, format + "_" + name).orElse(null));
+                        .orElseGet(() -> valueSupplier.apply(moduleConfig, prefix + "_" + name).orElse(null));
                 if (value != null) {
                     return value;
                 }

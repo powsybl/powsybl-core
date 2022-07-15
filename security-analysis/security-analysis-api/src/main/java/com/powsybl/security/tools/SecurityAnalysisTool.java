@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.security.*;
+import com.powsybl.security.action.ActionList;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecution;
@@ -33,6 +34,7 @@ import com.powsybl.security.execution.SecurityAnalysisInputBuildStrategy;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessors;
 import com.powsybl.tools.Command;
@@ -44,10 +46,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -301,10 +300,9 @@ public class SecurityAnalysisTool implements Tool {
             .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)
             .setParameters(parametersLoader.get());
 
-        Path monitorFilePath = options.getPath(MONITORING_FILE).orElse(null);
-        if (monitorFilePath != null) {
-            executionInput.setMonitors(StateMonitor.read(monitorFilePath));
-        }
+        options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> executionInput.setMonitors(StateMonitor.read(monitorFilePath)));
+        options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.readFile(operatorStrategyFilePath).getOperatorStrategies()));
+        options.getPath(ACTIONS_FILE).ifPresent(actionFilePath -> executionInput.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
 
         updateInput(options, executionInput);
 

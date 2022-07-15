@@ -93,9 +93,6 @@ abstract class AbstractTerminal implements TerminalExt {
         if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set active power on a busbar section");
         }
-        if (!Double.isNaN(p) && connectable.getType() == IdentifiableType.SHUNT_COMPENSATOR) {
-            throw new ValidationException(connectable, "cannot set active power on a shunt compensator");
-        }
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p.set(variantIndex, p);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);

@@ -15,7 +15,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.*;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -177,6 +177,9 @@ public class PowerFactoryImporter implements Importer {
 
                 case "ElmLne":
                     new LineConverter(importContext, network).create(obj);
+                    break;
+                case "ElmTow":
+                    new LineConverter(importContext, network).createTower(obj);
                     break;
 
                 case "ElmTr2":
