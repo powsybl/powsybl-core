@@ -888,5 +888,12 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(g.getTerminal().getConnectable().getId(), st.getTerminal().getConnectable().getId());
     }
 
+    @Test
+    public void microGridBaseCaseNLShuntCompensatorGP() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLShuntCompensatorGP().dataSource(), null);
+        assertEquals(0.0000123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getG(), 0.0);
+        assertEquals(0.123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getTerminal().getP(), 0.0);
+    }
+
     private FileSystem fileSystem;
 }

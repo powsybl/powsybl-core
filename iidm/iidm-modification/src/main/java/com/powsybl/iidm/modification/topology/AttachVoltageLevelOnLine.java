@@ -151,21 +151,21 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", line.getId(), voltageLevel.getNodeBreakerView());
-            createNodeBreakerSwitches(firstAvailableNode + 2, firstAvailableNode + 3, bbsNode, "_2", line.getId(), voltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", line.getId(), voltageLevel.getNodeBreakerView());
             adder1.setNode2(firstAvailableNode);
             adder2.setNode1(firstAvailableNode + 3);
         } else {
             throw new AssertionError();
         }
 
+        // Remove the existing line
+        line.remove();
+
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
         addLoadingLimits(line1, line, Branch.Side.ONE);
         addLoadingLimits(line2, line, Branch.Side.TWO);
-
-        // Remove the existing line
-        line.remove();
     }
 
     @Override

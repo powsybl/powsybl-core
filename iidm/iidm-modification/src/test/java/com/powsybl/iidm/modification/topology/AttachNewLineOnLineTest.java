@@ -29,6 +29,17 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
     @Test
     public void attachLineOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new AttachNewLineOnLine("VLTEST", BBS, line, adder);
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-l.xml");
+    }
+
+    @Test
+    public void attachLineOnLineNbBbTest() throws IOException {
+        Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
@@ -50,7 +61,7 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testConstructor() {
-        Network network = createNbNetwork();
+        Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
         AttachNewLineOnLine modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
@@ -72,7 +83,7 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testSetters() {
-        Network network = createNbNetwork();
+        Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
         AttachNewLineOnLine modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);

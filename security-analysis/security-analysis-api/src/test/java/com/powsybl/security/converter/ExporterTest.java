@@ -13,14 +13,13 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.*;
+import com.powsybl.security.condition.AtLeastOneViolationCondition;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
-import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResult;
-import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.results.ThreeWindingsTransformerResult;
+import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.results.*;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -57,22 +56,24 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
 
         Contingency contingency = Contingency.builder("contingency")
-            .addBranch("NHV1_NHV2_2", "VLNHV1")
-            .addBranch("NHV1_NHV2_1")
-            .addGenerator("GEN")
-            .addBusbarSection("BBS1")
-            .build();
+                .addBranch("NHV1_NHV2_2", "VLNHV1")
+                .addBranch("NHV1_NHV2_1")
+                .addGenerator("GEN")
+                .addBusbarSection("BBS1")
+                .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
-
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
-                                                                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
+                new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
-
+        List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
+        operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", "contingency1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
+                Collections.singletonList("actionId1")), new LimitViolationsResult(true, Collections.emptyList()),
+                new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult),
-                                                                   preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults);
+                preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
     }
@@ -84,7 +85,22 @@ public class ExporterTest extends AbstractConverterTest {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.json"));
         Assertions.assertThat(result.getPreContingencyLimitViolationsResult().getLimitViolations()).hasSize(1);
         assertEquals(0, LimitViolations.comparator().compare(violation1, result.getPreContingencyLimitViolationsResult().getLimitViolations().get(0)));
+    }
 
+    @Test
+    public void testCompatibilityV12DeserializationFail() {
+        InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisResultV1.2fail.json");
+        assertNotNull(inputStream);
+        Assertions.assertThatThrownBy(() -> SecurityAnalysisResultDeserializer.read(inputStream))
+                .isInstanceOf(PowsyblException.class)
+                .hasMessageContaining("PreContingencyResult. Tag: branchResults is not valid for version 1.2. Version should be <= 1.1");
+    }
+
+    @Test
+    public void testCompatibilityV11Deserialization() {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.1.json"));
+        assertEquals(0, result.getOperatorStrategyResults().size());
+        assertEquals(3.3, result.getPreContingencyResult().getNeworkResult().getBranchResult("branch1").getI2(), 0.01);
     }
 
     @Test
