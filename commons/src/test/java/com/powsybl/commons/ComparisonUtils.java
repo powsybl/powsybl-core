@@ -10,11 +10,20 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * Copyright (c) 2021, Stanislao Fidanza
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class ComparisonUtils {
+/**
+ * @author Stanislao Fidanza <stanifidanza98@gmail.com>
+ */
+public final class ComparisonUtils {
+    private ComparisonUtils() {}
     protected static void compareXml(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
