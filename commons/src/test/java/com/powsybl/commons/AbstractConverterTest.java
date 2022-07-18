@@ -52,7 +52,7 @@ public abstract class AbstractConverterTest {
         fileSystem.close();
     }
 
-    protected static void compareXml(InputStream expected, InputStream actual) {
+    public static void compareXml(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();

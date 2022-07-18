@@ -1,0 +1,18 @@
+{
+  "version" : "1.0",
+  "actions" : [ {
+    "type" : "SWITCH",
+    "id" : "id1",
+    "switchId" : "switchId1",
+    "open" : true
+  }, {
+    "type" : "MULTIPLE_ACTIONS",
+    "id" : "id2",
+    "actions" : [ {
+      "type" : "SWITCH",
+      "id" : "id3",
+      "switchId" : "switchId2",
+      "open" : true
+    } ]
+  } ]
+}

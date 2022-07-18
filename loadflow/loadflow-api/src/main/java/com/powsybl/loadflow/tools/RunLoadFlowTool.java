@@ -9,6 +9,7 @@ package com.powsybl.loadflow.tools;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
+import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -100,7 +101,7 @@ public class RunLoadFlowTool implements Tool {
                         .argName("FORMAT")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FORMAT)
-                        .desc("modified network output format " + Exporters.getFormats())
+                        .desc("modified network output format " + Exporter.getFormats())
                         .hasArg()
                         .argName("CASEFORMAT")
                         .build());

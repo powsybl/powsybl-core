@@ -40,21 +40,21 @@ public class ExportersTest extends AbstractConvertersTest {
 
     @Test
     public void getFormats() {
-        Collection<String> formats = Exporters.getFormats(loader);
+        Collection<String> formats = Exporter.getFormats(loader);
         assertEquals(1, formats.size());
         assertTrue(formats.contains(TEST_FORMAT));
     }
 
     @Test
     public void getExporter() {
-        Exporter exporter = Exporters.getExporter(loader, TEST_FORMAT);
+        Exporter exporter = Exporter.find(loader, TEST_FORMAT);
         assertNotNull(exporter);
         assertSame(testExporter, exporter);
     }
 
     @Test
     public void getNullExporter() {
-        Exporter exporter = Exporters.getExporter(loader, UNSUPPORTED_FORMAT);
+        Exporter exporter = Exporter.find(loader, UNSUPPORTED_FORMAT);
         assertNull(exporter);
     }
 
