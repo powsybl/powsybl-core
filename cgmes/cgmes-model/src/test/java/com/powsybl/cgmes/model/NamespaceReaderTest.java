@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -22,6 +23,13 @@ public class NamespaceReaderTest {
     public void base() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/empty_cim16_EQ_with_explicitBase.xml")) {
             assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16", NamespaceReader.base(is));
+        }
+    }
+
+    @Test
+    public void baseNull() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/empty_cim16_EQ.xml")) {
+            assertNull(NamespaceReader.base(is));
         }
     }
 }
