@@ -59,6 +59,13 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEExplicitBase() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEExplicitBase().dataSource(), NetworkFactory.findDefault(), null);
+        assertNotNull(network);
+    }
+
+    @Test
     public void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), NetworkFactory.findDefault(), null);
