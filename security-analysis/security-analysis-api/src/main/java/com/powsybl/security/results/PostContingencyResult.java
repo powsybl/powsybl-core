@@ -6,14 +6,11 @@
  */
 package com.powsybl.security.results;
 
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@ at rte-france.com>
@@ -25,33 +22,25 @@ public class PostContingencyResult {
 
     private final LimitViolationsResult limitViolationsResult;
 
-    private final Map<String, BranchResult> branchResults;
-
-    private final Map<String, BusResult> busResults;
-
-    private final Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults;
+    private final NetworkResult networkResult;
 
     public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult) {
-        this(contingency, limitViolationsResult, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        this(contingency, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
     public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults, List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this(contingency, limitViolationsResult,
-            branchResults.stream().collect(Collectors.toMap(BranchResult::getBranchId, Function.identity())),
-            busResults.stream().collect(Collectors.toMap(BusResult::getBusId, Function.identity())),
-            threeWindingsTransformerResults.stream().collect(Collectors.toMap(ThreeWindingsTransformerResult::getThreeWindingsTransformerId, Function.identity())));
+        this(contingency, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
     }
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, Map<String, BranchResult> branchResults, Map<String, BusResult> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
         this.contingency = Objects.requireNonNull(contingency);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
-        this.branchResults = ImmutableMap.copyOf(Objects.requireNonNull(branchResults));
-        this.busResults = ImmutableMap.copyOf(Objects.requireNonNull(busResults));
-        this.threeWindingsTransformerResults = ImmutableMap.copyOf(Objects.requireNonNull(threeWindingsTransformerResults));
+        this.networkResult = Objects.requireNonNull(networkResult);
     }
 
     public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations,
-                                 Map<String, BranchResult> branchResults, Map<String, BusResult> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+                                 List<BranchResult> branchResults, List<BusResult> busResults,
+                                 List<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
         this(contingency, new LimitViolationsResult(computationOk, limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults);
     }
 
@@ -63,11 +52,6 @@ public class PostContingencyResult {
         this(contingency, new LimitViolationsResult(computationOk, limitViolations, actionsTaken));
     }
 
-    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations,
-                                 List<String> actionsTaken, Map<String, BranchResult> branchResults, Map<String, BusResult> busResults, Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this(contingency, new LimitViolationsResult(computationOk, limitViolations, actionsTaken), branchResults, busResults, threeWindingsTransformerResults);
-    }
-
     public Contingency getContingency() {
         return contingency;
     }
@@ -76,30 +60,7 @@ public class PostContingencyResult {
         return limitViolationsResult;
     }
 
-    public BranchResult getBranchResult(String id) {
-        Objects.requireNonNull(id);
-        return branchResults.get(id);
-    }
-
-    public List<BranchResult> getBranchResults() {
-        return List.copyOf(branchResults.values());
-    }
-
-    public BusResult getBusResult(String id) {
-        Objects.requireNonNull(id);
-        return busResults.get(id);
-    }
-
-    public List<BusResult> getBusResults() {
-        return List.copyOf(busResults.values());
-    }
-
-    public ThreeWindingsTransformerResult getThreeWindingsTransformerResult(String id) {
-        Objects.requireNonNull(id);
-        return threeWindingsTransformerResults.get(id);
-    }
-
-    public List<ThreeWindingsTransformerResult> getThreeWindingsTransformerResult() {
-        return List.copyOf(threeWindingsTransformerResults.values());
+    public NetworkResult getNetworkResult() {
+        return networkResult;
     }
 }
