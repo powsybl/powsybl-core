@@ -101,10 +101,8 @@ GRAPH ?graphBDEQ {
     ?ConnectivityNode
         a cim:ConnectivityNode ;
         cim:IdentifiedObject.name ?name ;
-        cim:ConnectivityNode.ConnectivityNodeContainer ?container .
-    ?container cim:Line.Region ?region .
-    ?region cim:IdentifiedObject.name ?regionName .
-    FILTER (regex(?regionName, "ENTSO-E", "i"))
+        cim:ConnectivityNode.ConnectivityNodeContainer ?container ;
+        entsoe:ConnectivityNode.boundaryPoint "true" .
     OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
     OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
     OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }

@@ -172,7 +172,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // Only consider is node breaker if all models that have profile
         // EquipmentCore or EquipmentBoundary
         // also have EquipmentOperation or EquipmentBoundaryOperation
-        Map<String, Boolean> modelHasOperationProfile = computeEqModelHasEquipmentOperationProfile(r);
+        Map<String, Boolean> modelHasOperationProfile = computeModelHasOperationProfile(r);
         boolean consideredNodeBreaker = modelHasOperationProfile.values().stream().allMatch(Boolean::valueOf);
         if (LOG.isInfoEnabled()) {
             logNodeBreaker(consideredNodeBreaker, modelHasOperationProfile);
@@ -209,24 +209,40 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
     }
 
-    private Map<String, Boolean> computeEqModelHasEquipmentOperationProfile(PropertyBags modelProfiles) {
+    private Map<String, Boolean> computeModelHasOperationProfile(PropertyBags modelProfiles) {
+        // A bus/branch model with a single instance file where its node/breaker boundary has been assembled
+        // Must not be considered as node-breaker
         Map<String, Boolean> modelHasOperationProfile = new HashMap<>();
+        Map<String, Boolean> modelHasBoundaryOperationProfile = new HashMap<>();
         for (PropertyBag mp : modelProfiles) {
             String m = mp.get("FullModel");
             String p = mp.get(PROFILE);
             if (p != null) {
-                if (isEquipmentCore(p) || p.contains("/EquipmentBoundary/")) {
-                    modelHasOperationProfile.putIfAbsent(m, false);
-                }
-                if (isEquipmentOperation(p) || p.contains("/EquipmentBoundaryOperation/")) {
-                    modelHasOperationProfile.put(m, true);
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Model {} is considered node-breaker", m);
-                    }
-                }
+                updateModelHasOperationProfile(modelHasOperationProfile, modelHasBoundaryOperationProfile, m, p);
             }
         }
-        return modelHasOperationProfile;
+        Map<String, Boolean> modelHasOperationProfile1 = new HashMap<>(modelHasOperationProfile);
+        modelHasBoundaryOperationProfile.forEach((m, v) -> modelHasOperationProfile1.merge(m, v, (vm, vbd) -> vm && vbd));
+        return modelHasOperationProfile1;
+    }
+
+    private void updateModelHasOperationProfile(Map<String, Boolean> modelHasOperationProfile, Map<String, Boolean> modelHasBoundaryOperationProfile, String model, String profile) {
+        if (isEquipmentCore(profile)) {
+            // Set to false only if we do not have a value already
+            modelHasOperationProfile.putIfAbsent(model, false);
+        }
+        if (isEquipmentOperation(profile)) {
+            modelHasOperationProfile.put(model, true);
+            LOG.info("Model {} is considered node-breaker", model);
+        }
+        if (profile.contains("/EquipmentBoundary/")) {
+            // Set to false only if we do not have a value already
+            modelHasBoundaryOperationProfile.putIfAbsent(model, false);
+        }
+        if (profile.contains("/EquipmentBoundaryOperation/")) {
+            modelHasBoundaryOperationProfile.put(model, true);
+            LOG.info("Model {} boundary is considered node-breaker", model);
+        }
     }
 
     @Override
