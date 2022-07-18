@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
@@ -108,7 +109,7 @@ public class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
         // check that it doesn't fail for versions previous to 1.5 when log error is the IIDM version incompatibility behavior
         testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
             try {
-                writeTest(network, (n, p) -> write(n, p, version), AbstractXmlConverterTest::compareTxt, getVersionedNetworkPath("eurostag-loading-limits.xml", version));
+                writeTest(network, (n, p) -> write(n, p, version), ComparisonUtils::compareTxt, getVersionedNetworkPath("eurostag-loading-limits.xml", version));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

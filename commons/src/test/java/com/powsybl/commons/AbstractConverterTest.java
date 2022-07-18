@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
@@ -15,18 +14,15 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import static org.junit.Assert.*;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
 public abstract class AbstractConverterTest {
 
     @Rule
@@ -44,15 +40,6 @@ public abstract class AbstractConverterTest {
     @After
     public void tearDown() throws IOException {
         fileSystem.close();
-    }
-    protected static void compareTxt(InputStream expected, String actual) {
-        try {
-            String expectedStr = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
-            String actualStr = TestUtil.normalizeLineSeparator(actual);
-            assertEquals(expectedStr, actualStr);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     protected <T> T roundTripXmlTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, String ref) throws IOException {

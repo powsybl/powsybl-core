@@ -35,6 +35,7 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**

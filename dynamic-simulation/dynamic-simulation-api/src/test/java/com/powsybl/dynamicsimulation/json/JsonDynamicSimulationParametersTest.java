@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonDynamicSimulationParameters::write, AbstractConverterTest::compareTxt, "/DynamicSimulationParametersWithExtension.json");
+        writeTest(parameters, JsonDynamicSimulationParameters::write, ComparisonUtils::compareTxt, "/DynamicSimulationParametersWithExtension.json");
     }
 
     @Test

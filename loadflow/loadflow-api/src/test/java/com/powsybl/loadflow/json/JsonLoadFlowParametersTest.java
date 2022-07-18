@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -48,7 +49,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonLoadFlowParameters::write, AbstractConverterTest::compareTxt, "/LoadFlowParametersWithExtension.json");
+        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::compareTxt, "/LoadFlowParametersWithExtension.json");
     }
 
     @Test

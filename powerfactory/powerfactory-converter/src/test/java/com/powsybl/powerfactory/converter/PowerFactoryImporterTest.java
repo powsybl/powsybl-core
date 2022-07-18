@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**

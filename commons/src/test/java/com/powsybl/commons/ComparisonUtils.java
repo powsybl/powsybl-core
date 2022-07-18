@@ -23,8 +23,10 @@ import static org.junit.Assert.assertFalse;
  * @author Stanislao Fidanza <stanifidanza98@gmail.com>
  */
 public final class ComparisonUtils {
-    private ComparisonUtils() {}
-    protected static void compareXml(InputStream expected, InputStream actual) {
+    private ComparisonUtils() {
+    }
+
+    public static void compareXml(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
@@ -35,7 +37,7 @@ public final class ComparisonUtils {
         assertFalse(hasDiff);
     }
 
-    protected static void compareTxt(InputStream expected, InputStream actual) {
+    public static void compareTxt(InputStream expected, InputStream actual) {
         try {
             compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -43,7 +45,7 @@ public final class ComparisonUtils {
         }
     }
 
-    protected static void compareTxt(InputStream expected, InputStream actual, List<Integer> excludedLines) {
+    public static void compareTxt(InputStream expected, InputStream actual, List<Integer> excludedLines) {
         BufferedReader expectedReader = new BufferedReader(new InputStreamReader(expected));
         List<String> expectedLines = expectedReader.lines().collect(Collectors.toList());
         BufferedReader actualReader = new BufferedReader(new InputStreamReader(actual));
@@ -56,7 +58,7 @@ public final class ComparisonUtils {
         }
     }
 
-    protected static void compareTxt(InputStream expected, String actual) {
+    public static void compareTxt(InputStream expected, String actual) {
         try {
             String expectedStr = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
             String actualStr = TestUtil.normalizeLineSeparator(actual);
