@@ -7,17 +7,19 @@
 package com.powsybl.powerfactory.converter;
 
 import com.google.common.primitives.Ints;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectIndex;
 import com.powsybl.powerfactory.model.DataObjectRef;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 final class ContainersMappingHelper {
 
@@ -30,21 +32,15 @@ final class ContainersMappingHelper {
 
         private final DataObject obj2;
 
-        private final DataObject obj3;
-
         private final boolean transformer;
 
-        private final double r;
+        private final boolean zeroImpedance;
 
-        private final double x;
-
-        private Edge(DataObject obj1, DataObject obj2, DataObject obj3, boolean transformer, double r, double x) {
+        private Edge(DataObject obj1, DataObject obj2, boolean transformer, boolean zeroImpedance) {
             this.obj1 = Objects.requireNonNull(obj1);
             this.obj2 = Objects.requireNonNull(obj2);
-            this.obj3 = obj3;
             this.transformer = transformer;
-            this.r = r;
-            this.x = x;
+            this.zeroImpedance = zeroImpedance;
         }
 
         private DataObject getObj1() {
@@ -55,20 +51,12 @@ final class ContainersMappingHelper {
             return obj2;
         }
 
-        public DataObject getObj3() {
-            return obj3;
-        }
-
-        public boolean isTransformer() {
+        private boolean isTransformer() {
             return transformer;
         }
 
-        public double getR() {
-            return r;
-        }
-
-        public double getX() {
-            return x;
+        private boolean isZeroImpedance() {
+            return zeroImpedance;
         }
     }
 
@@ -76,51 +64,87 @@ final class ContainersMappingHelper {
 
         private final DataObjectIndex index;
 
-        private int noNameVoltageLevelCount = 0;
-
         private BusesToVoltageLevelId(DataObjectIndex index) {
             this.index = index;
         }
 
-        public String getVoltageLevelId(Set<Integer> ids) {
-            List<DataObject> objs = ids.stream()
-                    .flatMap(id -> index.getDataObjectById(id).stream())
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+        private double getNominalVoltage(Integer id) {
+            DataObject elmTerm = index.getDataObjectById(id).orElseThrow(() -> new PowerFactoryException("One ElemTerm was expected"));
+            return NodeConverter.getNominalVoltage(elmTerm);
+        }
 
-            Set<DataObject> containers = objs.stream()
-                    .map(obj -> {
-                        String className = obj.getParent().getDataClassName();
-                        if (className.equals("ElmSubstat") || className.equals("ElmTrfstat")) {
-                            return obj.getParent();
-                        }
-                        return null;
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-
-            String voltageLevelId = null;
-
-            if (containers.size() == 1) {
-                float uknom = objs.stream()
-                        .map(obj -> obj.findFloatAttributeValue("uknom").orElse(null))
-                        .filter(Objects::nonNull)
-                        .findFirst()
-                        .orElseThrow();
-
-                DataObject container = containers.iterator().next();
-                float unom = container.getFloatAttributeValue("Unom");
-                if (uknom == unom) { // check terminal nominal voltage is consistent with container one
-                    voltageLevelId = container.getLocName();
-                }
-            }
-
+        private String getVoltageLevelId(Set<Integer> ids) {
+            String voltageLevelId = getPowerFactoryVoltageLevelId(ids);
             // automatic naming
-            return Objects.requireNonNullElseGet(voltageLevelId, () -> "VL" + noNameVoltageLevelCount++);
+            return Objects.requireNonNullElseGet(voltageLevelId, () -> "VL" + ids.stream().sorted().findFirst()
+                .orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set")));
+        }
+
+        private String getSubstationId(Set<Integer> ids) {
+            String substationId = getPowerFactorySubstationId(ids);
+            // automatic naming
+            return Objects.requireNonNullElseGet(substationId, () -> "S" + ids.stream().sorted().findFirst()
+                .orElseThrow(() -> new PowerFactoryException("Unexpected empty ids set")));
+        }
+
+        // Find an ElmSite with same ElmSubstats as defined by the ids argument
+        private String getPowerFactorySubstationId(Set<Integer> ids) {
+
+            Set<DataObject> elmTerms = elmTermsAssociatedTo(ids);
+            Set<DataObject> elmSubstats = elmSubstatsAssociatedTo(elmTerms);
+            Set<DataObject> elmSites = elmSitesAssociatedTo(elmSubstats);
+
+            if (elmSites.size() != 1) {
+                return null;
+            }
+            DataObject elmSite = elmSites.iterator().next();
+
+            Set<DataObject> dataObjects = elmSite.getChildren().stream()
+                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSUBSTAT))
+                .collect(Collectors.toSet());
+
+            return elmSubstats.equals(dataObjects) ? elmSite.getLocName() : null;
+        }
+
+        // Find an ElmSubstat with same ElmTerms (Nodes) as defined by the ids argument
+        private String getPowerFactoryVoltageLevelId(Set<Integer> ids) {
+
+            Set<DataObject> elmTerms = elmTermsAssociatedTo(ids);
+            Set<DataObject> elmSubstats = elmSubstatsAssociatedTo(elmTerms);
+
+            if (elmSubstats.size() != 1) {
+                return null;
+            }
+            DataObject elmSubstat = elmSubstats.iterator().next();
+
+            Set<DataObject> dataObjects = elmSubstat.getChildren().stream()
+                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMTERM))
+                .collect(Collectors.toSet());
+
+            return elmTerms.equals(dataObjects) ? elmSubstat.getLocName() : null;
+        }
+
+        private Set<DataObject> elmTermsAssociatedTo(Set<Integer> ids) {
+            return ids.stream()
+                .flatMap(id -> index.getDataObjectById(id).stream())
+                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMTERM))
+                .collect(Collectors.toSet());
+        }
+
+        private Set<DataObject> elmSubstatsAssociatedTo(Set<DataObject> elmTerms) {
+            return elmTerms.stream().map(DataObject::getParent)
+                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSUBSTAT))
+                .collect(Collectors.toSet());
+        }
+
+        private Set<DataObject> elmSitesAssociatedTo(Set<DataObject> elmSubstats) {
+            return elmSubstats.stream().map(DataObject::getParent)
+                .filter(dataObject -> dataObject.getDataClassName().equals(DataAttributeNames.ELMSITE))
+                .collect(Collectors.toSet());
         }
     }
 
-    private static boolean isBranch(DataObject connectedObj) {
+    private static boolean isConnectedElm(DataObject connectedObj) {
         if (connectedObj == null) {
             return false;
         }
@@ -128,59 +152,55 @@ final class ContainersMappingHelper {
         return dataClassName.equals("ElmTr2")
                 || dataClassName.equals("ElmTr3")
                 || dataClassName.equals("ElmLne")
-                || dataClassName.equals("ElmCoup");
+                || dataClassName.equals("ElmCoup")
+                || dataClassName.equals("ElmZpu");
     }
 
-    private static void createNodes(List<DataObject> elmTerms, List<DataObject> nodes, List<Edge> edges,
-                                    Map<DataObject, List<DataObject>> branchesByCubicleId) {
+    private static void createNodes(List<DataObject> elmTerms, List<DataObject> nodes,
+        Map<DataObject, List<DataObject>> connectedElmByElmTermId) {
         for (DataObject elmTerm : elmTerms) {
             nodes.add(elmTerm);
             for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
-                DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id")
+                DataObject connectedObj = staCubic.findObjectAttributeValue(DataAttributeNames.OBJ_ID)
                         .flatMap(DataObjectRef::resolve)
                         .orElse(null);
-                if (isBranch(connectedObj)) {
-                    nodes.add(staCubic);
-                    edges.add(new Edge(elmTerm, staCubic, null, false, 0, 0));
-                    branchesByCubicleId.computeIfAbsent(connectedObj, k -> new ArrayList<>())
-                            .add(staCubic);
+                if (isConnectedElm(connectedObj)) {
+                    connectedElmByElmTermId.computeIfAbsent(connectedObj, k -> new ArrayList<>()).add(elmTerm);
                 }
             }
         }
     }
 
-    private static void createEdges(List<Edge> edges, Map<DataObject, List<DataObject>> branchesByCubicleId) {
-        for (Map.Entry<DataObject, List<DataObject>> e : branchesByCubicleId.entrySet()) {
+    // we do not have to consider the exact orientation of the element
+    private static void createEdges(List<Edge> edges, Map<DataObject, List<DataObject>> connectedElmByElmTermId) {
+        for (Map.Entry<DataObject, List<DataObject>> e : connectedElmByElmTermId.entrySet()) {
             DataObject connectedObj = e.getKey();
-            List<DataObject> staCubics = e.getValue();
-            if (staCubics.size() == 2) {
+            List<DataObject> elmTerms = e.getValue();
+            if (elmTerms.size() == 2) {
                 switch (connectedObj.getDataClassName()) {
                     case "ElmTr2":
-                        edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, true, Double.MAX_VALUE, Double.MAX_VALUE));
+                        // All transformers are considered with impedance
+                        edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
                         break;
                     case "ElmLne":
-                        float dline = connectedObj.getFloatAttributeValue("dline");
-                        DataObject typLne = connectedObj.getObjectAttributeValue("typ_id").resolve().orElseThrow();
-                        float rline = typLne.getFloatAttributeValue("rline");
-                        float xline = typLne.getFloatAttributeValue("xline");
-                        double r = rline * dline;
-                        double x = xline * dline;
-                        edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, false, r, x));
+                        // All lines are considered with impedance, only zero impedance lines are necessary
+                        break;
+                    case "ElmZpu":
+                        // All lines are considered with impedance, only zero impedance lines are necessary
                         break;
                     case "ElmCoup":
-                        edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, false, 0, 0));
+                        edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
                         break;
                     default:
                         throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
                 }
-            } else if (staCubics.size() == 3) {
+            } else if (elmTerms.size() == 3) {
                 if (connectedObj.getDataClassName().equals("ElmTr3")) {
-                    edges.add(new Edge(staCubics.get(0), staCubics.get(1), staCubics.get(2), true, Double.MAX_VALUE, Double.MAX_VALUE));
+                    edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
+                    edges.add(new Edge(elmTerms.get(0), elmTerms.get(2), true, false));
                 } else {
                     throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
                 }
-            } else {
-                throw new PowsyblException(connectedObj.getLocName() + " should be connected at both sides");
             }
         }
     }
@@ -188,10 +208,10 @@ final class ContainersMappingHelper {
     static ContainersMapping create(DataObjectIndex index, List<DataObject> elmTerms) {
         List<DataObject> nodes = new ArrayList<>();
         List<Edge> edges = new ArrayList<>();
-        Map<DataObject, List<DataObject>> branchesByCubicleId = new HashMap<>();
+        Map<DataObject, List<DataObject>> connectedElmByElmTermId = new HashMap<>();
 
-        createNodes(elmTerms, nodes, edges, branchesByCubicleId);
-        createEdges(edges, branchesByCubicleId);
+        createNodes(elmTerms, nodes, connectedElmByElmTermId);
+        createEdges(edges, connectedElmByElmTermId);
 
         BusesToVoltageLevelId busesToVoltageLevelId = new BusesToVoltageLevelId(index);
 
@@ -199,11 +219,10 @@ final class ContainersMappingHelper {
             obj -> Ints.checkedCast(obj.getId()),
             edge -> Ints.checkedCast(edge.getObj1().getId()),
             edge -> Ints.checkedCast(edge.getObj2().getId()),
-            edge -> edge.getObj3() != null ? Ints.checkedCast(edge.getObj3().getId()) : 0,
-            Edge::getR,
-            Edge::getX,
+            Edge::isZeroImpedance,
             Edge::isTransformer,
+            busesToVoltageLevelId::getNominalVoltage,
             busesToVoltageLevelId::getVoltageLevelId,
-            value -> "S" + value);
+            busesToVoltageLevelId::getSubstationId);
     }
 }

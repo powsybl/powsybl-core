@@ -215,10 +215,17 @@ public class AttachNewLineOnLine implements NetworkModification {
         LineAdder adder2 = createLineAdder(100 - percent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
+        LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
+
+        // Remove the existing line
+        String originalLineId = line.getId();
+        line.remove();
+
         Line line1 = adder1.setNode2(0).add();
         Line line2 = adder2.setNode1(2).add();
-        addLoadingLimits(line1, line, Branch.Side.ONE);
-        addLoadingLimits(line2, line, Branch.Side.TWO);
+        addLoadingLimits(line1, limits1, Branch.Side.ONE);
+        addLoadingLimits(line2, limits2, Branch.Side.TWO);
 
         // Create the topology inside the fictitious voltage level
         fictitiousVl.getNodeBreakerView()
@@ -253,11 +260,11 @@ public class AttachNewLineOnLine implements NetworkModification {
             }
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(line.getId() + "_BUS")
+                    .setId(originalLineId + "_BUS")
                     .add();
             lineAdder.setBus2(bus1.getId());
             voltageLevel.getBusBreakerView().newSwitch()
-                    .setId(line.getId() + "_SW")
+                    .setId(originalLineId + "_SW")
                     .setOpen(false)
                     .setBus1(bus1.getId())
                     .setBus2(bus.getId())
@@ -270,16 +277,13 @@ public class AttachNewLineOnLine implements NetworkModification {
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             lineAdder.setNode2(firstAvailableNode);
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, line.getId(), voltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, originalLineId, voltageLevel.getNodeBreakerView());
         } else {
             throw new AssertionError();
         }
 
         // Create the new line
         lineAdder.add();
-
-        // Remove the existing line
-        line.remove();
     }
 
     public String getVoltageLevelId() {

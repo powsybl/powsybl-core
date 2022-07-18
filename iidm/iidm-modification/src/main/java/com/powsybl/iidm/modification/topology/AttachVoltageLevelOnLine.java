@@ -124,6 +124,8 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
         LineAdder adder2 = createLineAdder(100 - percent, line2Id, line2Name, voltageLevelId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
+        LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
 
         // Create the topology inside the existing voltage level
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
@@ -151,21 +153,21 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", line.getId(), voltageLevel.getNodeBreakerView());
-            createNodeBreakerSwitches(firstAvailableNode + 2, firstAvailableNode + 3, bbsNode, "_2", line.getId(), voltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", line.getId(), voltageLevel.getNodeBreakerView());
             adder1.setNode2(firstAvailableNode);
             adder2.setNode1(firstAvailableNode + 3);
         } else {
             throw new AssertionError();
         }
 
+        // Remove the existing line
+        line.remove();
+
         // Create the two lines
         Line line1 = adder1.add();
         Line line2 = adder2.add();
-        addLoadingLimits(line1, line, Branch.Side.ONE);
-        addLoadingLimits(line2, line, Branch.Side.TWO);
-
-        // Remove the existing line
-        line.remove();
+        addLoadingLimits(line1, limits1, Branch.Side.ONE);
+        addLoadingLimits(line2, limits2, Branch.Side.TWO);
     }
 
     @Override
