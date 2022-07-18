@@ -8,6 +8,7 @@ package com.powsybl.ieeecdf.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.ieeecdf.model.*;
@@ -15,9 +16,9 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -27,7 +28,9 @@ import java.io.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -492,15 +495,22 @@ public class IeeeCdfImporter implements Importer {
                 network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
             }
 
-            // build container to fit IIDM requirements
-            ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
-                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, branch -> 0,  IeeeCdfBranch::getResistance,
-                IeeeCdfBranch::getReactance, IeeeCdfImporter::isTransformer, busNums -> "VL" + busNums.iterator().next(),
-                substationNum -> "S" + substationNum++);
-
             boolean ignoreBaseVoltage = Parameter.readBoolean(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
-                                                                                  ParameterDefaultValueConfig.INSTANCE);
+                ParameterDefaultValueConfig.INSTANCE);
             PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
+
+            // build container to fit IIDM requirements
+            Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus = ieeeCdfModel.getBuses().stream().collect(Collectors.toMap(IeeeCdfBus::getNumber, Function.identity()));
+
+            ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
+                IeeeCdfBus::getNumber,
+                IeeeCdfBranch::getTapBusNumber,
+                IeeeCdfBranch::getzBusNumber,
+                branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
+                IeeeCdfImporter::isTransformer,
+                busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
+                busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
+                substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
 
             // create objects
             createBuses(ieeeCdfModel, containerMapping, perUnitContext, network);
@@ -510,5 +520,12 @@ public class IeeeCdfImporter implements Importer {
         }
 
         return network;
+    }
+
+    private double getNominalVFromBusNumber(Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus, int busNumber, PerUnitContext perUnitContext) {
+        if (!busNumToIeeeCdfBus.containsKey(busNumber)) { // never should happen
+            throw new PowsyblException("busId without IeeeCdfBus" + busNumber);
+        }
+        return getNominalV(busNumToIeeeCdfBus.get(busNumber), perUnitContext);
     }
 }

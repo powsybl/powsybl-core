@@ -1,16 +1,3 @@
-********************************************************************************
-*
-* DIgSILENT (R) DGS Export V1.8.4
-* Copyright (C) DIgSILENT GmbH 2022. All rights reserved.
-*
-* DIgSILENT (C) PowerFactory V22.0.4.0
-*
-* Date:     05/17/2022 15:42
-* Project:  Transformer-Phase-Neutral (Study Case: Study Case)
-*
-********************************************************************************
-
-
 $$General;ID(a:40);Descr(a:40);Val(a:40)
   1;Version;5.0
 

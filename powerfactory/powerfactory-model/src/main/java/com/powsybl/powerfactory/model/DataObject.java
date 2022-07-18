@@ -371,32 +371,8 @@ public class DataObject {
         return this;
     }
 
-    // from json, recorded as a RealMatrix
-    // from dgs, recorded as a flat list
     public Optional<RealMatrix> findDoubleMatrixAttributeValue(String name) {
-        Optional<RealMatrix> realMatrix = findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
-        return realMatrix.isPresent() ? realMatrix : findAndParseDoubleMatrixAttributeValueFromFlatFormat(name);
-    }
-
-    private Optional<RealMatrix> findAndParseDoubleMatrixAttributeValueFromFlatFormat(String name) {
-        OptionalInt opRows = findIntAttributeValue(name + ":SIZEROW");
-        OptionalInt opCols = findIntAttributeValue(name + ":SIZECOL");
-        int rows = opRows.isPresent() ? opRows.getAsInt() : 0;
-        int cols = opCols.isPresent() ? opCols.getAsInt() : 0;
-
-        if (rows <= 0 || cols <= 0) {
-            return Optional.empty();
-        }
-
-        RealMatrix realMatrix = new BlockRealMatrix(rows, cols);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                double value = getFloatAttributeValue(name + ":" + i + ":" + j);
-                realMatrix.setEntry(i, j, value);
-            }
-        }
-
-        return Optional.of(realMatrix);
+        return findGenericAttributeValue(name, DataAttributeType.DOUBLE_MATRIX);
     }
 
     public RealMatrix getDoubleMatrixAttributeValue(String name) {

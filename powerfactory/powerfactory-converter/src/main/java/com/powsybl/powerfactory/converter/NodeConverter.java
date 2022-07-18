@@ -13,15 +13,14 @@ import java.util.Objects;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import com.google.common.primitives.Ints;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -82,7 +81,7 @@ class NodeConverter extends AbstractConverter {
             .add();
     }
 
-    private static double getNominalVoltage(DataObject elmTerm) {
+    static double getNominalVoltage(DataObject elmTerm) {
         return elmTerm.getFloatAttributeValue("uknom");
     }
 
@@ -139,7 +138,7 @@ class NodeConverter extends AbstractConverter {
             new SwitchConverter(getImportContext(), getNetwork()).createFromStaSwitch(vl, node, additionalNode, staSwitches.get(0));
             referenceNode = additionalNode;
         } else {
-            throw new PowsyblException("Only one staSwitch is allowed inside a cubicle");
+            throw new PowerFactoryException("Only one staSwitch is allowed inside a cubicle");
         }
 
         return referenceNode;

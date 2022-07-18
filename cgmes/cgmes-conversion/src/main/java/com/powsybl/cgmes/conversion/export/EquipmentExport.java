@@ -61,6 +61,7 @@ public final class EquipmentExport {
             Map<String, String> mapNodeKey2NodeId = new HashMap<>();
             Map<Terminal, String> mapTerminal2Id = new HashMap<>();
             Set<String> regulatingControlsWritten = new HashSet<>();
+            Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
 
             if (writeConnectivityNodes) {
                 writeConnectivityNodes(network, mapNodeKey2NodeId, cimNamespace, writer, context);
@@ -69,7 +70,7 @@ public final class EquipmentExport {
             writeSwitches(network, cimNamespace, writer, context);
 
             writeSubstations(network, cimNamespace, writer, context);
-            writeVoltageLevels(network, cimNamespace, writer, context);
+            writeVoltageLevels(network, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, cimNamespace, writer, context);
             writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writeInitialP, writer, context);
@@ -79,7 +80,7 @@ public final class EquipmentExport {
             writeTwoWindingsTransformers(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             writeThreeWindingsTransformers(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
 
-            writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context, exportedBaseVoltagesByNominalV);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
 
             writeControlAreas(network, mapTerminal2Id, cimNamespace, euNamespace, writer);
@@ -217,8 +218,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
+    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
             BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
@@ -517,11 +517,11 @@ public final class EquipmentExport {
     }
 
     private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName,
-                                           String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                           String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
 
             String substationId = writeDanglingLineSubstation(danglingLine, cimNamespace, writer);
-            String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer, context);
+            String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
             String voltageLevelId = writeDanglingLineVoltageLevel(danglingLine, substationId, baseVoltageId, cimNamespace, writer);
             String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId, cimNamespace, writer, context);
 
@@ -568,11 +568,12 @@ public final class EquipmentExport {
         return substationId;
     }
 
-    private static String writeDanglingLineBaseVoltage(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static String writeDanglingLineBaseVoltage(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         double nominalV = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
-        if (baseVoltage.getSource().equals(Source.IGM)) {
+        if (!exportedBaseVoltagesByNominalV.contains(nominalV) && baseVoltage.getSource().equals(Source.IGM)) {
             BaseVoltageEq.write(baseVoltage.getId(), nominalV, cimNamespace, writer);
+            exportedBaseVoltagesByNominalV.add(nominalV);
         }
 
         return baseVoltage.getId();
@@ -602,35 +603,44 @@ public final class EquipmentExport {
     }
 
     private static void writeBranchLimits(Branch<?> branch, String terminalId1, String terminalId2, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        if (branch.getActivePowerLimits1() != null) {
-            writeLoadingLimits(branch.getActivePowerLimits1(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<ActivePowerLimits> activePowerLimits1 = branch.getActivePowerLimits1();
+        if (activePowerLimits1.isPresent()) {
+            writeLoadingLimits(activePowerLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        if (branch.getActivePowerLimits2() != null) {
-            writeLoadingLimits(branch.getActivePowerLimits2(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<ActivePowerLimits> activePowerLimits2 = branch.getActivePowerLimits2();
+        if (activePowerLimits2.isPresent()) {
+            writeLoadingLimits(activePowerLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        if (branch.getApparentPowerLimits1() != null) {
-            writeLoadingLimits(branch.getApparentPowerLimits1(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<ApparentPowerLimits> apparentPowerLimits1 = branch.getApparentPowerLimits1();
+        if (apparentPowerLimits1.isPresent()) {
+            writeLoadingLimits(apparentPowerLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        if (branch.getApparentPowerLimits2() != null) {
-            writeLoadingLimits(branch.getApparentPowerLimits2(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<ApparentPowerLimits> apparentPowerLimits2 = branch.getApparentPowerLimits2();
+        if (apparentPowerLimits2.isPresent()) {
+            writeLoadingLimits(apparentPowerLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        if (branch.getCurrentLimits1() != null) {
-            writeLoadingLimits(branch.getCurrentLimits1(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<CurrentLimits> currentLimits1 = branch.getCurrentLimits1();
+        if (currentLimits1.isPresent()) {
+            writeLoadingLimits(currentLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        if (branch.getCurrentLimits2() != null) {
-            writeLoadingLimits(branch.getCurrentLimits2(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<CurrentLimits> currentLimits2 = branch.getCurrentLimits2();
+        if (currentLimits2.isPresent()) {
+            writeLoadingLimits(currentLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
     }
 
     private static void writeFlowsLimits(FlowsLimitsHolder holder, String terminalId, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer) throws XMLStreamException {
-        if (holder.getActivePowerLimits() != null) {
-            writeLoadingLimits(holder.getActivePowerLimits(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<ActivePowerLimits> activePowerLimits = holder.getActivePowerLimits();
+        if (activePowerLimits.isPresent()) {
+            writeLoadingLimits(activePowerLimits.get(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        if (holder.getApparentPowerLimits() != null) {
-            writeLoadingLimits(holder.getApparentPowerLimits(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<ApparentPowerLimits> apparentPowerLimits = holder.getApparentPowerLimits();
+        if (apparentPowerLimits.isPresent()) {
+            writeLoadingLimits(apparentPowerLimits.get(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
-        if (holder.getCurrentLimits() != null) {
-            writeLoadingLimits(holder.getCurrentLimits(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
+        Optional<CurrentLimits> currentLimits = holder.getCurrentLimits();
+        if (currentLimits.isPresent()) {
+            writeLoadingLimits(currentLimits.get(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer);
         }
     }
 

@@ -289,9 +289,6 @@ public final class StateVariablesExport {
         if (terminal.getConnectable() instanceof StaticVarCompensator) {
             return 0.0;
         }
-        if (terminal.getConnectable() instanceof ShuntCompensator) {
-            return 0.0;
-        }
         return p;
     }
 

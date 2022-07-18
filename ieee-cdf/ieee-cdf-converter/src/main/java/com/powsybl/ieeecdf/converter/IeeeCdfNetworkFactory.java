@@ -120,4 +120,12 @@ public final class IeeeCdfNetworkFactory {
     public static Network create300() {
         return create300(NetworkFactory.findDefault());
     }
+
+    public static Network create9zeroimpedance(NetworkFactory networkFactory) {
+        return create("ieee9zeroimpedancecdf", networkFactory);
+    }
+
+    public static Network create9zeroimpedance() {
+        return create9zeroimpedance(NetworkFactory.findDefault());
+    }
 }

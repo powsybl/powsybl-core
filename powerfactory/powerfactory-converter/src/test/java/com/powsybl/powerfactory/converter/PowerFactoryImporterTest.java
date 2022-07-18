@@ -180,6 +180,41 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importJsonAndCompareXiidm("ThreeMIB_T3W_phase_winding1_complete"));
     }
 
+    @Test
+    public void commonImpedance() {
+        assertTrue(importAndCompareXiidm("CommonImpedance"));
+    }
+
+    @Test
+    public void commonImpedanceOnlyImpedance12() {
+        assertTrue(importAndCompareXiidm("CommonImpedanceOnlyImpedance12"));
+    }
+
+    @Test
+    public void twoBusesGeneratorAndShuntRL() {
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRL"));
+    }
+
+    @Test
+    public void twoBusesGeneratorAndShuntRLrxrea() {
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRLrxrea"));
+    }
+
+    @Test
+    public void twoBusesGeneratorAndShuntC() {
+        assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntC"));
+    }
+
+    @Test
+    public void tower() {
+        assertTrue(importAndCompareXiidm("Tower"));
+    }
+
+    @Test
+    public void voltageLevelsAndSubstations() {
+        assertTrue(importAndCompareXiidm("VoltageLevelsAndSubstations"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;

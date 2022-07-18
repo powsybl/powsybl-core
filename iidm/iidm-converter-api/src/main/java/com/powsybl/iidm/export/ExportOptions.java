@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
@@ -47,6 +49,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
 
     private Map<String, String> extensionsVersions = new HashMap<>();
+
+    private Charset charset = StandardCharsets.UTF_8;
 
     /**
      * Sort IIDM objects so that generated XML does not depend on data model object order. Depending on object types the
@@ -182,6 +186,16 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setIidmVersionIncompatibilityBehavior(IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
+        return this;
+    }
+
+    public Charset getCharset() {
+        return charset;
+    }
+
+    public ExportOptions setCharset(Charset charset) {
+        Objects.requireNonNull(charset);
+        this.charset = charset;
         return this;
     }
 

@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,8 +44,10 @@ public class ExportOptionsTest {
     public void exportOptionsTest2() {
         Set<String> extensionsList = new HashSet<>();
         ExportOptions options = new ExportOptions();
+        options.setCharset(StandardCharsets.ISO_8859_1);
         options.setExtensions(extensionsList);
         assertEquals(0, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(StandardCharsets.ISO_8859_1, options.getCharset());
     }
 
     @Test
@@ -81,5 +84,6 @@ public class ExportOptionsTest {
         assertEquals(Boolean.FALSE, options.isSorted());
         assertNull(options.getVersion());
         assertEquals(THROW_EXCEPTION, options.getIidmVersionIncompatibilityBehavior());
+        assertEquals(StandardCharsets.UTF_8, options.getCharset());
     }
 }

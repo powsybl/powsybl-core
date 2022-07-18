@@ -15,7 +15,8 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.*;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
@@ -113,41 +114,6 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
-    // TODO move to AbstractConverter at the end
-    static class NodeRef {
-
-        final String voltageLevelId;
-        final int node;
-        final int busIndexIn;
-
-        NodeRef(String voltageLevelId, int node, int busIndexIn) {
-            this.voltageLevelId = voltageLevelId;
-            this.node = node;
-            this.busIndexIn = busIndexIn;
-        }
-
-        @Override
-        public String toString() {
-            return "NodeRef(voltageLevelId='" + voltageLevelId + '\'' +
-                    ", node=" + node +
-                    ')';
-        }
-    }
-
-    // TODO delete at the end
-    private static List<NodeRef> checkNodes(DataObject obj, Map<Long, List<NodeRef>> objIdToNode, int connections) {
-        List<NodeRef> nodeRefs = objIdToNode.get(obj.getId());
-        if (nodeRefs == null || nodeRefs.size() != connections) {
-            throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
-                    + ") of connection for '" + obj + "'");
-        }
-        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
-    }
-
-    private static PowerFactoryException createNotYetSupportedException() {
-        return new PowerFactoryException("Not yet supported");
-    }
-
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
@@ -206,11 +172,14 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmShnt":
-                    createShunt(network, importContext, obj);
+                    new ShuntConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmLne":
                     new LineConverter(importContext, network).create(obj);
+                    break;
+                case "ElmTow":
+                    new LineConverter(importContext, network).createTower(obj);
                     break;
 
                 case "ElmTr2":
@@ -221,7 +190,8 @@ public class PowerFactoryImporter implements Importer {
                     new TransformerConverter(importContext, network).createThreeWindings(obj);
                     break;
                 case "ElmZpu":
-                    throw createNotYetSupportedException();
+                    new CommonImpedanceConverter(importContext, network).create(obj);
+                    break;
 
                 case "ElmNet":
                 case "StaCubic":
@@ -268,68 +238,10 @@ public class PowerFactoryImporter implements Importer {
     }
 
     private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
+        VoltageAndAngle va = new VoltageAndAngle(importContext, network);
         for (DataObject elmTerm : elmTerms) {
-            setVoltageAndAngle(network, importContext, elmTerm);
+            va.update(elmTerm);
         }
-    }
-
-    private static void setVoltageAndAngle(Network network, ImportContext importContext, DataObject elmTerm) {
-        if (!importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
-            return;
-        }
-        Optional<Float> uknom = elmTerm.findFloatAttributeValue("uknom");
-        Optional<Float> u = elmTerm.findFloatAttributeValue("m:u");
-        Optional<Float> phiu = elmTerm.findFloatAttributeValue("m:phiu");
-
-        if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
-            NodeRef nodeRef = importContext.elmTermIdToNode.get(elmTerm.getId());
-            Terminal terminal = network.getVoltageLevel(nodeRef.voltageLevelId).getNodeBreakerView().getTerminal(nodeRef.node);
-            if (terminal != null) {
-                Bus bus = terminal.getBusView().getBus();
-                if (bus != null) {
-                    bus.setV(u.get() * uknom.get());
-                    bus.setAngle(phiu.get());
-                }
-            }
-        }
-    }
-
-    private void createShunt(Network network, ImportContext importContext, DataObject elmShnt) {
-        NodeRef nodeRef = checkNodes(elmShnt, importContext.objIdToNode, 1).iterator().next();
-        VoltageLevel vl = network.getVoltageLevel(nodeRef.voltageLevelId);
-        int shtype = elmShnt.getIntAttributeValue("shtype");
-        double gPerSection;
-        double bPerSection;
-        if (shtype == 1) { // RL
-            float rrea = elmShnt.getFloatAttributeValue("rrea");
-            float xrea = elmShnt.getFloatAttributeValue("xrea");
-            if (rrea == 0) {
-                gPerSection = 0;
-                bPerSection = -1 / xrea;
-            } else {
-                throw new PowsyblException("Cannot convert RL shunt");
-            }
-        } else if (shtype == 2) { // C
-            float gparac = elmShnt.getFloatAttributeValue("gparac");
-            float bcap = elmShnt.getFloatAttributeValue("bcap");
-            gPerSection = gparac * Math.pow(10, -6);
-            bPerSection = bcap * Math.pow(10, -6);
-        } else {
-            throw new PowsyblException("Shunt type not supported: " + shtype);
-        }
-        int ncapa = elmShnt.getIntAttributeValue("ncapa");
-        int ncapx = elmShnt.getIntAttributeValue("ncapx");
-        vl.newShuntCompensator()
-                .setId(elmShnt.getLocName())
-                .setEnsureIdUnicity(true)
-                .setNode(nodeRef.node)
-                .setSectionCount(ncapa)
-                .newLinearModel()
-                    .setGPerSection(gPerSection)
-                    .setBPerSection(bPerSection)
-                    .setMaximumSectionCount(ncapx)
-                .add()
-                .add();
     }
 
     @Override
