@@ -6,12 +6,14 @@
  */
 package com.powsybl.iidm.import_;
 
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  *
@@ -21,6 +23,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportConfig {
+
+    public static final Supplier<ImportConfig> CACHE = Suppliers.memoize(ImportConfig::load);
 
     private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
 
