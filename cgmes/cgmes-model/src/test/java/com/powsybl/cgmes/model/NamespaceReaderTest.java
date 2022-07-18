@@ -22,7 +22,7 @@ public class NamespaceReaderTest {
     @Test
     public void base() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/empty_cim16_EQ_with_explicitBase.xml")) {
-            assertEquals("http://iec.ch/TC57/2013/CIM-schema-cim16", NamespaceReader.base(is));
+            assertEquals("http://example.com", NamespaceReader.base(is));
         }
     }
 
