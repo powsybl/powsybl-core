@@ -27,6 +27,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -877,6 +878,15 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0").getExtension(GeneratorEntsoeCategory.class));
         assertNull(network.getGenerator("1dc9afba-23b5-41a0-8540-b479ed8baf4b").getExtension(GeneratorEntsoeCategory.class));
         assertNull(network.getGenerator("2844585c-0d35-488d-a449-685bcd57afbf").getExtension(GeneratorEntsoeCategory.class));
+    }
+
+    @Test
+    public void microGridBaseCaseNLMultipleSlacks() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLMultipleSlacks().dataSource(), null);
+        Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e-bis");
+        SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
+        assertNotNull(st);
+        assertEquals(g.getTerminal().getConnectable().getId(), st.getTerminal().getConnectable().getId());
     }
 
     @Test
