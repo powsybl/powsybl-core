@@ -149,7 +149,7 @@ public class AttachLoadOnVoltageLevel implements NetworkModification {
         }
 
         //Create the new load
-        LoadAdder loadAdder = createLoadAdder(loadType, p0, q0, network.getVoltageLevel(voltageLevelId));
+        LoadAdder loadAdder = createLoadAdder(loadId, loadType, p0, q0, network.getVoltageLevel(voltageLevelId));
 
         int loadNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int forkNode = loadNode + 1;

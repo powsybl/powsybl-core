@@ -119,7 +119,7 @@ final class TopologyModificationUtils {
 
     static void createNodeBreakerDisconnector(int node1, int node2, String suffix, String loadId, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId("DISCONNECTOR_" + suffix)
+                .setId(loadId + "DISCONNECTOR_" + suffix)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
                 .setNode1(node1)
@@ -142,12 +142,12 @@ final class TopologyModificationUtils {
                 .add();
     }
 
-    static LoadAdder createLoadAdder(LoadType loadType, double p0, double q0, VoltageLevel voltageLevel) {
+    static LoadAdder createLoadAdder(String loadId, LoadType loadType, double p0, double q0, VoltageLevel voltageLevel) {
         return voltageLevel.newLoad()
                 .setLoadType(loadType)
                 .setP0(p0)
                 .setQ0(q0)
-                .setId("LOAD"); //TODO: what to put?
+                .setId(loadId);
     }
 
     private TopologyModificationUtils() {
