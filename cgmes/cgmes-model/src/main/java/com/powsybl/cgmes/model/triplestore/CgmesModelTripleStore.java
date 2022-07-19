@@ -221,9 +221,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 updateModelHasOperationProfile(modelHasOperationProfile, modelHasBoundaryOperationProfile, m, p);
             }
         }
-        Map<String, Boolean> modelHasOperationProfile1 = new HashMap<>(modelHasOperationProfile);
-        modelHasBoundaryOperationProfile.forEach((m, v) -> modelHasOperationProfile1.merge(m, v, (vm, vbd) -> vm && vbd));
-        return modelHasOperationProfile1;
+        modelHasBoundaryOperationProfile.forEach((m, v) -> modelHasOperationProfile.merge(m, v, (vm, vbd) -> vm && vbd));
+        return modelHasOperationProfile;
     }
 
     private void updateModelHasOperationProfile(Map<String, Boolean> modelHasOperationProfile, Map<String, Boolean> modelHasBoundaryOperationProfile, String model, String profile) {
