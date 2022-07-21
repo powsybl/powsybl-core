@@ -52,9 +52,10 @@ public class CreateLineOnLine implements NetworkModification {
      * fictitiousVlId is line.getId() + "_VL". <br>
      * line1Id is line.getId() + "_1" <br>
      * line2Id is line.getId() + "_2". <br>
-     *
      * @see #CreateLineOnLine(double, String, String, String, String, String, Line, LineAdder)
+     * @deprecated Use {@link AttachNewLineOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public CreateLineOnLine(String voltageLevelId, String bbsOrBusId, Line line, LineAdder lineAdder) {
         this(50, voltageLevelId, bbsOrBusId, line.getId() + "_VL", line.getId() + "_1",
                 line.getId() + "_2", line, lineAdder);
@@ -71,7 +72,9 @@ public class CreateLineOnLine implements NetworkModification {
      * line2Name is null. <br>
      *
      * @see #CreateLineOnLine(double, String, String, String, String, boolean, String, String, String, String, String, String, Line, LineAdder)
+     * @deprecated Use {@link AttachNewLineOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String line1Id,
                             String line2Id, Line line, LineAdder lineAdder) {
         this(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, null, false,
@@ -101,7 +104,10 @@ public class CreateLineOnLine implements NetworkModification {
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
+     *
+     * @deprecated Use {@link AttachNewLineOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                             boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                             String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
