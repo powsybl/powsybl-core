@@ -80,35 +80,22 @@ final class TopologyModificationUtils {
         }
     }
 
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String lineId, VoltageLevel.NodeBreakerView view) {
-        createNodeBreakerSwitches(node1, middleNode, node2, "", lineId, view);
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {
+        createNodeBreakerSwitches(node1, middleNode, node2, "", prefix, view);
     }
 
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String lineId, VoltageLevel.NodeBreakerView view) {
-        createNodeBreakerSwitches(node1, middleNode, node2, suffix, lineId, view, false);
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view) {
+        createNodeBreakerSwitches(node1, middleNode, node2, suffix, prefix, view, false);
     }
 
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String lineId, VoltageLevel.NodeBreakerView view, boolean open) {
-        view.newSwitch()
-                .setId(lineId + "_BREAKER" + suffix)
-                .setKind(SwitchKind.BREAKER)
-                .setOpen(open)
-                .setRetained(true)
-                .setNode1(node1)
-                .setNode2(middleNode)
-                .add();
-        view.newSwitch()
-                .setId(lineId + "_DISCONNECTOR" + suffix)
-                .setKind(SwitchKind.DISCONNECTOR)
-                .setOpen(open)
-                .setNode1(middleNode)
-                .setNode2(node2)
-                .add();
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, middleNode, suffix, prefix, view, open);
+        createNBDisconnector(middleNode, node2, suffix, prefix, view, open);
     }
 
-    static void createNodeBreakerBreaker(int node1, int node2, String suffix, String loadId, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(loadId + "BREAKER_" + suffix)
+                .setId(prefix + "_BREAKER" + suffix)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
                 .setRetained(true)
@@ -117,9 +104,9 @@ final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createNodeBreakerDisconnector(int node1, int node2, String suffix, String loadId, VoltageLevel.NodeBreakerView view, boolean open) {
+    static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(loadId + "DISCONNECTOR_" + suffix)
+                .setId(prefix + "_DISCONNECTOR" + suffix)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
                 .setNode1(node1)
@@ -140,14 +127,6 @@ final class TopologyModificationUtils {
                 .setBus1(middleBusId)
                 .setBus2(busId2)
                 .add();
-    }
-
-    static LoadAdder createLoadAdder(String loadId, LoadType loadType, double p0, double q0, VoltageLevel voltageLevel) {
-        return voltageLevel.newLoad()
-                .setLoadType(loadType)
-                .setP0(p0)
-                .setQ0(q0)
-                .setId(loadId);
     }
 
     private TopologyModificationUtils() {

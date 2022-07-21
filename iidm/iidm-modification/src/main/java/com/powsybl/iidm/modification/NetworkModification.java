@@ -28,4 +28,8 @@ public interface NetworkModification {
     default void apply(Network network, Reporter reporter) {
         apply(network);
     }
+
+    default void apply(Network network, boolean throwException, Reporter reporter) {
+        apply(network);
+    }
 }
