@@ -14,9 +14,14 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
@@ -31,20 +36,34 @@ public class AttachLoad implements NetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(AttachLoad.class);
 
     private final LoadAdder loadAdder;
-
-    //VoltageLevel attributes
     private final String voltageLevelId;
     private String bbsId; //Id of the busBar where the switch will be closed
 
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, String bbsId) {
+    // Position of the load for the connectablePosition extension
+    private final int loadPositionOrder;
+    private final ConnectablePosition.Direction loadDirection;
+
+    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder) {
+        this(loadAdder, voltageLevelId, bbsId, loadPositionOrder, ConnectablePosition.Direction.BOTTOM);
+    }
+
+    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
         this.loadAdder = loadAdder;
         this.voltageLevelId = voltageLevelId;
         this.bbsId = bbsId;
+        this.loadPositionOrder = loadPositionOrder;
+        this.loadDirection = loadDirection;
     }
 
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId) {
+    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder) {
+        this(loadAdder, voltageLevelId, loadPositionOrder, ConnectablePosition.Direction.BOTTOM);
+    }
+
+    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
         this.loadAdder = loadAdder;
         this.voltageLevelId = voltageLevelId;
+        this.loadPositionOrder = loadPositionOrder;
+        this.loadDirection = loadDirection;
     }
 
     public LoadAdder getLoadAdder() {
@@ -61,6 +80,15 @@ public class AttachLoad implements NetworkModification {
 
     public void setBbsId(String bbsId) {
         this.bbsId = bbsId;
+    }
+
+    // TODO : javadoc
+    public int getLoadPositionOrder() {
+        return loadPositionOrder;
+    }
+
+    public ConnectablePosition.Direction getLoadDirection() {
+        return loadDirection;
     }
 
     private void createTopologyAutomatically(Network network, VoltageLevel voltageLevel, int loadNode, int forkNode, String loadId, Reporter reporter) {
@@ -157,14 +185,78 @@ public class AttachLoad implements NetworkModification {
             }
         }
 
+        //TODO: Add check on ConnectablePosition : ask Florian if the method already exists
+
+
         int loadNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int forkNode = loadNode + 1;
         loadAdder.setNode(loadNode);
         Load load = loadAdder.add();
         String loadId = load.getId();
+        load.newExtension(ConnectablePositionAdder.class)
+                .newFeeder()
+                    .withDirection(loadDirection)
+                    .withOrder(loadPositionOrder)
+                    .withName(loadId)
+                .add()
+                .add();
 
         //Create switches and a breaker linking the load to the busbar sections
         createTopologyAutomatically(network, voltageLevel, loadNode, forkNode, loadId, reporter);
 
+    }
+
+    public List<Integer> getFeederPositions(VoltageLevel voltageLevel) {
+        List<Integer> feederPositionsOrders = new ArrayList<>();
+        voltageLevel.getConnectables().forEach(connectable -> {
+            ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
+            if (position != null) {
+                if (connectable instanceof Injection) {
+                    Optional<Integer> order = position.getFeeder().getOrder();
+                    if (order.isPresent()) {
+                        feederPositionsOrders.add(order.get());
+                    }
+                } else if (connectable instanceof Branch) {
+                    Branch<?> branch = (Branch<?>) connectable;
+
+                    if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder1().getOrder();
+                        if (order.isPresent()) {
+                            feederPositionsOrders.add(order.get());
+                        }
+                    } else if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder2().getOrder();
+                        if (order.isPresent()) {
+                            feederPositionsOrders.add(order.get());
+                        }
+                    } else {
+                        throw new AssertionError();
+                    }
+                } else if (connectable instanceof ThreeWindingsTransformer) {
+                    ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
+                    if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder1().getOrder();
+                        if (order.isPresent()) {
+                            feederPositionsOrders.add(order.get());
+                        }
+                    } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder2().getOrder();
+                        if (order.isPresent()) {
+                            feederPositionsOrders.add(order.get());
+                        }
+                    } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder3().getOrder();
+                        if (order.isPresent()) {
+                            feederPositionsOrders.add(order.get());
+                        }
+                    } else {
+                        throw new AssertionError();
+                    }
+                } else {
+                    throw new AssertionError();
+                }
+            }
+        });
+        return feederPositionsOrders;
     }
 }
