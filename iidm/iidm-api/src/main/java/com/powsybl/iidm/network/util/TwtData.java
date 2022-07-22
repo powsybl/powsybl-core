@@ -88,6 +88,42 @@ public class TwtData {
 
         // Assume the ratedU at the star bus is equal to ratedU of Leg1
 
+        int num = numLegsConnected();
+        if (num == 3) {
+            calculateWhenAllThreeLegsAreConnected();
+        } else if (num == 2) {
+            calculateWhenTwoLegsAreConnected();
+        } else if (num == 1) {
+            calculateWhenOnlyOneLegsIsConnected();
+        } else {
+
+            computedP1 = Double.NaN;
+            computedQ1 = Double.NaN;
+            computedP2 = Double.NaN;
+            computedQ2 = Double.NaN;
+            computedP3 = Double.NaN;
+            computedQ3 = Double.NaN;
+
+            starU = Double.NaN;
+            starTheta = Double.NaN;
+        }
+    }
+
+    private int numLegsConnected() {
+        int num = 0;
+        if (leg1Data.isConnected()) {
+            num++;
+        }
+        if (leg2Data.isConnected()) {
+            num++;
+        }
+        if (leg3Data.isConnected()) {
+            num++;
+        }
+        return num;
+    }
+
+    private void calculateWhenAllThreeLegsAreConnected() {
         if (leg1Data.isConnected() && leg2Data.isConnected() && leg3Data.isConnected()
             && valid(leg1Data.getU(), leg1Data.getTheta()) && valid(leg2Data.getU(), leg2Data.getTheta())
             && valid(leg3Data.getU(), leg3Data.getTheta())) {
@@ -95,7 +131,11 @@ public class TwtData {
             calculateThreeConnectedLegsFlowAndStarBusVoltage(leg1Data.getU(), leg1Data.getTheta(), leg2Data.getU(),
                 leg2Data.getTheta(), leg3Data.getU(), leg3Data.getTheta(), leg1Data.getBranchAdmittanceMatrix(),
                 leg2Data.getBranchAdmittanceMatrix(), leg3Data.getBranchAdmittanceMatrix());
-        } else if (leg1Data.isConnected() && leg2Data.isConnected() && valid(leg1Data.getU(), leg1Data.getTheta())
+        }
+    }
+
+    private void calculateWhenTwoLegsAreConnected() {
+        if (leg1Data.isConnected() && leg2Data.isConnected() && valid(leg1Data.getU(), leg1Data.getTheta())
             && valid(leg2Data.getU(), leg2Data.getTheta())) {
 
             LinkData.Flow flow = calculateTwoConnectedLegsFlow(leg1Data.getU(), leg1Data.getTheta(), leg2Data.getU(),
@@ -113,6 +153,7 @@ public class TwtData {
                 leg3Data.getBranchAdmittanceMatrix());
             starU = v0.abs();
             starTheta = v0.getArgument();
+
         } else if (leg1Data.isConnected() && leg3Data.isConnected() && valid(leg1Data.getU(), leg1Data.getTheta())
             && valid(leg3Data.getU(), leg3Data.getTheta())) {
 
@@ -132,6 +173,7 @@ public class TwtData {
 
             starU = v0.abs();
             starTheta = v0.getArgument();
+
         } else if (leg2Data.isConnected() && leg3Data.isConnected() && valid(leg2Data.getU(), leg2Data.getTheta())
             && valid(leg3Data.getU(), leg3Data.getTheta())) {
 
@@ -150,7 +192,11 @@ public class TwtData {
                 leg1Data.getBranchAdmittanceMatrix());
             starU = v0.abs();
             starTheta = v0.getArgument();
-        } else if (leg1Data.isConnected() && valid(leg1Data.getU(), leg1Data.getTheta())) {
+        }
+    }
+
+    private void calculateWhenOnlyOneLegsIsConnected() {
+        if (leg1Data.isConnected() && valid(leg1Data.getU(), leg1Data.getTheta())) {
 
             Complex flow = calculateOneConnectedLegFlow(leg1Data.getU(), leg1Data.getTheta(),
                 leg1Data.getBranchAdmittanceMatrix(), leg2Data.getBranchAdmittanceMatrix(),
@@ -167,6 +213,7 @@ public class TwtData {
                 leg3Data.getBranchAdmittanceMatrix());
             starU = v0.abs();
             starTheta = v0.getArgument();
+
         } else if (leg2Data.isConnected() && valid(leg2Data.getU(), leg2Data.getTheta())) {
 
             Complex flow = calculateOneConnectedLegFlow(leg2Data.getU(), leg2Data.getTheta(),
@@ -185,6 +232,7 @@ public class TwtData {
                 leg3Data.getBranchAdmittanceMatrix());
             starU = v0.abs();
             starTheta = v0.getArgument();
+
         } else if (leg3Data.isConnected() && valid(leg3Data.getU(), leg3Data.getTheta())) {
 
             Complex flow = calculateOneConnectedLegFlow(leg3Data.getU(), leg3Data.getTheta(),
@@ -203,17 +251,6 @@ public class TwtData {
                 leg2Data.getBranchAdmittanceMatrix());
             starU = v0.abs();
             starTheta = v0.getArgument();
-        } else {
-
-            computedP1 = Double.NaN;
-            computedQ1 = Double.NaN;
-            computedP2 = Double.NaN;
-            computedQ2 = Double.NaN;
-            computedP3 = Double.NaN;
-            computedQ3 = Double.NaN;
-
-            starU = Double.NaN;
-            starTheta = Double.NaN;
         }
     }
 
