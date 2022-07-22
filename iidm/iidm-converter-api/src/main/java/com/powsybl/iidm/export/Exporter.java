@@ -11,9 +11,8 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.commons.parameters.Parameter;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This is the base class for all IIDM exporters.
@@ -28,6 +27,40 @@ import java.util.Properties;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface Exporter {
+
+    /**
+     * Get all supported export formats.
+     */
+    static Collection<String> getFormats(ExportersLoader loader) {
+        Objects.requireNonNull(loader);
+        return loader.loadExporters().stream().map(Exporter::getFormat).collect(Collectors.toSet());
+    }
+
+    static Collection<String> getFormats() {
+        return getFormats(new ExportersServiceLoader());
+    }
+
+    /**
+     * Find an exporter.
+     *
+     * @param format the export format
+     * @return the exporter if one exists for the given format or
+     * <code>null</code> otherwise
+     */
+    static Exporter find(ExportersLoader loader, String format) {
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(loader);
+        for (Exporter e : loader.loadExporters()) {
+            if (format.equals(e.getFormat())) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    static Exporter find(String format) {
+        return find(new ExportersServiceLoader(), format);
+    }
 
     /**
      * Get a unique identifier of the format.

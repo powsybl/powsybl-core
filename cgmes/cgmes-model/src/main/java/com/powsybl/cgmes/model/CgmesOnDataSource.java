@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
@@ -57,12 +58,24 @@ public class CgmesOnDataSource {
     }
 
     public String baseName() {
-        // Build an absolute IRI from the data source base name
-        String name = dataSource.getBaseName().toLowerCase();
-        if (name.isEmpty()) {
-            name = "default-cgmes-model";
-        }
-        return "http://" + name;
+        // Get the base URI if present, else build an absolute URI from the data source base name
+        return names().stream()
+                .map(n -> {
+                    try (InputStream is = dataSource.newInputStream(n)) {
+                        return NamespaceReader.base(is);
+                    } catch (IOException x) {
+                        throw new UncheckedIOException(x);
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseGet(() -> {
+                    String name = dataSource.getBaseName().toLowerCase();
+                    if (name.isEmpty()) {
+                        name = "default-cgmes-model";
+                    }
+                    return "http://" + name;
+                });
     }
 
     public Set<String> names() {
