@@ -8,8 +8,8 @@ package com.powsybl.loadflow.resultscompletion.z0flows;
 
 import java.util.*;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
+import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm;
+import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -18,30 +18,35 @@ import com.powsybl.iidm.network.Network;
  */
 public class Z0FlowsCompletion {
 
-    public Z0FlowsCompletion(Network network, Z0LineChecker z0checker) {
-        this.network = Objects.requireNonNull(network);
+    public Z0FlowsCompletion(Z0Checker z0checker, double distributeTolerance) {
+
         this.z0checker = Objects.requireNonNull(z0checker);
+        this.distributeTolerance = distributeTolerance;
+        this.tree = z0checker.getZ0Graph().vertexSet().isEmpty() ? null
+            : new KruskalMinimumSpanningTree<>(z0checker.getZ0Graph()).getSpanningTree();
     }
 
     public void complete() {
-        z0busGroups().forEach(Z0BusGroup::complete);
-    }
+        if (tree == null) {
+            return;
+        }
+        Set<Z0Vertex> processed = new HashSet<>();
 
-    private List<Z0BusGroup> z0busGroups() {
-        List<Z0BusGroup> z0busGroups = new ArrayList<>();
-        network.getBusView().getBusStream().forEach(bus -> {
-            if (!processed.contains(bus)) {
-                Z0BusGroup z0bg = new Z0BusGroup(bus, z0checker);
-                z0bg.exploreZ0(processed);
-                if (z0bg.valid()) {
-                    z0busGroups.add(z0bg);
-                }
+        z0checker.getZ0Graph().vertexSet().forEach(z0Vertex -> {
+            if (processed.contains(z0Vertex)) {
+                return;
             }
+            Z0TreeByLevels treeByLevels = new Z0TreeByLevels(z0checker.getZ0Graph(), tree, z0Vertex, distributeTolerance);
+            treeByLevels.completeFlows();
+            processed.addAll(treeByLevels.getProcessedZ0Vertices());
         });
-        return z0busGroups;
+
+        // Zero to all flows outside tree
+        z0checker.getZ0Graph().edgeSet().stream().filter(branch -> !tree.getEdges().contains(branch))
+            .forEach(Z0Edge::assignZeroFlowTo);
     }
 
-    private final Network network;
-    private final Z0LineChecker z0checker;
-    private final Set<Bus> processed = new HashSet<>();
+    private final Z0Checker z0checker;
+    private final double distributeTolerance;
+    private final SpanningTreeAlgorithm.SpanningTree<Z0Edge> tree;
 }

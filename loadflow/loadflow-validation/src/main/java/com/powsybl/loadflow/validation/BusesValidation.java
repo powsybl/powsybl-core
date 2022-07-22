@@ -93,6 +93,8 @@ public final class BusesValidation {
         double shuntQ = bus.getShuntCompensatorStream().map(ShuntCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
         double svcP = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getP).sum();
         double svcQ = bus.getStaticVarCompensatorStream().map(StaticVarCompensator::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double lccCSP = bus.getLccConverterStationStream().map(LccConverterStation::getTerminal).mapToDouble(Terminal::getP).sum();
+        double lccCSQ = bus.getLccConverterStationStream().map(LccConverterStation::getTerminal).mapToDouble(Terminal::getQ).sum();
         double vscCSP = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getP).sum();
         double vscCSQ = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getQ).sum();
         double lineP = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getP).sum();
@@ -104,7 +106,7 @@ public final class BusesValidation {
         double tltP = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double tltQ = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
         boolean mainComponent = bus.isInMainConnectedComponent();
-        return checkBuses(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        return checkBuses(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, lccCSP + vscCSP, lccCSQ + vscCSQ,
                 lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
     }
 

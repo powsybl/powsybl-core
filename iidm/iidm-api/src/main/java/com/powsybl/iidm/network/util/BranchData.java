@@ -183,13 +183,13 @@ public class BranchData {
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
-        rho1 = getRho1(twt);
+        rho1 = rho(twt);
         rho2 = 1f;
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = twt.getOptionalPhaseTapChanger().map(ptc -> Math.toRadians(ptc.getCurrentStep().getAlpha())).orElse(0d);
+        alpha1 = alpha(twt);
         alpha2 = 0f;
         g1 = getG1(twt, twtSplitShuntAdmittance);
         g2 = getG2(twt, twtSplitShuntAdmittance);
@@ -252,11 +252,19 @@ public class BranchData {
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
     }
 
-    private double getRho1(TwoWindingsTransformer twt) {
+    public static double rho(TwoWindingsTransformer twt) {
         double rho = twt.getRatedU2() / twt.getRatedU1();
         rho *= twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getRho()).orElse(1d);
         rho *= twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getRho()).orElse(1d);
         return rho;
+    }
+
+    private static double alpha(TwoWindingsTransformer twt) {
+        return twt.getOptionalPhaseTapChanger().map(ptc -> Math.toRadians(ptc.getCurrentStep().getAlpha())).orElse(0d);
+    }
+
+    public static double alphaDegrees(TwoWindingsTransformer twt) {
+        return twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getAlpha()).orElse(0d);
     }
 
     private void computeValues() {
