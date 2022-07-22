@@ -20,12 +20,10 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class BranchData {
+public class BranchData extends AbstractBranchParameters {
 
     private final String id;
 
-    private final double r;
-    private final double x;
     // If we use complex numbers for the calculation of branch flows
     // we do not need to compute z, y, ksi
     // these attributes could be removed
@@ -40,10 +38,6 @@ public class BranchData {
     private final double theta2;
     private final double alpha1;
     private final double alpha2;
-    private final double g1;
-    private final double g2;
-    private final double b1;
-    private final double b2;
     private final double p1;
     private final double q1;
     private final double p2;
@@ -86,9 +80,10 @@ public class BranchData {
             boolean mainComponent1, boolean mainComponent2,
             int phaseAngleClock,
             double epsilonX, boolean applyReactanceCorrection) {
+
+        super(r, x, g1, b1, g2, b2);
+
         this.id = id;
-        this.r = r;
-        this.x = x;
         double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
@@ -101,10 +96,6 @@ public class BranchData {
         this.theta2 = theta2;
         this.alpha1 = alpha1;
         this.alpha2 = alpha2;
-        this.g1 = g1;
-        this.g2 = g2;
-        this.b1 = b1;
-        this.b2 = b2;
         this.p1 = p1;
         this.q1 = q1;
         this.p2 = p2;
@@ -118,7 +109,13 @@ public class BranchData {
     }
 
     public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
-        Objects.requireNonNull(line);
+
+        super(Objects.requireNonNull(line).getR(),
+            line.getX(),
+            line.getG1(),
+            line.getB1(),
+            line.getG2(),
+            line.getB2());
 
         id = line.getId();
 
@@ -127,20 +124,14 @@ public class BranchData {
         Bus connectableBus1 = line.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = line.getTerminal2().getBusView().getConnectableBus();
 
-        r = line.getR();
-        x = line.getX();
-        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
-        z = Math.hypot(r, fixedX);
+        double fixedX = LinkData.getFixedX(getX(), epsilonX, applyReactanceCorrection);
+        z = Math.hypot(getR(), fixedX);
         y = 1 / z;
-        ksi = Math.atan2(r, fixedX);
+        ksi = Math.atan2(getR(), fixedX);
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        g1 = line.getG1();
-        g2 = line.getG2();
-        b1 = line.getB1();
-        b2 = line.getB2();
         p1 = line.getTerminal1().getP();
         q1 = line.getTerminal1().getQ();
         p2 = line.getTerminal2().getP();
@@ -168,7 +159,13 @@ public class BranchData {
     }
 
     public BranchData(TwoWindingsTransformer twt, int phaseAngleClock, double epsilonX, boolean applyReactanceCorrection, boolean twtSplitShuntAdmittance) {
-        Objects.requireNonNull(twt);
+
+        super(getR(Objects.requireNonNull(twt)),
+            getX(twt),
+            getG1(twt, twtSplitShuntAdmittance),
+            getB1(twt, twtSplitShuntAdmittance),
+            getG2(twt, twtSplitShuntAdmittance),
+            getB2(twt, twtSplitShuntAdmittance));
 
         id = twt.getId();
 
@@ -177,12 +174,10 @@ public class BranchData {
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
 
-        r = getR(twt);
-        x = getX(twt);
-        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
-        z = Math.hypot(r, fixedX);
+        double fixedX = LinkData.getFixedX(getX(), epsilonX, applyReactanceCorrection);
+        z = Math.hypot(getR(), fixedX);
         y = 1 / z;
-        ksi = Math.atan2(r, fixedX);
+        ksi = Math.atan2(getR(), fixedX);
         rho1 = rho(twt);
         rho2 = 1f;
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
@@ -191,10 +186,6 @@ public class BranchData {
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
         alpha1 = alpha(twt);
         alpha2 = 0f;
-        g1 = getG1(twt, twtSplitShuntAdmittance);
-        g2 = getG2(twt, twtSplitShuntAdmittance);
-        b1 = getB1(twt, twtSplitShuntAdmittance);
-        b2 = getB2(twt, twtSplitShuntAdmittance);
         p1 = twt.getTerminal1().getP();
         q1 = twt.getTerminal1().getQ();
         p2 = twt.getTerminal2().getP();
@@ -212,41 +203,41 @@ public class BranchData {
         computeValues();
     }
 
-    private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
+    private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
         return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
 
-    private double getR(TwoWindingsTransformer twt) {
+    private static double getR(TwoWindingsTransformer twt) {
         return getValue(twt.getR(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getR()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getR()).orElse(0d));
     }
 
-    private double getX(TwoWindingsTransformer twt) {
+    private static double getX(TwoWindingsTransformer twt) {
         return getValue(twt.getX(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getX()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d));
     }
 
-    private double getG1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getG1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getG() / 2 : twt.getG(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getG()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getG()).orElse(0d));
     }
 
-    private double getB1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getB1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getB() / 2 : twt.getB(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getB()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
     }
 
-    private double getG2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getG2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getG() / 2 : 0,
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getG()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getG()).orElse(0d));
     }
 
-    private double getB2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getB2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getB() / 2 : 0,
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getB()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
@@ -277,8 +268,8 @@ public class BranchData {
             double angle1 = -alpha1;
             double angle2 = -alpha2 - Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock));
 
-            LinkData.BranchAdmittanceMatrix branchAdmittance = LinkData.calculateBranchAdmittance(r, x,
-                1 / rho1, angle1, 1 / rho2, angle2, new Complex(g1, b1), new Complex(g2, b2));
+            LinkData.BranchAdmittanceMatrix branchAdmittance = LinkData.calculateBranchAdmittance(getR(), getX(),
+                1 / rho1, angle1, 1 / rho2, angle2, new Complex(getG1(), getB1()), new Complex(getG2(), getB2()));
 
             if (connected1 && connected2) {
                 LinkData.Flow flow = LinkData.flowBothEnds(branchAdmittance.y11(), branchAdmittance.y12(),
@@ -313,14 +304,6 @@ public class BranchData {
 
     public String getId() {
         return id;
-    }
-
-    public double getR() {
-        return r;
-    }
-
-    public double getX() {
-        return x;
     }
 
     public double getZ() {
@@ -365,22 +348,6 @@ public class BranchData {
 
     public double getAlpha2() {
         return alpha2;
-    }
-
-    public double getG1() {
-        return g1;
-    }
-
-    public double getG2() {
-        return g2;
-    }
-
-    public double getB1() {
-        return b1;
-    }
-
-    public double getB2() {
-        return b2;
     }
 
     public boolean isConnected1() {

@@ -20,15 +20,7 @@ import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class LegData {
-
-    private final double r;
-    private final double x;
-
-    private final double g1;
-    private final double b1;
-    private final double g2;
-    private final double b2;
+public class LegData extends AbstractBranchParameters {
 
     private final double rho;
     private final double alpha;
@@ -47,15 +39,13 @@ public class LegData {
 
     public LegData(Leg leg, double ratedU0, int phaseAngleClock, double epsilonX, boolean applyReactanceCorrection,
         boolean twtSplitShuntAdmittance) {
-        Objects.requireNonNull(leg);
 
-        r = getR(leg);
-        x = LinkData.getFixedX(getX(leg), epsilonX, applyReactanceCorrection);
-
-        g1 = getG1(leg, twtSplitShuntAdmittance);
-        b1 = getB1(leg, twtSplitShuntAdmittance);
-        g2 = getG2(leg, twtSplitShuntAdmittance);
-        b2 = getB2(leg, twtSplitShuntAdmittance);
+        super(getR(Objects.requireNonNull(leg)),
+            LinkData.getFixedX(getX(leg), epsilonX, applyReactanceCorrection),
+            getG1(leg, twtSplitShuntAdmittance),
+            getB1(leg, twtSplitShuntAdmittance),
+            getG2(leg, twtSplitShuntAdmittance),
+            getB2(leg, twtSplitShuntAdmittance));
 
         rho = rho(leg, ratedU0);
         alpha = alpha(leg, phaseAngleClock);
@@ -64,8 +54,8 @@ public class LegData {
 
         connected = leg.getTerminal().isConnected();
         mainComponent = isMainComponent(leg);
-        branchAdmittanceMatrix = LinkData.calculateBranchAdmittance(r, x,
-            1 / rho, -alpha, 1 / rhof, -alphaf, new Complex(g1, b1), new Complex(g2, b2));
+        branchAdmittanceMatrix = LinkData.calculateBranchAdmittance(getR(), getX(),
+            1 / rho, -alpha, 1 / rhof, -alphaf, new Complex(getG1(), getB1()), new Complex(getG2(), getB2()));
 
         u = getV(leg);
         theta = getTheta(leg);
@@ -224,34 +214,6 @@ public class LegData {
         } else {
             return new LinkData.Flow();
         }
-    }
-
-    public double getR() {
-        return r;
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getG1() {
-        return g1;
-    }
-
-    public double getB1() {
-        return b1;
-    }
-
-    public double getG2() {
-        return g2;
-    }
-
-    public double getB2() {
-        return b2;
-    }
-
-    public double getRho() {
-        return rho;
     }
 
     public double getAlpha() {
