@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,6 +180,7 @@ public class AttachLoad implements NetworkModification {
 
         if (bbs == null) {
             bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
+            bbsId = bbs.getId();
             if (bbs == null) {
                 throwExceptionOrLogError(String.format("Voltage level %s has no busbar section.", voltageLevelId), "noBusbarSectionInVoltageLevel", throwException, reporter);
                 return;
@@ -186,7 +188,6 @@ public class AttachLoad implements NetworkModification {
         }
 
         //TODO: Add check on ConnectablePosition : ask Florian if the method already exists
-
 
         int loadNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int forkNode = loadNode + 1;
@@ -206,54 +207,63 @@ public class AttachLoad implements NetworkModification {
 
     }
 
-    public List<Integer> getFeederPositions(VoltageLevel voltageLevel) {
-        List<Integer> feederPositionsOrders = new ArrayList<>();
+    public static List<Pair<String, Integer>> getFeederPositions(VoltageLevel voltageLevel) {
+        List<Pair<String, Integer>> feederPositionsOrders = new ArrayList<>();
         voltageLevel.getConnectables().forEach(connectable -> {
             ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
             if (position != null) {
-                if (connectable instanceof Injection) {
-                    Optional<Integer> order = position.getFeeder().getOrder();
-                    if (order.isPresent()) {
-                        feederPositionsOrders.add(order.get());
-                    }
-                } else if (connectable instanceof Branch) {
-                    Branch<?> branch = (Branch<?>) connectable;
-
-                    if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder1().getOrder();
+                Optional<Integer> order;
+                switch (connectable.getType()) {
+                    case BUSBAR_SECTION:
+                        break;
+                    case LOAD:
+                    case GENERATOR:
+                    case SHUNT_COMPENSATOR:
+                    case STATIC_VAR_COMPENSATOR:
+                    case HVDC_CONVERTER_STATION:
+                    case BATTERY:
+                    case DANGLING_LINE:
+                    case SWITCH:
+                        order = position.getFeeder().getOrder();
                         if (order.isPresent()) {
-                            feederPositionsOrders.add(order.get());
+                            feederPositionsOrders.add(Pair.of(connectable.getId(), order.get()));
                         }
-                    } else if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder2().getOrder();
-                        if (order.isPresent()) {
-                            feederPositionsOrders.add(order.get());
+                        break;
+                    case LINE:
+                    case TWO_WINDINGS_TRANSFORMER:
+                        Branch<?> branch = (Branch<?>) connectable;
+                        if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                            order = position.getFeeder1().getOrder();
+                            if (order.isPresent()) {
+                                feederPositionsOrders.add(Pair.of(connectable.getId() + "_terminal1", order.get()));
+                            }
+                        } else if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                            order = position.getFeeder2().getOrder();
+                            if (order.isPresent()) {
+                                feederPositionsOrders.add(Pair.of(connectable.getId() + "_terminal2", order.get()));
+                            }
                         }
-                    } else {
-                        throw new AssertionError();
-                    }
-                } else if (connectable instanceof ThreeWindingsTransformer) {
-                    ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
-                    if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder1().getOrder();
-                        if (order.isPresent()) {
-                            feederPositionsOrders.add(order.get());
+                        break;
+                    case THREE_WINDINGS_TRANSFORMER:
+                        ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
+                        if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
+                            order = position.getFeeder1().getOrder();
+                            if (order.isPresent()) {
+                                feederPositionsOrders.add(Pair.of(connectable.getId() + "_terminal1", order.get()));
+                            }
                         }
-                    } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder2().getOrder();
-                        if (order.isPresent()) {
-                            feederPositionsOrders.add(order.get());
+                        if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
+                            order = position.getFeeder2().getOrder();
+                            if (order.isPresent()) {
+                                feederPositionsOrders.add(Pair.of(connectable.getId() + "_terminal2", order.get()));
+                            }
                         }
-                    } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder3().getOrder();
-                        if (order.isPresent()) {
-                            feederPositionsOrders.add(order.get());
+                        if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
+                            order = position.getFeeder3().getOrder();
+                            if (order.isPresent()) {
+                                feederPositionsOrders.add(Pair.of(connectable.getId() + "_terminal3", order.get()));
+                            }
                         }
-                    } else {
-                        throw new AssertionError();
-                    }
-                } else {
-                    throw new AssertionError();
                 }
             }
         });
