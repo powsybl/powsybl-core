@@ -272,7 +272,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         completeHvdcConverterStation(hvdcLine.getConverterStation2(), hvdcLine);
     }
 
-    private static void completeHvdcConverterStation(HvdcConverterStation hvdcConverterStation, HvdcLine hvdcLine) {
+    private static void completeHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation, HvdcLine hvdcLine) {
         if (hvdcConverterStation instanceof LccConverterStation) {
             completeLccConverterStation((LccConverterStation) hvdcConverterStation, hvdcLine);
         } else if (hvdcConverterStation instanceof VscConverterStation) {
@@ -315,7 +315,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         }
     }
 
-    private static boolean isRectifier(HvdcConverterStation hvdcConverterStation, HvdcLine hvdcLine) {
+    private static boolean isRectifier(HvdcConverterStation<?> hvdcConverterStation, HvdcLine hvdcLine) {
         return hvdcLine.getConvertersMode() == HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER
             ? hvdcConverterStation.equals(hvdcLine.getConverterStation1())
             : !hvdcConverterStation.equals(hvdcLine.getConverterStation1());
