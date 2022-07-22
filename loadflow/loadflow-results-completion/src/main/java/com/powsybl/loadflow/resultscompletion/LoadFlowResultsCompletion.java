@@ -241,8 +241,8 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
                 parameters.isApplyReactanceCorrection(), lfParameters.isTwtSplitShuntAdmittance());
 
             LinkData.Flow flow = legData1.flowWhenIsChainAtTheStarBus(legData2);
-            completeTerminalData(legsWithImpedance.get(0).getTerminal(), flow.fromTo);
-            completeTerminalData(legsWithImpedance.get(1).getTerminal(), flow.toFrom);
+            completeTerminalData(legsWithImpedance.get(0).getTerminal(), flow.getFromTo());
+            completeTerminalData(legsWithImpedance.get(1).getTerminal(), flow.getToFrom());
         } else { // never should happen
             throw new PowsyblException("Unexpected number of legs in ThreeWindingTransformer " + t3wt.getId());
         }

@@ -182,7 +182,23 @@ public final class LinkData {
     }
 
     public static class Flow {
-        public Complex fromTo = Complex.ZERO;
-        public Complex toFrom = Complex.ZERO;
+        private Complex fromTo = Complex.ZERO;
+        private Complex toFrom = Complex.ZERO;
+
+        public void setFromTo(Complex fromTo) {
+            this.fromTo = fromTo;
+        }
+
+        public void setToFrom(Complex toFrom) {
+            this.toFrom = toFrom;
+        }
+
+        public Complex getFromTo() {
+            return fromTo;
+        }
+
+        public Complex getToFrom() {
+            return toFrom;
+        }
     }
 }

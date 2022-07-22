@@ -214,12 +214,12 @@ public class LegData {
         } else if (connected) {
             Complex ysh = LinkData.kronAntenna(chainAdm.y11(), chainAdm.y12(), chainAdm.y21(), chainAdm.y22(), false);
             LinkData.Flow flow = new LinkData.Flow();
-            flow.fromTo = LinkData.flowYshunt(ysh, u, theta);
+            flow.setFromTo(LinkData.flowYshunt(ysh, u, theta));
             return flow;
         } else if (otherLeg.isConnected()) {
             Complex ysh = LinkData.kronAntenna(chainAdm.y11(), chainAdm.y12(), chainAdm.y21(), chainAdm.y22(), true);
             LinkData.Flow flow = new LinkData.Flow();
-            flow.toFrom = LinkData.flowYshunt(ysh, otherLeg.getU(), otherLeg.getTheta());
+            flow.setToFrom(LinkData.flowYshunt(ysh, otherLeg.getU(), otherLeg.getTheta()));
             return flow;
         } else {
             return new LinkData.Flow();

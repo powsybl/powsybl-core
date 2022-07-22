@@ -284,10 +284,10 @@ public class BranchData {
                 LinkData.Flow flow = LinkData.flowBothEnds(branchAdmittance.y11(), branchAdmittance.y12(),
                     branchAdmittance.y21(), branchAdmittance.y22(), u1, theta1, u2, theta2);
 
-                computedP1 = flow.fromTo.getReal();
-                computedQ1 = flow.fromTo.getImaginary();
-                computedP2 = flow.toFrom.getReal();
-                computedQ2 = flow.toFrom.getImaginary();
+                computedP1 = flow.getFromTo().getReal();
+                computedQ1 = flow.getFromTo().getImaginary();
+                computedP2 = flow.getToFrom().getReal();
+                computedQ2 = flow.getToFrom().getImaginary();
             } else if (connected1) {
 
                 Complex ysh = LinkData.kronAntenna(branchAdmittance.y11(), branchAdmittance.y12(),
