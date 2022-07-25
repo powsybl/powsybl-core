@@ -271,6 +271,25 @@ public class MatpowerImporter implements Importer {
         return generator.getStatus() > 0;
     }
 
+    private static void createApparentPowerLimits(MBranch mBranch, ApparentPowerLimitsAdder limitsAdder) {
+        limitsAdder.setPermanentLimit(mBranch.getRateA()); // long term rating
+        if (mBranch.getRateB() != 0) {
+            limitsAdder.beginTemporaryLimit()
+                    .setName("RateB")
+                    .setValue(mBranch.getRateB())
+                    .setAcceptableDuration(60 * 20) // 20' for short term rating
+                    .endTemporaryLimit();
+        }
+        if (mBranch.getRateC() != 0) {
+            limitsAdder.beginTemporaryLimit()
+                    .setName("RateC")
+                    .setValue(mBranch.getRateC())
+                    .setAcceptableDuration(60) // 1' for emergency rating
+                    .endTemporaryLimit();
+        }
+        limitsAdder.add();
+    }
+
     private static void createBranches(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
         for (MBranch mBranch : model.getBranches()) {
 
@@ -338,27 +357,12 @@ public class MatpowerImporter implements Importer {
                 LOGGER.trace("Created line {} {} {}", branch.getId(), bus1Id, bus2Id);
             }
             if (mBranch.getRateA() != 0) {
-                // we create the apparent power limit arbitrary on side one
+                // we create the apparent power limit arbitrary on both sides
                 // there is probably something to fix on IIDM API to not have sided apparent
                 // power limits. Apparent power does not depend on voltage so it does not make
                 // sens to associate the limit to a branch side.
-                ApparentPowerLimitsAdder limitsAdder = branch.newApparentPowerLimits1()
-                        .setPermanentLimit(mBranch.getRateA()); // long term rating
-                if (mBranch.getRateB() != 0) {
-                    limitsAdder.beginTemporaryLimit()
-                            .setName("RateB")
-                            .setValue(mBranch.getRateB())
-                            .setAcceptableDuration(60 * 20) // 20' for short term rating
-                            .endTemporaryLimit();
-                }
-                if (mBranch.getRateC() != 0) {
-                    limitsAdder.beginTemporaryLimit()
-                            .setName("RateC")
-                            .setValue(mBranch.getRateC())
-                            .setAcceptableDuration(60) // 1' for emergency rating
-                            .endTemporaryLimit();
-                }
-                limitsAdder.add();
+                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits1());
+                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits2());
             }
         }
     }
