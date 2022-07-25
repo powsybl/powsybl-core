@@ -9,7 +9,6 @@ package com.powsybl.powerfactory.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
@@ -119,7 +118,7 @@ public class PowerFactoryImporter implements Importer {
 
         List<DataObject> elmNets = studyCase.getElmNets();
         if (elmNets.isEmpty()) {
-            throw new PowsyblException("No ElmNet object found");
+            throw new PowerFactoryException("No ElmNet object found");
         }
         LOGGER.info("Study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).collect(Collectors.toList()));
 
@@ -138,9 +137,19 @@ public class PowerFactoryImporter implements Importer {
 
         LOGGER.info("Creating topology graphs...");
 
+        // Identify Hvdc configurations
+        List<DataObject> elmVscs = studyCase.getElmNets().stream()
+            .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream())
+            .collect(Collectors.toList());
+
+        HvdcConverter hvdcConverter = new HvdcConverter(importContext, network);
+        hvdcConverter.createConfigurations(elmTerms, elmVscs);
+
         // process terminals
         for (DataObject elmTerm : elmTerms) {
-            new NodeConverter(importContext, network).createAndMapConnectedObjs(elmTerm);
+            if (!hvdcConverter.isDcNode(elmTerm)) {
+                new NodeConverter(importContext, network).createAndMapConnectedObjs(elmTerm);
+            }
         }
 
         if (!importContext.cubiclesObjectNotFound.isEmpty()) {
@@ -176,7 +185,9 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmLne":
-                    new LineConverter(importContext, network).create(obj);
+                    if (!hvdcConverter.isDcLink(obj)) {
+                        new LineConverter(importContext, network).create(obj);
+                    }
                     break;
                 case "ElmTow":
                     new LineConverter(importContext, network).createTower(obj);
@@ -194,11 +205,11 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmNet":
-                case "StaCubic":
-                case "ElmTerm":
                 case "ElmSubstat":
                 case "ElmTrfstat":
+                case "StaCubic":
                 case "StaSwitch":
+                case DataAttributeNames.ELMTERM:
                     // already processed
                     break;
 
@@ -210,16 +221,88 @@ public class PowerFactoryImporter implements Importer {
                     // Referenced by other objects
                     break;
 
-                case "ElmDsl":
+                case "BlkDef":
+                case "ChaRef":
+                case "ChaVec":
+
+                case "ElmArea":
+                case "ElmBmu":
+                case "ElmBoundary":
+                case "ElmBranch":
                 case "ElmComp":
-                case "ElmStactrl":
+                case "ElmDcubi":
+                case "ElmDsl":
+                case "ElmFile":
                 case "ElmPhi__pll":
+                case "ElmRelay":
                 case "ElmSecctrl":
+                case "ElmSite":
+                case "ElmStactrl":
+                case "ElmValve":
+                case "ElmVsc":
+                case "ElmZone":
+
+                case "IntCalcres":
+                case "IntCondition":
+                case "IntEvt":
+                case "IntEvtrel":
+                case "IntFolder":
+                case "IntForm":
+                case "IntGate":
+                case "IntGrf":
+                case "IntGrfcon":
+                case "IntGrflayer":
+                case "IntGrfnet":
+
+                case "IntMat":
+                case "IntMon":
+                case "IntQlim":
+                case "IntRas":
+                case "IntRef":
+                case "IntTemplate":
+                case "IntWdt":
+
+                case "OptElmgenstat":
+                case "OptElmrecmono":
+                case "OptElmsym":
+
+                case "RelChar":
+                case "RelDir":
+                case "RelDisdir":
+                case "RelDisloadenc":
+                case "RelDismho":
+                case "RelDispoly":
+                case "RelDispspoly":
+                case "RelFdetabb":
+                case "RelFdetaegalst":
+                case "RelFdetect":
+                case "RelFdetsie":
+                case "RelFmeas":
+                case "RelFrq":
+                case "RelIoc":
+                case "RelLogdip":
+                case "RelLogic":
+                case "RelLslogic":
+
+                case "RelMeasure":
+                case "RelRecl":
+                case "RelSeldir":
+                case "RelTimer":
+                case "RelToc":
+                case "RelUlim":
+                case "RelZpol":
+
+                case "StaCt":
                 case "StaPqmea":
                 case "StaVmea":
-                case "ElmFile":
-                case "ElmZone":
-                case "ElmRelay":
+                case "StaVt":
+
+                case "TypChatoc":
+                case "TypCon":
+                case "TypCt":
+                case "TypRelay":
+                case "TypVt":
+
                     // not interesting
                     break;
 
@@ -227,6 +310,9 @@ public class PowerFactoryImporter implements Importer {
                     LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj);
             }
         }
+
+        // Create Hvdc Links
+        hvdcConverter.create();
 
         LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
@@ -258,6 +344,6 @@ public class PowerFactoryImporter implements Importer {
                 stopwatch.stop();
                 LOGGER.info("PowerFactory import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
-        }).orElseThrow(() -> new PowsyblException("This is not a supported PowerFactory file"));
+        }).orElseThrow(() -> new PowerFactoryException("This is not a supported PowerFactory file"));
     }
 }
