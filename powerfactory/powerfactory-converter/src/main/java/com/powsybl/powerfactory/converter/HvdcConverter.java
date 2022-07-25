@@ -311,10 +311,10 @@ class HvdcConverter extends AbstractConverter {
             HvdcLne hvdcLne = dcLnes.stream().findFirst().orElseThrow();
             Optional<Float> unom = hvdcLne.elmLne.findFloatAttributeValue("Unom");
             if (unom.isPresent()) {
-                return (double) unom.get();
+                return unom.get();
             } else {
                 DataObject typLne = hvdcLne.elmLne.getObjectAttributeValue(DataAttributeNames.TYP_ID).resolve().orElseThrow();
-                return (double) typLne.getFloatAttributeValue("uline");
+                return typLne.getFloatAttributeValue("uline");
             }
         }
 
