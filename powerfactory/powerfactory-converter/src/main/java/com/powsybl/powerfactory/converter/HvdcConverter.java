@@ -302,6 +302,7 @@ class HvdcConverter extends AbstractConverter {
             }
             double r = g == 0.0 ? 0.0 : 1 / g;
 
+            // TODO define parameters
             return new DcLineModel(r, obtainNominalV(dcLnes), 400, 500);
         }
 
