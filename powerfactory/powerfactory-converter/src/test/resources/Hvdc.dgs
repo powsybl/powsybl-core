@@ -8,9 +8,9 @@ $$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fl
   4;DC-Line_pos;;9;44;50;1;0;0;1;0
   5;DC-Line_neg;;9;44;50;1;0;0;1;0
 
-$$ElmVsc;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p)
-  6;HVDC Converter 1;;9
-  7;HVDC Converter 2;;9
+$$ElmVsc;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);Unom(r);usetp(r);psetp(r);qsetp(r);Pnold(r);P_max(r)
+  6;HVDC Converter 1;;9;300;1,0;600,0;0,0;10000,0;900,0
+  7;HVDC Converter 2;;9;300;1,0099999904632568;0,0;100,0;10000,0;900,0
 
 $$ElmLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);mode_inp(a:3);slini(r);plini(r);qlini(r);coslini(r);pf_recap(i);scale0(r);i_scale(i);outserv(i);classif(a:20)
   8;lod_3_1;;9;45;PQ;55,9017;50;25;0,894427;0;1;0;0;

@@ -22,7 +22,7 @@
                 <iidm:internalConnection node1="0" node2="3"/>
                 <iidm:internalConnection node1="0" node2="4"/>
             </iidm:nodeBreakerTopology>
-            <iidm:vscConverterStation id="HVDC Converter 1" voltageRegulatorOn="false" lossFactor="0.0" reactivePowerSetpoint="0.0" node="3">
+            <iidm:vscConverterStation id="HVDC Converter 1" voltageRegulatorOn="false" lossFactor="1.6666666" voltageSetpoint="300.0" reactivePowerSetpoint="0.0" node="3">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
@@ -36,12 +36,12 @@
                 <iidm:switch id="VL13_HVDC AC Converter 2 Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="2"/>
-            <iidm:vscConverterStation id="HVDC Converter 2" voltageRegulatorOn="false" lossFactor="0.0" reactivePowerSetpoint="0.0" node="4">
+            <iidm:vscConverterStation id="HVDC Converter 2" voltageRegulatorOn="false" lossFactor="0.0" voltageSetpoint="302.99999713897705" reactivePowerSetpoint="100.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="lne_1_2_1" r="5.276180267333984" x="16.109027862548828" g1="0.0" b1="6.35592357635498E-4" g2="0.0" b2="6.35592357635498E-4" node1="1" voltageLevelId1="VL11" node2="1" voltageLevelId2="VL12"/>
     <iidm:line id="lne_1_3_1" r="5.276180267333984" x="16.109027862548828" g1="0.0" b1="6.35592357635498E-4" g2="0.0" b2="6.35592357635498E-4" node1="2" voltageLevelId1="VL11" node2="1" voltageLevelId2="VL13"/>
-    <iidm:hvdcLine id="DC-Line_pos" r="2.5366251468658447" nominalV="320.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="400.0" maxP="500.0" converterStation1="HVDC Converter 1" converterStation2="HVDC Converter 2"/>
+    <iidm:hvdcLine id="DC-Line_pos" r="2.5366251468658447" nominalV="320.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="600.0" maxP="900.0" converterStation1="HVDC Converter 1" converterStation2="HVDC Converter 2"/>
 </iidm:network>

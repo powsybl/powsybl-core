@@ -230,7 +230,7 @@ class HvdcConverter extends AbstractConverter {
     private void create(HvdcConfiguration hvdcConfiguration) {
 
         VscModel vscModelR = VscModel.create(hvdcConfiguration.vsc0);
-        DcLineModel dcLineModel = DcLineModel.create(hvdcConfiguration.dcLnes);
+        DcLineModel dcLineModel = DcLineModel.create(hvdcConfiguration.dcLnes, hvdcConfiguration.vsc0);
         VscModel vscModelI = VscModel.create(hvdcConfiguration.vsc1);
 
         NodeRef nodeRefR = getNodeFromElmTerm(hvdcConfiguration.elmTermAc0);
@@ -292,7 +292,7 @@ class HvdcConverter extends AbstractConverter {
             this.maxP = maxP;
         }
 
-        private static DcLineModel create(List<HvdcLne> dcLnes) {
+        private static DcLineModel create(List<HvdcLne> dcLnes, DataObject elmVscRectifier) {
 
             double g = 0.0;
             for (HvdcLne hvdcLne : dcLnes) {
@@ -302,8 +302,9 @@ class HvdcConverter extends AbstractConverter {
             }
             double r = g == 0.0 ? 0.0 : 1 / g;
 
-            // TODO define parameters
-            return new DcLineModel(r, obtainNominalV(dcLnes), 400, 500);
+            double maxP = elmVscRectifier.getFloatAttributeValue("P_max");
+            double activePowerSetpoint = elmVscRectifier.getFloatAttributeValue("psetp");
+            return new DcLineModel(r, obtainNominalV(dcLnes), activePowerSetpoint, maxP);
         }
 
         private static double obtainNominalV(List<HvdcLne> dcLnes) {
@@ -338,8 +339,15 @@ class HvdcConverter extends AbstractConverter {
         }
 
         private static VscModel create(DataObject elmVsc) {
-            // TODO define Vsc parameters
-            return new VscModel(0.0, Double.NaN, 0.0, false);
+            double pnold = elmVsc.getFloatAttributeValue("Pnold");
+            double unom = elmVsc.getFloatAttributeValue("Unom");
+            double activeSetpoint = elmVsc.getFloatAttributeValue("psetp");
+            double reactiveSetpoint = elmVsc.getFloatAttributeValue("qsetp");
+            double voltageSetpoint = elmVsc.getFloatAttributeValue("usetp") * unom;
+
+            double losses = pnold / 1000.0;
+            double lossFactor = activeSetpoint != 0.0 ? losses / activeSetpoint * 100 : 0.0;
+            return new VscModel(lossFactor, voltageSetpoint, reactiveSetpoint, false);
         }
     }
 }
