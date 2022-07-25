@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ImporterFindIssueTest {
+public class ImporterDataSourceIssueTest {
 
     static class FooImporter implements Importer {
 
@@ -86,7 +86,7 @@ public class ImporterFindIssueTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void testFindIssue() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path workingDir = fileSystem.getPath("/work");
             Path fooFile = workingDir.resolve("test.foo");
@@ -99,6 +99,20 @@ public class ImporterFindIssueTest {
             var importer = Importer.find(dataSource, new ImportersLoaderList(new FooImporter(), new BarImporter()), computationManager, new ImportConfig());
             assertNotNull(importer);
             assertTrue(importer instanceof BarImporter);
+        }
+    }
+
+    @Test
+    public void testDotIssue() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path workingDir = fileSystem.getPath("/work");
+            Path fooFile = workingDir.resolve("test.test.foo.gz");
+            Files.createFile(fooFile);
+
+            var dataSource = Importers.createDataSource(fooFile);
+            ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+            var importer = Importer.find(dataSource, new ImportersLoaderList(new FooImporter(), new BarImporter()), computationManager, new ImportConfig());
+            assertNotNull(importer);
         }
     }
 }
