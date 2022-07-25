@@ -186,16 +186,15 @@ public class AttachLoad implements NetworkModification {
     @Override
     public void apply(Network network, boolean throwException, Reporter reporter) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (voltageLevel == null) {
             throwExceptionOrLogError(String.format("Voltage level %s is not found", voltageLevelId), "missingVoltageLevel", throwException, reporter);
             return;
         }
+        TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind != TopologyKind.NODE_BREAKER) {
             throwExceptionOrLogError(String.format("Voltage level %s is not in node/breaker.", voltageLevelId), "notNodeBreakerVoltageLevel", throwException, reporter);
             return;
         }
-
         BusbarSection bbs = null;
         if (bbsId != null) {
             bbs = network.getBusbarSection(bbsId);
@@ -208,7 +207,6 @@ public class AttachLoad implements NetworkModification {
                 return;
             }
         }
-
         if (bbs == null) {
             bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
             if (bbs == null) {
@@ -276,7 +274,8 @@ public class AttachLoad implements NetworkModification {
                             if (order.isPresent()) {
                                 feederPositionsOrders.add(Pair.of(connectable.getId() + "_terminal1", order.get()));
                             }
-                        } else if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                        }
+                        if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
                             order = position.getFeeder2().getOrder();
                             if (order.isPresent()) {
                                 feederPositionsOrders.add(Pair.of(connectable.getId() + "_terminal2", order.get()));
