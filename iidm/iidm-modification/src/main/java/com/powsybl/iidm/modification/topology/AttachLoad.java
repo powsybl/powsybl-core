@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.modification.ModificationUtils.throwExceptionOrLogError;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -308,15 +309,5 @@ public class AttachLoad implements NetworkModification {
         return feederPositionsOrders;
     }
 
-    private static void throwExceptionOrLogError(String message, String key, boolean throwException, Reporter reporter) {
-        LOGGER.error(message);
-        reporter.report(Report.builder()
-                .withKey(key)
-                .withDefaultMessage(message)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-        if (throwException) {
-            throw new PowsyblException(message);
-        }
-    }
+
 }

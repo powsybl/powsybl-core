@@ -19,8 +19,11 @@ public class AttachLoadBuilder {
     private String bbsId = null;
 
     private Integer loadPositionOrder = null;
+
+    private AttachLoad.PositionInsideSection loadPositionInsideSection = AttachLoad.PositionInsideSection.SPECIFIC;
     private ConnectablePosition.Direction loadDirection = ConnectablePosition.Direction.BOTTOM;
 
+    //TODO : add positionInsideSection
     public AttachLoad build() {
         return new AttachLoad(loadAdder, voltageLevelId, bbsId, loadPositionOrder, loadDirection);
     }
