@@ -12,12 +12,10 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import org.slf4j.LoggerFactory;
 
-import java.util.logging.Logger;
-
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class ModificationUtils {
+public final class ModificationUtils {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ModificationUtils.class);
 
@@ -32,8 +30,7 @@ public class ModificationUtils {
             throw new PowsyblException(message);
         }
     }
-    
+
     private ModificationUtils() {
-        
     }
 }
