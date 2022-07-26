@@ -261,7 +261,7 @@ public class AttachLoad implements NetworkModification {
                     case HVDC_CONVERTER_STATION:
                     case BATTERY:
                     case DANGLING_LINE:
-                    case SWITCH:
+                    case SWITCH: //Not a connectable
                         order = position.getFeeder().getOrder();
                         if (order.isPresent()) {
                             feederPositionsOrders.add(Pair.of(connectable.getId(), order.get()));
