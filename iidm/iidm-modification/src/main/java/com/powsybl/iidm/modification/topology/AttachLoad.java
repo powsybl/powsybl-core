@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +118,7 @@ public class AttachLoad implements NetworkModification {
     }
 
     public AttachLoad(LoadAdder loadAdder, String voltageLevelId) {
-        this(loadAdder, voltageLevelId, PositionInsideSection.FIRST, ConnectablePosition.Direction.BOTTOM);
+        this(loadAdder, voltageLevelId, PositionInsideSection.LAST, ConnectablePosition.Direction.BOTTOM);
     }
 
     public LoadAdder getLoadAdder() {
@@ -244,70 +243,5 @@ public class AttachLoad implements NetworkModification {
 
         // create switches and a breaker linking the load to the bus bar sections.
         createTopologyAutomatically(network, voltageLevel, loadNode, forkNode, loadId, reporter);
-    }
-
-    private Map<Integer, List<Integer>> getSliceOrdersMap(VoltageLevel voltageLevel) {
-        Map<Integer, List<Integer>> sliceIndexOrdersMap = new TreeMap<>();
-        Map<BusbarSection, List<Integer>> busbarSectionsOrdersMap = new HashMap<>();
-        voltageLevel.getConnectableStream(BusbarSection.class)
-                .forEach(bbs -> fillConnectableOrders(bbs, busbarSectionsOrdersMap));
-        busbarSectionsOrdersMap.forEach((bbs, orders) -> {
-            BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
-            sliceIndexOrdersMap.putIfAbsent(bbPosition.getSectionIndex(), orders);
-        });
-        return sliceIndexOrdersMap;
-    }
-
-    private void fillConnectableOrders(BusbarSection bbs, Map<BusbarSection, List<Integer>> busbarSectionsOrdersMap) {
-        BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
-        int bbSection = bbPosition.getSectionIndex();
-
-        if (busbarSectionsOrdersMap.containsKey(bbs)) {
-            return;
-        }
-        List<Integer> orders = busbarSectionsOrdersMap.compute(bbs, (k, v) -> new ArrayList<>());
-
-        bbs.getTerminal().traverse(new Terminal.TopologyTraverser() {
-            @Override
-            public TraverseResult traverse(Terminal terminal, boolean connected) {
-                if (terminal.getVoltageLevel() != bbs.getTerminal().getVoltageLevel()) {
-                    return TraverseResult.TERMINATE_PATH;
-                }
-                Connectable<?> connectable = terminal.getConnectable();
-                if (connectable instanceof BusbarSection) {
-                    BusbarSection otherBbs = (BusbarSection) connectable;
-                    BusbarSectionPosition otherBbPosition = otherBbs.getExtension(BusbarSectionPosition.class);
-                    if (otherBbPosition.getSectionIndex() == bbSection) {
-                        busbarSectionsOrdersMap.put(otherBbs, orders);
-                    } else {
-                        return TraverseResult.TERMINATE_PATH;
-                    }
-                }
-                ConnectablePosition<?> position = (ConnectablePosition<?>) (connectable.getExtension(ConnectablePosition.class));
-                if (position != null) {
-                    addOrders(position, orders);
-                }
-                return TraverseResult.CONTINUE;
-            }
-
-            @Override
-            public TraverseResult traverse(Switch aSwitch) {
-                return TraverseResult.CONTINUE;
-            }
-        });
-    }
-
-    private void addOrders(ConnectablePosition<?> position, List<Integer> orders) {
-        if (position.getFeeder() != null) {
-            position.getFeeder().getOrder().ifPresent(orders::add);
-        } else if (position.getFeeder1() != null) {
-            position.getFeeder1().getOrder().ifPresent(orders::add);
-            if (position.getFeeder2() != null) {
-                position.getFeeder2().getOrder().ifPresent(orders::add);
-                if (position.getFeeder3() != null) {
-                    position.getFeeder3().getOrder().ifPresent(orders::add);
-                }
-            }
-        }
     }
 }

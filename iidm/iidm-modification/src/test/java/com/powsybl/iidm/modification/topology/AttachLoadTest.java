@@ -1,0 +1,71 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.iidm.modification.topology;
+
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.network.LoadAdder;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
+import static org.junit.Assert.assertEquals;
+
+/**
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ */
+public class AttachLoadTest extends AbstractXmlConverterTest  {
+
+    @Test
+    public void attachLoadTestWithBbsId() throws IOException {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bb4", 115);
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-load-bbs1.xml");
+    }
+
+    @Test
+    public void attachLoadTestWithVoltageLevelId() throws IOException {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        NetworkModification modification = new AttachLoad(loadAdder, "vl1");
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-load-vl1.xml");
+    }
+
+    @Test
+    public void testConstructor() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        AttachLoad modification = new AttachLoad(loadAdder, "vl1", "bb4", 115);
+        assertEquals(loadAdder, modification.getLoadAdder());
+        assertEquals("vl1", modification.getVoltageLevelId());
+        assertEquals("bb4", modification.getBbsId());
+        assertEquals(115, modification.getLoadPositionOrder());
+        assertEquals(BOTTOM, modification.getLoadDirection());
+    }
+}
