@@ -251,5 +251,15 @@ public class AttachLoad implements NetworkModification {
 
         // create switches and a breaker linking the load to the bus bar sections.
         createTopologyAutomatically(network, voltageLevel, loadNode, forkNode, loadId, reporter);
+
+        LOGGER.info("New load {} was added to voltage level {} on busbar section {}", load.getId(), voltageLevel.getId(), bbs.getId());
+        reporter.report(Report.builder()
+                .withKey("newLoadAdded")
+                .withDefaultMessage("New load ${loadId} was added to voltage level ${voltageLevelId} on busbar section ${bbsId}")
+                .withValue("loadId", load.getId())
+                .withValue("voltageLevelId", voltageLevel.getId())
+                .withValue("bbsId", bbs.getId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
     }
 }
