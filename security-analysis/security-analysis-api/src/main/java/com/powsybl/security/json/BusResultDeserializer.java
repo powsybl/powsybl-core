@@ -33,7 +33,7 @@ public class BusResultDeserializer extends StdDeserializer<BusResult> {
         super(BusResult.class);
     }
 
-    static class ParsingContext {
+    private static class ParsingContext {
         String voltageLevelId;
 
         String busId;
