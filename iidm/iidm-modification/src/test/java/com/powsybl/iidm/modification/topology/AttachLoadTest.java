@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.LoadAdder;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -74,5 +76,40 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
         assertEquals("vl1", modification2.getVoltageLevelId());
         assertEquals(AttachLoad.PositionInsideSection.LAST, modification2.getLoadPositionInsideSection());
         assertEquals(TOP, modification2.getLoadDirection());
+    }
+
+    @Test
+    public void testBuilder() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        AttachLoad modification = new AttachLoadBuilder()
+                .withLoadAdder(loadAdder)
+                .withVoltageLevelId("vl1")
+                .withBbsId("bb4")
+                .withLoadPositionOrder(115)
+                .build();
+        assertEquals(loadAdder, modification.getLoadAdder());
+        assertEquals("vl1", modification.getVoltageLevelId());
+        assertEquals("bb4", modification.getBbsId());
+        assertEquals(115, modification.getLoadPositionOrder());
+        assertEquals(BOTTOM, modification.getLoadDirection());
+
+        AttachLoadBuilder builder = new AttachLoadBuilder()
+                .withLoadAdder(loadAdder)
+                .withVoltageLevelId("vl1")
+                .withLoadPositionOrder(115);
+
+        assertThrows(PowsyblException.class, builder::build);
+
+        AttachLoad modification1 = new AttachLoadBuilder()
+                .withLoadAdder(loadAdder)
+                .withVoltageLevelId("vl1")
+                .withLoadPositionInsideSection(AttachLoad.PositionInsideSection.LAST)
+                .build();
+        assertEquals(AttachLoad.PositionInsideSection.LAST, modification1.getLoadPositionInsideSection());
     }
 }
