@@ -235,6 +235,10 @@ public class AttachLoad implements NetworkModification {
                 } else if (loadPositionInsideSection == PositionInsideSection.LAST) {
                     loadPositionOrder = allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE) + 1;
                 }
+            } else {
+                if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(loadPositionOrder)) {
+                    throwExceptionOrLogError(String.format("LoadPositionOrder %d already taken", loadPositionOrder), "loadPositionOrderAlreadyTaken", throwException, reporter);
+                }
             }
             load.newExtension(ConnectablePositionAdder.class)
                     .newFeeder()
