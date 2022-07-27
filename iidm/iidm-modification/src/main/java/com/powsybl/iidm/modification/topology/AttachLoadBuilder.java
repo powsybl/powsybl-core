@@ -17,15 +17,17 @@ public class AttachLoadBuilder {
     private LoadAdder loadAdder = null;
     private String voltageLevelId = null;
     private String bbsId = null;
-
     private Integer loadPositionOrder = null;
-
-    private AttachLoad.PositionInsideSection loadPositionInsideSection = AttachLoad.PositionInsideSection.SPECIFIC;
+    private AttachLoad.PositionInsideSection loadPositionInsideSection = null;
     private ConnectablePosition.Direction loadDirection = ConnectablePosition.Direction.BOTTOM;
 
     //TODO : add positionInsideSection
     public AttachLoad build() {
-        return new AttachLoad(loadAdder, voltageLevelId, bbsId, loadPositionOrder, loadDirection);
+        if (loadPositionInsideSection == null) {
+            return new AttachLoad(loadAdder, voltageLevelId, bbsId, loadPositionOrder, loadDirection);
+        } else {
+            return new AttachLoad(loadAdder, voltageLevelId, loadPositionInsideSection, loadDirection);
+        }
     }
 
     public AttachLoadBuilder withLoadAdder(LoadAdder loadAdder) {
@@ -50,6 +52,11 @@ public class AttachLoadBuilder {
 
     public AttachLoadBuilder withLoadDirection(ConnectablePosition.Direction loadDirection) {
         this.loadDirection = loadDirection;
+        return this;
+    }
+
+    public AttachLoadBuilder withLoadPositionInsideSection(AttachLoad.PositionInsideSection positionInsideSection) {
+        this.loadPositionInsideSection = loadPositionInsideSection;
         return this;
     }
 }

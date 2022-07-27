@@ -145,6 +145,10 @@ public class AttachLoad implements NetworkModification {
         return loadDirection;
     }
 
+    public PositionInsideSection getLoadPositionInsideSection() {
+        return loadPositionInsideSection;
+    }
+
     private void createTopologyAutomatically(Network network, VoltageLevel voltageLevel, int loadNode, int forkNode, String loadId, Reporter reporter) {
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();

@@ -18,6 +18,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
+import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -67,5 +68,11 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
         assertEquals("bb4", modification.getBbsId());
         assertEquals(115, modification.getLoadPositionOrder());
         assertEquals(BOTTOM, modification.getLoadDirection());
+
+        AttachLoad modification2 = new AttachLoad(loadAdder, "vl1", AttachLoad.PositionInsideSection.LAST, TOP);
+        assertEquals(loadAdder, modification2.getLoadAdder());
+        assertEquals("vl1", modification2.getVoltageLevelId());
+        assertEquals(AttachLoad.PositionInsideSection.LAST, modification2.getLoadPositionInsideSection());
+        assertEquals(TOP, modification2.getLoadDirection());
     }
 }
