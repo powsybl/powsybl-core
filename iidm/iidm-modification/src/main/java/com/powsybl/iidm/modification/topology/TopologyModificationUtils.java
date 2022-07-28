@@ -252,7 +252,7 @@ final class TopologyModificationUtils {
                         return TraverseResult.TERMINATE_PATH;
                     }
                 }
-                ConnectablePosition<?> position = (ConnectablePosition<?>) (connectable.getExtension(ConnectablePosition.class));
+                ConnectablePosition position = connectable.getExtension(ConnectablePosition.class);
                 if (position != null) {
                     addOrders(position, orders);
                 }
@@ -287,7 +287,7 @@ final class TopologyModificationUtils {
     static Map<String, Integer> getFeederOrders(VoltageLevel voltageLevel) {
         Map<String, Integer> feederPositionsOrders = new HashMap<>();
         voltageLevel.getConnectables().forEach(connectable -> {
-            ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
+            ConnectablePosition position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
             if (position != null) {
                 Optional<Integer> order;
                 switch (connectable.getType()) {
@@ -341,6 +341,9 @@ final class TopologyModificationUtils {
                                 feederPositionsOrders.put(connectable.getId() + "_terminal3", order.get());
                             }
                         }
+                        break;
+                    default:
+                        throw new PowsyblException("Unsupported connectable type " + connectable.getType());
                 }
             }
         });

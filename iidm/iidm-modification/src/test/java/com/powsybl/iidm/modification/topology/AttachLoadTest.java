@@ -17,6 +17,7 @@ import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
@@ -111,5 +112,20 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .withLoadPositionInsideSection(AttachLoad.PositionInsideSection.LAST)
                 .build();
         assertEquals(AttachLoad.PositionInsideSection.LAST, modification1.getLoadPositionInsideSection());
+    }
+
+    @Test
+    public void testFeederOrders() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Map<String, Integer> feederOrders = TopologyModificationUtils.getFeederOrders(network.getVoltageLevel("vl1"));
+        assertEquals(90, feederOrders.get("trf8_terminal1"), 0);
+        assertEquals(80, feederOrders.get("load2"), 0);
+        assertEquals(0, feederOrders.get("load1"), 0);
+        assertEquals(20, feederOrders.get("gen1"), 0);
+        assertEquals(70, feederOrders.get("line1_terminal1"), 0);
+        Map<String, Integer> feederOrders2 = TopologyModificationUtils.getFeederOrders(network.getVoltageLevel("vl2"));
+        assertEquals(60, feederOrders2.get("trf8_terminal2"), 0);
+        Map<String, Integer> feederOrders3 = TopologyModificationUtils.getFeederOrders(network.getVoltageLevel("vlSubst2"));
+        assertEquals(10, feederOrders3.get("line1_terminal2"), 0);
     }
 }
