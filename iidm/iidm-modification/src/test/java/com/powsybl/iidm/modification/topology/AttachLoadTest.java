@@ -19,6 +19,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
@@ -55,6 +56,19 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
         NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bbs1", 115, TOP);
         modification.apply(network);
         assertEquals(TOP, network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getDirection());
+    }
+
+    @Test
+    public void attachLoadTestWithBbsId3() throws IOException {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bbs2", AttachLoad.PositionInsideSection.FIRST);
+        modification.apply(network);
+        assertEquals(Optional.of(39), network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getOrder());
     }
 
     @Test
