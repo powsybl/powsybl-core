@@ -217,7 +217,7 @@ final class TopologyModificationUtils {
      **/
     static Map<Integer, List<Integer>> getSliceOrdersMap(VoltageLevel voltageLevel) {
         Map<Integer, List<Integer>> sliceIndexOrdersMap = new TreeMap<>();
-        Map<BusbarSection, List<Integer>> busbarSectionsOrdersMap = new HashMap<>();
+        Map<BusbarSection, List<Integer>> busbarSectionsOrdersMap = new LinkedHashMap<>();
         voltageLevel.getConnectableStream(BusbarSection.class)
                 .forEach(bbs -> fillConnectableOrders(bbs, busbarSectionsOrdersMap));
         busbarSectionsOrdersMap.forEach((bbs, orders) -> {
