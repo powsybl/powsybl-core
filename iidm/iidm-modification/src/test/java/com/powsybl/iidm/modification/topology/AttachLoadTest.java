@@ -12,6 +12,7 @@ import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import org.junit.Test;
@@ -41,6 +42,19 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-bbs1.xml");
+    }
+
+    @Test
+    public void attachLoadTestWithBbsId2() throws IOException {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bbs1", 115, TOP);
+        modification.apply(network);
+        assertEquals(TOP, network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getDirection());
     }
 
     @Test
@@ -127,5 +141,7 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
         assertEquals(60, feederOrders2.get("trf8_terminal2"), 0);
         Map<String, Integer> feederOrders3 = TopologyModificationUtils.getFeederOrders(network.getVoltageLevel("vlSubst2"));
         assertEquals(10, feederOrders3.get("line1_terminal2"), 0);
+        Map<String, Integer> feederOrders4 = TopologyModificationUtils.getFeederOrders(network.getVoltageLevel("vl3"));
+        assertEquals(40, feederOrders4.get("trf8_terminal3"), 0);
     }
 }
