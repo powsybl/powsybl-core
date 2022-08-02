@@ -51,10 +51,9 @@ public class AttachLoad implements NetworkModification {
      * Constructor.
      *
      * @param loadAdder                The load adder.
-     * @param voltageLevelId           The voltage level with the given ID that we want to connect to the initial line.
+     * @param voltageLevelId           The voltage level with the given ID that we want to connect to.
      * @param bbsId                    The ID of the existing bus bar section of the voltage level voltageLevelId where we want to connect the load.
-     *                                 This switch will be closed.
-     *                                 Please note that there will be switches between this bus or bus bar section and the connection point of the line.
+     *                                 Please note that there will be switches between this bus bar section and the connection point of the load. This switch will be closed.
      * @param loadPositionOrder        The order of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
@@ -74,9 +73,9 @@ public class AttachLoad implements NetworkModification {
      * Constructor.
      *
      * @param loadAdder                The load adder.
-     * @param voltageLevelId           The voltage level with the given ID that we want to connect to the initial line.
+     * @param voltageLevelId           The voltage level with the given ID that we want to connect to.
      * @param bbsId                    The ID of the existing bus bar section of the voltage level voltageLevelId where we want to connect the load.
-     *                                 Please note that there will be switches between this bus or bus bar section and the connection point of the line.
+     *                                 Please note that there will be switches between this bus bar section and the connection point of the load.
      * @param loadPositionInsideSection  The load position inside the section bbsId, only {@link PositionInsideSection} FIRST and {@link PositionInsideSection} LAST are supported here.
      * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
@@ -99,7 +98,7 @@ public class AttachLoad implements NetworkModification {
      * Constructor.
      *
      * @param loadAdder                The load adder.
-     * @param voltageLevelId           The voltage level with the given ID that we want to connect to the initial line. The load will be connected on the first bus bar section.
+     * @param voltageLevelId           The voltage level with the given ID that we want to connect to. The load will be connected on the first bus bar section.
      * @param loadPositionInsideSection  The load position inside the section bbsId, only {@link PositionInsideSection} FIRST and {@link PositionInsideSection} LAST are supported here.
      * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
@@ -147,34 +146,6 @@ public class AttachLoad implements NetworkModification {
 
     public PositionInsideSection getLoadPositionInsideSection() {
         return loadPositionInsideSection;
-    }
-
-    private void createTopologyAutomatically(Network network, VoltageLevel voltageLevel, int loadNode, int forkNode, String loadId, Reporter reporter) {
-        BusbarSection bbs = network.getBusbarSection(bbsId);
-        int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(loadNode, forkNode, bbsNode, loadId, voltageLevel.getNodeBreakerView());
-        BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
-        if (position == null) {
-            LOGGER.warn("No bus bar section position extension found on {}, only one disconnector is created.", bbs.getId());
-            reporter.report(Report.builder()
-                    .withKey("noBusbarSectionPositionExtension")
-                    .withDefaultMessage("No bus bar section position extension found on ${bbsId}, only one disconnector is created")
-                    .withValue("bbsId", bbs.getId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
-        } else {
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, loadId, voltageLevel.getNodeBreakerView().getBusbarSectionStream()
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
-                    .filter(b -> !b.getId().equals(bbsId)));
-        }
-    }
-
-    private void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String loadId, Stream<BusbarSection> bbsStream) {
-        bbsStream.forEach(b -> {
-            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), loadId, voltageLevel.getNodeBreakerView(), true);
-        });
     }
 
     @Override
@@ -272,7 +243,7 @@ public class AttachLoad implements NetworkModification {
         Load load = loadAdder.add();
         if (load.getNetwork() != network) {
             load.remove();
-            throwExceptionAndLogError("Network given in parameters and in loadAdder are different. The network might be corrupted", "networkMismatch",throwException, reporter);
+            throwExceptionAndLogError("Network given in parameters and in loadAdder are different. The network might be corrupted", "networkMismatch", throwException, reporter);
             return;
         }
         String loadId = load.getId();
@@ -284,7 +255,7 @@ public class AttachLoad implements NetworkModification {
                 if (loadPositionInsideSection == PositionInsideSection.FIRST) {
                     loadPositionOrder = allOrders.get(busbarSectionPosition.getSectionIndex()).stream().min(Comparator.naturalOrder()).orElse(1) - 1;
                 } else if (loadPositionInsideSection == PositionInsideSection.LAST) {
-                    loadPositionOrder = allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE) + 1;
+                    loadPositionOrder = allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE - 1) + 1;
                 }
             } else {
                 if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(loadPositionOrder)) {
@@ -311,7 +282,7 @@ public class AttachLoad implements NetworkModification {
         }
 
         // create switches and a breaker linking the load to the bus bar sections.
-        createTopologyAutomatically(network, voltageLevel, loadNode, forkNode, loadId, reporter);
+        createTopology(network, voltageLevel, loadNode, forkNode, loadId, reporter);
 
         LOGGER.info("New load {} was added to voltage level {} on busbar section {}", load.getId(), voltageLevel.getId(), bbs.getId());
         reporter.report(Report.builder()
@@ -322,5 +293,33 @@ public class AttachLoad implements NetworkModification {
                 .withValue("bbsId", bbs.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
+    }
+
+    private void createTopology(Network network, VoltageLevel voltageLevel, int loadNode, int forkNode, String loadId, Reporter reporter) {
+        BusbarSection bbs = network.getBusbarSection(bbsId);
+        int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
+        createNodeBreakerSwitches(loadNode, forkNode, bbsNode, loadId, voltageLevel.getNodeBreakerView());
+        BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+        if (position == null) {
+            LOGGER.warn("No bus bar section position extension found on {}, only one disconnector is created.", bbs.getId());
+            reporter.report(Report.builder()
+                    .withKey("noBusbarSectionPositionExtension")
+                    .withDefaultMessage("No bus bar section position extension found on ${bbsId}, only one disconnector is created")
+                    .withValue("bbsId", bbs.getId())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
+        } else {
+            createTopologyFromBusbarSectionList(voltageLevel, forkNode, loadId, voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
+                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
+                    .filter(b -> !b.getId().equals(bbsId)));
+        }
+    }
+
+    private void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String loadId, Stream<BusbarSection> bbsStream) {
+        bbsStream.forEach(b -> {
+            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
+            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), loadId, voltageLevel.getNodeBreakerView(), true);
+        });
     }
 }
