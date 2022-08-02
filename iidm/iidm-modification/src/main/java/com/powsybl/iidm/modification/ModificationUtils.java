@@ -19,7 +19,7 @@ public final class ModificationUtils {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ModificationUtils.class);
 
-    public static void throwExceptionOrLogError(String message, String key, boolean throwException, Reporter reporter) {
+    public static void throwExceptionAndLogError(String message, String key, boolean throwException, Reporter reporter) {
         LOGGER.error(message);
         reporter.report(Report.builder()
                 .withKey(key)

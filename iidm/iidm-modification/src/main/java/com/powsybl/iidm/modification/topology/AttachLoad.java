@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.modification.ModificationUtils.throwExceptionOrLogError;
+import static com.powsybl.iidm.modification.ModificationUtils.throwExceptionAndLogError;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -191,30 +191,76 @@ public class AttachLoad implements NetworkModification {
     public void apply(Network network, boolean throwException, Reporter reporter) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
-            throwExceptionOrLogError(String.format("Voltage level %s is not found", voltageLevelId), "missingVoltageLevel", throwException, reporter);
+            LOGGER.error("Voltage level {} is not found", voltageLevelId);
+            reporter.report(Report.builder()
+                    .withKey("missingVoltageLevel")
+                    .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
+                    .withValue("voltageLevelId", voltageLevelId)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
+            if (throwException) {
+                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+            }
             return;
         }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind != TopologyKind.NODE_BREAKER) {
-            throwExceptionOrLogError(String.format("Voltage level %s is not in node/breaker.", voltageLevelId), "notNodeBreakerVoltageLevel", throwException, reporter);
+            LOGGER.error("Voltage level {} is not in node/breaker.", voltageLevelId);
+            reporter.report(Report.builder()
+                    .withKey("notNodeBreakerVoltageLevel")
+                    .withDefaultMessage("Voltage level ${voltageLevelId} is not in node/breaker")
+                    .withValue("voltageLevelId", voltageLevelId)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
+            if (throwException) {
+                throw new PowsyblException(String.format("Voltage level %s is not in node/breaker.", voltageLevelId));
+            }
             return;
         }
         BusbarSection bbs = null;
         if (bbsId != null) {
             bbs = network.getBusbarSection(bbsId);
             if (bbs == null) {
-                throwExceptionOrLogError(String.format("Bus bar section %s not found.", bbsId), "notFoundBusbarSection", throwException, reporter);
+                LOGGER.error("Bus bar section {} not found.", bbsId);
+                reporter.report(Report.builder()
+                        .withKey("notFoundBusbarSection")
+                        .withDefaultMessage("Bus bar section ${busbarSectionId} not found")
+                        .withValue("busbarSectionId", bbsId)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
+                if (throwException) {
+                    throw new PowsyblException(String.format("Bus bar section %s not found.", bbsId));
+                }
                 return;
             }
             if (bbs.getTerminal().getVoltageLevel() != voltageLevel) {
-                throwExceptionOrLogError(String.format("Bus bar section %s is not in voltageLevel %s", bbsId, voltageLevelId), "busbarSectionNotInVoltageLevel", throwException, reporter);
+                LOGGER.error("Bus bar section {} is not in voltageLevel {}.", bbsId, voltageLevelId);
+                reporter.report(Report.builder()
+                        .withKey("busbarSectionNotInVoltageLevel")
+                        .withDefaultMessage("Bus bar section ${busbarSectionId} is not in voltageLevel ${voltageLevelId}.")
+                        .withValue("busbarSectionId", bbsId)
+                        .withValue("voltageLevelId", voltageLevelId)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
+                if (throwException) {
+                    throw new PowsyblException(String.format("Bus bar section %s is not in voltageLevel %s.", bbsId, voltageLevelId));
+                }
                 return;
             }
         }
         if (bbs == null) {
             bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
             if (bbs == null) {
-                throwExceptionOrLogError(String.format("Voltage level %s has no bus bar section.", voltageLevelId), "noBusbarSectionInVoltageLevel", throwException, reporter);
+                LOGGER.error("Voltage level {} has no bus bar section.", voltageLevelId);
+                reporter.report(Report.builder()
+                        .withKey("noBusbarSectionInVoltageLevel")
+                        .withDefaultMessage("Voltage level ${voltageLevelId} has no bus bar section.")
+                        .withValue("voltageLevelId", voltageLevelId)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
+                if (throwException) {
+                    throw new PowsyblException(String.format("Voltage level %s has no bus bar section.", voltageLevelId));
+                }
                 return;
             }
             bbsId = bbs.getId();
@@ -224,6 +270,11 @@ public class AttachLoad implements NetworkModification {
         int forkNode = loadNode + 1;
         loadAdder.setNode(loadNode);
         Load load = loadAdder.add();
+        if (load.getNetwork() != network) {
+            load.remove();
+            throwExceptionAndLogError("Network given in parameters and in loadAdder are different. The network might be corrupted", "networkMismatch",throwException, reporter);
+            return;
+        }
         String loadId = load.getId();
 
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
@@ -237,7 +288,17 @@ public class AttachLoad implements NetworkModification {
                 }
             } else {
                 if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(loadPositionOrder)) {
-                    throwExceptionOrLogError(String.format("LoadPositionOrder %d already taken", loadPositionOrder), "loadPositionOrderAlreadyTaken", throwException, reporter);
+                    LOGGER.error("LoadPositionOrder {} already taken.", loadPositionOrder);
+                    reporter.report(Report.builder()
+                            .withKey("loadPositionOrderAlreadyTaken")
+                            .withDefaultMessage("LoadPositionOrder ${loadPositionOrder} already taken.")
+                            .withValue("loadPositionOrder", loadPositionOrder)
+                            .withSeverity(TypedValue.ERROR_SEVERITY)
+                            .build());
+                    if (throwException) {
+                        throw new PowsyblException(String.format("LoadPositionOrder %d already taken.", loadPositionOrder));
+                    }
+                    return;
                 }
             }
             load.newExtension(ConnectablePositionAdder.class)
