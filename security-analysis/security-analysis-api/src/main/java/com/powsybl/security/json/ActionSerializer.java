@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.MultipleActionsAction;
 import com.powsybl.security.action.SwitchAction;
+import com.powsybl.security.action.GenerationRedispatchAction;
 
 import java.io.IOException;
 
@@ -34,6 +35,12 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeStringField("id", action.getId());
                 jsonGenerator.writeStringField("switchId", ((SwitchAction) action).getSwitchId());
                 jsonGenerator.writeBooleanField("open", ((SwitchAction) action).isOpen());
+                break;
+            case GenerationRedispatchAction.NAME:
+                jsonGenerator.writeStringField("id", action.getId());
+                jsonGenerator.writeStringField("generatorId", ((GenerationRedispatchAction) action).getGeneratorId());
+                jsonGenerator.writeBooleanField("increasing", ((GenerationRedispatchAction) action).isIncreasing());
+                jsonGenerator.writeNumberField("value", ((GenerationRedispatchAction) action).getValue());
                 break;
             case MultipleActionsAction.NAME:
 

@@ -6,11 +6,17 @@
     "switchId" : "switchId1",
     "open" : true
   }, {
-    "type" : "MULTIPLE_ACTIONS",
+    "type" : "GENERATION_REDISPATCH",
     "id" : "id2",
+    "generatorId" : "generatorId1",
+    "increasing" : true,
+    "value" : 100.0
+  }, {
+    "type" : "MULTIPLE_ACTIONS",
+    "id" : "id3",
     "actions" : [ {
       "type" : "SWITCH",
-      "id" : "id3",
+      "id" : "id4",
       "switchId" : "switchId2",
       "open" : true
     } ]

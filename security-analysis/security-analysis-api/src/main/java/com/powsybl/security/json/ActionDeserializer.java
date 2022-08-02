@@ -15,6 +15,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.MultipleActionsAction;
 import com.powsybl.security.action.SwitchAction;
+import com.powsybl.security.action.GenerationRedispatchAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +34,10 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         String type;
         String id;
         String switchId;
+        String generatorId;
         Boolean open;
+        Boolean increasing;
+        Double value;
         List<Action> actions;
     }
 
@@ -51,9 +55,19 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 case "switchId":
                     context.switchId =  parser.nextTextValue();
                     return true;
+                case "generatorId":
+                    context.generatorId = parser.nextTextValue();
                 case "open":
                     parser.nextToken();
                     context.open =  parser.getBooleanValue();
+                    return true;
+                case "increasing":
+                    parser.nextToken();
+                    context.increasing =  parser.getBooleanValue();
+                    return true;
+                case "value":
+                    parser.nextToken();
+                    context.value =  parser.getValueAsDouble();
                     return true;
                 case "actions":
                     parser.nextToken();
@@ -70,9 +84,14 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         switch (context.type) {
             case SwitchAction.NAME:
                 if (context.open == null) {
-                    throw JsonMappingException.from(parser, "for switch action open field can't be null");
+                    throw JsonMappingException.from(parser, "for switch action, open field can't be null");
                 }
                 return new SwitchAction(context.id, context.switchId, context.open);
+            case GenerationRedispatchAction.NAME:
+                if (context.increasing == null) {
+                    throw JsonMappingException.from(parser, "for generation redispatch action, increasing field can't be null");
+                }
+                return new GenerationRedispatchAction(context.id, context.generatorId, context.increasing, context.value);
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:
