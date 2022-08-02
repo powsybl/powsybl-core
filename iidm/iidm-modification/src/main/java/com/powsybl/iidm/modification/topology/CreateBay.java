@@ -30,9 +30,9 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * in node/breaker topology.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class AttachLoad implements NetworkModification {
+public class CreateBay implements NetworkModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttachLoad.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateBay.class);
 
     private final LoadAdder loadAdder;
     private final String voltageLevelId;
@@ -50,7 +50,7 @@ public class AttachLoad implements NetworkModification {
      * @param loadPositionOrder        The order of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
+    public CreateBay(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
         this.loadAdder = loadAdder;
         this.voltageLevelId = voltageLevelId;
         this.bbsId = bbsId;
@@ -58,7 +58,7 @@ public class AttachLoad implements NetworkModification {
         this.loadDirection = loadDirection;
     }
 
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder) {
+    public CreateBay(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder) {
         this(loadAdder, voltageLevelId, bbsId, loadPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
@@ -70,14 +70,14 @@ public class AttachLoad implements NetworkModification {
      * @param loadPositionOrder        The order of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
+    public CreateBay(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
         this.loadAdder = loadAdder;
         this.voltageLevelId = voltageLevelId;
         this.loadPositionOrder = loadPositionOrder;
         this.loadDirection = loadDirection;
     }
 
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder) {
+    public CreateBay(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder) {
         this(loadAdder, voltageLevelId, loadPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 

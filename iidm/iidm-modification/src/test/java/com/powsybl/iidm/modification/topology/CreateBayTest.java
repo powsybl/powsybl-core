@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class AttachLoadTest extends AbstractXmlConverterTest  {
+public class CreateBayTest extends AbstractXmlConverterTest  {
 
     @Test
     public void attachLoadTestWithBbsId() throws IOException {
@@ -36,7 +36,7 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bb4", 115);
+        NetworkModification modification = new CreateBay(loadAdder, "vl1", "bb4", 115);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-bbs1.xml");
@@ -50,7 +50,7 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bbs1", 115, TOP);
+        NetworkModification modification = new CreateBay(loadAdder, "vl1", "bbs1", 115, TOP);
         modification.apply(network);
         assertEquals(TOP, network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getDirection());
     }
@@ -64,7 +64,7 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setP0(0)
                 .setQ0(0);
         int loadPositionOrder = TopologyModificationUtils.getOrderPosition(TopologyModificationUtils.PositionInsideSection.FIRST, network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
-        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bbs2", loadPositionOrder);
+        NetworkModification modification = new CreateBay(loadAdder, "vl1", "bbs2", loadPositionOrder);
         modification.apply(network);
         assertEquals(Optional.of(39), network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getOrder());
     }
@@ -77,7 +77,7 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new AttachLoad(loadAdder, "vl1", 71);
+        NetworkModification modification = new CreateBay(loadAdder, "vl1", 71);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-vl1.xml");
@@ -91,14 +91,14 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        AttachLoad modification = new AttachLoad(loadAdder, "vl1", "bb4", 115);
+        CreateBay modification = new CreateBay(loadAdder, "vl1", "bb4", 115);
         assertEquals(loadAdder, modification.getLoadAdder());
         assertEquals("vl1", modification.getVoltageLevelId());
         assertEquals("bb4", modification.getBbsId());
         assertEquals(115, modification.getLoadPositionOrder());
         assertEquals(BOTTOM, modification.getLoadDirection());
 
-        AttachLoad modification2 = new AttachLoad(loadAdder, "vl1", 115, TOP);
+        CreateBay modification2 = new CreateBay(loadAdder, "vl1", 115, TOP);
         assertEquals(loadAdder, modification2.getLoadAdder());
         assertEquals("vl1", modification2.getVoltageLevelId());
         assertEquals(TOP, modification2.getLoadDirection());
@@ -112,7 +112,7 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        AttachLoad modification = new AttachLoadBuilder()
+        CreateBay modification = new CreateBayBuilder()
                 .withLoadAdder(loadAdder)
                 .withVoltageLevelId("vl1")
                 .withBbsId("bb4")

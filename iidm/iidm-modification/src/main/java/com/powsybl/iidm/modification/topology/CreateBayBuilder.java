@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class AttachLoadBuilder {
+public class CreateBayBuilder {
 
     private LoadAdder loadAdder = null;
     private String voltageLevelId = null;
@@ -20,35 +20,35 @@ public class AttachLoadBuilder {
     private Integer loadPositionOrder = null;
     private ConnectablePosition.Direction loadDirection = ConnectablePosition.Direction.BOTTOM;
 
-    public AttachLoad build() {
+    public CreateBay build() {
         if (bbsId != null) {
-            return new AttachLoad(loadAdder, voltageLevelId, bbsId, loadPositionOrder, loadDirection);
+            return new CreateBay(loadAdder, voltageLevelId, bbsId, loadPositionOrder, loadDirection);
         } else {
-            return new AttachLoad(loadAdder, voltageLevelId, loadPositionOrder, loadDirection);
+            return new CreateBay(loadAdder, voltageLevelId, loadPositionOrder, loadDirection);
         }
     }
 
-    public AttachLoadBuilder withLoadAdder(LoadAdder loadAdder) {
+    public CreateBayBuilder withLoadAdder(LoadAdder loadAdder) {
         this.loadAdder = loadAdder;
         return this;
     }
 
-    public AttachLoadBuilder withVoltageLevelId(String voltageLevelId) {
+    public CreateBayBuilder withVoltageLevelId(String voltageLevelId) {
         this.voltageLevelId = voltageLevelId;
         return this;
     }
 
-    public AttachLoadBuilder withBbsId(String bbsId) {
+    public CreateBayBuilder withBbsId(String bbsId) {
         this.bbsId = bbsId;
         return this;
     }
 
-    public AttachLoadBuilder withLoadPositionOrder(int loadPositionOrder) {
+    public CreateBayBuilder withLoadPositionOrder(int loadPositionOrder) {
         this.loadPositionOrder = loadPositionOrder;
         return this;
     }
 
-    public AttachLoadBuilder withLoadDirection(ConnectablePosition.Direction loadDirection) {
+    public CreateBayBuilder withLoadDirection(ConnectablePosition.Direction loadDirection) {
         this.loadDirection = loadDirection;
         return this;
     }
