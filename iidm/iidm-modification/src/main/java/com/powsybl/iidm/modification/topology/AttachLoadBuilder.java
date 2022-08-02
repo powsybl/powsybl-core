@@ -18,14 +18,13 @@ public class AttachLoadBuilder {
     private String voltageLevelId = null;
     private String bbsId = null;
     private Integer loadPositionOrder = null;
-    private AttachLoad.PositionInsideSection loadPositionInsideSection = AttachLoad.PositionInsideSection.SPECIFIC;
     private ConnectablePosition.Direction loadDirection = ConnectablePosition.Direction.BOTTOM;
 
     public AttachLoad build() {
         if (bbsId != null) {
             return new AttachLoad(loadAdder, voltageLevelId, bbsId, loadPositionOrder, loadDirection);
         } else {
-            return new AttachLoad(loadAdder, voltageLevelId, loadPositionInsideSection, loadDirection);
+            return new AttachLoad(loadAdder, voltageLevelId, loadPositionOrder, loadDirection);
         }
     }
 
@@ -54,8 +53,4 @@ public class AttachLoadBuilder {
         return this;
     }
 
-    public AttachLoadBuilder withLoadPositionInsideSection(AttachLoad.PositionInsideSection loadPositionInsideSection) {
-        this.loadPositionInsideSection = loadPositionInsideSection;
-        return this;
-    }
 }

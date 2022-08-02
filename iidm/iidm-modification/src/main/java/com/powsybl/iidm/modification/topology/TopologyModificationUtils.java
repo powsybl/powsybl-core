@@ -280,6 +280,22 @@ final class TopologyModificationUtils {
         }
     }
 
+    public enum PositionInsideSection {
+        FIRST,
+        LAST
+    }
+
+    public static int getOrderPosition(PositionInsideSection positionInsideSection, VoltageLevel voltageLevel, BusbarSection bbs) {
+        int positionOrder;
+        Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+        BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
+        if (positionInsideSection == PositionInsideSection.FIRST) {
+            return allOrders.get(busbarSectionPosition.getSectionIndex()).stream().min(Comparator.naturalOrder()).orElse(1) - 1;
+        } else {
+            return allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE - 1) + 1;
+        }
+    }
+
     private TopologyModificationUtils() {
     }
 }

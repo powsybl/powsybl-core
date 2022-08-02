@@ -38,14 +38,7 @@ public class AttachLoad implements NetworkModification {
     private final String voltageLevelId;
     private String bbsId;
     private int loadPositionOrder;
-    private PositionInsideSection loadPositionInsideSection = PositionInsideSection.SPECIFIC;
     private final ConnectablePosition.Direction loadDirection;
-
-    public enum PositionInsideSection {
-        FIRST,
-        LAST,
-        SPECIFIC
-    }
 
     /**
      * Constructor.
@@ -73,51 +66,19 @@ public class AttachLoad implements NetworkModification {
      * Constructor.
      *
      * @param loadAdder                The load adder.
-     * @param voltageLevelId           The voltage level with the given ID that we want to connect to.
-     * @param bbsId                    The ID of the existing bus bar section of the voltage level voltageLevelId where we want to connect the load.
-     *                                 Please note that there will be switches between this bus bar section and the connection point of the load.
-     * @param loadPositionInsideSection  The load position inside the section bbsId, only {@link PositionInsideSection} FIRST and {@link PositionInsideSection} LAST are supported here.
-     * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
-     */
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, String bbsId, PositionInsideSection loadPositionInsideSection, ConnectablePosition.Direction loadDirection) {
-        this.loadAdder = loadAdder;
-        this.voltageLevelId = voltageLevelId;
-        this.bbsId = bbsId;
-        if (loadPositionInsideSection == PositionInsideSection.SPECIFIC) {
-            throw new PowsyblException("Load position inside section SPECIFIC is not compatible with this constructor");
-        }
-        this.loadPositionInsideSection = loadPositionInsideSection;
-        this.loadDirection = loadDirection;
-    }
-
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, String bbsId, PositionInsideSection loadPositionInsideSection) {
-        this(loadAdder, voltageLevelId, bbsId, loadPositionInsideSection, ConnectablePosition.Direction.BOTTOM);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param loadAdder                The load adder.
      * @param voltageLevelId           The voltage level with the given ID that we want to connect to. The load will be connected on the first bus bar section.
-     * @param loadPositionInsideSection  The load position inside the section bbsId, only {@link PositionInsideSection} FIRST and {@link PositionInsideSection} LAST are supported here.
+     * @param loadPositionOrder        The order of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, PositionInsideSection loadPositionInsideSection, ConnectablePosition.Direction loadDirection) {
+    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
         this.loadAdder = loadAdder;
         this.voltageLevelId = voltageLevelId;
-        if (loadPositionInsideSection == PositionInsideSection.SPECIFIC) {
-            throw new PowsyblException("Load position inside section SPECIFIC is not compatible with this constructor");
-        }
-        this.loadPositionInsideSection = loadPositionInsideSection;
+        this.loadPositionOrder = loadPositionOrder;
         this.loadDirection = loadDirection;
     }
 
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, PositionInsideSection loadPositionInsideSection) {
-        this(loadAdder, voltageLevelId, loadPositionInsideSection, ConnectablePosition.Direction.BOTTOM);
-    }
-
-    public AttachLoad(LoadAdder loadAdder, String voltageLevelId) {
-        this(loadAdder, voltageLevelId, PositionInsideSection.LAST, ConnectablePosition.Direction.BOTTOM);
+    public AttachLoad(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder) {
+        this(loadAdder, voltageLevelId, loadPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
     public LoadAdder getLoadAdder() {
@@ -142,10 +103,6 @@ public class AttachLoad implements NetworkModification {
 
     public ConnectablePosition.Direction getLoadDirection() {
         return loadDirection;
-    }
-
-    public PositionInsideSection getLoadPositionInsideSection() {
-        return loadPositionInsideSection;
     }
 
     @Override
@@ -251,26 +208,18 @@ public class AttachLoad implements NetworkModification {
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition != null) {
             Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
-            if (loadPositionInsideSection != PositionInsideSection.SPECIFIC) {
-                if (loadPositionInsideSection == PositionInsideSection.FIRST) {
-                    loadPositionOrder = allOrders.get(busbarSectionPosition.getSectionIndex()).stream().min(Comparator.naturalOrder()).orElse(1) - 1;
-                } else if (loadPositionInsideSection == PositionInsideSection.LAST) {
-                    loadPositionOrder = allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE - 1) + 1;
+            if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(loadPositionOrder)) {
+                LOGGER.error("LoadPositionOrder {} already taken.", loadPositionOrder);
+                reporter.report(Report.builder()
+                        .withKey("loadPositionOrderAlreadyTaken")
+                        .withDefaultMessage("LoadPositionOrder ${loadPositionOrder} already taken.")
+                        .withValue("loadPositionOrder", loadPositionOrder)
+                        .withSeverity(TypedValue.ERROR_SEVERITY)
+                        .build());
+                if (throwException) {
+                    throw new PowsyblException(String.format("LoadPositionOrder %d already taken.", loadPositionOrder));
                 }
-            } else {
-                if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(loadPositionOrder)) {
-                    LOGGER.error("LoadPositionOrder {} already taken.", loadPositionOrder);
-                    reporter.report(Report.builder()
-                            .withKey("loadPositionOrderAlreadyTaken")
-                            .withDefaultMessage("LoadPositionOrder ${loadPositionOrder} already taken.")
-                            .withValue("loadPositionOrder", loadPositionOrder)
-                            .withSeverity(TypedValue.ERROR_SEVERITY)
-                            .build());
-                    if (throwException) {
-                        throw new PowsyblException(String.format("LoadPositionOrder %d already taken.", loadPositionOrder));
-                    }
-                    return;
-                }
+                return;
             }
             load.newExtension(ConnectablePositionAdder.class)
                     .newFeeder()

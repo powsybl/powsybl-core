@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.LoadAdder;
@@ -23,7 +22,6 @@ import java.util.Optional;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -65,7 +63,8 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bbs2", AttachLoad.PositionInsideSection.FIRST);
+        int loadPositionOrder = TopologyModificationUtils.getOrderPosition(TopologyModificationUtils.PositionInsideSection.FIRST, network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        NetworkModification modification = new AttachLoad(loadAdder, "vl1", "bbs2", loadPositionOrder);
         modification.apply(network);
         assertEquals(Optional.of(39), network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getOrder());
     }
@@ -78,7 +77,7 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new AttachLoad(loadAdder, "vl1");
+        NetworkModification modification = new AttachLoad(loadAdder, "vl1", 71);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-vl1.xml");
@@ -99,10 +98,9 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
         assertEquals(115, modification.getLoadPositionOrder());
         assertEquals(BOTTOM, modification.getLoadDirection());
 
-        AttachLoad modification2 = new AttachLoad(loadAdder, "vl1", AttachLoad.PositionInsideSection.LAST, TOP);
+        AttachLoad modification2 = new AttachLoad(loadAdder, "vl1", 115, TOP);
         assertEquals(loadAdder, modification2.getLoadAdder());
         assertEquals("vl1", modification2.getVoltageLevelId());
-        assertEquals(AttachLoad.PositionInsideSection.LAST, modification2.getLoadPositionInsideSection());
         assertEquals(TOP, modification2.getLoadDirection());
     }
 
@@ -125,19 +123,5 @@ public class AttachLoadTest extends AbstractXmlConverterTest  {
         assertEquals("bb4", modification.getBbsId());
         assertEquals(115, modification.getLoadPositionOrder());
         assertEquals(BOTTOM, modification.getLoadDirection());
-
-        AttachLoadBuilder builder = new AttachLoadBuilder()
-                .withLoadAdder(loadAdder)
-                .withVoltageLevelId("vl1")
-                .withLoadPositionOrder(115);
-
-        assertThrows(PowsyblException.class, builder::build);
-
-        AttachLoad modification1 = new AttachLoadBuilder()
-                .withLoadAdder(loadAdder)
-                .withVoltageLevelId("vl1")
-                .withLoadPositionInsideSection(AttachLoad.PositionInsideSection.LAST)
-                .build();
-        assertEquals(AttachLoad.PositionInsideSection.LAST, modification1.getLoadPositionInsideSection());
     }
 }
