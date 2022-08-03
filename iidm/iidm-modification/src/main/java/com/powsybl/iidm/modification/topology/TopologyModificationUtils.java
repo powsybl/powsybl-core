@@ -286,7 +286,6 @@ final class TopologyModificationUtils {
     }
 
     public static int getOrderPosition(PositionInsideSection positionInsideSection, VoltageLevel voltageLevel, BusbarSection bbs) {
-        int positionOrder;
         Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (positionInsideSection == PositionInsideSection.FIRST) {
