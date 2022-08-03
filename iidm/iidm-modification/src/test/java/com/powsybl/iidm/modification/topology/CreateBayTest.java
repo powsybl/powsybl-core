@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.LoadAdder;
@@ -21,7 +23,7 @@ import java.util.Optional;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -67,6 +69,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
         NetworkModification modification = new CreateBay(loadAdder, "vl1", "bbs2", loadPositionOrder);
         modification.apply(network);
         assertEquals(Optional.of(39), network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getOrder());
+        assertEquals(39, loadPositionOrder);
     }
 
     @Test
@@ -123,5 +126,36 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
         assertEquals("bb4", modification.getBbsId());
         assertEquals(115, modification.getLoadPositionOrder());
         assertEquals(BOTTOM, modification.getLoadDirection());
+
+        CreateBay modification1 = new CreateBayBuilder()
+                .withLoadAdder(loadAdder)
+                .withVoltageLevelId("vl1")
+                .withLoadPositionOrder(115)
+                .withLoadDirection(TOP)
+                .build();
+        assertEquals(loadAdder, modification1.getLoadAdder());
+        assertEquals("vl1", modification.getVoltageLevelId());
+        assertNull(modification1.getBbsId());
+        assertEquals(115, modification1.getLoadPositionOrder());
+        assertEquals(TOP, modification1.getLoadDirection());
+    }
+
+    @Test
+    public void testException() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        CreateBay modification = new CreateBay(loadAdder, "vl", "bb4", 115);
+        assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
+        CreateBay modification1 = new CreateBay(loadAdder, "vl1", "bbs5", 115);
+        assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
+        Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        modification1.setBbsId("bbs1");
+        assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
+        modification1.setBbsId("bbs");
+        assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
     }
 }
