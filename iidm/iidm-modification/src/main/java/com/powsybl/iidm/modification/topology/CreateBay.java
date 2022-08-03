@@ -175,8 +175,7 @@ public class CreateBay implements NetworkModification {
                 }
                 return;
             }
-        }
-        if (bbs == null) {
+        } else {
             bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
             if (bbs == null) {
                 LOGGER.error("Voltage level {} has no bus bar section.", voltageLevelId);
