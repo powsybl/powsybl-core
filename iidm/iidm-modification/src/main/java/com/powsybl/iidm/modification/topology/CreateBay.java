@@ -19,14 +19,15 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.ModificationUtils.throwExceptionAndLogError;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
- * This method adds a new load on an existing voltage level. The voltage level should be described
+ * This method adds a new injection bay on an existing voltage level. The voltage level should be described
  * in node/breaker topology.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -34,55 +35,55 @@ public class CreateBay implements NetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateBay.class);
 
-    private final LoadAdder loadAdder;
+    private final InjectionAdder injectionAdder;
     private final String voltageLevelId;
     private String bbsId;
-    private int loadPositionOrder;
-    private final ConnectablePosition.Direction loadDirection;
+    private final int injectionPositionOrder;
+    private final ConnectablePosition.Direction injectionDirection;
 
     /**
      * Constructor.
      *
-     * @param loadAdder                The load adder.
+     * @param injectionAdder           The injection adder.
      * @param voltageLevelId           The voltage level with the given ID that we want to connect to.
-     * @param bbsId                    The ID of the existing bus bar section of the voltage level voltageLevelId where we want to connect the load.
-     *                                 Please note that there will be switches between this bus bar section and the connection point of the load. This switch will be closed.
-     * @param loadPositionOrder        The order of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
-     * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
+     * @param bbsId                    The ID of the existing bus bar section of the voltage level voltageLevelId where we want to connect the injection.
+     *                                 Please note that there will be switches between this bus bar section and the connection point of the injeciton. This switch will be closed.
+     * @param injectionPositionOrder        The order of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
+     * @param injectionDirection            The direction of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
-    public CreateBay(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
-        this.loadAdder = loadAdder;
+    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, String bbsId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+        this.injectionAdder = injectionAdder;
         this.voltageLevelId = voltageLevelId;
         this.bbsId = bbsId;
-        this.loadPositionOrder = loadPositionOrder;
-        this.loadDirection = loadDirection;
+        this.injectionPositionOrder = injectionPositionOrder;
+        this.injectionDirection = injectionDirection;
     }
 
-    public CreateBay(LoadAdder loadAdder, String voltageLevelId, String bbsId, int loadPositionOrder) {
-        this(loadAdder, voltageLevelId, bbsId, loadPositionOrder, ConnectablePosition.Direction.BOTTOM);
+    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, String bbsId, int injectionPositionOrder) {
+        this(injectionAdder, voltageLevelId, bbsId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
     /**
      * Constructor.
      *
-     * @param loadAdder                The load adder.
-     * @param voltageLevelId           The voltage level with the given ID that we want to connect to. The load will be connected on the first bus bar section.
-     * @param loadPositionOrder        The order of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
-     * @param loadDirection            The direction of the load to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
+     * @param injectionAdder           The injection adder.
+     * @param voltageLevelId           The voltage level with the given ID that we want to connect to. The injection will be connected on the first bus bar section.
+     * @param injectionPositionOrder        The order of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
+     * @param injectionDirection            The direction of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
-    public CreateBay(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder, ConnectablePosition.Direction loadDirection) {
-        this.loadAdder = loadAdder;
+    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+        this.injectionAdder = injectionAdder;
         this.voltageLevelId = voltageLevelId;
-        this.loadPositionOrder = loadPositionOrder;
-        this.loadDirection = loadDirection;
+        this.injectionPositionOrder = injectionPositionOrder;
+        this.injectionDirection = injectionDirection;
     }
 
-    public CreateBay(LoadAdder loadAdder, String voltageLevelId, int loadPositionOrder) {
-        this(loadAdder, voltageLevelId, loadPositionOrder, ConnectablePosition.Direction.BOTTOM);
+    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, int injectionPositionOrder) {
+        this(injectionAdder, voltageLevelId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
-    public LoadAdder getLoadAdder() {
-        return loadAdder;
+    public InjectionAdder getInjectionAdder() {
+        return injectionAdder;
     }
 
     public String getVoltageLevelId() {
@@ -97,12 +98,12 @@ public class CreateBay implements NetworkModification {
         this.bbsId = bbsId;
     }
 
-    public int getLoadPositionOrder() {
-        return loadPositionOrder;
+    public int getInjectionPositionOrder() {
+        return injectionPositionOrder;
     }
 
-    public ConnectablePosition.Direction getLoadDirection() {
-        return loadDirection;
+    public ConnectablePosition.Direction getInjectionDirection() {
+        return injectionDirection;
     }
 
     @Override
@@ -145,7 +146,7 @@ public class CreateBay implements NetworkModification {
             }
             return;
         }
-        BusbarSection bbs = null;
+        BusbarSection bbs;
         if (bbsId != null) {
             bbs = network.getBusbarSection(bbsId);
             if (bbs == null) {
@@ -193,60 +194,61 @@ public class CreateBay implements NetworkModification {
             bbsId = bbs.getId();
         }
 
-        int loadNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-        int forkNode = loadNode + 1;
-        loadAdder.setNode(loadNode);
-        Load load = loadAdder.add();
-        if (load.getNetwork() != network) {
-            load.remove();
-            throwExceptionAndLogError("Network given in parameters and in loadAdder are different. The network might be corrupted", "networkMismatch", throwException, reporter);
+        int injectionNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        int forkNode = injectionNode + 1;
+        injectionAdder.setNode(injectionNode);
+        Injection<?> injection = add(injectionAdder);
+        if (injection.getNetwork() != network) {
+            injection.remove();
+            throwExceptionAndLogError("Network given in parameters and in injectionAdder are different. The network might be corrupted", "networkMismatch", throwException, reporter);
             return;
         }
-        String loadId = load.getId();
+        String injectionId = injection.getId();
 
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition != null) {
             Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
-            if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(loadPositionOrder)) {
-                LOGGER.error("LoadPositionOrder {} already taken.", loadPositionOrder);
+            if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(injectionPositionOrder)) {
+                LOGGER.error("InjectionPositionOrder {} already taken.", injectionPositionOrder);
                 reporter.report(Report.builder()
-                        .withKey("loadPositionOrderAlreadyTaken")
-                        .withDefaultMessage("LoadPositionOrder ${loadPositionOrder} already taken.")
-                        .withValue("loadPositionOrder", loadPositionOrder)
+                        .withKey("injectionPositionOrderAlreadyTaken")
+                        .withDefaultMessage("InjectionPositionOrder ${injectionPositionOrder} already taken.")
+                        .withValue("injectionPositionOrder", injectionPositionOrder)
                         .withSeverity(TypedValue.ERROR_SEVERITY)
                         .build());
                 if (throwException) {
-                    throw new PowsyblException(String.format("LoadPositionOrder %d already taken.", loadPositionOrder));
+                    throw new PowsyblException(String.format("InjectionPositionOrder %d already taken.", injectionPositionOrder));
                 }
                 return;
             }
-            load.newExtension(ConnectablePositionAdder.class)
+
+            injection.newExtension(ConnectablePositionAdder.class)
                     .newFeeder()
-                    .withDirection(loadDirection)
-                    .withOrder(loadPositionOrder)
-                    .withName(loadId)
+                    .withDirection(injectionDirection)
+                    .withOrder(injectionPositionOrder)
+                    .withName(injectionId)
                     .add()
                     .add();
         }
 
-        // create switches and a breaker linking the load to the bus bar sections.
-        createTopology(network, voltageLevel, loadNode, forkNode, loadId, reporter);
+        // create switches and a breaker linking the injection to the bus bar sections.
+        createTopology(network, voltageLevel, injectionNode, forkNode, injectionId, reporter);
 
-        LOGGER.info("New load {} was added to voltage level {} on busbar section {}", load.getId(), voltageLevel.getId(), bbs.getId());
+        LOGGER.info("New injection {} was added to voltage level {} on busbar section {}", injection.getId(), voltageLevel.getId(), bbs.getId());
         reporter.report(Report.builder()
-                .withKey("newLoadAdded")
-                .withDefaultMessage("New load ${loadId} was added to voltage level ${voltageLevelId} on busbar section ${bbsId}")
-                .withValue("loadId", load.getId())
+                .withKey("newInjectionAdded")
+                .withDefaultMessage("New injection ${injectionId} was added to voltage level ${voltageLevelId} on busbar section ${bbsId}")
+                .withValue("injectionId", injection.getId())
                 .withValue("voltageLevelId", voltageLevel.getId())
                 .withValue("bbsId", bbs.getId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
-    private void createTopology(Network network, VoltageLevel voltageLevel, int loadNode, int forkNode, String loadId, Reporter reporter) {
+    private void createTopology(Network network, VoltageLevel voltageLevel, int injectionNode, int forkNode, String injectionId, Reporter reporter) {
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(loadNode, forkNode, bbsNode, loadId, voltageLevel.getNodeBreakerView());
+        createNodeBreakerSwitches(injectionNode, forkNode, bbsNode, injectionId, voltageLevel.getNodeBreakerView());
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
         if (position == null) {
             LOGGER.warn("No bus bar section position extension found on {}, only one disconnector is created.", bbs.getId());
@@ -257,17 +259,39 @@ public class CreateBay implements NetworkModification {
                     .withSeverity(TypedValue.WARN_SEVERITY)
                     .build());
         } else {
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, loadId, voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            createTopologyFromBusbarSectionList(voltageLevel, forkNode, injectionId, voltageLevel.getNodeBreakerView().getBusbarSectionStream()
                     .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
                     .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
                     .filter(b -> !b.getId().equals(bbsId)));
         }
     }
 
-    private void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String loadId, Stream<BusbarSection> bbsStream) {
+    private void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String injectionId, Stream<BusbarSection> bbsStream) {
         bbsStream.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), loadId, voltageLevel.getNodeBreakerView(), true);
+            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), injectionId, voltageLevel.getNodeBreakerView(), true);
         });
+    }
+
+    private Injection add(InjectionAdder injectionAdder) {
+        if (injectionAdder instanceof LoadAdder) {
+            return ((LoadAdder) injectionAdder).add();
+        } else if (injectionAdder instanceof BatteryAdder) {
+            return ((BatteryAdder) injectionAdder).add();
+        } else if (injectionAdder instanceof DanglingLineAdder) {
+            return ((DanglingLineAdder) injectionAdder).add();
+        } else if (injectionAdder instanceof GeneratorAdder) {
+            return ((GeneratorAdder) injectionAdder).add();
+        } else if (injectionAdder instanceof ShuntCompensatorAdder) {
+            return ((ShuntCompensatorAdder) injectionAdder).add();
+        } else if (injectionAdder instanceof StaticVarCompensator) {
+            return ((StaticVarCompensatorAdder) injectionAdder).add();
+        } else if (injectionAdder instanceof LccConverterStationAdder) {
+            return ((LccConverterStationAdder) injectionAdder).add();
+        } else if (injectionAdder instanceof VscConverterStationAdder) {
+            return ((VscConverterStationAdder) injectionAdder).add();
+        } else {
+            throw new AssertionError();
+        }
     }
 }

@@ -10,9 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -31,7 +29,7 @@ import static org.junit.Assert.*;
 public class CreateBayTest extends AbstractXmlConverterTest  {
 
     @Test
-    public void attachLoadTestWithBbsId() throws IOException {
+    public void createLoadTestWithBbsId() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -45,7 +43,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
     }
 
     @Test
-    public void attachLoadTestWithBbsId2() throws IOException {
+    public void createLoadTestWithBbsId2() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -58,7 +56,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
     }
 
     @Test
-    public void attachLoadTestWithBbsId3() throws IOException {
+    public void createLoadTestWithBbsId3() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -73,7 +71,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
     }
 
     @Test
-    public void attachLoadTestWithVoltageLevelId() throws IOException {
+    public void createLoadTestWithVoltageLevelId() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -95,16 +93,16 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setP0(0)
                 .setQ0(0);
         CreateBay modification = new CreateBay(loadAdder, "vl1", "bb4", 115);
-        assertEquals(loadAdder, modification.getLoadAdder());
+        assertEquals(loadAdder, modification.getInjectionAdder());
         assertEquals("vl1", modification.getVoltageLevelId());
         assertEquals("bb4", modification.getBbsId());
-        assertEquals(115, modification.getLoadPositionOrder());
-        assertEquals(BOTTOM, modification.getLoadDirection());
+        assertEquals(115, modification.getInjectionPositionOrder());
+        assertEquals(BOTTOM, modification.getInjectionDirection());
 
         CreateBay modification2 = new CreateBay(loadAdder, "vl1", 115, TOP);
-        assertEquals(loadAdder, modification2.getLoadAdder());
+        assertEquals(loadAdder, modification2.getInjectionAdder());
         assertEquals("vl1", modification2.getVoltageLevelId());
-        assertEquals(TOP, modification2.getLoadDirection());
+        assertEquals(TOP, modification2.getInjectionDirection());
     }
 
     @Test
@@ -116,28 +114,28 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setP0(0)
                 .setQ0(0);
         CreateBay modification = new CreateBayBuilder()
-                .withLoadAdder(loadAdder)
+                .withInjectionAdder(loadAdder)
                 .withVoltageLevelId("vl1")
                 .withBbsId("bb4")
-                .withLoadPositionOrder(115)
+                .withInjectionPositionOrder(115)
                 .build();
-        assertEquals(loadAdder, modification.getLoadAdder());
+        assertEquals(loadAdder, modification.getInjectionAdder());
         assertEquals("vl1", modification.getVoltageLevelId());
         assertEquals("bb4", modification.getBbsId());
-        assertEquals(115, modification.getLoadPositionOrder());
-        assertEquals(BOTTOM, modification.getLoadDirection());
+        assertEquals(115, modification.getInjectionPositionOrder());
+        assertEquals(BOTTOM, modification.getInjectionDirection());
 
         CreateBay modification1 = new CreateBayBuilder()
-                .withLoadAdder(loadAdder)
+                .withInjectionAdder(loadAdder)
                 .withVoltageLevelId("vl1")
-                .withLoadPositionOrder(115)
-                .withLoadDirection(TOP)
+                .withInjectionPositionOrder(115)
+                .withInjectionDirection(TOP)
                 .build();
-        assertEquals(loadAdder, modification1.getLoadAdder());
+        assertEquals(loadAdder, modification1.getInjectionAdder());
         assertEquals("vl1", modification.getVoltageLevelId());
         assertNull(modification1.getBbsId());
-        assertEquals(115, modification1.getLoadPositionOrder());
-        assertEquals(TOP, modification1.getLoadDirection());
+        assertEquals(115, modification1.getInjectionPositionOrder());
+        assertEquals(TOP, modification1.getInjectionDirection());
     }
 
     @Test
@@ -157,5 +155,25 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
         assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
         modification1.setBbsId("bbs");
         assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
+    }
+
+    @Test
+    public void createGeneratorTestWithBbsId() throws IOException {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        GeneratorAdder generatorAdder = network.getVoltageLevel("vl1").newGenerator()
+                .setId("newGenerator")
+                .setVoltageRegulatorOn(true)
+                .setMaxP(9999)
+                .setMinP(-9999)
+                .setTargetV(25.5)
+                .setTargetP(600)
+                .setTargetQ(300)
+                .setRatedS(10)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .setEnsureIdUnicity(true);
+        NetworkModification modification = new CreateBay(generatorAdder, "vl1", "bbs1", 115);
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-generator-bbs1.xml");
     }
 }
