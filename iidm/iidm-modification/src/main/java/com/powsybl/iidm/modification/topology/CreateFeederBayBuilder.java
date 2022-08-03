@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateBayBuilder {
+public class CreateFeederBayBuilder {
 
     private InjectionAdder injectionAdder = null;
     private String voltageLevelId = null;
@@ -20,35 +20,35 @@ public class CreateBayBuilder {
     private Integer injectionPositionOrder = null;
     private ConnectablePosition.Direction injectionDirection = ConnectablePosition.Direction.BOTTOM;
 
-    public CreateBay build() {
+    public CreateFeederBay build() {
         if (bbsId != null) {
-            return new CreateBay(injectionAdder, voltageLevelId, bbsId, injectionPositionOrder, injectionDirection);
+            return new CreateFeederBay(injectionAdder, voltageLevelId, bbsId, injectionPositionOrder, injectionDirection);
         } else {
-            return new CreateBay(injectionAdder, voltageLevelId, injectionPositionOrder, injectionDirection);
+            return new CreateFeederBay(injectionAdder, voltageLevelId, injectionPositionOrder, injectionDirection);
         }
     }
 
-    public CreateBayBuilder withInjectionAdder(InjectionAdder injectionAdder) {
+    public CreateFeederBayBuilder withInjectionAdder(InjectionAdder injectionAdder) {
         this.injectionAdder = injectionAdder;
         return this;
     }
 
-    public CreateBayBuilder withVoltageLevelId(String voltageLevelId) {
+    public CreateFeederBayBuilder withVoltageLevelId(String voltageLevelId) {
         this.voltageLevelId = voltageLevelId;
         return this;
     }
 
-    public CreateBayBuilder withBbsId(String bbsId) {
+    public CreateFeederBayBuilder withBbsId(String bbsId) {
         this.bbsId = bbsId;
         return this;
     }
 
-    public CreateBayBuilder withInjectionPositionOrder(int injectionPositionOrder) {
+    public CreateFeederBayBuilder withInjectionPositionOrder(int injectionPositionOrder) {
         this.injectionPositionOrder = injectionPositionOrder;
         return this;
     }
 
-    public CreateBayBuilder withInjectionDirection(ConnectablePosition.Direction injectionDirection) {
+    public CreateFeederBayBuilder withInjectionDirection(ConnectablePosition.Direction injectionDirection) {
         this.injectionDirection = injectionDirection;
         return this;
     }

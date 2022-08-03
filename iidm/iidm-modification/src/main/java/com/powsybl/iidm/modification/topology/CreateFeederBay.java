@@ -31,11 +31,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * in node/breaker topology.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateBay implements NetworkModification {
+public class CreateFeederBay implements NetworkModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateBay.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CreateFeederBay.class);
 
-    private final InjectionAdder injectionAdder;
+    private final InjectionAdder<?> injectionAdder;
     private final String voltageLevelId;
     private String bbsId;
     private final int injectionPositionOrder;
@@ -51,7 +51,7 @@ public class CreateBay implements NetworkModification {
      * @param injectionPositionOrder        The order of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      * @param injectionDirection            The direction of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
-    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, String bbsId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+    public CreateFeederBay(InjectionAdder<?> injectionAdder, String voltageLevelId, String bbsId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
         this.injectionAdder = injectionAdder;
         this.voltageLevelId = voltageLevelId;
         this.bbsId = bbsId;
@@ -59,7 +59,7 @@ public class CreateBay implements NetworkModification {
         this.injectionDirection = injectionDirection;
     }
 
-    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, String bbsId, int injectionPositionOrder) {
+    public CreateFeederBay(InjectionAdder<?> injectionAdder, String voltageLevelId, String bbsId, int injectionPositionOrder) {
         this(injectionAdder, voltageLevelId, bbsId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
@@ -71,14 +71,14 @@ public class CreateBay implements NetworkModification {
      * @param injectionPositionOrder        The order of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      * @param injectionDirection            The direction of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
      */
-    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+    public CreateFeederBay(InjectionAdder<?> injectionAdder, String voltageLevelId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
         this.injectionAdder = injectionAdder;
         this.voltageLevelId = voltageLevelId;
         this.injectionPositionOrder = injectionPositionOrder;
         this.injectionDirection = injectionDirection;
     }
 
-    public CreateBay(InjectionAdder injectionAdder, String voltageLevelId, int injectionPositionOrder) {
+    public CreateFeederBay(InjectionAdder<?> injectionAdder, String voltageLevelId, int injectionPositionOrder) {
         this(injectionAdder, voltageLevelId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
@@ -273,7 +273,7 @@ public class CreateBay implements NetworkModification {
         });
     }
 
-    private Injection add(InjectionAdder injectionAdder) {
+    private Injection<?> add(InjectionAdder<? extends InjectionAdder> injectionAdder) {
         if (injectionAdder instanceof LoadAdder) {
             return ((LoadAdder) injectionAdder).add();
         } else if (injectionAdder instanceof BatteryAdder) {

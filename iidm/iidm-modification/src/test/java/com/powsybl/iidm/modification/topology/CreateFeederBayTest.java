@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateBayTest extends AbstractXmlConverterTest  {
+public class CreateFeederBayTest extends AbstractXmlConverterTest  {
 
     @Test
     public void createLoadTestWithBbsId() throws IOException {
@@ -36,7 +36,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new CreateBay(loadAdder, "vl1", "bb4", 115);
+        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", "bb4", 115);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-bbs1.xml");
@@ -50,7 +50,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new CreateBay(loadAdder, "vl1", "bbs1", 115, TOP);
+        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", "bbs1", 115, TOP);
         modification.apply(network);
         assertEquals(TOP, network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getDirection());
     }
@@ -64,7 +64,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setP0(0)
                 .setQ0(0);
         int loadPositionOrder = TopologyModificationUtils.getOrderPosition(TopologyModificationUtils.PositionInsideSection.FIRST, network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
-        NetworkModification modification = new CreateBay(loadAdder, "vl1", "bbs2", loadPositionOrder);
+        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", "bbs2", loadPositionOrder);
         modification.apply(network);
         assertEquals(Optional.of(39), network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getOrder());
         assertEquals(39, loadPositionOrder);
@@ -78,7 +78,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new CreateBay(loadAdder, "vl1", 71);
+        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", 71);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-vl1.xml");
@@ -92,14 +92,14 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        CreateBay modification = new CreateBay(loadAdder, "vl1", "bb4", 115);
+        CreateFeederBay modification = new CreateFeederBay(loadAdder, "vl1", "bb4", 115);
         assertEquals(loadAdder, modification.getInjectionAdder());
         assertEquals("vl1", modification.getVoltageLevelId());
         assertEquals("bb4", modification.getBbsId());
         assertEquals(115, modification.getInjectionPositionOrder());
         assertEquals(BOTTOM, modification.getInjectionDirection());
 
-        CreateBay modification2 = new CreateBay(loadAdder, "vl1", 115, TOP);
+        CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "vl1", 115, TOP);
         assertEquals(loadAdder, modification2.getInjectionAdder());
         assertEquals("vl1", modification2.getVoltageLevelId());
         assertEquals(TOP, modification2.getInjectionDirection());
@@ -113,7 +113,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        CreateBay modification = new CreateBayBuilder()
+        CreateFeederBay modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withVoltageLevelId("vl1")
                 .withBbsId("bb4")
@@ -125,7 +125,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
         assertEquals(115, modification.getInjectionPositionOrder());
         assertEquals(BOTTOM, modification.getInjectionDirection());
 
-        CreateBay modification1 = new CreateBayBuilder()
+        CreateFeederBay modification1 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withVoltageLevelId("vl1")
                 .withInjectionPositionOrder(115)
@@ -146,9 +146,9 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        CreateBay modification = new CreateBay(loadAdder, "vl", "bb4", 115);
+        CreateFeederBay modification = new CreateFeederBay(loadAdder, "vl", "bb4", 115);
         assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
-        CreateBay modification1 = new CreateBay(loadAdder, "vl1", "bbs5", 115);
+        CreateFeederBay modification1 = new CreateFeederBay(loadAdder, "vl1", "bbs5", 115);
         assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
         Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         modification1.setBbsId("bbs1");
@@ -171,7 +171,7 @@ public class CreateBayTest extends AbstractXmlConverterTest  {
                 .setRatedS(10)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setEnsureIdUnicity(true);
-        NetworkModification modification = new CreateBay(generatorAdder, "vl1", "bbs1", 115);
+        NetworkModification modification = new CreateFeederBay(generatorAdder, "vl1", "bbs1", 115);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-generator-bbs1.xml");
