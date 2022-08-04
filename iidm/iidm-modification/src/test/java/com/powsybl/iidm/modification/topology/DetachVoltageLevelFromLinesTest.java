@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -22,6 +23,7 @@ import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbB
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -33,6 +35,12 @@ public class DetachVoltageLevelFromLinesTest extends AbstractXmlConverterTest {
         Network network = createNbNetwork();
         NetworkModification modification = new AttachVoltageLevelOnLine("VLTEST", BBS, network.getLine("CJ"));
         modification.apply(network);
+
+        final NetworkModification modificationWithError1 = new DetachVoltageLevelFromLines("line1NotFound", "CJ_2", "CJ", null);
+        assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network));
+
+        final NetworkModification modificationWithError2 = new DetachVoltageLevelFromLines("CJ_1", "line2NotFound", "CJ", null);
+        assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network));
 
         modification = new DetachVoltageLevelFromLines("CJ_1", "CJ_2", "CJ", null);
         modification.apply(network);

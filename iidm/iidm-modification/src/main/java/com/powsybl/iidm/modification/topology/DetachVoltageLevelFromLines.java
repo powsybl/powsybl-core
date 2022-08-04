@@ -95,11 +95,13 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
         Line line1 = network.getLine(line1Id);
         if (line1 == null) {
             report(String.format("Line %s is not found", line1Id), "lineNotFound", TypedValue.ERROR_SEVERITY, reporter, throwException);
+            return;
         }
 
         Line line2 = network.getLine(line2Id);
         if (line2 == null) {
             report(String.format("Line %s is not found", line2Id), "lineNotFound", TypedValue.ERROR_SEVERITY, reporter, throwException);
+            return;
         }
 
         // Check and find the voltage level in common
