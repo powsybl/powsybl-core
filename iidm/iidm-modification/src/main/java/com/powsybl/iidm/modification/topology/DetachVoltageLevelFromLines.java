@@ -163,11 +163,6 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager, Reporter reporter) {
-        apply(network, true, reporter);
-    }
-
-    @Override
     public void apply(Network network) {
         apply(network, true, Reporter.NO_OP);
     }
