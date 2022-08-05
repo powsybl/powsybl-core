@@ -146,21 +146,26 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
+        //wrong voltageLevel
         CreateFeederBay modification = new CreateFeederBay(loadAdder, "vl", "bbs4", 115);
         assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
+        //bbsId not in voltageLevel
         CreateFeederBay modification1 = new CreateFeederBay(loadAdder, "vl1", "bbs5", 115);
         assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
+        //wrong network
         Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         modification1.setBbsId("bbs1");
         assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
+        //wrong bbsId
         modification1.setBbsId("bbs");
         assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
-        CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "vl", "bbs4", 0);
-        assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
+        //wrong injectionPositionOrder
+        CreateFeederBay modification3 = new CreateFeederBay(loadAdder, "vl1", "bbs4", 0);
+        assertThrows(PowsyblException.class, () -> modification3.apply(network, true, Reporter.NO_OP));
     }
 
     @Test
-    public void createGeneratorTestWithBbsId() throws IOException {
+    public void createGeneratorTest() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         GeneratorAdder generatorAdder = network.getVoltageLevel("vl1").newGenerator()
                 .setId("newGenerator")
@@ -177,6 +182,62 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-generator-bbs1.xml");
+    }
+
+    @Test
+    public void createEquipmentsTest() throws IOException {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        BatteryAdder batteryAdder = network.getVoltageLevel("vl1").newBattery()
+                .setId("newBattery")
+                .setMaxP(9999)
+                .setMinP(-9999)
+                .setTargetP(100)
+                .setTargetQ(50);
+        NetworkModification addBatteryModification = new CreateFeederBay(batteryAdder, "vl1", "bbs1", 115);
+        addBatteryModification.apply(network);
+        DanglingLineAdder danglingLineAdder = network.getVoltageLevel("vl2").newDanglingLine()
+                        .setId("newDanglingLine")
+                        .setR(10)
+                        .setX(20)
+                        .setG(30)
+                        .setB(40)
+                        .setP0(50)
+                        .setQ0(60)
+                        .setEnsureIdUnicity(false);
+        int danglingLinePositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        NetworkModification addDanglingLineModification = new CreateFeederBay(danglingLineAdder, "vl2", "bbs5", danglingLinePositionOrder);
+        addDanglingLineModification.apply(network);
+        ShuntCompensatorAdder shuntCompensatorAdder = network.getVoltageLevel("vl2").newShuntCompensator()
+                        .setId("newShuntCompensator")
+                        .setSectionCount(0)
+                        .newLinearModel()
+                            .setBPerSection(1e-5)
+                            .setMaximumSectionCount(1)
+                            .add();
+        int shuntCompensatorPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        NetworkModification addShuntCompensatorModification = new CreateFeederBay(shuntCompensatorAdder, "vl2", "bbs5", shuntCompensatorPositionOrder);
+        addShuntCompensatorModification.apply(network);
+        StaticVarCompensatorAdder staticVarCompensatorAdder = network.getVoltageLevel("vl1").newStaticVarCompensator()
+                        .setId("newStaticVarCompensator")
+                        .setBmin(0.0002)
+                        .setBmax(0.0008)
+                        .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                        .setVoltageSetpoint(390.0)
+                        .setReactivePowerSetpoint(1.0)
+                        .setEnsureIdUnicity(false);
+        int staticVarCompensatorPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        NetworkModification addSVCompensatorModification = new CreateFeederBay(staticVarCompensatorAdder, "vl2", "bbs5", staticVarCompensatorPositionOrder);
+        addSVCompensatorModification.apply(network);
+        LccConverterStationAdder lccConverterStationAdder = network.getVoltageLevel("vl2").newLccConverterStation()
+                        .setId("newLccConverterStation")
+                        .setLossFactor(0.011f)
+                        .setPowerFactor(0.5f)
+                        .setEnsureIdUnicity(false);
+        int lccConverterStationPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        NetworkModification addLccConverterStationModification = new CreateFeederBay(lccConverterStationAdder, "vl2", "bbs5", lccConverterStationPositionOrder);
+        addLccConverterStationModification.apply(network);
+        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-equipments-bbs1.xml");
     }
 
     @Test

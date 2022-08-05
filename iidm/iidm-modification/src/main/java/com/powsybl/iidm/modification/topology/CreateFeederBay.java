@@ -212,7 +212,7 @@ public class CreateFeederBay implements NetworkModification {
             return ((GeneratorAdder) injectionAdder).add();
         } else if (injectionAdder instanceof ShuntCompensatorAdder) {
             return ((ShuntCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof StaticVarCompensator) {
+        } else if (injectionAdder instanceof StaticVarCompensatorAdder) {
             return ((StaticVarCompensatorAdder) injectionAdder).add();
         } else if (injectionAdder instanceof LccConverterStationAdder) {
             return ((LccConverterStationAdder) injectionAdder).add();
