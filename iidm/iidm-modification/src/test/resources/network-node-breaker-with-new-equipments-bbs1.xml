@@ -93,6 +93,9 @@
                 <iidm:switch id="newLccConverterStation_BREAKER" kind="BREAKER" retained="true" open="false" node1="28" node2="29"/>
                 <iidm:switch id="newLccConverterStation_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="29" node2="0"/>
                 <iidm:switch id="newLccConverterStation_DISCONNECTOR1" kind="DISCONNECTOR" retained="false" open="true" node1="29" node2="1"/>
+                <iidm:switch id="newVscConverterStation_BREAKER" kind="BREAKER" retained="true" open="false" node1="30" node2="31"/>
+                <iidm:switch id="newVscConverterStation_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="31" node2="0"/>
+                <iidm:switch id="newVscConverterStation_DISCONNECTOR1" kind="DISCONNECTOR" retained="false" open="true" node1="31" node2="1"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen4" name="gen4" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="4">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
@@ -102,6 +105,9 @@
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
             <iidm:danglingLine id="newDanglingLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>
+            <iidm:vscConverterStation id="newVscConverterStation" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="405.0" node="30">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
             <iidm:lccConverterStation id="newLccConverterStation" lossFactor="0.011" powerFactor="0.5" node="28"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="vl3" name="vl3" nominalV="50.0" topologyKind="NODE_BREAKER">
@@ -167,6 +173,11 @@
     <iidm:extension id="load1">
         <cp:position>
             <cp:feeder name="load1" order="0" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="newVscConverterStation">
+        <cp:position>
+            <cp:feeder name="newVscConverterStation" order="114" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="bbs1_2">

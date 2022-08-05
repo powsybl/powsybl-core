@@ -236,6 +236,15 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         int lccConverterStationPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
         NetworkModification addLccConverterStationModification = new CreateFeederBay(lccConverterStationAdder, "vl2", "bbs5", lccConverterStationPositionOrder);
         addLccConverterStationModification.apply(network);
+        VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
+                .setId("newVscConverterStation")
+                .setLossFactor(1.1f)
+                .setVoltageSetpoint(405.0)
+                .setVoltageRegulatorOn(true)
+                .setEnsureIdUnicity(false);
+        int vscConverterStationPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        NetworkModification addVscConverterStationModification = new CreateFeederBay(vscConverterStationAdder, "vl2", "bbs5", vscConverterStationPositionOrder);
+        addVscConverterStationModification.apply(network);
         roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-equipments-bbs1.xml");
     }
