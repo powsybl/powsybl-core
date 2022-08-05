@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
@@ -43,27 +44,29 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
     }
 
     @Test
-    public void createLoadTestWithBbsId2() throws IOException {
+    public void createLoadTestWithBbsId2() {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", "bbs1", 115, TOP);
+        int loadPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", "bbs1", loadPositionOrder, TOP);
         modification.apply(network);
         assertEquals(TOP, network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getDirection());
+        assertEquals(111, loadPositionOrder);
     }
 
     @Test
-    public void createLoadTestWithBbsId3() throws IOException {
+    public void createLoadTestWithBbsId3() {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        int loadPositionOrder = TopologyModificationUtils.getOrderPosition(TopologyModificationUtils.PositionInsideSection.FIRST, network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        int loadPositionOrder = TopologyModificationUtils.getFirstUnusedOrderPosition(network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
         NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", "bbs2", loadPositionOrder);
         modification.apply(network);
         assertEquals(Optional.of(39), network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getOrder());
@@ -78,7 +81,9 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", 71);
+        BusbarSection bbs = TopologyModificationUtils.getFirstBusbarSection(network.getVoltageLevel("vl1"));
+        assertEquals("bbs1", bbs.getId());
+        NetworkModification modification = new CreateFeederBay(loadAdder, "vl1", bbs.getId(), 71);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-vl1.xml");
@@ -98,11 +103,6 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals("bb4", modification.getBbsId());
         assertEquals(115, modification.getInjectionPositionOrder());
         assertEquals(BOTTOM, modification.getInjectionDirection());
-
-        CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "vl1", 115, TOP);
-        assertEquals(loadAdder, modification2.getInjectionAdder());
-        assertEquals("vl1", modification2.getVoltageLevelId());
-        assertEquals(TOP, modification2.getInjectionDirection());
     }
 
     @Test
@@ -146,7 +146,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        CreateFeederBay modification = new CreateFeederBay(loadAdder, "vl", "bb4", 115);
+        CreateFeederBay modification = new CreateFeederBay(loadAdder, "vl", "bbs4", 115);
         assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         CreateFeederBay modification1 = new CreateFeederBay(loadAdder, "vl1", "bbs5", 115);
         assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
@@ -155,6 +155,8 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
         modification1.setBbsId("bbs");
         assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
+        CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "vl", "bbs4", 0);
+        assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
     }
 
     @Test
@@ -175,5 +177,17 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-generator-bbs1.xml");
+    }
+
+    @Test
+    public void testFeederOrders() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl1"));
+        assertEquals(13, feederOrders.size());
+        assertTrue(feederOrders.contains(100));
+        Set<Integer> feederOrders2 = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl2"));
+        assertEquals(9, feederOrders2.size());
+        Set<Integer> feederOrders3 = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vlSubst2"));
+        assertEquals(1, feederOrders3.size());
     }
 }

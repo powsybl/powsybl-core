@@ -7,9 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -20,11 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.modification.ModificationUtils.throwExceptionAndLogError;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.ModificationReports.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNodeBreakerSwitches;
 
 /**
  * This method adds a new injection bay on an existing voltage level. The voltage level should be described
@@ -61,25 +60,6 @@ public class CreateFeederBay implements NetworkModification {
 
     public CreateFeederBay(InjectionAdder<?> injectionAdder, String voltageLevelId, String bbsId, int injectionPositionOrder) {
         this(injectionAdder, voltageLevelId, bbsId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param injectionAdder           The injection adder.
-     * @param voltageLevelId           The voltage level with the given ID that we want to connect to. The injection will be connected on the first bus bar section.
-     * @param injectionPositionOrder        The order of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
-     * @param injectionDirection            The direction of the injection to be attached from its extension {@link com.powsybl.iidm.network.extensions.ConnectablePosition}.
-     */
-    public CreateFeederBay(InjectionAdder<?> injectionAdder, String voltageLevelId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
-        this.injectionAdder = injectionAdder;
-        this.voltageLevelId = voltageLevelId;
-        this.injectionPositionOrder = injectionPositionOrder;
-        this.injectionDirection = injectionDirection;
-    }
-
-    public CreateFeederBay(InjectionAdder<?> injectionAdder, String voltageLevelId, int injectionPositionOrder) {
-        this(injectionAdder, voltageLevelId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
     public InjectionAdder getInjectionAdder() {
@@ -121,12 +101,7 @@ public class CreateFeederBay implements NetworkModification {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOGGER.error("Voltage level {} is not found", voltageLevelId);
-            reporter.report(Report.builder()
-                    .withKey("missingVoltageLevel")
-                    .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
-                    .withValue("voltageLevelId", voltageLevelId)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
+            missingVoltageLevelReport(reporter, voltageLevelId);
             if (throwException) {
                 throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
             }
@@ -135,12 +110,7 @@ public class CreateFeederBay implements NetworkModification {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind != TopologyKind.NODE_BREAKER) {
             LOGGER.error("Voltage level {} is not in node/breaker.", voltageLevelId);
-            reporter.report(Report.builder()
-                    .withKey("notNodeBreakerVoltageLevel")
-                    .withDefaultMessage("Voltage level ${voltageLevelId} is not in node/breaker")
-                    .withValue("voltageLevelId", voltageLevelId)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
+            notNodeBreakerVoltageLevelReport(reporter, voltageLevelId);
             if (throwException) {
                 throw new PowsyblException(String.format("Voltage level %s is not in node/breaker.", voltageLevelId));
             }
@@ -151,12 +121,7 @@ public class CreateFeederBay implements NetworkModification {
             bbs = network.getBusbarSection(bbsId);
             if (bbs == null) {
                 LOGGER.error("Bus bar section {} not found.", bbsId);
-                reporter.report(Report.builder()
-                        .withKey("notFoundBusbarSection")
-                        .withDefaultMessage("Bus bar section ${busbarSectionId} not found")
-                        .withValue("busbarSectionId", bbsId)
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
+                notFoundBusbarSectionReport(reporter, bbsId);
                 if (throwException) {
                     throw new PowsyblException(String.format("Bus bar section %s not found.", bbsId));
                 }
@@ -164,110 +129,73 @@ public class CreateFeederBay implements NetworkModification {
             }
             if (bbs.getTerminal().getVoltageLevel() != voltageLevel) {
                 LOGGER.error("Bus bar section {} is not in voltageLevel {}.", bbsId, voltageLevelId);
-                reporter.report(Report.builder()
-                        .withKey("busbarSectionNotInVoltageLevel")
-                        .withDefaultMessage("Bus bar section ${busbarSectionId} is not in voltageLevel ${voltageLevelId}.")
-                        .withValue("busbarSectionId", bbsId)
-                        .withValue("voltageLevelId", voltageLevelId)
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
+                busbarSectionNotInVoltageLevelReport(reporter, voltageLevelId, bbsId);
                 if (throwException) {
                     throw new PowsyblException(String.format("Bus bar section %s is not in voltageLevel %s.", bbsId, voltageLevelId));
                 }
                 return;
             }
-        } else {
-            bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
-            if (bbs == null) {
-                LOGGER.error("Voltage level {} has no bus bar section.", voltageLevelId);
-                reporter.report(Report.builder()
-                        .withKey("noBusbarSectionInVoltageLevel")
-                        .withDefaultMessage("Voltage level ${voltageLevelId} has no bus bar section.")
-                        .withValue("voltageLevelId", voltageLevelId)
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
-                if (throwException) {
-                    throw new PowsyblException(String.format("Voltage level %s has no bus bar section.", voltageLevelId));
-                }
-                return;
-            }
-            bbsId = bbs.getId();
         }
-
         int injectionNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int forkNode = injectionNode + 1;
         injectionAdder.setNode(injectionNode);
         Injection<?> injection = add(injectionAdder);
         if (injection.getNetwork() != network) {
             injection.remove();
-            throwExceptionAndLogError("Network given in parameters and in injectionAdder are different. The network might be corrupted", "networkMismatch", throwException, reporter);
+            LOGGER.error("Network given in parameters and in injectionAdder are different. The network might be corrupted");
+            networkMismatchReport(reporter);
+            if (throwException) {
+                throw new PowsyblException("Network given in parameters and in injectionAdder are different. The network might be corrupted");
+            }
             return;
         }
         String injectionId = injection.getId();
 
-        BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
-        if (busbarSectionPosition != null) {
-            Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
-            if (allOrders.get(busbarSectionPosition.getSectionIndex()).contains(injectionPositionOrder)) {
-                LOGGER.error("InjectionPositionOrder {} already taken.", injectionPositionOrder);
-                reporter.report(Report.builder()
-                        .withKey("injectionPositionOrderAlreadyTaken")
-                        .withDefaultMessage("InjectionPositionOrder ${injectionPositionOrder} already taken.")
-                        .withValue("injectionPositionOrder", injectionPositionOrder)
-                        .withSeverity(TypedValue.ERROR_SEVERITY)
-                        .build());
-                if (throwException) {
-                    throw new PowsyblException(String.format("InjectionPositionOrder %d already taken.", injectionPositionOrder));
-                }
-                return;
+        Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
+        if (takenFeederPositions.contains(injectionPositionOrder)) {
+            LOGGER.error("InjectionPositionOrder {} already taken.", injectionPositionOrder);
+            injectionPositionOrderAlreadyTakenReport(reporter, injectionPositionOrder);
+            if (throwException) {
+                throw new PowsyblException(String.format("InjectionPositionOrder %d already taken.", injectionPositionOrder));
             }
-
-            injection.newExtension(ConnectablePositionAdder.class)
-                    .newFeeder()
-                    .withDirection(injectionDirection)
-                    .withOrder(injectionPositionOrder)
-                    .withName(injectionId)
-                    .add()
-                    .add();
+            return;
         }
+        injection.newExtension(ConnectablePositionAdder.class)
+                .newFeeder()
+                .withDirection(injectionDirection)
+                .withOrder(injectionPositionOrder)
+                .withName(injectionId)
+                .add()
+                .add();
 
         // create switches and a breaker linking the injection to the bus bar sections.
-        createTopology(network, voltageLevel, injectionNode, forkNode, injectionId, reporter);
-
-        LOGGER.info("New injection {} was added to voltage level {} on busbar section {}", injection.getId(), voltageLevel.getId(), bbs.getId());
-        reporter.report(Report.builder()
-                .withKey("newInjectionAdded")
-                .withDefaultMessage("New injection ${injectionId} was added to voltage level ${voltageLevelId} on busbar section ${bbsId}")
-                .withValue("injectionId", injection.getId())
-                .withValue("voltageLevelId", voltageLevel.getId())
-                .withValue("bbsId", bbs.getId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+        createTopology(network, voltageLevel, injectionNode, forkNode, injection, reporter);
     }
 
-    private void createTopology(Network network, VoltageLevel voltageLevel, int injectionNode, int forkNode, String injectionId, Reporter reporter) {
+    private void createTopology(Network network, VoltageLevel voltageLevel, int injectionNode, int forkNode, Injection<?> injection, Reporter reporter) {
+        String injectionId = injection.getId();
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
         createNodeBreakerSwitches(injectionNode, forkNode, bbsNode, injectionId, voltageLevel.getNodeBreakerView());
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+        int parallelBbsNumber = 0;
         if (position == null) {
             LOGGER.warn("No bus bar section position extension found on {}, only one disconnector is created.", bbs.getId());
-            reporter.report(Report.builder()
-                    .withKey("noBusbarSectionPositionExtension")
-                    .withDefaultMessage("No bus bar section position extension found on ${bbsId}, only one disconnector is created")
-                    .withValue("bbsId", bbs.getId())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+            noBusbarSectionPositionExtensionReport(reporter, bbs);
         } else {
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, injectionId, voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+            List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
                     .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
                     .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
-                    .filter(b -> !b.getId().equals(bbsId)));
+                    .filter(b -> !b.getId().equals(bbsId)).collect(Collectors.toList());
+            parallelBbsNumber = bbsList.size();
+            createTopologyFromBusbarSectionList(voltageLevel, forkNode, injectionId, bbsList);
         }
+        LOGGER.info("New injection {} was added to voltage level {} on busbar section {}", injectionId, voltageLevel.getId(), bbs.getId());
+        newInjectionAddedReport(reporter, voltageLevel.getId(), bbsId, injection, parallelBbsNumber);
     }
 
-    private void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String injectionId, Stream<BusbarSection> bbsStream) {
-        bbsStream.forEach(b -> {
+    private void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String injectionId, List<BusbarSection> bbsList) {
+        bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
             createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), injectionId, voltageLevel.getNodeBreakerView(), true);
         });
@@ -291,7 +219,7 @@ public class CreateFeederBay implements NetworkModification {
         } else if (injectionAdder instanceof VscConverterStationAdder) {
             return ((VscConverterStationAdder) injectionAdder).add();
         } else {
-            throw new AssertionError();
+            throw new AssertionError("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
         }
     }
 }

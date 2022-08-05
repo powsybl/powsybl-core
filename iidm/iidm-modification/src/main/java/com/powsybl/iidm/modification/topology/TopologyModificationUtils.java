@@ -280,19 +280,89 @@ final class TopologyModificationUtils {
         }
     }
 
-    public enum PositionInsideSection {
-        FIRST,
-        LAST
-    }
-
-    public static int getOrderPosition(PositionInsideSection positionInsideSection, VoltageLevel voltageLevel, BusbarSection bbs) {
+    public static int getFirstUnusedOrderPosition(VoltageLevel voltageLevel, BusbarSection bbs) {
         Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
-        if (positionInsideSection == PositionInsideSection.FIRST) {
+        if (busbarSectionPosition != null) {
             return allOrders.get(busbarSectionPosition.getSectionIndex()).stream().min(Comparator.naturalOrder()).orElse(1) - 1;
         } else {
-            return allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE - 1) + 1;
+            throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+    }
+
+    public static int getLastUnusedOrderPosition(VoltageLevel voltageLevel, BusbarSection bbs) {
+        Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+        BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
+        if (busbarSectionPosition != null) {
+            return allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE - 1) + 1;
+        } else {
+            throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
+        }
+    }
+
+    public static Set<Integer> getFeederPositions(VoltageLevel voltageLevel) {
+        Set<Integer> feederPositionsOrders = new HashSet<>();
+        voltageLevel.getConnectables().forEach(connectable -> {
+            ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
+            if (position != null) {
+                if (connectable instanceof Injection) {
+                    Optional<Integer> order = position.getFeeder().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else if (connectable instanceof Branch) {
+                    Branch<?> branch = (Branch<?>) connectable;
+
+                    if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder1().getOrder();
+                        order.ifPresent(feederPositionsOrders::add);
+                    } else if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder2().getOrder();
+                        order.ifPresent(feederPositionsOrders::add);
+                    } else {
+                        throw new AssertionError();
+                    }
+                } else if (connectable instanceof ThreeWindingsTransformer) {
+                    ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
+                    if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder1().getOrder();
+                        order.ifPresent(feederPositionsOrders::add);
+                    } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder2().getOrder();
+                        order.ifPresent(feederPositionsOrders::add);
+                    } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
+                        Optional<Integer> order = position.getFeeder3().getOrder();
+                        order.ifPresent(feederPositionsOrders::add);
+                    } else {
+                        throw new AssertionError();
+                    }
+                } else {
+                    throw new AssertionError();
+                }
+            }
+        });
+        return feederPositionsOrders;
+    }
+
+    /**
+     * Method returning the first busbar section with the lowest BusbarSectionIndex if there are the BusbarSectionPosition extensions and the first busbar section found otherwise.
+     */
+    public static BusbarSection getFirstBusbarSection(VoltageLevel voltageLevel) {
+        BusbarSection bbs;
+        if (voltageLevel.getNodeBreakerView().getBusbarSectionStream().anyMatch(b -> b.getExtension(BusbarSectionPosition.class) != null)) {
+            bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+                    .min(Comparator.comparingInt((BusbarSection b) -> {
+                        BusbarSectionPosition position = b.getExtension(BusbarSectionPosition.class);
+                        return position == null ? Integer.MAX_VALUE : position.getSectionIndex();
+                    }).thenComparingInt((BusbarSection b) -> {
+                        BusbarSectionPosition position = b.getExtension(BusbarSectionPosition.class);
+                        return position == null ? Integer.MAX_VALUE : position.getBusbarIndex();
+                    })).orElse(null);
+        } else {
+            bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
+        }
+        if (bbs == null) {
+            throw new PowsyblException(String.format("Voltage level %s has no bus bar section.", voltageLevel.getId()));
+        }
+        return bbs;
     }
 
     private TopologyModificationUtils() {

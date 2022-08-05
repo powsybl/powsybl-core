@@ -14,21 +14,17 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
  */
 public class CreateFeederBayBuilder {
 
-    private InjectionAdder injectionAdder = null;
+    private InjectionAdder<?> injectionAdder = null;
     private String voltageLevelId = null;
     private String bbsId = null;
     private Integer injectionPositionOrder = null;
     private ConnectablePosition.Direction injectionDirection = ConnectablePosition.Direction.BOTTOM;
 
     public CreateFeederBay build() {
-        if (bbsId != null) {
-            return new CreateFeederBay(injectionAdder, voltageLevelId, bbsId, injectionPositionOrder, injectionDirection);
-        } else {
-            return new CreateFeederBay(injectionAdder, voltageLevelId, injectionPositionOrder, injectionDirection);
-        }
+        return new CreateFeederBay(injectionAdder, voltageLevelId, bbsId, injectionPositionOrder, injectionDirection);
     }
 
-    public CreateFeederBayBuilder withInjectionAdder(InjectionAdder injectionAdder) {
+    public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?> injectionAdder) {
         this.injectionAdder = injectionAdder;
         return this;
     }
