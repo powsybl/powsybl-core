@@ -10,6 +10,7 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Injection;
 
 /**
@@ -17,16 +18,6 @@ import com.powsybl.iidm.network.Injection;
  */
 public final class ModificationReports {
     static String voltageLevelIdString = "voltageLevelId";
-
-    public static void busbarSectionNotInVoltageLevelReport(Reporter reporter, String voltageLevelId, String bbsId) {
-        reporter.report(Report.builder()
-                .withKey("busbarSectionNotInVoltageLevel")
-                .withDefaultMessage("Bus bar section ${busbarSectionId} is not in voltageLevel ${voltageLevelId}.")
-                .withValue("busbarSectionId", bbsId)
-                .withValue(voltageLevelIdString, voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
 
     public static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
         reporter.report(Report.builder()
@@ -46,15 +37,6 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void missingVoltageLevelReport(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("missingVoltageLevel")
-                .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
-                .withValue(voltageLevelIdString, voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     public static void noBusbarSectionInVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("noBusbarSectionInVoltageLevel")
@@ -64,10 +46,12 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void networkMismatchReport(Reporter reporter) {
+    public static void networkMismatchReport(Reporter reporter, String injectionId, IdentifiableType identifiableType) {
         reporter.report(Report.builder()
                 .withKey("networkMismatch")
-                .withDefaultMessage("Network given in parameters and in injectionAdder are different. The network might be corrupted")
+                .withDefaultMessage("Network given in parameters and in injectionAdder are different. Injection '${injectionId}' of type {identifiableType} was added then removed")
+                .withValue("injectionId", injectionId)
+                .withValue("identifiableType", identifiableType.toString())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
