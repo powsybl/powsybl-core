@@ -7,7 +7,11 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
@@ -207,7 +211,29 @@ final class TopologyModificationUtils {
         adder.add();
     }
 
-    @SuppressWarnings("checkstyle:RightCurly")
+    static void report(String message, String key, TypedValue typedValue, Reporter reporter) {
+        reporter.report(Report.builder()
+                .withKey(key)
+                .withDefaultMessage(message)
+                .withSeverity(typedValue)
+                .build());
+    }
+
+    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
+        Optional<Substation> substation = voltageLevel.getSubstation();
+        if (voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
+            String vlId = voltageLevel.getId();
+            voltageLevel.remove();
+            report(String.format("Voltage level %s removed", vlId), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
+        }
+        substation.ifPresent(s -> {
+            if (Iterables.isEmpty(s.getVoltageLevels())) {
+                s.remove();
+                report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
+            }
+        });
+    }
+
     static LoadingLimitsBag calcMinLoadingLimitsBag(List<LoadingLimits> loadingLimits) {
         LoadingLimitsBag limit = new LoadingLimitsBag();
         List<TemporaryLimitsBag> temporaryLimitsBags = new ArrayList<>();
