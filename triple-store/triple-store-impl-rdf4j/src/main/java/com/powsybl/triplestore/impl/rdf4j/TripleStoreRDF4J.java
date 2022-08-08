@@ -9,7 +9,7 @@ package com.powsybl.triplestore.impl.rdf4j;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.*;
-import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.common.transaction.IsolationLevels;
 import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.URIUtil;
@@ -46,8 +46,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     static final String NAME = "rdf4j";
 
     public TripleStoreRDF4J() {
+        this(new TripleStoreOptions());
+    }
+
+    public TripleStoreRDF4J(TripleStoreOptions options) {
+        this.options = options;
         repo = new SailRepository(new MemoryStore());
         repo.init();
+    }
+
+    @Override
+    public TripleStoreOptions getOptions() {
+        return options;
     }
 
     @Override
@@ -183,7 +193,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 List<String> names = r.getBindingNames();
                 while (r.hasNext()) {
                     BindingSet s = r.next();
-                    PropertyBag result = new PropertyBag(names);
+                    PropertyBag result = new PropertyBag(names, options.isRemoveInitialUnderscoreForIdentifiers());
 
                     names.forEach(name -> {
                         if (s.hasBinding(name)) {
@@ -417,6 +427,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     private final Repository repo;
     private boolean writeBySubject = true;
+    private final TripleStoreOptions options;
 
     private static final boolean EXPLAIN_QUERIES = false;
 

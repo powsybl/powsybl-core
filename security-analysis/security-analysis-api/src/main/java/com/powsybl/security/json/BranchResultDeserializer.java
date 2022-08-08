@@ -33,7 +33,7 @@ public class BranchResultDeserializer extends StdDeserializer<BranchResult> {
         super(BranchResult.class);
     }
 
-    static class ParsingContext {
+    private static class ParsingContext {
         String branchId;
 
         double p1 = Double.NaN;

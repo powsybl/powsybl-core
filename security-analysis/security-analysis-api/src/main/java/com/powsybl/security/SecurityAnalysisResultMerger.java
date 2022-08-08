@@ -7,6 +7,7 @@
 package com.powsybl.security;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
@@ -24,15 +25,10 @@ public final class SecurityAnalysisResultMerger {
                 return FAILED_SECURITY_ANALYSIS_RESULT;
             }
         }
+        return new SecurityAnalysisResult(results[0].getPreContingencyLimitViolationsResult(),
+                Arrays.stream(results).flatMap(result -> result.getPostContingencyResults().stream()).collect(Collectors.toList()))
+                .setNetworkMetadata(results[0].getNetworkMetadata());
 
-        //Else, actually merge results
-        final SecurityAnalysisResult res = new SecurityAnalysisResult(
-                                results[0].getPreContingencyLimitViolationsResult(), new ArrayList<>(results[0].getPostContingencyResults()))
-                                .setNetworkMetadata(results[0].getNetworkMetadata());
-        if (results.length > 1) {
-            Arrays.stream(results, 1, results.length).forEach(r -> res.getPostContingencyResults().addAll(r.getPostContingencyResults()));
-        }
-        return res;
     }
 
     public static SecurityAnalysisResult merge(Collection<SecurityAnalysisResult> results) {

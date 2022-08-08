@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
@@ -57,7 +58,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
     }
 
     private static double getLimit(TwoWindingsTransformer phaseShifter) {
-        return phaseShifter.getCurrentLimits1().getPermanentLimit();
+        return phaseShifter.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         try {
             network.getVariantManager().setWorkingVariant(tmpStateId);
             runLoadFlow(network, tmpStateId);
-            if (phaseShifter.getTerminal1().getI() >= phaseShifter.getCurrentLimits1().getPermanentLimit()) {
+            if (phaseShifter.getTerminal1().getI() >= phaseShifter.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new)) {
                 throw new PowsyblException("Phase shifter already overloaded");
             }
             int tapPosInc = 1; // start by incrementing tap +1

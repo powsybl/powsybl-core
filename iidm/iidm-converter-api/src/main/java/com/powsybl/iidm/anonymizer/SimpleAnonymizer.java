@@ -15,16 +15,18 @@ import java.io.BufferedWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SimpleAnonymizer extends StringAnonymizer implements Anonymizer {
+public class SimpleAnonymizer implements Anonymizer {
+
+    private final StringAnonymizer stringAnonymizer = new StringAnonymizer();
 
     @Override
     public String anonymizeString(String str) {
-        return anonymize(str);
+        return stringAnonymizer.anonymize(str);
     }
 
     @Override
     public String deanonymizeString(String str) {
-        return deanonymize(str);
+        return stringAnonymizer.deanonymize(str);
     }
 
     @Override
@@ -39,11 +41,11 @@ public class SimpleAnonymizer extends StringAnonymizer implements Anonymizer {
 
     @Override
     public void read(BufferedReader reader) {
-        readCsv(reader);
+        stringAnonymizer.readCsv(reader);
     }
 
     @Override
     public void write(BufferedWriter writer) {
-        writeCsv(writer);
+        stringAnonymizer.writeCsv(writer);
     }
 }
