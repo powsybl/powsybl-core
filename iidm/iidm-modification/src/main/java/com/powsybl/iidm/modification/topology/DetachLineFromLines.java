@@ -6,29 +6,26 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.calcMinLoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.report;
 
 /**
  * This method reverses the action done in the AttachNewLineOnLine class :
@@ -66,14 +63,6 @@ public class DetachLineFromLines implements NetworkModification {
         this.lineCZId = Objects.requireNonNull(lineCZId);
         this.lineId = Objects.requireNonNull(lineId);
         this.lineName = lineName;
-    }
-
-    private void report(String message, String key, TypedValue typedValue, Reporter reporter) {
-        reporter.report(Report.builder()
-                .withKey(key)
-                .withDefaultMessage(message)
-                .withSeverity(typedValue)
-                .build());
     }
 
     public DetachLineFromLines setLineAZId(String lineAZId) {
@@ -211,20 +200,6 @@ public class DetachLineFromLines implements NetworkModification {
 
         // remove attached voltage level and attached substation, if necessary
         removeVoltageLevelAndSubstation(attachedVoltageLevel, reporter);
-    }
-
-    private void removeVoltageLevelAndSubstation(VoltageLevel vl, Reporter reporter) {
-        Optional<Substation> substation = vl.getSubstation();
-        if (vl.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
-            vl.remove();
-            report(String.format("Voltage level %s removed", vl.getId()), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
-        }
-        substation.ifPresent(s -> {
-            if (Iterables.isEmpty(s.getVoltageLevels())) {
-                s.remove();
-                report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
-            }
-        });
     }
 
     @Override
