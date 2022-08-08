@@ -89,7 +89,7 @@ public class DetachLineFromLinesTest extends AbstractXmlConverterTest {
         NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.apply(network);
 
-        modification = new DetachLineFromLines("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", "NHV1_NHV2_1", null);
+        modification = new DetachLineFromLines("NHV1_NHV2_1_2", "NHV1_NHV2_1_1", "testLine", "NHV1_NHV2_1", null);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-reverse-line-split-nb-l.xml");
