@@ -7,6 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -52,15 +53,27 @@ public class DetachLineFromLinesTest extends AbstractXmlConverterTest {
 
         final NetworkModification modificationWithError1 = new DetachLineFromLines("line1NotFound", "CJ_1", "CJ_2", "CJ", null);
         assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network));
+        final NetworkModification modificationWithError11 = new DetachLineFromLines("line1NotFound", "CJ_1", "CJ_2", "CJ", null);
+        modificationWithError11.apply(network, false, Reporter.NO_OP);
+        assertNull(network.getLine("CJ"));
 
         final NetworkModification modificationWithError2 = new DetachLineFromLines("CJ_1", "line2NotFound", "CJ_3", "CJ", null);
         assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network));
+        final NetworkModification modificationWithError21 = new DetachLineFromLines("CJ_1", "line2NotFound", "CJ_3", "CJ", null);
+        modificationWithError21.apply(network, false, Reporter.NO_OP);
+        assertNull(network.getLine("CJ"));
 
         final NetworkModification modificationWithError3 = new DetachLineFromLines("CJ_1", "CJ_2", "line3NotFound", "CJ", null);
         assertThrows("Line line3NotFound is not found", PowsyblException.class, () -> modificationWithError3.apply(network));
+        final NetworkModification modificationWithError31 = new DetachLineFromLines("CJ_1", "CJ_2", "line3NotFound", "CJ", null);
+        modificationWithError31.apply(network, false, Reporter.NO_OP);
+        assertNull(network.getLine("CJ"));
 
         final NetworkModification modificationWithError4 = new DetachLineFromLines("CJ_1", "CJ_2", "LINE34", "CJ", null);
         assertThrows("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network));
+        final NetworkModification modificationWithError41 = new DetachLineFromLines("CJ_1", "CJ_2", "LINE34", "CJ", null);
+        modificationWithError41.apply(network, false, Reporter.NO_OP);
+        assertNull(network.getLine("CJ"));
 
         modification = new DetachLineFromLines("CJ_1", "CJ_2", "testLine", "CJ_NEW", null);
         modification.apply(network);
