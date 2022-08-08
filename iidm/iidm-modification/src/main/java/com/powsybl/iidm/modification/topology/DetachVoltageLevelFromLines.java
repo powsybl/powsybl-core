@@ -59,15 +59,12 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
         this.lineName = lineName;
     }
 
-    private void report(String message, String key, TypedValue typedValue, Reporter reporter, boolean throwException) {
+    private void report(String message, String key, TypedValue typedValue, Reporter reporter) {
         reporter.report(Report.builder()
                 .withKey(key)
                 .withDefaultMessage(message)
                 .withSeverity(typedValue)
                 .build());
-        if (throwException) {
-            throw new PowsyblException(message);
-        }
     }
 
     public DetachVoltageLevelFromLines setLine1Id(String line1Id) {
@@ -94,14 +91,24 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
     public void apply(Network network, boolean throwException, Reporter reporter) {
         Line line1 = network.getLine(line1Id);
         if (line1 == null) {
-            report(String.format("Line %s is not found", line1Id), "lineNotFound", TypedValue.ERROR_SEVERITY, reporter, throwException);
-            return;
+            String message = String.format("Line %s is not found", line1Id);
+            report(message, "lineNotFound", TypedValue.ERROR_SEVERITY, reporter);
+            if (throwException) {
+                throw new PowsyblException(message);
+            } else {
+                return;
+            }
         }
 
         Line line2 = network.getLine(line2Id);
         if (line2 == null) {
-            report(String.format("Line %s is not found", line2Id), "lineNotFound", TypedValue.ERROR_SEVERITY, reporter, throwException);
-            return;
+            String message = String.format("Line %s is not found", line2Id);
+            report(message, "lineNotFound", TypedValue.ERROR_SEVERITY, reporter);
+            if (throwException) {
+                throw new PowsyblException(message);
+            } else {
+                return;
+            }
         }
 
         // Check and find the voltage level in common
@@ -124,8 +131,13 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
         }
 
         if (vlIds.size() != 3) {
-            report(String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id),
-                    "noVoltageLevelInCommon", TypedValue.ERROR_SEVERITY, reporter, throwException);
+            String message = String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id);
+            report(message, "noVoltageLevelInCommon", TypedValue.ERROR_SEVERITY, reporter);
+            if (throwException) {
+                throw new PowsyblException(message);
+            } else {
+                return;
+            }
         }
 
         VoltageLevel commonVl = network.getVoltageLevel(commonVlId);
@@ -144,16 +156,21 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
 
         // Remove the two existing lines
         line1.remove();
+        report(String.format("Line %s removed", line1Id), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+
         line2.remove();
+        report(String.format("Line %s removed", line2Id), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
 
         // Create the new line
         Line line = lineAdder.add();
         addLoadingLimits(line, limits, Branch.Side.ONE);
         addLoadingLimits(line, limits, Branch.Side.TWO);
+        report(String.format("Line %s created", lineId), "lineCreated", TypedValue.INFO_SEVERITY, reporter);
 
         // remove voltage level in common, if necessary
         if (commonVl.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
             commonVl.remove();
+            report(String.format("Voltage level %s removed", commonVlId), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
         }
     }
 

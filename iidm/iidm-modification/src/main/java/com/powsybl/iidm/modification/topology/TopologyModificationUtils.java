@@ -207,6 +207,7 @@ final class TopologyModificationUtils {
         adder.add();
     }
 
+    @SuppressWarnings("checkstyle:RightCurly")
     static LoadingLimitsBag calcMinLoadingLimitsBag(List<LoadingLimits> loadingLimits) {
         LoadingLimitsBag limit = new LoadingLimitsBag();
         List<TemporaryLimitsBag> temporaryLimitsBags = new ArrayList<>();
@@ -225,8 +226,7 @@ final class TopologyModificationUtils {
                 Integer acceptableDuration = temporaryLimit.getAcceptableDuration();
                 if (!temporaryLimitsByAcceptableDuration.containsKey(acceptableDuration)) {
                     temporaryLimitsByAcceptableDuration.put(acceptableDuration, new TemporaryLimitsBag(temporaryLimit));
-                }
-                if (temporaryLimit.getValue() < temporaryLimitsByAcceptableDuration.get(acceptableDuration).getValue()) {
+                } else if (temporaryLimit.getValue() < temporaryLimitsByAcceptableDuration.get(acceptableDuration).getValue()) {
                     temporaryLimitsByAcceptableDuration.put(acceptableDuration, new TemporaryLimitsBag(temporaryLimit));
                 }
             }
