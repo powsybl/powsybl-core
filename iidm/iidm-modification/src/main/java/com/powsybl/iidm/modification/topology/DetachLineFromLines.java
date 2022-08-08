@@ -48,6 +48,8 @@ public class DetachLineFromLines implements NetworkModification {
 
     private static final String LINE_NOT_FOUND_REPORT_KEY = "lineNotFound";
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
+    private static final String LINE_REMOVE_REPORT_MESSAGE = "Line %s removed";
+    private static final String LINE_REMOVE_REPORT_KEY = "lineRemoved";
 
     /**
      * Constructor.
@@ -190,13 +192,13 @@ public class DetachLineFromLines implements NetworkModification {
 
         // Remove the three existing lines
         lineAZ.remove();
-        report(String.format("Line %s removed", lineAZId), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+        report(String.format(LINE_REMOVE_REPORT_MESSAGE, lineAZId), LINE_REMOVE_REPORT_KEY, TypedValue.INFO_SEVERITY, reporter);
 
         lineBZ.remove();
-        report(String.format("Line %s removed", lineBZId), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+        report(String.format(LINE_REMOVE_REPORT_MESSAGE, lineBZId), LINE_REMOVE_REPORT_KEY, TypedValue.INFO_SEVERITY, reporter);
 
         lineCZ.remove();
-        report(String.format("Line %s removed", lineCZId), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+        report(String.format(LINE_REMOVE_REPORT_MESSAGE, lineCZId), LINE_REMOVE_REPORT_KEY, TypedValue.INFO_SEVERITY, reporter);
 
         // Create the new line
         Line line = lineAdder.add();
