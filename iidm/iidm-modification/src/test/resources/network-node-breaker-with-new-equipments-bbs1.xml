@@ -54,7 +54,6 @@
             </iidm:battery>
             <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" node="4"/>
             <iidm:load id="load2" name="load2" loadType="UNDEFINED" p0="10.0" q0="10.0" node="8"/>
-            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" voltageSetpoint="390.0" reactivePowerSetpoint="1.0" regulationMode="VOLTAGE" node="26"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="vl2" name="vl2" nominalV="225.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -105,6 +104,7 @@
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
             <iidm:danglingLine id="newDanglingLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>
+            <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" voltageSetpoint="390.0" reactivePowerSetpoint="1.0" regulationMode="VOLTAGE" node="26"/>
             <iidm:vscConverterStation id="newVscConverterStation" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="405.0" node="30">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:vscConverterStation>
@@ -147,12 +147,12 @@
     <iidm:line id="line1" name="line1" r="2.0" x="14.745" g1="1.0" b1="1.0" g2="1.0" b2="1.0" node1="35" voltageLevelId1="vl1" node2="2" voltageLevelId2="vlSubst2"/>
     <iidm:extension id="newStaticVarCompensator">
         <cp:position>
-            <cp:feeder name="newStaticVarCompensator" order="113" direction="BOTTOM"/>
+            <cp:feeder name="newStaticVarCompensator" order="83" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="newShuntCompensator">
         <cp:position>
-            <cp:feeder name="newShuntCompensator" order="112" direction="BOTTOM"/>
+            <cp:feeder name="newShuntCompensator" order="82" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="load3">
@@ -177,7 +177,7 @@
     </iidm:extension>
     <iidm:extension id="newVscConverterStation">
         <cp:position>
-            <cp:feeder name="newVscConverterStation" order="114" direction="BOTTOM"/>
+            <cp:feeder name="newVscConverterStation" order="85" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="bbs1_2">
@@ -200,7 +200,7 @@
     </iidm:extension>
     <iidm:extension id="newDanglingLine">
         <cp:position>
-            <cp:feeder name="newDanglingLine" order="111" direction="BOTTOM"/>
+            <cp:feeder name="newDanglingLine" order="81" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="bbs1">
@@ -288,7 +288,7 @@
     </iidm:extension>
     <iidm:extension id="newLccConverterStation">
         <cp:position>
-            <cp:feeder name="newLccConverterStation" order="113" direction="BOTTOM"/>
+            <cp:feeder name="newLccConverterStation" order="84" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
 </iidm:network>

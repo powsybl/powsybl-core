@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.math.graph.TraverseResult;
+import org.apache.commons.lang3.Range;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -215,26 +216,43 @@ final class TopologyModificationUtils {
      * Utility method that associates a bus bar section position index to the orders taken by all the connectables
      * of the bus bar sections of this index.
      **/
-    static Map<Integer, List<Integer>> getSliceOrdersMap(VoltageLevel voltageLevel) {
-        Map<Integer, List<Integer>> sliceIndexOrdersMap = new TreeMap<>();
-        Map<BusbarSection, List<Integer>> busbarSectionsOrdersMap = new LinkedHashMap<>();
+    static NavigableMap<Integer, List<Integer>> getSliceOrdersMap(VoltageLevel voltageLevel) {
+        // Compute the map of connectables by busbar sections
+        Map<BusbarSection, Set<Connectable<?>>> connectablesByBbs = new LinkedHashMap<>();
         voltageLevel.getConnectableStream(BusbarSection.class)
-                .forEach(bbs -> fillConnectableOrders(bbs, busbarSectionsOrdersMap));
-        busbarSectionsOrdersMap.forEach((bbs, orders) -> {
+                .forEach(bbs -> fillConnectablesMap(bbs, connectablesByBbs));
+
+        // Merging the map by section index
+        Map<Integer, Set<Connectable<?>>> connectablesBySectionIndex = new LinkedHashMap<>();
+        connectablesByBbs.forEach((bbs, connectables) -> {
             BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
-            sliceIndexOrdersMap.putIfAbsent(bbPosition.getSectionIndex(), orders);
+            if (bbPosition != null) {
+                connectablesBySectionIndex.merge(bbPosition.getSectionIndex(), connectables, (l1, l2) -> {
+                    l1.addAll(l2);
+                    return l1;
+                });
+            }
         });
-        return sliceIndexOrdersMap;
+
+        // Get the orders corresponding map
+        TreeMap<Integer, List<Integer>> ordersBySectionIndex = new TreeMap<>();
+        connectablesBySectionIndex.forEach((sectionIndex, connectables) -> {
+            List<Integer> orders = new ArrayList<>();
+            connectables.forEach(connectable -> addOrder(connectable, voltageLevel, orders));
+            ordersBySectionIndex.put(sectionIndex, orders);
+        });
+
+        return ordersBySectionIndex;
     }
 
-    static void fillConnectableOrders(BusbarSection bbs, Map<BusbarSection, List<Integer>> busbarSectionsOrdersMap) {
+    static void fillConnectablesMap(BusbarSection bbs, Map<BusbarSection, Set<Connectable<?>>> connectablesByBbs) {
         BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
         int bbSection = bbPosition.getSectionIndex();
 
-        if (busbarSectionsOrdersMap.containsKey(bbs)) {
+        if (connectablesByBbs.containsKey(bbs)) {
             return;
         }
-        List<Integer> orders = busbarSectionsOrdersMap.compute(bbs, (k, v) -> new ArrayList<>());
+        Set<Connectable<?>> connectables = connectablesByBbs.compute(bbs, (k, v) -> new LinkedHashSet<>());
 
         bbs.getTerminal().traverse(new Terminal.TopologyTraverser() {
             @Override
@@ -247,15 +265,12 @@ final class TopologyModificationUtils {
                     BusbarSection otherBbs = (BusbarSection) connectable;
                     BusbarSectionPosition otherBbPosition = otherBbs.getExtension(BusbarSectionPosition.class);
                     if (otherBbPosition.getSectionIndex() == bbSection) {
-                        busbarSectionsOrdersMap.put(otherBbs, orders);
+                        connectablesByBbs.put(otherBbs, connectables);
                     } else {
                         return TraverseResult.TERMINATE_PATH;
                     }
                 }
-                ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
-                if (position != null) {
-                    addOrders(position, orders);
-                }
+                connectables.add(connectable);
                 return TraverseResult.CONTINUE;
             }
 
@@ -266,80 +281,97 @@ final class TopologyModificationUtils {
         });
     }
 
-    static void addOrders(ConnectablePosition<?> position, List<Integer> orders) {
-        if (position.getFeeder() != null) {
-            position.getFeeder().getOrder().ifPresent(orders::add);
-        } else if (position.getFeeder1() != null) {
-            position.getFeeder1().getOrder().ifPresent(orders::add);
-            if (position.getFeeder2() != null) {
-                position.getFeeder2().getOrder().ifPresent(orders::add);
-                if (position.getFeeder3() != null) {
-                    position.getFeeder3().getOrder().ifPresent(orders::add);
-                }
-            }
-        }
-    }
-
-    public static int getFirstUnusedOrderPosition(VoltageLevel voltageLevel, BusbarSection bbs) {
-        Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+    public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(VoltageLevel voltageLevel, BusbarSection bbs) {
+        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
-        if (busbarSectionPosition != null) {
-            return allOrders.get(busbarSectionPosition.getSectionIndex()).stream().min(Comparator.naturalOrder()).orElse(1) - 1;
-        } else {
+        if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        int sectionIndex = busbarSectionPosition.getSectionIndex();
+        Optional<Integer> previousSliceMax = getMaxOrderUsedBefore(allOrders, sectionIndex);
+        Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
+        int min = previousSliceMax.map(o -> o + 1).orElse(Integer.MIN_VALUE);
+        int max = sliceMin.map(o -> o - 1).orElse(
+                getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE));
+        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
-    public static int getLastUnusedOrderPosition(VoltageLevel voltageLevel, BusbarSection bbs) {
-        Map<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+    public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(VoltageLevel voltageLevel, BusbarSection bbs) {
+        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
-        if (busbarSectionPosition != null) {
-            return allOrders.get(busbarSectionPosition.getSectionIndex()).stream().max(Comparator.naturalOrder()).orElse(Integer.MAX_VALUE - 1) + 1;
-        } else {
+        if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        int sectionIndex = busbarSectionPosition.getSectionIndex();
+        Optional<Integer> nextSliceMin = getMinOrderUsedAfter(allOrders, sectionIndex);
+        Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
+        int min = sliceMax.map(o -> o + 1).orElse(
+                getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(Integer.MAX_VALUE));
+        int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
+        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+    }
+
+    private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        Map.Entry<Integer, List<Integer>> lowerEntry;
+        do {
+            lowerEntry = allOrders.lowerEntry(section);
+        } while (lowerEntry != null && lowerEntry.getValue().isEmpty());
+
+        return Optional.ofNullable(lowerEntry)
+                .flatMap(entry -> entry.getValue().stream().max(Comparator.naturalOrder()));
+    }
+
+    private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        Map.Entry<Integer, List<Integer>> higherEntry;
+        do {
+            higherEntry = allOrders.higherEntry(section);
+        } while (higherEntry != null && higherEntry.getValue().isEmpty());
+
+        return Optional.ofNullable(higherEntry)
+                .flatMap(entry -> entry.getValue().stream().min(Comparator.naturalOrder()));
     }
 
     public static Set<Integer> getFeederPositions(VoltageLevel voltageLevel) {
         Set<Integer> feederPositionsOrders = new HashSet<>();
-        voltageLevel.getConnectables().forEach(connectable -> {
-            ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
-            if (position != null) {
-                if (connectable instanceof Injection) {
-                    Optional<Integer> order = position.getFeeder().getOrder();
-                    order.ifPresent(feederPositionsOrders::add);
-                } else if (connectable instanceof Branch) {
-                    Branch<?> branch = (Branch<?>) connectable;
+        voltageLevel.getConnectables().forEach(connectable -> addOrder(connectable, voltageLevel, feederPositionsOrders));
+        return feederPositionsOrders;
+    }
 
-                    if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder1().getOrder();
-                        order.ifPresent(feederPositionsOrders::add);
-                    } else if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder2().getOrder();
-                        order.ifPresent(feederPositionsOrders::add);
-                    } else {
-                        throw new AssertionError();
-                    }
-                } else if (connectable instanceof ThreeWindingsTransformer) {
-                    ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
-                    if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder1().getOrder();
-                        order.ifPresent(feederPositionsOrders::add);
-                    } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder2().getOrder();
-                        order.ifPresent(feederPositionsOrders::add);
-                    } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
-                        Optional<Integer> order = position.getFeeder3().getOrder();
-                        order.ifPresent(feederPositionsOrders::add);
-                    } else {
-                        throw new AssertionError();
-                    }
+    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
+        ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
+        if (position != null) {
+            if (connectable instanceof Injection) {
+                Optional<Integer> order = position.getFeeder().getOrder();
+                order.ifPresent(feederPositionsOrders::add);
+            } else if (connectable instanceof Branch) {
+                Branch<?> branch = (Branch<?>) connectable;
+                if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder1().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder2().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
                 } else {
                     throw new AssertionError();
                 }
+            } else if (connectable instanceof ThreeWindingsTransformer) {
+                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
+                if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder1().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder2().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder3().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else {
+                    throw new AssertionError();
+                }
+            } else {
+                throw new AssertionError();
             }
-        });
-        return feederPositionsOrders;
+        }
     }
 
     /**

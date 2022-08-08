@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -51,11 +52,19 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        int loadPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter = TopologyModificationUtils.getUnusedOrderPositionsAfter(
+                network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        assertTrue(unusedOrderPositionsAfter.isPresent());
+        assertEquals(121, (int) unusedOrderPositionsAfter.get().getMinimum());
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.get().getMaximum());
+
+        int loadPositionOrder = unusedOrderPositionsAfter.get().getMinimum();
         NetworkModification modification = new CreateFeederBay(loadAdder, "bbs1", loadPositionOrder, TOP);
         modification.apply(network);
-        assertEquals(TOP, network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getDirection());
-        assertEquals(111, loadPositionOrder);
+
+        ConnectablePosition newLoad = network.getLoad("newLoad").getExtension(ConnectablePosition.class);
+        assertEquals(TOP, newLoad.getFeeder().getDirection());
+        assertEquals(Optional.of(121), newLoad.getFeeder().getOrder());
     }
 
     @Test
@@ -66,11 +75,19 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        int loadPositionOrder = TopologyModificationUtils.getFirstUnusedOrderPosition(network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        Optional<Range<Integer>> unusedOrderPositionsBefore = TopologyModificationUtils.getUnusedOrderPositionsBefore(
+                network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        assertTrue(unusedOrderPositionsBefore.isPresent());
+        assertEquals(71, (int) unusedOrderPositionsBefore.get().getMinimum());
+        assertEquals(79, (int) unusedOrderPositionsBefore.get().getMaximum());
+        int loadPositionOrder = unusedOrderPositionsBefore.get().getMaximum();
+
         NetworkModification modification = new CreateFeederBay(loadAdder, "bbs2", loadPositionOrder);
         modification.apply(network);
-        assertEquals(Optional.of(39), network.getLoad("newLoad").getExtension(ConnectablePosition.class).getFeeder().getOrder());
-        assertEquals(39, loadPositionOrder);
+
+        ConnectablePosition newLoad = network.getLoad("newLoad").getExtension(ConnectablePosition.class);
+        assertEquals(BOTTOM, newLoad.getFeeder().getDirection());
+        assertEquals(Optional.of(79), newLoad.getFeeder().getOrder());
     }
 
     @Test
@@ -180,9 +197,15 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                         .setP0(50)
                         .setQ0(60)
                         .setEnsureIdUnicity(false);
-        int danglingLinePositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter0 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
+                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        assertTrue(unusedOrderPositionsAfter0.isPresent());
+        assertEquals(81, (int) unusedOrderPositionsAfter0.get().getMinimum());
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter0.get().getMaximum());
+        int danglingLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
         NetworkModification addDanglingLineModification = new CreateFeederBay(danglingLineAdder, "bbs5", danglingLinePositionOrder);
         addDanglingLineModification.apply(network);
+
         ShuntCompensatorAdder shuntCompensatorAdder = network.getVoltageLevel("vl2").newShuntCompensator()
                         .setId("newShuntCompensator")
                         .setSectionCount(0)
@@ -190,10 +213,16 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                             .setBPerSection(1e-5)
                             .setMaximumSectionCount(1)
                             .add();
-        int shuntCompensatorPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter1 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
+                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        assertTrue(unusedOrderPositionsAfter1.isPresent());
+        assertEquals(82, (int) unusedOrderPositionsAfter1.get().getMinimum());
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter1.get().getMaximum());
+        int shuntCompensatorPositionOrder = unusedOrderPositionsAfter1.get().getMinimum();
         NetworkModification addShuntCompensatorModification = new CreateFeederBay(shuntCompensatorAdder, "bbs5", shuntCompensatorPositionOrder);
         addShuntCompensatorModification.apply(network);
-        StaticVarCompensatorAdder staticVarCompensatorAdder = network.getVoltageLevel("vl1").newStaticVarCompensator()
+
+        StaticVarCompensatorAdder staticVarCompensatorAdder = network.getVoltageLevel("vl2").newStaticVarCompensator()
                         .setId("newStaticVarCompensator")
                         .setBmin(0.0002)
                         .setBmax(0.0008)
@@ -201,24 +230,41 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                         .setVoltageSetpoint(390.0)
                         .setReactivePowerSetpoint(1.0)
                         .setEnsureIdUnicity(false);
-        int staticVarCompensatorPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
+                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        assertTrue(unusedOrderPositionsAfter2.isPresent());
+        assertEquals(83, (int) unusedOrderPositionsAfter2.get().getMinimum());
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter2.get().getMaximum());
+        int staticVarCompensatorPositionOrder = unusedOrderPositionsAfter2.get().getMinimum();
         NetworkModification addSVCompensatorModification = new CreateFeederBay(staticVarCompensatorAdder, "bbs5", staticVarCompensatorPositionOrder);
         addSVCompensatorModification.apply(network);
+
         LccConverterStationAdder lccConverterStationAdder = network.getVoltageLevel("vl2").newLccConverterStation()
                         .setId("newLccConverterStation")
                         .setLossFactor(0.011f)
                         .setPowerFactor(0.5f)
                         .setEnsureIdUnicity(false);
-        int lccConverterStationPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter3 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
+                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        assertTrue(unusedOrderPositionsAfter3.isPresent());
+        assertEquals(84, (int) unusedOrderPositionsAfter3.get().getMinimum());
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter3.get().getMaximum());
+        int lccConverterStationPositionOrder = unusedOrderPositionsAfter3.get().getMinimum();
         NetworkModification addLccConverterStationModification = new CreateFeederBay(lccConverterStationAdder, "bbs5", lccConverterStationPositionOrder);
         addLccConverterStationModification.apply(network);
+
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
                 .setId("newVscConverterStation")
                 .setLossFactor(1.1f)
                 .setVoltageSetpoint(405.0)
                 .setVoltageRegulatorOn(true)
                 .setEnsureIdUnicity(false);
-        int vscConverterStationPositionOrder = TopologyModificationUtils.getLastUnusedOrderPosition(network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter4 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
+                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        assertTrue(unusedOrderPositionsAfter4.isPresent());
+        assertEquals(85, (int) unusedOrderPositionsAfter4.get().getMinimum());
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter4.get().getMaximum());
+        int vscConverterStationPositionOrder = unusedOrderPositionsAfter4.get().getMinimum();
         NetworkModification addVscConverterStationModification = new CreateFeederBay(vscConverterStationAdder, "bbs5", vscConverterStationPositionOrder);
         addVscConverterStationModification.apply(network);
         roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
