@@ -54,7 +54,7 @@ public class DetachLineFromLines implements NetworkModification {
      *
      * @param lineAZId     The non-null ID of the first line
      * @param lineBZId     The non-null ID of the second line
-     * @param lineCZId     The non-null ID of the third line
+     * @param lineCZId     The non-null ID of the third line (connecting attachment point to attached voltage level)
      * @param lineId       The non-null ID of the new line to be created
      * @param lineName     The optional name of the new line to be created
      */
@@ -66,15 +66,12 @@ public class DetachLineFromLines implements NetworkModification {
         this.lineName = lineName;
     }
 
-    private void report(String message, String key, TypedValue typedValue, Reporter reporter, boolean throwException) {
+    private void report(String message, String key, TypedValue typedValue, Reporter reporter) {
         reporter.report(Report.builder()
                 .withKey(key)
                 .withDefaultMessage(message)
                 .withSeverity(typedValue)
                 .build());
-        if (throwException) {
-            throw new PowsyblException(message);
-        }
     }
 
     public DetachLineFromLines setLineAZId(String lineAZId) {
@@ -106,20 +103,35 @@ public class DetachLineFromLines implements NetworkModification {
     public void apply(Network network, boolean throwException, Reporter reporter) {
         Line lineAZ = network.getLine(lineAZId);
         if (lineAZ == null) {
-            report(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineAZId), LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter, throwException);
-            return;
+            String message = String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineAZId);
+            report(message, LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter);
+            if (throwException) {
+                throw new PowsyblException(message);
+            } else {
+                return;
+            }
         }
 
         Line lineBZ = network.getLine(lineBZId);
         if (lineBZ == null) {
-            report(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineBZId), LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter, throwException);
-            return;
+            String message = String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineBZId);
+            report(message, LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter);
+            if (throwException) {
+                throw new PowsyblException(message);
+            } else {
+                return;
+            }
         }
 
         Line lineCZ = network.getLine(lineCZId);
         if (lineCZ == null) {
-            report(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineCZId), LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter, throwException);
-            return;
+            String message = String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineCZId);
+            report(message, LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter);
+            if (throwException) {
+                throw new PowsyblException(message);
+            } else {
+                return;
+            }
         }
 
         // Check the configuration and find the attachment point and the attached voltage level :
@@ -157,9 +169,13 @@ public class DetachLineFromLines implements NetworkModification {
         }
 
         if (!configOk || attachmentPoint == null || attachedVoltageLevel == null) {
-            report(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineAZId, lineBZId, lineCZId),
-                    "noAttachmentPointAndOrAttachedVoltageLevel", TypedValue.ERROR_SEVERITY, reporter, throwException);
-            return;
+            String message = String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineAZId, lineBZId, lineCZId);
+            report(message, "noAttachmentPointAndOrAttachedVoltageLevel", TypedValue.ERROR_SEVERITY, reporter);
+            if (throwException) {
+                throw new PowsyblException(message);
+            } else {
+                return;
+            }
         }
 
         // Set parameters of the new line replacing the three existing lines
@@ -174,22 +190,30 @@ public class DetachLineFromLines implements NetworkModification {
 
         // Remove the three existing lines
         lineAZ.remove();
+        report(String.format("Line %s removed", lineAZId), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+
         lineBZ.remove();
+        report(String.format("Line %s removed", lineBZId), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+
         lineCZ.remove();
+        report(String.format("Line %s removed", lineCZId), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
 
         // Create the new line
         Line line = lineAdder.add();
         addLoadingLimits(line, limits, Branch.Side.ONE);
         addLoadingLimits(line, limits, Branch.Side.TWO);
+        report(String.format("Line %s created", lineId), "lineCreated", TypedValue.INFO_SEVERITY, reporter);
 
         // remove attachment point and attachment point substation, if necessary
         Optional<Substation> attachmentPointSubstation = attachmentPoint.getSubstation();
         if (attachmentPoint.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
             attachmentPoint.remove();
+            report(String.format("Voltage level %s removed", attachmentPoint.getId()), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
         }
         attachmentPointSubstation.ifPresent(s -> {
             if (Iterables.isEmpty(s.getVoltageLevels())) {
                 s.remove();
+                report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
             }
         });
 
@@ -197,10 +221,12 @@ public class DetachLineFromLines implements NetworkModification {
         Optional<Substation> attachedSubstation = attachedVoltageLevel.getSubstation();
         if (attachedVoltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
             attachedVoltageLevel.remove();
+            report(String.format("Voltage level %s removed", attachedVoltageLevel.getId()), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
         }
         attachedSubstation.ifPresent(s -> {
             if (Iterables.isEmpty(s.getVoltageLevels())) {
                 s.remove();
+                report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
             }
         });
     }
