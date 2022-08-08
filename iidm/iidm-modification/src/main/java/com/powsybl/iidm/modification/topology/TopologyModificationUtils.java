@@ -226,7 +226,8 @@ final class TopologyModificationUtils {
                 Integer acceptableDuration = temporaryLimit.getAcceptableDuration();
                 if (!temporaryLimitsByAcceptableDuration.containsKey(acceptableDuration)) {
                     temporaryLimitsByAcceptableDuration.put(acceptableDuration, new TemporaryLimitsBag(temporaryLimit));
-                } else if (temporaryLimit.getValue() < temporaryLimitsByAcceptableDuration.get(acceptableDuration).getValue()) {
+                }
+                if (temporaryLimit.getValue() < temporaryLimitsByAcceptableDuration.get(acceptableDuration).getValue()) {
                     temporaryLimitsByAcceptableDuration.put(acceptableDuration, new TemporaryLimitsBag(temporaryLimit));
                 }
             }
