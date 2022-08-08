@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
@@ -17,10 +18,12 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
@@ -167,11 +170,18 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
         addLoadingLimits(line, limits, Branch.Side.TWO);
         report(String.format("Line %s created", lineId), "lineCreated", TypedValue.INFO_SEVERITY, reporter);
 
-        // remove voltage level in common, if necessary
+        // remove voltage level and substation in common, if necessary
+        Optional<Substation> substation = commonVl.getSubstation();
         if (commonVl.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
             commonVl.remove();
             report(String.format("Voltage level %s removed", commonVlId), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
         }
+        substation.ifPresent(s -> {
+            if (Iterables.isEmpty(s.getVoltageLevels())) {
+                s.remove();
+                report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
+            }
+        });
     }
 
     @Override
