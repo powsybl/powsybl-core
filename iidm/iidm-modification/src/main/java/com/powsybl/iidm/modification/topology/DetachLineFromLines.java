@@ -207,25 +207,19 @@ public class DetachLineFromLines implements NetworkModification {
         report(String.format("Line %s created", lineId), "lineCreated", TypedValue.INFO_SEVERITY, reporter);
 
         // remove attachment point and attachment point substation, if necessary
-        Optional<Substation> attachmentPointSubstation = attachmentPoint.getSubstation();
-        if (attachmentPoint.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
-            attachmentPoint.remove();
-            report(String.format("Voltage level %s removed", attachmentPoint.getId()), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
-        }
-        attachmentPointSubstation.ifPresent(s -> {
-            if (Iterables.isEmpty(s.getVoltageLevels())) {
-                s.remove();
-                report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
-            }
-        });
+        removeVoltageLevelAndSubstation(attachmentPoint, reporter);
 
         // remove attached voltage level and attached substation, if necessary
-        Optional<Substation> attachedSubstation = attachedVoltageLevel.getSubstation();
-        if (attachedVoltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
-            attachedVoltageLevel.remove();
-            report(String.format("Voltage level %s removed", attachedVoltageLevel.getId()), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
+        removeVoltageLevelAndSubstation(attachedVoltageLevel, reporter);
+    }
+
+    private void removeVoltageLevelAndSubstation(VoltageLevel vl, Reporter reporter) {
+        Optional<Substation> substation = vl.getSubstation();
+        if (vl.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION && c.getType() != IdentifiableType.BUS)) {
+            vl.remove();
+            report(String.format("Voltage level %s removed", vl.getId()), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
         }
-        attachedSubstation.ifPresent(s -> {
+        substation.ifPresent(s -> {
             if (Iterables.isEmpty(s.getVoltageLevels())) {
                 s.remove();
                 report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
