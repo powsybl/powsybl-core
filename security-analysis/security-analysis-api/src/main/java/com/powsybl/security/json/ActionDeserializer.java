@@ -57,6 +57,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     return true;
                 case "generatorId":
                     context.generatorId = parser.nextTextValue();
+                    return true;
                 case "open":
                     parser.nextToken();
                     context.open =  parser.getBooleanValue();
