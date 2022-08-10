@@ -49,7 +49,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param network IIDM network on which the sensitivity analysis will be performed
      * @param workingVariantId network variant ID on which the analysis will be performed
      * @param factorReader provider of sensitivity factors to be computed
-     * @param valueWriter provider of sensitivity values results
+     * @param resultWriter provider of sensitivity results
      * @param contingencies list of contingencies after which sensitivity factors will be computed
      * @param variableSets list of variableSets
      * @param parameters specific sensitivity analysis parameters
@@ -60,7 +60,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
     CompletableFuture<Void> run(Network network,
                                 String workingVariantId,
                                 SensitivityFactorReader factorReader,
-                                SensitivityResultWriter valueWriter,
+                                SensitivityResultWriter resultWriter,
                                 List<Contingency> contingencies,
                                 List<SensitivityVariableSet> variableSets,
                                 SensitivityAnalysisParameters parameters,
