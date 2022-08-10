@@ -104,6 +104,10 @@ public class DenseMatrix extends AbstractMatrix {
      */
     public double get(int i, int j) {
         checkBounds(i, j);
+        return getUnsafe(i, j);
+    }
+
+    private double getUnsafe(int i, int j) {
         return buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
     }
 
@@ -233,12 +237,54 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public Matrix times(Matrix other) {
-        return new DenseMatrix(toJamaMatrix().times(other.toDense().toJamaMatrix()));
+        return times(other.toDense());
+    }
+
+    public DenseMatrix times(DenseMatrix other) {
+        Objects.requireNonNull(other);
+        if (other.rowCount != columnCount) {
+            throw new MatrixException("Invalid matrices inner dimension");
+        }
+
+        DenseMatrix result = new DenseMatrix(rowCount, other.columnCount);
+
+        double[] otherColumnJ = new double[columnCount];
+        for (int j = 0; j < other.columnCount; j++) {
+            for (int k = 0; k < columnCount; k++) {
+                otherColumnJ[k] = other.getUnsafe(k, j);
+            }
+            for (int i = 0; i < rowCount; i++) {
+                double s = 0;
+                for (int k = 0; k < columnCount; k++) {
+                    s += getUnsafe(i, k) * otherColumnJ[k];
+                }
+                result.setUnsafe(i, j, s);
+            }
+        }
+
+        return result;
+    }
+
+    public DenseMatrix add(DenseMatrix other, double alpha, double beta) {
+        Objects.requireNonNull(other);
+        if (other.rowCount != rowCount || other.columnCount != columnCount) {
+            throw new MatrixException("Incompatible matrices dimensions");
+        }
+
+        DenseMatrix result = new DenseMatrix(rowCount, columnCount);
+
+        for (int i = 0; i < rowCount; i++) {
+            for (int j = 0; j < columnCount; j++) {
+                result.setUnsafe(i, j, alpha * getUnsafe(i, j) + beta * other.getUnsafe(i, j));
+            }
+        }
+
+        return result;
     }
 
     @Override
     public Matrix add(Matrix other, double alpha, double beta) {
-        return new DenseMatrix(toJamaMatrix().times(alpha).plus(other.toDense().toJamaMatrix().times(beta)));
+        return add(other.toDense(), alpha, beta);
     }
 
     @Override

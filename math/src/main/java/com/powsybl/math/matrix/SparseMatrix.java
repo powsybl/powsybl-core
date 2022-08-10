@@ -347,13 +347,28 @@ public class SparseMatrix extends AbstractMatrix {
 
     private native SparseMatrix add(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2, double alpha, double beta);
 
+    public SparseMatrix times(SparseMatrix other) {
+        Objects.requireNonNull(other);
+        fillLastEmptyColumns();
+        other.fillLastEmptyColumns();
+        SparseMatrix result = times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                other.rowCount, other.columnCount, other.columnStart, other.rowIndices.getData(), other.values.getData());
+        result.setRgrowthThreshold(rgrowthThreshold);
+        return result;
+    }
+
     @Override
     public Matrix times(Matrix other) {
         SparseMatrix o = Objects.requireNonNull(other).toSparse();
+        return times(o);
+    }
+
+    public SparseMatrix add(SparseMatrix other, double alpha, double beta) {
+        Objects.requireNonNull(other);
         fillLastEmptyColumns();
-        o.fillLastEmptyColumns();
-        SparseMatrix result = times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
-                o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        other.fillLastEmptyColumns();
+        SparseMatrix result = add(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                other.rowCount, other.columnCount, other.columnStart, other.rowIndices.getData(), other.values.getData(), alpha, beta);
         result.setRgrowthThreshold(rgrowthThreshold);
         return result;
     }
@@ -361,12 +376,7 @@ public class SparseMatrix extends AbstractMatrix {
     @Override
     public Matrix add(Matrix other, double alpha, double beta) {
         SparseMatrix o = Objects.requireNonNull(other).toSparse();
-        fillLastEmptyColumns();
-        o.fillLastEmptyColumns();
-        SparseMatrix result = add(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
-                o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData(), alpha, beta);
-        result.setRgrowthThreshold(rgrowthThreshold);
-        return result;
+        return add(o, alpha, beta);
     }
 
     @Override
