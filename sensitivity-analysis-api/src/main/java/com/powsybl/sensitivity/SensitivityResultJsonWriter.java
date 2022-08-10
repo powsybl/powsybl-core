@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,14 +20,15 @@ import java.util.Objects;
 public class SensitivityResultJsonWriter implements SensitivityResultWriter, AutoCloseable {
 
     private final JsonGenerator jsonGenerator;
-    private final JsonGenerator jsonStatusGenerator;
 
-    public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, JsonGenerator jsonStatusGenerator) {
+    private List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatusBuffer;
+
+    public SensitivityResultJsonWriter(JsonGenerator jsonGenerator) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
-        this.jsonStatusGenerator = Objects.requireNonNull(jsonStatusGenerator);
+        this.contingencyStatusBuffer = new ArrayList<>();
         try {
             jsonGenerator.writeStartArray();
-            jsonStatusGenerator.writeStartArray();
+            jsonGenerator.writeStartArray();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -38,14 +41,20 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     @Override
     public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
-        SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonStatusGenerator, status);
+        contingencyStatusBuffer.add(status);
     }
 
     @Override
     public void close() {
         try {
             jsonGenerator.writeEndArray();
-            jsonStatusGenerator.writeEndArray();
+            //Write buffered contingency status at the end
+            jsonGenerator.writeStartArray();
+            for (SensitivityAnalysisResult.SensitivityContingencyStatus status : contingencyStatusBuffer) {
+                SensitivityAnalysisResult.SensitivityContingencyStatus.writeJson(jsonGenerator, status);
+            }
+            jsonGenerator.writeEndArray();
+            jsonGenerator.writeEndArray();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -245,10 +245,8 @@ public class SensitivityAnalysisTool implements Tool {
                 } else {
                     JsonFactory factory = JsonUtil.createJsonFactory();
                     try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
-                         BufferedWriter writerStatus = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
                          JsonGenerator generator = factory.createGenerator(writer);
-                         JsonGenerator statusGenerator = factory.createGenerator(writerStatus);
-                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, statusGenerator)) {
+                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator)) {
                         generator.useDefaultPrettyPrinter();
                         SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                                 factorsReader, valuesWriter, contingencies, variableSets, params,

@@ -110,16 +110,16 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--contingencies-file", "contingencies.json",
             "--variable-sets-file", "variableSets.json",
             "--parameters-file", "parameters.json",
-            "--output-file", "output.json",
-            "--output-contingency-file", "outputContingency.json"},
+            "--output-file", "output.json"},
                 CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
 
         assertTrue(Files.exists(fileSystem.getPath("output.json")));
-        assertTrue(Files.exists(fileSystem.getPath("outputContingency.json")));
         List<SensitivityValue> values;
+        List<SensitivityAnalysisResult.SensitivityContingencyStatus> status;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
-            values = objectMapper.readValue(reader, new TypeReference<>() {
-            });
+            List<List<Object>> lists = objectMapper.readValue(reader, new TypeReference<>() { });
+            values = objectMapper.convertValue(lists.get(0), new TypeReference<>() { });
+            status = objectMapper.convertValue(lists.get(1), new TypeReference<>() { });
         }
         assertEquals(2, values.size());
         SensitivityValue value0 = values.get(0);
@@ -129,11 +129,6 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
         assertEquals(1, value1.getFactorIndex());
         assertEquals(0, value1.getContingencyIndex());
 
-        List<SensitivityAnalysisResult.SensitivityContingencyStatus> status;
-        try (Reader reader = Files.newBufferedReader(fileSystem.getPath("outputContingency.json"))) {
-            status = objectMapper.readValue(reader, new TypeReference<>() {
-            });
-        }
         assertEquals(1, status.size());
         SensitivityAnalysisResult.SensitivityContingencyStatus status0 = status.get(0);
         assertEquals("NHV1_NHV2_2", status0.getContingency().getId());
