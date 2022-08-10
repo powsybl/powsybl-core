@@ -220,12 +220,12 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         Path outputCsvFile = fileSystem.getPath("outputCustom.csv");
         assertTrue(Files.exists(outputCsvFile));
-        Path outputContingencyCsvFile = fileSystem.getPath("outputCustomContingencyStatus.csv");
+        Path outputContingencyCsvFile = fileSystem.getPath("outputCustom_contingency_status.csv");
         assertTrue(Files.exists(outputContingencyCsvFile));
     }
 
     @Test
-    public void runCommandWithUnifiedOutput() throws IOException {
+    public void runCommandWithSingleOutput() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
         assertCommand(new String[] {COMMAND_NAME,
@@ -235,7 +235,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--variable-sets-file", "variableSets.json",
             "--parameters-file", "parameters.json",
             "--output-file", "output.json",
-            "--output-unified"},
+            "--single-output"},
                 CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
 
         SensitivityAnalysisResult result;
@@ -266,7 +266,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkThrowsUnifiedOutputCSV() throws IOException {
+    public void checkThrowsSingleOutputCSV() throws IOException {
         assertCommand(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
@@ -274,8 +274,8 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--variable-sets-file", "variableSets.json",
             "--parameters-file", "parameters.json",
             "--output-file", "output.csv",
-            "--output-unified"},
-                3, "", "Unsupported output-unified option does not support csv file as argument of output-file. Must be json.");
+            "--single-output"},
+                3, "", "Unsupported single-output option does not support csv file as argument of output-file. Must be json.");
     }
 
     @Test

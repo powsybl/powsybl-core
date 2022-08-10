@@ -30,7 +30,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
     }
 
     @Override
-    public SensitivityAnalysisResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+    public SensitivityAnalysisResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String version = null;
         List<SensitivityValue> sensitivityValues = null;
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = null;
