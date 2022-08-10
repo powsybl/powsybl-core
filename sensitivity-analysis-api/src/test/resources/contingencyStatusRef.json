@@ -1,4 +1,4 @@
 {
-  "ContingencyId" : "C1",
-  "ContingencyStatus" : "CONVERGED"
+  "contingencyId" : "C1",
+  "contingencyStatus" : "CONVERGED"
 }

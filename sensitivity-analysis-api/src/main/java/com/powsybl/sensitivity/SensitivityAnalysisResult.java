@@ -82,8 +82,8 @@ public class SensitivityAnalysisResult {
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
             try {
                 jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("ContingencyId", contingencyStatus.contingency != null ? contingencyStatus.contingency.getId() : "");
-                jsonGenerator.writeStringField("ContingencyStatus", contingencyStatus.status.name());
+                jsonGenerator.writeStringField("contingencyId", contingencyStatus.contingency != null ? contingencyStatus.contingency.getId() : "");
+                jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -117,11 +117,11 @@ public class SensitivityAnalysisResult {
         private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
             String fieldName = parser.getCurrentName();
             switch (fieldName) {
-                case "ContingencyId":
+                case "contingencyId":
                     parser.nextToken();
                     context.contingency = new Contingency(parser.getValueAsString());
                     break;
-                case "ContingencyStatus":
+                case "contingencyStatus":
                     parser.nextToken();
                     context.status = Status.valueOf(parser.getValueAsString());
                     break;

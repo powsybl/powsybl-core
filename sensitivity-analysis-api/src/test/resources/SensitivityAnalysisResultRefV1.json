@@ -49,7 +49,7 @@
     "functionReference" : 4.0
   } ],
   "contingencyStatus" : [ {
-    "ContingencyId" : "NHV1_NHV2_2",
-    "ContingencyStatus" : "CONVERGED"
+    "contingencyId" : "NHV1_NHV2_2",
+    "contingencyStatus" : "CONVERGED"
   } ]
 }
