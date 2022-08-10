@@ -175,7 +175,6 @@ public class SensitivityAnalysisTool implements Tool {
             outputFileStatus = null;
         }
 
-
         Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
