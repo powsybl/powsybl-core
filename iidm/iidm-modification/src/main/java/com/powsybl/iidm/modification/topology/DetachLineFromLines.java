@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Branch;
@@ -24,8 +23,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.a
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.calcMinLoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createdLineReport;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.noAttachmentPointAndOrAttachedVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.report;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removedLineReport;
 
 /**
  * This method reverses the action done in the AttachNewLineOnLine class :
@@ -43,10 +45,7 @@ public class DetachLineFromLines implements NetworkModification {
     private String lineId;
     private String lineName;
 
-    private static final String LINE_NOT_FOUND_REPORT_KEY = "lineNotFound";
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
-    private static final String LINE_REMOVE_REPORT_MESSAGE = "Line %s removed";
-    private static final String LINE_REMOVE_REPORT_KEY = "lineRemoved";
 
     /**
      * Constructor.
@@ -94,10 +93,9 @@ public class DetachLineFromLines implements NetworkModification {
     public void apply(Network network, boolean throwException, Reporter reporter) {
         Line lineAZ = network.getLine(lineAZId);
         if (lineAZ == null) {
-            String message = String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineAZId);
-            report(message, LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter);
+            notFoundLineReport(reporter, lineAZId);
             if (throwException) {
-                throw new PowsyblException(message);
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineAZId));
             } else {
                 return;
             }
@@ -105,10 +103,9 @@ public class DetachLineFromLines implements NetworkModification {
 
         Line lineBZ = network.getLine(lineBZId);
         if (lineBZ == null) {
-            String message = String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineBZId);
-            report(message, LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter);
+            notFoundLineReport(reporter, lineBZId);
             if (throwException) {
-                throw new PowsyblException(message);
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineBZId));
             } else {
                 return;
             }
@@ -116,10 +113,9 @@ public class DetachLineFromLines implements NetworkModification {
 
         Line lineCZ = network.getLine(lineCZId);
         if (lineCZ == null) {
-            String message = String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineCZId);
-            report(message, LINE_NOT_FOUND_REPORT_KEY, TypedValue.ERROR_SEVERITY, reporter);
+            notFoundLineReport(reporter, lineCZId);
             if (throwException) {
-                throw new PowsyblException(message);
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineCZId));
             } else {
                 return;
             }
@@ -160,10 +156,9 @@ public class DetachLineFromLines implements NetworkModification {
         }
 
         if (!configOk || attachmentPoint == null || attachedVoltageLevel == null) {
-            String message = String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineAZId, lineBZId, lineCZId);
-            report(message, "noAttachmentPointAndOrAttachedVoltageLevel", TypedValue.ERROR_SEVERITY, reporter);
+            noAttachmentPointAndOrAttachedVoltageLevelReport(reporter, lineAZId, lineBZId, lineCZId);
             if (throwException) {
-                throw new PowsyblException(message);
+                throw new PowsyblException(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineAZId, lineBZId, lineCZId));
             } else {
                 return;
             }
@@ -181,19 +176,19 @@ public class DetachLineFromLines implements NetworkModification {
 
         // Remove the three existing lines
         lineAZ.remove();
-        report(String.format(LINE_REMOVE_REPORT_MESSAGE, lineAZId), LINE_REMOVE_REPORT_KEY, TypedValue.INFO_SEVERITY, reporter);
+        removedLineReport(reporter, lineAZId);
 
         lineBZ.remove();
-        report(String.format(LINE_REMOVE_REPORT_MESSAGE, lineBZId), LINE_REMOVE_REPORT_KEY, TypedValue.INFO_SEVERITY, reporter);
+        removedLineReport(reporter, lineBZId);
 
         lineCZ.remove();
-        report(String.format(LINE_REMOVE_REPORT_MESSAGE, lineCZId), LINE_REMOVE_REPORT_KEY, TypedValue.INFO_SEVERITY, reporter);
+        removedLineReport(reporter, lineCZId);
 
         // Create the new line
         Line line = lineAdder.add();
         addLoadingLimits(line, limits, Branch.Side.ONE);
         addLoadingLimits(line, limits, Branch.Side.TWO);
-        report(String.format("Line %s created", lineId), "lineCreated", TypedValue.INFO_SEVERITY, reporter);
+        createdLineReport(reporter, lineId);
 
         // remove attachment point and attachment point substation, if necessary
         removeVoltageLevelAndSubstation(attachmentPoint, reporter);

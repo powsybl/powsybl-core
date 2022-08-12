@@ -151,6 +151,17 @@ final class ModificationReports {
                 .build());
     }
 
+    static void noAttachmentPointAndOrAttachedVoltageLevelReport(Reporter reporter, String lineAZId, String lineBZId, String lineCZId) {
+        reporter.report(Report.builder()
+                .withKey("noAttachmentPointAndOrAttachedVoltageLevel")
+                .withDefaultMessage("Unable to find the attachment point and the attached voltage level from lines ${lineAZId}, ${lineBZId} and ${lineCZId}")
+                .withValue("lineAZId", lineAZId)
+                .withValue("lineBZId", lineBZId)
+                .withValue("lineCZId", lineCZId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     private ModificationReports() {
     }
 }
