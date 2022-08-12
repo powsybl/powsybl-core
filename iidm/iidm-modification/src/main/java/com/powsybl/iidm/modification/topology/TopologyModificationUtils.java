@@ -194,25 +194,76 @@ final class TopologyModificationUtils {
         adder.add();
     }
 
-    static void report(String message, String key, TypedValue typedValue, Reporter reporter) {
+     // TODO ; transfer to powsybl-core in class ModificationReports (com.powsybl.iidm.modification)
+     // when PR : https://github.com/powsybl/powsybl-core/pull/2214 will be merged
+    static void notFoundLineReport(Reporter reporter, String lineId) {
         reporter.report(Report.builder()
-                .withKey(key)
-                .withDefaultMessage(message)
-                .withSeverity(typedValue)
+                .withKey("lineNotFound")
+                .withDefaultMessage("Line ${lineId} is not found")
+                .withValue("lineId", lineId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
+
+    static void noVoltageLevelInCommonReport(Reporter reporter, String line1Id, String line2Id) {
+        reporter.report(Report.builder()
+                .withKey("noVoltageLevelInCommon")
+                .withDefaultMessage("Lines ${line1Id} and ${line2Id} should have one and only one voltage level in common at their extremities")
+                .withValue("line1Id", line1Id)
+                .withValue("line2Id", line2Id)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedLineReport(Reporter reporter, String lineId) {
+        reporter.report(Report.builder()
+                .withKey("lineRemoved")
+                .withDefaultMessage("Line ${lineId} removed")
+                .withValue("lineId", lineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void createdLineReport(Reporter reporter, String lineId) {
+        reporter.report(Report.builder()
+                .withKey("lineCreated")
+                .withDefaultMessage("Line ${lineId} created")
+                .withValue("lineId", lineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void voltageLevelRemovedReport(Reporter reporter, String vlId) {
+        reporter.report(Report.builder()
+                .withKey("voltageLevelRemoved")
+                .withDefaultMessage("Voltage level ${vlId} removed")
+                .withValue("vlId", vlId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void substationRemovedReport(Reporter reporter, String substationId) {
+        reporter.report(Report.builder()
+                .withKey("substationRemoved")
+                .withDefaultMessage("Substation ${substationId} removed")
+                .withValue("substationId", substationId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+    // END TODO
 
     static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
         Optional<Substation> substation = voltageLevel.getSubstation();
         if (voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION)) {
             String vlId = voltageLevel.getId();
             voltageLevel.remove();
-            report(String.format("Voltage level %s removed", vlId), "voltageLevelRemoved", TypedValue.INFO_SEVERITY, reporter);
+            voltageLevelRemovedReport(reporter, vlId);
         }
         substation.ifPresent(s -> {
             if (s.getVoltageLevelStream().count() == 0) {
+                String substationId = s.getId();
                 s.remove();
-                report(String.format("Substation %s removed", s.getId()), "substationRemoved", TypedValue.INFO_SEVERITY, reporter);
+                substationRemovedReport(reporter, substationId);
             }
         });
     }

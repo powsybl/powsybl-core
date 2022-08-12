@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Branch;
@@ -26,8 +25,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.a
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.calcMinLoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createdLineReport;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.noVoltageLevelInCommonReport;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.report;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removedLineReport;
 
 /**
  * This method reverses the action done in the AttachVoltageLevelOnLine class :
@@ -83,10 +85,9 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
     public void apply(Network network, boolean throwException, Reporter reporter) {
         Line line1 = network.getLine(line1Id);
         if (line1 == null) {
-            String message = String.format("Line %s is not found", line1Id);
-            report(message, "lineNotFound", TypedValue.ERROR_SEVERITY, reporter);
+            notFoundLineReport(reporter, line1Id);
             if (throwException) {
-                throw new PowsyblException(message);
+                throw new PowsyblException(String.format("Line %s is not found", line1Id));
             } else {
                 return;
             }
@@ -94,10 +95,9 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
 
         Line line2 = network.getLine(line2Id);
         if (line2 == null) {
-            String message = String.format("Line %s is not found", line2Id);
-            report(message, "lineNotFound", TypedValue.ERROR_SEVERITY, reporter);
+            notFoundLineReport(reporter, line2Id);
             if (throwException) {
-                throw new PowsyblException(message);
+                throw new PowsyblException(String.format("Line %s is not found", line2Id));
             } else {
                 return;
             }
@@ -123,10 +123,9 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
         }
 
         if (vlIds.size() != 3) {
-            String message = String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id);
-            report(message, "noVoltageLevelInCommon", TypedValue.ERROR_SEVERITY, reporter);
+            noVoltageLevelInCommonReport(reporter, line1Id, line2Id);
             if (throwException) {
-                throw new PowsyblException(message);
+                throw new PowsyblException(String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
             } else {
                 return;
             }
@@ -148,16 +147,16 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
 
         // Remove the two existing lines
         line1.remove();
-        report(String.format("Line %s removed", line1Id), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+        removedLineReport(reporter, line1Id);
 
         line2.remove();
-        report(String.format("Line %s removed", line2Id), "lineRemoved", TypedValue.INFO_SEVERITY, reporter);
+        removedLineReport(reporter, line2Id);
 
         // Create the new line
         Line line = lineAdder.add();
         addLoadingLimits(line, limits, Branch.Side.ONE);
         addLoadingLimits(line, limits, Branch.Side.TWO);
-        report(String.format("Line %s created", lineId), "lineCreated", TypedValue.INFO_SEVERITY, reporter);
+        createdLineReport(reporter, lineId);
 
         // remove voltage level and substation in common, if necessary
         removeVoltageLevelAndSubstation(commonVl, reporter);
