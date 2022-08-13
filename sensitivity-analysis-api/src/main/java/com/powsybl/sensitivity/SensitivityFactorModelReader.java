@@ -34,7 +34,7 @@ public class SensitivityFactorModelReader implements SensitivityFactorReader {
         for (SensitivityFactor factor : factors) {
             String functionId = factor.getFunctionId();
             if (factor.getFunctionType() == SensitivityFunctionType.BUS_VOLTAGE) {
-                Bus bus = new IdBasedBusRef(factor.getFunctionId()).resolve(network, TopologyLevel.BUS_BRANCH)
+                Bus bus = new IdBasedBusRef(factor.getFunctionId()).resolve(network, TopologyLevel.BUS_BREAKER)
                     .orElseThrow(() -> new PowsyblException("The bus ref for '" + factor.getFunctionId() + "' cannot be resolved."));
                 functionId = bus.getId();
             }
