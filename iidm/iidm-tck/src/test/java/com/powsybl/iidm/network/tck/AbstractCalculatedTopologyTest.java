@@ -9,9 +9,10 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -20,21 +21,40 @@ public abstract class AbstractCalculatedTopologyTest {
 
     @Test
     public void testBusBreaker() {
-        checkSameMergedBus(createBusBreaker(), "B1a", "B1b");
+        Network n = createBusBreaker();
+        Bus bus = checkSameMergedBus(n, "B1a", "B1b");
+        checkSameBusesFromMergedBus(n, bus.getId(), "B1a", "B1b");
     }
 
     @Test
     public void testNodeBreaker() {
-        checkSameMergedBus(createNodeBreaker(), "B1a", "B1b");
+        Network n = createNodeBreaker();
+        Bus bus = checkSameMergedBus(n, "B1a", "B1b");
+        String bus1a = n.getBusbarSection("B1a").getTerminal().getBusBreakerView().getBus().getId();
+        String bus1b = n.getBusbarSection("B1b").getTerminal().getBusBreakerView().getBus().getId();
+        checkSameBusesFromMergedBus(n, bus.getId(), bus1a, bus1b);
     }
 
-    private void checkSameMergedBus(Network n, String ida, String idb) {
+    private Bus checkSameMergedBus(Network n, String ida, String idb) {
         Bus ma = n.getVoltageLevel("VL1").getBusView().getMergedBus(ida);
         Bus mb = n.getVoltageLevel("VL1").getBusView().getMergedBus(idb);
         assertNotNull(ma);
         assertNotNull(mb);
         assertEquals(ma, mb);
         assertSame(n, ma.getNetwork());
+        return ma;
+    }
+
+    private void checkSameBusesFromMergedBus(Network n, String mergedBusId, String... busesIds) {
+        Collection<Bus> buses = n.getVoltageLevel("VL1").getBusBreakerView().getBusesFromMergedBusId(mergedBusId);
+        assertFalse(buses.isEmpty());
+        assertEquals(2, buses.size());
+        for (String busId : busesIds) {
+            assertTrue(buses.stream().anyMatch(b -> b.getId().equals(busId)));
+        }
+        Collection<Bus> buses2 = n.getVoltageLevel("VL1").getBusBreakerView().getBusStreamFromMergedBusId(mergedBusId).collect(Collectors.toSet());
+        assertTrue(buses.containsAll(buses2));
+        assertTrue(buses2.containsAll(buses));
     }
 
     private Network createBusBreaker() {

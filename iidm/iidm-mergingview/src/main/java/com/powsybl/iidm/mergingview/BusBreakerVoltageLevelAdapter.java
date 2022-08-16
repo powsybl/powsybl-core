@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -132,6 +134,16 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         @Override
         public Bus getBus2(String switchId) {
             return getBus(getDelegate().getBus2(switchId));
+        }
+
+        @Override
+        public Collection<Bus> getBusesFromMergedBusId(String mergedBusId) {
+            return getBusStreamFromMergedBusId(mergedBusId).collect(Collectors.toSet());
+        }
+
+        @Override
+        public Stream<Bus> getBusStreamFromMergedBusId(String mergedBusId) {
+            return getDelegate().getBusStreamFromMergedBusId(mergedBusId).map(this::getBus);
         }
 
         @Override
