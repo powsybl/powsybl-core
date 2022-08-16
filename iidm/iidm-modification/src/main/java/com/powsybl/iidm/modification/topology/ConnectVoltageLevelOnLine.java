@@ -22,7 +22,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class AttachVoltageLevelOnLine implements NetworkModification {
+public class ConnectVoltageLevelOnLine implements NetworkModification {
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -42,9 +42,9 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
      * line1Id is line.getId() + "_1". <br>
      * line2Id is line.getId() + "_2". <br>
      *
-     * @see #AttachVoltageLevelOnLine(String, String, String, String, Line)
+     * @see #ConnectVoltageLevelOnLine(String, String, String, String, Line)
      */
-    public AttachVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, Line line) {
+    public ConnectVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, Line line) {
         this(voltageLevelId, bbsOrBusId, line.getId() + "_1", line.getId() + "_2", line);
     }
 
@@ -55,9 +55,9 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
      * line1Name is null. <br>
      * line2Name is null. <br>
      *
-     * @see #AttachVoltageLevelOnLine(double, String, String, String, String, String, String, Line)
+     * @see #ConnectVoltageLevelOnLine(double, String, String, String, String, String, String, Line)
      */
-    public AttachVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, String line1Id, String line2Id, Line line) {
+    public ConnectVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, String line1Id, String line2Id, Line line) {
         this(50, voltageLevelId, bbsOrBusId, line1Id, null, line2Id, null, line);
     }
 
@@ -75,8 +75,8 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
      */
-    public AttachVoltageLevelOnLine(double percent, String voltageLevelId, String bbsOrBusId, String line1Id, String line1Name,
-                                    String line2Id, String line2Name, Line line) {
+    public ConnectVoltageLevelOnLine(double percent, String voltageLevelId, String bbsOrBusId, String line1Id, String line1Name,
+                                     String line2Id, String line2Name, Line line) {
         this.percent = checkPercent(percent);
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
@@ -87,27 +87,27 @@ public class AttachVoltageLevelOnLine implements NetworkModification {
         this.line = Objects.requireNonNull(line);
     }
 
-    public AttachVoltageLevelOnLine setPercent(double percent) {
+    public ConnectVoltageLevelOnLine setPercent(double percent) {
         this.percent = checkPercent(percent);
         return this;
     }
 
-    public AttachVoltageLevelOnLine setLine1Id(String line1Id) {
+    public ConnectVoltageLevelOnLine setLine1Id(String line1Id) {
         this.line1Id = Objects.requireNonNull(line1Id);
         return this;
     }
 
-    public AttachVoltageLevelOnLine setLine1Name(String line1Name) {
+    public ConnectVoltageLevelOnLine setLine1Name(String line1Name) {
         this.line1Name = line1Name;
         return this;
     }
 
-    public AttachVoltageLevelOnLine setLine2Id(String line2Id) {
+    public ConnectVoltageLevelOnLine setLine2Id(String line2Id) {
         this.line2Id = Objects.requireNonNull(line2Id);
         return this;
     }
 
-    public AttachVoltageLevelOnLine setLine2Name(String line2Name) {
+    public ConnectVoltageLevelOnLine setLine2Name(String line2Name) {
         this.line2Name = line2Name;
         return this;
     }

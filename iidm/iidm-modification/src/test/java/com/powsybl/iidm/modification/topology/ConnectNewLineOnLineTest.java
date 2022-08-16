@@ -24,36 +24,36 @@ import static org.junit.Assert.*;
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
+public class ConnectNewLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
-    public void attachLineOnLineNbTest() throws IOException {
+    public void connectLineOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine("VLTEST", BBS, line, adder);
+        NetworkModification modification = new ConnectNewLineOnLine("VLTEST", BBS, line, adder);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-l.xml");
     }
 
     @Test
-    public void attachLineOnLineNbBbTest() throws IOException {
+    public void connectLineOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        NetworkModification modification = new ConnectNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-nb-l.xml");
     }
 
     @Test
-    public void attachLineOnLineBbTest() throws IOException {
+    public void connectLineOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
+        NetworkModification modification = new ConnectNewLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-bb-l.xml");
@@ -64,7 +64,7 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        AttachNewLineOnLine modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        ConnectNewLineOnLine modification = new ConnectNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         assertEquals(VOLTAGE_LEVEL_ID, modification.getVoltageLevelId());
         assertEquals(BBS, modification.getBbsOrBusId());
         assertEquals(50, modification.getPercent(), 0.0);
@@ -86,7 +86,7 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        AttachNewLineOnLine modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        ConnectNewLineOnLine modification = new ConnectNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.setPercent(40.0)
                 .setFictitiousVlId("FICT_VL")
                 .setFictitiousVlName("FICT")

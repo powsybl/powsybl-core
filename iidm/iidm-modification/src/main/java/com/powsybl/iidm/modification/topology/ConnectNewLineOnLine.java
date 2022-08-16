@@ -23,7 +23,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class AttachNewLineOnLine implements NetworkModification {
+public class ConnectNewLineOnLine implements NetworkModification {
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -53,9 +53,9 @@ public class AttachNewLineOnLine implements NetworkModification {
      * line1Id is line.getId() + "_1" <br>
      * line2Id is line.getId() + "_2". <br>
      *
-     * @see #AttachNewLineOnLine(double, String, String, String, String, String, Line, LineAdder)
+     * @see #ConnectNewLineOnLine(double, String, String, String, String, String, Line, LineAdder)
      */
-    public AttachNewLineOnLine(String voltageLevelId, String bbsOrBusId, Line line, LineAdder lineAdder) {
+    public ConnectNewLineOnLine(String voltageLevelId, String bbsOrBusId, Line line, LineAdder lineAdder) {
         this(50, voltageLevelId, bbsOrBusId, line.getId() + "_VL", line.getId() + "_1",
                 line.getId() + "_2", line, lineAdder);
     }
@@ -70,10 +70,10 @@ public class AttachNewLineOnLine implements NetworkModification {
      * line1Name is null. <br>
      * line2Name is null. <br>
      *
-     * @see #AttachNewLineOnLine(double, String, String, String, String, boolean, String, String, String, String, String, String, Line, LineAdder)
+     * @see #ConnectNewLineOnLine(double, String, String, String, String, boolean, String, String, String, String, String, String, Line, LineAdder)
      */
-    public AttachNewLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String line1Id,
-                               String line2Id, Line line, LineAdder lineAdder) {
+    public ConnectNewLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String line1Id,
+                                String line2Id, Line line, LineAdder lineAdder) {
         this(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, null, false,
                 line.getId() + "_S", null, line1Id, null, line2Id, null, line,
                 lineAdder);
@@ -102,9 +102,9 @@ public class AttachNewLineOnLine implements NetworkModification {
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
      */
-    public AttachNewLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
-                               boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
-                               String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
+    public ConnectNewLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
+                                boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
+                                String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
         this.percent = checkPercent(percent);
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
@@ -128,53 +128,53 @@ public class AttachNewLineOnLine implements NetworkModification {
         return fictitiousSubstationId;
     }
 
-    public AttachNewLineOnLine setPercent(double percent) {
+    public ConnectNewLineOnLine setPercent(double percent) {
         this.percent = checkPercent(percent);
         return this;
     }
 
-    public AttachNewLineOnLine setFictitiousVlId(String fictitiousVlId) {
+    public ConnectNewLineOnLine setFictitiousVlId(String fictitiousVlId) {
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         return this;
     }
 
-    public AttachNewLineOnLine setFictitiousVlName(String fictitiousVlName) {
+    public ConnectNewLineOnLine setFictitiousVlName(String fictitiousVlName) {
         this.fictitiousVlName = fictitiousVlName;
         return this;
     }
 
-    public AttachNewLineOnLine setCreateFictSubstation(boolean createFictSubstation) {
+    public ConnectNewLineOnLine setCreateFictSubstation(boolean createFictSubstation) {
         checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
         this.createFictSubstation = createFictSubstation;
         return this;
     }
 
-    public AttachNewLineOnLine setFictitiousSubstationId(String fictitiousSubstationId) {
+    public ConnectNewLineOnLine setFictitiousSubstationId(String fictitiousSubstationId) {
         this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
         return this;
     }
 
-    public AttachNewLineOnLine setFictitiousSubstationName(String fictitiousSubstationName) {
+    public ConnectNewLineOnLine setFictitiousSubstationName(String fictitiousSubstationName) {
         this.fictitiousSubstationName = fictitiousSubstationName;
         return this;
     }
 
-    public AttachNewLineOnLine setLine1Id(String line1Id) {
+    public ConnectNewLineOnLine setLine1Id(String line1Id) {
         this.line1Id = Objects.requireNonNull(line1Id);
         return this;
     }
 
-    public AttachNewLineOnLine setLine1Name(String line1Name) {
+    public ConnectNewLineOnLine setLine1Name(String line1Name) {
         this.line1Name = line1Name;
         return this;
     }
 
-    public AttachNewLineOnLine setLine2Id(String line2Id) {
+    public ConnectNewLineOnLine setLine2Id(String line2Id) {
         this.line2Id = Objects.requireNonNull(line2Id);
         return this;
     }
 
-    public AttachNewLineOnLine setLine2Name(String line2Name) {
+    public ConnectNewLineOnLine setLine2Name(String line2Name) {
         this.line2Name = line2Name;
         return this;
     }
