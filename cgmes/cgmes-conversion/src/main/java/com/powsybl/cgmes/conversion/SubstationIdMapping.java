@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.Conversion.*;
+
 /**
  * CGMES standard: <br>
  * A PowerTransformer is contained in one Substation, but it can connect a Terminal to another different Substation <br>
@@ -160,8 +162,8 @@ public class SubstationIdMapping {
     private void addSwitch(Map<String, Set<String>> voltageLevelAdjacency,
         Map<String, Set<String>> substationAdjacency, PropertyBag sw) {
 
-        CgmesTerminal t1 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 1));
-        CgmesTerminal t2 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 2));
+        CgmesTerminal t1 = context.cgmes().terminal(getTerminal1(sw));
+        CgmesTerminal t2 = context.cgmes().terminal(getTerminal2(sw));
 
         String voltageLevelId1 = context.cgmes().voltageLevel(t1, context.nodeBreaker());
         String voltageLevelId2 = context.cgmes().voltageLevel(t2, context.nodeBreaker());

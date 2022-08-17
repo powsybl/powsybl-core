@@ -157,14 +157,15 @@ WHERE {
         a cim:Switch ;
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.MemberOf_EquipmentContainer ?EquipmentContainer .
-    ?Terminal1
-        a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:Terminal.sequenceNumber "1" .
-    ?Terminal2
-        a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:Terminal.sequenceNumber "2" .
+        ?TerminalA
+            a cim:Terminal ;
+            cim:Terminal.ConductingEquipment ?Switch .
+        OPTIONAL { ?TerminalA cim:Terminal.sequenceNumber ?sequenceNumberA }
+        ?TerminalB
+            a cim:Terminal ;
+            cim:Terminal.ConductingEquipment ?Switch .
+        OPTIONAL { ?TerminalA cim:Terminal.sequenceNumber ?sequenceNumberB }
+        FILTER ( STR(?TerminalA) < STR(?TerminalB) )
     BIND ( ?EquipmentContainer AS ?VoltageLevel )
 }}
 }
@@ -180,14 +181,15 @@ WHERE {
         cim:Conductor.bch ?bch ;
         cim:Conductor.gch ?gch ;
         cim:IdentifiedObject.name ?name .
-    ?Terminal1
-        a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:Terminal.sequenceNumber "1" .
-    ?Terminal2
-        a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:Terminal.sequenceNumber "2" .
+        ?TerminalA
+            a cim:Terminal ;
+            cim:Terminal.ConductingEquipment ?ACLineSegment .
+        OPTIONAL { ?TerminalA cim:Terminal.sequenceNumber ?sequenceNumberA }
+        ?TerminalB
+            a cim:Terminal ;
+            cim:Terminal.ConductingEquipment ?ACLineSegment .
+        OPTIONAL { ?TerminalA cim:Terminal.sequenceNumber ?sequenceNumberB }
+        FILTER ( STR(?TerminalA) < STR(?TerminalB) )
 }}
 }
 

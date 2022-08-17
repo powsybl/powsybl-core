@@ -25,6 +25,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 import java.util.List;
 import java.util.Optional;
 
+import static com.powsybl.cgmes.conversion.Conversion.getTerminal;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  *         <p>
@@ -41,7 +43,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         super(type, p, context);
         numTerminals = 1;
         terminals = new TerminalData[] {null, null, null};
-        terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
+        terminals[0] = new TerminalData(context, p.getId(CgmesNames.TERMINAL));
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
@@ -59,7 +61,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         this.numTerminals = numTerminals;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
-            terminals[k0] = new TerminalData(CgmesNames.TERMINAL + k, p, context);
+            terminals[k0] = new TerminalData(context, p.containsKey(CgmesNames.TERMINAL + k) ? p.getId(CgmesNames.TERMINAL + k) : getTerminal(k, p));
         }
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
@@ -76,7 +78,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         assert numTerminals <= 3;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
-            terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
+            terminals[k0] = new TerminalData(context, ps.get(k0).getId(CgmesNames.TERMINAL));
         }
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
@@ -470,8 +472,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         private final String iidmVoltageLevelId;
         private final VoltageLevel voltageLevel;
 
-        TerminalData(String terminalPropertyName, PropertyBag p, Context context) {
-            t = context.cgmes().terminal(p.getId(terminalPropertyName));
+        TerminalData(Context context, String cgmesTerminal) {
+            t = context.cgmes().terminal(cgmesTerminal);
             String nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
             this.busId = context.namingStrategy().getIidmId("Bus", nodeId);
             if (context.config().convertBoundary()

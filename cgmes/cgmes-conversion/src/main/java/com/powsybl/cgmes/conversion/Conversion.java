@@ -17,6 +17,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -419,7 +420,7 @@ public class Conversion {
         for (PropertyBag line : acLineSegments) { // Retrieve a voltage level reference for every line container of AC Line Segments outside boundaries
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null && !voltageLevelRefByLineContainerId.containsKey(lineContainerId)) {
-                putVoltageLevelRefByLineContainerIdIfPresent(lineContainerId, () -> line.getId("Terminal1"), () -> line.getId("Terminal2"),
+                putVoltageLevelRefByLineContainerIdIfPresent(lineContainerId, () -> getTerminal1(line), () -> getTerminal2(line),
                         voltageLevelRefByLineContainerId, context);
             }
         }
@@ -445,6 +446,60 @@ public class Conversion {
         }
     }
 
+    public static String getTerminal(int sequenceNumber, PropertyBag line) {
+        if (sequenceNumber == 1) {
+            return getTerminal1(line);
+        }
+        if (sequenceNumber == 2) {
+            return getTerminal2(line);
+        }
+        throw new PowsyblException("Unexpected sequence number: " + sequenceNumber);
+    }
+
+    static String getTerminal1(PropertyBag line) {
+        String sequenceNumberA = "sequenceNumberA";
+        String sequenceNumberB = "sequenceNumberB";
+        String terminalA = "TerminalA";
+        String terminalB = "TerminalB";
+        if (line.containsKey(sequenceNumberA)) {
+            if (line.asInt(sequenceNumberA) == 1) {
+                return line.getId(terminalA);
+            } else if (line.asInt(sequenceNumberA) == 2) {
+                return line.getId(terminalB);
+            }
+        }
+        if (line.containsKey(sequenceNumberB)) {
+            if (line.asInt(sequenceNumberB) == 1) {
+                return line.getId(terminalB);
+            } else if (line.asInt(sequenceNumberB) == 2) {
+                return line.getId(terminalA);
+            }
+        }
+        return line.getId(terminalA);
+    }
+
+    static String getTerminal2(PropertyBag line) {
+        String sequenceNumberA = "sequenceNumberA";
+        String sequenceNumberB = "sequenceNumberB";
+        String terminalA = "TerminalA";
+        String terminalB = "TerminalB";
+        if (line.containsKey(sequenceNumberA)) {
+            if (line.asInt(sequenceNumberA) == 2) {
+                return line.getId(terminalA);
+            } else if (line.asInt(sequenceNumberA) == 1) {
+                return line.getId(terminalB);
+            }
+        }
+        if (line.containsKey(sequenceNumberB)) {
+            if (line.asInt(sequenceNumberB) == 2) {
+                return line.getId(terminalB);
+            } else if (line.asInt(sequenceNumberB) == 1) {
+                return line.getId(terminalA);
+            }
+        }
+        return line.getId(terminalB);
+    }
+
     static class LineContainerFictitiousVoltageLevelData {
         String lineId;
 
@@ -457,11 +512,11 @@ public class Conversion {
         }
     }
 
-    private LineContainerFictitiousVoltageLevelData voltageLevelDataForACLSinLineContainer(Context context, String lineId, PropertyBag lineSegment, String terminalRef) {
+    private LineContainerFictitiousVoltageLevelData voltageLevelDataForACLSinLineContainer(Context context, String lineId, PropertyBag lineSegment, Supplier<String> terminalRef) {
         LineContainerFictitiousVoltageLevelData vldata = new LineContainerFictitiousVoltageLevelData();
         vldata.lineId = lineId;
         vldata.lineName = lineSegment.get("lineName");
-        CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
+        CgmesTerminal t = cgmes.terminal(terminalRef.get());
         vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
         String vlId = context.namingStrategy().getIidmId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
         if (vlId != null) {
@@ -474,9 +529,9 @@ public class Conversion {
 
     private void createLineContainerFictitiousVoltageLevels(Context context, String lineId, VoltageLevel vlRef, PropertyBag lineSegment) {
         // Try to obtain data for a potential fictitious voltage level from Terminal1 of AC Line Segment
-        LineContainerFictitiousVoltageLevelData vldata1 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal1");
+        LineContainerFictitiousVoltageLevelData vldata1 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, () -> getTerminal1(lineSegment));
         // The same, from Terminal2 of AC Line Segment
-        LineContainerFictitiousVoltageLevelData vldata2 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal2");
+        LineContainerFictitiousVoltageLevelData vldata2 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, () -> getTerminal2(lineSegment));
         // Only create a fictitious voltage levels replacing cim:Line Container if we are NOT at boundaries
         if (vldata1.vl == null && !context.boundary().containsNode(vldata1.nodeId)) {
             createLineContainerFictitiousVoltageLevel(context, vldata1, vlRef);
