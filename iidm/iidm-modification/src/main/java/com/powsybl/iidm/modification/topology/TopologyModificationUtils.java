@@ -245,6 +245,9 @@ final class TopologyModificationUtils {
         return ordersBySectionIndex;
     }
 
+    /**
+     * Method that fills the map connectablesByBbs with all the connectables of a busbar section.
+     */
     static void fillConnectablesMap(BusbarSection bbs, Map<BusbarSection, Set<Connectable<?>>> connectablesByBbs) {
         BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
         int bbSection = bbPosition.getSectionIndex();
@@ -281,6 +284,11 @@ final class TopologyModificationUtils {
         });
     }
 
+    /**
+     * Get all the unused positions before the lowest used position on the busbar section bbs.
+     * It is a range between the maximum used position on the busbar section with the highest section index lower than the section
+     * index of the given busbar section and the minimum position on the given busbar section.
+     */
     public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(VoltageLevel voltageLevel, BusbarSection bbs) {
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
@@ -296,6 +304,11 @@ final class TopologyModificationUtils {
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
+    /**
+     * Get all the unused positions after the highest used position on the busbar section bbs.
+     * It is a range between the minimum used position on the busbar section with the lowest section index higher than the section
+     * index of the given busbar section and the maximum position on the given busbar section.
+     */
     public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(VoltageLevel voltageLevel, BusbarSection bbs) {
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
@@ -311,6 +324,9 @@ final class TopologyModificationUtils {
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
+    /**
+     * Method returning the maximum order in the slice with the highest section index lower to the given section.
+     */
     private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
@@ -321,6 +337,9 @@ final class TopologyModificationUtils {
                 .flatMap(entry -> entry.getValue().stream().max(Comparator.naturalOrder()));
     }
 
+    /**
+     * Method returning the minimum order in the slice with the lowest section index higher to the given section.
+     */
     private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {
@@ -331,12 +350,18 @@ final class TopologyModificationUtils {
                 .flatMap(entry -> entry.getValue().stream().min(Comparator.naturalOrder()));
     }
 
+    /**
+     * Utility method to get all the taken feeder positions on a voltage level.
+     */
     public static Set<Integer> getFeederPositions(VoltageLevel voltageLevel) {
         Set<Integer> feederPositionsOrders = new HashSet<>();
         voltageLevel.getConnectables().forEach(connectable -> addOrder(connectable, voltageLevel, feederPositionsOrders));
         return feederPositionsOrders;
     }
 
+    /**
+     * Method getting order of a connectable on a given voltage level.
+     */
     private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
         ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
         if (position != null) {

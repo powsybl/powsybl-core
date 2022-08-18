@@ -27,8 +27,10 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.c
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNodeBreakerSwitches;
 
 /**
- * This method adds a new injection bay on an existing voltage level. The voltage level should be described
- * in node/breaker topology.
+ * This method adds a new injection bay on an existing busbar section. The voltage level containing the
+ * busbar sectionshould be described in node/breaker topology. The injection is created and connected to
+ * the busbar section with a breaker and a closed disconnector. The injection is also connected to all
+ * the parallel busbar sections, if any, with an open disconnector.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class CreateFeederBay implements NetworkModification {
@@ -44,7 +46,7 @@ public class CreateFeederBay implements NetworkModification {
      * Constructor.
      *
      * @param injectionAdder         The injection adder.
-     * @param bbsId                  The ID of the existing bus bar section of the voltage level voltageLevelId where we want to connect the injection.
+     * @param bbsId                  The ID of the existing bus bar section where we want to connect the injection.
      *                               Please note that there will be switches between this bus bar section and the connection point of the injection. This switch will be closed.
      * @param injectionPositionOrder The order of the injection to be attached from its extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
