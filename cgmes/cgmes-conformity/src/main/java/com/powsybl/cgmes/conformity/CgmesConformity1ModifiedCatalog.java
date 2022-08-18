@@ -1679,6 +1679,15 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
+    public static TestGridModel microGridBaseCaseBESingleFile() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_single_file/";
+        return new TestGridModelResources(
+                "MicroGrid-BaseCase-BE-single-file",
+                null,
+                new ResourceSet(base, "MicroGridTestConfiguration_BC_BE_V2.xml"));
+    }
+
     private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
     private static final String ENTSOE_CONFORMITY_1_MODIFIED = "/conformity-modified/cas-1.1.3-data-4.0.3";
 }

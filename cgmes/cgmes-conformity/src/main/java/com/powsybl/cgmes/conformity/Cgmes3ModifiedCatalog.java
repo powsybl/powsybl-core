@@ -87,6 +87,15 @@ public final class Cgmes3ModifiedCatalog {
             new ResourceSet(baseBoundary, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
     }
 
+    public static TestGridModelResources microGridBaseCaseBESingleFile() {
+        String base = CGMES_3_MODIFIED_TEST_MODELS
+                + "/MicroGrid/singleFile/";
+        return new TestGridModelResources(
+                "MicroGrid-single-file",
+                null,
+                new ResourceSet(base, "20210209T1930Z_1D_BE_9.xml"));
+    }
+
     private static final String CGMES_3_TEST_MODELS = "/cgmes3-test-models";
     private static final String CGMES_3_MODIFIED_TEST_MODELS = "/cgmes3-test-models-modified";
 }
