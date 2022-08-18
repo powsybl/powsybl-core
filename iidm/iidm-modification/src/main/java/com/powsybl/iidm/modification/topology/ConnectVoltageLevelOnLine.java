@@ -16,8 +16,8 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
- * This method cuts an existing line in two lines that will be created and attach an existing voltage level at the
- * attachment point. The voltage level should be added to the network just before calling this method, and should contains
+ * This method cuts an existing line in two lines that will be created and connected to an existing voltage level
+ * (also called switching voltage level). The voltage level should be added to the network just before calling this method, and should contains
  * at least a configured bus in bus/breaker topology or a bus bar section in node/breaker topology.
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
