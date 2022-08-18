@@ -7,10 +7,7 @@
 package com.powsybl.security.json;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.ActionList;
-import com.powsybl.security.action.MultipleActionsAction;
-import com.powsybl.security.action.SwitchAction;
+import com.powsybl.security.action.*;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -31,6 +28,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("id1", "switchId1", true));
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
+        actions.add(new LineAction("id3", "lineId3", true, true));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
