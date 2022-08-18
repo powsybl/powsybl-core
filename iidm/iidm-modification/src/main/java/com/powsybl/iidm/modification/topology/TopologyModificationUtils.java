@@ -288,6 +288,8 @@ final class TopologyModificationUtils {
      * Get all the unused positions before the lowest used position on the busbar section bbs.
      * It is a range between the maximum used position on the busbar section with the highest section index lower than the section
      * index of the given busbar section and the minimum position on the given busbar section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS2 will return a range from 4 to 6.
      */
     public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(VoltageLevel voltageLevel, BusbarSection bbs) {
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
@@ -308,6 +310,8 @@ final class TopologyModificationUtils {
      * Get all the unused positions after the highest used position on the busbar section bbs.
      * It is a range between the minimum used position on the busbar section with the lowest section index higher than the section
      * index of the given busbar section and the maximum position on the given busbar section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS1 will return a range from 4 to 6.
      */
     public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(VoltageLevel voltageLevel, BusbarSection bbs) {
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
@@ -326,6 +330,8 @@ final class TopologyModificationUtils {
 
     /**
      * Method returning the maximum order in the slice with the highest section index lower to the given section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS2 will return 3.
      */
     private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         Map.Entry<Integer, List<Integer>> lowerEntry;
@@ -339,6 +345,8 @@ final class TopologyModificationUtils {
 
     /**
      * Method returning the minimum order in the slice with the lowest section index higher to the given section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS1 will return 7.
      */
     private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         Map.Entry<Integer, List<Integer>> higherEntry;
