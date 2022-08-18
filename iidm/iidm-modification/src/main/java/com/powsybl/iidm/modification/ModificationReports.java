@@ -22,7 +22,7 @@ public final class ModificationReports {
     public static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
         reporter.report(Report.builder()
                 .withKey("notFoundBusbarSection")
-                .withDefaultMessage("Bus bar section ${busbarSectionId} not found")
+                .withDefaultMessage("Busbar section ${busbarSectionId} not found")
                 .withValue("busbarSectionId", bbsId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -40,7 +40,7 @@ public final class ModificationReports {
     public static void noBusbarSectionInVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("noBusbarSectionInVoltageLevel")
-                .withDefaultMessage("Voltage level ${voltageLevelId} has no bus bar section.")
+                .withDefaultMessage("Voltage level ${voltageLevelId} has no busbar section.")
                 .withValue(voltageLevelIdString, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -82,7 +82,7 @@ public final class ModificationReports {
     public static void noBusbarSectionPositionExtensionReport(Reporter reporter, BusbarSection bbs) {
         reporter.report(Report.builder()
                 .withKey("noBusbarSectionPositionExtension")
-                .withDefaultMessage("No bus bar section position extension found on ${bbsId}, only one disconnector is created.")
+                .withDefaultMessage("No busbar section position extension found on ${bbsId}, only one disconnector is created.")
                 .withValue("bbsId", bbs.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());

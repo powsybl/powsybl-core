@@ -28,7 +28,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.c
 
 /**
  * This method adds a new injection bay on an existing busbar section. The voltage level containing the
- * busbar sectionshould be described in node/breaker topology. The injection is created and connected to
+ * busbar section should be described in node/breaker topology. The injection is created and connected to
  * the busbar section with a breaker and a closed disconnector. The injection is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -46,8 +46,8 @@ public class CreateFeederBay implements NetworkModification {
      * Constructor.
      *
      * @param injectionAdder         The injection adder.
-     * @param bbsId                  The ID of the existing bus bar section where we want to connect the injection.
-     *                               Please note that there will be switches between this bus bar section and the connection point of the injection. This switch will be closed.
+     * @param bbsId                  The ID of the existing busbar section where we want to connect the injection.
+     *                               Please note that there will be switches between this busbar section and the connection point of the injection. This switch will be closed.
      * @param injectionPositionOrder The order of the injection to be attached from its extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
@@ -76,10 +76,10 @@ public class CreateFeederBay implements NetworkModification {
     public void apply(Network network, boolean throwException, Reporter reporter) {
         BusbarSection bbs = network.getBusbarSection(bbsId);
         if (bbs == null) {
-            LOGGER.error("Bus bar section {} not found.", bbsId);
+            LOGGER.error("Busbar section {} not found.", bbsId);
             notFoundBusbarSectionReport(reporter, bbsId);
             if (throwException) {
-                throw new PowsyblException(String.format("Bus bar section %s not found.", bbsId));
+                throw new PowsyblException(String.format("Busbar section %s not found.", bbsId));
             }
             return;
         }
@@ -128,7 +128,7 @@ public class CreateFeederBay implements NetworkModification {
                 .add()
                 .add();
 
-        // create switches and a breaker linking the injection to the bus bar sections.
+        // create switches and a breaker linking the injection to the busbar sections.
         createTopology(network, voltageLevel, injectionNode, forkNode, injection, reporter);
     }
 
@@ -140,7 +140,7 @@ public class CreateFeederBay implements NetworkModification {
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
         int parallelBbsNumber = 0;
         if (position == null) {
-            LOGGER.warn("No bus bar section position extension found on {}, only one disconnector is created.", bbs.getId());
+            LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs);
         } else {
             List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()

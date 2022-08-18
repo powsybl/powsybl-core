@@ -213,8 +213,8 @@ final class TopologyModificationUtils {
     }
 
     /**
-     * Utility method that associates a bus bar section position index to the orders taken by all the connectables
-     * of the bus bar sections of this index.
+     * Utility method that associates a busbar section position index to the orders taken by all the connectables
+     * of the busbar sections of this index.
      **/
     static NavigableMap<Integer, List<Integer>> getSliceOrdersMap(VoltageLevel voltageLevel) {
         // Compute the map of connectables by busbar sections
@@ -425,7 +425,7 @@ final class TopologyModificationUtils {
             bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
         }
         if (bbs == null) {
-            throw new PowsyblException(String.format("Voltage level %s has no bus bar section.", voltageLevel.getId()));
+            throw new PowsyblException(String.format("Voltage level %s has no busbar section.", voltageLevel.getId()));
         }
         return bbs;
     }

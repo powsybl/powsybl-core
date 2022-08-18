@@ -149,7 +149,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         //wrong bbsId
         CreateFeederBay modification1 = new CreateFeederBay(loadAdder, "bbs", 115);
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
-        assertEquals("Bus bar section bbs not found.", e1.getMessage());
+        assertEquals("Busbar section bbs not found.", e1.getMessage());
 
         //wrong injectionPositionOrder
         CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "bbs4", 0);
