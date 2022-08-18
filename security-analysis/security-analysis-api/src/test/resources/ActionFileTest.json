@@ -14,5 +14,10 @@
       "switchId" : "switchId2",
       "open" : true
     } ]
+  }, {
+    "type" : "TAP_POSITION",
+    "id" : "id4",
+    "transformerId" : "transformerId1",
+    "newTapPosition" : 5
   } ]
 }

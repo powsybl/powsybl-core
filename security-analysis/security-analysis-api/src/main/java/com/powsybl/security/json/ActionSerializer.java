@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.MultipleActionsAction;
 import com.powsybl.security.action.SwitchAction;
+import com.powsybl.security.action.TapPositionAction;
 
 import java.io.IOException;
 
@@ -34,6 +35,11 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeStringField("id", action.getId());
                 jsonGenerator.writeStringField("switchId", ((SwitchAction) action).getSwitchId());
                 jsonGenerator.writeBooleanField("open", ((SwitchAction) action).isOpen());
+                break;
+            case TapPositionAction.NAME:
+                jsonGenerator.writeStringField("id", action.getId());
+                jsonGenerator.writeStringField("transformerId", ((TapPositionAction) action).getTransformerId());
+                jsonGenerator.writeNumberField("newTapPosition", ((TapPositionAction) action).getNewTapPosition());
                 break;
             case MultipleActionsAction.NAME:
 

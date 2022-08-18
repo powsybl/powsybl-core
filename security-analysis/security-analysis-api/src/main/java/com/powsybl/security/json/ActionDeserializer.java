@@ -15,6 +15,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.MultipleActionsAction;
 import com.powsybl.security.action.SwitchAction;
+import com.powsybl.security.action.TapPositionAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +34,9 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         String type;
         String id;
         String switchId;
+        String transformerId;
         Boolean open;
+        int newTapPosition;
         List<Action> actions;
     }
 
@@ -51,9 +54,16 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 case "switchId":
                     context.switchId =  parser.nextTextValue();
                     return true;
+                case "transformerId":
+                    context.transformerId =  parser.nextTextValue();
+                    return true;
                 case "open":
                     parser.nextToken();
                     context.open =  parser.getBooleanValue();
+                    return true;
+                case "newTapPosition":
+                    parser.nextToken();
+                    context.newTapPosition =  parser.getIntValue();
                     return true;
                 case "actions":
                     parser.nextToken();
@@ -73,6 +83,8 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     throw JsonMappingException.from(parser, "for switch action open field can't be null");
                 }
                 return new SwitchAction(context.id, context.switchId, context.open);
+            case TapPositionAction.NAME:
+                return new TapPositionAction(context.id, context.transformerId, context.newTapPosition);
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:
