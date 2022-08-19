@@ -13,19 +13,26 @@ import java.util.Objects;
  *
  * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
-public class LineAction extends AbstractAction {
+public class LineConnectionAction extends AbstractAction {
 
-    public static final String NAME = "LINE";
+    public static final String NAME = "LINE_CONNECTION";
 
     private final String lineId;
     private final boolean openSide1;
     private final boolean openSide2;
 
-    public LineAction(String id, String lineId, boolean openSide1, boolean openSide2) {
+    public LineConnectionAction(String id, String lineId, boolean openSide1, boolean openSide2) {
         super(id);
         this.lineId = Objects.requireNonNull(lineId);
         this.openSide1 = openSide1;
         this.openSide2 = openSide2;
+    }
+
+    public LineConnectionAction(String id, String lineId, boolean open) {
+        super(id);
+        this.lineId = Objects.requireNonNull(lineId);
+        this.openSide1 = open;
+        this.openSide2 = open;
     }
 
     @Override
