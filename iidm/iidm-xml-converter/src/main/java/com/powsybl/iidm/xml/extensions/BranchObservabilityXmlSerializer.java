@@ -100,8 +100,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
             }
         });
 
-        adder.add();
-        return identifiable.getExtension(BranchObservability.class);
+        return adder.add();
     }
 
     private void readQualityP(double standardDeviation, String redundant, Branch.Side side, BranchObservabilityAdder<T> adder) {
