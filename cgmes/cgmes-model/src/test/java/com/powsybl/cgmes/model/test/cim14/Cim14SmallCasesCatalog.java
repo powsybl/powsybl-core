@@ -60,6 +60,17 @@ public final class Cim14SmallCasesCatalog {
                                            "ENTSO-E_Boundary_Set_EU_TP.xml"));
     }
 
+    public static TestGridModelResources m7busesNoSequenceNumbers() {
+        return new TestGridModelResources("7buses-no-sequenceNumbers", expectedM7Buses(),
+                new ResourceSet("/cim14/m7buses-no-sequenceNumbers/",
+                        "m7buses-no-sequenceNumbers_EQ.xml",
+                        "m7buses-no-sequenceNumbers_TP.xml"),
+                new ResourceSet("/cim14/m7buses/",
+                        "m7buses_SV.xml"),
+                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
+                        "ENTSO-E_Boundary_Set_EU_TP.xml"));
+    }
+
     public static TestGridModelResources ieee14() {
         return new TestGridModelResources("ieee14", expectedIeee14(),
                 new ResourceSet("/cim14/ieee14/", "ieee14bus_EQ.xml",
