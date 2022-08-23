@@ -343,12 +343,14 @@ WHERE {
     }
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?Switch cim:Switch.open ?open
@@ -370,12 +372,14 @@ WHERE {
     }
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?ACLineSegment .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?ACLineSegment .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
     OPTIONAL {
         ?ACLineSegment cim:Equipment.EquipmentContainer ?Line .
         ?Line
@@ -422,12 +426,14 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
 }
 
@@ -989,12 +995,14 @@ WHERE {
     OPTIONAL { ?DCLineSegment cim:DCLineSegment.length ?length }
     ?DCTerminal1
         a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
+    OPTIONAL { ?DCTerminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?DCTerminal2
         a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
+    OPTIONAL { ?DCTerminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
 }}
 }
 
