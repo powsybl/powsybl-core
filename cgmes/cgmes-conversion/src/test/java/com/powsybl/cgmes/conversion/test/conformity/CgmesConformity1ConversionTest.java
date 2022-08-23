@@ -11,17 +11,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
-import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -292,52 +287,6 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void smallNodeBreakerHvdcOnlyEQ() {
         assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
-    }
-
-    @Test
-    public void smallNodeBreakerHvdcNoSequenceNumbers() {
-        Network networkSeq = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
-        Network networkNoSeq = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNoSequenceNumbers().dataSource(), null);
-        // Make sure we have not lost any line, switch
-        assertEquals(networkSeq.getLineCount(), networkNoSeq.getLineCount());
-        assertEquals(networkSeq.getSwitchCount(), networkNoSeq.getSwitchCount());
-        assertEquals(networkSeq.getHvdcLineCount(), networkNoSeq.getHvdcLineCount());
-
-        // Check terminal ids have been sorted properly
-        CgmesModel cgmesSeq = networkSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
-        CgmesModel cgmesNoSeq = networkNoSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
-        checkTerminals(cgmesSeq.acLineSegments(), cgmesNoSeq.acLineSegments(), "ACLineSegment", "Terminal1", "Terminal2");
-        checkTerminals(cgmesSeq.switches(), cgmesNoSeq.switches(), "Switch", "Terminal1", "Terminal2");
-        checkTerminals(cgmesSeq.seriesCompensators(), cgmesNoSeq.seriesCompensators(), "SeriesCompensator", "Terminal1", "Terminal2");
-        checkTerminals(cgmesSeq.dcLineSegments(), cgmesNoSeq.dcLineSegments(), "DCLineSegment", "DCTerminal1", "DCTerminal2");
-    }
-
-    private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {
-        Map<String, String> eqsSeqTerminal1 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal1PropertyName)));
-        Map<String, String> eqsSeqTerminal2 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal2PropertyName)));
-        eqSeq.forEach(eq -> {
-            assertEquals("1", eq.getLocal("seq1"));
-            assertEquals("2", eq.getLocal("seq2"));
-        });
-        eqNoSeq.forEach(eq -> {
-            assertNull(eq.getLocal("seq1"));
-            assertNull(eq.getLocal("seq2"));
-            String eqNoSeqTerminal1 = eq.getId(terminal1PropertyName);
-            String eqNoSeqTerminal2 = eq.getId(terminal2PropertyName);
-
-            String id = eq.getId(idPropertyName);
-            String eqSeqTerminal1 = eqsSeqTerminal1.get(id);
-            String eqSeqTerminal2 = eqsSeqTerminal2.get(id);
-
-            if (eqSeqTerminal1.equals(eqNoSeqTerminal1)) {
-                assertEquals(eqSeqTerminal2, eqNoSeqTerminal2);
-                assertTrue(eqNoSeqTerminal1.compareTo(eqNoSeqTerminal2) < 0);
-            } else {
-                assertEquals(eqSeqTerminal1, eqNoSeqTerminal2);
-                assertEquals(eqSeqTerminal2, eqNoSeqTerminal1);
-                assertTrue(eqSeqTerminal1.compareTo(eqSeqTerminal2) > 0);
-            }
-        });
     }
 
     private static class TxData {
