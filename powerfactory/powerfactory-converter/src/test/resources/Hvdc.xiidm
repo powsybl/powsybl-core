@@ -20,7 +20,6 @@
                 <iidm:switch id="VL12_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
                 <iidm:switch id="VL12_HVDC AC Converter 1 Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
                 <iidm:internalConnection node1="0" node2="3"/>
-                <iidm:internalConnection node1="0" node2="4"/>
             </iidm:nodeBreakerTopology>
             <iidm:vscConverterStation id="HVDC Converter 1" voltageRegulatorOn="false" lossFactor="1.6666666" voltageSetpoint="300.0" reactivePowerSetpoint="0.0" node="3">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
@@ -34,6 +33,7 @@
                 <iidm:switch id="VL13_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
                 <iidm:switch id="VL13_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
                 <iidm:switch id="VL13_HVDC AC Converter 2 Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:internalConnection node1="0" node2="4"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="2"/>
             <iidm:vscConverterStation id="HVDC Converter 2" voltageRegulatorOn="false" lossFactor="0.0" voltageSetpoint="302.99999713897705" reactivePowerSetpoint="100.0" node="4">
