@@ -55,10 +55,8 @@ class GeneratorConverter extends AbstractConverter {
                 .setMinQ(capabitlityCurvePoint.qMin)
                 .setMaxQ(capabitlityCurvePoint.qMax)
                 .endPoint());
-
             adder.add();
         } else {
-
             ReactiveLimits.create(elmSym).ifPresent(reactiveLimits -> g.newMinMaxReactiveLimits()
                 .setMinQ(reactiveLimits.minQ)
                 .setMaxQ(reactiveLimits.maxQ)
@@ -197,24 +195,21 @@ class GeneratorConverter extends AbstractConverter {
         }
 
         private static Optional<List<CapabilityCurvePoint>> create(DataObject elmSym) {
-
             Optional<DataObject> pQlimType = elmSym.findObjectAttributeValue("pQlimType")
-                .flatMap(DataObjectRef::resolve);
-            if (pQlimType.isEmpty()) {
-                return Optional.empty();
-            }
-            Optional<List<Double>> capP = pQlimType.get().findDoubleVectorAttributeValue("cap_P");
-            Optional<List<Double>> capQmn = pQlimType.get().findDoubleVectorAttributeValue("cap_Qmn");
-            Optional<List<Double>> capQmx = pQlimType.get().findDoubleVectorAttributeValue("cap_Qmx");
-
-            if (capP.isPresent() && capQmn.isPresent() && capQmx.isPresent() && !capP.get().isEmpty()
-                && capP.get().size() == capQmn.get().size() && capP.get().size() == capQmx.get().size()) {
-
-                List<CapabilityCurvePoint> capabilityCurve = new ArrayList<>();
-                for (int i = 0; i < capP.get().size(); i++) {
-                    capabilityCurve.add(new CapabilityCurvePoint(capP.get().get(i), capQmn.get().get(i), capQmx.get().get(i)));
+                    .flatMap(DataObjectRef::resolve);
+            if (pQlimType.isPresent()) {
+                Optional<List<Double>> capP = pQlimType.get().findDoubleVectorAttributeValue("cap_P");
+                Optional<List<Double>> capQmn = pQlimType.get().findDoubleVectorAttributeValue("cap_Qmn");
+                Optional<List<Double>> capQmx = pQlimType.get().findDoubleVectorAttributeValue("cap_Qmx");
+                if (capP.isPresent() && capQmn.isPresent() && capQmx.isPresent()
+                        && !capP.get().isEmpty()
+                        && capP.get().size() == capQmn.get().size() && capP.get().size() == capQmx.get().size()) {
+                    List<CapabilityCurvePoint> capabilityCurve = new ArrayList<>();
+                    for (int i = 0; i < capP.get().size(); i++) {
+                        capabilityCurve.add(new CapabilityCurvePoint(capP.get().get(i), capQmn.get().get(i), capQmx.get().get(i)));
+                    }
+                    return Optional.of(capabilityCurve);
                 }
-                return Optional.of(capabilityCurve);
             }
             return Optional.empty();
         }
