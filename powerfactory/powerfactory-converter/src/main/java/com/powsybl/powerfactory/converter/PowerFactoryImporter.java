@@ -143,7 +143,7 @@ public class PowerFactoryImporter implements Importer {
             .collect(Collectors.toList());
 
         HvdcConverter hvdcConverter = new HvdcConverter(importContext, network);
-        hvdcConverter.createConfigurations(elmTerms, elmVscs);
+        hvdcConverter.computeConfigurations(elmTerms, elmVscs);
 
         // process terminals
         for (DataObject elmTerm : elmTerms) {
