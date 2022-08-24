@@ -231,8 +231,8 @@ class HvdcConverter extends AbstractConverter {
         VoltageLevel voltageLevelI = getNetwork().getVoltageLevel(nodeRefI.voltageLevelId);
 
         // Always with internal connection
-        int nodeI = voltageLevelR.getNodeBreakerView().getMaximumNodeIndex() + 1;
-        createInternalConnection(voltageLevelR, nodeRefI.node, nodeI);
+        int nodeI = voltageLevelI.getNodeBreakerView().getMaximumNodeIndex() + 1;
+        createInternalConnection(voltageLevelI, nodeRefI.node, nodeI);
 
         VscConverterStationAdder adderI = voltageLevelI.newVscConverterStation()
             .setEnsureIdUnicity(true)
