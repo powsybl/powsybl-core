@@ -60,6 +60,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     return true;
                 case "lineId":
                     context.lineId =  parser.nextTextValue();
+                    return true;
                 case "transformerId":
                     context.transformerId =  parser.nextTextValue();
                     return true;

@@ -28,7 +28,7 @@
     "openSide2" : false
   }, {
     "type" : "TAP_POSITION",
-    "id" : "id4",
+    "id" : "id5",
     "transformerId" : "transformerId1",
     "newTapPosition" : 5
   } ]

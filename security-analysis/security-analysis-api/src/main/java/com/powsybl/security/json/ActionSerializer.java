@@ -47,6 +47,7 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeStringField("id", action.getId());
                 jsonGenerator.writeStringField("transformerId", ((TapPositionAction) action).getTransformerId());
                 jsonGenerator.writeNumberField("newTapPosition", ((TapPositionAction) action).getNewTapPosition());
+                break;
             case MultipleActionsAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());
                 jsonGenerator.writeObjectField("actions", ((MultipleActionsAction) action).getActions());
