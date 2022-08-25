@@ -53,7 +53,7 @@ public class CreateLineOnLine implements NetworkModification {
      * line1Id is line.getId() + "_1" <br>
      * line2Id is line.getId() + "_2". <br>
      * @see #CreateLineOnLine(double, String, String, String, String, String, Line, LineAdder)
-     * @deprecated Use {@link AttachNewLineOnLineBuilder} instead.
+     * @deprecated Use {@link CreateLineOnLineBuilder} instead.
      */
     @Deprecated(since = "4.10.0")
     public CreateLineOnLine(String voltageLevelId, String bbsOrBusId, Line line, LineAdder lineAdder) {
@@ -72,7 +72,7 @@ public class CreateLineOnLine implements NetworkModification {
      * line2Name is null. <br>
      *
      * @see #CreateLineOnLine(double, String, String, String, String, boolean, String, String, String, String, String, String, Line, LineAdder)
-     * @deprecated Use {@link AttachNewLineOnLineBuilder} instead.
+     * @deprecated Use {@link CreateLineOnLineBuilder} instead.
      */
     @Deprecated(since = "4.10.0")
     public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String line1Id,
@@ -105,7 +105,7 @@ public class CreateLineOnLine implements NetworkModification {
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
      *
-     * @deprecated Use {@link AttachNewLineOnLineBuilder} instead.
+     * @deprecated Use {@link CreateLineOnLineBuilder} instead.
      */
     @Deprecated(since = "4.10.0")
     public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,

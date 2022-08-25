@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.LineAdder;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class AttachNewLineOnLineBuilder {
+public class CreateLineOnLineBuilder {
 
     private String voltageLevelId = null;
     private String bbsOrBusId = null;
@@ -34,73 +34,73 @@ public class AttachNewLineOnLineBuilder {
     private String line2Id = null;
     private String line2Name = null;
 
-    public AttachNewLineOnLine build() {
-        return new AttachNewLineOnLine(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, fictitiousVlName,
+    public CreateLineOnLine build() {
+        return new CreateLineOnLine(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
                 line1Id, line1Name, line2Id, line2Name, line, lineAdder);
     }
 
-    public AttachNewLineOnLineBuilder withPercent(double percent) {
+    public CreateLineOnLineBuilder withPercent(double percent) {
         this.percent = percent;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withVoltageLevelId(String voltageLevelId) {
+    public CreateLineOnLineBuilder withVoltageLevelId(String voltageLevelId) {
         this.voltageLevelId = voltageLevelId;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withBusbarSectionOrBusId(String bbsOrBusId) {
+    public CreateLineOnLineBuilder withBusbarSectionOrBusId(String bbsOrBusId) {
         this.bbsOrBusId = bbsOrBusId;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withFictitiousVoltageLevelId(String fictitiousVlId) {
+    public CreateLineOnLineBuilder withFictitiousVoltageLevelId(String fictitiousVlId) {
         this.fictitiousVlId = fictitiousVlId;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withFictitiousVoltageLevelName(String fictitiousVlName) {
+    public CreateLineOnLineBuilder withFictitiousVoltageLevelName(String fictitiousVlName) {
         this.fictitiousVlName = fictitiousVlName;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withCreateFictitiousSubstation(boolean createFictSubstation) {
+    public CreateLineOnLineBuilder withCreateFictitiousSubstation(boolean createFictSubstation) {
         this.createFictSubstation = createFictSubstation;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withFictitiousSubstationId(String fictitiousSubstationId) {
+    public CreateLineOnLineBuilder withFictitiousSubstationId(String fictitiousSubstationId) {
         this.fictitiousSubstationId = fictitiousSubstationId;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withFictitiousSubstationName(String fictitiousSubstationName) {
+    public CreateLineOnLineBuilder withFictitiousSubstationName(String fictitiousSubstationName) {
         this.fictitiousSubstationName = fictitiousSubstationName;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withLine1Id(String line1Id) {
+    public CreateLineOnLineBuilder withLine1Id(String line1Id) {
         this.line1Id = line1Id;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withLine1Name(String line1Name) {
+    public CreateLineOnLineBuilder withLine1Name(String line1Name) {
         this.line1Name = line1Name;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withLine2Id(String line2Id) {
+    public CreateLineOnLineBuilder withLine2Id(String line2Id) {
         this.line2Id = line2Id;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withLine2Name(String line2Name) {
+    public CreateLineOnLineBuilder withLine2Name(String line2Name) {
         this.line2Name = line2Name;
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withLine(Line line) {
+    public CreateLineOnLineBuilder withLine(Line line) {
         this.line = line;
         if (fictitiousVlId == null) {
             fictitiousVlId = line.getId() + "_VL";
@@ -117,7 +117,7 @@ public class AttachNewLineOnLineBuilder {
         return this;
     }
 
-    public AttachNewLineOnLineBuilder withLineAdder(LineAdder lineAdder) {
+    public CreateLineOnLineBuilder withLineAdder(LineAdder lineAdder) {
         this.lineAdder = lineAdder;
         return this;
     }
