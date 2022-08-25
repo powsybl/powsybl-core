@@ -13,18 +13,18 @@ import java.util.Objects;
  *
  * @author Hadrien Godard <hadrien.godard@artelys.com>
  */
-public class GenerationRedispatchAction extends AbstractAction {
+public class GeneratorAction extends AbstractAction {
 
-    public static final String NAME = "GENERATION_REDISPATCH";
+    public static final String NAME = "GENERATOR";
 
     private final String generatorId;
-    private final boolean increasing;
+    private final Boolean delta; // true if it is a relative variation, false if it is a new targetP
     private final double value;
 
-    public GenerationRedispatchAction(String id, String generatorId, boolean increasing, double value) {
+    public GeneratorAction(String id, String generatorId, Boolean delta, double value) {
         super(id);
         this.generatorId = Objects.requireNonNull(generatorId);
-        this.increasing = increasing;
+        this.delta = delta;
         this.value = value;
     }
 
@@ -37,12 +37,8 @@ public class GenerationRedispatchAction extends AbstractAction {
         return generatorId;
     }
 
-    /**
-     * If {@code true}, applying the action will increase the generator active power target by the value,
-     * else it will decrease it.
-     */
-    public boolean isIncreasing() {
-        return increasing;
+    public Boolean isRelativeVariation() {
+        return delta;
     }
 
     public double getValue() {

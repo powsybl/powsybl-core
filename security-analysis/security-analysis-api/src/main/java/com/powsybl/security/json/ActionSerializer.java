@@ -14,7 +14,7 @@ import com.powsybl.security.action.Action;
 import com.powsybl.security.action.LineConnectionAction;
 import com.powsybl.security.action.MultipleActionsAction;
 import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.action.GenerationRedispatchAction;
+import com.powsybl.security.action.GeneratorAction;
 
 import java.io.IOException;
 
@@ -43,14 +43,13 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeBooleanField("openSide1", ((LineConnectionAction) action).isOpenSide1());
                 jsonGenerator.writeBooleanField("openSide2", ((LineConnectionAction) action).isOpenSide2());
                 break;
-            case GenerationRedispatchAction.NAME:
+            case GeneratorAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());
-                jsonGenerator.writeStringField("generatorId", ((GenerationRedispatchAction) action).getGeneratorId());
-                jsonGenerator.writeBooleanField("increasing", ((GenerationRedispatchAction) action).isIncreasing());
-                jsonGenerator.writeNumberField("value", ((GenerationRedispatchAction) action).getValue());
+                jsonGenerator.writeStringField("generatorId", ((GeneratorAction) action).getGeneratorId());
+                jsonGenerator.writeBooleanField("delta", ((GeneratorAction) action).isRelativeVariation());
+                jsonGenerator.writeNumberField("value", ((GeneratorAction) action).getValue());
                 break;
             case MultipleActionsAction.NAME:
-
                 jsonGenerator.writeStringField("id", action.getId());
                 jsonGenerator.writeObjectField("actions", ((MultipleActionsAction) action).getActions());
                 break;

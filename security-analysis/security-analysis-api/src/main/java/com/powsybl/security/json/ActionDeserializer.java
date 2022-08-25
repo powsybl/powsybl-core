@@ -16,7 +16,7 @@ import com.powsybl.security.action.Action;
 import com.powsybl.security.action.LineConnectionAction;
 import com.powsybl.security.action.MultipleActionsAction;
 import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.action.GenerationRedispatchAction;
+import com.powsybl.security.action.GeneratorAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         Boolean open;
         Boolean openSide1;
         Boolean openSide2;
-        Boolean increasing;
+        Boolean delta;
         Double value;
         List<Action> actions;
     }
@@ -77,9 +77,9 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     parser.nextToken();
                     context.openSide2 =  parser.getBooleanValue();
                     return true;
-                case "increasing":
+                case "delta":
                     parser.nextToken();
-                    context.increasing =  parser.getBooleanValue();
+                    context.delta =  parser.getBooleanValue();
                     return true;
                 case "value":
                     parser.nextToken();
@@ -108,11 +108,11 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     throw JsonMappingException.from(parser, "for line action openSide1 and openSide2 fields can't be null");
                 }
                 return new LineConnectionAction(context.id, context.lineId, context.openSide1, context.openSide2);
-            case GenerationRedispatchAction.NAME:
-                if (context.increasing == null) {
-                    throw JsonMappingException.from(parser, "for generation redispatch action, increasing field can't be null");
+            case GeneratorAction.NAME:
+                if (context.delta == null) {
+                    throw JsonMappingException.from(parser, "for generator action, delta field can't be null");
                 }
-                return new GenerationRedispatchAction(context.id, context.generatorId, context.increasing, context.value);
+                return new GeneratorAction(context.id, context.generatorId, context.delta, context.value);
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:

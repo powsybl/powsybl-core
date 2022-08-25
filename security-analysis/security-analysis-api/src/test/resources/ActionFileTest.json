@@ -6,17 +6,11 @@
     "switchId" : "switchId1",
     "open" : true
   }, {
-    "type" : "GENERATION_REDISPATCH",
-    "id" : "id2",
-    "generatorId" : "generatorId1",
-    "increasing" : true,
-    "value" : 100.0
-  }, {
     "type" : "MULTIPLE_ACTIONS",
-    "id" : "id3",
+    "id" : "id2",
     "actions" : [ {
       "type" : "SWITCH",
-      "id" : "id4",
+      "id" : "id3",
       "switchId" : "switchId2",
       "open" : true
     } ]
@@ -32,5 +26,11 @@
     "lineId" : "lineId4",
     "openSide1" : false,
     "openSide2" : false
+  }, {
+    "type" : "GENERATOR",
+    "id" : "id6",
+    "generatorId" : "generatorId1",
+    "delta" : true,
+    "value" : 100.0
   } ]
 }

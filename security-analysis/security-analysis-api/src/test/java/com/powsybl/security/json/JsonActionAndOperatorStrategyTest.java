@@ -8,7 +8,7 @@ package com.powsybl.security.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.security.action.*;
-import com.powsybl.security.action.GenerationRedispatchAction;
+import com.powsybl.security.action.GeneratorAction;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -31,7 +31,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
         actions.add(new LineConnectionAction("id3", "lineId3", true, true));
         actions.add(new LineConnectionAction("id4", "lineId4", false));
-        actions.add(new GenerationRedispatchAction("id6", "generatorId1", true, 100.0));
+        actions.add(new GeneratorAction("id6", "generatorId1", true, 100.0));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
