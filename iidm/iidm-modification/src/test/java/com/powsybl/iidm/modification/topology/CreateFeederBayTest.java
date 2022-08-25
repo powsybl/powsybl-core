@@ -282,4 +282,30 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         Set<Integer> feederOrders3 = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vlSubst2"));
         assertEquals(1, feederOrders3.size());
     }
+
+    @Test
+    public void testWithoutExtensions() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBbsId("bbs4")
+                .withInjectionPositionOrder(115)
+                .build()
+                .apply(network, true, Reporter.NO_OP);
+
+        Load load = network.getLoad("newLoad");
+        assertNotNull(load);
+
+        ConnectablePosition<Load> position = load.getExtension(ConnectablePosition.class);
+        assertNotNull(position);
+        Optional<Integer> order = position.getFeeder().getOrder();
+        assertTrue(order.isPresent());
+        assertEquals(115, (int) order.get());
+        assertEquals(BOTTOM, position.getFeeder().getDirection());
+    }
 }
