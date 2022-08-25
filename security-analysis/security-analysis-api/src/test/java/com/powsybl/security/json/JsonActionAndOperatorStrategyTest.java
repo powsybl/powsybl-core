@@ -7,10 +7,7 @@
 package com.powsybl.security.json;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.ActionList;
-import com.powsybl.security.action.MultipleActionsAction;
-import com.powsybl.security.action.SwitchAction;
+import com.powsybl.security.action.*;
 import com.powsybl.security.action.GenerationRedispatchAction;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -31,8 +28,10 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     public void actionRoundTrip() throws IOException {
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("id1", "switchId1", true));
-        actions.add(new GenerationRedispatchAction("id2", "generatorId1", true, 100.0));
-        actions.add(new MultipleActionsAction("id3", Collections.singletonList(new SwitchAction("id4", "switchId2", true))));
+        actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
+        actions.add(new LineConnectionAction("id3", "lineId3", true, true));
+        actions.add(new LineConnectionAction("id4", "lineId4", false));
+        actions.add(new GenerationRedispatchAction("id6", "generatorId1", true, 100.0));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
