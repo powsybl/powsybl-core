@@ -4,19 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.modification;
+package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public final class ModificationReports {
+final class ModificationReports {
     static String voltageLevelIdString = "voltageLevelId";
 
     public static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
@@ -32,15 +30,6 @@ public final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("notNodeBreakerVoltageLevel")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not in node/breaker")
-                .withValue(voltageLevelIdString, voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    public static void noBusbarSectionInVoltageLevelReport(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("noBusbarSectionInVoltageLevel")
-                .withDefaultMessage("Voltage level ${voltageLevelId} has no busbar section.")
                 .withValue(voltageLevelIdString, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -85,6 +74,25 @@ public final class ModificationReports {
                 .withDefaultMessage("No busbar section position extension found on ${bbsId}, only one disconnector is created.")
                 .withValue("bbsId", bbs.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    public static void connectableNotSupported(Reporter reporter, Connectable connectable) {
+        reporter.report(Report.builder()
+                .withKey("connectableNotSupported")
+                .withDefaultMessage("Given connectable not supported: ${connectableClassName}.")
+                .withValue("connectableClassName", connectable.getClass().getName())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    public static void connectableNotInVoltageLevel(Reporter reporter, Connectable connectable, VoltageLevel voltageLevel) {
+        reporter.report(Report.builder()
+                .withKey("connectableNotInVoltageLevel")
+                .withDefaultMessage("Given connectable ${connectableId} not in voltageLevel ${voltageLevelId}")
+                .withValue("connectableId", connectable.getId())
+                .withValue("voltageLevelId", voltageLevel.getId())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
 

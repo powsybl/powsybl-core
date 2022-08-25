@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.*;
@@ -75,7 +76,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        Optional<Range<Integer>> unusedOrderPositionsBefore = TopologyModificationUtils.getUnusedOrderPositionsBefore(
+        Optional<Range<Integer>> unusedOrderPositionsBefore = getUnusedOrderPositionsBefore(
                 network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
         assertTrue(unusedOrderPositionsBefore.isPresent());
         assertEquals(71, (int) unusedOrderPositionsBefore.get().getMinimum());
@@ -118,6 +119,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionAdder(loadAdder)
                 .withBbsId("bbs4")
                 .withInjectionPositionOrder(115)
+                .withInjectionDirection(TOP)
                 .build()
                 .apply(network);
 
@@ -129,7 +131,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         Optional<Integer> order = position.getFeeder().getOrder();
         assertTrue(order.isPresent());
         assertEquals(115, (int) order.get());
-        assertEquals(BOTTOM, position.getFeeder().getDirection());
+        assertEquals(TOP, position.getFeeder().getDirection());
     }
 
     @Test
@@ -155,6 +157,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "bbs4", 0);
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
         assertEquals("InjectionPositionOrder 0 already taken.", e2.getMessage());
+
     }
 
     @Test
@@ -307,5 +310,8 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertTrue(order.isPresent());
         assertEquals(115, (int) order.get());
         assertEquals(BOTTOM, position.getFeeder().getDirection());
+
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsBefore(network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2")));
+        assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
     }
 }
