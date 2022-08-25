@@ -7,6 +7,7 @@
 package com.powsybl.security.json;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -14,10 +15,7 @@ import com.powsybl.security.strategy.OperatorStrategyList;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -30,7 +28,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
         actions.add(new LineConnectionAction("id3", "lineId3", true, true));
         actions.add(new LineConnectionAction("id4", "lineId4", false));
-        actions.add(new TapPositionAction("id5", "transformerId1", 5));
+        actions.add(new PhaseTapChangerTapPositionAction("id5", "transformerId1", true, 5, Optional.of(ThreeWindingsTransformer.Side.TWO)));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

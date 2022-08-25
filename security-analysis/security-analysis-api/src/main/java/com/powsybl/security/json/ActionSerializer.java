@@ -10,11 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.LineConnectionAction;
-import com.powsybl.security.action.MultipleActionsAction;
-import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.action.TapPositionAction;
+import com.powsybl.security.action.*;
 
 import java.io.IOException;
 
@@ -43,10 +39,24 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeBooleanField("openSide1", ((LineConnectionAction) action).isOpenSide1());
                 jsonGenerator.writeBooleanField("openSide2", ((LineConnectionAction) action).isOpenSide2());
                 break;
-            case TapPositionAction.NAME:
+            case PhaseTapChangerTapPositionAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());
-                jsonGenerator.writeStringField("transformerId", ((TapPositionAction) action).getTransformerId());
-                jsonGenerator.writeNumberField("newTapPosition", ((TapPositionAction) action).getNewTapPosition());
+                jsonGenerator.writeStringField("transformerId", ((PhaseTapChangerTapPositionAction) action).getTransformerId());
+                jsonGenerator.writeBooleanField("delta", ((PhaseTapChangerTapPositionAction) action).isInRelativeMode());
+                jsonGenerator.writeNumberField("value", ((PhaseTapChangerTapPositionAction) action).getValue());
+                if (((PhaseTapChangerTapPositionAction) action).getSide().isPresent()) {
+                    switch (((PhaseTapChangerTapPositionAction) action).getSide().get()) {
+                        case ONE:
+                            jsonGenerator.writeStringField("side", "ONE");
+                            break;
+                        case TWO:
+                            jsonGenerator.writeStringField("side", "TWO");
+                            break;
+                        case THREE:
+                            jsonGenerator.writeStringField("side", "THREE");
+                            break;
+                    }
+                }
                 break;
             case MultipleActionsAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());

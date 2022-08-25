@@ -27,9 +27,11 @@
     "openSide1" : false,
     "openSide2" : false
   }, {
-    "type" : "TAP_POSITION",
+    "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id5",
     "transformerId" : "transformerId1",
-    "newTapPosition" : 5
+    "delta" : true,
+    "value" : 5,
+    "side" : "TWO"
   } ]
 }

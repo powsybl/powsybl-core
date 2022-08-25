@@ -12,15 +12,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.LineConnectionAction;
-import com.powsybl.security.action.MultipleActionsAction;
-import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.action.TapPositionAction;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.security.action.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -40,7 +38,9 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         Boolean open;
         Boolean openSide1;
         Boolean openSide2;
-        int newTapPosition;
+        Boolean delta;
+        int value;
+        Optional<ThreeWindingsTransformer.Side> side;
         List<Action> actions;
     }
 
@@ -76,9 +76,27 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     parser.nextToken();
                     context.openSide2 =  parser.getBooleanValue();
                     return true;
-                case "newTapPosition":
+                case "delta":
                     parser.nextToken();
-                    context.newTapPosition =  parser.getIntValue();
+                    context.delta =  parser.getBooleanValue();
+                    return true;
+                case "value":
+                    parser.nextToken();
+                    context.value =  parser.getIntValue();
+                    return true;
+                case "side":
+                    String sideStr = parser.nextTextValue();
+                    switch (sideStr) {
+                        case "ONE":
+                            context.side = Optional.of(ThreeWindingsTransformer.Side.ONE);
+                            return true;
+                        case "TWO":
+                            context.side = Optional.of(ThreeWindingsTransformer.Side.TWO);
+                            return true;
+                        case "THREE":
+                            context.side = Optional.of(ThreeWindingsTransformer.Side.THREE);
+                            return true;
+                    }
                     return true;
                 case "actions":
                     parser.nextToken();
@@ -103,8 +121,11 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     throw JsonMappingException.from(parser, "for line action openSide1 and openSide2 fields can't be null");
                 }
                 return new LineConnectionAction(context.id, context.lineId, context.openSide1, context.openSide2);
-            case TapPositionAction.NAME:
-                return new TapPositionAction(context.id, context.transformerId, context.newTapPosition);
+            case PhaseTapChangerTapPositionAction.NAME:
+                if (context.delta == null) {
+                    throw JsonMappingException.from(parser, "for phase tap changer tap position action delta field can't be null");
+                }
+                return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value, context.side);
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:
