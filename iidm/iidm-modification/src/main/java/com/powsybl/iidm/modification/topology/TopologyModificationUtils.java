@@ -8,20 +8,28 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotInVoltageLevel;
+import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotSupported;
+
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 final class TopologyModificationUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TopologyModificationUtils.class);
 
     static final class LoadingLimitsBags {
 
@@ -292,11 +300,12 @@ final class TopologyModificationUtils {
      * applied to BBS2 will return a range from 4 to 6.
      */
     public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(VoltageLevel voltageLevel, BusbarSection bbs) {
-        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> previousSliceMax = getMaxOrderUsedBefore(allOrders, sectionIndex);
         Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
@@ -314,11 +323,12 @@ final class TopologyModificationUtils {
      * applied to BBS1 will return a range from 4 to 6.
      */
     public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(VoltageLevel voltageLevel, BusbarSection bbs) {
-        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> nextSliceMin = getMinOrderUsedAfter(allOrders, sectionIndex);
         Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
@@ -367,10 +377,14 @@ final class TopologyModificationUtils {
         return feederPositionsOrders;
     }
 
+    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
+        addOrder(connectable, voltageLevel, feederPositionsOrders, false, Reporter.NO_OP);
+    }
+
     /**
      * Method getting order of a connectable on a given voltage level.
      */
-    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
+    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, Reporter reporter) {
         ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
         if (position != null) {
             if (connectable instanceof Injection) {
@@ -385,7 +399,11 @@ final class TopologyModificationUtils {
                     Optional<Integer> order = position.getFeeder2().getOrder();
                     order.ifPresent(feederPositionsOrders::add);
                 } else {
-                    throw new AssertionError();
+                    LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
+                    connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
+                    if (throwException) {
+                        throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
+                    }
                 }
             } else if (connectable instanceof ThreeWindingsTransformer) {
                 ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
@@ -399,10 +417,18 @@ final class TopologyModificationUtils {
                     Optional<Integer> order = position.getFeeder3().getOrder();
                     order.ifPresent(feederPositionsOrders::add);
                 } else {
-                    throw new AssertionError();
+                    LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
+                    connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
+                    if (throwException) {
+                        throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
+                    }
                 }
             } else {
-                throw new AssertionError();
+                LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
+                connectableNotSupported(reporter, connectable);
+                if (throwException) {
+                    throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                }
             }
         }
     }
