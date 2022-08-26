@@ -7,113 +7,106 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Properties;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
-public class ExportTest extends AbstractConverterTest {
+public class TopologyExportCornerCasesTest extends AbstractConverterTest {
 
     @Test
-    public void testExportSwitchesBusBreaker() throws IOException {
-        Network network = createSwitchesBBNetwork();
-
-        String cimZipFilename = "SwitchesBB_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
-        String[] expected = {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_2", "voltageLevel1_3", "voltageLevel1_4"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    public void testExportSwitchesBusBreaker() {
+        test(createSwitchesBBNetwork(), true, true,
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_2", "voltageLevel1_3", "voltageLevel1_4"});
     }
 
     @Test
-    public void testExportParallelSwitchesNodeBreaker() throws IOException {
-        Network network = createParallelSwitchesNBNetwork();
-
-        String cimZipFilename = "ParallelSwitchesNB_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
-        String[] expected = {"voltageLevel1_0", "voltageLevel1_6", "voltageLevel1_7"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    public void testExportParallelSwitchesNodeBreaker() {
+        test(createParallelSwitchesNBNetwork(), true, true,
+                new String[] {"voltageLevel1_0"});
     }
 
     @Test
-    public void testExportSwitchesNodeBreaker() throws IOException {
-        Network network = createSwitchesNBNetwork();
-
-        String cimZipFilename = "SwitchesNB_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
-        String[] expected = {"voltageLevel1_0", "voltageLevel1_10", "voltageLevel1_11", "voltageLevel1_2", "voltageLevel1_8"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    public void testExportSwitchesNodeBreaker() {
+        test(createSwitchesNBNetwork(), true, true,
+                new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"});
     }
 
     @Test
-    public void testExportGeneratorTransformerBusBreaker() throws IOException {
-        Network network = createGeneratorTransformerBBNetwork();
-
-        String cimZipFilename = "GeneratorTransformerBB_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
-        String[] expected = {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_1"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    public void testExportGeneratorDisconnectedTransformerBusBreaker() {
+        // The calculated BusView from bus-breaker iidm and from node-breaker iidm is different
+        // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
+        // So we end up with different bus-view buses
+        test(createGeneratorDisconnectedTransformerBBNetwork(), false, false,
+                new String[] {"voltageLevel1_0", "voltageLevel2_0", "voltageLevel2_1"});
     }
 
     @Test
-    public void testExportGeneratorTransformerNodeBreaker() throws IOException {
-        Network network = createGeneratorTransformerNodeNetwork();
-
-        String cimZipFilename = "GeneratorTransformerNB_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
-        String[] expected = {"voltageLevel1_0", "voltageLevel2_0"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    public void testExportGeneratorTransformerNodeBreaker() {
+        test(createGeneratorTransformerNBNetwork(), true, true,
+                new String[] {"voltageLevel1_0", "voltageLevel2_0"});
     }
 
     @Test
-    public void testExportDisconnectedLoadBusBreaker() throws IOException {
-        Network network = createDisconnectedLoadBBNetwork();
-
-        String cimZipFilename = "DisconnectedLoadBB_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
-        String[] expected = {"voltageLevel1_0", "voltageLevel1_1"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    public void testExportDisconnectedLoadBusBreaker() {
+        test(createDisconnectedLoadBBNetwork(), false, true,
+                new String[] {"voltageLevel1_0", "voltageLevel1_1"});
     }
 
     @Test
-    public void testExportDisconnectedLoadNodeBreaker() throws IOException {
-        Network network = createDisconnectedLoadNBNetwork();
-
-        String cimZipFilename = "DisconnectedLoadNB_CIM100";
-        Properties params = new Properties();
-        params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
-        new CgmesExport().export(network, params, zip);
-        Network network100 = Importers.loadNetwork(tmpDir.resolve(cimZipFilename + ".zip"));
-        String[] expected = {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"};
-        assertArrayEquals(expected, network100.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    public void testExportDisconnectedLoadNodeBreaker() {
+        test(createDisconnectedLoadNBNetwork(), false, true,
+                new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
     }
 
-    private static Network createGeneratorTransformerBBNetwork() {
-        Network network = createBaseNetwork("network", "generator_transformer_network", TopologyKind.BUS_BREAKER);
+    private void test(Network network,
+                      boolean checkAllTerminalsConnected,
+                      boolean checkSameNumberOfBusViewBuses,
+                      String[] expectedBusBreakerViewBuses) {
+        String name = network.getId();
+
+        // Some terminals may show as disconnected even if everything is connected but the bus is not valid
+        // We perform the check to verify that the networks where we want everything connected have valid buses
+        // and do not introduce additional noise in the validation
+        if (checkAllTerminalsConnected) {
+            checkAllTerminalsConnected(network, name);
+        }
+
+        // Export as CGMES 3
+        Properties params = new Properties();
+        params.put(CgmesExport.CIM_VERSION, "100");
+        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
+        new CgmesExport().export(network, params, zip);
+        Network networkFromCgmes = Importers.loadNetwork(tmpDir.resolve(name + ".zip"));
+        if (checkAllTerminalsConnected) {
+            checkAllTerminalsConnected(network, name + "_from_CGMES");
+        }
+
+        // Original network and re-imported must have the same number of buses in the bus view
+        // Additional buses in the bus-breaker view may have been introduced because some terminals disconnected
+        if (checkSameNumberOfBusViewBuses) {
+            assertEquals(
+                    network.getBusView().getBusStream().count(),
+                    networkFromCgmes.getBusView().getBusStream().count());
+        }
+
+        // And the list of buses should be the expected one
+        assertArrayEquals(
+                expectedBusBreakerViewBuses,
+                networkFromCgmes.getBusBreakerView().getBusStream().map(Bus::getId).sorted().toArray());
+    }
+
+    private static void checkAllTerminalsConnected(Network network, String name) {
+        for (Connectable<?> c : network.getConnectables()) {
+            for (Terminal t : c.getTerminals()) {
+                if (!t.isConnected()) {
+                    fail("Terminal is disconnected in equipment " + c.getId() + " in network " + name);
+                }
+            }
+        }
+    }
+
+    private static Network createGeneratorDisconnectedTransformerBBNetwork() {
+        Network network = createBaseNetwork("disconnected_generator_transformer_bb", TopologyKind.BUS_BREAKER);
         VoltageLevel.BusBreakerView topology1 = network.getVoltageLevel("voltageLevel1").getBusBreakerView();
         topology1.newBus()
                 .setId("voltageLevel1Bus1")
@@ -132,6 +125,7 @@ public class ExportTest extends AbstractConverterTest {
                 .setConnectableBus("voltageLevel2Bus1")
                 .add();
         createReactiveCapabilityCurve(generator1);
+        // We already said the generator1 is not connected to its bus by only setting its ConnectableBus, but anyway:
         generator1.getTerminal().disconnect();
         createTwoWindingsTransformerAdder(substation1, "twoWindingsTransformer1", "voltageLevel1", "voltageLevel2")
                 .setBus1("voltageLevel1Bus1")
@@ -141,7 +135,7 @@ public class ExportTest extends AbstractConverterTest {
     }
 
     private static Network createDisconnectedLoadBBNetwork() {
-        Network network = createBaseNetwork("network", "disconnect_load_network", TopologyKind.BUS_BREAKER);
+        Network network = createBaseNetwork("disconnected_load_bb", TopologyKind.BUS_BREAKER);
 
         VoltageLevel.BusBreakerView topology1 = network.getVoltageLevel("voltageLevel1").getBusBreakerView();
         Bus voltageLevel1Bus1 = topology1.newBus()
@@ -159,7 +153,7 @@ public class ExportTest extends AbstractConverterTest {
     }
 
     private static Network createSwitchesBBNetwork() {
-        Network network = createBaseNetwork("network", "switches_network", TopologyKind.BUS_BREAKER);
+        Network network = createBaseNetwork("switches_network_bb", TopologyKind.BUS_BREAKER);
 
         VoltageLevel.BusBreakerView topology1 = network.getVoltageLevel("voltageLevel1").getBusBreakerView();
         Bus voltageLevel1Bus1 = topology1.newBus()
@@ -204,8 +198,8 @@ public class ExportTest extends AbstractConverterTest {
         return network;
     }
 
-    private static Network createGeneratorTransformerNodeNetwork() {
-        Network network = createBaseNetwork("network", "generator_transformer_network", TopologyKind.NODE_BREAKER);
+    private static Network createGeneratorTransformerNBNetwork() {
+        Network network = createBaseNetwork("generator_transformer_nb", TopologyKind.NODE_BREAKER);
         VoltageLevel.NodeBreakerView topology1 = network.getVoltageLevel("voltageLevel1").getNodeBreakerView();
         BusbarSection voltageLevel1Bus1 = topology1.newBusbarSection()
                 .setId("voltageLevel1Bus1")
@@ -233,19 +227,15 @@ public class ExportTest extends AbstractConverterTest {
                 .add();
         createReactiveCapabilityCurve(generator1);
         topology2.newInternalConnection()
-                //.setId("generator1Switch1_SW_fict")
-                //.setFictitious(true)
                 .setNode1(generator1.getTerminal().getNodeBreakerView().getNode())
                 .setNode2(twoWindingsTransformer1.getTerminal2().getNodeBreakerView().getNode())
-                //.setOpen(true)
-                //.setKind(SwitchKind.BREAKER)
                 .add();
 
         return network;
     }
 
     private static Network createDisconnectedLoadNBNetwork() {
-        Network network = createBaseNetwork("network", "disconnect_load_network", TopologyKind.NODE_BREAKER);
+        Network network = createBaseNetwork("disconnected_load_nb", TopologyKind.NODE_BREAKER);
 
         VoltageLevel.NodeBreakerView topology1 = network.getVoltageLevel("voltageLevel1").getNodeBreakerView();
         BusbarSection voltageLevel1Bus1 = topology1.newBusbarSection()
@@ -263,8 +253,7 @@ public class ExportTest extends AbstractConverterTest {
                 .setNode(2)
                 .add();
         topology1.newSwitch()
-                .setId("load2Switch1_SW_fict")
-                .setFictitious(true)
+                .setId("load2Switch")
                 .setNode1(load2.getTerminal().getNodeBreakerView().getNode())
                 .setNode2(voltageLevel1Bus1.getTerminal().getNodeBreakerView().getNode())
                 .setOpen(true)
@@ -275,7 +264,18 @@ public class ExportTest extends AbstractConverterTest {
     }
 
     private static Network createParallelSwitchesNBNetwork() {
-        Network network = createBaseNetwork("network", "switches_network", TopologyKind.NODE_BREAKER);
+        Network network = createBaseNetwork("parallel_switches_nb", TopologyKind.NODE_BREAKER);
+
+        // We create a load at node 3 to avoid bbs terminals being considered disconnected.
+        // If there are only bbs the calculated bus in the busview is not valid,
+        // and the terminals of bbs are considered disconnected.
+        // By adding a "feeder" element to the graph the bus is valid and the bbs terminals connected.
+        network.getVoltageLevel("voltageLevel1").newLoad()
+                .setId("load1")
+                .setNode(3)
+                .setP0(0)
+                .setQ0(0)
+                .add();
 
         VoltageLevel.NodeBreakerView topology1 = network.getVoltageLevel("voltageLevel1").getNodeBreakerView();
         BusbarSection voltageLevel1Bus1 = topology1.newBusbarSection()
@@ -333,9 +333,21 @@ public class ExportTest extends AbstractConverterTest {
     }
 
     private static Network createSwitchesNBNetwork() {
-        Network network = createBaseNetwork("network", "switches_network", TopologyKind.NODE_BREAKER);
+        Network network = createBaseNetwork("switches_nb", TopologyKind.NODE_BREAKER);
 
         VoltageLevel.NodeBreakerView topology1 = network.getVoltageLevel("voltageLevel1").getNodeBreakerView();
+
+        // We create a load at node 3 to avoid bbs terminals being considered disconnected.
+        // If there are only bbs the calculated bus in the busview is not valid,
+        // and the terminals of bbs are considered disconnected.
+        // By adding a "feeder" element to the graph the bus is valid and the bbs terminals connected.
+        network.getVoltageLevel("voltageLevel1").newLoad()
+                .setId("load1")
+                .setNode(3)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+
         BusbarSection voltageLevel1Bus1 = topology1.newBusbarSection()
                 .setId("voltageLevel1Bus1")
                 .setNode(0)
@@ -411,8 +423,8 @@ public class ExportTest extends AbstractConverterTest {
         return network;
     }
 
-    private static Network createBaseNetwork(String id, String sourceFormat, TopologyKind topologyKind) {
-        Network network = NetworkFactory.findDefault().createNetwork(id, sourceFormat);
+    private static Network createBaseNetwork(String id, TopologyKind topologyKind) {
+        Network network = NetworkFactory.findDefault().createNetwork(id, "iidm");
 
         Substation substation1 = network.newSubstation()
                 .setId("substation1")
