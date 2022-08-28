@@ -357,10 +357,16 @@ public class SparseMatrix extends AbstractMatrix {
         return result;
     }
 
+    public SparseMatrix times(SparseMatrix other, double scalar) {
+        SparseMatrix result = times(other);
+        result.values.transformValues(v -> v * scalar);
+        return result;
+    }
+
     @Override
-    public Matrix times(Matrix other) {
+    public Matrix times(Matrix other, double scalar) {
         SparseMatrix o = Objects.requireNonNull(other).toSparse();
-        return times(o);
+        return times(o, scalar);
     }
 
     public SparseMatrix add(SparseMatrix other, double alpha, double beta) {

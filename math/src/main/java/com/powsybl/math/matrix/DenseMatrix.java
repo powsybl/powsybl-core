@@ -236,11 +236,11 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
-    public Matrix times(Matrix other) {
-        return times(other.toDense());
+    public Matrix times(Matrix other, double scalar) {
+        return times(other.toDense(), scalar);
     }
 
-    public DenseMatrix times(DenseMatrix other) {
+    public DenseMatrix times(DenseMatrix other, double scalar) {
         Objects.requireNonNull(other);
         if (other.rowCount != columnCount) {
             throw new MatrixException("Invalid matrices inner dimension");
@@ -258,11 +258,15 @@ public class DenseMatrix extends AbstractMatrix {
                 for (int k = 0; k < columnCount; k++) {
                     s += getUnsafe(i, k) * otherColumnJ[k];
                 }
-                result.setUnsafe(i, j, s);
+                result.setUnsafe(i, j, s * scalar);
             }
         }
 
         return result;
+    }
+
+    public DenseMatrix times(DenseMatrix other) {
+        return times(other, 1d);
     }
 
     public DenseMatrix add(DenseMatrix other, double alpha, double beta) {
