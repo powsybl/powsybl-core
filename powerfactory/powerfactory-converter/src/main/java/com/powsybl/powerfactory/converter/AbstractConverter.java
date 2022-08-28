@@ -6,15 +6,16 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +64,18 @@ public abstract class AbstractConverter {
             .add();
     }
 
+    Optional<NodeRef> findNodeFromElmTerm(DataObject elmTerm) {
+        return Optional.ofNullable(importContext.elmTermIdToNode.get(elmTerm.getId()));
+    }
+
+    NodeRef getNodeFromElmTerm(DataObject elmTerm) {
+        if (importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
+            return importContext.elmTermIdToNode.get(elmTerm.getId());
+        } else {
+            throw new PowerFactoryException("NodeRef not found for elmTerm '" + elmTerm + "'");
+        }
+    }
+
     List<NodeRef> findNodes(DataObject obj) {
         List<NodeRef> nodeRefs = importContext.objIdToNode.get(obj.getId());
         return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
@@ -71,7 +84,7 @@ public abstract class AbstractConverter {
     List<NodeRef> checkNodes(DataObject obj, int connections) {
         List<NodeRef> nodeRefs = findNodes(obj);
         if (nodeRefs == null || nodeRefs.size() != connections) {
-            throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
+            throw new PowerFactoryException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connections for '" + obj + "'");
         }
         return nodeRefs;
