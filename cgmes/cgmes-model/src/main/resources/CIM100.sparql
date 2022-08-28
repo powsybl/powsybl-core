@@ -20,7 +20,10 @@ GRAPH ?graphBDEQ {
         a cim:ConnectivityNode ;
         cim:IdentifiedObject.name ?name ;
         cim:ConnectivityNode.ConnectivityNodeContainer ?container .
-    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
+    ?BoundaryPoint
+        a eu:BoundaryPoint ;
+        eu:BoundaryPoint.ConnectivityNode ?ConnectivityNode .
+    OPTIONAL { ?BoundaryPoint eu:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
     OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
     OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
 }

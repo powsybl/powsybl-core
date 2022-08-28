@@ -14,5 +14,17 @@
       "switchId" : "switchId2",
       "open" : true
     } ]
+  }, {
+    "type" : "LINE_CONNECTION",
+    "id" : "id3",
+    "lineId" : "lineId3",
+    "openSide1" : true,
+    "openSide2" : true
+  }, {
+    "type" : "LINE_CONNECTION",
+    "id" : "id4",
+    "lineId" : "lineId4",
+    "openSide1" : false,
+    "openSide2" : false
   } ]
 }
