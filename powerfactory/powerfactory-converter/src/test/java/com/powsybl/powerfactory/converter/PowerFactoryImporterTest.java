@@ -215,6 +215,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importAndCompareXiidm("VoltageLevelsAndSubstations"));
     }
 
+    @Test
+    public void hvdc() {
+        assertTrue(importAndCompareXiidm("Hvdc"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
