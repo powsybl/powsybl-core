@@ -250,6 +250,36 @@ final class TopologyModificationUtils {
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
+
+    static void notFoundVoltageLevelReport(Reporter reporter, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("voltageLevelNotFound")
+                .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
+                .withValue("voltageLevelId", voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void lineNotConnectedToVoltageLevelReport(Reporter reporter, String lineId, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("lineNotConnectedToVoltageLevel")
+                .withDefaultMessage("Line ${lineId} is not connected to voltage level ${voltageLevelId}")
+                .withValue("lineId", lineId)
+                .withValue("voltageLevelId", voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void noAttachmentPointAndOrAttachedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
+        reporter.report(Report.builder()
+                .withKey("noAttachmentPointAndOrAttachedVoltageLevel")
+                .withDefaultMessage("Unable to find the attachment point and the attached voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
+                .withValue("line1Id", line1Id)
+                .withValue("line2Id", line2Id)
+                .withValue("line3Id", line3Id)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
     // END TODO
 
     static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
