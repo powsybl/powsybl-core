@@ -32,7 +32,17 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 /**
  * This method reverses the action done in the AttachNewLineOnLine class :
  * it replaces 3 existing lines (with the same voltage level at one of their side) with a new line,
- * and eventually removes the existing voltage levels, if they contain no equipments anymore, except bus or bus bar section
+ * and eventually removes the existing voltage levels (attachment point and attached voltage level), if they contain no equipments
+ * anymore, except bus or bus bar section
+ *
+ *  *    VL1 ---------- attachment point ---------- VL2                            VL1 ----------------------------- VL2
+ *  *         (lineAZ)       |            (lineBZ)                                                (line)
+ *  *                        |
+ *  *                        | (lineCZ)                       =========>
+ *  *                        |
+ *  *                        |
+ *  *               attached voltage level
+ *  *
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
