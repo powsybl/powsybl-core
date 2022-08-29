@@ -7,9 +7,7 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
-import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.conversion.NamingStrategyFactory;
+import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -37,8 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -46,6 +43,14 @@ import static org.junit.Assert.fail;
 public class CgmesMappingTest extends AbstractConverterTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
+
+    @Test
+    public void testExplicitMappingConstructors() {
+        AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
+        assertEquals("uuid1", nss.getCgmesId("1"));
+        AbstractCgmesAliasNamingStrategy nsf = new FixedCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
+        assertEquals("uuid1", nsf.getCgmesId("1"));
+    }
 
     @Test
     public void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
@@ -96,6 +101,38 @@ public class CgmesMappingTest extends AbstractConverterTest {
         Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams);
         Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));
         checkDiffs(diffs, knownErrorsSubstationsIds);
+
+        // In the Network created from CGMES + mapping all Identifiables that do not have a valid CIM mRID
+        // must have a valid UUID alias
+        for (Identifiable<?> i : networkActual.getIdentifiables()) {
+            if (!i.isFictitious() && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
+                Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
+                assertTrue(uuid.isPresent());
+                assertTrue(CgmesExportUtil.isValidCimMasterRID(uuid.get()));
+            }
+        }
+
+        // Now that we have valid identifiers stored as aliases, we should be able to re-export to CGMES
+        // without the mapping generated in the previous step,
+        // but keeping the same naming strategy to use aliases to fix bad mrids
+        Properties reExportParams = exportParams;
+        String reOutputFolder = "reExportedCgmes" + baseName;
+        DataSource reExportedCgmes = tmpDataSource(reOutputFolder, baseName);
+        Exporters.export("CGMES", networkActual, reExportParams, reExportedCgmes);
+        if (originalDataSource != null) {
+            copyBoundary(reOutputFolder, baseName, originalDataSource);
+        }
+        Network networkActualReimportedWithoutMapping = Importers.importData("CGMES", reExportedCgmes, reimportParams);
+        // Convert to strings with newlines for easier visual comparison in case of differences
+        assertEquals(
+                Arrays.toString(network1.getIdentifiables().stream()
+                        .filter(i -> !(i instanceof Network) && !i.isFictitious())
+                        .map(i -> i.getType() + "::" + i.getId())
+                        .sorted().toArray()).replace(",", System.lineSeparator()),
+                Arrays.toString(networkActualReimportedWithoutMapping.getIdentifiables().stream()
+                        .filter(i -> !(i instanceof Network) && !i.isFictitious())
+                        .map(i -> i.getType() + "::" + i.getId())
+                        .sorted().toArray()).replace(",", System.lineSeparator()));
     }
 
     private void checkDiffs(Collection<Diff> diffs, Set<String> knownErrorsSubstationsIds) {
@@ -113,7 +150,6 @@ public class CgmesMappingTest extends AbstractConverterTest {
 
     static class Diff {
         String substationId;
-        String voltageLevelId;
         SortedSet<String> busesExpectedBusView;
         SortedSet<String> busesActualBusView;
         SortedSet<String> busesExpectedBusBreakerView;

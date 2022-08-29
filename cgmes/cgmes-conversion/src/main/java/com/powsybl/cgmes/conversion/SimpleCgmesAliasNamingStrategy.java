@@ -9,13 +9,24 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 
+import java.util.Map;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at rte-france.com>
  */
-public class CgmesAliasNamingStrategyFixOnlyIidmIdentifiableInvalidIds extends CgmesAliasNamingStrategyFixInvalidIds {
+public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStrategy {
 
-    public CgmesAliasNamingStrategyFixOnlyIidmIdentifiableInvalidIds() {
+    public SimpleCgmesAliasNamingStrategy() {
         super();
+    }
+
+    public SimpleCgmesAliasNamingStrategy(Map<String, String> idByUuid) {
+        super(idByUuid);
+    }
+
+    @Override
+    public String getName() {
+        return NamingStrategyFactory.CGMES;
     }
 
     @Override

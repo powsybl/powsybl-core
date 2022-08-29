@@ -563,10 +563,12 @@ public final class EquipmentExport {
 
     private static String writeDanglingLineSubstation(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         // New Substation
+        // We avoid using the name of the dangling lines for the names of fictitious region and subregion
+        // Because regions and subregions with the same name are merged
         String geographicalRegionId = CgmesExportUtil.getUniqueId();
-        GeographicalRegionEq.write(geographicalRegionId, danglingLine.getNameOrId() + "_GR", cimNamespace, writer);
+        GeographicalRegionEq.write(geographicalRegionId, danglingLine.getId() + "_GR", cimNamespace, writer);
         String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-        SubGeographicalRegionEq.write(subGeographicalRegionId, danglingLine.getNameOrId() + "_SGR", geographicalRegionId, cimNamespace, writer);
+        SubGeographicalRegionEq.write(subGeographicalRegionId, danglingLine.getId() + "_SGR", geographicalRegionId, cimNamespace, writer);
         String substationId = CgmesExportUtil.getUniqueId();
         SubstationEq.write(substationId, danglingLine.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer);
 

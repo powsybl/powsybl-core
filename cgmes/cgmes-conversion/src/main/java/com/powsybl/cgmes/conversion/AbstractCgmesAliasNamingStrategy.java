@@ -20,16 +20,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CgmesAliasNamingStrategyFixInvalidIds implements NamingStrategy {
+public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy {
 
     private final BiMap<String, String> idByUuid = HashBiMap.create();
 
-    public CgmesAliasNamingStrategyFixInvalidIds readFrom(InputStream is) {
+    protected AbstractCgmesAliasNamingStrategy() {
+    }
+
+    protected AbstractCgmesAliasNamingStrategy(Map<String, String> idByUuid) {
+        this.idByUuid.putAll(Objects.requireNonNull(idByUuid));
+    }
+
+    public AbstractCgmesAliasNamingStrategy readFrom(InputStream is) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             CsvParserSettings settings = new CsvParserSettings();
             setFormat(settings.getFormat());
@@ -65,21 +73,7 @@ public class CgmesAliasNamingStrategyFixInvalidIds implements NamingStrategy {
     @Override
     public String getCgmesId(Identifiable<?> identifiable) {
         String id = identifiable.getId();
-        if (idByUuid.containsValue(id)) {
-            return idByUuid.inverse().get(id);
-        }
-        String uuid;
-        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
-        if (uuidFromAlias.isPresent()) {
-            uuid = uuidFromAlias.get();
-        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
-            uuid = id;
-        } else {
-            uuid = CgmesExportUtil.getUniqueId();
-            // Only store the IDs that have been created during the export
-            idByUuid.put(uuid, id);
-        }
-        return uuid;
+        return getCgmesId(identifiable, id, "UUID");
     }
 
     @Override
@@ -87,21 +81,7 @@ public class CgmesAliasNamingStrategyFixInvalidIds implements NamingStrategy {
         //  This is a hack to save in the naming strategy an identifier for something that is not an identifiable:
         //  Connectivity nodes linked to bus/breaker view buses
         String id = identifiable.getId() + "_" + subObject;
-        if (idByUuid.containsValue(id)) {
-            return idByUuid.inverse().get(id);
-        }
-        String uuid;
-        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "_" + subObject + "_" + "UUID");
-        if (uuidFromAlias.isPresent()) {
-            uuid = uuidFromAlias.get();
-        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
-            uuid = id;
-        } else {
-            uuid = CgmesExportUtil.getUniqueId();
-            // Only store the IDs that have been created during the export
-            idByUuid.put(uuid, id);
-        }
-        return uuid;
+        return getCgmesId(identifiable, id, "_" + subObject + "_" + "UUID");
     }
 
     @Override
@@ -112,21 +92,7 @@ public class CgmesAliasNamingStrategyFixInvalidIds implements NamingStrategy {
         // Tap changers of power transformers
         String id = identifiable.getAliasFromType(aliasType)
                 .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
-        if (idByUuid.containsValue(id)) {
-            return idByUuid.inverse().get(id);
-        }
-        String uuid;
-        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "_" + aliasType + "_" + "UUID");
-        if (uuidFromAlias.isPresent()) {
-            uuid = uuidFromAlias.get();
-        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
-            uuid = id;
-        } else {
-            uuid = CgmesExportUtil.getUniqueId();
-            // Only store the IDs that have been created during the export
-            idByUuid.put(uuid, id);
-        }
-        return uuid;
+        return getCgmesId(identifiable, id, "_" + aliasType + "_" + "UUID");
     }
 
     @Override
@@ -138,21 +104,7 @@ public class CgmesAliasNamingStrategyFixInvalidIds implements NamingStrategy {
         if (id == null) {
             return null;
         }
-        if (idByUuid.containsValue(id)) {
-            return idByUuid.inverse().get(id);
-        }
-        String uuid;
-        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "_" + propertyName + "_" + "UUID");
-        if (uuidFromAlias.isPresent()) {
-            uuid = uuidFromAlias.get();
-        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
-            uuid = id;
-        } else {
-            uuid = CgmesExportUtil.getUniqueId();
-            // Only store the IDs that have been created during the export
-            idByUuid.put(uuid, id);
-        }
-        return uuid;
+        return getCgmesId(identifiable, id, "_" + propertyName + "_" + "UUID");
     }
 
     @Override
@@ -204,6 +156,24 @@ public class CgmesAliasNamingStrategyFixInvalidIds implements NamingStrategy {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private String getCgmesId(Identifiable<?> identifiable, String id, String aliasName) {
+        if (idByUuid.containsValue(id)) {
+            return idByUuid.inverse().get(id);
+        }
+        String uuid;
+        Optional<String> uuidFromAlias = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasName);
+        if (uuidFromAlias.isPresent()) {
+            uuid = uuidFromAlias.get();
+        } else if (CgmesExportUtil.isValidCimMasterRID(id)) {
+            uuid = id;
+        } else {
+            uuid = CgmesExportUtil.getUniqueId();
+            // Only store the IDs that have been created during the export
+            idByUuid.put(uuid, id);
+        }
+        return uuid;
     }
 
     private void writeIdMapping(BufferedWriter writer) {

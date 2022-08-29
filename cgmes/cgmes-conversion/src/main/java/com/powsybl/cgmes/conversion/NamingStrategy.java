@@ -18,6 +18,8 @@ import java.nio.file.Path;
  */
 public interface NamingStrategy {
 
+    String getName();
+
     String getGeographicalTag(String geo);
 
     String getIidmId(String type, String id);
@@ -49,6 +51,11 @@ public interface NamingStrategy {
     void writeIdMapping(String mappingFileName, DataSource ds);
 
     final class Identity implements NamingStrategy {
+
+        @Override
+        public String getName() {
+            return NamingStrategyFactory.IDENTITY;
+        }
 
         @Override
         public String getGeographicalTag(String geo) {

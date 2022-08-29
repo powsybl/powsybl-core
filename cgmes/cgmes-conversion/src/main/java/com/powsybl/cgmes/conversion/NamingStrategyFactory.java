@@ -22,7 +22,7 @@ import java.util.Objects;
 public final class NamingStrategyFactory {
 
     public static final String IDENTITY = "identity";
-    public static final String CGMES = "cgmes"; // This naming strategy will fix only IIDM identifiables
+    public static final String CGMES = "cgmes"; // This simple naming strategy will fix only ids for IIDM identifiables
     public static final String CGMES_FIX_ALL_INVALID_IDS = "cgmes-fix-all-invalid-ids";
 
     public static NamingStrategy create(String impl, ReadOnlyDataSource ds, String mappingFileName, Path defaultPath) {
@@ -69,15 +69,15 @@ public final class NamingStrategyFactory {
         }
     }
 
-    public static CgmesAliasNamingStrategyFixInvalidIds createWithMapping(String impl) {
+    public static AbstractCgmesAliasNamingStrategy createWithMapping(String impl) {
         Objects.requireNonNull(impl);
         switch (impl) {
             case IDENTITY:
                 throw new PowsyblException("Identity naming strategy not expected when using an ID mapping file");
             case CGMES:
-                return new CgmesAliasNamingStrategyFixOnlyIidmIdentifiableInvalidIds();
+                return new SimpleCgmesAliasNamingStrategy();
             case CGMES_FIX_ALL_INVALID_IDS:
-                return new CgmesAliasNamingStrategyFixInvalidIds();
+                return new FixedCgmesAliasNamingStrategy();
             default:
                 throw new PowsyblException("Unknown naming strategy: " + impl);
         }
@@ -89,9 +89,9 @@ public final class NamingStrategyFactory {
             case IDENTITY:
                 return new NamingStrategy.Identity();
             case CGMES:
-                return new CgmesAliasNamingStrategyFixOnlyIidmIdentifiableInvalidIds();
+                return new SimpleCgmesAliasNamingStrategy();
             case CGMES_FIX_ALL_INVALID_IDS:
-                return new CgmesAliasNamingStrategyFixInvalidIds();
+                return new FixedCgmesAliasNamingStrategy();
             default:
                 throw new PowsyblException("Unknown naming strategy: " + impl);
         }
