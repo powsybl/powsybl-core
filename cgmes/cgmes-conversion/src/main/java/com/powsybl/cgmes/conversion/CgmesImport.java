@@ -334,7 +334,7 @@ public class CgmesImport implements Importer {
             ID_MAPPING_FILE_NAMING_STRATEGY,
             ParameterType.STRING,
             "Configure what type of naming strategy you want to use for the provided ID mapping file",
-            "cgmes");
+            NamingStrategyFactory.IDENTITY);
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,

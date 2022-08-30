@@ -98,7 +98,12 @@ public class CgmesMappingTest extends AbstractConverterTest {
         // CGMES exported always node/breaker, if original was bus/branch a lot of different elements
         // Even if original was node/breaker, we may have introduced fictitious switches during import,
         // resulting in different number of nodes and connections
-        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams);
+
+        // By default, the identity naming strategy is configured, we have to set a specific one if we have a mapping file
+        Properties reimportParams1 = new Properties(reimportParams);
+        reimportParams1.put(CgmesImport.ID_MAPPING_FILE_NAMING_STRATEGY, namingStrategy);
+
+        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams1);
         Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));
         checkDiffs(diffs, knownErrorsSubstationsIds);
 
@@ -122,7 +127,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         if (originalDataSource != null) {
             copyBoundary(reOutputFolder, baseName, originalDataSource);
         }
-        Network networkActualReimportedWithoutMapping = Importers.importData("CGMES", reExportedCgmes, reimportParams);
+        Network networkActualReimportedWithoutMapping = Importers.importData("CGMES", reExportedCgmes, reimportParams1);
         // Convert to strings with newlines for easier visual comparison in case of differences
         assertEquals(
                 Arrays.toString(network1.getIdentifiables().stream()
