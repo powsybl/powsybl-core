@@ -29,6 +29,11 @@ public interface NetworkModification {
         apply(network);
     }
 
+    /**
+     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
+     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
+     * in case of error.
+     */
     default void apply(Network network, boolean throwException, Reporter reporter) {
         apply(network);
     }

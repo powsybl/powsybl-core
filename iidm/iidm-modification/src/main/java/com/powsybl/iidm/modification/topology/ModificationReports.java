@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.*;
 final class ModificationReports {
     static String voltageLevelIdString = "voltageLevelId";
 
-    public static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
+    static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
         reporter.report(Report.builder()
                 .withKey("notFoundBusbarSection")
                 .withDefaultMessage("Busbar section ${busbarSectionId} not found")
@@ -26,7 +26,7 @@ final class ModificationReports {
                 .build());
     }
 
-    public static void notNodeBreakerVoltageLevelReport(Reporter reporter, String voltageLevelId) {
+    static void notNodeBreakerVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("notNodeBreakerVoltageLevel")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not in node/breaker")
@@ -35,7 +35,7 @@ final class ModificationReports {
                 .build());
     }
 
-    public static void networkMismatchReport(Reporter reporter, String injectionId, IdentifiableType identifiableType) {
+    static void networkMismatchReport(Reporter reporter, String injectionId, IdentifiableType identifiableType) {
         reporter.report(Report.builder()
                 .withKey("networkMismatch")
                 .withDefaultMessage("Network given in parameters and in injectionAdder are different. Injection '${injectionId}' of type {identifiableType} was added then removed")
@@ -45,7 +45,7 @@ final class ModificationReports {
                 .build());
     }
 
-    public static void injectionPositionOrderAlreadyTakenReport(Reporter reporter, int injectionPositionOrder) {
+    static void injectionPositionOrderAlreadyTakenReport(Reporter reporter, int injectionPositionOrder) {
         reporter.report(Report.builder()
                 .withKey("injectionPositionOrderAlreadyTaken")
                 .withDefaultMessage("InjectionPositionOrder ${injectionPositionOrder} already taken.")
@@ -54,7 +54,7 @@ final class ModificationReports {
                 .build());
     }
 
-    public static void newInjectionAddedReport(Reporter reporter, String voltageLevelId, String bbsId, Injection<?> injection, int parallelBbsNumber) {
+    static void newInjectionAddedReport(Reporter reporter, String voltageLevelId, String bbsId, Injection<?> injection, int parallelBbsNumber) {
         reporter.report(Report.builder()
                 .withKey("newInjectionAdded")
                 .withDefaultMessage("New feeder bay ${injectionId} of type ${injectionType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector" +
@@ -68,7 +68,7 @@ final class ModificationReports {
                 .build());
     }
 
-    public static void noBusbarSectionPositionExtensionReport(Reporter reporter, BusbarSection bbs) {
+    static void noBusbarSectionPositionExtensionReport(Reporter reporter, BusbarSection bbs) {
         reporter.report(Report.builder()
                 .withKey("noBusbarSectionPositionExtension")
                 .withDefaultMessage("No busbar section position extension found on ${bbsId}, only one disconnector is created.")
@@ -77,7 +77,7 @@ final class ModificationReports {
                 .build());
     }
 
-    public static void connectableNotSupported(Reporter reporter, Connectable connectable) {
+    static void connectableNotSupported(Reporter reporter, Connectable connectable) {
         reporter.report(Report.builder()
                 .withKey("connectableNotSupported")
                 .withDefaultMessage("Given connectable not supported: ${connectableClassName}.")
@@ -86,7 +86,7 @@ final class ModificationReports {
                 .build());
     }
 
-    public static void connectableNotInVoltageLevel(Reporter reporter, Connectable connectable, VoltageLevel voltageLevel) {
+    static void connectableNotInVoltageLevel(Reporter reporter, Connectable connectable, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("connectableNotInVoltageLevel")
                 .withDefaultMessage("Given connectable ${connectableId} not in voltageLevel ${voltageLevelId}")

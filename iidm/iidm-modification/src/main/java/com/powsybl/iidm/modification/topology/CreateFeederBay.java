@@ -72,11 +72,6 @@ public class CreateFeederBay implements NetworkModification {
         apply(network, false, Reporter.NO_OP);
     }
 
-    /**
-     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
-     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
-     * in case of error.
-     */
     @Override
     public void apply(Network network, boolean throwException, Reporter reporter) {
         BusbarSection bbs = network.getBusbarSection(bbsId);
