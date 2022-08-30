@@ -39,8 +39,9 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
         boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
         float droop = XmlUtil.readFloatAttribute(context.getReader(), "droop");
-        identifiable.newExtension(ActivePowerControlAdder.class)
-                .withParticipate(participate).withDroop(droop).add();
-        return identifiable.getExtension(ActivePowerControl.class);
+        ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
+        return activePowerControlAdder.withParticipate(participate)
+                .withDroop(droop)
+                .add();
     }
 }

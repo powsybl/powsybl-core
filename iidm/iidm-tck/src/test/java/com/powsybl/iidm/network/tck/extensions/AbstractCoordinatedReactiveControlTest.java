@@ -42,10 +42,9 @@ public abstract class AbstractCoordinatedReactiveControlTest {
 
     @Test
     public void test() {
-        generator.newExtension(CoordinatedReactiveControlAdder.class)
+        CoordinatedReactiveControl control = generator.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(100.0)
                 .add();
-        CoordinatedReactiveControl control = generator.getExtension(CoordinatedReactiveControl.class);
         assertEquals(100.0, control.getQPercent(), 0.0);
         control.setQPercent(99.0);
         assertEquals(99.0, control.getQPercent(), 0.0);
@@ -67,10 +66,9 @@ public abstract class AbstractCoordinatedReactiveControlTest {
         String variant2 = "variant2";
         String variant3 = "variant3";
 
-        generator.newExtension(CoordinatedReactiveControlAdder.class)
+        CoordinatedReactiveControl control = generator.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(100.0)
                 .add();
-        CoordinatedReactiveControl control = generator.getExtension(CoordinatedReactiveControl.class);
 
         // Testing variant cloning
         VariantManager variantManager = generator.getNetwork().getVariantManager();

@@ -153,7 +153,8 @@ final class ContainersMappingHelper {
                 || dataClassName.equals("ElmTr3")
                 || dataClassName.equals("ElmLne")
                 || dataClassName.equals("ElmCoup")
-                || dataClassName.equals("ElmZpu");
+                || dataClassName.equals("ElmZpu")
+                || dataClassName.equals("ElmVsc");
     }
 
     private static void createNodes(List<DataObject> elmTerms, List<DataObject> nodes,
@@ -198,6 +199,9 @@ final class ContainersMappingHelper {
                 if (connectedObj.getDataClassName().equals("ElmTr3")) {
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
                     edges.add(new Edge(elmTerms.get(0), elmTerms.get(2), true, false));
+                } else if (connectedObj.getDataClassName().equals("ElmVsc")) {
+                    edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), false, true));
+                    edges.add(new Edge(elmTerms.get(0), elmTerms.get(2), false, true));
                 } else {
                     throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
                 }
