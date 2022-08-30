@@ -33,9 +33,9 @@ public abstract class AbstractExtensionAdder<T extends Extendable<T>, E extends 
     protected abstract E createExtension(T extendable);
 
     @Override
-    public T add() {
-        extendable.addExtension(getExtensionClass(), createExtension(extendable));
-        return extendable;
+    public E add() {
+        E extension = createExtension(extendable);
+        extendable.addExtension(getExtensionClass(), extension);
+        return extension;
     }
-
 }

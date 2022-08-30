@@ -49,9 +49,8 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
             double latitude = XmlUtil.readDoubleAttribute(context.getReader(), "latitude");
             coordinates.add(new Coordinate(latitude, longitude));
         });
-        line.newExtension(LinePositionAdder.class)
-                .withCoordinates(coordinates)
+        LinePositionAdder<T> adder = line.newExtension(LinePositionAdder.class);
+        return adder.withCoordinates(coordinates)
                 .add();
-        return line.getExtension(LinePosition.class);
     }
 }
