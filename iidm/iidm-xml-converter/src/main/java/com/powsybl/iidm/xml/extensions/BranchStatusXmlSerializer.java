@@ -31,16 +31,15 @@ public class BranchStatusXmlSerializer<C extends Connectable<C>> extends Abstrac
     }
 
     @Override
-    public void write(BranchStatus branchStatus, XmlWriterContext context) throws XMLStreamException {
+    public void write(BranchStatus<C> branchStatus, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeCharacters(branchStatus.getStatus().name());
     }
 
     @Override
-    public BranchStatus read(Connectable connectable, XmlReaderContext context) throws XMLStreamException {
+    public BranchStatus<C> read(C connectable, XmlReaderContext context) throws XMLStreamException {
         BranchStatus.Status status = BranchStatus.Status.valueOf(XmlUtil.readText("branchStatus", context.getReader()));
-        ((Connectable<?>) connectable).newExtension(BranchStatusAdder.class)
-                .withStatus(status)
+        BranchStatusAdder<C> adder = connectable.newExtension(BranchStatusAdder.class);
+        return adder.withStatus(status)
                 .add();
-        return ((Connectable<?>) connectable).getExtension(BranchStatus.class);
     }
 }

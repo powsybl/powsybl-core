@@ -25,10 +25,9 @@ public abstract class AbstractSubstationAndLinePositionTest {
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
         var p1 = network.getSubstation("P1");
-        p1.newExtension(SubstationPositionAdder.class)
+        var substationPosition = p1.newExtension(SubstationPositionAdder.class)
                 .withCoordinate(new Coordinate(48, 2))
                 .add();
-        var substationPosition = p1.getExtension(SubstationPosition.class);
         assertNotNull(substationPosition);
         assertEquals(new Coordinate(48, 2), substationPosition.getCoordinate());
 
