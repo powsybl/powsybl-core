@@ -6,9 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.conversion.NamingStrategyFactory;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -28,6 +27,7 @@ import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -35,8 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -46,28 +45,48 @@ public class CgmesMappingTest extends AbstractConverterTest {
     private static final Logger LOG = LoggerFactory.getLogger(CgmesMappingTest.class);
 
     @Test
+    public void testExplicitMappingConstructors() {
+        AbstractCgmesAliasNamingStrategy nss = new SimpleCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
+        assertEquals("uuid1", nss.getCgmesId("1"));
+        AbstractCgmesAliasNamingStrategy nsf = new FixedCgmesAliasNamingStrategy(Map.of("uuid1", "1"));
+        assertEquals("uuid1", nsf.getCgmesId("1"));
+    }
+
+    @Test
     public void testExportUsingCgmesNamingStrategyNordic32() throws IOException {
-        testExportUsingCgmesNamingStrategy("nordic32", "G9_______SM");
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "nordic32", "G9_______SM");
     }
 
     @Test
     public void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
-        testExportUsingCgmesNamingStrategy("ieee14", "GEN____8_SM");
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "ieee14", "GEN____8_SM");
     }
 
-    private void testExportUsingCgmesNamingStrategy(String baseName, String generatorForSlack) throws IOException {
+    @Test
+    public void testExportUsingCgmesNamingStrategyMicroGrid() throws IOException {
+        // We select a case that contains invalid IDs
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledBadIds().dataSource();
+        Network network = Importers.importData("CGMES", ds, null);
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES_FIX_ALL_INVALID_IDS, network, "MicroGrid", null, Collections.emptySet(), ds);
+    }
+
+    private void testExportUsingCgmesNamingStrategy(String namingStrategy, String baseName, String generatorForSlack) throws IOException {
         ReadOnlyDataSource inputIidm = new ResourceDataSource(baseName, new ResourceSet("/cim14", baseName + ".xiidm"));
         Network network = new XMLImporter().importData(inputIidm, NetworkFactory.findDefault(), null);
         // Force writing CGMES topological island by assigning a slack bus
         SlackTerminal.attach(network.getGenerator(generatorForSlack).getTerminal().getBusBreakerView().getBus());
-        testExportUsingCgmesNamingStrategy(network, baseName, null, Collections.emptySet());
+        testExportUsingCgmesNamingStrategy(namingStrategy, network, baseName, null, Collections.emptySet(), null);
     }
 
-    public void testExportUsingCgmesNamingStrategy(Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds) throws IOException {
+    public void testExportUsingCgmesNamingStrategy(String namingStrategy, Network network, String baseName, Properties reimportParams, Set<String> knownErrorsSubstationsIds, ReadOnlyDataSource originalDataSource) throws IOException {
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
-        DataSource exportedCgmes = tmpDataSource("exportedCgmes" + baseName, baseName);
+        exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
+        String outputFolder = "exportedCgmes" + baseName;
+        DataSource exportedCgmes = tmpDataSource(outputFolder, baseName);
         Exporters.export("CGMES", network, exportParams, exportedCgmes);
+        if (originalDataSource != null) {
+            copyBoundary(outputFolder, baseName, originalDataSource);
+        }
 
         // Load the exported CGMES model without the ID mapping,
         // to ensure that all objects have valid CGMES identifiers
@@ -79,9 +98,46 @@ public class CgmesMappingTest extends AbstractConverterTest {
         // CGMES exported always node/breaker, if original was bus/branch a lot of different elements
         // Even if original was node/breaker, we may have introduced fictitious switches during import,
         // resulting in different number of nodes and connections
-        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams);
+
+        // By default, the identity naming strategy is configured, we have to set a specific one if we have a mapping file
+        Properties reimportParams1 = new Properties(reimportParams);
+        reimportParams1.put(CgmesImport.ID_MAPPING_FILE_NAMING_STRATEGY, namingStrategy);
+
+        Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams1);
         Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));
         checkDiffs(diffs, knownErrorsSubstationsIds);
+
+        // In the Network created from CGMES + mapping all Identifiables that do not have a valid CIM mRID
+        // must have a valid UUID alias
+        for (Identifiable<?> i : networkActual.getIdentifiables()) {
+            if (!i.isFictitious() && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
+                Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
+                assertTrue(uuid.isPresent());
+                assertTrue(CgmesExportUtil.isValidCimMasterRID(uuid.get()));
+            }
+        }
+
+        // Now that we have valid identifiers stored as aliases, we should be able to re-export to CGMES
+        // without the mapping generated in the previous step,
+        // but keeping the same naming strategy to use aliases to fix bad mrids
+        Properties reExportParams = exportParams;
+        String reOutputFolder = "reExportedCgmes" + baseName;
+        DataSource reExportedCgmes = tmpDataSource(reOutputFolder, baseName);
+        Exporters.export("CGMES", networkActual, reExportParams, reExportedCgmes);
+        if (originalDataSource != null) {
+            copyBoundary(reOutputFolder, baseName, originalDataSource);
+        }
+        Network networkActualReimportedWithoutMapping = Importers.importData("CGMES", reExportedCgmes, reimportParams1);
+        // Convert to strings with newlines for easier visual comparison in case of differences
+        assertEquals(
+                Arrays.toString(network1.getIdentifiables().stream()
+                        .filter(i -> !(i instanceof Network) && !i.isFictitious())
+                        .map(i -> i.getType() + "::" + i.getId())
+                        .sorted().toArray()).replace(",", System.lineSeparator()),
+                Arrays.toString(networkActualReimportedWithoutMapping.getIdentifiables().stream()
+                        .filter(i -> !(i instanceof Network) && !i.isFictitious())
+                        .map(i -> i.getType() + "::" + i.getId())
+                        .sorted().toArray()).replace(",", System.lineSeparator()));
     }
 
     private void checkDiffs(Collection<Diff> diffs, Set<String> knownErrorsSubstationsIds) {
@@ -99,7 +155,6 @@ public class CgmesMappingTest extends AbstractConverterTest {
 
     static class Diff {
         String substationId;
-        String voltageLevelId;
         SortedSet<String> busesExpectedBusView;
         SortedSet<String> busesActualBusView;
         SortedSet<String> busesExpectedBusBreakerView;
@@ -175,6 +230,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         // Build a zip file that does not contain the CSV file for the id mappings, only CGMES exported files
         Path repackaged = tmpDir.resolve("exportedCgmes" + baseName).resolve("repackaged.zip");
         Repackager r = new Repackager(dataSource)
+                .with(dataSource.getBaseName() + "_EQ_BD.xml", Repackager::eqBd)
                 .with(dataSource.getBaseName() + "_EQ.xml", Repackager::eq)
                 .with(dataSource.getBaseName() + "_SSH.xml", Repackager::ssh)
                 .with(dataSource.getBaseName() + "_TP.xml", Repackager::tp)
@@ -198,7 +254,9 @@ public class CgmesMappingTest extends AbstractConverterTest {
                         cgmes.regulatingControls().stream().map(o -> o.getId("RegulatingControl")),
                         cgmes.controlAreas().stream().map(o -> o.getId("ControlArea")),
                         cgmes.synchronousMachines().stream().map(o -> o.getId("GeneratingUnit")),
-                        cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit"))
+                        cgmes.operationalLimits().stream().map(o -> o.getId("OperationalLimit")),
+                        cgmes.substations().stream().map(o -> o.getId("Region")),
+                        cgmes.substations().stream().map(o -> o.getId("SubRegion"))
                 )
                 .flatMap(id -> id)
                 .filter(id -> !CgmesExportUtil.isValidCimMasterRID(id));
@@ -280,12 +338,22 @@ public class CgmesMappingTest extends AbstractConverterTest {
         return NetworkXml.read(tmpDir.resolve("export.iidm"));
     }
 
-    private DataSource tmpDataSource(String name, String baseName) throws IOException {
-        Path exportFolder = tmpDir.resolve(name);
+    private DataSource tmpDataSource(String folder, String baseName) throws IOException {
+        Path exportFolder = tmpDir.resolve(folder);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
         Files.createDirectories(exportFolder);
         return new FileDataSource(exportFolder, baseName);
+    }
+
+    private void copyBoundary(String outputFolderName, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
+        Path outputFolder = tmpDir.resolve(outputFolderName);
+        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
+        if (eqbd != null) {
+            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
+                Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
+            }
+        }
     }
 }
