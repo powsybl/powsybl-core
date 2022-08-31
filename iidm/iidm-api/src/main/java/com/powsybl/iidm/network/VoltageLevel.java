@@ -794,11 +794,17 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         Bus getBus2(String switchId);
 
-        default Collection<Bus> getBusesFromMergedBusId(String mergedBusId) {
-            return getBusStreamFromMergedBusId(mergedBusId).collect(Collectors.toSet());
+        /**
+         * Get buses of the current view (bus-breaker) contained in the given bus-view bus. If the given bus-view bus does not exist, throw an exception.
+         */
+        default Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
+            return getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
         }
 
-        default Stream<Bus> getBusStreamFromMergedBusId(String mergedBusId) {
+        /**
+         * Get a stream of buses of the current view (bus-breaker) contained in the given bus-view bus. If the given bus-view bus does not exist, throw an exception.
+         */
+        default Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
             VoltageLevel vl = getBusStream()
                     .flatMap(Bus::getConnectedTerminalStream)
                     .map(Terminal::getVoltageLevel)

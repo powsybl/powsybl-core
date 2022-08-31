@@ -46,13 +46,13 @@ public abstract class AbstractCalculatedTopologyTest {
     }
 
     private void checkSameBusesFromMergedBus(Network n, String mergedBusId, String... busesIds) {
-        Collection<Bus> buses = n.getVoltageLevel("VL1").getBusBreakerView().getBusesFromMergedBusId(mergedBusId);
+        Collection<Bus> buses = n.getVoltageLevel("VL1").getBusBreakerView().getBusesFromBusViewBusId(mergedBusId);
         assertFalse(buses.isEmpty());
         assertEquals(2, buses.size());
         for (String busId : busesIds) {
             assertTrue(buses.stream().anyMatch(b -> b.getId().equals(busId)));
         }
-        Collection<Bus> buses2 = n.getVoltageLevel("VL1").getBusBreakerView().getBusStreamFromMergedBusId(mergedBusId).collect(Collectors.toSet());
+        Collection<Bus> buses2 = n.getVoltageLevel("VL1").getBusBreakerView().getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
         assertTrue(buses.containsAll(buses2));
         assertTrue(buses2.containsAll(buses));
     }

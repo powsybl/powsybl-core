@@ -663,12 +663,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Collection<Bus> getBusesFromMergedBusId(String mergedBusId) {
-            return getBusStreamFromMergedBusId(mergedBusId).collect(Collectors.toSet());
+        public Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
+            return getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
         }
 
         @Override
-        public Stream<Bus> getBusStreamFromMergedBusId(String mergedBusId) {
+        public Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
             MergedBus bus = (MergedBus) busView.getBus(mergedBusId);
             Objects.requireNonNull(bus, "bus is null");
             calculatedBusTopology.updateCache();

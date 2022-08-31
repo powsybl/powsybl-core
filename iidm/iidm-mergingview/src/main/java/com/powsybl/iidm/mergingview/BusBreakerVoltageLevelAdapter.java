@@ -137,13 +137,13 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
-        public Collection<Bus> getBusesFromMergedBusId(String mergedBusId) {
-            return getBusStreamFromMergedBusId(mergedBusId).collect(Collectors.toSet());
+        public Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
+            return getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
         }
 
         @Override
-        public Stream<Bus> getBusStreamFromMergedBusId(String mergedBusId) {
-            return getDelegate().getBusStreamFromMergedBusId(mergedBusId).map(this::getBus);
+        public Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
+            return getDelegate().getBusStreamFromBusViewBusId(mergedBusId).map(this::getBus);
         }
 
         @Override

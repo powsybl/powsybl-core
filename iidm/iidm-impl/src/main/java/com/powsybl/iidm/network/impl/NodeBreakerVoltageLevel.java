@@ -1042,7 +1042,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Collection<Bus> getBusesFromMergedBusId(String mergedBusId) {
+        public Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
             Set<Bus> buses = new HashSet<>();
             for (int i = 0; i < graph.getVertexCapacity(); i++) {
                 Bus b = variants.get().calculatedBusTopology.getBus(i);
@@ -1057,8 +1057,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<Bus> getBusStreamFromMergedBusId(String mergedBusId) {
-            return getBusesFromMergedBusId(mergedBusId).stream();
+        public Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
+            return getBusesFromBusViewBusId(mergedBusId).stream();
         }
 
         @Override
