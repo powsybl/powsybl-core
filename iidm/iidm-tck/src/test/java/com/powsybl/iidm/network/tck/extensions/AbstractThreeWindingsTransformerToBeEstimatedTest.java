@@ -27,7 +27,7 @@ public abstract class AbstractThreeWindingsTransformerToBeEstimatedTest {
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
-        twt.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
+        ThreeWindingsTransformerToBeEstimated ext = twt.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
                 .withRatioTapChanger1Status(false)
                 .withRatioTapChanger2Status(true)
                 .withRatioTapChanger3Status(true)
@@ -36,7 +36,6 @@ public abstract class AbstractThreeWindingsTransformerToBeEstimatedTest {
                 .withPhaseTapChanger3Status(false)
                 .add();
 
-        ThreeWindingsTransformerToBeEstimated ext = twt.getExtension(ThreeWindingsTransformerToBeEstimated.class);
         assertNotNull(ext);
         assertFalse(ext.shouldEstimateRatioTapChanger1());
         assertFalse(ext.shouldEstimateRatioTapChanger(ThreeWindingsTransformer.Side.ONE));
