@@ -31,10 +31,10 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 /**
  * This method transform the action done in the AttachNewLineOnLine class into the action done in the AttachVoltageLevelOnLine class :
  * it replaces 3 existing lines (with the same attachment point at one of their side) with two new lines,
- * and eventually removes the attached voltage level, if it contains no equipments anymore, except bus or bus bar section
+ * and eventually removes the attachment point, if it contains no equipments anymore, except bus or bus bar section
  *
- *    VL1 ---------- attachment point ---------- VL2                            VL1 ---------- attachment point ---------- VL2
- *         (line1Z)       |            (lineZ2)                                      (line1C)                    (lineC2)
+ *    VL1 ---------- attachment point ---------- VL2                            VL1 ---------- attached voltage level ---------- VL2
+ *         (line1Z)       |            (lineZ2)                                      (line1C)                          (lineC2)
  *                        |
  *                        | (lineZP)                       =========>
  *                        |
@@ -178,9 +178,11 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         // attached voltage level is the voltage level at one side of lineZP, but not at one side of line1Z or lineZ2
         VoltageLevel attachmentPoint = null;
         VoltageLevel attachedVoltageLevel = null;
-        boolean configOk = false;
         Branch.Side line1ZAttachmentPointSide = null;
+        Branch.Side line1ZOtherVlSide = null;
         Branch.Side lineZ2AttachmentPointSide = null;
+        Branch.Side lineZ2OtherVlSide = null;
+        boolean configOk = false;
 
         String line1ZVlId1 = line1Z.getTerminal1().getVoltageLevel().getId();
         String line1ZVlId2 = line1Z.getTerminal2().getVoltageLevel().getId();
@@ -201,7 +203,9 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
             attachmentPoint = network.getVoltageLevel(attachmentPointId);
 
             line1ZAttachmentPointSide = line1ZVlId1.equals(attachmentPointId) ? Branch.Side.ONE : Branch.Side.TWO;
+            line1ZOtherVlSide = line1ZAttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
             lineZ2AttachmentPointSide = lineZ2VlId1.equals(attachmentPointId) ? Branch.Side.ONE : Branch.Side.TWO;
+            lineZ2OtherVlSide = lineZ2AttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
 
             String attachedVoltageLevelId = lineZPVlId1.equals(lineZ2VlId1) || lineZPVlId1.equals(lineZ2VlId2) ? lineZPVlId2 : lineZPVlId1;
             attachedVoltageLevel = network.getVoltageLevel(attachedVoltageLevelId);
@@ -217,20 +221,14 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         }
 
         // Set parameters of the new lines line1C and lineC2
-        LineAdder line1CAdder = createLineAdder(line1CId, line1CName,
-                line1Z.getTerminal(line1ZAttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE).getVoltageLevel().getId(),
-                attachmentPoint.getId(),
-                network, line1Z, lineZP);
-        LineAdder lineC2Adder = createLineAdder(lineC2Id, lineC2Name,
-                attachmentPoint.getId(),
-                lineZ2.getTerminal(lineZ2AttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE).getVoltageLevel().getId(),
-                network, lineZ2, lineZP);
+        LineAdder line1CAdder = createLineAdder(line1CId, line1CName, line1Z.getTerminal(line1ZOtherVlSide).getVoltageLevel().getId(), attachedVoltageLevel.getId(), network, line1Z, lineZP);
+        LineAdder lineC2Adder = createLineAdder(lineC2Id, lineC2Name, attachedVoltageLevel.getId(), lineZ2.getTerminal(lineZ2OtherVlSide).getVoltageLevel().getId(), network, lineZ2, lineZP);
 
-        attachLine(line1Z.getTerminal(Branch.Side.ONE), line1CAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(line1Z.getTerminal(Branch.Side.TWO), line1CAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        attachLine(line1Z.getTerminal(line1ZOtherVlSide), line1CAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
+        attachLine(line1Z.getTerminal(line1ZAttachmentPointSide), line1CAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
-        attachLine(lineZ2.getTerminal(Branch.Side.ONE), lineC2Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(lineZ2.getTerminal(Branch.Side.TWO), lineC2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        attachLine(lineZ2.getTerminal(lineZ2AttachmentPointSide), lineC2Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
+        attachLine(lineZ2.getTerminal(lineZ2OtherVlSide), lineC2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
         // Remove the three existing lines
         line1Z.remove();
@@ -255,8 +253,8 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         addLoadingLimits(lineC2, limits2LineZ2, Branch.Side.TWO);
         createdLineReport(reporter, lineC2Id);
 
-        // remove attached voltage level, if necessary
-        removeVoltageLevelAndSubstation(attachedVoltageLevel, reporter);
+        // remove attachment point, if necessary
+        removeVoltageLevelAndSubstation(attachmentPoint, reporter);
     }
 
     @Override
