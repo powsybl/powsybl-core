@@ -67,7 +67,8 @@ public class GeneratorEntsoeCategoryXmlSerializer implements ExtensionXmlSeriali
     @Override
     public GeneratorEntsoeCategory read(Generator generator, XmlReaderContext context) throws XMLStreamException {
         int code = Integer.parseInt(XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), null));
-        generator.newExtension(GeneratorEntsoeCategoryAdder.class).withCode(code).add();
-        return generator.getExtension(GeneratorEntsoeCategory.class);
+        return generator.newExtension(GeneratorEntsoeCategoryAdder.class)
+                .withCode(code)
+                .add();
     }
 }

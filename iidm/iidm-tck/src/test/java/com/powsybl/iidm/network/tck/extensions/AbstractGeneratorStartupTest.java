@@ -24,14 +24,13 @@ public abstract class AbstractGeneratorStartupTest {
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
         Generator generator = network.getGenerator("GEN");
-        generator.newExtension(GeneratorStartupAdder.class)
+        GeneratorStartup startup = generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(600.0)
                 .withStartupCost(5.0)
                 .withMarginalCost(10.0)
                 .withPlannedOutageRate(0.8)
                 .withForcedOutageRate(0.7)
                 .add();
-        GeneratorStartup startup = generator.getExtension(GeneratorStartup.class);
         assertEquals(600.0, startup.getPlannedActivePowerSetpoint(), 0.0);
         assertEquals(5.0, startup.getStartupCost(), 0.0);
         assertEquals(10.0, startup.getMarginalCost(), 0.0);

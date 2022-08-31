@@ -42,8 +42,9 @@ public class ThreeWindingsTransformerPhaseAngleClockXmlSerializer
     public ThreeWindingsTransformerPhaseAngleClock read(ThreeWindingsTransformer extendable, XmlReaderContext context) {
         int phaseAngleClockLeg2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClockLeg2", 0);
         int phaseAngleClockLeg3 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClockLeg3", 0);
-        extendable.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
-                .withPhaseAngleClockLeg2(phaseAngleClockLeg2).withPhaseAngleClockLeg3(phaseAngleClockLeg3).add();
-        return extendable.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
+        return extendable.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
+                .withPhaseAngleClockLeg2(phaseAngleClockLeg2)
+                .withPhaseAngleClockLeg3(phaseAngleClockLeg3)
+                .add();
     }
 }
