@@ -53,6 +53,8 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
     private String lineC2Id;
     private String lineC2Name;
 
+    private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
+
     /**
      * Constructor.
      *
@@ -76,13 +78,76 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         this.lineC2Name = lineC2Name;
     }
 
+    public String getLine1ZId() {
+        return line1ZId;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setLine1ZId(String line1ZId) {
+        this.line1ZId = line1ZId;
+        return this;
+    }
+
+    public String getLineZ2Id() {
+        return lineZ2Id;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setLineZ2Id(String lineZ2Id) {
+        this.lineZ2Id = lineZ2Id;
+        return this;
+    }
+
+    public String getLineZPId() {
+        return lineZPId;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setLineZPId(String lineZPId) {
+        this.lineZPId = lineZPId;
+        return this;
+    }
+
+    public String getLine1CId() {
+        return line1CId;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setLine1CId(String line1CId) {
+        this.line1CId = line1CId;
+        return this;
+    }
+
+    public String getLine1CName() {
+        return line1CName;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setLine1CName(String line1CName) {
+        this.line1CName = line1CName;
+        return this;
+    }
+
+    public String getLineC2Id() {
+        return lineC2Id;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setLineC2Id(String lineC2Id) {
+        this.lineC2Id = lineC2Id;
+        return this;
+    }
+
+    public String getLineC2Name() {
+        return lineC2Name;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setLineC2Name(String lineC2Name) {
+        this.lineC2Name = lineC2Name;
+        return this;
+    }
+
     @Override
     public void apply(Network network, boolean throwException, Reporter reporter) {
         Line line1Z = network.getLine(line1ZId);
         if (line1Z == null) {
             notFoundLineReport(reporter, line1ZId);
             if (throwException) {
-                throw new PowsyblException(String.format("Line %s is not found", line1ZId));
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, line1ZId));
             } else {
                 return;
             }
@@ -92,7 +157,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         if (lineZ2 == null) {
             notFoundLineReport(reporter, lineZ2Id);
             if (throwException) {
-                throw new PowsyblException(String.format("Line %s is not found", lineZ2Id));
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineZ2Id));
             } else {
                 return;
             }
@@ -102,15 +167,15 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         if (lineZP == null) {
             notFoundLineReport(reporter, lineZPId);
             if (throwException) {
-                throw new PowsyblException(String.format("Line %s is not found", lineZPId));
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineZPId));
             } else {
                 return;
             }
         }
 
         // Check the configuration and find the attachment point and the attached voltage level :
-        // attachment point is the voltage level in common with line1Z and lineZ2
-        // attached voltage level is the voltage level of lineZP, not in common with line1Z or lineZ2
+        // attachment point is the voltage level in common with line1Z, lineZ2 and lineZP
+        // attached voltage level is the voltage level at one side of lineZP, but not at one side of line1Z or lineZ2
         VoltageLevel attachmentPoint = null;
         VoltageLevel attachedVoltageLevel = null;
         boolean configOk = false;
