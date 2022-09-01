@@ -31,12 +31,11 @@ public class GeneratorShortCircuitXmlSerializerTest extends AbstractConverterTes
         network.setCaseDate(DateTime.parse("2016-12-07T11:18:52.881+01:00"));
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
-        gen.newExtension(GeneratorShortCircuitAdder.class)
+        GeneratorShortCircuit generatorShortCircuit = gen.newExtension(GeneratorShortCircuitAdder.class)
                 .withDirectTransX(20)
                 .withDirectSubtransX(20)
                 .withStepUpTransformerX(20)
                 .add();
-        GeneratorShortCircuit generatorShortCircuit = gen.getExtension(GeneratorShortCircuit.class);
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
