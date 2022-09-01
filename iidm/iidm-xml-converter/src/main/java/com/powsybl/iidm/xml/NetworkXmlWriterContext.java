@@ -8,8 +8,6 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.export.BusFilter;
-import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Identifiable;
 
 import javax.xml.stream.XMLStreamWriter;
