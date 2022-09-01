@@ -19,6 +19,7 @@ import java.io.UncheckedIOException;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -33,6 +34,8 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new LineConnectionAction("id4", "lineId4", false));
         actions.add(new PhaseTapChangerTapPositionAction("id5", "transformerId1", true, 5, Optional.of(ThreeWindingsTransformer.Side.TWO)));
         actions.add(new PhaseTapChangerTapPositionAction("id6", "transformerId2", false, 12));
+        actions.add(new PhaseTapChangerTapPositionAction("id7", "transformerId3", true, -5, Optional.of(ThreeWindingsTransformer.Side.ONE)));
+        actions.add(new PhaseTapChangerTapPositionAction("id7", "transformerId3", false, 2, Optional.of(ThreeWindingsTransformer.Side.THREE)));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
@@ -48,7 +51,12 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
 
     @Test
     public void wrongActions() {
-        assertThrows("for phase tap changer tap position action delta field can't be null", UncheckedIOException.class, () ->
-                ActionList.readJsonInputStream(getClass().getResourceAsStream("/WrongActionFileTest.json")));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action delta field can't be null\n" +
+                " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
+                ActionList.readJsonInputStream(getClass().getResourceAsStream("/WrongActionFileTest.json"))).getMessage());
+
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action value field can't equal zero\n" +
+                " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
+                ActionList.readJsonInputStream(getClass().getResourceAsStream("/WrongActionFileTest2.json"))).getMessage());
     }
 }

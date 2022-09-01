@@ -126,6 +126,9 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 if (context.delta == null) {
                     throw JsonMappingException.from(parser, "for phase tap changer tap position action delta field can't be null");
                 }
+                if (context.value == 0) {
+                    throw JsonMappingException.from(parser, "for phase tap changer tap position action value field can't equal zero");
+                }
                 if (context.side.isPresent()) {
                     return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value, context.side);
                 } else {

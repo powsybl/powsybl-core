@@ -39,5 +39,19 @@
     "transformerId" : "transformerId2",
     "delta" : false,
     "value" : 12
+  }, {
+    "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
+    "id" : "id7",
+    "transformerId" : "transformerId3",
+    "delta" : true,
+    "value" : -5,
+    "side" : "ONE"
+  }, {
+    "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
+    "id" : "id7",
+    "transformerId" : "transformerId3",
+    "delta" : false,
+    "value" : 2,
+    "side" : "THREE"
   } ]
 }
