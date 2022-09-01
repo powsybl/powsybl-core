@@ -22,8 +22,8 @@ public class PhaseTapChangerTapPositionAction extends AbstractAction {
 
     private final String transformerId;
     private final Boolean delta; // true if relative mode chosen, false if absolute mode.
-    private int value;
-    private Optional<ThreeWindingsTransformer.Side> side;
+    private final int value;
+    private final Optional<ThreeWindingsTransformer.Side> side;
 
     public PhaseTapChangerTapPositionAction(String id, String transformerId, Boolean delta, int value, Optional<ThreeWindingsTransformer.Side> side) {
         super(id);

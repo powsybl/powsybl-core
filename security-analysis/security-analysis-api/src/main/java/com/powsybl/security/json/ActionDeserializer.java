@@ -86,19 +86,8 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     return true;
                 case "side":
                     String sideStr = parser.nextTextValue();
-                    switch (sideStr) {
-                        case "ONE":
-                            context.side = Optional.of(ThreeWindingsTransformer.Side.ONE);
-                            return true;
-                        case "TWO":
-                            context.side = Optional.of(ThreeWindingsTransformer.Side.TWO);
-                            return true;
-                        case "THREE":
-                            context.side = Optional.of(ThreeWindingsTransformer.Side.THREE);
-                            return true;
-                        default:
-                            return false;
-                    }
+                    context.side = Optional.of(ThreeWindingsTransformer.Side.valueOf(sideStr));
+                    return true;
                 case "actions":
                     parser.nextToken();
                     context.actions = parser.readValueAs(new TypeReference<ArrayList<Action>>() {

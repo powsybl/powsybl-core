@@ -48,17 +48,7 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeNumberField("value", ((PhaseTapChangerTapPositionAction) action).getValue());
                 Optional<ThreeWindingsTransformer.Side> side = ((PhaseTapChangerTapPositionAction) action).getSide();
                 if (side.isPresent()) {
-                    switch (side.get()) {
-                        case ONE:
-                            jsonGenerator.writeStringField("side", "ONE");
-                            break;
-                        case TWO:
-                            jsonGenerator.writeStringField("side", "TWO");
-                            break;
-                        case THREE:
-                            jsonGenerator.writeStringField("side", "THREE");
-                            break;
-                    }
+                    jsonGenerator.writeStringField("side", side.get().toString());
                 }
                 break;
             case MultipleActionsAction.NAME:
