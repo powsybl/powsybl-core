@@ -40,7 +40,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         Boolean openSide2;
         Boolean delta;
         int value;
-        Optional<ThreeWindingsTransformer.Side> side;
+        Optional<ThreeWindingsTransformer.Side> side = Optional.empty();
         List<Action> actions;
     }
 
@@ -125,7 +125,14 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 if (context.delta == null) {
                     throw JsonMappingException.from(parser, "for phase tap changer tap position action delta field can't be null");
                 }
-                return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value, context.side);
+                if (context.value == 0) {
+                    throw JsonMappingException.from(parser, "for phase tap changer tap position action value field can't equal zero");
+                }
+                if (context.side.isPresent()) {
+                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value, context.side);
+                } else {
+                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value);
+                }
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:
