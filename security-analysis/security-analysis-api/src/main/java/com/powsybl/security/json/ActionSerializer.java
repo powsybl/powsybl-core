@@ -10,9 +10,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -44,8 +46,9 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeStringField("transformerId", ((PhaseTapChangerTapPositionAction) action).getTransformerId());
                 jsonGenerator.writeBooleanField("delta", ((PhaseTapChangerTapPositionAction) action).isInRelativeMode());
                 jsonGenerator.writeNumberField("value", ((PhaseTapChangerTapPositionAction) action).getValue());
-                if (((PhaseTapChangerTapPositionAction) action).getSide().isPresent()) {
-                    switch (((PhaseTapChangerTapPositionAction) action).getSide().get()) {
+                Optional<ThreeWindingsTransformer.Side> side = ((PhaseTapChangerTapPositionAction) action).getSide();
+                if (side.isPresent()) {
+                    switch (side.get()) {
                         case ONE:
                             jsonGenerator.writeStringField("side", "ONE");
                             break;
