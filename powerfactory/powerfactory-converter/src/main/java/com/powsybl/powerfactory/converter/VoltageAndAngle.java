@@ -6,10 +6,8 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 
@@ -53,14 +51,18 @@ class VoltageAndAngle extends AbstractConverter {
             update(terminal, v, angle);
         } else {
             // If the node does not have a terminal,
-            // try to find one at the nodes directly connected to it
-            for (int node1 : nb.getNodesInternalConnectedTo(node)) {
-                terminal = nb.getTerminal(node1);
-                if (terminal != null) {
-                    update(terminal, v, angle);
-                    break;
+            // try to find one at the nodes connected to it
+            nb.traverse(node, (node1, sw, node2) -> {
+                if (sw != null && sw.isOpen()) {
+                    return TraverseResult.TERMINATE_PATH;
                 }
-            }
+                Terminal terminal2 = nb.getTerminal(node2);
+                if (terminal2 != null) {
+                    update(terminal2, v, angle);
+                    return TraverseResult.TERMINATE_TRAVERSER;
+                }
+                return TraverseResult.CONTINUE;
+            });
         }
     }
 
