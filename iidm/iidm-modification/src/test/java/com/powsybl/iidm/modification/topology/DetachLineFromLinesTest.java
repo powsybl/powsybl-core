@@ -40,7 +40,7 @@ public class DetachLineFromLinesTest extends AbstractXmlConverterTest {
         Network network = createNbNetwork();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine("VLTEST", BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLine("VLTEST", BBS, line, adder);
         modification.apply(network);
 
         VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
@@ -86,7 +86,7 @@ public class DetachLineFromLinesTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.apply(network);
 
         modification = new DetachLineFromLines("NHV1_NHV2_1_2", "NHV1_NHV2_1_1", "testLine", "NHV1_NHV2_1", null);
@@ -100,7 +100,7 @@ public class DetachLineFromLinesTest extends AbstractXmlConverterTest {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
+        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
         modification.apply(network);
 
         modification = new DetachLineFromLines("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", "NHV1_NHV2_1", null);
