@@ -305,11 +305,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertNotNull(load);
 
         ConnectablePosition<Load> position = load.getExtension(ConnectablePosition.class);
-        assertNotNull(position);
-        Optional<Integer> order = position.getFeeder().getOrder();
-        assertTrue(order.isPresent());
-        assertEquals(115, (int) order.get());
-        assertEquals(BOTTOM, position.getFeeder().getDirection());
+        assertNull(position);
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsBefore(network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2")));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());

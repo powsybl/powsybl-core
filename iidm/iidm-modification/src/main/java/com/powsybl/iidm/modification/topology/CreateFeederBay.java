@@ -112,22 +112,26 @@ public class CreateFeederBay implements NetworkModification {
         String injectionId = injection.getId();
 
         Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-        if (takenFeederPositions.contains(injectionPositionOrder)) {
-            LOGGER.error("InjectionPositionOrder {} already taken.", injectionPositionOrder);
-            injectionPositionOrderAlreadyTakenReport(reporter, injectionPositionOrder);
-            if (throwException) {
-                throw new PowsyblException(String.format("InjectionPositionOrder %d already taken.", injectionPositionOrder));
+        if (!takenFeederPositions.isEmpty()) {
+            if (takenFeederPositions.contains(injectionPositionOrder)) {
+                LOGGER.error("InjectionPositionOrder {} already taken.", injectionPositionOrder);
+                injectionPositionOrderAlreadyTakenReport(reporter, injectionPositionOrder);
+                if (throwException) {
+                    throw new PowsyblException(String.format("InjectionPositionOrder %d already taken.", injectionPositionOrder));
+                }
+                return;
             }
-            return;
+            injection.newExtension(ConnectablePositionAdder.class)
+                    .newFeeder()
+                    .withDirection(injectionDirection)
+                    .withOrder(injectionPositionOrder)
+                    .withName(injectionId)
+                    .add()
+                    .add();
+        } else {
+            LOGGER.warn("No extensions found on voltageLevel {}. The extension on the injection is not created.", voltageLevel.getId());
+            noConnectablePositionExtension(reporter, voltageLevel);
         }
-        injection.newExtension(ConnectablePositionAdder.class)
-                .newFeeder()
-                .withDirection(injectionDirection)
-                .withOrder(injectionPositionOrder)
-                .withName(injectionId)
-                .add()
-                .add();
-
         // create switches and a breaker linking the injection to the busbar sections.
         createTopology(network, voltageLevel, injectionNode, forkNode, injection, reporter);
     }

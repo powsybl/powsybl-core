@@ -96,6 +96,15 @@ final class ModificationReports {
                 .build());
     }
 
+    static void noConnectablePositionExtension(Reporter reporter, VoltageLevel voltageLevel) {
+        reporter.report(Report.builder()
+                .withKey("noConnectablePositionExtensions")
+                .withDefaultMessage("No extensions found on voltageLevel ${voltageLevel}. The extension on the injection is not created.")
+                .withValue("voltageLevel", voltageLevel.getId())
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
     private ModificationReports() {
     }
 }
