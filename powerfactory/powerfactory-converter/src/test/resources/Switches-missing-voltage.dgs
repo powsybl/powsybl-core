@@ -31,7 +31,10 @@ $$ElmSym;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);cCategory(a
 $$ElmTerm;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);systype(i);iUsage(i);uknom(r);unknom(r);iminus(i);outserv(i);GPSlat(r);GPSlon(r);vtarget(r);m:u(r);m:phiu(r)
   10;1 Bus 1-Slack;;8;;0;0;400;230,9401;0;0;0;0;1;1,05999994277954;0
   11;2 Bus 2;;8;;0;0;400;230,9401;0;0;0;0;1;1,04657487761001;-1,46124506647397
-  12;3 Bus 3-Load;;8;;0;0;20;11,54701;0;0;0;0;1;1,04026508640743;-2,09383399110034
+  *
+  * missing voltage mangitude value to test we ignore it
+  *
+  12;3 Bus 3-Load;;8;;0;0;20;11,54701;0;0;0;0;1;;-2,09383399110034
   13;4 Bus 4-CB-Load;;8;;0;1;20;11,54701;0;0;0;0;1;1,04026508640743;-2,09383399110034
 
 $$ElmCoup;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);on_off(i);aUsage(a:4);nphase(i);nneutral(i)
