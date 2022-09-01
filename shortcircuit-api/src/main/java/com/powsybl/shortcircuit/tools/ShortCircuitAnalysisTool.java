@@ -8,7 +8,7 @@ package com.powsybl.shortcircuit.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;

@@ -6,8 +6,8 @@
  */
 package com.powsybl.action.simulator.tools;
 
-import com.powsybl.iidm.export.Exporter;
-import com.powsybl.iidm.export.ExportersLoaderList;
+import com.powsybl.iidm.network.Exporter;
+import com.powsybl.iidm.network.ExportersLoaderList;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;

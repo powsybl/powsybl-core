@@ -10,11 +10,11 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriters;
@@ -35,7 +35,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
 
 /**
  *

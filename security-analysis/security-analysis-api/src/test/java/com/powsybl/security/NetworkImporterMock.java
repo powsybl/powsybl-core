@@ -8,7 +8,7 @@ package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.VariantManager;

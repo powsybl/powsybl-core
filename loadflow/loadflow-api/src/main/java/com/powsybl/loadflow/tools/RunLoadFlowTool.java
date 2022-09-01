@@ -9,12 +9,12 @@ package com.powsybl.loadflow.tools;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
-import com.powsybl.iidm.export.Exporter;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Exporter;
+import com.powsybl.iidm.network.Exporters;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -38,7 +38,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>

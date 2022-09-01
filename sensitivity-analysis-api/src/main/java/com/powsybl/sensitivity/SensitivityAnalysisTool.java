@@ -19,10 +19,10 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

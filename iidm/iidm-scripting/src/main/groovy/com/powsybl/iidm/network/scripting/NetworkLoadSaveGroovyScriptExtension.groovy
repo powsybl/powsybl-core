@@ -9,13 +9,13 @@ package com.powsybl.iidm.network.scripting
 import com.google.auto.service.AutoService
 import com.powsybl.computation.ComputationManager
 import com.powsybl.computation.local.LocalComputationManager
-import com.powsybl.iidm.export.Exporters
-import com.powsybl.iidm.export.ExportersLoader
-import com.powsybl.iidm.export.ExportersServiceLoader
-import com.powsybl.iidm.import_.ImportConfig
-import com.powsybl.iidm.import_.Importers
-import com.powsybl.iidm.import_.ImportersLoader
-import com.powsybl.iidm.import_.ImportersServiceLoader
+import com.powsybl.iidm.network.Exporters
+import com.powsybl.iidm.network.ExportersLoader
+import com.powsybl.iidm.network.ExportersServiceLoader
+import com.powsybl.iidm.network.ImportConfig
+import com.powsybl.iidm.network.Importers
+import com.powsybl.iidm.network.ImportersLoader
+import com.powsybl.iidm.network.ImportersServiceLoader
 import com.powsybl.iidm.network.Network
 import com.powsybl.scripting.groovy.GroovyScriptExtension
 

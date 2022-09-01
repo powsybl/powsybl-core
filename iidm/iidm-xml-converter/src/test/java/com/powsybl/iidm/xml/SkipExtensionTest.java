@@ -7,7 +7,7 @@
 
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.network.Exporters;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 

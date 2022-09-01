@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
