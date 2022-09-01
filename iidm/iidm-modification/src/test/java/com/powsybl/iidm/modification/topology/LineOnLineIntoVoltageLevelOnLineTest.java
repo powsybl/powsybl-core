@@ -42,6 +42,7 @@ public class LineOnLineIntoVoltageLevelOnLineTest extends AbstractXmlConverterTe
         NetworkModification modification = new AttachNewLineOnLine("VLTEST", BBS, line, adder);
         modification.apply(network);
 
+        // create additional line to test bad configuration
         VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl.getNodeBreakerView().newBusbarSection().setId("bbs3").setNode(0).add();
         vl.getNodeBreakerView().newSwitch().setId("breaker3").setName("breaker3").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
