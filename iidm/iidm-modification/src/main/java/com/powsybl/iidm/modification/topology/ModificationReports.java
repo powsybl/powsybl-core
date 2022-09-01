@@ -77,7 +77,7 @@ final class ModificationReports {
                 .build());
     }
 
-    static void connectableNotSupported(Reporter reporter, Connectable connectable) {
+    static void connectableNotSupported(Reporter reporter, Connectable<?> connectable) {
         reporter.report(Report.builder()
                 .withKey("connectableNotSupported")
                 .withDefaultMessage("Given connectable not supported: ${connectableClassName}.")
@@ -86,7 +86,7 @@ final class ModificationReports {
                 .build());
     }
 
-    static void connectableNotInVoltageLevel(Reporter reporter, Connectable connectable, VoltageLevel voltageLevel) {
+    static void connectableNotInVoltageLevel(Reporter reporter, Connectable<?> connectable, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("connectableNotInVoltageLevel")
                 .withDefaultMessage("Given connectable ${connectableId} not in voltageLevel ${voltageLevelId}")

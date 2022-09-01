@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
@@ -157,7 +158,6 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "bbs4", 0);
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
         assertEquals("InjectionPositionOrder 0 already taken.", e2.getMessage());
-
     }
 
     @Test
@@ -287,7 +287,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
     }
 
     @Test
-    public void testWithoutExtensions() {
+    public void testWithoutExtension() {
         Network network = Importers.loadNetwork("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -307,7 +307,12 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         ConnectablePosition<Load> position = load.getExtension(ConnectablePosition.class);
         assertNull(position);
 
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsBefore(network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2")));
+        VoltageLevel vl = network.getVoltageLevel("vl1");
+        BusbarSection bbs = network.getBusbarSection("bbs2");
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsBefore(vl, bbs));
+        assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
+
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(vl, bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
     }
 }
