@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.anonymizer.FakeAnonymizer;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
+import com.powsybl.iidm.xml.anonymizer.FakeAnonymizer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
