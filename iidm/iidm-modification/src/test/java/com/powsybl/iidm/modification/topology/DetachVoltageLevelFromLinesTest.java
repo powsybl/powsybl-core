@@ -36,7 +36,7 @@ public class DetachVoltageLevelFromLinesTest extends AbstractXmlConverterTest {
     @Test
     public void detachVoltageLevelFromLinesNbTest() throws IOException {
         Network network = createNbNetwork();
-        NetworkModification modification = new AttachVoltageLevelOnLine("VLTEST", BBS, network.getLine("CJ"));
+        NetworkModification modification = new ConnectVoltageLevelOnLine("VLTEST", BBS, network.getLine("CJ"));
         modification.apply(network);
 
         VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
@@ -65,7 +65,7 @@ public class DetachVoltageLevelFromLinesTest extends AbstractXmlConverterTest {
     @Test
     public void detachVoltageLevelFromLinesNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        NetworkModification modification = new AttachVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, network.getLine("NHV1_NHV2_1"));
         modification.apply(network);
 
         modification = new DetachVoltageLevelFromLines("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "NHV1_NHV2_1", null);
@@ -77,7 +77,7 @@ public class DetachVoltageLevelFromLinesTest extends AbstractXmlConverterTest {
     @Test
     public void detachVoltageLevelFromLinesBbTest() throws IOException {
         Network network = createBbNetwork();
-        NetworkModification modification = new AttachVoltageLevelOnLine(VOLTAGE_LEVEL_ID, "bus", network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, "bus", network.getLine("NHV1_NHV2_1"));
         modification.apply(network);
 
         modification = new DetachVoltageLevelFromLines("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "NHV1_NHV2_1", null);
