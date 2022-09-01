@@ -50,16 +50,16 @@ public class LineOnLineIntoVoltageLevelOnLineTest extends AbstractXmlConverterTe
         vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
-        NetworkModification modificationWithError1 = new LineOnLineIntoVoltageLevelOnLine("line1NotFound", "CJ_2", "testLine", "NEW LINE1", null, "NEW LINE2", null);
+        NetworkModification modificationWithError1 = new LineOnLineIntoVoltageLevelOnLine("line1NotFound", "CJ_2", "testLine", "VLTEST", BBS, "NEW LINE1", null, "NEW LINE2", null);
         assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network));
-        NetworkModification modificationWithError2 = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "line2NotFound", "testLine", "NEW LINE1", null, "NEW LINE2", null);
+        NetworkModification modificationWithError2 = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "line2NotFound", "testLine", "VLTEST", BBS, "NEW LINE1", null, "NEW LINE2", null);
         assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network));
-        NetworkModification modificationWithError3 = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "CJ_2", "line3NotFound", "NEW LINE1", null, "NEW LINE2", null);
+        NetworkModification modificationWithError3 = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "CJ_2", "line3NotFound", "VLTEST", BBS, "NEW LINE1", null, "NEW LINE2", null);
         assertThrows("Line line3NotFound is not found", PowsyblException.class, () -> modificationWithError3.apply(network));
-        NetworkModification modificationWithError4 = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "CJ_2", "LINE34", "NEW LINE1", null, "NEW LINE2", null);
+        NetworkModification modificationWithError4 = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "CJ_2", "LINE34", "VLTEST", BBS, "NEW LINE1", null, "NEW LINE2", null);
         assertThrows("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network));
 
-        modification = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "CJ_2", "testLine", "NEW LINE1", null, "NEW LINE2", null);
+        modification = new LineOnLineIntoVoltageLevelOnLine("CJ_1", "CJ_2", "testLine", "VLTEST", BBS, "NEW LINE1", null, "NEW LINE2", null);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-on-line-into-voltage-level-on-line-nb.xml");
@@ -73,7 +73,7 @@ public class LineOnLineIntoVoltageLevelOnLineTest extends AbstractXmlConverterTe
         NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.apply(network);
 
-        modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", "NEW LINE1", null, "NEW LINE2", null);
+        modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", VOLTAGE_LEVEL_ID, BBS, "NEW LINE1", null, "NEW LINE2", null);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-on-line-into-voltage-level-on-line-nbbb.xml");
@@ -87,7 +87,7 @@ public class LineOnLineIntoVoltageLevelOnLineTest extends AbstractXmlConverterTe
         NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
         modification.apply(network);
 
-        modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", "NEW LINE1", null, "NEW LINE2", null);
+        modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", VOLTAGE_LEVEL_ID, "bus", "NEW LINE1", null, "NEW LINE2", null);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-on-line-into-voltage-level-on-line-bb.xml");
@@ -95,7 +95,7 @@ public class LineOnLineIntoVoltageLevelOnLineTest extends AbstractXmlConverterTe
 
     @Test
     public void testConstructor() {
-        LineOnLineIntoVoltageLevelOnLine modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE1 ID", null, "NEW LINE2 ID", null);
+        LineOnLineIntoVoltageLevelOnLine modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "", "", "NEW LINE1 ID", null, "NEW LINE2 ID", null);
         assertEquals("NHV1_NHV2_1", modification.getLine1ZId());
         assertEquals("NHV1_NHV2_2", modification.getLineZ2Id());
         assertEquals("NHV1_NHV2_3", modification.getLineZPId());
@@ -104,14 +104,14 @@ public class LineOnLineIntoVoltageLevelOnLineTest extends AbstractXmlConverterTe
         assertEquals("NEW LINE2 ID", modification.getLineC2Id());
         assertNull(modification.getLineC2Name());
 
-        modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE1 ID", "NEW LINE1 NAME", "NEW LINE2 ID", "NEW LINE2 NAME");
+        modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "", "", "NEW LINE1 ID", "NEW LINE1 NAME", "NEW LINE2 ID", "NEW LINE2 NAME");
         assertEquals("NEW LINE1 NAME", modification.getLine1CName());
         assertEquals("NEW LINE2 NAME", modification.getLineC2Name());
     }
 
     @Test
     public void testSetters() {
-        LineOnLineIntoVoltageLevelOnLine modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE1 ID", null, "NEW LINE2 ID", null);
+        LineOnLineIntoVoltageLevelOnLine modification = new LineOnLineIntoVoltageLevelOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "", "", "NEW LINE1 ID", null, "NEW LINE2 ID", null);
         modification.setLine1ZId("NHV1_NHV2_1 _A")
                 .setLineZ2Id("NHV1_NHV2_2 _B")
                 .setLineZPId("NHV1_NHV2_3 _C")

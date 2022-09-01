@@ -11,9 +11,12 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.Objects;
@@ -21,10 +24,15 @@ import java.util.Objects;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createBusBreakerSwitches;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNodeBreakerSwitches;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createdLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.noAttachmentPointAndOrAttachedVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundBusInVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundBusbarSectionInVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundLineReport;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removedLineReport;
 
@@ -39,7 +47,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *                        | (lineZP)                       =========>
  *                        |
  *                        |
- *               attached voltage level
+ *               attached voltage level (voltageLevelId)
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -48,6 +56,8 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
     private String line1ZId;
     private String lineZ2Id;
     private String lineZPId;
+    private String voltageLevelId;
+    private String bbsOrBusId;
     private String line1CId;
     private String line1CName;
     private String lineC2Id;
@@ -61,17 +71,23 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
      * @param line1ZId            The non-null ID of the existing line connecting the first voltage level to the attachment point
      * @param lineZ2Id            The non-null ID of the existing line connecting the attachment point to the second voltage level
      * @param lineZPId            The non-null ID of the existing line connecting the attachment point to the attached voltage level
-     * @param line1CId            The non-null ID of the new line connecting the first voltage level to the attachement point
-     * @param line1CName          The optional name of the new line connecting the first voltage level to the attachment point
-     * @param lineC2Id            The non-null ID of the new line connecting the second voltage level to the attachment point
-     * @param lineC2Name          The optional name of the new line connecting the second voltage level to the attachment point
+     * @param voltageLevelId      The non-null ID of the existing attached voltage level
+     * @param bbsOrBusId          The non-null ID of the existing bus or bus bar section in the attached voltage level voltageLevelId,
+     *                            where we want to connect the new lines line1C and lineC2
+     * @param line1CId            The non-null ID of the new line connecting the first voltage level to the attached voltage level
+     * @param line1CName          The optional name of the new line connecting the first voltage level to the attached voltage level
+     * @param lineC2Id            The non-null ID of the new line connecting the second voltage level to the attached voltage level
+     * @param lineC2Name          The optional name of the new line connecting the second voltage level to the attached voltage level
      */
     public LineOnLineIntoVoltageLevelOnLine(String line1ZId, String lineZ2Id, String lineZPId,
+                                            String voltageLevelId, String bbsOrBusId,
                                             String line1CId, String line1CName,
                                             String lineC2Id, String lineC2Name) {
         this.line1ZId = Objects.requireNonNull(line1ZId);
         this.lineZ2Id = Objects.requireNonNull(lineZ2Id);
         this.lineZPId = Objects.requireNonNull(lineZPId);
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+        this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.line1CId = Objects.requireNonNull(line1CId);
         this.line1CName = line1CName;
         this.lineC2Id = Objects.requireNonNull(lineC2Id);
@@ -102,6 +118,24 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
 
     public LineOnLineIntoVoltageLevelOnLine setLineZPId(String lineZPId) {
         this.lineZPId = lineZPId;
+        return this;
+    }
+
+    public String getVoltageLevelId() {
+        return voltageLevelId;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setVoltageLevelId(String voltageLevelId) {
+        this.voltageLevelId = voltageLevelId;
+        return this;
+    }
+
+    public String getBbsOrBusId() {
+        return bbsOrBusId;
+    }
+
+    public LineOnLineIntoVoltageLevelOnLine setBbsOrBusId(String bbsOrBusId) {
+        this.bbsOrBusId = bbsOrBusId;
         return this;
     }
 
@@ -173,11 +207,19 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
             }
         }
 
-        // Check the configuration and find the attachment point and the attached voltage level :
+        VoltageLevel attachedVoltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (attachedVoltageLevel == null) {
+            notFoundVoltageLevelReport(reporter, voltageLevelId);
+            if (throwException) {
+                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+            } else {
+                return;
+            }
+        }
+
+        // Check the configuration and find the attachment point :
         // attachment point is the voltage level in common with line1Z, lineZ2 and lineZP
-        // attached voltage level is the voltage level at one side of lineZP, but not at one side of line1Z or lineZ2
         VoltageLevel attachmentPoint = null;
-        VoltageLevel attachedVoltageLevel = null;
         Branch.Side line1ZAttachmentPointSide = null;
         Branch.Side line1ZOtherVlSide = null;
         Branch.Side lineZ2AttachmentPointSide = null;
@@ -206,9 +248,6 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
             line1ZOtherVlSide = line1ZAttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
             lineZ2AttachmentPointSide = lineZ2VlId1.equals(attachmentPointId) ? Branch.Side.ONE : Branch.Side.TWO;
             lineZ2OtherVlSide = lineZ2AttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
-
-            String attachedVoltageLevelId = lineZPVlId1.equals(lineZ2VlId1) || lineZPVlId1.equals(lineZ2VlId2) ? lineZPVlId2 : lineZPVlId1;
-            attachedVoltageLevel = network.getVoltageLevel(attachedVoltageLevelId);
         }
 
         if (!configOk || attachmentPoint == null || attachedVoltageLevel == null) {
@@ -224,11 +263,72 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         LineAdder line1CAdder = createLineAdder(line1CId, line1CName, line1Z.getTerminal(line1ZOtherVlSide).getVoltageLevel().getId(), attachedVoltageLevel.getId(), network, line1Z, lineZP);
         LineAdder lineC2Adder = createLineAdder(lineC2Id, lineC2Name, attachedVoltageLevel.getId(), lineZ2.getTerminal(lineZ2OtherVlSide).getVoltageLevel().getId(), network, lineZ2, lineZP);
 
+        // Create the topology inside the existing attached voltage level and attach lines line1C and lineC2
         attachLine(line1Z.getTerminal(line1ZOtherVlSide), line1CAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(line1Z.getTerminal(line1ZAttachmentPointSide), line1CAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
-
-        attachLine(lineZ2.getTerminal(lineZ2AttachmentPointSide), lineC2Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(lineZ2.getTerminal(lineZ2OtherVlSide), lineC2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+
+        TopologyKind topologyKind = attachedVoltageLevel.getTopologyKind();
+        if (topologyKind == TopologyKind.BUS_BREAKER) {
+            Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
+            if (bus == null) {
+                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevelId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevelId));
+                } else {
+                    return;
+                }
+            }
+            Bus bus1 = attachedVoltageLevel.getBusBreakerView()
+                    .newBus()
+                    .setId(line1CId + "_BUS_1")
+                    .add();
+            Bus bus2 = attachedVoltageLevel.getBusBreakerView()
+                    .newBus()
+                    .setId(lineC2Id + "_BUS_2")
+                    .add();
+            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, attachedVoltageLevel.getBusBreakerView());
+            line1CAdder.setBus2(bus1.getId());
+            line1CAdder.setConnectableBus2(bus1.getId());
+            lineC2Adder.setBus1(bus2.getId());
+            lineC2Adder.setConnectableBus1(bus2.getId());
+        } else if (topologyKind == TopologyKind.NODE_BREAKER) {
+            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            if (bbs == null) {
+                notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, voltageLevelId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevelId));
+                } else {
+                    return;
+                }
+            }
+            int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
+            int firstAvailableNode = attachedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", line1CId, attachedVoltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", lineC2Id, attachedVoltageLevel.getNodeBreakerView());
+            line1CAdder.setNode2(firstAvailableNode);
+            lineC2Adder.setNode1(firstAvailableNode + 3);
+        }
+
+        // get line line1Z limits
+        Branch.Side line1ZLimits1Side = line1ZOtherVlSide;
+        Branch.Side line1ZLimits2Side = line1ZOtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+        LoadingLimitsBags limits1Line1Z = new LoadingLimitsBags(() -> line1Z.getActivePowerLimits(line1ZLimits1Side),
+            () -> line1Z.getApparentPowerLimits(line1ZLimits1Side),
+            () -> line1Z.getCurrentLimits(line1ZLimits1Side));
+        LoadingLimitsBags limits2Line1Z = new LoadingLimitsBags(() -> line1Z.getActivePowerLimits(line1ZLimits2Side),
+            () -> line1Z.getApparentPowerLimits(line1ZLimits2Side),
+            () -> line1Z.getCurrentLimits(line1ZLimits2Side));
+
+        // get line lineZ2 limits
+        Branch.Side lineZ2Limits1Side = lineZ2OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+        Branch.Side lineZ2Limits2Side = lineZ2OtherVlSide;
+
+        LoadingLimitsBags limits1LineZ2 = new LoadingLimitsBags(() -> lineZ2.getActivePowerLimits(lineZ2Limits1Side),
+            () -> lineZ2.getApparentPowerLimits(lineZ2Limits1Side),
+            () -> lineZ2.getCurrentLimits(lineZ2Limits1Side));
+        LoadingLimitsBags limits2LineZ2 = new LoadingLimitsBags(() -> lineZ2.getActivePowerLimits(lineZ2Limits2Side),
+            () -> lineZ2.getApparentPowerLimits(lineZ2Limits2Side),
+            () -> lineZ2.getCurrentLimits(lineZ2Limits2Side));
 
         // Remove the three existing lines
         line1Z.remove();
@@ -238,17 +338,13 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         lineZP.remove();
         removedLineReport(reporter, lineZPId);
 
-        // Create the new lines
+        // Create the two new lines
         Line line1C = line1CAdder.add();
-        LoadingLimitsBags limits1Line1Z = new LoadingLimitsBags(line1Z::getActivePowerLimits1, line1Z::getApparentPowerLimits1, line1Z::getCurrentLimits1);
-        LoadingLimitsBags limits2Line1Z = new LoadingLimitsBags(line1Z::getActivePowerLimits2, line1Z::getApparentPowerLimits2, line1Z::getCurrentLimits2);
         addLoadingLimits(line1C, limits1Line1Z, Branch.Side.ONE);
         addLoadingLimits(line1C, limits2Line1Z, Branch.Side.TWO);
         createdLineReport(reporter, line1CId);
 
         Line lineC2 = lineC2Adder.add();
-        LoadingLimitsBags limits1LineZ2 = new LoadingLimitsBags(lineZ2::getActivePowerLimits1, lineZ2::getApparentPowerLimits1, lineZ2::getCurrentLimits1);
-        LoadingLimitsBags limits2LineZ2 = new LoadingLimitsBags(lineZ2::getActivePowerLimits2, lineZ2::getApparentPowerLimits2, lineZ2::getCurrentLimits2);
         addLoadingLimits(lineC2, limits1LineZ2, Branch.Side.ONE);
         addLoadingLimits(lineC2, limits2LineZ2, Branch.Side.TWO);
         createdLineReport(reporter, lineC2Id);

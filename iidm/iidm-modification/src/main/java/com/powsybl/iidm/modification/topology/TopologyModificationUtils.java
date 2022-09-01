@@ -280,6 +280,24 @@ final class TopologyModificationUtils {
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
+
+    static void notFoundBusInVoltageLevelReport(Reporter reporter, String busId, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("busNotFound")
+                .withDefaultMessage("Bus ${busId} is not found in voltage level ${voltageLevelId}")
+                .withValue("busId", voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void notFoundBusbarSectionInVoltageLevelReport(Reporter reporter, String busbarSectionId, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("busbarSectionNotFound")
+                .withDefaultMessage("Busbar section ${busbarSectionId} is not found in voltage level ${voltageLevelId}")
+                .withValue("busbarSectionId", voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
     // END TODO
 
     static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
