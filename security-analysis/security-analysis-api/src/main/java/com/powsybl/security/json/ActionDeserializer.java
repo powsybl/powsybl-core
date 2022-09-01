@@ -96,8 +96,9 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                         case "THREE":
                             context.side = Optional.of(ThreeWindingsTransformer.Side.THREE);
                             return true;
+                        default:
+                            return false;
                     }
-                    return true;
                 case "actions":
                     parser.nextToken();
                     context.actions = parser.readValueAs(new TypeReference<ArrayList<Action>>() {
@@ -124,9 +125,6 @@ public class ActionDeserializer extends StdDeserializer<Action> {
             case PhaseTapChangerTapPositionAction.NAME:
                 if (context.delta == null) {
                     throw JsonMappingException.from(parser, "for phase tap changer tap position action delta field can't be null");
-                }
-                if (context.value == 0) {
-                    throw JsonMappingException.from(parser, "for phase tap changer tap position action value field can't equal zero");
                 }
                 if (context.side.isPresent()) {
                     return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value, context.side);

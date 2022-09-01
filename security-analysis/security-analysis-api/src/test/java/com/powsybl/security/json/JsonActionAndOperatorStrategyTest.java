@@ -15,7 +15,10 @@ import com.powsybl.security.strategy.OperatorStrategyList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -41,5 +44,11 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         operatorStrategies.add(new OperatorStrategy("id1", "contingencyId1", new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::writeFile, OperatorStrategyList::readFile, "/OperatorStrategyFileTest.json");
+    }
+
+    @Test
+    public void wrongActions() {
+        assertThrows("for phase tap changer tap position action delta field can't be null", UncheckedIOException.class, () ->
+                ActionList.readJsonInputStream(getClass().getResourceAsStream("/WrongActionFileTest.json")));
     }
 }
