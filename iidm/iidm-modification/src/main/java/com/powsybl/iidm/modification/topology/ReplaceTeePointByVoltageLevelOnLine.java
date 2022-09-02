@@ -37,7 +37,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removedLineReport;
 
 /**
- * This method transform the action done in the AttachNewLineOnLine class into the action done in the AttachVoltageLevelOnLine class :
+ * This method transform the action done in the CreateLineOnLine class into the action done in the ConnectVoltageLevelOnLine class :
  * it replaces 3 existing lines (with the same attachment point at one of their side) with two new lines,
  * and eventually removes the attachment point, if it contains no equipments anymore, except bus or bus bar section
  *
@@ -51,7 +51,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
+public class ReplaceTeePointByVoltageLevelOnLine implements NetworkModification {
 
     private String line1ZId;
     private String lineZ2Id;
@@ -79,10 +79,10 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
      * @param lineC2Id            The non-null ID of the new line connecting the second voltage level to the attached voltage level
      * @param lineC2Name          The optional name of the new line connecting the second voltage level to the attached voltage level
      */
-    public LineOnLineIntoVoltageLevelOnLine(String line1ZId, String lineZ2Id, String lineZPId,
-                                            String voltageLevelId, String bbsOrBusId,
-                                            String line1CId, String line1CName,
-                                            String lineC2Id, String lineC2Name) {
+    public ReplaceTeePointByVoltageLevelOnLine(String line1ZId, String lineZ2Id, String lineZPId,
+                                               String voltageLevelId, String bbsOrBusId,
+                                               String line1CId, String line1CName,
+                                               String lineC2Id, String lineC2Name) {
         this.line1ZId = Objects.requireNonNull(line1ZId);
         this.lineZ2Id = Objects.requireNonNull(lineZ2Id);
         this.lineZPId = Objects.requireNonNull(lineZPId);
@@ -98,7 +98,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return line1ZId;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setLine1ZId(String line1ZId) {
+    public ReplaceTeePointByVoltageLevelOnLine setLine1ZId(String line1ZId) {
         this.line1ZId = line1ZId;
         return this;
     }
@@ -107,7 +107,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return lineZ2Id;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setLineZ2Id(String lineZ2Id) {
+    public ReplaceTeePointByVoltageLevelOnLine setLineZ2Id(String lineZ2Id) {
         this.lineZ2Id = lineZ2Id;
         return this;
     }
@@ -116,7 +116,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return lineZPId;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setLineZPId(String lineZPId) {
+    public ReplaceTeePointByVoltageLevelOnLine setLineZPId(String lineZPId) {
         this.lineZPId = lineZPId;
         return this;
     }
@@ -125,7 +125,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return voltageLevelId;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setVoltageLevelId(String voltageLevelId) {
+    public ReplaceTeePointByVoltageLevelOnLine setVoltageLevelId(String voltageLevelId) {
         this.voltageLevelId = voltageLevelId;
         return this;
     }
@@ -134,7 +134,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return bbsOrBusId;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setBbsOrBusId(String bbsOrBusId) {
+    public ReplaceTeePointByVoltageLevelOnLine setBbsOrBusId(String bbsOrBusId) {
         this.bbsOrBusId = bbsOrBusId;
         return this;
     }
@@ -143,7 +143,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return line1CId;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setLine1CId(String line1CId) {
+    public ReplaceTeePointByVoltageLevelOnLine setLine1CId(String line1CId) {
         this.line1CId = line1CId;
         return this;
     }
@@ -152,7 +152,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return line1CName;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setLine1CName(String line1CName) {
+    public ReplaceTeePointByVoltageLevelOnLine setLine1CName(String line1CName) {
         this.line1CName = line1CName;
         return this;
     }
@@ -161,7 +161,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return lineC2Id;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setLineC2Id(String lineC2Id) {
+    public ReplaceTeePointByVoltageLevelOnLine setLineC2Id(String lineC2Id) {
         this.lineC2Id = lineC2Id;
         return this;
     }
@@ -170,7 +170,7 @@ public class LineOnLineIntoVoltageLevelOnLine implements NetworkModification {
         return lineC2Name;
     }
 
-    public LineOnLineIntoVoltageLevelOnLine setLineC2Name(String lineC2Name) {
+    public ReplaceTeePointByVoltageLevelOnLine setLineC2Name(String lineC2Name) {
         this.lineC2Name = lineC2Name;
         return this;
     }
