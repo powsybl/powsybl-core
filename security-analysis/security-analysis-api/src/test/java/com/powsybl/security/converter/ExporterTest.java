@@ -100,7 +100,7 @@ public class ExporterTest extends AbstractConverterTest {
     public void testCompatibilityV11Deserialization() {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.1.json"));
         assertEquals(0, result.getOperatorStrategyResults().size());
-        assertEquals(3.3, result.getPreContingencyResult().getNeworkResult().getBranchResult("branch1").getI2(), 0.01);
+        assertEquals(3.3, result.getPreContingencyResult().getNetworkResult().getBranchResult("branch1").getI2(), 0.01);
     }
 
     @Test
