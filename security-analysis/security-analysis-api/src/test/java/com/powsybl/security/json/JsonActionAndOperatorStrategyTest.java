@@ -15,6 +15,7 @@ import com.powsybl.security.strategy.OperatorStrategyList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
 
@@ -51,12 +52,14 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
 
     @Test
     public void wrongActions() {
+        final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json");
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action delta field can't be null\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
-                ActionList.readJsonInputStream(getClass().getResourceAsStream("/WrongActionFileTest.json"))).getMessage());
+                ActionList.readJsonInputStream(inputStream)).getMessage());
 
+        final InputStream inputStream2 = getClass().getResourceAsStream("/WrongActionFileTest2.json");
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action value field can't equal zero\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
-                ActionList.readJsonInputStream(getClass().getResourceAsStream("/WrongActionFileTest2.json"))).getMessage());
+                ActionList.readJsonInputStream(inputStream2)).getMessage());
     }
 }
