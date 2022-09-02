@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm;
+package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.anonymizer.FakeAnonymizer;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
+import com.powsybl.iidm.xml.anonymizer.FakeAnonymizer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -16,7 +16,7 @@ public abstract class AbstractConverterContext<T> {
 
     private final Anonymizer anonymizer;
 
-    public AbstractConverterContext(Anonymizer anonymizer) {
+    protected AbstractConverterContext(Anonymizer anonymizer) {
         this.anonymizer = anonymizer != null ? anonymizer : new FakeAnonymizer();
     }
 

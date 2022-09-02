@@ -4,11 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.export;
+package com.powsybl.iidm.xml;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.AbstractOptions;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
+import static com.powsybl.iidm.xml.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

@@ -86,4 +86,34 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
         assertEquals("B", modification.getLine2Name());
     }
 
+    @Test
+    public void testCompleteBuilder() throws IOException {
+        Network network = createNbNetwork();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withPercent(40)
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .withLine(network.getLine("CJ"))
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-vl-complete.xml");
+    }
+
+    @Test
+    public void testIncompleteBuilder() throws IOException {
+        Network network = createNbNetwork();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-vl.xml");
+    }
 }
