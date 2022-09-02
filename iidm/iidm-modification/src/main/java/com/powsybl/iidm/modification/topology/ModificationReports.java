@@ -45,7 +45,7 @@ final class ModificationReports {
                 .build());
     }
 
-    static void newInjectionAddedReport(Reporter reporter, String voltageLevelId, String bbsId, Injection<?> injection, int parallelBbsNumber) {
+    static void newInjectionAddedReport(Reporter reporter, String voltageLevelId, String bbsId, Connectable<?> injection, int parallelBbsNumber) {
         reporter.report(Report.builder()
                 .withKey("newInjectionAdded")
                 .withDefaultMessage("New feeder bay ${injectionId} of type ${injectionType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector" +
