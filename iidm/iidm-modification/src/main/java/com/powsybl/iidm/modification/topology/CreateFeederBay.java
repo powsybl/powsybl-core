@@ -51,15 +51,11 @@ public class CreateFeederBay implements NetworkModification {
      * @param injectionPositionOrder The order of the injection to be attached from its extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
-    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, Integer injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.bbsId = Objects.requireNonNull(bbsId);
         this.injectionPositionOrder = injectionPositionOrder;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
-    }
-
-    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, int injectionPositionOrder) {
-        this(injectionAdder, bbsId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
     @Override

@@ -40,7 +40,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new CreateFeederBay(loadAdder, "bb4", 115);
+        NetworkModification modification = new CreateFeederBay(loadAdder, "bb4", 115, BOTTOM);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-bbs1.xml");
@@ -84,7 +84,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(79, (int) unusedOrderPositionsBefore.get().getMaximum());
         int loadPositionOrder = unusedOrderPositionsBefore.get().getMaximum();
 
-        NetworkModification modification = new CreateFeederBay(loadAdder, "bbs2", loadPositionOrder);
+        NetworkModification modification = new CreateFeederBay(loadAdder, "bbs2", loadPositionOrder, BOTTOM);
         modification.apply(network);
 
         ConnectablePosition newLoad = network.getLoad("newLoad").getExtension(ConnectablePosition.class);
@@ -102,7 +102,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setQ0(0);
         BusbarSection bbs = TopologyModificationUtils.getFirstBusbarSection(network.getVoltageLevel("vl1"));
         assertEquals("bbs1", bbs.getId());
-        NetworkModification modification = new CreateFeederBay(loadAdder, bbs.getId(), 71);
+        NetworkModification modification = new CreateFeederBay(loadAdder, bbs.getId(), 71, BOTTOM);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-vl1.xml");
@@ -145,17 +145,17 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setQ0(0);
         //wrong network
         Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        CreateFeederBay modification0 = new CreateFeederBay(loadAdder, "bbs1", 115);
+        CreateFeederBay modification0 = new CreateFeederBay(loadAdder, "bbs1", 115, BOTTOM);
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
         assertEquals("Network given in parameters and in injectionAdder are different. Injection was added then removed", e0.getMessage());
 
         //wrong bbsId
-        CreateFeederBay modification1 = new CreateFeederBay(loadAdder, "bbs", 115);
+        CreateFeederBay modification1 = new CreateFeederBay(loadAdder, "bbs", 115, BOTTOM);
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
         assertEquals("Busbar section bbs not found.", e1.getMessage());
 
         //wrong injectionPositionOrder
-        CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "bbs4", 0);
+        CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "bbs4", 0, BOTTOM);
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
         assertEquals("InjectionPositionOrder 0 already taken.", e2.getMessage());
     }
@@ -174,7 +174,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setRatedS(10)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setEnsureIdUnicity(true);
-        NetworkModification modification = new CreateFeederBay(generatorAdder, "bbs1", 115);
+        NetworkModification modification = new CreateFeederBay(generatorAdder, "bbs1", 115, BOTTOM);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-generator-bbs1.xml");
@@ -189,7 +189,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setMinP(-9999)
                 .setTargetP(100)
                 .setTargetQ(50);
-        NetworkModification addBatteryModification = new CreateFeederBay(batteryAdder, "bbs1", 115);
+        NetworkModification addBatteryModification = new CreateFeederBay(batteryAdder, "bbs1", 115, BOTTOM);
         addBatteryModification.apply(network);
         DanglingLineAdder danglingLineAdder = network.getVoltageLevel("vl2").newDanglingLine()
                         .setId("newDanglingLine")
@@ -206,7 +206,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(81, (int) unusedOrderPositionsAfter0.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter0.get().getMaximum());
         int danglingLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
-        NetworkModification addDanglingLineModification = new CreateFeederBay(danglingLineAdder, "bbs5", danglingLinePositionOrder);
+        NetworkModification addDanglingLineModification = new CreateFeederBay(danglingLineAdder, "bbs5", danglingLinePositionOrder, BOTTOM);
         addDanglingLineModification.apply(network);
 
         ShuntCompensatorAdder shuntCompensatorAdder = network.getVoltageLevel("vl2").newShuntCompensator()
@@ -222,7 +222,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(82, (int) unusedOrderPositionsAfter1.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter1.get().getMaximum());
         int shuntCompensatorPositionOrder = unusedOrderPositionsAfter1.get().getMinimum();
-        NetworkModification addShuntCompensatorModification = new CreateFeederBay(shuntCompensatorAdder, "bbs5", shuntCompensatorPositionOrder);
+        NetworkModification addShuntCompensatorModification = new CreateFeederBay(shuntCompensatorAdder, "bbs5", shuntCompensatorPositionOrder, BOTTOM);
         addShuntCompensatorModification.apply(network);
 
         StaticVarCompensatorAdder staticVarCompensatorAdder = network.getVoltageLevel("vl2").newStaticVarCompensator()
@@ -239,7 +239,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(83, (int) unusedOrderPositionsAfter2.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter2.get().getMaximum());
         int staticVarCompensatorPositionOrder = unusedOrderPositionsAfter2.get().getMinimum();
-        NetworkModification addSVCompensatorModification = new CreateFeederBay(staticVarCompensatorAdder, "bbs5", staticVarCompensatorPositionOrder);
+        NetworkModification addSVCompensatorModification = new CreateFeederBay(staticVarCompensatorAdder, "bbs5", staticVarCompensatorPositionOrder, BOTTOM);
         addSVCompensatorModification.apply(network);
 
         LccConverterStationAdder lccConverterStationAdder = network.getVoltageLevel("vl2").newLccConverterStation()
@@ -253,7 +253,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(84, (int) unusedOrderPositionsAfter3.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter3.get().getMaximum());
         int lccConverterStationPositionOrder = unusedOrderPositionsAfter3.get().getMinimum();
-        NetworkModification addLccConverterStationModification = new CreateFeederBay(lccConverterStationAdder, "bbs5", lccConverterStationPositionOrder);
+        NetworkModification addLccConverterStationModification = new CreateFeederBay(lccConverterStationAdder, "bbs5", lccConverterStationPositionOrder, BOTTOM);
         addLccConverterStationModification.apply(network);
 
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
@@ -268,7 +268,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(85, (int) unusedOrderPositionsAfter4.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter4.get().getMaximum());
         int vscConverterStationPositionOrder = unusedOrderPositionsAfter4.get().getMinimum();
-        NetworkModification addVscConverterStationModification = new CreateFeederBay(vscConverterStationAdder, "bbs5", vscConverterStationPositionOrder);
+        NetworkModification addVscConverterStationModification = new CreateFeederBay(vscConverterStationAdder, "bbs5", vscConverterStationPositionOrder, BOTTOM);
         addVscConverterStationModification.apply(network);
         roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-equipments-bbs1.xml");
