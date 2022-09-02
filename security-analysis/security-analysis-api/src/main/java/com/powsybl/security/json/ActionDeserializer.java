@@ -18,7 +18,6 @@ import com.powsybl.security.action.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -40,7 +39,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         Boolean openSide2;
         Boolean delta;
         int value;
-        Optional<ThreeWindingsTransformer.Side> side = Optional.empty();
+        ThreeWindingsTransformer.Side side = null;
         List<Action> actions;
     }
 
@@ -86,7 +85,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     return true;
                 case "side":
                     String sideStr = parser.nextTextValue();
-                    context.side = Optional.of(ThreeWindingsTransformer.Side.valueOf(sideStr));
+                    context.side = ThreeWindingsTransformer.Side.valueOf(sideStr);
                     return true;
                 case "actions":
                     parser.nextToken();
@@ -118,7 +117,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 if (context.value == 0) {
                     throw JsonMappingException.from(parser, "for phase tap changer tap position action value field can't equal zero");
                 }
-                if (context.side.isPresent()) {
+                if (context.side != null) {
                     return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value, context.side);
                 } else {
                     return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value);
