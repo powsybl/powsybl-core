@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 import java.util.Objects;
 
@@ -49,7 +50,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeeders {
     }
 
     @Override
-    protected void setNode(int side, int node) {
+    protected void setNode(int side, int node, String voltageLevelId) {
         injectionAdder.setNode(node);
     }
 
@@ -94,5 +95,10 @@ public class CreateFeederBay extends AbstractCreateConnectableFeeders {
     @Override
     protected int getNode(int side, Connectable<?> connectable) {
         return ((Injection<?>) connectable).getTerminal().getNodeBreakerView().getNode();
+    }
+
+    @Override
+    protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
+        return connectablePositionAdder.newFeeder();
     }
 }

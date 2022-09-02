@@ -38,7 +38,7 @@ abstract class AbstractCreateConnectableFeeders implements NetworkModification {
 
     protected abstract String getBbsId(int side);
 
-    protected abstract void setNode(int side, int node);
+    protected abstract void setNode(int side, int node, String voltageLevelId);
 
     protected abstract Connectable<?> add();
 
@@ -49,6 +49,8 @@ abstract class AbstractCreateConnectableFeeders implements NetworkModification {
     protected abstract ConnectablePosition.Direction getDirection(int side);
 
     protected abstract int getNode(int side, Connectable<?> connectable);
+
+    protected abstract ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder);
 
     protected AbstractCreateConnectableFeeders(int... sides) {
         this.sides = Arrays.copyOf(sides, sides.length);
@@ -84,7 +86,7 @@ abstract class AbstractCreateConnectableFeeders implements NetworkModification {
             }
             VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
             int injectionNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            setNode(side, injectionNode);
+            setNode(side, injectionNode, voltageLevel.getId());
         }
 
         Connectable<?> connectable = add();
@@ -100,42 +102,46 @@ abstract class AbstractCreateConnectableFeeders implements NetworkModification {
         }
         String connectableId = connectable.getId();
 
+        boolean createConnectablePosition = false;
+        ConnectablePositionAdder<?> connectablePositionAdder = connectable.newExtension(ConnectablePositionAdder.class);
         for (int side : sides) {
             VoltageLevel voltageLevel = getVoltageLevel(side, connectable);
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
             int positionOrder = getPositionOrder(side);
             if (!takenFeederPositions.isEmpty()) {
                 if (takenFeederPositions.contains(positionOrder)) {
-                    LOGGER.error("InjectionPositionOrder {} already taken.", positionOrder);
+                    LOGGER.error("PositionOrder {} already taken.", positionOrder);
                     injectionPositionOrderAlreadyTakenReport(reporter, positionOrder);
                     if (throwException) {
-                        throw new PowsyblException(String.format("InjectionPositionOrder %d already taken.", positionOrder));
+                        throw new PowsyblException(String.format("PositionOrder %d already taken.", positionOrder));
                     }
                     return;
                 }
-                connectable.newExtension(ConnectablePositionAdder.class)
-                        .newFeeder()
+                getFeederAdder(side, connectablePositionAdder)
                         .withDirection(getDirection(side))
                         .withOrder(positionOrder)
                         .withName(connectableId)
-                        .add()
                         .add();
+                createConnectablePosition = true;
             } else {
-                LOGGER.warn("No extensions found on voltageLevel {}. The extension on the injection is not created.", voltageLevel.getId());
+                LOGGER.warn("No extensions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
                 noConnectablePositionExtension(reporter, voltageLevel);
             }
             // create switches and a breaker linking the injection to the busbar sections.
             int node = getNode(side, connectable);
             createTopology(side, network, voltageLevel, node, node + 1, connectable, reporter);
         }
+        if (createConnectablePosition) {
+            connectablePositionAdder.add();
+        }
     }
 
     private void createTopology(int side, Network network, VoltageLevel voltageLevel, int injectionNode, int forkNode, Connectable<?> connectable, Reporter reporter) {
-        String injectionId = connectable.getId();
+        String baseId = connectable.getId() + (side == 0 ? "" : side);
         String bbsId = getBbsId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(injectionNode, forkNode, bbsNode, injectionId, voltageLevel.getNodeBreakerView());
+        createNodeBreakerSwitches(injectionNode, forkNode, bbsNode, baseId, voltageLevel.getNodeBreakerView());
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
         int parallelBbsNumber = 0;
         if (position == null) {
@@ -147,9 +153,9 @@ abstract class AbstractCreateConnectableFeeders implements NetworkModification {
                     .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
                     .filter(b -> !b.getId().equals(bbsId)).collect(Collectors.toList());
             parallelBbsNumber = bbsList.size();
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, injectionId, bbsList);
+            createTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList);
         }
-        LOGGER.info("New injection {} was added to voltage level {} on busbar section {}", injectionId, voltageLevel.getId(), bbs.getId());
+        LOGGER.info("New injection {} was added to voltage level {} on busbar section {}", baseId, voltageLevel.getId(), bbs.getId());
         newInjectionAddedReport(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
     }
 

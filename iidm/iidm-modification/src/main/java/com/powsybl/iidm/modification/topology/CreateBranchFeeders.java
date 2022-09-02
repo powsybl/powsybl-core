@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 import java.util.Objects;
 
@@ -48,11 +49,11 @@ public class CreateBranchFeeders extends AbstractCreateConnectableFeeders {
     }
 
     @Override
-    protected void setNode(int side, int node) {
+    protected void setNode(int side, int node, String voltageLevelId) {
         if (side == 1) {
-            branchAdder.setNode1(node);
+            branchAdder.setNode1(node).setVoltageLevel1(voltageLevelId);
         } else if (side == 2) {
-            branchAdder.setNode2(node);
+            branchAdder.setNode2(node).setVoltageLevel2(voltageLevelId);
         } else {
             throw createSideAssertionError(side);
         }
@@ -111,6 +112,17 @@ public class CreateBranchFeeders extends AbstractCreateConnectableFeeders {
         }
         if (side == 2) {
             return branch.getTerminal2().getNodeBreakerView().getNode();
+        }
+        throw createSideAssertionError(side);
+    }
+
+    @Override
+    protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
+        if (side == 1) {
+            return connectablePositionAdder.newFeeder1();
+        }
+        if (side == 2) {
+            return connectablePositionAdder.newFeeder2();
         }
         throw createSideAssertionError(side);
     }
