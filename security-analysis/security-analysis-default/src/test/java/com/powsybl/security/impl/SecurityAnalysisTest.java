@@ -14,11 +14,11 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.*;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.SwitchAction;
@@ -58,6 +58,15 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisTest {
 
+    private static class SecurityAnalysisModificationTest extends AbstractNetworkModification {
+        @Override
+        public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+            network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
+            network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
+            network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
+        }
+    }
+
     private FileSystem fileSystem;
 
     private PlatformConfig platformConfig;
@@ -96,19 +105,8 @@ public class SecurityAnalysisTest {
                                              .addBranch("NHV1_NHV2_2")
                                              .build();
         Contingency contingencyMock = Mockito.spy(contingency);
-        Mockito.when(contingencyMock.toModification()).thenReturn(new NetworkModification() {
-            @Override
-            public void apply(Network network, ComputationManager computationManager) {
-                apply(network);
-            }
 
-            @Override
-            public void apply(Network network) {
-                network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
-                network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
-                network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
-            }
-        });
+        Mockito.when(contingencyMock.toModification()).thenReturn(new SecurityAnalysisModificationTest());
         ContingenciesProvider contingenciesProvider = n -> Collections.singletonList(contingencyMock);
 
         LimitViolationFilter filter = new LimitViolationFilter();

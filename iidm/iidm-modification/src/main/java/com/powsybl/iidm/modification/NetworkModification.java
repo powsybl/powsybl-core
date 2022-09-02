@@ -15,26 +15,25 @@ import com.powsybl.iidm.network.Network;
  */
 public interface NetworkModification {
 
-    default void apply(Network network) {
-        apply(network, (ComputationManager) null);
-    }
+    void apply(Network network);
 
     void apply(Network network, ComputationManager computationManager);
 
-    default void apply(Network network, ComputationManager computationManager, Reporter reporter) {
-        apply(network);
-    }
+    void apply(Network network, ComputationManager computationManager, Reporter reporter);
 
-    default void apply(Network network, Reporter reporter) {
-        apply(network);
-    }
+    void apply(Network network, Reporter reporter);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
      */
-    default void apply(Network network, boolean throwException, Reporter reporter) {
-        apply(network);
-    }
+    void apply(Network network, boolean throwException, Reporter reporter);
+
+    /**
+     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
+     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
+     * in case of error.
+     */
+    void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter);
 }
