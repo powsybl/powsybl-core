@@ -8,26 +8,32 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.math.graph.TraverseResult;
+import org.apache.commons.lang3.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotInVoltageLevel;
+import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotSupported;
+import static com.powsybl.iidm.modification.topology.ModificationReports.substationRemovedReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.voltageLevelRemovedReport;
+
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 final class TopologyModificationUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TopologyModificationUtils.class);
 
     static final class LoadingLimitsBags {
 
@@ -194,104 +200,6 @@ final class TopologyModificationUtils {
         adder.add();
     }
 
-     // TODO ; transfer to powsybl-core in class ModificationReports (com.powsybl.iidm.modification)
-     // when PR : https://github.com/powsybl/powsybl-core/pull/2214 will be merged
-    static void notFoundLineReport(Reporter reporter, String lineId) {
-        reporter.report(Report.builder()
-                .withKey("lineNotFound")
-                .withDefaultMessage("Line ${lineId} is not found")
-                .withValue("lineId", lineId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void noVoltageLevelInCommonReport(Reporter reporter, String line1Id, String line2Id) {
-        reporter.report(Report.builder()
-                .withKey("noVoltageLevelInCommon")
-                .withDefaultMessage("Lines ${line1Id} and ${line2Id} should have one and only one voltage level in common at their extremities")
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void removedLineReport(Reporter reporter, String lineId) {
-        reporter.report(Report.builder()
-                .withKey("lineRemoved")
-                .withDefaultMessage("Line ${lineId} removed")
-                .withValue("lineId", lineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
-    }
-
-    static void createdLineReport(Reporter reporter, String lineId) {
-        reporter.report(Report.builder()
-                .withKey("lineCreated")
-                .withDefaultMessage("Line ${lineId} created")
-                .withValue("lineId", lineId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
-    }
-
-    static void voltageLevelRemovedReport(Reporter reporter, String vlId) {
-        reporter.report(Report.builder()
-                .withKey("voltageLevelRemoved")
-                .withDefaultMessage("Voltage level ${vlId} removed")
-                .withValue("vlId", vlId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
-    }
-
-    static void substationRemovedReport(Reporter reporter, String substationId) {
-        reporter.report(Report.builder()
-                .withKey("substationRemoved")
-                .withDefaultMessage("Substation ${substationId} removed")
-                .withValue("substationId", substationId)
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
-    }
-
-    static void notFoundVoltageLevelReport(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("voltageLevelNotFound")
-                .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
-                .withValue("voltageLevelId", voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void noAttachmentPointAndOrAttachedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
-        reporter.report(Report.builder()
-                .withKey("noAttachmentPointAndOrAttachedVoltageLevel")
-                .withDefaultMessage("Unable to find the attachment point and the attached voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
-                .withValue("line3Id", line3Id)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void notFoundBusInVoltageLevelReport(Reporter reporter, String busId, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("busNotFound")
-                .withDefaultMessage("Bus ${busId} is not found in voltage level ${voltageLevelId}")
-                .withValue("busId", busId)
-                .withValue("voltageLevelId", voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void notFoundBusbarSectionInVoltageLevelReport(Reporter reporter, String busbarSectionId, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("busbarSectionNotFound")
-                .withDefaultMessage("Busbar section ${busbarSectionId} is not found in voltage level ${voltageLevelId}")
-                .withValue("busbarSectionId", busbarSectionId)
-                .withValue("voltageLevelId", voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-    // END TODO
-
     static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
         Optional<Substation> substation = voltageLevel.getSubstation();
         if (voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION)) {
@@ -357,24 +265,36 @@ final class TopologyModificationUtils {
                                      !currentLimits.isEmpty() ? calcMinLoadingLimitsBag(currentLimits) : null);
     }
 
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String lineId, VoltageLevel.NodeBreakerView view) {
-        createNodeBreakerSwitches(node1, middleNode, node2, "", lineId, view);
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {
+        createNodeBreakerSwitches(node1, middleNode, node2, "", prefix, view);
     }
 
-    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String lineId, VoltageLevel.NodeBreakerView view) {
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view) {
+        createNodeBreakerSwitches(node1, middleNode, node2, suffix, prefix, view, false);
+    }
+
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, middleNode, suffix, prefix, view, open);
+        createNBDisconnector(middleNode, node2, suffix, prefix, view, open);
+    }
+
+    static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(lineId + "_BREAKER" + suffix)
+                .setId(prefix + "_BREAKER" + suffix)
                 .setKind(SwitchKind.BREAKER)
-                .setOpen(false)
+                .setOpen(open)
                 .setRetained(true)
                 .setNode1(node1)
-                .setNode2(middleNode)
+                .setNode2(node2)
                 .add();
+    }
+
+    static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
-                .setId(lineId + "_DISCONNECTOR" + suffix)
+                .setId(prefix + "_DISCONNECTOR" + suffix)
                 .setKind(SwitchKind.DISCONNECTOR)
-                .setOpen(false)
-                .setNode1(middleNode)
+                .setOpen(open)
+                .setNode1(node1)
                 .setNode2(node2)
                 .add();
     }
@@ -392,6 +312,242 @@ final class TopologyModificationUtils {
                 .setBus1(middleBusId)
                 .setBus2(busId2)
                 .add();
+    }
+
+    /**
+     * Utility method that associates a busbar section position index to the orders taken by all the connectables
+     * of the busbar sections of this index.
+     **/
+    static NavigableMap<Integer, List<Integer>> getSliceOrdersMap(VoltageLevel voltageLevel) {
+        // Compute the map of connectables by busbar sections
+        Map<BusbarSection, Set<Connectable<?>>> connectablesByBbs = new LinkedHashMap<>();
+        voltageLevel.getConnectableStream(BusbarSection.class)
+                .forEach(bbs -> fillConnectablesMap(bbs, connectablesByBbs));
+
+        // Merging the map by section index
+        Map<Integer, Set<Connectable<?>>> connectablesBySectionIndex = new LinkedHashMap<>();
+        connectablesByBbs.forEach((bbs, connectables) -> {
+            BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
+            if (bbPosition != null) {
+                connectablesBySectionIndex.merge(bbPosition.getSectionIndex(), connectables, (l1, l2) -> {
+                    l1.addAll(l2);
+                    return l1;
+                });
+            }
+        });
+
+        // Get the orders corresponding map
+        TreeMap<Integer, List<Integer>> ordersBySectionIndex = new TreeMap<>();
+        connectablesBySectionIndex.forEach((sectionIndex, connectables) -> {
+            List<Integer> orders = new ArrayList<>();
+            connectables.forEach(connectable -> addOrder(connectable, voltageLevel, orders));
+            ordersBySectionIndex.put(sectionIndex, orders);
+        });
+
+        return ordersBySectionIndex;
+    }
+
+    /**
+     * Method that fills the map connectablesByBbs with all the connectables of a busbar section.
+     */
+    static void fillConnectablesMap(BusbarSection bbs, Map<BusbarSection, Set<Connectable<?>>> connectablesByBbs) {
+        BusbarSectionPosition bbPosition = bbs.getExtension(BusbarSectionPosition.class);
+        int bbSection = bbPosition.getSectionIndex();
+
+        if (connectablesByBbs.containsKey(bbs)) {
+            return;
+        }
+        Set<Connectable<?>> connectables = connectablesByBbs.compute(bbs, (k, v) -> new LinkedHashSet<>());
+
+        bbs.getTerminal().traverse(new Terminal.TopologyTraverser() {
+            @Override
+            public TraverseResult traverse(Terminal terminal, boolean connected) {
+                if (terminal.getVoltageLevel() != bbs.getTerminal().getVoltageLevel()) {
+                    return TraverseResult.TERMINATE_PATH;
+                }
+                Connectable<?> connectable = terminal.getConnectable();
+                if (connectable instanceof BusbarSection) {
+                    BusbarSection otherBbs = (BusbarSection) connectable;
+                    BusbarSectionPosition otherBbPosition = otherBbs.getExtension(BusbarSectionPosition.class);
+                    if (otherBbPosition.getSectionIndex() == bbSection) {
+                        connectablesByBbs.put(otherBbs, connectables);
+                    } else {
+                        return TraverseResult.TERMINATE_PATH;
+                    }
+                }
+                connectables.add(connectable);
+                return TraverseResult.CONTINUE;
+            }
+
+            @Override
+            public TraverseResult traverse(Switch aSwitch) {
+                return TraverseResult.CONTINUE;
+            }
+        });
+    }
+
+    /**
+     * Get all the unused positions before the lowest used position on the busbar section bbs.
+     * It is a range between the maximum used position on the busbar section with the highest section index lower than the section
+     * index of the given busbar section and the minimum position on the given busbar section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS2 will return a range from 4 to 6.
+     */
+    public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(VoltageLevel voltageLevel, BusbarSection bbs) {
+        BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
+        if (busbarSectionPosition == null) {
+            throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
+        }
+        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
+        int sectionIndex = busbarSectionPosition.getSectionIndex();
+        Optional<Integer> previousSliceMax = getMaxOrderUsedBefore(allOrders, sectionIndex);
+        Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
+        int min = previousSliceMax.map(o -> o + 1).orElse(Integer.MIN_VALUE);
+        int max = sliceMin.map(o -> o - 1).orElse(
+                getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE));
+        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+    }
+
+    /**
+     * Get all the unused positions after the highest used position on the busbar section bbs.
+     * It is a range between the minimum used position on the busbar section with the lowest section index higher than the section
+     * index of the given busbar section and the maximum position on the given busbar section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS1 will return a range from 4 to 6.
+     */
+    public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(VoltageLevel voltageLevel, BusbarSection bbs) {
+        BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
+        if (busbarSectionPosition == null) {
+            throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
+        }
+        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
+        int sectionIndex = busbarSectionPosition.getSectionIndex();
+        Optional<Integer> nextSliceMin = getMinOrderUsedAfter(allOrders, sectionIndex);
+        Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
+        int min = sliceMax.map(o -> o + 1).orElse(
+                getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(Integer.MAX_VALUE));
+        int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
+        return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+    }
+
+    /**
+     * Method returning the maximum order in the slice with the highest section index lower to the given section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS2 will return 3.
+     */
+    private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        Map.Entry<Integer, List<Integer>> lowerEntry;
+        do {
+            lowerEntry = allOrders.lowerEntry(section);
+        } while (lowerEntry != null && lowerEntry.getValue().isEmpty());
+
+        return Optional.ofNullable(lowerEntry)
+                .flatMap(entry -> entry.getValue().stream().max(Comparator.naturalOrder()));
+    }
+
+    /**
+     * Method returning the minimum order in the slice with the lowest section index higher to the given section.
+     * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
+     * applied to BBS1 will return 7.
+     */
+    private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        Map.Entry<Integer, List<Integer>> higherEntry;
+        do {
+            higherEntry = allOrders.higherEntry(section);
+        } while (higherEntry != null && higherEntry.getValue().isEmpty());
+
+        return Optional.ofNullable(higherEntry)
+                .flatMap(entry -> entry.getValue().stream().min(Comparator.naturalOrder()));
+    }
+
+    /**
+     * Utility method to get all the taken feeder positions on a voltage level.
+     */
+    public static Set<Integer> getFeederPositions(VoltageLevel voltageLevel) {
+        Set<Integer> feederPositionsOrders = new HashSet<>();
+        voltageLevel.getConnectables().forEach(connectable -> addOrder(connectable, voltageLevel, feederPositionsOrders));
+        return feederPositionsOrders;
+    }
+
+    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
+        addOrder(connectable, voltageLevel, feederPositionsOrders, false, Reporter.NO_OP);
+    }
+
+    /**
+     * Method getting order of a connectable on a given voltage level.
+     */
+    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, Reporter reporter) {
+        ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
+        if (position != null) {
+            if (connectable instanceof Injection) {
+                Optional<Integer> order = position.getFeeder().getOrder();
+                order.ifPresent(feederPositionsOrders::add);
+            } else if (connectable instanceof Branch) {
+                Branch<?> branch = (Branch<?>) connectable;
+                if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder1().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder2().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else {
+                    LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
+                    connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
+                    if (throwException) {
+                        throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
+                    }
+                }
+            } else if (connectable instanceof ThreeWindingsTransformer) {
+                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
+                if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder1().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder2().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
+                    Optional<Integer> order = position.getFeeder3().getOrder();
+                    order.ifPresent(feederPositionsOrders::add);
+                } else {
+                    LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
+                    connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
+                    if (throwException) {
+                        throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
+                    }
+                }
+            } else {
+                LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
+                connectableNotSupported(reporter, connectable);
+                if (throwException) {
+                    throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                }
+            }
+        }
+    }
+
+    /**
+     * Method returning the first busbar section with the lowest BusbarSectionIndex if there are the BusbarSectionPosition extensions and the first busbar section found otherwise.
+     */
+    public static BusbarSection getFirstBusbarSection(VoltageLevel voltageLevel) {
+        BusbarSection bbs;
+        if (voltageLevel.getNodeBreakerView().getBusbarSectionStream().anyMatch(b -> b.getExtension(BusbarSectionPosition.class) != null)) {
+            bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
+                    .min(Comparator.comparingInt((BusbarSection b) -> {
+                        BusbarSectionPosition position = b.getExtension(BusbarSectionPosition.class);
+                        return position == null ? Integer.MAX_VALUE : position.getSectionIndex();
+                    }).thenComparingInt((BusbarSection b) -> {
+                        BusbarSectionPosition position = b.getExtension(BusbarSectionPosition.class);
+                        return position == null ? Integer.MAX_VALUE : position.getBusbarIndex();
+                    })).orElse(null);
+        } else {
+            bbs = voltageLevel.getNodeBreakerView().getBusbarSectionStream().findFirst().orElse(null);
+        }
+        if (bbs == null) {
+            throw new PowsyblException(String.format("Voltage level %s has no busbar section.", voltageLevel.getId()));
+        }
+        return bbs;
     }
 
     private TopologyModificationUtils() {
