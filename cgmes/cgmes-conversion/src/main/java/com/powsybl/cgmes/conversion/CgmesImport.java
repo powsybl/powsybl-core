@@ -35,7 +35,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,18 +48,23 @@ public class CgmesImport implements Importer {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
-        String boundaryPath = platformConfig.getConfigDir()
+        Path boundaryPath = platformConfig.getConfigDir()
                 .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
-                .map(Path::toString)
                 .orElse(null);
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
         boundaryLocationParameter = new Parameter(
                 BOUNDARY_LOCATION,
-                ParameterType.STRING,
+                ParameterType.PATH,
                 "The location of boundary files",
                 boundaryPath);
+        postProcessorsParameter = new Parameter(
+                POST_PROCESSORS,
+                ParameterType.STRING_LIST,
+                "Post processors",
+                Collections.emptyList(),
+                postProcessors.stream().map(CgmesImportPostProcessor::getName).collect(Collectors.toList()));
     }
 
     public CgmesImport(PlatformConfig platformConfig) {
@@ -79,6 +83,7 @@ public class CgmesImport implements Importer {
     public List<Parameter> getParameters() {
         List<Parameter> allParams = new ArrayList<>(STATIC_PARAMETERS);
         allParams.add(boundaryLocationParameter);
+        allParams.add(postProcessorsParameter);
         return Collections.unmodifiableList(allParams);
     }
 
@@ -133,7 +138,7 @@ public class CgmesImport implements Importer {
     }
 
     private ReadOnlyDataSource boundary(Properties p) {
-        String loc = Parameter.readString(
+        Path loc = Parameter.readPath(
                 getFormat(),
                 p,
                 boundaryLocationParameter,
@@ -141,13 +146,12 @@ public class CgmesImport implements Importer {
         if (loc == null) {
             return null;
         }
-        Path ploc = Path.of(loc);
-        if (!Files.exists(ploc)) {
+        if (!Files.exists(loc)) {
             LOGGER.warn("Location of boundaries does not exist {}. No attempt to load boundaries will be made", loc);
             return null;
         }
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(ploc);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
@@ -231,18 +235,18 @@ public class CgmesImport implements Importer {
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
                                 defaultValueConfig));
         String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
+        Path idMappingFilePath = Parameter.readPath(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
             config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
         } else {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", idMappingFilePath));
         }
         return config;
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
         return Parameter
-                .readStringList(getFormat(), p, POST_PROCESSORS_PARAMETER, defaultValueConfig)
+                .readStringList(getFormat(), p, postProcessorsParameter, defaultValueConfig)
                 .stream()
                 .filter(name -> {
                     boolean found = postProcessors.containsKey(name);
@@ -327,7 +331,7 @@ public class CgmesImport implements Importer {
             Boolean.FALSE);
     private static final Parameter ID_MAPPING_FILE_PATH_PARAMETER = new Parameter(
             ID_MAPPING_FILE_PATH,
-            ParameterType.STRING,
+            ParameterType.PATH,
             "Path of ID mapping file",
             null);
     private static final Parameter ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER = new Parameter(
@@ -340,11 +344,6 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Import control areas",
             Boolean.TRUE);
-    private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
-            POST_PROCESSORS,
-            ParameterType.STRING_LIST,
-            "Post processors",
-            Collections.emptyList());
     private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(
             POWSYBL_TRIPLESTORE,
             ParameterType.STRING,
@@ -387,7 +386,6 @@ public class CgmesImport implements Importer {
             ID_MAPPING_FILE_PATH_PARAMETER,
             ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
-            POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
             SOURCE_FOR_IIDM_ID_PARAMETER,
@@ -395,6 +393,7 @@ public class CgmesImport implements Importer {
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
+    private final Parameter postProcessorsParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;
     private final ParameterDefaultValueConfig defaultValueConfig;
 
