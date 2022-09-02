@@ -20,16 +20,16 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.powsybl.iidm.modification.topology.ModificationReports.createdLineReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.noVoltageLevelInCommonReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundLineReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.removedLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.calcMinLoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createdLineReport;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.noVoltageLevelInCommonReport;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removedLineReport;
 
 /**
  * This method reverses the action done in the ConnectVoltageLevelOnLine class :
