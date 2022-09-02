@@ -32,7 +32,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removedLineReport;
 
 /**
- * This method reverses the action done in the AttachVoltageLevelOnLine class :
+ * This method reverses the action done in the ConnectVoltageLevelOnLine class :
  * it replaces 2 existing lines (with the same voltage level at one of their side) with a new line,
  * and eventually removes the voltage level in common (attachment point), if it contains no equipments anymore, except bus or bus bar section
  *
@@ -42,7 +42,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class DetachVoltageLevelFromLines implements NetworkModification {
+public class RevertConnectVoltageLevelOnLine implements NetworkModification {
 
     private String line1Id;
     private String line2Id;
@@ -58,29 +58,29 @@ public class DetachVoltageLevelFromLines implements NetworkModification {
      * @param lineId        The non-null ID of the new line to be created
      * @param lineName      The optional name of the new line to be created
      */
-    public DetachVoltageLevelFromLines(String line1Id, String line2Id, String lineId, String lineName) {
+    public RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName) {
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line2Id = Objects.requireNonNull(line2Id);
         this.lineId = Objects.requireNonNull(lineId);
         this.lineName = lineName;
     }
 
-    public DetachVoltageLevelFromLines setLine1Id(String line1Id) {
+    public RevertConnectVoltageLevelOnLine setLine1Id(String line1Id) {
         this.line1Id = Objects.requireNonNull(line1Id);
         return this;
     }
 
-    public DetachVoltageLevelFromLines setLine2Id(String line2Id) {
+    public RevertConnectVoltageLevelOnLine setLine2Id(String line2Id) {
         this.line2Id = Objects.requireNonNull(line2Id);
         return this;
     }
 
-    public DetachVoltageLevelFromLines setLineId(String lineId) {
+    public RevertConnectVoltageLevelOnLine setLineId(String lineId) {
         this.lineId = Objects.requireNonNull(lineId);
         return this;
     }
 
-    public DetachVoltageLevelFromLines setLineName(String lineName) {
+    public RevertConnectVoltageLevelOnLine setLineName(String lineName) {
         this.lineName = lineName;
         return this;
     }
