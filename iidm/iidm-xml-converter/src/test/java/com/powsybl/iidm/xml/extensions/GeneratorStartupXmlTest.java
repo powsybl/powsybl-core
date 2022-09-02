@@ -33,15 +33,13 @@ public class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
         // extends generator
         Generator generator = network.getGenerator("G");
         assertNotNull(generator);
-        generator.newExtension(GeneratorStartupAdder.class)
+        GeneratorStartup startup = generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(90)
                 .withStartupCost(5)
                 .withMarginalCost(10)
                 .withPlannedOutageRate(0.8)
                 .withForcedOutageRate(0.7)
                 .add();
-        GeneratorStartup startup = generator.getExtension(GeneratorStartup.class);
-        generator.addExtension(GeneratorStartup.class, startup);
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,

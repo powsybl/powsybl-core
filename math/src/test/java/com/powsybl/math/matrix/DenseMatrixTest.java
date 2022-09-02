@@ -91,4 +91,20 @@ public class DenseMatrixTest extends AbstractMatrixTest {
         DenseMatrix a3 = a2.toDense();
         assertEquals(a, a3);
     }
+
+    @Test
+    public void testDenseMultiplication() {
+        DenseMatrix a = new DenseMatrix(2, 1);
+        a.set(0, 0, 4);
+        a.set(1, 0, 5);
+        DenseMatrix b = new DenseMatrix(1, 2);
+        b.set(0, 0, 3);
+        DenseMatrix c = a.times(b);
+        assertEquals(2, c.getRowCount());
+        assertEquals(2, c.getColumnCount());
+        assertEquals(12, c.get(0, 0), EPSILON);
+        assertEquals(15, c.get(1, 0), EPSILON);
+        assertEquals(0, c.get(0, 1), EPSILON);
+        assertEquals(0, c.get(1, 1), EPSILON);
+    }
 }

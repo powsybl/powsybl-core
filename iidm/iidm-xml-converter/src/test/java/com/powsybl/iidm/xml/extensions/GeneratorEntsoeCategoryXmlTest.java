@@ -60,8 +60,7 @@ public class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
         // extends generator
         Generator generator = network.getGenerator("G");
         assertNotNull(generator);
-        generator.newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
-        GeneratorEntsoeCategory entsoeCategory = generator.getExtension(GeneratorEntsoeCategory.class);
+        GeneratorEntsoeCategory entsoeCategory = generator.newExtension(GeneratorEntsoeCategoryAdder.class).withCode(4).add();
 
         Network network2 = roundTripXmlTest(network,
                                             NetworkXml::writeAndValidate,

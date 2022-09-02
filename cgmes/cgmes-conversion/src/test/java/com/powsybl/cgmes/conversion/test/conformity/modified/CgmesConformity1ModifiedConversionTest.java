@@ -11,6 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
@@ -27,6 +28,7 @@ import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -36,7 +38,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
@@ -900,6 +904,59 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLShuntCompensatorGP().dataSource(), null);
         assertEquals(0.0000123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getG(), 0.0);
         assertEquals(0.123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getTerminal().getP(), 0.0);
+    }
+
+    @Test
+    public void microGridBaseCaseBESingleFile() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
+        assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
+        assertEquals(5, network.getDanglingLineCount());
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcNoSequenceNumbers() {
+        Network networkSeq = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
+        Network networkNoSeq = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNoSequenceNumbers().dataSource(), null);
+        // Make sure we have not lost any line, switch
+        assertEquals(networkSeq.getLineCount(), networkNoSeq.getLineCount());
+        assertEquals(networkSeq.getSwitchCount(), networkNoSeq.getSwitchCount());
+        assertEquals(networkSeq.getHvdcLineCount(), networkNoSeq.getHvdcLineCount());
+
+        // Check terminal ids have been sorted properly
+        CgmesModel cgmesSeq = networkSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
+        CgmesModel cgmesNoSeq = networkNoSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
+        checkTerminals(cgmesSeq.acLineSegments(), cgmesNoSeq.acLineSegments(), "ACLineSegment", "Terminal1", "Terminal2");
+        checkTerminals(cgmesSeq.switches(), cgmesNoSeq.switches(), "Switch", "Terminal1", "Terminal2");
+        checkTerminals(cgmesSeq.seriesCompensators(), cgmesNoSeq.seriesCompensators(), "SeriesCompensator", "Terminal1", "Terminal2");
+        checkTerminals(cgmesSeq.dcLineSegments(), cgmesNoSeq.dcLineSegments(), "DCLineSegment", "DCTerminal1", "DCTerminal2");
+    }
+
+    private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {
+        Map<String, String> eqsSeqTerminal1 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal1PropertyName)));
+        Map<String, String> eqsSeqTerminal2 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal2PropertyName)));
+        eqSeq.forEach(eq -> {
+            assertEquals("1", eq.getLocal("seq1"));
+            assertEquals("2", eq.getLocal("seq2"));
+        });
+        eqNoSeq.forEach(eq -> {
+            assertNull(eq.getLocal("seq1"));
+            assertNull(eq.getLocal("seq2"));
+            String eqNoSeqTerminal1 = eq.getId(terminal1PropertyName);
+            String eqNoSeqTerminal2 = eq.getId(terminal2PropertyName);
+
+            String id = eq.getId(idPropertyName);
+            String eqSeqTerminal1 = eqsSeqTerminal1.get(id);
+            String eqSeqTerminal2 = eqsSeqTerminal2.get(id);
+
+            if (eqSeqTerminal1.equals(eqNoSeqTerminal1)) {
+                assertEquals(eqSeqTerminal2, eqNoSeqTerminal2);
+                assertTrue(eqNoSeqTerminal1.compareTo(eqNoSeqTerminal2) < 0);
+            } else {
+                assertEquals(eqSeqTerminal1, eqNoSeqTerminal2);
+                assertEquals(eqSeqTerminal2, eqNoSeqTerminal1);
+                assertTrue(eqSeqTerminal1.compareTo(eqSeqTerminal2) > 0);
+            }
+        });
     }
 
     private FileSystem fileSystem;

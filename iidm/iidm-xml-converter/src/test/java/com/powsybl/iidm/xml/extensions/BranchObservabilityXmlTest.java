@@ -8,21 +8,29 @@ package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.BranchObservability;
+import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.impl.extensions.BranchObservabilityImpl;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -32,9 +40,22 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
+    private static List<IidmXmlVersion> fromMinToCurrentVersion(IidmXmlVersion min) {
+        return Stream.of(IidmXmlVersion.values())
+                .filter(v -> v.compareTo(min) >= 0)
+                .collect(Collectors.toList());
+    }
+
     @Test
     public void test() throws IOException {
-        Network network = BatteryNetworkFactory.create();
+        for (var version : fromMinToCurrentVersion(IidmXmlVersion.V_1_6)) {
+            testVersion(version);
+        }
+    }
+
+    public void testVersion(IidmXmlVersion version) throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2022-08-09T17:00:00.000Z"));
         Line line1 = network.getLine("NHV1_NHV2_1");
         assertNotNull(line1);
 
@@ -55,10 +76,25 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
                 0.4d, false);
         line2.addExtension(BranchObservability.class, line2BranchObservability);
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkXml::writeAndValidate,
+        // Transfo with missing qualities
+        network.getTwoWindingsTransformer("NGEN_NHV1")
+                .newExtension(BranchObservabilityAdder.class)
+                .withObservable(true)
+                .add();
+
+        ExportOptions options = new ExportOptions()
+                .setSorted(true)
+                .setVersion(version.toString("."));
+        Network network2;
+        try {
+            network2 = roundTripXmlTest(network,
+                (n, path) -> NetworkXml.writeAndValidate(n, options, path),
                 NetworkXml::validateAndRead,
-                getVersionedNetworkPath("/branchObservabilityRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("/branchObservabilityRoundTripRef.xml", version));
+        } catch (AssertionError err) {
+            NetworkXml.write(network, options, System.out);
+            throw err;
+        }
 
         line1 = network2.getLine("NHV1_NHV2_1");
         assertNotNull(line1);
@@ -83,6 +119,15 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
         BranchObservability<Line> line2BranchObservability2 = line2.getExtension(BranchObservability.class);
         assertNotNull(line2BranchObservability2);
         assertEquals(line2BranchObservability.isObservable(), line2BranchObservability2.isObservable());
+
+        BranchObservability<TwoWindingsTransformer> transfoObs = network2.getTwoWindingsTransformer("NGEN_NHV1")
+                .getExtension(BranchObservability.class);
+        assertNotNull(transfoObs);
+        assertTrue(transfoObs.isObservable());
+        assertNull(transfoObs.getQualityP1());
+        assertNull(transfoObs.getQualityP2());
+        assertNull(transfoObs.getQualityQ1());
+        assertNull(transfoObs.getQualityQ2());
     }
 
     @Test
