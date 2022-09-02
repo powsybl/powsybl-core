@@ -18,14 +18,18 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityValueCsvWriter implements SensitivityValueWriter {
+public class SensitivityResultCsvWriter implements SensitivityResultWriter {
 
     private final TableFormatter formatter;
 
+    private final TableFormatter formatterContingencyStatus;
+
     private final List<Contingency> contingencies;
 
-    public SensitivityValueCsvWriter(TableFormatter formatter, List<Contingency> contingencies) {
+    public SensitivityResultCsvWriter(TableFormatter formatter, TableFormatter formatterContingencyStatus,
+                                      List<Contingency> contingencies) {
         this.formatter = Objects.requireNonNull(formatter);
+        this.formatterContingencyStatus = Objects.requireNonNull(formatterContingencyStatus);
         this.contingencies = Objects.requireNonNull(contingencies);
     }
 
@@ -40,14 +44,33 @@ public class SensitivityValueCsvWriter implements SensitivityValueWriter {
                 new Column("Sensitivity value"));
     }
 
+    public static TableFormatter createContingencyStatusTableFormatter(Writer writer) {
+        Objects.requireNonNull(writer);
+        TableFormatterFactory factory = new CsvTableFormatterFactory();
+        var tfc = TableFormatterConfig.load();
+        return factory.create(writer, "Sensitivity analysis contingency status result", tfc,
+                new Column("Contingency ID"),
+                new Column("Contingency Status"));
+    }
+
     @Override
-    public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
+    public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         Contingency contingency = contingencyIndex != -1 ? contingencies.get(contingencyIndex) : null;
         try {
             formatter.writeCell(contingency != null ? contingency.getId() : "");
             formatter.writeCell(factorIndex);
             formatter.writeCell(functionReference);
             formatter.writeCell(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
+        try {
+            formatterContingencyStatus.writeCell(status.getContingency() != null ? status.getContingency().getId() : "");
+            formatterContingencyStatus.writeCell(status.getStatus().name());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
