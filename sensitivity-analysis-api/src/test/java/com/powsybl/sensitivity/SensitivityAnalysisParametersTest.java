@@ -17,7 +17,9 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
+import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -212,5 +214,13 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: unexpected");
         JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json"), new SensitivityAnalysisParameters(), objectMapper);
+    }
+
+    @Test
+    public void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
+        SensitivityAnalysisResult.SensitivityContingencyStatus value = new SensitivityAnalysisResult.SensitivityContingencyStatus(new Contingency("C1"), SensitivityAnalysisResult.Status.CONVERGED);
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
+        roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");
     }
 }
