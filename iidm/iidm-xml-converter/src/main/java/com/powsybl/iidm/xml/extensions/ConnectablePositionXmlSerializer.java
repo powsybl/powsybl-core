@@ -91,7 +91,6 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                     throw new AssertionError();
             }
         });
-        adder.add();
-        return ((Connectable<?>) connectable).getExtension(ConnectablePosition.class);
+        return adder.add();
     }
 }
