@@ -26,15 +26,6 @@ final class ModificationReports {
                 .build());
     }
 
-    static void notNodeBreakerVoltageLevelReport(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("notNodeBreakerVoltageLevel")
-                .withDefaultMessage("Voltage level ${voltageLevelId} is not in node/breaker")
-                .withValue(voltageLevelIdString, voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     static void networkMismatchReport(Reporter reporter, String injectionId, IdentifiableType identifiableType) {
         reporter.report(Report.builder()
                 .withKey("networkMismatch")
