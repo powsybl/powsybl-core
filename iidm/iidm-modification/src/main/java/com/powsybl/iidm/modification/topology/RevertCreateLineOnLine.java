@@ -18,19 +18,19 @@ import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.topology.ModificationReports.createdLineReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.noAttachmentPointAndOrAttachedVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundLineReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.removedLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.calcMinLoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createdLineReport;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.noAttachmentPointAndOrAttachedVoltageLevelReport;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.notFoundLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removedLineReport;
 
 /**
- * This method reverses the action done in the AttachNewLineOnLine class :
+ * This method reverses the action done in the CreateLineOnLine class :
  * it replaces 3 existing lines (with the same voltage level at one of their side) with a new line,
  * and eventually removes the existing voltage levels (attachment point and attached voltage level), if they contain no equipments
  * anymore, except bus or bus bar section
