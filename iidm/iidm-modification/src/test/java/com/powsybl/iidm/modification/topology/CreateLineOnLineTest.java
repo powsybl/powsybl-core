@@ -24,36 +24,36 @@ import static org.junit.Assert.*;
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
+public class CreateLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
-    public void attachLineOnLineNbTest() throws IOException {
+    public void createLineOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine("VLTEST", BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLine("VLTEST", BBS, line, adder);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-l.xml");
     }
 
     @Test
-    public void attachLineOnLineNbBbTest() throws IOException {
+    public void createLineOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-nb-l.xml");
     }
 
     @Test
-    public void attachLineOnLineBbTest() throws IOException {
+    public void createLineOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
+        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-bb-l.xml");
@@ -64,7 +64,7 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        AttachNewLineOnLine modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        CreateLineOnLine modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         assertEquals(VOLTAGE_LEVEL_ID, modification.getVoltageLevelId());
         assertEquals(BBS, modification.getBbsOrBusId());
         assertEquals(50, modification.getPercent(), 0.0);
@@ -86,7 +86,7 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        AttachNewLineOnLine modification = new AttachNewLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        CreateLineOnLine modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.setPercent(40.0)
                 .setFictitiousVlId("FICT_VL")
                 .setFictitiousVlName("FICT")
@@ -107,6 +107,49 @@ public class AttachNewLineOnLineTest extends AbstractXmlConverterTest {
         assertEquals("A", modification.getLine1Name());
         assertEquals(line.getId() + "_B", modification.getLine2Id());
         assertEquals("B", modification.getLine2Name());
+    }
+
+    @Test
+    public void testCompleteBuilder() throws IOException {
+        Network network = createNbNetwork();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withLineAdder(adder)
+                .withPercent(40)
+                .withFictitiousVoltageLevelId("FICTVL")
+                .withFictitiousVoltageLevelName("FICTITIOUSVL")
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId("FICTSUB")
+                .withFictitiousSubstationName("FICTITIOUSSUB")
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-l-complete.xml");
+    }
+
+    @Test
+    public void testIncompleteBuilder() throws IOException {
+        Network network = createNbNetwork();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withLineAdder(adder)
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-l.xml");
+
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

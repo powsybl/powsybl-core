@@ -37,8 +37,8 @@ public class CoordinatedReactiveControlXmlSerializer extends AbstractExtensionXm
     @Override
     public CoordinatedReactiveControl read(Generator extendable, XmlReaderContext context) {
         double qPercent = XmlUtil.readDoubleAttribute(context.getReader(), "qPercent");
-        extendable.newExtension(CoordinatedReactiveControlAdder.class)
-                .withQPercent(qPercent).add();
-        return extendable.getExtension(CoordinatedReactiveControl.class);
+        return extendable.newExtension(CoordinatedReactiveControlAdder.class)
+                .withQPercent(qPercent)
+                .add();
     }
 }
