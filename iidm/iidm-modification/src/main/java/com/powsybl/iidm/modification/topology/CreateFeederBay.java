@@ -51,14 +51,14 @@ public class CreateFeederBay implements NetworkModification {
      * @param injectionPositionOrder The order of the injection to be attached from its extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
-    public CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, int injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.bbsId = Objects.requireNonNull(bbsId);
         this.injectionPositionOrder = injectionPositionOrder;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
     }
 
-    public CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, int injectionPositionOrder) {
+    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, int injectionPositionOrder) {
         this(injectionAdder, bbsId, injectionPositionOrder, ConnectablePosition.Direction.BOTTOM);
     }
 
@@ -74,7 +74,7 @@ public class CreateFeederBay implements NetworkModification {
 
     @Override
     public void apply(Network network, boolean throwException, Reporter reporter) {
-        BusbarSection bbs = network.getBusbarSection(bbsId);
+        BusbarSection bbs = network.getBusbarSection(bbsId); //If the busbar exists, topology of the associated voltage level is node/breaker
         if (bbs == null) {
             LOGGER.error("Busbar section {} not found.", bbsId);
             notFoundBusbarSectionReport(reporter, bbsId);
@@ -85,16 +85,6 @@ public class CreateFeederBay implements NetworkModification {
         }
 
         VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
-        TopologyKind topologyKind = voltageLevel.getTopologyKind();
-        if (topologyKind != TopologyKind.NODE_BREAKER) {
-            LOGGER.error("Voltage level {} is not in node/breaker.", voltageLevel.getId());
-            notNodeBreakerVoltageLevelReport(reporter, voltageLevel.getId());
-            if (throwException) {
-                throw new PowsyblException(String.format("Voltage level %s is not in node/breaker.", voltageLevel.getId()));
-            }
-            return;
-        }
-
         int injectionNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int forkNode = injectionNode + 1;
         injectionAdder.setNode(injectionNode);
