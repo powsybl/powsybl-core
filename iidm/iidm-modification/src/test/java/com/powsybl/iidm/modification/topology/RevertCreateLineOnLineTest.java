@@ -33,10 +33,10 @@ import static org.junit.Assert.assertThrows;
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class DetachLineFromLinesTest extends AbstractXmlConverterTest {
+public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
-    public void detachNewLineFromLinesNbTest() throws IOException {
+    public void revertCreateLineOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -51,80 +51,80 @@ public class DetachLineFromLinesTest extends AbstractXmlConverterTest {
         vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
-        final NetworkModification modificationWithError1 = new DetachLineFromLines("line1NotFound", "CJ_1", "CJ_2", "CJ", null);
+        final NetworkModification modificationWithError1 = new RevertCreateLineOnLine("line1NotFound", "CJ_1", "CJ_2", "CJ", null);
         assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network));
-        final NetworkModification modificationWithError11 = new DetachLineFromLines("line1NotFound", "CJ_1", "CJ_2", "CJ", null);
+        final NetworkModification modificationWithError11 = new RevertCreateLineOnLine("line1NotFound", "CJ_1", "CJ_2", "CJ", null);
         modificationWithError11.apply(network, false, Reporter.NO_OP);
         assertNull(network.getLine("CJ"));
 
-        final NetworkModification modificationWithError2 = new DetachLineFromLines("CJ_1", "line2NotFound", "CJ_3", "CJ", null);
+        final NetworkModification modificationWithError2 = new RevertCreateLineOnLine("CJ_1", "line2NotFound", "CJ_3", "CJ", null);
         assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network));
-        final NetworkModification modificationWithError21 = new DetachLineFromLines("CJ_1", "line2NotFound", "CJ_3", "CJ", null);
+        final NetworkModification modificationWithError21 = new RevertCreateLineOnLine("CJ_1", "line2NotFound", "CJ_3", "CJ", null);
         modificationWithError21.apply(network, false, Reporter.NO_OP);
         assertNull(network.getLine("CJ"));
 
-        final NetworkModification modificationWithError3 = new DetachLineFromLines("CJ_1", "CJ_2", "line3NotFound", "CJ", null);
+        final NetworkModification modificationWithError3 = new RevertCreateLineOnLine("CJ_1", "CJ_2", "line3NotFound", "CJ", null);
         assertThrows("Line line3NotFound is not found", PowsyblException.class, () -> modificationWithError3.apply(network));
-        final NetworkModification modificationWithError31 = new DetachLineFromLines("CJ_1", "CJ_2", "line3NotFound", "CJ", null);
+        final NetworkModification modificationWithError31 = new RevertCreateLineOnLine("CJ_1", "CJ_2", "line3NotFound", "CJ", null);
         modificationWithError31.apply(network, false, Reporter.NO_OP);
         assertNull(network.getLine("CJ"));
 
-        final NetworkModification modificationWithError4 = new DetachLineFromLines("CJ_1", "CJ_2", "LINE34", "CJ", null);
+        final NetworkModification modificationWithError4 = new RevertCreateLineOnLine("CJ_1", "CJ_2", "LINE34", "CJ", null);
         assertThrows("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network));
-        final NetworkModification modificationWithError41 = new DetachLineFromLines("CJ_1", "CJ_2", "LINE34", "CJ", null);
+        final NetworkModification modificationWithError41 = new RevertCreateLineOnLine("CJ_1", "CJ_2", "LINE34", "CJ", null);
         modificationWithError41.apply(network, false, Reporter.NO_OP);
         assertNull(network.getLine("CJ"));
 
-        modification = new DetachLineFromLines("CJ_1", "CJ_2", "testLine", "CJ_NEW", null);
+        modification = new RevertCreateLineOnLine("CJ_1", "CJ_2", "testLine", "CJ_NEW", null);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/fictitious-reverse-line-split-l.xml");
+                "/fictitious-revert-create-line-on-line-l.xml");
     }
 
     @Test
-    public void detachNewLineFromLinesNbBbTest() throws IOException {
+    public void revertCreateLineOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
         modification.apply(network);
 
-        modification = new DetachLineFromLines("NHV1_NHV2_1_2", "NHV1_NHV2_1_1", "testLine", "NHV1_NHV2_1", null);
+        modification = new RevertCreateLineOnLine("NHV1_NHV2_1_2", "NHV1_NHV2_1_1", "testLine", "NHV1_NHV2_1", null);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-reverse-line-split-nb-l.xml");
+                "/eurostag-revert-create-line-on-line-nb-l.xml");
     }
 
     @Test
-    public void detachNewLineFromLinesBbTest() throws IOException {
+    public void revertCreateLineOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
         modification.apply(network);
 
-        modification = new DetachLineFromLines("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", "NHV1_NHV2_1", null);
+        modification = new RevertCreateLineOnLine("NHV1_NHV2_1_1", "NHV1_NHV2_1_2", "testLine", "NHV1_NHV2_1", null);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-reverse-line-split-bb-l.xml");
+                "/eurostag-revert-create-line-on-line-bb-l.xml");
     }
 
     @Test
     public void testConstructor() {
-        DetachLineFromLines modification = new DetachLineFromLines("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE ID", null);
+        RevertCreateLineOnLine modification = new RevertCreateLineOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE ID", null);
         assertEquals("NHV1_NHV2_1", modification.getLineAZId());
         assertEquals("NHV1_NHV2_2", modification.getLineBZId());
         assertEquals("NHV1_NHV2_3", modification.getLineCZId());
         assertEquals("NEW LINE ID", modification.getLineId());
         assertNull(modification.getLineName());
 
-        modification = new DetachLineFromLines("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE ID", "NEW LINE NAME");
+        modification = new RevertCreateLineOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE ID", "NEW LINE NAME");
         assertEquals("NEW LINE NAME", modification.getLineName());
     }
 
     @Test
     public void testSetters() {
-        DetachLineFromLines modification = new DetachLineFromLines("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE ID", null);
+        RevertCreateLineOnLine modification = new RevertCreateLineOnLine("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_3", "NEW LINE ID", null);
         modification.setLineAZId("NHV1_NHV2_1 _A")
                 .setLineBZId("NHV1_NHV2_2 _B")
                 .setLineCZId("NHV1_NHV2_3 _C")

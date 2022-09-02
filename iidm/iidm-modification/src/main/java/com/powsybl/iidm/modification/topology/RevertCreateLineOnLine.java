@@ -46,7 +46,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class DetachLineFromLines implements NetworkModification {
+public class RevertCreateLineOnLine implements NetworkModification {
 
     private String lineAZId;
     private String lineBZId;
@@ -66,7 +66,7 @@ public class DetachLineFromLines implements NetworkModification {
      * @param lineId       The non-null ID of the new line to be created
      * @param lineName     The optional name of the new line to be created
      */
-    public DetachLineFromLines(String lineAZId, String lineBZId, String lineCZId, String lineId, String lineName) {
+    public RevertCreateLineOnLine(String lineAZId, String lineBZId, String lineCZId, String lineId, String lineName) {
         this.lineAZId = Objects.requireNonNull(lineAZId);
         this.lineBZId = Objects.requireNonNull(lineBZId);
         this.lineCZId = Objects.requireNonNull(lineCZId);
@@ -74,27 +74,27 @@ public class DetachLineFromLines implements NetworkModification {
         this.lineName = lineName;
     }
 
-    public DetachLineFromLines setLineAZId(String lineAZId) {
+    public RevertCreateLineOnLine setLineAZId(String lineAZId) {
         this.lineAZId = Objects.requireNonNull(lineAZId);
         return this;
     }
 
-    public DetachLineFromLines setLineBZId(String lineBZId) {
+    public RevertCreateLineOnLine setLineBZId(String lineBZId) {
         this.lineBZId = Objects.requireNonNull(lineBZId);
         return this;
     }
 
-    public DetachLineFromLines setLineCZId(String lineCZId) {
+    public RevertCreateLineOnLine setLineCZId(String lineCZId) {
         this.lineCZId = Objects.requireNonNull(lineCZId);
         return this;
     }
 
-    public DetachLineFromLines setLineId(String lineId) {
+    public RevertCreateLineOnLine setLineId(String lineId) {
         this.lineId = Objects.requireNonNull(lineId);
         return this;
     }
 
-    public DetachLineFromLines setLineName(String lineName) {
+    public RevertCreateLineOnLine setLineName(String lineName) {
         this.lineName = lineName;
         return this;
     }
