@@ -60,12 +60,17 @@ public class CreateFeederBay implements NetworkModification {
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
+        apply(network, false, Reporter.NO_OP);
     }
 
     @Override
-    public void apply(Network network) {
-        apply(network, false, Reporter.NO_OP);
+    public void apply(Network network, ComputationManager computationManager, Reporter reporter) {
+        apply(network, false, reporter);
+    }
+
+    @Override
+    public void apply(Network network, Reporter reporter) {
+        apply(network, false, reporter);
     }
 
     @Override
