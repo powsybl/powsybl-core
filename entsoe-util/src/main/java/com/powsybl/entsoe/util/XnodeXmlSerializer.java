@@ -28,7 +28,7 @@ public class XnodeXmlSerializer extends AbstractExtensionXmlSerializer<DanglingL
 
     @Override
     public void write(Xnode xnode, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("code", xnode.getCode());
+        context.getWriter().writeStringAttribute("code", xnode.getCode());
     }
 
     @Override

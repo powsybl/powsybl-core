@@ -34,19 +34,19 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
     }
 
     @Override
-    protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble(IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8),
-                b.getTargetP(), context.getWriter());
-        XmlUtil.writeDouble(IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8),
-                b.getTargetQ(), context.getWriter());
-        XmlUtil.writeDouble("minP", b.getMinP(), context.getWriter());
-        XmlUtil.writeDouble("maxP", b.getMaxP(), context.getWriter());
+    protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute(IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8),
+                b.getTargetP());
+        context.getWriter().writeDoubleAttribute(IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8),
+                b.getTargetQ());
+        context.getWriter().writeDoubleAttribute("minP", b.getMinP());
+        context.getWriter().writeDoubleAttribute("maxP", b.getMaxP());
         writeNodeOrBus(null, b.getTerminal(), context);
         writePQ(null, b.getTerminal(), context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) {
         ReactiveLimitsXml.INSTANCE.write(b, context);
     }
 

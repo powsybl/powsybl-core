@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -19,7 +20,6 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -36,24 +36,18 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
     @Override
     public void write(CgmesTapChangers<C> extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XMLStreamWriter writer = networkContext.getWriter();
+        XmlWriter writer = networkContext.getWriter();
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
             writer.writeStartElement(getNamespaceUri(), "tapChanger");
-            writer.writeAttribute("id", tapChanger.getId());
-            if (tapChanger.getCombinedTapChangerId() != null) {
-                writer.writeAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
-            }
-            if (tapChanger.getType() != null) {
-                writer.writeAttribute("type", tapChanger.getType());
-            }
+            writer.writeStringAttribute("id", tapChanger.getId());
+            writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
+            writer.writeStringAttribute("type", tapChanger.getType());
             if (tapChanger.isHidden()) {
-                writer.writeAttribute("hidden", "true");
-                writer.writeAttribute("step", String.valueOf(tapChanger.getStep()
-                        .orElseThrow(() -> new PowsyblException("Step should be defined"))));
+                writer.writeBooleanAttribute("hidden", true);
+                writer.writeIntAttribute("step", tapChanger.getStep()
+                        .orElseThrow(() -> new PowsyblException("Step should be defined")));
             }
-            if (tapChanger.getControlId() != null) {
-                writer.writeAttribute("controlId", tapChanger.getControlId());
-            }
+            writer.writeStringAttribute("controlId", tapChanger.getControlId());
             writer.writeEndElement();
         }
     }

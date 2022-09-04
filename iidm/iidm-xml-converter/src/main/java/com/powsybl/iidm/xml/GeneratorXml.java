@@ -34,21 +34,21 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
-        XmlUtil.writeDouble("minP", g.getMinP(), context.getWriter());
-        XmlUtil.writeDouble("maxP", g.getMaxP(), context.getWriter());
-        XmlUtil.writeDouble("ratedS", g.getRatedS(), context.getWriter());
-        context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
-        XmlUtil.writeDouble("targetP", g.getTargetP(), context.getWriter());
-        XmlUtil.writeDouble("targetV", g.getTargetV(), context.getWriter());
-        XmlUtil.writeDouble("targetQ", g.getTargetQ(), context.getWriter());
+    protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStringAttribute("energySource", g.getEnergySource().name());
+        context.getWriter().writeDoubleAttribute("minP", g.getMinP());
+        context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
+        context.getWriter().writeDoubleAttribute("ratedS", g.getRatedS());
+        context.getWriter().writeStringAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
+        context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
+        context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
+        context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) {
         if (g != g.getRegulatingTerminal().getConnectable()) {
             TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }

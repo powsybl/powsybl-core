@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
@@ -34,12 +33,12 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         return true;
     }
 
-    protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException;
+    protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkXmlWriterContext context);
 
-    protected void writeSubElements(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(T identifiable, P parent, NetworkXmlWriterContext context) {
     }
 
-    public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
+    public final void write(T identifiable, P parent, NetworkXmlWriterContext context) {
         if (!isValid(identifiable, parent)) {
             return;
         }
@@ -49,25 +48,17 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         } else {
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         }
-        context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+        context.getWriter().writeStringAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
         ((Identifiable<?>) identifiable).getOptionalName().ifPresent(name -> {
-            try {
-                context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(name));
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            context.getWriter().writeStringAttribute("name", context.getAnonymizer().anonymizeString(name));
         });
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> XmlUtil.writeOptionalBoolean("fictitious", identifiable.isFictitious(), false, context.getWriter()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> context.getWriter().writeBooleanAttribute("fictitious", identifiable.isFictitious(), false));
 
         writeRootElementAttributes(identifiable, parent, context);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            try {
-                AliasesXml.write(identifiable, getRootElementName(), context);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            AliasesXml.write(identifiable, getRootElementName(), context);
         });
 
         PropertiesXml.write(identifiable, context);

@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -19,7 +20,6 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -36,15 +36,13 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
     @Override
     public void write(CgmesSshMetadata extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XMLStreamWriter writer = networkContext.getWriter();
-        if (extension.getDescription() != null) {
-            writer.writeAttribute("description", extension.getDescription());
-        }
-        XmlUtil.writeInt("sshVersion", extension.getSshVersion(), writer);
-        writer.writeAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
+        XmlWriter writer = networkContext.getWriter();
+        writer.writeStringAttribute("description", extension.getDescription());
+        writer.writeIntAttribute("sshVersion", extension.getSshVersion());
+        writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
         for (String dep : extension.getDependencies()) {
             writer.writeStartElement(getNamespaceUri(), "dependentOn");
-            writer.writeCharacters(dep);
+            writer.writeElementContent(dep);
             writer.writeEndElement();
         }
     }

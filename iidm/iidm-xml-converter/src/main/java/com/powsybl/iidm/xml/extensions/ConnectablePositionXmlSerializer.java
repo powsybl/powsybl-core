@@ -33,12 +33,12 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
 
     private void writePosition(ConnectablePosition.Feeder feeder, Integer i, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeEmptyElement(getNamespaceUri(), "feeder" + (i != null ? i : ""));
-        context.getWriter().writeAttribute("name", feeder.getName());
+        context.getWriter().writeStringAttribute("name", feeder.getName());
         Optional<Integer> oOrder = feeder.getOrder();
         if (oOrder.isPresent()) {
-            XmlUtil.writeInt("order", oOrder.get(), context.getWriter());
+            context.getWriter().writeIntAttribute("order", oOrder.get());
         }
-        context.getWriter().writeAttribute("direction", feeder.getDirection().name());
+        context.getWriter().writeStringAttribute("direction", feeder.getDirection().name());
     }
 
     @Override

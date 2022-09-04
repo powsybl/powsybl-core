@@ -61,13 +61,13 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
 
     @Override
     public void write(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("rdp", xnode.getRdp(), context.getWriter());
-        XmlUtil.writeDouble("xdp", xnode.getXdp(), context.getWriter());
-        XmlUtil.writeDouble("xnodeP1", xnode.getXnodeP1(), context.getWriter());
-        XmlUtil.writeDouble("xnodeQ1", xnode.getXnodeQ1(), context.getWriter());
-        XmlUtil.writeDouble("xnodeP2", xnode.getXnodeP2(), context.getWriter());
-        XmlUtil.writeDouble("xnodeQ2", xnode.getXnodeQ2(), context.getWriter());
-        context.getWriter().writeAttribute("code", xnode.getCode());
+        context.getWriter().writeDoubleAttribute("rdp", xnode.getRdp());
+        context.getWriter().writeDoubleAttribute("xdp", xnode.getXdp());
+        context.getWriter().writeDoubleAttribute("xnodeP1", xnode.getXnodeP1());
+        context.getWriter().writeDoubleAttribute("xnodeQ1", xnode.getXnodeQ1());
+        context.getWriter().writeDoubleAttribute("xnodeP2", xnode.getXnodeP2());
+        context.getWriter().writeDoubleAttribute("xnodeQ2", xnode.getXnodeQ2());
+        context.getWriter().writeStringAttribute("code", xnode.getCode());
         if (context instanceof NetworkXmlWriterContext) {
             NetworkXmlWriterContext networkXmlWriterContext = (NetworkXmlWriterContext) context;
             String extVersionStr = networkXmlWriterContext.getExtensionVersion("mergedXnode")
@@ -78,9 +78,9 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
         }
     }
 
-    private void writeLinesNames(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("line1Name", xnode.getLine1Name());
-        context.getWriter().writeAttribute("line2Name", xnode.getLine2Name());
+    private void writeLinesNames(MergedXnode xnode, XmlWriterContext context) {
+        context.getWriter().writeStringAttribute("line1Name", xnode.getLine1Name());
+        context.getWriter().writeStringAttribute("line2Name", xnode.getLine2Name());
     }
 
     @Override

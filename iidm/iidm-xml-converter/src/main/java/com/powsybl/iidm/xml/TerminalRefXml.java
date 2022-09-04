@@ -8,34 +8,32 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public final class TerminalRefXml {
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) {
         writeTerminalRef(t, context, context.getVersion().getNamespaceURI(context.isValid()), elementName);
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) {
         writeTerminalRef(t, context, namespace, elementName, context.getWriter());
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XmlWriter writer) {
         writer.writeEmptyElement(namespace, elementName);
         writeTerminalRefAttribute(t, context, writer);
     }
 
-    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context) {
         writeTerminalRefAttribute(t, context, context.getWriter());
     }
 
-    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context, XmlWriter writer) {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
@@ -46,16 +44,16 @@ public final class TerminalRefXml {
             throw new PowsyblException(String.format("Terminal ref should not point to a busbar section (here %s). Try to export in node-breaker or delete this terminal ref.",
                     t.getConnectable().getId()));
         }
-        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        writer.writeStringAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
                 // nothing to do
             } else if (c instanceof Branch) {
                 Branch branch = (Branch) c;
-                writer.writeAttribute("side", branch.getSide(t).name());
+                writer.writeStringAttribute("side", branch.getSide(t).name());
             } else if (c instanceof ThreeWindingsTransformer) {
                 ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
-                writer.writeAttribute("side", twt.getSide(t).name());
+                writer.writeStringAttribute("side", twt.getSide(t).name());
             } else {
                 throw new AssertionError("Unexpected Connectable instance: " + c.getClass());
             }

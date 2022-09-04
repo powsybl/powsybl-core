@@ -35,10 +35,10 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("loadType", l.getLoadType().name());
-        XmlUtil.writeDouble("p0", l.getP0(), context.getWriter());
-        XmlUtil.writeDouble("q0", l.getQ0(), context.getWriter());
+    protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStringAttribute("loadType", l.getLoadType().name());
+        context.getWriter().writeDoubleAttribute("p0", l.getP0());
+        context.getWriter().writeDoubleAttribute("q0", l.getQ0());
         writeNodeOrBus(null, l.getTerminal(), context);
         writePQ(null, l.getTerminal(), context.getWriter());
     }

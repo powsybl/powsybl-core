@@ -36,8 +36,8 @@ public class HvdcOperatorActivePowerRangeXmlSerializer extends AbstractExtension
 
     @Override
     public void write(HvdcOperatorActivePowerRange opr, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("fromCS1toCS2", opr.getOprFromCS1toCS2(), context.getWriter());
-        XmlUtil.writeFloat("fromCS2toCS1", opr.getOprFromCS2toCS1(), context.getWriter());
+        context.getWriter().writeFloatAttribute("fromCS1toCS2", opr.getOprFromCS1toCS2());
+        context.getWriter().writeFloatAttribute("fromCS2toCS1", opr.getOprFromCS2toCS1());
     }
 
     @Override

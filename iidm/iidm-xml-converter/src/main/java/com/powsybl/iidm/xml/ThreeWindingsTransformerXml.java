@@ -54,28 +54,28 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r1", twt.getLeg1().getR(), context.getWriter());
-        XmlUtil.writeDouble("x1", twt.getLeg1().getX(), context.getWriter());
-        XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
-        XmlUtil.writeDouble("b1", twt.getLeg1().getB(), context.getWriter());
-        XmlUtil.writeDouble("ratedU1", twt.getLeg1().getRatedU(), context.getWriter());
+    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("r1", twt.getLeg1().getR());
+        context.getWriter().writeDoubleAttribute("x1", twt.getLeg1().getX());
+        context.getWriter().writeDoubleAttribute("g1", twt.getLeg1().getG());
+        context.getWriter().writeDoubleAttribute("b1", twt.getLeg1().getB());
+        context.getWriter().writeDoubleAttribute("ratedU1", twt.getLeg1().getRatedU());
         writeRatedS("ratedS1", twt.getLeg1().getRatedS(), context);
-        XmlUtil.writeDouble("r2", twt.getLeg2().getR(), context.getWriter());
-        XmlUtil.writeDouble("x2", twt.getLeg2().getX(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("r2", twt.getLeg2().getR());
+        context.getWriter().writeDoubleAttribute("x2", twt.getLeg2().getX());
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g2", twt.getLeg2().getG(), 0,
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b2", twt.getLeg2().getB(), 0,
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        XmlUtil.writeDouble("ratedU2", twt.getLeg2().getRatedU(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("ratedU2", twt.getLeg2().getRatedU());
         writeRatedS("ratedS2", twt.getLeg2().getRatedS(), context);
-        XmlUtil.writeDouble("r3", twt.getLeg3().getR(), context.getWriter());
-        XmlUtil.writeDouble("x3", twt.getLeg3().getX(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("r3", twt.getLeg3().getR());
+        context.getWriter().writeDoubleAttribute("x3", twt.getLeg3().getX());
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "g3", twt.getLeg3().getG(), 0,
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "b3", twt.getLeg3().getB(), 0,
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        XmlUtil.writeDouble("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("ratedU3", twt.getLeg3().getRatedU());
         writeRatedS("ratedS3", twt.getLeg3().getRatedS(), context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "ratedU0", twt.getRatedU0(), twt.getLeg1().getRatedU(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
@@ -90,7 +90,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeSubElements(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasRatioTapChanger(), ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1,
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context, () -> writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context));
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1,
@@ -123,13 +123,13 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         }
     }
 
-    private static void writeRatioTapChanger(RatioTapChanger rtc, int index, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeRatioTapChanger(RatioTapChanger rtc, int index, NetworkXmlWriterContext context) {
         if (rtc != null) {
             writeRatioTapChanger("ratioTapChanger" + index, rtc, context);
         }
     }
 
-    private static void writePhaseTapChanger(PhaseTapChanger ptc, int index, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writePhaseTapChanger(PhaseTapChanger ptc, int index, NetworkXmlWriterContext context) {
         if (ptc != null) {
             writePhaseTapChanger("phaseTapChanger" + index, ptc, context);
         }

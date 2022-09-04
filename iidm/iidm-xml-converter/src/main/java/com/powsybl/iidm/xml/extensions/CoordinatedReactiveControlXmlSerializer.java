@@ -31,7 +31,7 @@ public class CoordinatedReactiveControlXmlSerializer extends AbstractExtensionXm
 
     @Override
     public void write(CoordinatedReactiveControl coordinatedReactiveControl, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("qPercent", coordinatedReactiveControl.getQPercent(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("qPercent", coordinatedReactiveControl.getQPercent());
     }
 
     @Override

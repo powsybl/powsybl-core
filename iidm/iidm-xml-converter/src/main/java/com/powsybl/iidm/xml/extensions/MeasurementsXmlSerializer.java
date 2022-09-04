@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
@@ -21,7 +22,6 @@ import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -39,7 +39,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
 
     @Override
     public void write(Measurements<C> extension, XmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = context.getWriter();
+        XmlWriter writer = context.getWriter();
         for (Measurement measurement : extension.getMeasurements()) {
             boolean hasProperty = !measurement.getPropertyNames().isEmpty();
             if (hasProperty) {
@@ -48,19 +48,17 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
                 writer.writeEmptyElement(getNamespaceUri(), MEASUREMENT);
             }
             if (measurement.getId() != null) {
-                writer.writeAttribute("id", measurement.getId());
+                writer.writeStringAttribute("id", measurement.getId());
             }
-            writer.writeAttribute("type", measurement.getType().toString());
-            if (measurement.getSide() != null) {
-                writer.writeAttribute("side", measurement.getSide().toString());
-            }
-            XmlUtil.writeDouble(VALUE, measurement.getValue(), writer);
-            XmlUtil.writeDouble("standardDeviation", measurement.getStandardDeviation(), writer);
-            writer.writeAttribute("valid", String.valueOf(measurement.isValid()));
+            writer.writeEnumAttribute("type", measurement.getType());
+            writer.writeEnumAttribute("side", measurement.getSide());
+            writer.writeDoubleAttribute(VALUE, measurement.getValue());
+            writer.writeDoubleAttribute("standardDeviation", measurement.getStandardDeviation());
+            writer.writeBooleanAttribute("valid", measurement.isValid());
             for (String name : measurement.getPropertyNames()) {
                 writer.writeEmptyElement(getNamespaceUri(), "property");
-                writer.writeAttribute("name", name);
-                writer.writeAttribute(VALUE, measurement.getProperty(name));
+                writer.writeStringAttribute("name", name);
+                writer.writeStringAttribute(VALUE, measurement.getProperty(name));
             }
             if (hasProperty) {
                 writer.writeEndElement();

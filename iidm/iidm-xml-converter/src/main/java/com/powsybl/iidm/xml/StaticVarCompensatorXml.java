@@ -36,20 +36,20 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("bMin", svc.getBmin(), context.getWriter());
-        XmlUtil.writeDouble("bMax", svc.getBmax(), context.getWriter());
+    protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("bMin", svc.getBmin());
+        context.getWriter().writeDoubleAttribute("bMax", svc.getBmax());
         String[] voltageSetpointName = {"voltageSetpoint"};
         String[] reactivePowerSetpointName = {"reactivePowerSetpoint"};
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        XmlUtil.writeDouble(voltageSetpointName[0], svc.getVoltageSetpoint(), context.getWriter());
-        XmlUtil.writeDouble(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint(), context.getWriter());
+        context.getWriter().writeDoubleAttribute(voltageSetpointName[0], svc.getVoltageSetpoint());
+        context.getWriter().writeDoubleAttribute(reactivePowerSetpointName[0], svc.getReactivePowerSetpoint());
 
         if (svc.getRegulationMode() != null) {
-            context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
+            context.getWriter().writeStringAttribute("regulationMode", svc.getRegulationMode().name());
         }
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());

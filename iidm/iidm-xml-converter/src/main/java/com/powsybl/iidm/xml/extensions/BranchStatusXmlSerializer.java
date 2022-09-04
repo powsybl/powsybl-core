@@ -32,7 +32,7 @@ public class BranchStatusXmlSerializer<C extends Connectable<C>> extends Abstrac
 
     @Override
     public void write(BranchStatus<C> branchStatus, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeCharacters(branchStatus.getStatus().name());
+        context.getWriter().writeElementContent(branchStatus.getStatus().name());
     }
 
     @Override

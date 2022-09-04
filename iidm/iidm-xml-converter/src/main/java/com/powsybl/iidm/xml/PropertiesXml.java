@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
@@ -23,13 +21,13 @@ public final class PropertiesXml {
     private static final String NAME = "name";
     private static final String VALUE = "value";
 
-    public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) {
         if (identifiable.hasProperty()) {
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
                 context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
-                context.getWriter().writeAttribute(NAME, name);
-                context.getWriter().writeAttribute(VALUE, value);
+                context.getWriter().writeStringAttribute(NAME, name);
+                context.getWriter().writeStringAttribute(VALUE, value);
             }
         }
     }

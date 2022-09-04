@@ -33,9 +33,9 @@ public class GeneratorShortCircuitXmlSerializer extends AbstractExtensionXmlSeri
 
     @Override
     public void write(GeneratorShortCircuit generatorShortCircuit, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("directSubtransX", generatorShortCircuit.getDirectSubtransX(), context.getWriter());
-        XmlUtil.writeDouble("directTransX", generatorShortCircuit.getDirectTransX(), context.getWriter());
-        XmlUtil.writeDouble("stepUpTransformerX", generatorShortCircuit.getStepUpTransformerX(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("directSubtransX", generatorShortCircuit.getDirectSubtransX());
+        context.getWriter().writeDoubleAttribute("directTransX", generatorShortCircuit.getDirectTransX());
+        context.getWriter().writeDoubleAttribute("stepUpTransformerX", generatorShortCircuit.getStepUpTransformerX());
     }
 
     @Override

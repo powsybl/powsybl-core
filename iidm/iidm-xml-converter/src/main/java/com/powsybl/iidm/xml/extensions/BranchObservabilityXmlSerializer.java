@@ -41,7 +41,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
 
     @Override
     public void write(BranchObservability<T> branchObservability, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalBoolean("observable", branchObservability.isObservable(), false, context.getWriter());
+        context.getWriter().writeBooleanAttribute("observable", branchObservability.isObservable(), false);
 
         // qualityP1
         writeOptionalQuality(context, branchObservability.getQualityP1(), QUALITY_P, Side.ONE);
@@ -61,9 +61,9 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
             return;
         }
         context.getWriter().writeEmptyElement(getNamespaceUri(), type);
-        context.getWriter().writeAttribute(SIDE, side.name());
-        XmlUtil.writeDouble(STANDARD_DEVIATION, quality.getStandardDeviation(), context.getWriter());
-        XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), false, context.getWriter());
+        context.getWriter().writeEnumAttribute(SIDE, side);
+        context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
+        context.getWriter().writeBooleanAttribute(REDUNDANT, quality.isRedundant(), false);
     }
 
     @Override

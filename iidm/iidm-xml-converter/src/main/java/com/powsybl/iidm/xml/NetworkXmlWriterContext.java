@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.network.Identifiable;
@@ -21,7 +22,7 @@ import java.util.Set;
  */
 public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOptions> implements XmlWriterContext {
 
-    private final XMLStreamWriter writer;
+    private final XmlWriter writer;
     private final ExportOptions options;
     private final BusFilter filter;
     private final boolean valid;
@@ -29,7 +30,7 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
 
     NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
         super(anonymizer, version);
-        this.writer = writer;
+        this.writer = new XmlWriter(writer);
         this.options = options;
         this.filter = filter;
         this.valid = valid;
@@ -45,7 +46,7 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
     }
 
     @Override
-    public XMLStreamWriter getWriter() {
+    public XmlWriter getWriter() {
         return writer;
     }
 

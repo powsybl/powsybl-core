@@ -8,7 +8,6 @@ package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -38,14 +37,10 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
         sortedBaseVoltages.forEach((nominalV, baseVoltageSource) -> {
-            try {
-                context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
-                context.getWriter().writeAttribute("nominalVoltage", Double.toString(nominalV));
-                context.getWriter().writeAttribute("source", baseVoltageSource.getSource().name());
-                context.getWriter().writeAttribute("id", baseVoltageSource.getId());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
+            context.getWriter().writeDoubleAttribute("nominalVoltage", nominalV);
+            context.getWriter().writeEnumAttribute("source", baseVoltageSource.getSource());
+            context.getWriter().writeStringAttribute("id", baseVoltageSource.getId());
         });
     }
 

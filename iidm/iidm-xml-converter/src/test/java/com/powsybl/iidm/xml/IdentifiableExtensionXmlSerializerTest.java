@@ -148,7 +148,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
 
         @Override
         public void write(NetworkSourceExtension networkSource, XmlWriterContext context) throws XMLStreamException {
-            context.getWriter().writeAttribute("sourceData", networkSource.getSourceData());
+            context.getWriter().writeStringAttribute("sourceData", networkSource.getSourceData());
         }
 
         @Override

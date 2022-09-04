@@ -41,14 +41,10 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     public void write(CgmesIidmMapping extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         extension.getUnmappedTopologicalNodes().forEach(cgmesTopologicalNode -> {
-            try {
-                context.getWriter().writeEmptyElement(getNamespaceUri(), "unmappedTopologicalNode");
-                context.getWriter().writeAttribute("id", cgmesTopologicalNode.getCgmesId());
-                context.getWriter().writeAttribute("name", cgmesTopologicalNode.getName());
-                context.getWriter().writeAttribute(SOURCE, cgmesTopologicalNode.getSource().name());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            context.getWriter().writeEmptyElement(getNamespaceUri(), "unmappedTopologicalNode");
+            context.getWriter().writeStringAttribute("id", cgmesTopologicalNode.getCgmesId());
+            context.getWriter().writeStringAttribute("name", cgmesTopologicalNode.getName());
+            context.getWriter().writeEnumAttribute(SOURCE, cgmesTopologicalNode.getSource());
         });
         extension.getExtendable().getBusView().getBusStream()
                 .filter(b -> extension.isTopologicalNodeMapped(b.getId()))
@@ -109,8 +105,8 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
             throw new PowsyblException("bus does not have connected terminals " + b.getId());
         }
         Terminal t = it.next();
-        context.getWriter().writeAttribute("equipmentId", context.getAnonymizer().anonymizeString(t.getConnectable().getId()));
-        context.getWriter().writeAttribute("side", Integer.toString(terminalSide(t, t.getConnectable())));
+        context.getWriter().writeStringAttribute("equipmentId", context.getAnonymizer().anonymizeString(t.getConnectable().getId()));
+        context.getWriter().writeIntAttribute("side", terminalSide(t, t.getConnectable()));
     }
 
     private void writeTopologicalNodes(CgmesIidmMapping extension, Bus b, XmlWriterContext context) {
@@ -125,9 +121,9 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     }
 
     private void writeTopologicalNode(CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("id", cgmesTopologicalNode.getCgmesId());
-        context.getWriter().writeAttribute("name", cgmesTopologicalNode.getName());
-        context.getWriter().writeAttribute(SOURCE, cgmesTopologicalNode.getSource().name());
+        context.getWriter().writeStringAttribute("id", cgmesTopologicalNode.getCgmesId());
+        context.getWriter().writeStringAttribute("name", cgmesTopologicalNode.getName());
+        context.getWriter().writeEnumAttribute(SOURCE, cgmesTopologicalNode.getSource());
     }
 
     private static String readBusIdentification(Network network, NetworkXmlReaderContext context) {

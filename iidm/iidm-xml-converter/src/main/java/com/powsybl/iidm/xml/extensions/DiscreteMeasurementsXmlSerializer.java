@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
@@ -21,7 +22,6 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -39,7 +39,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
 
     @Override
     public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = context.getWriter();
+        XmlWriter writer = context.getWriter();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
             boolean hasProperty = !discreteMeasurement.getPropertyNames().isEmpty();
             if (hasProperty) {
@@ -47,34 +47,28 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
             } else {
                 writer.writeEmptyElement(getNamespaceUri(), DISCRETE_MEASUREMENT);
             }
-            if (discreteMeasurement.getId() != null) {
-                writer.writeAttribute("id", discreteMeasurement.getId());
-            }
-            writer.writeAttribute("type", discreteMeasurement.getType().toString());
-            if (discreteMeasurement.getTapChanger() != null) {
-                writer.writeAttribute("tapChanger", discreteMeasurement.getTapChanger().toString());
-            }
-            writer.writeAttribute("valueType", discreteMeasurement.getValueType().toString());
+            writer.writeStringAttribute("id", discreteMeasurement.getId());
+            writer.writeStringAttribute("type", discreteMeasurement.getType().toString());
+            writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
+            writer.writeEnumAttribute("valueType", discreteMeasurement.getValueType());
             switch (discreteMeasurement.getValueType()) {
                 case BOOLEAN:
-                    writer.writeAttribute(VALUE, String.valueOf(discreteMeasurement.getValueAsBoolean()));
+                    writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
                     break;
                 case INT:
-                    writer.writeAttribute(VALUE, String.valueOf(discreteMeasurement.getValueAsInt()));
+                    writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
                     break;
                 case STRING:
-                    if (discreteMeasurement.getValueAsString() != null) {
-                        writer.writeAttribute(VALUE, discreteMeasurement.getValueAsString());
-                    }
+                    writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
                     break;
                 default:
                     throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
             }
-            writer.writeAttribute("valid", String.valueOf(discreteMeasurement.isValid()));
+            writer.writeStringAttribute("valid", String.valueOf(discreteMeasurement.isValid()));
             for (String name : discreteMeasurement.getPropertyNames()) {
                 writer.writeEmptyElement(getNamespaceUri(), "property");
-                writer.writeAttribute("name", name);
-                writer.writeAttribute(VALUE, discreteMeasurement.getProperty(name));
+                writer.writeStringAttribute("name", name);
+                writer.writeStringAttribute(VALUE, discreteMeasurement.getProperty(name));
             }
             if (hasProperty) {
                 writer.writeEndElement();

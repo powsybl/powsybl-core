@@ -31,7 +31,7 @@ public class VoltagePerReactivePowerControlXmlSerializer extends AbstractExtensi
 
     @Override
     public void write(VoltagePerReactivePowerControl control, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("slope", control.getSlope(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("slope", control.getSlope());
     }
 
     @Override

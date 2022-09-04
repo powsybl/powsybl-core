@@ -34,14 +34,14 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", l.getR(), context.getWriter());
-        XmlUtil.writeDouble("nominalV", l.getNominalV(), context.getWriter());
-        XmlUtil.writeOptionalEnum("convertersMode", l.getConvertersMode(), context.getWriter());
-        XmlUtil.writeDouble("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
-        XmlUtil.writeDouble("maxP", l.getMaxP(), context.getWriter());
-        context.getWriter().writeAttribute("converterStation1", context.getAnonymizer().anonymizeString(l.getConverterStation1().getId()));
-        context.getWriter().writeAttribute("converterStation2", context.getAnonymizer().anonymizeString(l.getConverterStation2().getId()));
+    protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("r", l.getR());
+        context.getWriter().writeDoubleAttribute("nominalV", l.getNominalV());
+        context.getWriter().writeEnumAttribute("convertersMode", l.getConvertersMode());
+        context.getWriter().writeDoubleAttribute("activePowerSetpoint", l.getActivePowerSetpoint());
+        context.getWriter().writeDoubleAttribute("maxP", l.getMaxP());
+        context.getWriter().writeStringAttribute("converterStation1", context.getAnonymizer().anonymizeString(l.getConverterStation1().getId()));
+        context.getWriter().writeStringAttribute("converterStation2", context.getAnonymizer().anonymizeString(l.getConverterStation2().getId()));
     }
 
     @Override

@@ -33,8 +33,8 @@ public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> ex
 
     @Override
     public void write(IdentifiableShortCircuit identifiableShortCircuit, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("ipMax", identifiableShortCircuit.getIpMax(), context.getWriter());
-        XmlUtil.writeDouble("ipMin", identifiableShortCircuit.getIpMin(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("ipMax", identifiableShortCircuit.getIpMax());
+        context.getWriter().writeDoubleAttribute("ipMin", identifiableShortCircuit.getIpMin());
     }
 
     @Override

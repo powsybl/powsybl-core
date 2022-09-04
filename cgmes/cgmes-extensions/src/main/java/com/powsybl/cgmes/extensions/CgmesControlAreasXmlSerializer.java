@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -20,7 +21,6 @@ import com.powsybl.iidm.xml.TerminalRefXml;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -43,25 +43,21 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     @Override
     public void write(CgmesControlAreas extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XMLStreamWriter writer = networkContext.getWriter();
+        XmlWriter writer = networkContext.getWriter();
         for (CgmesControlArea controlArea : extension.getCgmesControlAreas()) {
             writer.writeStartElement(getNamespaceUri(), CONTROL_AREA);
-            writer.writeAttribute("id", controlArea.getId());
-            writer.writeAttribute("name", controlArea.getName());
-            if (controlArea.getEnergyIdentificationCodeEIC() != null) {
-                writer.writeAttribute("energyIdentificationCodeEic", controlArea.getEnergyIdentificationCodeEIC());
-            }
-            XmlUtil.writeDouble("netInterchange", controlArea.getNetInterchange(), writer);
+            writer.writeStringAttribute("id", controlArea.getId());
+            writer.writeStringAttribute("name", controlArea.getName());
+            writer.writeStringAttribute("energyIdentificationCodeEic", controlArea.getEnergyIdentificationCodeEIC());
+            writer.writeDoubleAttribute("netInterchange", controlArea.getNetInterchange());
             for (Terminal terminal : controlArea.getTerminals()) {
                 TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
             }
             for (Boundary boundary : controlArea.getBoundaries()) {
                 if (boundary.getConnectable() != null) { // TODO: delete this later, only for compatibility
                     writer.writeEmptyElement(getNamespaceUri(), "boundary");
-                    writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
-                    if (boundary.getSide() != null) {
-                        writer.writeAttribute("side", boundary.getSide().name());
-                    }
+                    writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
+                    writer.writeEnumAttribute("side", boundary.getSide());
                 }
             }
             writer.writeEndElement();

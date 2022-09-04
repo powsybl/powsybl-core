@@ -26,16 +26,16 @@ public class ReactiveLimitsXml {
     private static final String ATTR_MIN_Q = "minQ";
     private static final String ATTR_MAX_Q = "maxQ";
 
-    public void write(ReactiveLimitsHolder holder, NetworkXmlWriterContext context) throws XMLStreamException {
+    public void write(ReactiveLimitsHolder holder, NetworkXmlWriterContext context) {
         switch (holder.getReactiveLimits().getKind()) {
             case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "point");
-                    XmlUtil.writeDouble("p", point.getP(), context.getWriter());
-                    XmlUtil.writeDouble(ATTR_MIN_Q, point.getMinQ(), context.getWriter());
-                    XmlUtil.writeDouble(ATTR_MAX_Q, point.getMaxQ(), context.getWriter());
+                    context.getWriter().writeDoubleAttribute("p", point.getP());
+                    context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, point.getMinQ());
+                    context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, point.getMaxQ());
                 }
                 context.getWriter().writeEndElement();
                 break;
@@ -43,8 +43,8 @@ public class ReactiveLimitsXml {
             case MIN_MAX:
                 MinMaxReactiveLimits limits = holder.getReactiveLimits(MinMaxReactiveLimits.class);
                 context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ELEM_MIN_MAX_REACTIVE_LIMITS);
-                XmlUtil.writeDouble(ATTR_MIN_Q, limits.getMinQ(), context.getWriter());
-                XmlUtil.writeDouble(ATTR_MAX_Q, limits.getMaxQ(), context.getWriter());
+                context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, limits.getMinQ());
+                context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, limits.getMaxQ());
                 break;
 
             default:

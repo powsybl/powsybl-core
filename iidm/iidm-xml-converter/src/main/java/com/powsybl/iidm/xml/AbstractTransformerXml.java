@@ -7,12 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 import java.util.function.BiConsumer;
 import java.util.function.DoubleConsumer;
 
@@ -34,19 +33,19 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
 
-    protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeDouble("r", tcs.getR(), writer);
-        XmlUtil.writeDouble("x", tcs.getX(), writer);
-        XmlUtil.writeDouble("g", tcs.getG(), writer);
-        XmlUtil.writeDouble("b", tcs.getB(), writer);
-        XmlUtil.writeDouble("rho", tcs.getRho(), writer);
+    protected static void writeTapChangerStep(TapChangerStep<?> tcs, XmlWriter writer) {
+        writer.writeDoubleAttribute("r", tcs.getR());
+        writer.writeDoubleAttribute("x", tcs.getX());
+        writer.writeDoubleAttribute("g", tcs.getG());
+        writer.writeDoubleAttribute("b", tcs.getB());
+        writer.writeDoubleAttribute("rho", tcs.getRho());
     }
 
     private static void writeTargetDeadband(double targetDeadband, NetworkXmlWriterContext context) {
         // in IIDM-XML version 1.0, 0 as targetDeadband is ignored for backwards compatibility
         // (i.e. ensuring round trips in IIDM-XML version 1.0)
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> XmlUtil.writeOptionalDouble(TARGET_DEADBAND, targetDeadband, 0, context.getWriter()));
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> XmlUtil.writeDouble(TARGET_DEADBAND, targetDeadband, context.getWriter()));
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> context.getWriter().writeDoubleAttribute(TARGET_DEADBAND, targetDeadband, 0));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> context.getWriter().writeDoubleAttribute(TARGET_DEADBAND, targetDeadband));
     }
 
     private static double readTargetDeadband(NetworkXmlReaderContext context) {
@@ -65,22 +64,22 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         return targetDeadband[0];
     }
 
-    private static void writeTapChanger(TapChanger<?, ?> tc, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute(ATTR_LOW_TAP_POSITION, Integer.toString(tc.getLowTapPosition()));
+    private static void writeTapChanger(TapChanger<?, ?> tc, NetworkXmlWriterContext context) {
+        context.getWriter().writeStringAttribute(ATTR_LOW_TAP_POSITION, Integer.toString(tc.getLowTapPosition()));
         if (tc.findTapPosition().isPresent()) {
-            context.getWriter().writeAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition()));
+            context.getWriter().writeStringAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition()));
         }
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
 
-    protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), name);
         writeTapChanger(rtc, context);
-        context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
+        context.getWriter().writeStringAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
-            context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
+            context.getWriter().writeStringAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
         }
-        XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("targetV", rtc.getTargetV());
         if (rtc.getRegulationTerminal() != null) {
             TerminalRefXml.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
@@ -140,15 +139,15 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         readRatioTapChanger(RATIO_TAP_CHANGER + leg, twl.newRatioTapChanger(), twl.getTerminal(), context);
     }
 
-    protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), name);
         writeTapChanger(ptc, context);
-        XmlUtil.writeOptionalEnum("regulationMode", ptc.getRegulationMode(), context.getWriter());
+        context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
         if ((ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP) || !Double.isNaN(ptc.getRegulationValue())) {
-            XmlUtil.writeDouble("regulationValue", ptc.getRegulationValue(), context.getWriter());
+            context.getWriter().writeDoubleAttribute("regulationValue", ptc.getRegulationValue());
         }
         if ((ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP) || ptc.isRegulating()) {
-            context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
+            context.getWriter().writeStringAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefXml.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
@@ -157,7 +156,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
             writeTapChangerStep(ptcs, context.getWriter());
-            XmlUtil.writeDouble("alpha", ptcs.getAlpha(), context.getWriter());
+            context.getWriter().writeDoubleAttribute("alpha", ptcs.getAlpha());
         }
         context.getWriter().writeEndElement();
     }
@@ -247,6 +246,6 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
      * @param context the XMLStreamWriter accessor
      */
     protected static void writeRatedS(String name, double ratedS, NetworkXmlWriterContext context) {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> XmlUtil.writeOptionalDouble(name, ratedS, Double.NaN, context.getWriter()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> context.getWriter().writeDoubleAttribute(name, ratedS, Double.NaN));
     }
 }

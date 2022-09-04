@@ -87,11 +87,11 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
             default:
                 throw new PowsyblException("Unsupported startup version: " + extVersionStr);
         }
-        XmlUtil.writeDouble(plannedActivePowerSetpoint, startup.getPlannedActivePowerSetpoint(), context.getWriter());
-        XmlUtil.writeDouble(startupCost, startup.getStartupCost(), context.getWriter());
-        XmlUtil.writeDouble("marginalCost", startup.getMarginalCost(), context.getWriter());
-        XmlUtil.writeDouble("plannedOutageRate", startup.getPlannedOutageRate(), context.getWriter());
-        XmlUtil.writeDouble("forcedOutageRate", startup.getForcedOutageRate(), context.getWriter());
+        context.getWriter().writeDoubleAttribute(plannedActivePowerSetpoint, startup.getPlannedActivePowerSetpoint());
+        context.getWriter().writeDoubleAttribute(startupCost, startup.getStartupCost());
+        context.getWriter().writeDoubleAttribute("marginalCost", startup.getMarginalCost());
+        context.getWriter().writeDoubleAttribute("plannedOutageRate", startup.getPlannedOutageRate());
+        context.getWriter().writeDoubleAttribute("forcedOutageRate", startup.getForcedOutageRate());
     }
 
     @Override

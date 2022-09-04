@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -19,18 +18,14 @@ public final class AliasesXml {
 
     static final String ALIAS = "alias";
 
-    public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) {
         IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ALIAS, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         for (String alias : identifiable.getAliases()) {
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), ALIAS);
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> identifiable.getAliasType(alias).ifPresent(type -> {
-                try {
-                    context.getWriter().writeAttribute("type", type);
-                } catch (XMLStreamException e) {
-                    throw new UncheckedXmlStreamException(e);
-                }
+                context.getWriter().writeStringAttribute("type", type);
             }));
-            context.getWriter().writeCharacters(context.getAnonymizer().anonymizeString(alias));
+            context.getWriter().writeElementContent(context.getAnonymizer().anonymizeString(alias));
             context.getWriter().writeEndElement();
         }
     }

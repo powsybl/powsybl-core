@@ -30,13 +30,13 @@ public class LoadZipModelXmlSerializer extends AbstractExtensionXmlSerializer<Lo
 
     @Override
     public void write(LoadZipModel zipModel, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("a1", zipModel.getA1(), context.getWriter());
-        XmlUtil.writeDouble("a2", zipModel.getA2(), context.getWriter());
-        XmlUtil.writeDouble("a3", zipModel.getA3(), context.getWriter());
-        XmlUtil.writeDouble("a4", zipModel.getA4(), context.getWriter());
-        XmlUtil.writeDouble("a5", zipModel.getA5(), context.getWriter());
-        XmlUtil.writeDouble("a6", zipModel.getA6(), context.getWriter());
-        XmlUtil.writeDouble("v0", zipModel.getV0(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("a1", zipModel.getA1());
+        context.getWriter().writeDoubleAttribute("a2", zipModel.getA2());
+        context.getWriter().writeDoubleAttribute("a3", zipModel.getA3());
+        context.getWriter().writeDoubleAttribute("a4", zipModel.getA4());
+        context.getWriter().writeDoubleAttribute("a5", zipModel.getA5());
+        context.getWriter().writeDoubleAttribute("a6", zipModel.getA6());
+        context.getWriter().writeDoubleAttribute("v0", zipModel.getV0());
     }
 
     @Override

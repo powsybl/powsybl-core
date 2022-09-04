@@ -32,8 +32,8 @@ public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSeri
 
     @Override
     public void write(BusbarSectionPosition busbarSectionPosition, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeInt("busbarIndex", busbarSectionPosition.getBusbarIndex(), context.getWriter());
-        XmlUtil.writeInt("sectionIndex", busbarSectionPosition.getSectionIndex(), context.getWriter());
+        context.getWriter().writeIntAttribute("busbarIndex", busbarSectionPosition.getBusbarIndex());
+        context.getWriter().writeIntAttribute("sectionIndex", busbarSectionPosition.getSectionIndex());
     }
 
     @Override

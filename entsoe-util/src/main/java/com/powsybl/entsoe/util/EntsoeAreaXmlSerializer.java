@@ -29,7 +29,7 @@ public class EntsoeAreaXmlSerializer extends AbstractExtensionXmlSerializer<Subs
 
     @Override
     public void write(EntsoeArea country, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeCharacters(country.getCode().name());
+        context.getWriter().writeElementContent(country.getCode().name());
     }
 
     @Override

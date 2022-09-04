@@ -42,30 +42,30 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return hasValidOperationalLimits(tl, context);
     }
 
-    private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
+    private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) {
         Boundary boundary = halfLine.getBoundary();
-        context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
+        context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
         if (!halfLine.getId().equals(halfLine.getName())) {
-            context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
+            context.getWriter().writeStringAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
         }
-        XmlUtil.writeDouble("r_" + side, halfLine.getR(), context.getWriter());
-        XmlUtil.writeDouble("x_" + side, halfLine.getX(), context.getWriter());
-        XmlUtil.writeDouble("g1_" + side, halfLine.getG1(), context.getWriter());
-        XmlUtil.writeDouble("b1_" + side, halfLine.getB1(), context.getWriter());
-        XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
-        XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("r_" + side, halfLine.getR());
+        context.getWriter().writeDoubleAttribute("x_" + side, halfLine.getX());
+        context.getWriter().writeDoubleAttribute("g1_" + side, halfLine.getG1());
+        context.getWriter().writeDoubleAttribute("b1_" + side, halfLine.getB1());
+        context.getWriter().writeDoubleAttribute("g2_" + side, halfLine.getG2());
+        context.getWriter().writeDoubleAttribute("b2_" + side, halfLine.getB2());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            XmlUtil.writeDouble("xnodeP_" + side, boundary.getP(), context.getWriter());
-            XmlUtil.writeDouble("xnodeQ_" + side, boundary.getQ(), context.getWriter());
+            context.getWriter().writeDoubleAttribute("xnodeP_" + side, boundary.getP());
+            context.getWriter().writeDoubleAttribute("xnodeQ_" + side, boundary.getQ());
         });
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeBooleanAttribute("fictitious_" + side, halfLine.isFictitious(), false));
     }
 
     @Override
-    protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) {
         if (tl.getUcteXnodeCode() != null) {
-            context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
+            context.getWriter().writeStringAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
         }
         writeNodeOrBus(1, tl.getTerminal1(), context);
         writeNodeOrBus(2, tl.getTerminal2(), context);
@@ -78,7 +78,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     @Override
-    protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) {
         Optional<ActivePowerLimits> activePowerLimits1 = tl.getActivePowerLimits1();
         if (activePowerLimits1.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);

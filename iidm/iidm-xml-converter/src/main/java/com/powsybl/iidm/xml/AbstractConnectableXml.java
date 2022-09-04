@@ -7,13 +7,13 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,7 +53,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return limitsHolder.getCurrentLimits().isPresent();
     }
 
-    protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
             case NODE_BREAKER:
@@ -70,21 +70,21 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
 
         if (index != null) {
-            context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
+            context.getWriter().writeStringAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
     }
 
-    private static void writeNode(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute(NODE + indexToString(index),
+    private static void writeNode(Integer index, Terminal t, NetworkXmlWriterContext context) {
+        context.getWriter().writeStringAttribute(NODE + indexToString(index),
                 Integer.toString(t.getNodeBreakerView().getNode()));
     }
 
-    private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) {
         if (bus != null) {
-            context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
+            context.getWriter().writeStringAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
         }
         if (connectableBus != null) {
-            context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
+            context.getWriter().writeStringAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
         }
     }
 
@@ -151,9 +151,9 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.setVoltageLevel(voltageLevelId);
     }
 
-    protected static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("p" + indexToString(index), t.getP(), Double.NaN, writer);
-        XmlUtil.writeOptionalDouble("q" + indexToString(index), t.getQ(), Double.NaN, writer);
+    protected static void writePQ(Integer index, Terminal t, XmlWriter writer) {
+        writer.writeDoubleAttribute("p" + indexToString(index), t.getP(), Double.NaN);
+        writer.writeDoubleAttribute("q" + indexToString(index), t.getQ(), Double.NaN);
     }
 
     protected static void readPQ(Integer index, Terminal t, XMLStreamReader reader) {
@@ -195,54 +195,38 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.add();
     }
 
-    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                              boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, XmlWriter writer, IidmXmlVersion version,
+                                              boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, ACTIVE_POWER_LIMITS);
     }
 
-    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                              boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, XmlWriter writer, IidmXmlVersion version,
+                                              boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, APPARENT_POWER_LIMITS);
     }
 
-    /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion, ExportOptions)} instead.
-     */
-    @Deprecated
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, version, new ExportOptions());
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                          ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, IidmXmlVersion version,
+                                          ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version, true, exportOptions);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
-                                          boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, IidmXmlVersion version,
+                                          boolean valid, ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions);
     }
 
-    /**
-     * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion, ExportOptions)} instead.
-     */
-    @Deprecated
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version) throws XMLStreamException {
-        writeCurrentLimits(index, limits, writer, nsUri, version, new ExportOptions());
-    }
-
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
-                                          ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, String nsUri, IidmXmlVersion version,
+                                          ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, nsUri, version, true, exportOptions, CURRENT_LIMITS);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
-                                          boolean valid, ExportOptions exportOptions) throws XMLStreamException {
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, String nsUri, IidmXmlVersion version,
+                                          boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, nsUri, version, valid, exportOptions, CURRENT_LIMITS);
     }
 
-    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
-                                           boolean valid, ExportOptions exportOptions, String type) throws XMLStreamException {
+    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, XmlWriter writer, String nsUri, IidmXmlVersion version,
+                                           boolean valid, ExportOptions exportOptions, String type) {
         if (!Double.isNaN(limits.getPermanentLimit())
                 || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
@@ -250,13 +234,13 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             } else {
                 writer.writeStartElement(nsUri, type + indexToString(index));
             }
-            XmlUtil.writeDouble("permanentLimit", limits.getPermanentLimit(), writer);
+            writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
             for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
                 writer.writeEmptyElement(version.getNamespaceURI(valid), "temporaryLimit");
-                writer.writeAttribute("name", tl.getName());
-                XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
-                XmlUtil.writeOptionalDouble("value", tl.getValue(), Double.MAX_VALUE, writer);
-                XmlUtil.writeOptionalBoolean("fictitious", tl.isFictitious(), false, writer);
+                writer.writeStringAttribute("name", tl.getName());
+                writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
+                writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
+                writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
             }
             if (!limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEndElement();

@@ -35,17 +35,17 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected void writeRootElementAttributes(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("v", b.getV(), context.getWriter());
-        XmlUtil.writeDouble("angle", b.getAngle(), context.getWriter());
+    protected void writeRootElementAttributes(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("v", b.getV());
+        context.getWriter().writeDoubleAttribute("angle", b.getAngle());
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> {
-            XmlUtil.writeOptionalDouble("fictitiousP0", b.getFictitiousP0(), 0.0, context.getWriter());
-            XmlUtil.writeOptionalDouble("fictitiousQ0", b.getFictitiousQ0(), 0.0, context.getWriter());
+            context.getWriter().writeDoubleAttribute("fictitiousP0", b.getFictitiousP0(), 0.0);
+            context.getWriter().writeDoubleAttribute("fictitiousQ0", b.getFictitiousQ0(), 0.0);
         });
     }
 
     @Override
-    protected void writeSubElements(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) {
         // no sub elements to write
     }
 

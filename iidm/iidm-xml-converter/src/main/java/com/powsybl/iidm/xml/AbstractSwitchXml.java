@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -33,12 +32,12 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
     }
 
     @Override
-    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("kind", s.getKind().name());
-        context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
-        context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
+    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStringAttribute("kind", s.getKind().name());
+        context.getWriter().writeStringAttribute("retained", Boolean.toString(s.isRetained()));
+        context.getWriter().writeStringAttribute("open", Boolean.toString(s.isOpen()));
 
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> XmlUtil.writeOptionalBoolean("fictitious", s.isFictitious(), false, context.getWriter()));
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> context.getWriter().writeBooleanAttribute("fictitious", s.isFictitious(), false));
     }
 
     @Override

@@ -11,9 +11,6 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-
-import javax.xml.stream.XMLStreamException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,13 +32,13 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
     }
 
     @Override
-    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
         Bus bus1 = v.getBus1(s.getId());
         Bus bus2 = v.getBus2(s.getId());
-        context.getWriter().writeAttribute("bus1", context.getAnonymizer().anonymizeString(bus1.getId()));
-        context.getWriter().writeAttribute("bus2", context.getAnonymizer().anonymizeString(bus2.getId()));
+        context.getWriter().writeStringAttribute("bus1", context.getAnonymizer().anonymizeString(bus1.getId()));
+        context.getWriter().writeStringAttribute("bus2", context.getAnonymizer().anonymizeString(bus2.getId()));
     }
 
     @Override

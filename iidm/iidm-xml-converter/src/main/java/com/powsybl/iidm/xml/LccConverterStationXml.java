@@ -34,9 +34,9 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
-        XmlUtil.writeFloat("powerFactor", cs.getPowerFactor(), context.getWriter());
+    protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
+        context.getWriter().writeFloatAttribute("powerFactor", cs.getPowerFactor());
         writeNodeOrBus(null, cs.getTerminal(), context);
         writePQ(null, cs.getTerminal(), context.getWriter());
     }

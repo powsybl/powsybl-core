@@ -32,12 +32,12 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
 
     @Override
     public void write(ThreeWindingsTransformerToBeEstimated extension, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("ratioTapChanger1Status", String.valueOf(extension.shouldEstimateRatioTapChanger1()));
-        context.getWriter().writeAttribute("ratioTapChanger2Status", String.valueOf(extension.shouldEstimateRatioTapChanger2()));
-        context.getWriter().writeAttribute("ratioTapChanger3Status", String.valueOf(extension.shouldEstimateRatioTapChanger3()));
-        context.getWriter().writeAttribute("phaseTapChanger1Status", String.valueOf(extension.shouldEstimatePhaseTapChanger1()));
-        context.getWriter().writeAttribute("phaseTapChanger2Status", String.valueOf(extension.shouldEstimatePhaseTapChanger2()));
-        context.getWriter().writeAttribute("phaseTapChanger3Status", String.valueOf(extension.shouldEstimatePhaseTapChanger3()));
+        context.getWriter().writeStringAttribute("ratioTapChanger1Status", String.valueOf(extension.shouldEstimateRatioTapChanger1()));
+        context.getWriter().writeStringAttribute("ratioTapChanger2Status", String.valueOf(extension.shouldEstimateRatioTapChanger2()));
+        context.getWriter().writeStringAttribute("ratioTapChanger3Status", String.valueOf(extension.shouldEstimateRatioTapChanger3()));
+        context.getWriter().writeStringAttribute("phaseTapChanger1Status", String.valueOf(extension.shouldEstimatePhaseTapChanger1()));
+        context.getWriter().writeStringAttribute("phaseTapChanger2Status", String.valueOf(extension.shouldEstimatePhaseTapChanger2()));
+        context.getWriter().writeStringAttribute("phaseTapChanger3Status", String.valueOf(extension.shouldEstimatePhaseTapChanger3()));
     }
 
     @Override

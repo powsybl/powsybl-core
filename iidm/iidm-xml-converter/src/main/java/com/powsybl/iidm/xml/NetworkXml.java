@@ -17,6 +17,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.network.*;
@@ -152,7 +153,7 @@ public final class NetworkXml {
     }
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = context.getWriter();
+        XmlWriter writer = context.getWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(), extension);
         if (extensionXmlSerializer == null) {
             throw new AssertionError("Extension XML Serializer of " + extension.getName() + " should not be null");
@@ -218,7 +219,7 @@ public final class NetworkXml {
 
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
                 for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
                     writeExtension(extension, context);
                 }
@@ -349,7 +350,6 @@ public final class NetworkXml {
             // write extensions
             writeExtensions(n, context, options);
             context.getWriter().writeEndElement();
-            context.getWriter().writeEndDocument();
             context.getWriter().close();
             return context.getAnonymizer();
         } catch (XMLStreamException e) {

@@ -11,6 +11,7 @@ import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -18,7 +19,6 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -34,9 +34,9 @@ public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSeriali
     @Override
     public void write(CimCharacteristics extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XMLStreamWriter writer = networkContext.getWriter();
-        writer.writeAttribute("topologyKind", extension.getTopologyKind().toString());
-        writer.writeAttribute("cimVersion", Integer.toString(extension.getCimVersion()));
+        XmlWriter writer = networkContext.getWriter();
+        writer.writeEnumAttribute("topologyKind", extension.getTopologyKind());
+        writer.writeIntAttribute("cimVersion", extension.getCimVersion());
     }
 
     @Override

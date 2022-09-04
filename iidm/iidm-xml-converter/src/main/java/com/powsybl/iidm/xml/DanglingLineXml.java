@@ -52,7 +52,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) {
         DanglingLine.Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
@@ -69,31 +69,31 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 }
             });
         }
-        XmlUtil.writeDouble("p0", p0[0], context.getWriter());
-        XmlUtil.writeDouble("q0", q0[0], context.getWriter());
-        XmlUtil.writeDouble("r", dl.getR(), context.getWriter());
-        XmlUtil.writeDouble("x", dl.getX(), context.getWriter());
-        XmlUtil.writeDouble("g", dl.getG(), context.getWriter());
-        XmlUtil.writeDouble("b", dl.getB(), context.getWriter());
+        context.getWriter().writeDoubleAttribute("p0", p0[0]);
+        context.getWriter().writeDoubleAttribute("q0", q0[0]);
+        context.getWriter().writeDoubleAttribute("r", dl.getR());
+        context.getWriter().writeDoubleAttribute("x", dl.getX());
+        context.getWriter().writeDoubleAttribute("g", dl.getG());
+        context.getWriter().writeDoubleAttribute("b", dl.getB());
         if (generation != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                XmlUtil.writeDouble(GENERATION_MIN_P, generation.getMinP(), context.getWriter());
-                XmlUtil.writeDouble(GENERATION_MAX_P, generation.getMaxP(), context.getWriter());
-                context.getWriter().writeAttribute("generationVoltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
-                XmlUtil.writeDouble(GENERATION_TARGET_P, generation.getTargetP(), context.getWriter());
-                XmlUtil.writeDouble(GENERATION_TARGET_V, generation.getTargetV(), context.getWriter());
-                XmlUtil.writeDouble(GENERATION_TARGET_Q, generation.getTargetQ(), context.getWriter());
+                context.getWriter().writeDoubleAttribute(GENERATION_MIN_P, generation.getMinP());
+                context.getWriter().writeDoubleAttribute(GENERATION_MAX_P, generation.getMaxP());
+                context.getWriter().writeStringAttribute("generationVoltageRegulationOn", Boolean.toString(generation.isVoltageRegulationOn()));
+                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_P, generation.getTargetP());
+                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_V, generation.getTargetV());
+                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_Q, generation.getTargetQ());
             });
         }
         if (dl.getUcteXnodeCode() != null) {
-            context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
+            context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
         }
         writeNodeOrBus(null, dl.getTerminal(), context);
         writePQ(null, dl.getTerminal(), context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) {
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }

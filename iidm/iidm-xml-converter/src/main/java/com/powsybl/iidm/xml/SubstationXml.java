@@ -37,23 +37,23 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) {
         Optional<Country> country = s.getCountry();
         if (country.isPresent()) {
-            context.getWriter().writeAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(country.get()).toString());
+            context.getWriter().writeStringAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(country.get()).toString());
         }
         if (s.getTso() != null) {
-            context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
+            context.getWriter().writeStringAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
         if (!s.getGeographicalTags().isEmpty()) {
-            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
+            context.getWriter().writeStringAttribute("geographicalTags", s.getGeographicalTags().stream()
                     .map(tag -> context.getAnonymizer().anonymizeString(tag))
                     .collect(Collectors.joining(",")));
         }
     }
 
     @Override
-    protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) {
         for (VoltageLevel vl : IidmXmlUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }

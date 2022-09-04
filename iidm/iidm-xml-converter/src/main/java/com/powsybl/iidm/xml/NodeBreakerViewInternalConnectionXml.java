@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import javax.xml.stream.XMLStreamException;
-
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -23,10 +21,10 @@ public class NodeBreakerViewInternalConnectionXml {
         return ROOT_ELEMENT_NAME;
     }
 
-    protected void write(int node1, int node2, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void write(int node1, int node2, NetworkXmlWriterContext context) {
         context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
-        context.getWriter().writeAttribute("node1", Integer.toString(node1));
-        context.getWriter().writeAttribute("node2", Integer.toString(node2));
+        context.getWriter().writeStringAttribute("node1", Integer.toString(node1));
+        context.getWriter().writeStringAttribute("node2", Integer.toString(node2));
     }
 
     protected void read(VoltageLevel vl, NetworkXmlReaderContext context) {

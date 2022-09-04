@@ -39,13 +39,13 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", l.getR(), context.getWriter());
-        XmlUtil.writeDouble("x", l.getX(), context.getWriter());
-        XmlUtil.writeDouble("g1", l.getG1(), context.getWriter());
-        XmlUtil.writeDouble("b1", l.getB1(), context.getWriter());
-        XmlUtil.writeDouble("g2", l.getG2(), context.getWriter());
-        XmlUtil.writeDouble("b2", l.getB2(), context.getWriter());
+    protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("r", l.getR());
+        context.getWriter().writeDoubleAttribute("x", l.getX());
+        context.getWriter().writeDoubleAttribute("g1", l.getG1());
+        context.getWriter().writeDoubleAttribute("b1", l.getB1());
+        context.getWriter().writeDoubleAttribute("g2", l.getG2());
+        context.getWriter().writeDoubleAttribute("b2", l.getB2());
         writeNodeOrBus(1, l.getTerminal1(), context);
         writeNodeOrBus(2, l.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -55,7 +55,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) {
         Optional<ActivePowerLimits> activePowerLimits1 = l.getActivePowerLimits1();
         if (activePowerLimits1.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);

@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -31,14 +30,10 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
 
     @Override
     public void write(CgmesDanglingLineBoundaryNode extension, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("isHvdc", String.valueOf(extension.isHvdc()));
+        context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
         extension.getLineEnergyIdentificationCodeEic()
                 .ifPresent(lineEnergyIdentificationCodeEic -> {
-                    try {
-                        context.getWriter().writeAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic);
-                    } catch (XMLStreamException e) {
-                        throw new UncheckedXmlStreamException(e);
-                    }
+                    context.getWriter().writeStringAttribute("lineEnergyIdentificationCodeEic", lineEnergyIdentificationCodeEic);
                 });
     }
 

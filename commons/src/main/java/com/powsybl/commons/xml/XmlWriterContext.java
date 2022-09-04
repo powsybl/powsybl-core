@@ -6,20 +6,10 @@
  */
 package com.powsybl.commons.xml;
 
-import javax.xml.stream.XMLStreamWriter;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public interface XmlWriterContext {
 
-    XMLStreamWriter getWriter();
-
-    /**
-     * @deprecated Use {@link #getWriter()} instead.
-     */
-    @Deprecated
-    default XMLStreamWriter getExtensionsWriter() {
-        return getWriter();
-    }
+    XmlWriter getWriter();
 }

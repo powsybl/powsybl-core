@@ -39,13 +39,13 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", twt.getR(), context.getWriter());
-        XmlUtil.writeDouble("x", twt.getX(), context.getWriter());
-        XmlUtil.writeDouble("g", twt.getG(), context.getWriter());
-        XmlUtil.writeDouble("b", twt.getB(), context.getWriter());
-        XmlUtil.writeDouble("ratedU1", twt.getRatedU1(), context.getWriter());
-        XmlUtil.writeDouble("ratedU2", twt.getRatedU2(), context.getWriter());
+    protected void writeRootElementAttributes(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("r", twt.getR());
+        context.getWriter().writeDoubleAttribute("x", twt.getX());
+        context.getWriter().writeDoubleAttribute("g", twt.getG());
+        context.getWriter().writeDoubleAttribute("b", twt.getB());
+        context.getWriter().writeDoubleAttribute("ratedU1", twt.getRatedU1());
+        context.getWriter().writeDoubleAttribute("ratedU2", twt.getRatedU2());
         writeRatedS("ratedS", twt.getRatedS(), context);
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
@@ -56,7 +56,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected void writeSubElements(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
             writeRatioTapChanger("ratioTapChanger", rtc, context);
