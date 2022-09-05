@@ -7,6 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -71,7 +72,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network)).getMessage().contains("Line line1NotFound is not found"));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP)).getMessage().contains("Line line1NotFound is not found"));
 
         NetworkModification modificationWithError2 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("CJ_1")
@@ -81,7 +82,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network)).getMessage().contains("Line line2NotFound is not found"));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP)).getMessage().contains("Line line2NotFound is not found"));
 
         NetworkModification modificationWithError3 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("CJ_1")
@@ -91,7 +92,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network)).getMessage().contains("Line line3NotFound is not found"));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP)).getMessage().contains("Line line3NotFound is not found"));
 
         NetworkModification modificationWithError4 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("CJ_1")
@@ -101,7 +102,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network)).getMessage().contains("Voltage level notFoundVoltageLevel is not found"));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP)).getMessage().contains("Voltage level notFoundVoltageLevel is not found"));
 
         NetworkModification modificationWithError5 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("CJ_1")
@@ -111,7 +112,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId("notFoundBusbarSection")
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError5.apply(network)).getMessage().contains("Busbar section notFoundBusbarSection is not found in voltage level VLTEST"));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError5.apply(network, true, Reporter.NO_OP)).getMessage().contains("Busbar section notFoundBusbarSection is not found in voltage level VLTEST"));
 
         NetworkModification modificationWithError6 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("CJ_1")
@@ -121,7 +122,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network)).getMessage().contains("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34"));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, Reporter.NO_OP)).getMessage().contains("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34"));
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("CJ_1")
@@ -131,7 +132,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        modification.apply(network);
+        modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
     }
@@ -152,7 +153,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        modification.apply(network);
+        modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
     }
@@ -173,7 +174,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId("busNotFound")
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError.apply(network)).getMessage().contains("Bus busNotFound is not found in voltage level " + VOLTAGE_LEVEL_ID));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError.apply(network, true, Reporter.NO_OP)).getMessage().contains("Bus busNotFound is not found in voltage level " + VOLTAGE_LEVEL_ID));
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("NHV1_NHV2_1_1")
@@ -183,7 +184,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId("bus")
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        modification.apply(network);
+        modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
     }

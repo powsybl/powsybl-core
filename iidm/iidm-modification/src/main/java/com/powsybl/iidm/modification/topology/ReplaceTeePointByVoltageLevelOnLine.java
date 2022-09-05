@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
@@ -51,7 +51,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ReplaceTeePointByVoltageLevelOnLine implements NetworkModification {
+public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
 
     private String line1ZId;
     private String lineZ2Id;
@@ -176,7 +176,8 @@ public class ReplaceTeePointByVoltageLevelOnLine implements NetworkModification 
     }
 
     @Override
-    public void apply(Network network, boolean throwException, Reporter reporter) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         Line line1Z = network.getLine(line1ZId);
         if (line1Z == null) {
             notFoundLineReport(reporter, line1ZId);
@@ -351,15 +352,5 @@ public class ReplaceTeePointByVoltageLevelOnLine implements NetworkModification 
 
         // remove attachment point, if necessary
         removeVoltageLevelAndSubstation(attachmentPoint, reporter);
-    }
-
-    @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
-
-    @Override
-    public void apply(Network network) {
-        apply(network, true, Reporter.NO_OP);
     }
 }
