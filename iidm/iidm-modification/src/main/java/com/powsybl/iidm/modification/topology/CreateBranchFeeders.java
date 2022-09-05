@@ -13,6 +13,11 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import java.util.Objects;
 
 /**
+ * This class allows to add a new branch's feeders on existing busbar sections. The voltage level containing the
+ * busbar section should be described in node/breaker topology. The branch is created and connected to
+ * the busbar sections with a breaker and a closed disconnector each. The branch is also connected to all
+ * the parallel busbar sections, if any, with an open disconnector.
+ *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public class CreateBranchFeeders extends AbstractCreateConnectableFeeders {
