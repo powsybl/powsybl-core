@@ -17,7 +17,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
@@ -71,12 +71,14 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
     @Ignore
     @Test
+    // FIXME(Luma) adapt or remove test
     public void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4);
     }
 
     @Ignore
     @Test
+    // FIXME(Luma) adapt or remove test
     public void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), 4);
     }

@@ -52,7 +52,7 @@ public final class TopologyExport {
 
     private static void writeTerminals(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeConnectableTerminals(network, cimNamespace, writer, context);
-        writeBoundaryTerminals(network, cimNamespace, writer);
+        writeBoundaryTerminals(network, cimNamespace, writer, context);
         writeSwitchesTerminals(network, addedTopologicalNodes, cimNamespace, writer, context);
         writeHvdcTerminals(network, cimNamespace, writer, context);
     }
@@ -66,25 +66,16 @@ public final class TopologyExport {
                         b = t.getBusBreakerView().getConnectableBus();
                     }
                     String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
-                    writeTerminal(CgmesExportUtil.getTerminalId(t), topologicalNodeId, cimNamespace, writer);
+                    writeTerminal(CgmesExportUtil.getTerminalId(t, context), topologicalNodeId, cimNamespace, writer);
                 }
             }
         }
     }
 
-    private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (DanglingLine dl : network.getDanglingLines()) {
-            writeBoundaryTerminal(dl, cimNamespace, writer);
+            writeBoundaryTerminal(dl, cimNamespace, writer, context);
         }
-    }
-
-    private static String cgmesTerminalFromAlias(Identifiable<?> i, String aliasType0) {
-        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + aliasType0;
-        Optional<String> cgmesTerminalId = i.getAliasFromType(aliasType);
-        if (cgmesTerminalId.isEmpty()) {
-            throw new PowsyblException("Missing CGMES terminal in aliases of " + i.getId() + ", aliasType " + aliasType);
-        }
-        return cgmesTerminalId.get();
     }
 
     private static void writeSwitchesTerminals(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -114,8 +105,8 @@ public final class TopologyExport {
             writeTopologicalNode(tn1, tname1, vl, addedTopologicalNodes, cimNamespace, writer, context);
             writeTopologicalNode(tn2, tname2, vl, addedTopologicalNodes, cimNamespace, writer, context);
 
-            String cgmesTerminal1 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL1);
-            String cgmesTerminal2 = cgmesTerminalFromAlias(sw, CgmesNames.TERMINAL2);
+            String cgmesTerminal1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
+            String cgmesTerminal2 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2);
 
             writeSwitchTerminal(tn1, cgmesTerminal1, cimNamespace, writer);
             writeSwitchTerminal(tn2, cgmesTerminal2, cimNamespace, writer);
@@ -212,11 +203,13 @@ public final class TopologyExport {
         writer.writeEndElement();
     }
 
-    private static void writeBoundaryTerminal(DanglingLine dl, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        String boundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
-        String equivalentInjectionTerminalId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal").orElseThrow(PowsyblException::new);
+    private static void writeBoundaryTerminal(DanglingLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
         if (topologicalNode.isPresent()) {
+            // Topological nodes of boundaries are published by external entities and should be ok,
+            // we do not make an additional effort to ensure a valid CGMES id has been assigned
             if (boundaryId != null) {
                 writeTerminal(boundaryId, topologicalNode.get(), cimNamespace, writer);
             }
