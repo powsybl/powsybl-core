@@ -31,13 +31,21 @@ public class Parameter {
 
     private final List<Object> possibleValues;
 
+    private ParameterScope scope;
+
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
-                     List<Object> possibleValues) {
+                     List<Object> possibleValues, ParameterScope scope) {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
         this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
+        this.scope = scope;
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues) {
+        this(name, type, description, defaultValue, possibleValues, ParameterScope.FUNCTIONAL);
     }
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue) {
@@ -199,5 +207,9 @@ public class Parameter {
 
     public List<Object> getPossibleValues() {
         return possibleValues;
+    }
+
+    public ParameterScope getScope() {
+        return scope;
     }
 }

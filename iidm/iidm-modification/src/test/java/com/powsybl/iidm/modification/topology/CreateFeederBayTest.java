@@ -42,13 +42,13 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setQ0(0);
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("bb4")
+                .withBbsId("bbs4")
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-load-bbs1.xml");
+                "/network-node-breaker-with-new-load-bbs4.xml");
     }
 
     @Test
@@ -335,6 +335,6 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
 
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(vl, bbs));
-        assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
+        assertEquals("busbarSection has no BusbarSectionPosition extension", exception2.getMessage());
     }
 }
