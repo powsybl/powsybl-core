@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -24,6 +25,8 @@ public final class NamingStrategyFactory {
     public static final String IDENTITY = "identity";
     public static final String CGMES = "cgmes"; // This simple naming strategy will fix only ids for IIDM identifiables
     public static final String CGMES_FIX_ALL_INVALID_IDS = "cgmes-fix-all-invalid-ids";
+
+    public static final List<String> LIST = List.of(IDENTITY, CGMES, CGMES_FIX_ALL_INVALID_IDS);
 
     public static NamingStrategy create(String impl, ReadOnlyDataSource ds, String mappingFileName, Path defaultPath) {
         Objects.requireNonNull(ds);
