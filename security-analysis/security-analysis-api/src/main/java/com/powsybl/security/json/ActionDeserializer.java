@@ -106,7 +106,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 }
                 return new SwitchAction(context.id, context.switchId, context.open);
             case LineConnectionAction.NAME:
-                if (context.openSide1 == null && context.openSide2 == null) {
+                if (context.openSide1 == null || context.openSide2 == null) {
                     throw JsonMappingException.from(parser, "for line action openSide1 and openSide2 fields can't be null");
                 }
                 return new LineConnectionAction(context.id, context.lineId, context.openSide1, context.openSide2);
