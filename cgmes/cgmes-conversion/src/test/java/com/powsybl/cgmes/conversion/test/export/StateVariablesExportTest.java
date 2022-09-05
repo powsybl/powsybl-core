@@ -71,10 +71,10 @@ public class StateVariablesExportTest extends AbstractConverterTest {
                 false,
                 4,
                 false,
-                r -> {
-                    addRepackagerFiles("NL", r);
-                    addRepackagerFiles("BE", r);
-                });
+            r -> {
+                addRepackagerFiles("NL", r);
+                addRepackagerFiles("BE", r);
+            });
     }
 
     @Test
