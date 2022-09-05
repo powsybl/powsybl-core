@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
 import com.powsybl.iidm.network.extensions.GeneratorStartupAdder;

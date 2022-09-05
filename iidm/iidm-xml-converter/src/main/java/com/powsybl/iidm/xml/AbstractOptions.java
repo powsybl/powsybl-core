@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm;
+package com.powsybl.iidm.xml;
 
 import java.util.Optional;
 import java.util.Set;
@@ -16,14 +16,6 @@ public abstract class AbstractOptions<T> {
     protected Set<String> extensions = null;
 
     public abstract T setExtensions(Set<String> extensions);
-
-    /**
-     * @deprecated Not used anymore
-     */
-    @Deprecated
-    public T setMode(IidmImportExportMode mode) {
-        throw new UnsupportedOperationException("Not supported anymore");
-    }
 
     public abstract T addExtension(String extension);
 
@@ -56,13 +48,4 @@ public abstract class AbstractOptions<T> {
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
-
-    /**
-     * @deprecated Not used anymore
-     */
-    @Deprecated
-    public IidmImportExportMode getMode() {
-        throw new UnsupportedOperationException("Not supported anymore");
-    }
-
 }
