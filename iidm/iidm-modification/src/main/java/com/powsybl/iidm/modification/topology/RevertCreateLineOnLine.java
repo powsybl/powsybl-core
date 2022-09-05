@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -46,7 +46,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class RevertCreateLineOnLine implements NetworkModification {
+public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     private String lineAZId;
     private String lineBZId;
@@ -100,7 +100,8 @@ public class RevertCreateLineOnLine implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, Reporter reporter) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         Line lineAZ = network.getLine(lineAZId);
         if (lineAZ == null) {
             notFoundLineReport(reporter, lineAZId);
@@ -205,16 +206,6 @@ public class RevertCreateLineOnLine implements NetworkModification {
 
         // remove attached voltage level and attached substation, if necessary
         removeVoltageLevelAndSubstation(attachedVoltageLevel, reporter);
-    }
-
-    @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
-
-    @Override
-    public void apply(Network network) {
-        apply(network, true, Reporter.NO_OP);
     }
 
     public String getLineAZId() {

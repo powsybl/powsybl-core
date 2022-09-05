@@ -57,7 +57,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineCZId("CJ_2")
                 .withLineId("CJ")
                 .build();
-        assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network));
+        assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP));
         final NetworkModification modificationWithError11 = new RevertCreateLineOnLineBuilder()
                 .withLineAZId("line1NotFound")
                 .withLineBZId("CJ_1")
@@ -73,7 +73,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineCZId("CJ_3")
                 .withLineId("CJ")
                 .build();
-        assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network));
+        assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP));
         final NetworkModification modificationWithError21 = new RevertCreateLineOnLineBuilder()
                 .withLineAZId("CJ_1")
                 .withLineBZId("line2NotFound")
@@ -89,7 +89,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineCZId("line3NotFound")
                 .withLineId("CJ")
                 .build();
-        assertThrows("Line line3NotFound is not found", PowsyblException.class, () -> modificationWithError3.apply(network));
+        assertThrows("Line line3NotFound is not found", PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP));
         final NetworkModification modificationWithError31 = new RevertCreateLineOnLineBuilder()
                 .withLineAZId("CJ_1")
                 .withLineBZId("CJ_2")
@@ -105,7 +105,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineCZId("LINE34")
                 .withLineId("CJ")
                 .build();
-        assertThrows("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network));
+        assertThrows("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP));
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()
                 .withLineAZId("CJ_1")
                 .withLineBZId("CJ_2")
@@ -121,7 +121,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineCZId("testLine")
                 .withLineId("CJ_NEW")
                 .build();
-        modification.apply(network);
+        modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-revert-create-line-on-line-l.xml");
     }
@@ -140,7 +140,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineCZId("testLine")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network);
+        modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-create-line-on-line-nb-l.xml");
     }
@@ -159,7 +159,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineCZId("testLine")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network);
+        modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-create-line-on-line-bb-l.xml");
     }
