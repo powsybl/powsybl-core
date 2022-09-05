@@ -34,10 +34,10 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 /**
  * This method reverses the action done in the ConnectVoltageLevelOnLine class :
  * it replaces 2 existing lines (with the same voltage level at one of their side) with a new line,
- * and eventually removes the voltage level in common (attachment point), if it contains no equipments anymore, except bus or bus bar section
+ * and eventually removes the voltage level in common (switching voltage level), if it contains no equipments anymore, except bus or bus bar section
  *
- *    VL1 ----------- attachment point ----------- VL2         =========>        VL1 ------------------------- VL2
- *          (line1)                      (line2)                                              (line)
+ *    VL1 ----------- switching voltage level ----------- VL2         =========>        VL1 ------------------------- VL2
+ *          (line1)                             (line2)                                              (line)
  *
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -58,7 +58,7 @@ public class RevertConnectVoltageLevelOnLine implements NetworkModification {
      * @param lineId        The non-null ID of the new line to be created
      * @param lineName      The optional name of the new line to be created
      */
-    public RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName) {
+    RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName) {
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line2Id = Objects.requireNonNull(line2Id);
         this.lineId = Objects.requireNonNull(lineId);
