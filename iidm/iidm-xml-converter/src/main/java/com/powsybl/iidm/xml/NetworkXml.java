@@ -245,14 +245,14 @@ public final class NetworkXml {
         return versionExist;
     }
 
-    private static void writeMainAttributes(Network n, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(ID, n.getId());
-        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
-        writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
-        writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
+    private static void writeMainAttributes(Network n, XmlWriter writer) throws XMLStreamException {
+        writer.writeStringAttribute(ID, n.getId());
+        writer.writeStringAttribute(CASE_DATE, n.getCaseDate().toString());
+        writer.writeIntAttribute(FORECAST_DISTANCE, n.getForecastDistance());
+        writer.writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
     }
 
-    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+    private static XmlWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
         String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
@@ -263,17 +263,18 @@ public final class NetworkXml {
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, options, writer);
         }
-        writeMainAttributes(n, writer);
-        return writer;
+        var xmlWriter = new XmlWriter(writer);
+        writeMainAttributes(n, xmlWriter);
+        return xmlWriter;
     }
 
-    private static NetworkXmlWriterContext writeBaseNetwork(Network n, XMLStreamWriter writer, ExportOptions options) throws XMLStreamException {
+    private static NetworkXmlWriterContext writeBaseNetwork(Network n, XmlWriter writer, ExportOptions options) {
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> writer.writeAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel().toString()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> writer.writeEnumAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel()));
 
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
@@ -289,7 +290,7 @@ public final class NetworkXml {
         return context;
     }
 
-    private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) {
         for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
             if (voltageLevel.getSubstation().isEmpty()) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
@@ -299,13 +300,13 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeSubstations(Network n, NetworkXmlWriterContext context) {
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
             SubstationXml.INSTANCE.write(s, n, context);
         }
     }
 
-    private static void writeTransformers(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeTransformers(BusFilter filter, Network n, NetworkXmlWriterContext context) {
         for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
             if (twt.getSubstation().isEmpty() && filter.test(twt)) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
@@ -322,7 +323,7 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeLines(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeLines(BusFilter filter, Network n, NetworkXmlWriterContext context) {
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
             if (!filter.test(l)) {
                 continue;
@@ -335,7 +336,7 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeHvdcLines(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeHvdcLines(BusFilter filter, Network n, NetworkXmlWriterContext context) {
         for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
             if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                 continue;

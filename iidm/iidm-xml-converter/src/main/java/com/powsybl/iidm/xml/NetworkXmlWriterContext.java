@@ -12,10 +12,7 @@ import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.network.Identifiable;
 
 import javax.xml.stream.XMLStreamWriter;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,20 +25,20 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
     private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XmlWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
         super(anonymizer, version);
-        this.writer = new XmlWriter(writer);
+        this.writer = Objects.requireNonNull(writer);
         this.options = options;
         this.filter = filter;
         this.valid = valid;
         this.exportedEquipments = new HashSet<>();
     }
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XmlWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
         this(anonymizer, writer, options, filter, version, true);
     }
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XmlWriter writer, ExportOptions options, BusFilter filter) {
         this(anonymizer, writer, options, filter, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
     }
 
