@@ -29,5 +29,7 @@ public enum SensitivityFunctionType {
     BRANCH_CURRENT_1, // A
     BRANCH_ACTIVE_POWER_2, // MW
     BRANCH_CURRENT_2, // A
+    BRANCH_ACTIVE_POWER_3, // MW
+    BRANCH_CURRENT_3, // A
     BUS_VOLTAGE // KV
 }
