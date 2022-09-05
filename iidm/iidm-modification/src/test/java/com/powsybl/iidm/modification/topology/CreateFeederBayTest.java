@@ -142,7 +142,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
-        assertEquals("InjectionPositionOrder 0 already taken.", e2.getMessage());
+        assertEquals("PositionOrder 0 already taken.", e2.getMessage());
     }
 
     @Test
