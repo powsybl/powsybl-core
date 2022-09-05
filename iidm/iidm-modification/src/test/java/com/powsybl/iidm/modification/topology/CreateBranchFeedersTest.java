@@ -68,8 +68,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        Optional<Range<Integer>> unusedOrderPositionsAfter = getUnusedOrderPositionsAfter(
-                network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter = getUnusedOrderPositionsAfter(network.getBusbarSection("bbs2"));
         assertTrue(unusedOrderPositionsAfter.isPresent());
         assertEquals(121, (int) unusedOrderPositionsAfter.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.get().getMaximum());
@@ -101,8 +100,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        Optional<Range<Integer>> unusedOrderPositionsBefore = getUnusedOrderPositionsBefore(
-                network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        Optional<Range<Integer>> unusedOrderPositionsBefore = getUnusedOrderPositionsBefore(network.getBusbarSection("bbs2"));
         assertTrue(unusedOrderPositionsBefore.isPresent());
         assertEquals(71, (int) unusedOrderPositionsBefore.get().getMinimum());
         assertEquals(79, (int) unusedOrderPositionsBefore.get().getMaximum());
