@@ -33,21 +33,26 @@ import static org.junit.Assert.*;
 public class CreateFeederBayTest extends AbstractXmlConverterTest  {
 
     @Test
-    public void createLoadTestWithBbsId() throws IOException {
+    public void baseLoadTest() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        NetworkModification modification = new CreateFeederBay(loadAdder, "bb4", 115, BOTTOM);
+        NetworkModification modification = new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBbsId("bbs4")
+                .withInjectionPositionOrder(115)
+                .withInjectionDirection(BOTTOM)
+                .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-load-bbs1.xml");
+                "/network-node-breaker-with-new-load-bbs4.xml");
     }
 
     @Test
-    public void createLoadTestWithBbsId2() {
+    public void getUnusedOrderPositionAfter() {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -61,16 +66,21 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.get().getMaximum());
 
         int loadPositionOrder = unusedOrderPositionsAfter.get().getMinimum();
-        NetworkModification modification = new CreateFeederBay(loadAdder, "bbs1", loadPositionOrder, TOP);
+        NetworkModification modification = new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBbsId("bbs1")
+                .withInjectionPositionOrder(loadPositionOrder)
+                .withInjectionDirection(TOP)
+                .build();
         modification.apply(network);
 
-        ConnectablePosition newLoad = network.getLoad("newLoad").getExtension(ConnectablePosition.class);
+        ConnectablePosition<Load> newLoad = network.getLoad("newLoad").getExtension(ConnectablePosition.class);
         assertEquals(TOP, newLoad.getFeeder().getDirection());
         assertEquals(Optional.of(121), newLoad.getFeeder().getOrder());
     }
 
     @Test
-    public void createLoadTestWithBbsId3() {
+    public void getUnusedOrderPositionBefore() {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -84,55 +94,17 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(79, (int) unusedOrderPositionsBefore.get().getMaximum());
         int loadPositionOrder = unusedOrderPositionsBefore.get().getMaximum();
 
-        NetworkModification modification = new CreateFeederBay(loadAdder, "bbs2", loadPositionOrder, BOTTOM);
+        NetworkModification modification = new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBbsId("bbs2")
+                .withInjectionPositionOrder(loadPositionOrder)
+                .withInjectionDirection(BOTTOM)
+                .build();
         modification.apply(network);
 
-        ConnectablePosition newLoad = network.getLoad("newLoad").getExtension(ConnectablePosition.class);
+        ConnectablePosition<Load> newLoad = network.getLoad("newLoad").getExtension(ConnectablePosition.class);
         assertEquals(BOTTOM, newLoad.getFeeder().getDirection());
         assertEquals(Optional.of(79), newLoad.getFeeder().getOrder());
-    }
-
-    @Test
-    public void createLoadTestWithVoltageLevelId() throws IOException {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
-                .setId("newLoad")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(0)
-                .setQ0(0);
-        BusbarSection bbs = TopologyModificationUtils.getFirstBusbarSection(network.getVoltageLevel("vl1"));
-        assertEquals("bbs1", bbs.getId());
-        NetworkModification modification = new CreateFeederBay(loadAdder, bbs.getId(), 71, BOTTOM);
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-load-vl1.xml");
-    }
-
-    @Test
-    public void testBuilder() {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
-                .setId("newLoad")
-                .setLoadType(LoadType.UNDEFINED)
-                .setP0(0)
-                .setQ0(0);
-        new CreateFeederBayBuilder()
-                .withInjectionAdder(loadAdder)
-                .withBbsId("bbs4")
-                .withInjectionPositionOrder(115)
-                .withInjectionDirection(TOP)
-                .build()
-                .apply(network);
-
-        Load load = network.getLoad("newLoad");
-        assertNotNull(load);
-
-        ConnectablePosition<Load> position = load.getExtension(ConnectablePosition.class);
-        assertNotNull(position);
-        Optional<Integer> order = position.getFeeder().getOrder();
-        assertTrue(order.isPresent());
-        assertEquals(115, (int) order.get());
-        assertEquals(TOP, position.getFeeder().getDirection());
     }
 
     @Test
@@ -145,23 +117,38 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setQ0(0);
         //wrong network
         Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        CreateFeederBay modification0 = new CreateFeederBay(loadAdder, "bbs1", 115, BOTTOM);
+        CreateFeederBay modification0 = new CreateFeederBayBuilder().
+                withInjectionAdder(loadAdder)
+                .withBbsId("bbs1")
+                .withInjectionPositionOrder(115)
+                .withInjectionDirection(BOTTOM)
+                .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
         assertEquals("Network given in parameters and in injectionAdder are different. Injection was added then removed", e0.getMessage());
 
         //wrong bbsId
-        CreateFeederBay modification1 = new CreateFeederBay(loadAdder, "bbs", 115, BOTTOM);
+        CreateFeederBay modification1 = new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBbsId("bbs")
+                .withInjectionPositionOrder(115)
+                .withInjectionDirection(BOTTOM)
+                .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
         assertEquals("Busbar section bbs not found.", e1.getMessage());
 
         //wrong injectionPositionOrder
-        CreateFeederBay modification2 = new CreateFeederBay(loadAdder, "bbs4", 0, BOTTOM);
+        CreateFeederBay modification2 = new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBbsId("bbs4")
+                .withInjectionPositionOrder(0)
+                .withInjectionDirection(BOTTOM)
+                .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
         assertEquals("InjectionPositionOrder 0 already taken.", e2.getMessage());
     }
 
     @Test
-    public void createGeneratorTest() throws IOException {
+    public void baseGeneratorTest() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         GeneratorAdder generatorAdder = network.getVoltageLevel("vl1").newGenerator()
                 .setId("newGenerator")
@@ -174,14 +161,19 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setRatedS(10)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setEnsureIdUnicity(true);
-        NetworkModification modification = new CreateFeederBay(generatorAdder, "bbs1", 115, BOTTOM);
+        NetworkModification modification = new CreateFeederBayBuilder()
+                .withInjectionAdder(generatorAdder)
+                .withBbsId("bbs1")
+                .withInjectionPositionOrder(115)
+                .withInjectionDirection(BOTTOM)
+                .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-generator-bbs1.xml");
     }
 
     @Test
-    public void createEquipmentsTest() throws IOException {
+    public void baseEquipmentsTest() throws IOException {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         BatteryAdder batteryAdder = network.getVoltageLevel("vl1").newBattery()
                 .setId("newBattery")
@@ -189,7 +181,12 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setMinP(-9999)
                 .setTargetP(100)
                 .setTargetQ(50);
-        NetworkModification addBatteryModification = new CreateFeederBay(batteryAdder, "bbs1", 115, BOTTOM);
+        NetworkModification addBatteryModification = new CreateFeederBayBuilder()
+                .withInjectionAdder(batteryAdder)
+                .withBbsId("bbs1")
+                .withInjectionPositionOrder(115)
+                .withInjectionDirection(BOTTOM)
+                .build();
         addBatteryModification.apply(network);
         DanglingLineAdder danglingLineAdder = network.getVoltageLevel("vl2").newDanglingLine()
                         .setId("newDanglingLine")
@@ -206,7 +203,12 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(81, (int) unusedOrderPositionsAfter0.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter0.get().getMaximum());
         int danglingLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
-        NetworkModification addDanglingLineModification = new CreateFeederBay(danglingLineAdder, "bbs5", danglingLinePositionOrder, BOTTOM);
+        NetworkModification addDanglingLineModification = new CreateFeederBayBuilder()
+                .withInjectionAdder(danglingLineAdder)
+                .withBbsId("bbs5")
+                .withInjectionPositionOrder(danglingLinePositionOrder)
+                .withInjectionDirection(BOTTOM)
+                .build();
         addDanglingLineModification.apply(network);
 
         ShuntCompensatorAdder shuntCompensatorAdder = network.getVoltageLevel("vl2").newShuntCompensator()
@@ -222,7 +224,12 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(82, (int) unusedOrderPositionsAfter1.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter1.get().getMaximum());
         int shuntCompensatorPositionOrder = unusedOrderPositionsAfter1.get().getMinimum();
-        NetworkModification addShuntCompensatorModification = new CreateFeederBay(shuntCompensatorAdder, "bbs5", shuntCompensatorPositionOrder, BOTTOM);
+        NetworkModification addShuntCompensatorModification = new CreateFeederBayBuilder()
+                .withInjectionAdder(shuntCompensatorAdder)
+                .withBbsId("bbs5")
+                .withInjectionPositionOrder(shuntCompensatorPositionOrder)
+                .withInjectionDirection(BOTTOM)
+                .build();
         addShuntCompensatorModification.apply(network);
 
         StaticVarCompensatorAdder staticVarCompensatorAdder = network.getVoltageLevel("vl2").newStaticVarCompensator()
@@ -239,7 +246,12 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(83, (int) unusedOrderPositionsAfter2.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter2.get().getMaximum());
         int staticVarCompensatorPositionOrder = unusedOrderPositionsAfter2.get().getMinimum();
-        NetworkModification addSVCompensatorModification = new CreateFeederBay(staticVarCompensatorAdder, "bbs5", staticVarCompensatorPositionOrder, BOTTOM);
+        NetworkModification addSVCompensatorModification = new CreateFeederBayBuilder()
+                .withInjectionAdder(staticVarCompensatorAdder)
+                .withBbsId("bbs5")
+                .withInjectionPositionOrder(staticVarCompensatorPositionOrder)
+                .withInjectionDirection(BOTTOM)
+                .build();
         addSVCompensatorModification.apply(network);
 
         LccConverterStationAdder lccConverterStationAdder = network.getVoltageLevel("vl2").newLccConverterStation()
@@ -253,7 +265,12 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(84, (int) unusedOrderPositionsAfter3.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter3.get().getMaximum());
         int lccConverterStationPositionOrder = unusedOrderPositionsAfter3.get().getMinimum();
-        NetworkModification addLccConverterStationModification = new CreateFeederBay(lccConverterStationAdder, "bbs5", lccConverterStationPositionOrder, BOTTOM);
+        NetworkModification addLccConverterStationModification = new CreateFeederBayBuilder()
+                .withInjectionAdder(lccConverterStationAdder)
+                .withBbsId("bbs5")
+                .withInjectionPositionOrder(lccConverterStationPositionOrder)
+                .withInjectionDirection(BOTTOM)
+                .build();
         addLccConverterStationModification.apply(network);
 
         VscConverterStationAdder vscConverterStationAdder = network.getVoltageLevel("vl2").newVscConverterStation()
@@ -268,7 +285,12 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals(85, (int) unusedOrderPositionsAfter4.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter4.get().getMaximum());
         int vscConverterStationPositionOrder = unusedOrderPositionsAfter4.get().getMinimum();
-        NetworkModification addVscConverterStationModification = new CreateFeederBay(vscConverterStationAdder, "bbs5", vscConverterStationPositionOrder, BOTTOM);
+        NetworkModification addVscConverterStationModification = new CreateFeederBayBuilder()
+                .withInjectionAdder(vscConverterStationAdder)
+                .withBbsId("bbs5")
+                .withInjectionPositionOrder(vscConverterStationPositionOrder)
+                .withInjectionDirection(BOTTOM)
+                .build();
         addVscConverterStationModification.apply(network);
         roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-equipments-bbs1.xml");
@@ -313,6 +335,6 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
 
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(vl, bbs));
-        assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
+        assertEquals("busbarSection has no BusbarSectionPosition extension", exception2.getMessage());
     }
 }
