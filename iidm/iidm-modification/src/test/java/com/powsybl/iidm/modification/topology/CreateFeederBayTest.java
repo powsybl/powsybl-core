@@ -47,7 +47,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-bbs4.xml");
     }
 
