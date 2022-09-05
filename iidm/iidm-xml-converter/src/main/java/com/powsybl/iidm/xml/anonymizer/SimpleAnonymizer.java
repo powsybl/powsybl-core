@@ -4,8 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.anonymizer;
+package com.powsybl.iidm.xml.anonymizer;
 
+import com.powsybl.commons.util.StringAnonymizer;
 import com.powsybl.iidm.network.Country;
 
 import java.io.BufferedReader;
@@ -14,15 +15,18 @@ import java.io.BufferedWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FakeAnonymizer implements Anonymizer {
+public class SimpleAnonymizer implements Anonymizer {
+
+    private final StringAnonymizer stringAnonymizer = new StringAnonymizer();
+
     @Override
     public String anonymizeString(String str) {
-        return str;
+        return stringAnonymizer.anonymize(str);
     }
 
     @Override
     public String deanonymizeString(String str) {
-        return str;
+        return stringAnonymizer.deanonymize(str);
     }
 
     @Override
@@ -37,11 +41,11 @@ public class FakeAnonymizer implements Anonymizer {
 
     @Override
     public void read(BufferedReader reader) {
-        // nothing to do in fake impl
+        stringAnonymizer.readCsv(reader);
     }
 
     @Override
     public void write(BufferedWriter writer) {
-        // nothing to do in fake impl
+        stringAnonymizer.writeCsv(writer);
     }
 }
