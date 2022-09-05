@@ -7,8 +7,9 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -22,7 +23,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class ConnectVoltageLevelOnLine implements NetworkModification {
+public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -117,7 +118,8 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
@@ -172,11 +174,6 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
         Line line2 = adder2.add();
         addLoadingLimits(line1, limits1, Branch.Side.ONE);
         addLoadingLimits(line2, limits2, Branch.Side.TWO);
-    }
-
-    @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
     }
 
     public String getVoltageLevelId() {

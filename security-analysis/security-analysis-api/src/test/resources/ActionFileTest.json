@@ -26,5 +26,32 @@
     "lineId" : "lineId4",
     "openSide1" : false,
     "openSide2" : false
+  }, {
+    "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
+    "id" : "id5",
+    "transformerId" : "transformerId1",
+    "value" : 5,
+    "relativeValue" : true,
+    "side" : "TWO"
+  }, {
+    "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
+    "id" : "id6",
+    "transformerId" : "transformerId2",
+    "value" : 12,
+    "relativeValue" : false
+  }, {
+    "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
+    "id" : "id7",
+    "transformerId" : "transformerId3",
+    "value" : -5,
+    "relativeValue" : true,
+    "side" : "ONE"
+  }, {
+    "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
+    "id" : "id7",
+    "transformerId" : "transformerId3",
+    "value" : 2,
+    "relativeValue" : false,
+    "side" : "THREE"
   } ]
 }
