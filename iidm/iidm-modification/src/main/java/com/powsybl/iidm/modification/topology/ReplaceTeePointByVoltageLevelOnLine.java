@@ -38,11 +38,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 
 /**
  * This method transform the action done in the CreateLineOnLine class into the action done in the ConnectVoltageLevelOnLine class :
- * it replaces 3 existing lines (with the same attachment point at one of their side) with two new lines,
- * and eventually removes the attachment point, if it contains no equipments anymore, except bus or bus bar section
+ * it replaces 3 existing lines (with the same voltage level at one of their side (tee point)) with two new lines,
+ * and eventually removes the tee point, if it contains no equipments anymore, except bus or bus bar section
  *
- *    VL1 ---------- attachment point ---------- VL2                            VL1 ---------- attached voltage level ---------- VL2
- *         (line1Z)       |            (lineZ2)                                      (line1C)                          (lineC2)
+ *    VL1 ---------- tee point ---------- VL2                            VL1 ---------- attached voltage level ---------- VL2
+ *         (line1Z)       |     (lineZ2)                                      (line1C)                          (lineC2)
  *                        |
  *                        | (lineZP)                       =========>
  *                        |
@@ -68,9 +68,9 @@ public class ReplaceTeePointByVoltageLevelOnLine implements NetworkModification 
     /**
      * Constructor.
      *
-     * @param line1ZId            The non-null ID of the existing line connecting the first voltage level to the attachment point
-     * @param lineZ2Id            The non-null ID of the existing line connecting the attachment point to the second voltage level
-     * @param lineZPId            The non-null ID of the existing line connecting the attachment point to the attached voltage level
+     * @param line1ZId            The non-null ID of the existing line connecting the first voltage level to the tee point
+     * @param lineZ2Id            The non-null ID of the existing line connecting the tee point to the second voltage level
+     * @param lineZPId            The non-null ID of the existing line connecting the tee point to the attached voltage level
      * @param voltageLevelId      The non-null ID of the existing attached voltage level
      * @param bbsOrBusId          The non-null ID of the existing bus or bus bar section in the attached voltage level voltageLevelId,
      *                            where we want to connect the new lines line1C and lineC2
@@ -79,10 +79,10 @@ public class ReplaceTeePointByVoltageLevelOnLine implements NetworkModification 
      * @param lineC2Id            The non-null ID of the new line connecting the second voltage level to the attached voltage level
      * @param lineC2Name          The optional name of the new line connecting the second voltage level to the attached voltage level
      */
-    public ReplaceTeePointByVoltageLevelOnLine(String line1ZId, String lineZ2Id, String lineZPId,
-                                               String voltageLevelId, String bbsOrBusId,
-                                               String line1CId, String line1CName,
-                                               String lineC2Id, String lineC2Name) {
+    ReplaceTeePointByVoltageLevelOnLine(String line1ZId, String lineZ2Id, String lineZPId,
+                                        String voltageLevelId, String bbsOrBusId,
+                                        String line1CId, String line1CName,
+                                        String lineC2Id, String lineC2Name) {
         this.line1ZId = Objects.requireNonNull(line1ZId);
         this.lineZ2Id = Objects.requireNonNull(lineZ2Id);
         this.lineZPId = Objects.requireNonNull(lineZPId);
