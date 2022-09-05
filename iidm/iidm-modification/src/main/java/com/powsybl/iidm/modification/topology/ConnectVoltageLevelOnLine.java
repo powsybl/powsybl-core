@@ -42,8 +42,9 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
      * line1Id is line.getId() + "_1". <br>
      * line2Id is line.getId() + "_2". <br>
      *
-     * @see #ConnectVoltageLevelOnLine(String, String, String, String, Line)
+     * @deprecated Use {@link ConnectVoltageLevelOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public ConnectVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, Line line) {
         this(voltageLevelId, bbsOrBusId, line.getId() + "_1", line.getId() + "_2", line);
     }
@@ -55,8 +56,9 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
      * line1Name is null. <br>
      * line2Name is null. <br>
      *
-     * @see #ConnectVoltageLevelOnLine(double, String, String, String, String, String, String, Line)
+     * @deprecated Use {@link ConnectVoltageLevelOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public ConnectVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, String line1Id, String line2Id, Line line) {
         this(50, voltageLevelId, bbsOrBusId, line1Id, null, line2Id, null, line);
     }
@@ -74,6 +76,8 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
+     *
+     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     public ConnectVoltageLevelOnLine(double percent, String voltageLevelId, String bbsOrBusId, String line1Id, String line1Name,
                                      String line2Id, String line2Name, Line line) {

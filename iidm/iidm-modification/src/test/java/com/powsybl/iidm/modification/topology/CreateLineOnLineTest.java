@@ -109,6 +109,49 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         assertEquals("B", modification.getLine2Name());
     }
 
+    @Test
+    public void testCompleteBuilder() throws IOException {
+        Network network = createNbNetwork();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withLineAdder(adder)
+                .withPercent(40)
+                .withFictitiousVoltageLevelId("FICTVL")
+                .withFictitiousVoltageLevelName("FICTITIOUSVL")
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId("FICTSUB")
+                .withFictitiousSubstationName("FICTITIOUSSUB")
+                .withLine1Id("FICT1L")
+                .withLine1Name("FICT1LName")
+                .withLine2Id("FICT2L")
+                .withLine2Name("FICT2LName")
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-l-complete.xml");
+    }
+
+    @Test
+    public void testIncompleteBuilder() throws IOException {
+        Network network = createNbNetwork();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line)
+                .withLineAdder(adder)
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/fictitious-line-split-l.xml");
+
+    }
+
     private static LineAdder createLineAdder(Line line, Network network) {
         return network.newLine()
                 .setId("testLine")

@@ -18,7 +18,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
