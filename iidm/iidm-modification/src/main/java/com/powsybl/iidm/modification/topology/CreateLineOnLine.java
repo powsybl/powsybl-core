@@ -7,8 +7,9 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -23,7 +24,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateLineOnLine implements NetworkModification {
+public class CreateLineOnLine extends AbstractNetworkModification {
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -183,12 +184,8 @@ public class CreateLineOnLine implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
-
-    @Override
-    public void apply(Network network) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         // Create the fictitious voltage Level at the attachment point
         VoltageLevel fictitiousVl;
         if (createFictSubstation) {

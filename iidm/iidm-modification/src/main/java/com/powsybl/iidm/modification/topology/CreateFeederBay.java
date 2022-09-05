@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -33,7 +33,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.c
  * the parallel busbar sections, if any, with an open disconnector.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateFeederBay implements NetworkModification {
+public class CreateFeederBay extends AbstractNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateFeederBay.class);
 
@@ -59,22 +59,8 @@ public class CreateFeederBay implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network, false, Reporter.NO_OP);
-    }
-
-    @Override
-    public void apply(Network network, ComputationManager computationManager, Reporter reporter) {
-        apply(network, false, reporter);
-    }
-
-    @Override
-    public void apply(Network network, Reporter reporter) {
-        apply(network, false, reporter);
-    }
-
-    @Override
-    public void apply(Network network, boolean throwException, Reporter reporter) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         BusbarSection bbs = network.getBusbarSection(bbsId); //If the busbar exists, topology of the associated voltage level is node/breaker
         if (bbs == null) {
             LOGGER.error("Busbar section {} not found.", bbsId);
