@@ -171,6 +171,26 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void switchesNegativeVoltage() {
+        assertTrue(importAndCompareXiidm("Switches-negative-voltage"));
+    }
+
+    @Test
+    public void switchesMissingVoltage() {
+        assertTrue(importAndCompareXiidm("Switches-missing-voltage"));
+    }
+
+    @Test
+    public void switchesMissingAngle() {
+        assertTrue(importAndCompareXiidm("Switches-missing-angle"));
+    }
+
+    @Test
+    public void switchesWithoutBus() {
+        assertTrue(importAndCompareXiidm("Switches-without-bus"));
+    }
+
+    @Test
     public void transformerPhaseGBComplete() {
         assertTrue(importJsonAndCompareXiidm("Transformer-Phase-GB-complete"));
     }
