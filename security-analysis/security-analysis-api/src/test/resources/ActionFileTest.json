@@ -30,28 +30,28 @@
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id5",
     "transformerId" : "transformerId1",
-    "delta" : true,
     "value" : 5,
+    "relativeValue" : true,
     "side" : "TWO"
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id6",
     "transformerId" : "transformerId2",
-    "delta" : false,
-    "value" : 12
+    "value" : 12,
+    "relativeValue" : false
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id7",
     "transformerId" : "transformerId3",
-    "delta" : true,
     "value" : -5,
+    "relativeValue" : true,
     "side" : "ONE"
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id7",
     "transformerId" : "transformerId3",
-    "delta" : false,
     "value" : 2,
+    "relativeValue" : false,
     "side" : "THREE"
   } ]
 }

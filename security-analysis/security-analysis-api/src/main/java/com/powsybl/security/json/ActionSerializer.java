@@ -10,11 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.io.UncheckedIOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -42,14 +41,18 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeBooleanField("openSide2", ((LineConnectionAction) action).isOpenSide2());
                 break;
             case PhaseTapChangerTapPositionAction.NAME:
+                var tapPositionAction = (PhaseTapChangerTapPositionAction) action;
                 jsonGenerator.writeStringField("id", action.getId());
-                jsonGenerator.writeStringField("transformerId", ((PhaseTapChangerTapPositionAction) action).getTransformerId());
-                jsonGenerator.writeBooleanField("delta", ((PhaseTapChangerTapPositionAction) action).isInRelativeMode());
-                jsonGenerator.writeNumberField("value", ((PhaseTapChangerTapPositionAction) action).getValue());
-                Optional<ThreeWindingsTransformer.Side> side = ((PhaseTapChangerTapPositionAction) action).getSide();
-                if (side.isPresent()) {
-                    jsonGenerator.writeStringField("side", side.get().toString());
-                }
+                jsonGenerator.writeStringField("transformerId", tapPositionAction.getTransformerId());
+                jsonGenerator.writeNumberField("value", tapPositionAction.getValue());
+                jsonGenerator.writeBooleanField("relativeValue", tapPositionAction.isRelativeValue());
+                tapPositionAction.getSide().ifPresent(side -> {
+                    try {
+                        jsonGenerator.writeStringField("side", side.toString());
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
                 break;
             case MultipleActionsAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());

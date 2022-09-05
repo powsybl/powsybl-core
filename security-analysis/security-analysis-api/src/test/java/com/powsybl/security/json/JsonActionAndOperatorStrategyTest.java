@@ -53,7 +53,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     @Test
     public void wrongActions() {
         final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json");
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action delta field can't be null\n" +
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream)).getMessage());
 

@@ -4,6 +4,6 @@
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id6",
     "transformerId" : "transformerId2",
-    "delta" : true
+    "relativeValue" : true
   } ]
 }

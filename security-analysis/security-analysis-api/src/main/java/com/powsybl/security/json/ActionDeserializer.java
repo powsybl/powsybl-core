@@ -37,7 +37,7 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         Boolean open;
         Boolean openSide1;
         Boolean openSide2;
-        Boolean delta;
+        Boolean relativeValue;
         int value;
         ThreeWindingsTransformer.Side side = null;
         List<Action> actions;
@@ -75,9 +75,9 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     parser.nextToken();
                     context.openSide2 =  parser.getBooleanValue();
                     return true;
-                case "delta":
+                case "relativeValue":
                     parser.nextToken();
-                    context.delta =  parser.getBooleanValue();
+                    context.relativeValue =  parser.getBooleanValue();
                     return true;
                 case "value":
                     parser.nextToken();
@@ -111,16 +111,16 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 }
                 return new LineConnectionAction(context.id, context.lineId, context.openSide1, context.openSide2);
             case PhaseTapChangerTapPositionAction.NAME:
-                if (context.delta == null) {
-                    throw JsonMappingException.from(parser, "for phase tap changer tap position action delta field can't be null");
+                if (context.relativeValue == null) {
+                    throw JsonMappingException.from(parser, "for phase tap changer tap position action relative value field can't be null");
                 }
                 if (context.value == 0) {
                     throw JsonMappingException.from(parser, "for phase tap changer tap position action value field can't equal zero");
                 }
                 if (context.side != null) {
-                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value, context.side);
+                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value, context.side);
                 } else {
-                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.delta, context.value);
+                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value);
                 }
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);

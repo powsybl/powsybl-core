@@ -21,20 +21,20 @@ public class PhaseTapChangerTapPositionAction extends AbstractAction {
     public static final String NAME = "PHASE_TAP_CHANGER_TAP_POSITION";
 
     private final String transformerId;
-    private final Boolean delta; // true if relative mode chosen, false if absolute mode.
     private final int value;
+    private final boolean relativeValue; // true if relative value chosen, false if absolute value
     private final ThreeWindingsTransformer.Side side;
 
-    public PhaseTapChangerTapPositionAction(String id, String transformerId, Boolean delta, int value, ThreeWindingsTransformer.Side side) {
+    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value, ThreeWindingsTransformer.Side side) {
         super(id);
         this.transformerId = Objects.requireNonNull(transformerId);
-        this.delta = delta;
+        this.relativeValue = relativeValue;
         this.value = value;
         this.side = side;
     }
 
-    public PhaseTapChangerTapPositionAction(String id, String transformerId, Boolean delta, int value) {
-        this(id, transformerId, delta, value, null);
+    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value) {
+        this(id, transformerId, relativeValue, value, null);
     }
 
     @Override
@@ -46,12 +46,12 @@ public class PhaseTapChangerTapPositionAction extends AbstractAction {
         return transformerId;
     }
 
-    public Boolean isInRelativeMode() {
-        return delta;
-    }
-
     public int getValue() {
         return value;
+    }
+
+    public boolean isRelativeValue() {
+        return relativeValue;
     }
 
     public Optional<ThreeWindingsTransformer.Side> getSide() {
