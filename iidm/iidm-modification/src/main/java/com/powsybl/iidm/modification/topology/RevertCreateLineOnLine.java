@@ -32,11 +32,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 /**
  * This method reverses the action done in the CreateLineOnLine class :
  * it replaces 3 existing lines (with the same voltage level at one of their side) with a new line,
- * and eventually removes the existing voltage levels (attachment point and attached voltage level), if they contain no equipments
+ * and eventually removes the existing voltage levels (tee point and attached voltage level), if they contain no equipments
  * anymore, except bus or bus bar section
  *
- *  *    VL1 ---------- attachment point ---------- VL2                            VL1 ----------------------------- VL2
- *  *         (lineAZ)       |            (lineBZ)                                                (line)
+ *  *    VL1 ---------- tee point ---------- VL2                            VL1 ----------------------------- VL2
+ *  *         (lineAZ)       |     (lineBZ)                                                (line)
  *  *                        |
  *  *                        | (lineCZ)                       =========>
  *  *                        |
@@ -66,7 +66,7 @@ public class RevertCreateLineOnLine implements NetworkModification {
      * @param lineId       The non-null ID of the new line to be created
      * @param lineName     The optional name of the new line to be created
      */
-    public RevertCreateLineOnLine(String lineAZId, String lineBZId, String lineCZId, String lineId, String lineName) {
+    RevertCreateLineOnLine(String lineAZId, String lineBZId, String lineCZId, String lineId, String lineName) {
         this.lineAZId = Objects.requireNonNull(lineAZId);
         this.lineBZId = Objects.requireNonNull(lineBZId);
         this.lineCZId = Objects.requireNonNull(lineCZId);
