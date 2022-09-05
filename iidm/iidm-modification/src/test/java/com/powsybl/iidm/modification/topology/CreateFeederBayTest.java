@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
