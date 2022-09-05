@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -25,9 +26,11 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -141,7 +144,8 @@ public class CgmesExport implements Exporter {
             CIM_VERSION,
             ParameterType.STRING,
             "CIM version to export",
-            null);
+            null,
+            CgmesNamespace.CIM_LIST.stream().map(cim -> Integer.toString(cim.getVersion())).collect(Collectors.toList()));
     private static final Parameter EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER = new Parameter(
             EXPORT_BOUNDARY_POWER_FLOWS,
             ParameterType.BOOLEAN,
@@ -156,7 +160,8 @@ public class CgmesExport implements Exporter {
             NAMING_STRATEGY,
             ParameterType.STRING,
             "Configure what type of naming strategy you want",
-            "identity");
+            NamingStrategyFactory.IDENTITY,
+            new ArrayList<>(NamingStrategyFactory.LIST));
     private static final Parameter PROFILES_PARAMETER = new Parameter(
             PROFILES,
             ParameterType.STRING_LIST,
