@@ -59,8 +59,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        Optional<Range<Integer>> unusedOrderPositionsAfter = TopologyModificationUtils.getUnusedOrderPositionsAfter(
-                network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs2"));
         assertTrue(unusedOrderPositionsAfter.isPresent());
         assertEquals(121, (int) unusedOrderPositionsAfter.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.get().getMaximum());
@@ -87,8 +86,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        Optional<Range<Integer>> unusedOrderPositionsBefore = getUnusedOrderPositionsBefore(
-                network.getVoltageLevel("vl1"), network.getBusbarSection("bbs2"));
+        Optional<Range<Integer>> unusedOrderPositionsBefore = getUnusedOrderPositionsBefore(network.getBusbarSection("bbs2"));
         assertTrue(unusedOrderPositionsBefore.isPresent());
         assertEquals(71, (int) unusedOrderPositionsBefore.get().getMinimum());
         assertEquals(79, (int) unusedOrderPositionsBefore.get().getMaximum());
@@ -197,8 +195,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                         .setP0(50)
                         .setQ0(60)
                         .setEnsureIdUnicity(false);
-        Optional<Range<Integer>> unusedOrderPositionsAfter0 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
-                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter0 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter0.isPresent());
         assertEquals(81, (int) unusedOrderPositionsAfter0.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter0.get().getMaximum());
@@ -218,8 +215,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                             .setBPerSection(1e-5)
                             .setMaximumSectionCount(1)
                             .add();
-        Optional<Range<Integer>> unusedOrderPositionsAfter1 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
-                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter1 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter1.isPresent());
         assertEquals(82, (int) unusedOrderPositionsAfter1.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter1.get().getMaximum());
@@ -240,8 +236,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                         .setVoltageSetpoint(390.0)
                         .setReactivePowerSetpoint(1.0)
                         .setEnsureIdUnicity(false);
-        Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
-                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter2 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter2.isPresent());
         assertEquals(83, (int) unusedOrderPositionsAfter2.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter2.get().getMaximum());
@@ -259,8 +254,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                         .setLossFactor(0.011f)
                         .setPowerFactor(0.5f)
                         .setEnsureIdUnicity(false);
-        Optional<Range<Integer>> unusedOrderPositionsAfter3 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
-                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter3 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter3.isPresent());
         assertEquals(84, (int) unusedOrderPositionsAfter3.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter3.get().getMaximum());
@@ -279,8 +273,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .setVoltageSetpoint(405.0)
                 .setVoltageRegulatorOn(true)
                 .setEnsureIdUnicity(false);
-        Optional<Range<Integer>> unusedOrderPositionsAfter4 = TopologyModificationUtils.getUnusedOrderPositionsAfter(
-                network.getVoltageLevel("vl2"), network.getBusbarSection("bbs5"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter4 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter4.isPresent());
         assertEquals(85, (int) unusedOrderPositionsAfter4.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter4.get().getMaximum());
@@ -329,12 +322,11 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         ConnectablePosition<Load> position = load.getExtension(ConnectablePosition.class);
         assertNull(position);
 
-        VoltageLevel vl = network.getVoltageLevel("vl1");
         BusbarSection bbs = network.getBusbarSection("bbs2");
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsBefore(vl, bbs));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsBefore(bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
 
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(vl, bbs));
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception2.getMessage());
     }
 }
