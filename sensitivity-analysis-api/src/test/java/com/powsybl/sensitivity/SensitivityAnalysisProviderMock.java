@@ -29,17 +29,17 @@ import java.util.stream.IntStream;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             switch (contingencyContext.getContextType()) {
                 case NONE:
-                    valueWriter.write(factorIndex[0]++, -1, 0.0, 0.0);
+                    resultWriter.writeSensitivityValue(factorIndex[0]++, -1, 0.0, 0.0);
                     break;
 
                 case ALL:
                     for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-                        valueWriter.write(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                        resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
                     }
                     break;
 
@@ -48,10 +48,13 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                             .filter(i -> contingencies.get(i).getId().equals(contingencyContext.getContingencyId()))
                             .findFirst()
                             .orElseThrow();
-                    valueWriter.write(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                    resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
                     break;
             }
         });
+        for (Contingency c : contingencies) {
+            resultWriter.writeContingencyStatus(new SensitivityAnalysisResult.SensitivityContingencyStatus(c, SensitivityAnalysisResult.Status.CONVERGED));
+        }
         return CompletableFuture.completedFuture(null);
     }
 

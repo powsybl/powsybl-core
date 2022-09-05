@@ -12,16 +12,27 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityValueModelWriter implements SensitivityValueWriter {
+public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
     private final List<SensitivityValue> values = new ArrayList<>();
+
+    private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatuses = new ArrayList<>();
 
     public List<SensitivityValue> getValues() {
         return values;
     }
 
+    public List<SensitivityAnalysisResult.SensitivityContingencyStatus> getContingencyStatuses() {
+        return contingencyStatuses;
+    }
+
     @Override
-    public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
+    public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         values.add(new SensitivityValue(factorIndex, contingencyIndex, value, functionReference));
+    }
+
+    @Override
+    public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
+        contingencyStatuses.add(status);
     }
 }
