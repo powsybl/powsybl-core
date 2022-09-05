@@ -45,6 +45,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-computation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

@@ -14,7 +14,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
