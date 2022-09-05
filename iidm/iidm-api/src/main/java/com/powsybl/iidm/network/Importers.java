@@ -214,17 +214,24 @@ public final class Importers {
      * @param computationManager A computation manager which may be used by import post-processors
      * @param config             The import config, in particular definition of post processors
      * @param parameters         Import-specific parameters
+     * @param networkFactory     Network factory
      * @param loader             Provides the list of available importers and post-processors
      * @param reporter           The reporter used for functional logs
      * @return                   The loaded network
      */
-    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, Reporter reporter) {
+    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
+                                      ImportersLoader loader, Reporter reporter) {
         ReadOnlyDataSource dataSource = createDataSource(file);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
-            return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+            return importer.importData(dataSource, networkFactory, parameters, reporter);
         }
         throw new PowsyblException(UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+    }
+
+    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters,
+                                      ImportersLoader loader, Reporter reporter) {
+        return loadNetwork(file, computationManager, config, parameters, NetworkFactory.findDefault(), loader, reporter);
     }
 
     /**

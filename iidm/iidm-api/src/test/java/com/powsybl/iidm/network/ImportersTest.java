@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import org.junit.Assert;
@@ -20,10 +21,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
@@ -198,7 +196,7 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void loadNetwork1() {
-        Network network = Importers.loadNetwork(path, computationManager, importConfigMock, null, loader);
+        Network network = Importers.loadNetwork(path, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
     }
