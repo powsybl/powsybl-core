@@ -333,8 +333,5 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         BusbarSection bbs = network.getBusbarSection("bbs2");
         PowsyblException exception = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsBefore(vl, bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
-
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(vl, bbs));
-        assertEquals("busbarSection has no BusbarSectionPosition extension", exception.getMessage());
     }
 }
