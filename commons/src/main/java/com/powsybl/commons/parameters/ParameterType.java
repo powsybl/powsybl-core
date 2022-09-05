@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.parameters;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -16,8 +15,7 @@ public enum ParameterType {
     BOOLEAN(Boolean.class, Boolean.class),
     STRING(String.class, String.class),
     STRING_LIST(List.class, String.class),
-    DOUBLE(Double.class, Double.class),
-    PATH(Path.class, Path.class);
+    DOUBLE(Double.class, Double.class);
 
     private final Class<?> typeClass;
     private final Class<?> elementClass;

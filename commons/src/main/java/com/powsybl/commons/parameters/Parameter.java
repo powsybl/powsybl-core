@@ -11,7 +11,6 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.ModuleConfigUtil;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -32,13 +31,21 @@ public class Parameter {
 
     private final List<Object> possibleValues;
 
+    private ParameterScope scope;
+
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
-                     List<Object> possibleValues) {
+                     List<Object> possibleValues, ParameterScope scope) {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
         this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
+        this.scope = scope;
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues) {
+        this(name, type, description, defaultValue, possibleValues, ParameterScope.FUNCTIONAL);
     }
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue) {
@@ -102,8 +109,6 @@ public class Parameter {
                 return readStringList(prefix, parameters, configuredParameter, defaultValueConfig);
             case DOUBLE:
                 return readDouble(prefix, parameters, configuredParameter, defaultValueConfig);
-            case PATH:
-                return readPath(prefix, parameters, configuredParameter, defaultValueConfig);
             default:
                 throw new IllegalStateException("Unknown parameter type: " + configuredParameter.getType());
         }
@@ -127,10 +132,6 @@ public class Parameter {
 
     public static String readString(String prefix, Properties parameters, Parameter configuredParameter) {
         return readString(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
-    }
-
-    public static Path readPath(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        return read(parameters, configuredParameter, defaultValueConfig.getPathValue(prefix, configuredParameter), ModuleConfigUtil::getOptionalPathProperty);
     }
 
     public static List<String> readStringList(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {

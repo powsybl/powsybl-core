@@ -9,7 +9,6 @@ package com.powsybl.commons.parameters;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,8 +57,6 @@ public class ParameterDefaultValueConfig {
                 return getBooleanValue(prefix, parameter);
             case STRING:
                 return getStringValue(prefix, parameter);
-            case PATH:
-                return getPathValue(prefix, parameter);
             case STRING_LIST:
                 return getStringListValue(prefix, parameter);
             case DOUBLE:
@@ -84,10 +81,6 @@ public class ParameterDefaultValueConfig {
     public double getDoubleValue(String prefix, Parameter parameter) {
         return getValue(prefix, (Double) parameter.getDefaultValue(), parameter,
             (moduleConfig, name) -> moduleConfig.getOptionalDoubleProperty(name).stream().boxed().findFirst());
-    }
-
-    public Path getPathValue(String prefix, Parameter parameter) {
-        return getValue(prefix, (Path) parameter.getDefaultValue(), parameter, ModuleConfig::getOptionalPathProperty);
     }
 
     private <T> T getValue(String prefix, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> valueSupplier) {

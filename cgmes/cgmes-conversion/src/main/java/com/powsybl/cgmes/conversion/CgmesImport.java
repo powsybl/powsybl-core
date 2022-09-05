@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -17,13 +16,14 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterScope;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
-import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.slf4j.Logger;
@@ -35,6 +35,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,17 +49,20 @@ public class CgmesImport implements Importer {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
-        Path boundaryPath = platformConfig.getConfigDir()
+        String boundaryPath = platformConfig.getConfigDir()
                 .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
+                .map(Path::toString)
                 .orElse(null);
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
         boundaryLocationParameter = new Parameter(
                 BOUNDARY_LOCATION,
-                ParameterType.PATH,
+                ParameterType.STRING,
                 "The location of boundary files",
-                boundaryPath);
+                boundaryPath,
+                null,
+                ParameterScope.TECHNICAL);
         postProcessorsParameter = new Parameter(
                 POST_PROCESSORS,
                 ParameterType.STRING_LIST,
@@ -138,7 +142,7 @@ public class CgmesImport implements Importer {
     }
 
     private ReadOnlyDataSource boundary(Properties p) {
-        Path loc = Parameter.readPath(
+        String loc = Parameter.readString(
                 getFormat(),
                 p,
                 boundaryLocationParameter,
@@ -146,12 +150,13 @@ public class CgmesImport implements Importer {
         if (loc == null) {
             return null;
         }
-        if (!Files.exists(loc)) {
+        Path ploc = Path.of(loc);
+        if (!Files.exists(ploc)) {
             LOGGER.warn("Location of boundaries does not exist {}. No attempt to load boundaries will be made", loc);
             return null;
         }
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(ploc);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
@@ -235,11 +240,11 @@ public class CgmesImport implements Importer {
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
                                 defaultValueConfig));
         String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        Path idMappingFilePath = Parameter.readPath(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
+        String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
             config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
         } else {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", idMappingFilePath));
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
         }
         return config;
     }
@@ -331,9 +336,11 @@ public class CgmesImport implements Importer {
             Boolean.FALSE);
     private static final Parameter ID_MAPPING_FILE_PATH_PARAMETER = new Parameter(
             ID_MAPPING_FILE_PATH,
-            ParameterType.PATH,
+            ParameterType.STRING,
             "Path of ID mapping file",
-            null);
+            null,
+            null,
+            ParameterScope.TECHNICAL);
     private static final Parameter ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER = new Parameter(
             ID_MAPPING_FILE_NAMING_STRATEGY,
             ParameterType.STRING,
@@ -348,7 +355,9 @@ public class CgmesImport implements Importer {
             POWSYBL_TRIPLESTORE,
             ParameterType.STRING,
             "The triplestore used during the import",
-            TripleStoreFactory.defaultImplementation())
+            TripleStoreFactory.defaultImplementation(),
+            null,
+            ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
     private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
         PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
@@ -375,7 +384,7 @@ public class CgmesImport implements Importer {
             SOURCE_FOR_IIDM_ID_MRID,
             List.of(SOURCE_FOR_IIDM_ID_MRID, SOURCE_FOR_IIDM_ID_RDFID));
 
-    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,

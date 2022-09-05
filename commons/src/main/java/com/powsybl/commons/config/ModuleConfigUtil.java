@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.config;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -26,10 +25,6 @@ public final class ModuleConfigUtil {
 
     public static Optional<String> getOptionalStringProperty(ModuleConfig moduleConfig, List<String> names) {
         return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalStringProperty);
-    }
-
-    public static Optional<Path> getOptionalPathProperty(ModuleConfig moduleConfig, List<String> names) {
-        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalPathProperty);
     }
 
     public static Optional<List<String>> getOptionalStringListProperty(ModuleConfig moduleConfig, List<String> names) {
