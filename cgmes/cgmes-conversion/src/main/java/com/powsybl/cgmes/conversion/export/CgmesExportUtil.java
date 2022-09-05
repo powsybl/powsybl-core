@@ -284,7 +284,7 @@ public final class CgmesExportUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
 
-    public static String getTerminalId(Terminal t) {
+    public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
         if (c instanceof DanglingLine) {
@@ -293,11 +293,6 @@ public final class CgmesExportUtil {
             int sequenceNumber = getTerminalSequenceNumber(t);
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
-        Optional<String> terminalId = c.getAliasFromType(aliasType);
-        if (terminalId.isEmpty()) {
-            LOG.error("Alias for type {} not found in connectable {}", aliasType, t.getConnectable().getId());
-            throw new PowsyblException("Alias for type " + aliasType + " not found in connectable " + t.getConnectable().getId());
-        }
-        return terminalId.get();
+        return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
 }

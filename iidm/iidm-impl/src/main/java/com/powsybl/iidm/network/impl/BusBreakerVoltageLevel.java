@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -659,6 +660,19 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             int e = getEdge(switchId, true);
             int v2 = graph.getEdgeVertex2(e);
             return graph.getVertexObject(v2);
+        }
+
+        @Override
+        public Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
+            return getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
+        }
+
+        @Override
+        public Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
+            MergedBus bus = (MergedBus) busView.getBus(mergedBusId);
+            Objects.requireNonNull(bus, "bus is null");
+            calculatedBusTopology.updateCache();
+            return variants.get().cache.mapping.entrySet().stream().filter(e -> e.getValue() == bus).map(e -> (Bus) e.getKey()).distinct();
         }
 
         @Override

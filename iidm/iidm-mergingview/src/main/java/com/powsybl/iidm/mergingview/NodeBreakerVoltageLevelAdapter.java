@@ -11,9 +11,11 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -354,6 +356,16 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         @Override
         public Bus getBus2(String switchId) {
             return getBus(getDelegate().getBus2(switchId));
+        }
+
+        @Override
+        public Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
+            return getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
+        }
+
+        @Override
+        public Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
+            return getDelegate().getBusStreamFromBusViewBusId(mergedBusId).map(this::getBus);
         }
 
         @Override

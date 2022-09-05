@@ -27,12 +27,11 @@ public abstract class AbstractTwoWindingsTransformerToBeEstimatedTest {
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
 
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
-        twt.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
+        TwoWindingsTransformerToBeEstimated ext = twt.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
                 .withRatioTapChangerStatus(true)
                 .withPhaseTapChangerStatus(false)
                 .add();
 
-        TwoWindingsTransformerToBeEstimated ext = twt.getExtension(TwoWindingsTransformerToBeEstimated.class);
         assertNotNull(ext);
         assertTrue(ext.shouldEstimateRatioTapChanger());
         assertFalse(ext.shouldEstimatePhaseTapChanger());

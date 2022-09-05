@@ -91,7 +91,6 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
             }
         });
 
-        adder.add();
-        return identifiable.getExtension(InjectionObservability.class);
+        return adder.add();
     }
 }

@@ -36,7 +36,7 @@ public class PreContingencyResult {
         return limitViolationsResult;
     }
 
-    public NetworkResult getNeworkResult() {
+    public NetworkResult getNetworkResult() {
         return networkResult;
     }
 }
