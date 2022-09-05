@@ -208,4 +208,8 @@ public class Parameter {
     public List<Object> getPossibleValues() {
         return possibleValues;
     }
+
+    public ParameterScope getScope() {
+        return scope;
+    }
 }
