@@ -17,14 +17,6 @@ public abstract class AbstractOptions<T> {
 
     public abstract T setExtensions(Set<String> extensions);
 
-    /**
-     * @deprecated Not used anymore
-     */
-    @Deprecated
-    public T setMode(IidmImportExportMode mode) {
-        throw new UnsupportedOperationException("Not supported anymore");
-    }
-
     public abstract T addExtension(String extension);
 
     public Optional<Set<String>> getExtensions() {
@@ -56,13 +48,4 @@ public abstract class AbstractOptions<T> {
     }
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
-
-    /**
-     * @deprecated Not used anymore
-     */
-    @Deprecated
-    public IidmImportExportMode getMode() {
-        throw new UnsupportedOperationException("Not supported anymore");
-    }
-
 }

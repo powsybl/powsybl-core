@@ -7,8 +7,9 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -22,7 +23,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class ConnectVoltageLevelOnLine implements NetworkModification {
+public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -42,8 +43,9 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
      * line1Id is line.getId() + "_1". <br>
      * line2Id is line.getId() + "_2". <br>
      *
-     * @see #ConnectVoltageLevelOnLine(String, String, String, String, Line)
+     * @deprecated Use {@link ConnectVoltageLevelOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public ConnectVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, Line line) {
         this(voltageLevelId, bbsOrBusId, line.getId() + "_1", line.getId() + "_2", line);
     }
@@ -55,8 +57,9 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
      * line1Name is null. <br>
      * line2Name is null. <br>
      *
-     * @see #ConnectVoltageLevelOnLine(double, String, String, String, String, String, String, Line)
+     * @deprecated Use {@link ConnectVoltageLevelOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public ConnectVoltageLevelOnLine(String voltageLevelId, String bbsOrBusId, String line1Id, String line2Id, Line line) {
         this(50, voltageLevelId, bbsOrBusId, line1Id, null, line2Id, null, line);
     }
@@ -74,6 +77,8 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
+     *
+     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     public ConnectVoltageLevelOnLine(double percent, String voltageLevelId, String bbsOrBusId, String line1Id, String line1Name,
                                      String line2Id, String line2Name, Line line) {
@@ -113,7 +118,8 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
@@ -168,11 +174,6 @@ public class ConnectVoltageLevelOnLine implements NetworkModification {
         Line line2 = adder2.add();
         addLoadingLimits(line1, limits1, Branch.Side.ONE);
         addLoadingLimits(line2, limits2, Branch.Side.TWO);
-    }
-
-    @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
     }
 
     public String getVoltageLevelId() {

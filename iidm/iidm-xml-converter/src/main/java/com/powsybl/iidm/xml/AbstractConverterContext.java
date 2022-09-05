@@ -16,7 +16,7 @@ public abstract class AbstractConverterContext<T> {
 
     private final Anonymizer anonymizer;
 
-    public AbstractConverterContext(Anonymizer anonymizer) {
+    protected AbstractConverterContext(Anonymizer anonymizer) {
         this.anonymizer = anonymizer != null ? anonymizer : new FakeAnonymizer();
     }
 

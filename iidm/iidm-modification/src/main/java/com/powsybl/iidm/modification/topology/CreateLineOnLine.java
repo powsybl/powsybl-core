@@ -7,8 +7,9 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -23,7 +24,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateLineOnLine implements NetworkModification {
+public class CreateLineOnLine extends AbstractNetworkModification {
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -52,9 +53,9 @@ public class CreateLineOnLine implements NetworkModification {
      * fictitiousVlId is line.getId() + "_VL". <br>
      * line1Id is line.getId() + "_1" <br>
      * line2Id is line.getId() + "_2". <br>
-     *
-     * @see #CreateLineOnLine(double, String, String, String, String, String, Line, LineAdder)
+     * @deprecated Use {@link CreateLineOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public CreateLineOnLine(String voltageLevelId, String bbsOrBusId, Line line, LineAdder lineAdder) {
         this(50, voltageLevelId, bbsOrBusId, line.getId() + "_VL", line.getId() + "_1",
                 line.getId() + "_2", line, lineAdder);
@@ -70,8 +71,9 @@ public class CreateLineOnLine implements NetworkModification {
      * line1Name is null. <br>
      * line2Name is null. <br>
      *
-     * @see #CreateLineOnLine(double, String, String, String, String, boolean, String, String, String, String, String, String, Line, LineAdder)
+     * @deprecated Use {@link CreateLineOnLineBuilder} instead.
      */
+    @Deprecated(since = "4.10.0")
     public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String line1Id,
                             String line2Id, Line line, LineAdder lineAdder) {
         this(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, null, false,
@@ -101,6 +103,8 @@ public class CreateLineOnLine implements NetworkModification {
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
+     *
+     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                             boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
@@ -180,12 +184,8 @@ public class CreateLineOnLine implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
-
-    @Override
-    public void apply(Network network) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         // Create the fictitious voltage Level at the attachment point
         VoltageLevel fictitiousVl;
         if (createFictSubstation) {
