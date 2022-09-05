@@ -31,7 +31,7 @@ import static com.powsybl.iidm.modification.topology.ModificationReports.voltage
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-final class TopologyModificationUtils {
+public final class TopologyModificationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopologyModificationUtils.class);
 
@@ -393,11 +393,12 @@ final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS2 will return a range from 4 to 6.
      */
-    public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(VoltageLevel voltageLevel, BusbarSection bbs) {
+    public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(BusbarSection bbs) {
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
 
         int sectionIndex = busbarSectionPosition.getSectionIndex();
@@ -416,11 +417,12 @@ final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS1 will return a range from 4 to 6.
      */
-    public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(VoltageLevel voltageLevel, BusbarSection bbs) {
+    public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(BusbarSection bbs) {
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
 
         int sectionIndex = busbarSectionPosition.getSectionIndex();
