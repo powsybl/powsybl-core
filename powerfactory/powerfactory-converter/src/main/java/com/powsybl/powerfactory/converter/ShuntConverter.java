@@ -10,11 +10,11 @@ import java.util.Optional;
 
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -66,7 +66,7 @@ class ShuntConverter extends AbstractConverter {
                 case 2:
                     return cShunt(elmShnt);
                 default:
-                    throw new PowsyblException("Shunt type not supported: " + shtype);
+                    throw new PowerFactoryException("Shunt type not supported: " + shtype);
             }
         }
 
@@ -88,7 +88,7 @@ class ShuntConverter extends AbstractConverter {
                 return new LinearShuntModel(section, 0.0, bPerSection);
             }
 
-            throw new PowsyblException("Cannot convert RL shunt");
+            throw new PowerFactoryException("Cannot convert RL shunt");
         }
 
         private static LinearShuntModel cShunt(DataObject elmShnt) {
