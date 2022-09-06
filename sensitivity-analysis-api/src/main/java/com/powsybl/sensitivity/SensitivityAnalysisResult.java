@@ -6,10 +6,15 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import org.jgrapht.alg.util.Triple;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -25,7 +30,7 @@ import java.util.*;
  * offers the possibility to calculate the sensitivities on a set of contingencies besides the pre-contingency state.
  * The full set of results consists of:
  *  - the list of factors
- *  - the list of contingencies
+ *  - the list of contingencies and their associated computation status
  *  - the list of sensitivity values in pre-contingency and post-contingency states
  *  - the list of function reference values in pre-contingency and post-contingency states.
  *  A sensitivity analysis result offers a set of methods to retrieve sensitivity values or function reference values.
@@ -39,7 +44,7 @@ public class SensitivityAnalysisResult {
 
     private final List<SensitivityFactor> factors;
 
-    private final List<Contingency> contingencies;
+    private final List<SensitivityContingencyStatus> contingencyStatuses;
 
     private final List<SensitivityValue> values;
 
@@ -49,19 +54,96 @@ public class SensitivityAnalysisResult {
 
     private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
+    enum Status {
+        CONVERGED,
+        FAILED,
+        NO_IMPACT
+    }
+
+    public static class SensitivityContingencyStatus {
+
+        private final Contingency contingency;
+
+        private final Status status;
+
+        public Contingency getContingency() {
+            return contingency;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public SensitivityContingencyStatus(Contingency contingency, Status status) {
+            this.contingency = contingency;
+            this.status = status;
+        }
+
+        public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
+            try {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("contingencyId", contingencyStatus.contingency != null ? contingencyStatus.contingency.getId() : "");
+                jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
+                jsonGenerator.writeEndObject();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        static final class ParsingContext {
+            private Contingency contingency;
+            private Status status;
+        }
+
+        public static SensitivityContingencyStatus parseJson(JsonParser parser) {
+            Objects.requireNonNull(parser);
+
+            var context = new SensitivityContingencyStatus.ParsingContext();
+            try {
+                JsonToken token;
+                while ((token = parser.nextToken()) != null) {
+                    if (token == JsonToken.FIELD_NAME) {
+                        parseJson(parser, context);
+                    } else if (token == JsonToken.END_OBJECT) {
+                        return new SensitivityContingencyStatus(context.contingency, context.status);
+                    }
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            throw new PowsyblException("Parsing error");
+        }
+
+        private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
+            String fieldName = parser.getCurrentName();
+            switch (fieldName) {
+                case "contingencyId":
+                    parser.nextToken();
+                    context.contingency = new Contingency(parser.getValueAsString());
+                    break;
+                case "contingencyStatus":
+                    parser.nextToken();
+                    context.status = Status.valueOf(parser.getValueAsString());
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected field: " + fieldName);
+            }
+        }
+    }
+
     /**
      * Sensitivity analysis result
      * @param factors the list of sensitivity factors that have been computed.
-     * @param contingencies the list of contingencies that have been simulated.
+     * @param contingencyStatuses the list of contingencies and their associated computation status.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<Contingency> contingencies, List<SensitivityValue> values) {
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityContingencyStatus> contingencyStatuses, List<SensitivityValue> values) {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
-        this.contingencies = Collections.unmodifiableList(Objects.requireNonNull(contingencies));
+        this.contingencyStatuses = Collections.unmodifiableList(Objects.requireNonNull(contingencyStatuses));
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
-            Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;
+            Contingency contingency = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingency() : null;
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
@@ -80,12 +162,12 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get a list of all the contingencies.
+     * Get a list of all the contingency statuses.
      *
-     * @return a list of all the contingencies.
+     * @return a list of all the contingency statuses.
      */
-    public List<Contingency> getContingencies() {
-        return contingencies;
+    public List<SensitivityContingencyStatus> getContingencyStatuses() {
+        return contingencyStatuses;
     }
 
     /**

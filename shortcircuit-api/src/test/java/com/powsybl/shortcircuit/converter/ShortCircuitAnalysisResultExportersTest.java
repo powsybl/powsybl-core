@@ -7,6 +7,7 @@
 package com.powsybl.shortcircuit.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -77,7 +78,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     @Test
     public void testWriteJson() throws IOException {
         ShortCircuitAnalysisResult result = createResultWithExtension();
-        writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-with-extensions-results.json");
+        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-with-extensions-results.json");
     }
 
     @Test
@@ -89,7 +90,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     @Test
     public void testJsonWithFeederResult() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
-        writeTest(result, this::writeJson, AbstractConverterTest::compareTxt, "/shortcircuit-results-with-feeder-result.json");
+        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
@@ -106,7 +107,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     @Test
     public void testWriteCsv() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
-        writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/shortcircuit-results.csv");
+        writeTest(result, this::writeCsv, ComparisonUtils::compareTxt, "/shortcircuit-results.csv");
     }
 
     static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {
