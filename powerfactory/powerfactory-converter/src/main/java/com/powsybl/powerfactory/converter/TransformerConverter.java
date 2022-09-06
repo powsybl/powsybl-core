@@ -8,6 +8,7 @@ package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -78,6 +79,13 @@ class TransformerConverter extends AbstractConverter {
             .add();
 
         tc.ifPresent(t -> tapChangerToIidm(t, t2wt));
+
+        typTr2.findFloatAttributeValue("nt2ag").ifPresent(phaseAngleClock -> {
+            if (phaseAngleClock > 0) {
+                int pac = (int) phaseAngleClock.floatValue();
+                t2wt.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(pac).add();
+            }
+        });
     }
 
     void createThreeWindings(DataObject elmTr3) {
