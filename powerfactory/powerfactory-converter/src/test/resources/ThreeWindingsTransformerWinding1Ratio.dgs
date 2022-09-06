@@ -68,7 +68,7 @@ $$ElmTr2;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);typ_id(p);ntnum(i);ou
 
 
 $$ElmTr3;ID(a:40);loc_name(a:40);fold_id(p);for_name(a:50);nt3nm(i);typ_id(p);outserv(i);n3tap_h(i);n3tap_m(i);n3tap_l(i);i_auto_hl(i);ictrlside(i);ntrcn(i);t3ldc(i);usetp(r);usp_low(r);usp_up(r);iMeasTap(i)
-  43;tr3_4_2_7_1;27;;1;104;0;0;0;0;0;0;1;0;0;0;0;0
+  43;tr3_4_2_7_1;27;;1;104;0;8;0;0;0;0;1;0;0;0;0;0
 
 
 $$ElmZone;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);icolor(i);curscale(r)
