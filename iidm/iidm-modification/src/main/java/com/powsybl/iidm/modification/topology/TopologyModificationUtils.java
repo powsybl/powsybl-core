@@ -20,13 +20,12 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotInVoltageLevel;
 import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotSupported;
 import static com.powsybl.iidm.modification.topology.ModificationReports.substationRemovedReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.voltageLevelRemovedReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.voltageLevelRemovingEquipmentsLeftReport;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -40,12 +39,6 @@ public final class TopologyModificationUtils {
         private LoadingLimitsBag activePowerLimits;
         private LoadingLimitsBag apparentPowerLimits;
         private LoadingLimitsBag currentLimits;
-
-        LoadingLimitsBags(LoadingLimitsBag activePowerLimits, LoadingLimitsBag apparentPowerLimits, LoadingLimitsBag currentLimits) {
-            this.activePowerLimits = activePowerLimits;
-            this.apparentPowerLimits = apparentPowerLimits;
-            this.currentLimits = currentLimits;
-        }
 
         LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
@@ -71,11 +64,6 @@ public final class TopologyModificationUtils {
 
         private double permanentLimit;
         private List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
-
-        LoadingLimitsBag(double permanentLimit, List<TemporaryLimitsBag> temporaryLimits) {
-            this.permanentLimit = permanentLimit;
-            this.temporaryLimits =  temporaryLimits;
-        }
 
         private LoadingLimitsBag(LoadingLimits limits) {
             this.permanentLimit = limits.getPermanentLimit();
@@ -202,11 +190,14 @@ public final class TopologyModificationUtils {
 
     static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
         Optional<Substation> substation = voltageLevel.getSubstation();
-        if (voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION)) {
-            String vlId = voltageLevel.getId();
-            voltageLevel.remove();
-            voltageLevelRemovedReport(reporter, vlId);
+        String vlId = voltageLevel.getId();
+        boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
+        if (!noMoreEquipments) {
+            voltageLevelRemovingEquipmentsLeftReport(reporter, vlId);
         }
+        voltageLevel.remove();
+        voltageLevelRemovedReport(reporter, vlId);
+
         substation.ifPresent(s -> {
             if (s.getVoltageLevelStream().count() == 0) {
                 String substationId = s.getId();
@@ -214,55 +205,6 @@ public final class TopologyModificationUtils {
                 substationRemovedReport(reporter, substationId);
             }
         });
-    }
-
-    static LoadingLimitsBag calcMinLoadingLimitsBag(List<LoadingLimits> loadingLimits) {
-        List<TemporaryLimitsBag> temporaryLimitsBags = new ArrayList<>();
-        Map<Integer, TemporaryLimitsBag> temporaryLimitsByAcceptableDuration = new HashMap<>();
-        double minPermanentLimitValue = Double.MAX_VALUE;
-
-        for (LoadingLimits loadingLimit : loadingLimits) {
-            // find the min permanent limit value
-            if (loadingLimit.getPermanentLimit() < minPermanentLimitValue) {
-                minPermanentLimitValue = loadingLimit.getPermanentLimit();
-            }
-
-            // find the min temporary limit value for each acceptableDuration
-            Collection<LoadingLimits.TemporaryLimit> temporaryLimits = loadingLimit.getTemporaryLimits();
-            for (LoadingLimits.TemporaryLimit temporaryLimit : temporaryLimits) {
-                Integer acceptableDuration = temporaryLimit.getAcceptableDuration();
-                if (!temporaryLimitsByAcceptableDuration.containsKey(acceptableDuration)) {
-                    temporaryLimitsByAcceptableDuration.put(acceptableDuration, new TemporaryLimitsBag(temporaryLimit));
-                }
-                if (temporaryLimit.getValue() < temporaryLimitsByAcceptableDuration.get(acceptableDuration).getValue()) {
-                    temporaryLimitsByAcceptableDuration.put(acceptableDuration, new TemporaryLimitsBag(temporaryLimit));
-                }
-            }
-            temporaryLimitsBags.addAll(temporaryLimitsByAcceptableDuration.values());
-        }
-
-        return new LoadingLimitsBag(minPermanentLimitValue, temporaryLimitsBags);
-    }
-
-    static LoadingLimitsBags calcMinLoadingLimitsBags(Line line1, Line line2) {
-        List<LoadingLimits> currentLimits = Stream.of(line1.getCurrentLimits1(), line1.getCurrentLimits2(), line2.getCurrentLimits1(), line2.getCurrentLimits2())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-
-        List<LoadingLimits> activePowerLimits = Stream.of(line1.getActivePowerLimits1(), line1.getActivePowerLimits2(), line2.getActivePowerLimits1(), line2.getActivePowerLimits2())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-
-        List<LoadingLimits> apparentPowerLimits = Stream.of(line1.getApparentPowerLimits1(), line1.getApparentPowerLimits2(), line2.getApparentPowerLimits1(), line2.getApparentPowerLimits2())
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
-
-        return new LoadingLimitsBags(!activePowerLimits.isEmpty() ? calcMinLoadingLimitsBag(activePowerLimits) : null,
-                                     !apparentPowerLimits.isEmpty() ? calcMinLoadingLimitsBag(apparentPowerLimits) : null,
-                                     !currentLimits.isEmpty() ? calcMinLoadingLimitsBag(currentLimits) : null);
     }
 
     static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {

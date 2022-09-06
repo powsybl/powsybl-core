@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.createdLineReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.noAttachmentPointAndOrAttachedVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.noTeePointAndOrAttachedVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundBusInVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundBusbarSectionInVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundLineReport;
@@ -39,7 +39,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
 /**
  * This method transform the action done in the CreateLineOnLine class into the action done in the ConnectVoltageLevelOnLine class :
  * it replaces 3 existing lines (with the same voltage level at one of their side (tee point)) with two new lines,
- * and eventually removes the tee point, if it contains no equipments anymore, except bus or bus bar section
+ * and removes the tee point
  *
  *    VL1 ---------- tee point ---------- VL2                            VL1 ---------- attached voltage level ---------- VL2
  *         (line1Z)       |     (lineZ2)                                      (line1C)                          (lineC2)
@@ -48,6 +48,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *                        |
  *                        |
  *               attached voltage level (voltageLevelId)
+ *                  (contains bbsOrBusId)
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -218,12 +219,10 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        // Check the configuration and find the attachment point :
-        // attachment point is the voltage level in common with line1Z, lineZ2 and lineZP
-        VoltageLevel attachmentPoint = null;
-        Branch.Side line1ZAttachmentPointSide = null;
+        // Check the configuration and find the tee point :
+        // tee point is the voltage level in common with line1Z, lineZ2 and lineZP
+        VoltageLevel teePoint = null;
         Branch.Side line1ZOtherVlSide = null;
-        Branch.Side lineZ2AttachmentPointSide = null;
         Branch.Side lineZ2OtherVlSide = null;
         boolean configOk = false;
 
@@ -242,19 +241,19 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                         line1ZVlId2.equals(lineZPVlId1) || line1ZVlId2.equals(lineZPVlId2))) {
             configOk = true;
 
-            String attachmentPointId = line1ZVlId1.equals(lineZ2VlId1) || line1ZVlId1.equals(lineZ2VlId2) ? line1ZVlId1 : line1ZVlId2;
-            attachmentPoint = network.getVoltageLevel(attachmentPointId);
+            String teePointId = line1ZVlId1.equals(lineZ2VlId1) || line1ZVlId1.equals(lineZ2VlId2) ? line1ZVlId1 : line1ZVlId2;
+            teePoint = network.getVoltageLevel(teePointId);
 
-            line1ZAttachmentPointSide = line1ZVlId1.equals(attachmentPointId) ? Branch.Side.ONE : Branch.Side.TWO;
-            line1ZOtherVlSide = line1ZAttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
-            lineZ2AttachmentPointSide = lineZ2VlId1.equals(attachmentPointId) ? Branch.Side.ONE : Branch.Side.TWO;
-            lineZ2OtherVlSide = lineZ2AttachmentPointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+            Branch.Side line1ZTeePointSide = line1ZVlId1.equals(teePointId) ? Branch.Side.ONE : Branch.Side.TWO;
+            line1ZOtherVlSide = line1ZTeePointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+            Branch.Side lineZ2TeePointSide = lineZ2VlId1.equals(teePointId) ? Branch.Side.ONE : Branch.Side.TWO;
+            lineZ2OtherVlSide = lineZ2TeePointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
         }
 
-        if (!configOk || attachmentPoint == null || attachedVoltageLevel == null) {
-            noAttachmentPointAndOrAttachedVoltageLevelReport(reporter, line1ZId, lineZ2Id, lineZPId);
+        if (!configOk || teePoint == null || attachedVoltageLevel == null) {
+            noTeePointAndOrAttachedVoltageLevelReport(reporter, line1ZId, lineZ2Id, lineZPId);
             if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", line1ZId, lineZ2Id, lineZPId));
+                throw new PowsyblException(String.format("Unable to find the tee point and the attached voltage level from lines %s, %s and %s", line1ZId, lineZ2Id, lineZPId));
             } else {
                 return;
             }
@@ -350,7 +349,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         addLoadingLimits(lineC2, limits2LineZ2, Branch.Side.TWO);
         createdLineReport(reporter, lineC2Id);
 
-        // remove attachment point, if necessary
-        removeVoltageLevelAndSubstation(attachmentPoint, reporter);
+        // remove tee point
+        removeVoltageLevelAndSubstation(teePoint, reporter);
     }
 }

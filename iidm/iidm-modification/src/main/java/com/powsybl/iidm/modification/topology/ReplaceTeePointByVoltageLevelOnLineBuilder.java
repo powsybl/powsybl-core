@@ -28,11 +28,17 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withLine1ZId(String line1ZId) {
         this.line1ZId = line1ZId;
+        if (line1CId == null) {
+            line1CId = line1ZId;
+        }
         return this;
     }
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withLineZ2Id(String lineZ2Id) {
         this.lineZ2Id = lineZ2Id;
+        if (lineC2Id == null) {
+            lineC2Id = lineZ2Id;
+        }
         return this;
     }
 

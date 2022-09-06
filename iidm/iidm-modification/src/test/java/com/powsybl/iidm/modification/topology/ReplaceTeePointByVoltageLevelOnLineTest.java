@@ -122,7 +122,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, Reporter.NO_OP)).getMessage().contains("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34"));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, Reporter.NO_OP)).getMessage().contains("Unable to find the tee point and the attached voltage level from lines CJ_1, CJ_2 and LINE34"));
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("CJ_1")

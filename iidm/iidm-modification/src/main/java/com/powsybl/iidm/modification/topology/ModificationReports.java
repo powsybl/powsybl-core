@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
  */
 final class ModificationReports {
     static String voltageLevelIdString = "voltageLevelId";
+    static String lineIdString = "lineId";
 
     static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
         reporter.report(Report.builder()
@@ -82,7 +83,7 @@ final class ModificationReports {
                 .withKey("connectableNotInVoltageLevel")
                 .withDefaultMessage("Given connectable ${connectableId} not in voltageLevel ${voltageLevelId}")
                 .withValue("connectableId", connectable.getId())
-                .withValue("voltageLevelId", voltageLevel.getId())
+                .withValue(voltageLevelIdString, voltageLevel.getId())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -100,17 +101,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("lineNotFound")
                 .withDefaultMessage("Line ${lineId} is not found")
-                .withValue("lineId", lineId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void noVoltageLevelInCommonReport(Reporter reporter, String line1Id, String line2Id) {
-        reporter.report(Report.builder()
-                .withKey("noVoltageLevelInCommon")
-                .withDefaultMessage("Lines ${line1Id} and ${line2Id} should have one and only one voltage level in common at their extremities")
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
+                .withValue(lineIdString, lineId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -119,7 +110,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("lineRemoved")
                 .withDefaultMessage("Line ${lineId} removed")
-                .withValue("lineId", lineId)
+                .withValue(lineIdString, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -128,7 +119,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("lineCreated")
                 .withDefaultMessage("Line ${lineId} created")
-                .withValue("lineId", lineId)
+                .withValue(lineIdString, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -139,6 +130,15 @@ final class ModificationReports {
                 .withDefaultMessage("Voltage level ${vlId} removed")
                 .withValue("vlId", vlId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void voltageLevelRemovingEquipmentsLeftReport(Reporter reporter, String vlId) {
+        reporter.report(Report.builder()
+                .withKey("voltageLevelRemovingEquipmentsLeft")
+                .withDefaultMessage("Voltage level ${vlId} still contains equipments")
+                .withValue("vlId", vlId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
 
@@ -155,15 +155,15 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("voltageLevelNotFound")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
-                .withValue("voltageLevelId", voltageLevelId)
+                .withValue(voltageLevelIdString, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
 
-    static void noAttachmentPointAndOrAttachedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
+    static void noTeePointAndOrAttachedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
         reporter.report(Report.builder()
-                .withKey("noAttachmentPointAndOrAttachedVoltageLevel")
-                .withDefaultMessage("Unable to find the attachment point and the attached voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
+                .withKey("noTeePointAndOrAttachedVoltageLevel")
+                .withDefaultMessage("Unable to find the tee point and the attached voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
                 .withValue("line1Id", line1Id)
                 .withValue("line2Id", line2Id)
                 .withValue("line3Id", line3Id)
@@ -176,7 +176,7 @@ final class ModificationReports {
                 .withKey("busNotFound")
                 .withDefaultMessage("Bus ${busId} is not found in voltage level ${voltageLevelId}")
                 .withValue("busId", busId)
-                .withValue("voltageLevelId", voltageLevelId)
+                .withValue(voltageLevelIdString, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -186,7 +186,7 @@ final class ModificationReports {
                 .withKey("busbarSectionNotFound")
                 .withDefaultMessage("Busbar section ${busbarSectionId} is not found in voltage level ${voltageLevelId}")
                 .withValue("busbarSectionId", busbarSectionId)
-                .withValue("voltageLevelId", voltageLevelId)
+                .withValue(voltageLevelIdString, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
