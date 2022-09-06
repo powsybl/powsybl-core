@@ -19,8 +19,8 @@ public class CreateBranchFeedersBuilder {
     private String bbsId2 = null;
     private Integer positionOrder1 = null;
     private Integer positionOrder2 = null;
-    private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.BOTTOM;
-    private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.BOTTOM;
+    private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.TOP;
+    private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
 
     public CreateBranchFeeders build() {
         return new CreateBranchFeeders(branchAdder, bbsId1, bbsId2, positionOrder1, positionOrder2, direction1, direction2);
