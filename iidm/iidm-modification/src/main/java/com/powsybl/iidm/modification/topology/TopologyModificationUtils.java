@@ -449,16 +449,13 @@ public final class TopologyModificationUtils {
 
     private static Optional<Integer> getOrder(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
         if (connectable instanceof Injection) {
-            Optional<Integer> order = position.getFeeder().getOrder();
-            return order;
+            return position.getFeeder().getOrder();
         } else if (connectable instanceof Branch) {
             Branch<?> branch = (Branch<?>) connectable;
             if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-                Optional<Integer> order = position.getFeeder1().getOrder();
-                return order;
+                return position.getFeeder1().getOrder();
             } else if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
-                Optional<Integer> order = position.getFeeder2().getOrder();
-                return order;
+                return position.getFeeder2().getOrder();
             } else {
                 LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
                 connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
@@ -469,14 +466,11 @@ public final class TopologyModificationUtils {
         } else if (connectable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
             if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
-                Optional<Integer> order = position.getFeeder1().getOrder();
-                return order;
+                return position.getFeeder1().getOrder();
             } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
-                Optional<Integer> order = position.getFeeder2().getOrder();
-                return order;
+                return position.getFeeder2().getOrder();
             } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
-                Optional<Integer> order = position.getFeeder3().getOrder();
-                return order;
+                return position.getFeeder3().getOrder();
             } else {
                 LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
                 connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
