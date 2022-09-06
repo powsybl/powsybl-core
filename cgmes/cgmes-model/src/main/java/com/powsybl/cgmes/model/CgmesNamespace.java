@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -57,6 +58,8 @@ public final class CgmesNamespace {
     public static final Cim CIM_14 = new Cim14();
     public static final Cim CIM_16 = new Cim16();
     public static final Cim CIM_100 = new Cim100();
+
+    public static final List<Cim> CIM_LIST = List.of(CIM_14, CIM_16, CIM_100);
 
     public static boolean isValid(String ns) {
         // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"

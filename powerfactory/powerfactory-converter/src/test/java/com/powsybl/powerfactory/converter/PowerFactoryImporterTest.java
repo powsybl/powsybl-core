@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**
@@ -168,6 +169,26 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void switches() {
         assertTrue(importAndCompareXiidm("Switches"));
+    }
+
+    @Test
+    public void switchesNegativeVoltage() {
+        assertTrue(importAndCompareXiidm("Switches-negative-voltage"));
+    }
+
+    @Test
+    public void switchesMissingVoltage() {
+        assertTrue(importAndCompareXiidm("Switches-missing-voltage"));
+    }
+
+    @Test
+    public void switchesMissingAngle() {
+        assertTrue(importAndCompareXiidm("Switches-missing-angle"));
+    }
+
+    @Test
+    public void switchesWithoutBus() {
+        assertTrue(importAndCompareXiidm("Switches-without-bus"));
     }
 
     @Test

@@ -116,4 +116,12 @@ public class ParameterTest {
         List<Object> possibleValues = List.of("a", "b", "c");
         new Parameter("p1", ParameterType.STRING_LIST, "a str list param", List.of("a", "c"), possibleValues);
     }
+
+    @Test
+    public void getScopeTest() {
+        Parameter param = new Parameter("test-param", ParameterType.STRING, "", "yes");
+        assertEquals(ParameterScope.FUNCTIONAL, param.getScope());
+        Parameter param2 = new Parameter("test-param2", ParameterType.STRING, "", "yes", null, ParameterScope.TECHNICAL);
+        assertEquals(ParameterScope.TECHNICAL, param2.getScope());
+    }
 }

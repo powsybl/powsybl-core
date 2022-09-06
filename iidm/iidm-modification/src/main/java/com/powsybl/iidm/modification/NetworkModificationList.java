@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -16,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkModificationList implements NetworkModification {
+public class NetworkModificationList extends AbstractNetworkModification {
 
     private final List<NetworkModification> modificationList;
 
@@ -29,13 +30,8 @@ public class NetworkModificationList implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        modificationList.forEach(modification -> modification.apply(network, computationManager));
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
+        modificationList.forEach(modification -> modification.apply(network, throwException, computationManager, reporter));
     }
-
-    @Override
-    public void apply(Network network) {
-        modificationList.forEach(modification -> modification.apply(network));
-    }
-
 }

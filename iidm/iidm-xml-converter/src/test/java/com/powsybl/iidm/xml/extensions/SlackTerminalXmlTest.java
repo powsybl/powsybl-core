@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -88,7 +89,7 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
         Network network2 = roundTripTest(network,
             NetworkXml::writeAndValidate,
             NetworkXml::read,
-            AbstractConverterTest::compareXml,
+            ComparisonUtils::compareXml,
             getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);

@@ -226,7 +226,17 @@ public interface Matrix {
     LUDecomposition decomposeLU();
 
     /**
-     * Multiply the matrix by another one (this*other). The resulting matrix has the same implementation as
+     * Multiply the matrix by another one and by a scalar (this*other*scalar). The resulting matrix has the same implementation as
+     * this matrix.
+     *
+     * @param other the other matrix
+     * @param scalar a scalar to multiply the result matrix
+     * @return the result of the multiplication of this matrix by the other one
+     */
+    Matrix times(Matrix other, double scalar);
+
+    /**
+     * Multiply the matrix by another one. The resulting matrix has the same implementation as
      * this matrix.
      *
      * @param other the other matrix
