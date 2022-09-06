@@ -44,8 +44,6 @@ public class SensitivityAnalysisResult {
 
     private final List<SensitivityFactor> factors;
 
-    private final List<Contingency> contingencies;
-
     private final List<SensitivityContingencyStatus> contingencyStatuses;
 
     private final List<SensitivityValue> values;
@@ -77,8 +75,8 @@ public class SensitivityAnalysisResult {
         }
 
         public SensitivityContingencyStatus(String contingencyId, Status status) {
-            this.contingencyId = contingencyId;
-            this.status = status;
+            this.contingencyId = Objects.requireNonNull(contingencyId);
+            this.status = Objects.requireNonNull(status);
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
@@ -139,15 +137,13 @@ public class SensitivityAnalysisResult {
      * @param contingencyStatuses the list of contingencies and their associated computation status.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<Contingency> contingencies, List<SensitivityContingencyStatus> contingencyStatuses, List<SensitivityValue> values) {
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityContingencyStatus> contingencyStatuses, List<SensitivityValue> values) {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
         this.contingencyStatuses = Collections.unmodifiableList(Objects.requireNonNull(contingencyStatuses));
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
-        this.contingencies = Collections.unmodifiableList(Objects.requireNonNull(contingencies));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
-            Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;
-            String contingencyId = contingency != null ? contingency.getId() : null;
+            String contingencyId = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingencyId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
             valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType()), value);
@@ -162,15 +158,6 @@ public class SensitivityAnalysisResult {
      */
     public List<SensitivityFactor> getFactors() {
         return factors;
-    }
-
-    /**
-     * Get a list of all the contingencies.
-     *
-     * @return a list of all the contingencies.
-     */
-    public List<Contingency> getContingencies() {
-        return contingencies;
     }
 
     /**

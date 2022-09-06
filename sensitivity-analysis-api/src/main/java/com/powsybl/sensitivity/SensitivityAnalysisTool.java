@@ -224,8 +224,7 @@ public class SensitivityAnalysisTool implements Tool {
                 SensitivityAnalysisResult result = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                         factors, contingencies, variableSets, params,
                         computationManager, Reporter.NO_OP);
-                ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule())
-                        .registerModule(new ContingencyJsonModule());
+                ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
                 JsonUtil.writeJson(outputFile, result, sensiObjectMapper);
             } else {
                 if (csv) {
@@ -242,7 +241,7 @@ public class SensitivityAnalysisTool implements Tool {
                     JsonFactory factory = JsonUtil.createJsonFactory();
                     try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
                          JsonGenerator generator = factory.createGenerator(writer);
-                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator)) {
+                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, contingencies)) {
                         generator.useDefaultPrettyPrinter();
                         SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                                 factorsReader, valuesWriter, contingencies, variableSets, params,

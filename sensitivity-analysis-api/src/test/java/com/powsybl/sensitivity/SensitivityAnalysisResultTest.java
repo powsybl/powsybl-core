@@ -11,7 +11,6 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
-import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.Test;
 
@@ -51,7 +50,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.CONVERGED)));
 
         List<SensitivityValue> values = List.of(value1, value2, value3, value4);
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
         assertEquals(4, result.getValues().size());
         assertEquals(2, result.getValues("NHV1_NHV2_2").size());
 
@@ -99,7 +98,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
         List<SensitivityValue> values = List.of(value1, value2, value3, value4);
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.CONVERGED)));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
         assertEquals(4, result.getValues().size());
         assertEquals(2, result.getValues("NHV1_NHV2_2").size());
 
@@ -138,7 +137,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
         List<SensitivityValue> values = List.of(value1, value2);
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.CONVERGED)));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, contingencyStatus, values);
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
         assertEquals(2, result.getValues().size());
         assertEquals(1, result.getValues("NHV1_NHV2_2").size());
 
@@ -191,10 +190,8 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
         List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
         contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.CONVERGED)));
-        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, contingencyStatus, values);
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-        objectMapper.registerModule(new SensitivityJsonModule());
-        objectMapper.registerModule(new ContingencyJsonModule());
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(result, (result2, jsonFile) -> JsonUtil.writeJson(jsonFile, result, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.class, objectMapper), "/SensitivityAnalysisResultRefV1.json");
     }
