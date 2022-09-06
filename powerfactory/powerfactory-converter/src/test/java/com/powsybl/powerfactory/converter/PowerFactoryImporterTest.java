@@ -225,6 +225,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importAndCompareXiidm("CapabilityCurve"));
     }
 
+    @Test
+    public void threeWindingsTransformerWinding1Ratio() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerWinding1Ratio"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;
