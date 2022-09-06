@@ -11,10 +11,13 @@ package com.powsybl.sensitivity;
  * - Use INJECTION_ACTIVE_POWER to model a change on the production of a generator or on a group of generators, on
  * the consumption of a load or on a group of loads or on GLSK (for Generation and Load Shift keys) that describes a
  * linear combination of power injection shifts on generators and loads. The variable increase is in MW.
- * - Use TRANSFORMER_PHASE to model the change of the tap position of a phase tap changer. The increase is in degree.
+ * - Use TRANSFORMER_PHASE to model the change of the tap position of a phase tap changer of a two windings transformer
+ * or a three windings transformer that contains only one phase tap changer. The increase is in degree.
  * - Use BUS_TARGET_VOLTAGE to model an increase of the voltage target of a generator, a static var compensator, a two
  * or three windings transformer, a shunt compensator or a VSC converter station. The increase is in KV.
  * - Use HVDC_LINE_ACTIVE_POWER to model the change of the active power set point of an HVDC line. The increase is in MW.
+ * - Use TRANSFORMER_PHASE_1, TRANSFORMER_PHASE_2 or TRANSFORMER_PHASE_3 to model the change of the tap position of a phase
+ * tap changer of a three windings transformer that contains several phase tap changers.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -22,5 +25,8 @@ public enum SensitivityVariableType {
     INJECTION_ACTIVE_POWER, // MW
     TRANSFORMER_PHASE, // °
     BUS_TARGET_VOLTAGE, // KV
-    HVDC_LINE_ACTIVE_POWER // MW
+    HVDC_LINE_ACTIVE_POWER, // MW
+    TRANSFORMER_PHASE_1, // °
+    TRANSFORMER_PHASE_2, // °
+    TRANSFORMER_PHASE_3 // °
 }
