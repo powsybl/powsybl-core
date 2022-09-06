@@ -11,13 +11,13 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,6 +35,8 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         List<SensitivityValue> sensitivityValues = null;
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = null;
         List<SensitivityFactor> factors = null;
+        List<Contingency> contingencies = null;
+
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
@@ -57,6 +59,11 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     contingencyStatus = parser.readValueAs(new TypeReference<ArrayList<SensitivityAnalysisResult.SensitivityContingencyStatus>>() {
                     });
                     break;
+                case "contingencies":
+                    parser.nextToken();
+                    contingencies = parser.readValueAs(new TypeReference<ArrayList<Contingency>>() {
+                    });
+                    break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
@@ -66,6 +73,6 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             //Only 1.0 version is supported for now
             throw new AssertionError("Version different than 1.0 not supported.");
         }
-        return new SensitivityAnalysisResult(factors, Collections.emptyList(), contingencyStatus, sensitivityValues);
+        return new SensitivityAnalysisResult(factors, contingencies, contingencyStatus, sensitivityValues);
     }
 }

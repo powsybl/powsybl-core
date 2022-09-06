@@ -44,6 +44,8 @@ public class SensitivityAnalysisResult {
 
     private final List<SensitivityFactor> factors;
 
+    private final List<Contingency> contingencies;
+
     private final List<SensitivityContingencyStatus> contingencyStatuses;
 
     private final List<SensitivityValue> values;
@@ -62,27 +64,27 @@ public class SensitivityAnalysisResult {
 
     public static class SensitivityContingencyStatus {
 
-        private final Contingency contingency;
+        private final String contingencyId;
 
         private final Status status;
 
-        public Contingency getContingency() {
-            return contingency;
+        public String getContingencyId() {
+            return contingencyId;
         }
 
         public Status getStatus() {
             return status;
         }
 
-        public SensitivityContingencyStatus(Contingency contingency, Status status) {
-            this.contingency = contingency;
+        public SensitivityContingencyStatus(String contingencyId, Status status) {
+            this.contingencyId = contingencyId;
             this.status = status;
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
             try {
                 jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("contingencyId", contingencyStatus.contingency != null ? contingencyStatus.contingency.getId() : "");
+                jsonGenerator.writeStringField("contingencyId", contingencyStatus.getContingencyId());
                 jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
@@ -105,7 +107,7 @@ public class SensitivityAnalysisResult {
                     if (token == JsonToken.FIELD_NAME) {
                         parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityContingencyStatus(context.contingency, context.status);
+                        return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
                     }
                 }
             } catch (IOException e) {
@@ -141,6 +143,7 @@ public class SensitivityAnalysisResult {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
         this.contingencyStatuses = Collections.unmodifiableList(Objects.requireNonNull(contingencyStatuses));
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
+        this.contingencies = Collections.unmodifiableList(Objects.requireNonNull(contingencies));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
             Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;
@@ -159,6 +162,15 @@ public class SensitivityAnalysisResult {
      */
     public List<SensitivityFactor> getFactors() {
         return factors;
+    }
+
+    /**
+     * Get a list of all the contingencies.
+     *
+     * @return a list of all the contingencies.
+     */
+    public List<Contingency> getContingencies() {
+        return contingencies;
     }
 
     /**

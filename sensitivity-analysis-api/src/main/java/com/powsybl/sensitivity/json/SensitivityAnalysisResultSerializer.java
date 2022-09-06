@@ -31,6 +31,7 @@ public class SensitivityAnalysisResultSerializer extends StdSerializer<Sensitivi
         jsonGenerator.writeObjectField("sensitivityFactors", result.getFactors());
         jsonGenerator.writeObjectField("sensitivityValues", result.getValues());
         jsonGenerator.writeObjectField("contingencyStatus", result.getContingencyStatuses());
+        jsonGenerator.writeObjectField("contingencies", result.getContingencies());
         jsonGenerator.writeEndObject();
     }
 }

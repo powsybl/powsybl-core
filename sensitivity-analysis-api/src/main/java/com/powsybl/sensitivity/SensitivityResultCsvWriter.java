@@ -69,7 +69,7 @@ public class SensitivityResultCsvWriter implements SensitivityResultWriter {
     @Override
     public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
         try {
-            formatterContingencyStatus.writeCell(status.getContingency() != null ? status.getContingency().getId() : "");
+            formatterContingencyStatus.writeCell(status.getContingencyId());
             formatterContingencyStatus.writeCell(status.getStatus().name());
         } catch (IOException e) {
             throw new UncheckedIOException(e);

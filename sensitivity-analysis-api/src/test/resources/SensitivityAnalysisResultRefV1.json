@@ -51,5 +51,12 @@
   "contingencyStatus" : [ {
     "contingencyId" : "NHV1_NHV2_2",
     "contingencyStatus" : "CONVERGED"
+  } ],
+  "contingencies" : [ {
+    "id" : "NHV1_NHV2_2",
+    "elements" : [ {
+      "id" : "NHV1_NHV2_2",
+      "type" : "BRANCH"
+    } ]
   } ]
 }

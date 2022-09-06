@@ -224,7 +224,8 @@ public class SensitivityAnalysisTool implements Tool {
                 SensitivityAnalysisResult result = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                         factors, contingencies, variableSets, params,
                         computationManager, Reporter.NO_OP);
-                ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
+                ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule())
+                        .registerModule(new ContingencyJsonModule());
                 JsonUtil.writeJson(outputFile, result, sensiObjectMapper);
             } else {
                 if (csv) {
