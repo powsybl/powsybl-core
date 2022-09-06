@@ -122,7 +122,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Network given in parameters and in injectionAdder are different. Injection was added then removed", e0.getMessage());
+        assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
 
         //wrong bbsId
         CreateFeederBay modification1 = new CreateFeederBayBuilder()

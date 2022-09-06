@@ -70,18 +70,18 @@ abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModificat
                 return;
             }
             VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
-            int injectionNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            setNode(side, injectionNode, voltageLevel.getId());
+            int connectableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+            setNode(side, connectableNode, voltageLevel.getId());
         }
 
         Connectable<?> connectable = add();
         if (connectable.getNetwork() != network) {
             connectable.remove();
-            LOGGER.error("Network given in parameters and in injectionAdder are different. Injection '{}' of type {} was added then removed",
+            LOGGER.error("Network given in parameters and in connectableAdder are different. Connectable '{}' of type {} was added then removed",
                     connectable.getId(), connectable.getType());
             networkMismatchReport(reporter, connectable.getId(), connectable.getType());
             if (throwException) {
-                throw new PowsyblException("Network given in parameters and in injectionAdder are different. Injection was added then removed");
+                throw new PowsyblException("Network given in parameters and in connectableAdder are different. Connectable was added then removed");
             }
             return;
         }
@@ -96,7 +96,7 @@ abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModificat
             if (!takenFeederPositions.isEmpty()) {
                 if (takenFeederPositions.contains(positionOrder)) {
                     LOGGER.error("PositionOrder {} already taken.", positionOrder);
-                    injectionPositionOrderAlreadyTakenReport(reporter, positionOrder);
+                    positionOrderAlreadyTakenReport(reporter, positionOrder);
                     if (throwException) {
                         throw new PowsyblException(String.format("PositionOrder %d already taken.", positionOrder));
                     }
@@ -112,7 +112,7 @@ abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModificat
                 LOGGER.warn("No extensions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
                 noConnectablePositionExtension(reporter, voltageLevel);
             }
-            // create switches and a breaker linking the injection to the busbar sections.
+            // create switches and a breaker linking the connectable to the busbar sections.
             int node = getNode(side, connectable);
             createTopology(side, network, voltageLevel, node, node + 1, connectable, reporter);
         }
@@ -121,12 +121,12 @@ abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModificat
         }
     }
 
-    private void createTopology(int side, Network network, VoltageLevel voltageLevel, int injectionNode, int forkNode, Connectable<?> connectable, Reporter reporter) {
+    private void createTopology(int side, Network network, VoltageLevel voltageLevel, int connectableNode, int forkNode, Connectable<?> connectable, Reporter reporter) {
         String baseId = connectable.getId() + (side == 0 ? "" : side);
         String bbsId = getBbsId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(injectionNode, forkNode, bbsNode, baseId, voltageLevel.getNodeBreakerView());
+        createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, baseId, voltageLevel.getNodeBreakerView());
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
         int parallelBbsNumber = 0;
         if (position == null) {
@@ -140,14 +140,14 @@ abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModificat
             parallelBbsNumber = bbsList.size();
             createTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList);
         }
-        LOGGER.info("New injection {} was added to voltage level {} on busbar section {}", baseId, voltageLevel.getId(), bbs.getId());
-        newInjectionAddedReport(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
+        LOGGER.info("New connectable {} was added to voltage level {} on busbar section {}", connectable.getId(), voltageLevel.getId(), bbs.getId());
+        newConnectableAddedReport(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
     }
 
-    private static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String injectionId, List<BusbarSection> bbsList) {
+    private static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), injectionId, voltageLevel.getNodeBreakerView(), true);
+            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), baseId, voltageLevel.getNodeBreakerView(), true);
         });
     }
 }
