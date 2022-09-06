@@ -17,6 +17,7 @@ import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,6 +66,6 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             //Only 1.0 version is supported for now
             throw new AssertionError("Version different than 1.0 not supported.");
         }
-        return new SensitivityAnalysisResult(factors, contingencyStatus, sensitivityValues);
+        return new SensitivityAnalysisResult(factors, Collections.emptyList(), contingencyStatus, sensitivityValues);
     }
 }

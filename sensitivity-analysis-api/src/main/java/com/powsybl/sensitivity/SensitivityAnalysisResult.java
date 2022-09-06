@@ -137,19 +137,13 @@ public class SensitivityAnalysisResult {
      * @param contingencyStatuses the list of contingencies and their associated computation status.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityContingencyStatus> contingencyStatuses, List<SensitivityValue> values) {
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<Contingency> contingencies, List<SensitivityContingencyStatus> contingencyStatuses, List<SensitivityValue> values) {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
         this.contingencyStatuses = Collections.unmodifiableList(Objects.requireNonNull(contingencyStatuses));
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
-            Contingency contingency = null;
-            if (value.getContingencyIndex() != -1) {
-                SensitivityContingencyStatus status = value.getContingencyIndex() < contingencyStatuses.size() ? contingencyStatuses.get(value.getContingencyIndex()) : null;
-                if (status != null) {
-                    contingency = status.getContingency();
-                }
-            }
+            Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
