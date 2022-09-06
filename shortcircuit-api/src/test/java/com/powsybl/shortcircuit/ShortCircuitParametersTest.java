@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.YamlModuleConfigRepository;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -227,7 +228,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonShortCircuitParameters::write,
-                AbstractConverterTest::compareTxt, "/ShortCircuitParametersWithExtension.json");
+                ComparisonUtils::compareTxt, "/ShortCircuitParametersWithExtension.json");
     }
 
     @Test

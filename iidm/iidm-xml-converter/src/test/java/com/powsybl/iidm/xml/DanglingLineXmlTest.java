@@ -8,7 +8,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.joda.time.DateTime;

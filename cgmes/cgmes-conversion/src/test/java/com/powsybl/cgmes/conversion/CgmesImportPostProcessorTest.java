@@ -21,7 +21,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -70,8 +69,12 @@ public class CgmesImportPostProcessorTest {
 
     @Test
     public void testParameters() {
-        CgmesImport cgmesImport = new CgmesImport(Collections.emptyList());
-        assertTrue(cgmesImport.getParameters().stream().map(Parameter::getName).collect(Collectors.toSet()).contains("iidm.import.cgmes.post-processors"));
+        CgmesImport cgmesImport = new CgmesImport(List.of(new FakeCgmesImportPostProcessor("foo")));
+        Parameter parameter = cgmesImport.getParameters().stream()
+                .filter(p -> p.getName().equals("iidm.import.cgmes.post-processors"))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(List.of("foo"), parameter.getPossibleValues());
     }
 
     @Test

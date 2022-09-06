@@ -70,8 +70,8 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
 
     @Override
     public Measurements<C> read(C extendable, XmlReaderContext context) throws XMLStreamException {
-        extendable.newExtension(MeasurementsAdder.class).add();
-        Measurements<C> measurements = extendable.getExtension(Measurements.class);
+        MeasurementsAdder<C> measurementsAdder = extendable.newExtension(MeasurementsAdder.class);
+        Measurements<C> measurements = measurementsAdder.add();
         XMLStreamReader reader = context.getReader();
         XmlUtil.readUntilEndElement(getExtensionName(), reader, () -> {
             if (reader.getLocalName().equals(MEASUREMENT)) {

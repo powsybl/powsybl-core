@@ -17,12 +17,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.AbstractOptions;
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.export.BusFilter;
-import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.import_.ImportOptions;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
+import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -135,7 +131,7 @@ public final class NetworkXml {
                         .stream()
                         .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
                         .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         // Export the prefix and namespace of each serializer and ensure that there is no conflict
         for (ExtensionXmlSerializer<?, ?> extensionXmlSerializer : serializers) {
             String namespaceUri = getNamespaceUri(extensionXmlSerializer, options, networkVersion);

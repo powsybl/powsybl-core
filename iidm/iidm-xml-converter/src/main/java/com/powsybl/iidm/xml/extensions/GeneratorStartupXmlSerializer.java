@@ -116,13 +116,12 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         double marginalCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "marginalCost");
         double plannedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedOutageRate");
         double forcedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "forcedOutageRate");
-        generator.newExtension(GeneratorStartupAdder.class)
+        return generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
                 .withStartupCost(startUpCost)
                 .withMarginalCost(marginalCost)
                 .withPlannedOutageRate(plannedOutageRate)
                 .withForcedOutageRate(forcedOutageRate)
                 .add();
-        return generator.getExtension(GeneratorStartup.class);
     }
 }
