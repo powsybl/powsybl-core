@@ -23,6 +23,9 @@ import java.util.function.Supplier;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotInVoltageLevel;
 import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotSupported;
+import static com.powsybl.iidm.modification.topology.ModificationReports.substationRemovedReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.voltageLevelRemovedReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.voltageLevelRemovingEquipmentsLeftReport;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -33,9 +36,9 @@ public final class TopologyModificationUtils {
 
     static final class LoadingLimitsBags {
 
-        private final LoadingLimitsBag activePowerLimits;
-        private final LoadingLimitsBag apparentPowerLimits;
-        private final LoadingLimitsBag currentLimits;
+        private LoadingLimitsBag activePowerLimits;
+        private LoadingLimitsBag apparentPowerLimits;
+        private LoadingLimitsBag currentLimits;
 
         LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
@@ -59,8 +62,8 @@ public final class TopologyModificationUtils {
 
     private static final class LoadingLimitsBag {
 
-        private final double permanentLimit;
-        private final List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
+        private double permanentLimit;
+        private List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
 
         private LoadingLimitsBag(LoadingLimits limits) {
             this.permanentLimit = limits.getPermanentLimit();
@@ -85,7 +88,7 @@ public final class TopologyModificationUtils {
         private final boolean fictitious;
         private final double value;
 
-        private TemporaryLimitsBag(LoadingLimits.TemporaryLimit temporaryLimit) {
+        TemporaryLimitsBag(LoadingLimits.TemporaryLimit temporaryLimit) {
             this.name = temporaryLimit.getName();
             this.acceptableDuration = temporaryLimit.getAcceptableDuration();
             this.fictitious = temporaryLimit.isFictitious();
@@ -130,6 +133,20 @@ public final class TopologyModificationUtils {
                 .setB2(line.getB2() * percent / 100);
     }
 
+    static LineAdder createLineAdder(String id, String name, String voltageLevelId1, String voltageLevelId2, Network network, Line line1, Line line2) {
+        return network.newLine()
+                .setId(id)
+                .setName(name)
+                .setVoltageLevel1(voltageLevelId1)
+                .setVoltageLevel2(voltageLevelId2)
+                .setR(line1.getR() + line2.getR())
+                .setX(line1.getX() + line2.getX())
+                .setG1(line1.getG1() + line2.getG1())
+                .setB1(line1.getB1() + line2.getB1())
+                .setG2(line1.getG2() + line2.getG2())
+                .setB2(line1.getB2() + line2.getB2());
+    }
+
     static void attachLine(Terminal terminal, LineAdder adder, BiConsumer<Bus, LineAdder> connectableBusSetter,
                            BiConsumer<Bus, LineAdder> busSetter, BiConsumer<Integer, LineAdder> nodeSetter) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
@@ -169,6 +186,25 @@ public final class TopologyModificationUtils {
                     .endTemporaryLimit();
         }
         adder.add();
+    }
+
+    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
+        Optional<Substation> substation = voltageLevel.getSubstation();
+        String vlId = voltageLevel.getId();
+        boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
+        if (!noMoreEquipments) {
+            voltageLevelRemovingEquipmentsLeftReport(reporter, vlId);
+        }
+        voltageLevel.remove();
+        voltageLevelRemovedReport(reporter, vlId);
+
+        substation.ifPresent(s -> {
+            if (s.getVoltageLevelStream().count() == 0) {
+                String substationId = s.getId();
+                s.remove();
+                substationRemovedReport(reporter, substationId);
+            }
+        });
     }
 
     static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {
