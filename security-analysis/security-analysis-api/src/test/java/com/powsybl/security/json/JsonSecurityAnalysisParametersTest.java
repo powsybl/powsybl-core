@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -36,7 +37,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonSecurityAnalysisParameters::write, AbstractConverterTest::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
+        writeTest(parameters, JsonSecurityAnalysisParameters::write, ComparisonUtils::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
     }
 
     @Test

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -172,7 +173,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
-                AbstractConverterTest::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
+                ComparisonUtils::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
     @Test

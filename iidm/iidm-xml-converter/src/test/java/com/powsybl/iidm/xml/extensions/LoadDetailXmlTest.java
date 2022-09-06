@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.powsybl.commons.ComparisonUtils.compareXml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

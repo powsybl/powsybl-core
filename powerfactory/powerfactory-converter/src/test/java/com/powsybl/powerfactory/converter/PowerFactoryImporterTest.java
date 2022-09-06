@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**
@@ -238,6 +239,16 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void hvdc() {
         assertTrue(importAndCompareXiidm("Hvdc"));
+    }
+
+    @Test
+    public void capabilityCurve() {
+        assertTrue(importAndCompareXiidm("CapabilityCurve"));
+    }
+
+    @Test
+    public void threeWindingsTransformerWinding1Ratio() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerWinding1Ratio"));
     }
 
     private boolean importAndCompareXiidm(String powerfactoryCase) {
