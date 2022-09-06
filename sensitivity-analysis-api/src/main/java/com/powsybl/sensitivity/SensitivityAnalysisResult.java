@@ -54,7 +54,7 @@ public class SensitivityAnalysisResult {
 
     private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
-    enum Status {
+    public enum Status {
         CONVERGED,
         FAILED,
         NO_IMPACT
@@ -143,7 +143,13 @@ public class SensitivityAnalysisResult {
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
-            Contingency contingency = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingency() : null;
+            Contingency contingency = null;
+            if (value.getContingencyIndex() != -1) {
+                SensitivityContingencyStatus status = value.getContingencyIndex() < contingencyStatuses.size() ? contingencyStatuses.get(value.getContingencyIndex()) : null;
+                if (status != null) {
+                    contingency = status.getContingency();
+                }
+            }
             String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
