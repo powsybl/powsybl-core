@@ -18,11 +18,11 @@ import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.*;
@@ -328,5 +328,14 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
 
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception2.getMessage());
+    }
+
+    @Test
+    public void testGetPositionsByConnectable() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Map<String, Integer> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
+        assertTrue(positionsByConnectable.containsKey("load1"));
+        assertEquals(70, positionsByConnectable.get("line1"), 0);
+        assertEquals(13, positionsByConnectable.size());
     }
 }
