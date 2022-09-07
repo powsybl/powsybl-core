@@ -54,6 +54,8 @@ public class SensitivityAnalysisResult {
 
     private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
+    private final Map<String, SensitivityContingencyStatus> statusByContingencyId = new HashMap<>();
+
     public enum Status {
         CONVERGED,
         FAILED,
@@ -148,6 +150,10 @@ public class SensitivityAnalysisResult {
                     .add(value);
             valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType()), value);
             functionReferenceByContingencyAndFunction.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
+        }
+
+        for (SensitivityContingencyStatus status : contingencyStatuses) {
+            this.statusByContingencyId.put(status.getContingencyId(), status);
         }
     }
 
@@ -473,5 +479,15 @@ public class SensitivityAnalysisResult {
      */
     public double getBusVoltageFunctionReferenceValue(String functionId) {
         return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+    }
+
+    /**
+     * Get the status associated to a contingency id
+     *
+     * @param contingencyId The contingency id
+     * @return The associated status.
+     */
+    public SensitivityContingencyStatus getStatusByContingencyId(String contingencyId) {
+        return statusByContingencyId.get(contingencyId);
     }
 }
