@@ -41,13 +41,14 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
                 false, ContingencyContext.none());
 
         List<SensitivityFactor> factors = List.of(factor1, factor2, factor3, factor4);
-        List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
+        List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")), new Contingency("NHV2_NHV3"));
         SensitivityValue value1 = new SensitivityValue(0, 0, 1d, 2d);
         SensitivityValue value2 = new SensitivityValue(1, -1, 3d, 4d);
         SensitivityValue value3 = new SensitivityValue(2, 0, 1d, 2d);
         SensitivityValue value4 = new SensitivityValue(3, -1, 3d, 4d);
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = new ArrayList<>();
-        contingencies.forEach(c -> contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus(c.getId(), SensitivityAnalysisResult.Status.CONVERGED)));
+        contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus("NHV1_NHV2_2", SensitivityAnalysisResult.Status.CONVERGED));
+        contingencyStatus.add(new SensitivityAnalysisResult.SensitivityContingencyStatus("NHV2_NHV3", SensitivityAnalysisResult.Status.NO_IMPACT));
 
         List<SensitivityValue> values = List.of(value1, value2, value3, value4);
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencyStatus, values);
@@ -72,6 +73,9 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
         assertEquals(4d, result.getBranchFlow1FunctionReferenceValue("l2"), 0d);
         assertEquals(4d, result.getBranchCurrent1FunctionReferenceValue("l2"), 0d);
         assertEquals(2, result.getPreContingencyValues().size());
+
+        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, result.getContingencyStatus("NHV1_NHV2_2").getStatus());
+        assertEquals(SensitivityAnalysisResult.Status.NO_IMPACT, result.getContingencyStatus("NHV2_NHV3").getStatus());
     }
 
     @Test
