@@ -30,9 +30,9 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.c
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModification {
+abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCreateConnectableFeeders.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCreateConnectableFeederBays.class);
 
     protected final int[] sides;
 
@@ -52,7 +52,7 @@ abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModificat
 
     protected abstract ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder);
 
-    protected AbstractCreateConnectableFeeders(int... sides) {
+    protected AbstractCreateConnectableFeederBays(int... sides) {
         this.sides = Arrays.copyOf(sides, sides.length);
     }
 
@@ -93,7 +93,7 @@ abstract class AbstractCreateConnectableFeeders extends AbstractNetworkModificat
             VoltageLevel voltageLevel = getVoltageLevel(side, connectable);
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
             int positionOrder = getPositionOrder(side);
-            if (!takenFeederPositions.isEmpty()) {
+            if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().count() == 1) {
                 if (takenFeederPositions.contains(positionOrder)) {
                     LOGGER.error("PositionOrder {} already taken.", positionOrder);
                     positionOrderAlreadyTakenReport(reporter, positionOrder);

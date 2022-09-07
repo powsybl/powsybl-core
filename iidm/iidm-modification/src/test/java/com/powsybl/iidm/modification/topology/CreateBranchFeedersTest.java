@@ -44,7 +44,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        NetworkModification modification = new CreateBranchFeedersBuilder()
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBbsId1("bbs5")
                 .withPositionOrder1(115)
@@ -74,7 +74,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.get().getMaximum());
 
         int positionOrder1 = unusedOrderPositionsAfter.get().getMinimum();
-        NetworkModification modification = new CreateBranchFeedersBuilder()
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBbsId1("bbs1")
                 .withPositionOrder1(positionOrder1)
@@ -106,7 +106,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
         assertEquals(79, (int) unusedOrderPositionsBefore.get().getMaximum());
         int positionOrder1 = unusedOrderPositionsBefore.get().getMaximum();
 
-        NetworkModification modification = new CreateBranchFeedersBuilder()
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBbsId1("bbs5")
                 .withPositionOrder1(115)
@@ -135,7 +135,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
 
         //wrong network
         Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        CreateBranchFeeders modification0 = new CreateBranchFeedersBuilder().
+        CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBbsId1("bbs1")
                 .withPositionOrder1(115)
@@ -148,7 +148,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
 
         //wrong bbsId
-        CreateBranchFeeders modification1 = new CreateBranchFeedersBuilder().
+        CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBbsId1("bbs")
                 .withPositionOrder1(115)
@@ -161,7 +161,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
         assertEquals("Busbar section bbs not found.", e1.getMessage());
 
         //wrong injectionPositionOrder
-        CreateBranchFeeders modification2 = new CreateBranchFeedersBuilder().
+        CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBbsId1("bbs1")
                 .withPositionOrder1(0)
@@ -185,7 +185,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
                 .setB(0.0)
                 .setRatedU1(220.0)
                 .setRatedU2(400.0);
-        NetworkModification modification = new CreateBranchFeedersBuilder()
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(twtAdder)
                 .withBbsId1("bbs5")
                 .withPositionOrder1(115)
@@ -210,7 +210,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
                 .setG2(0.0)
                 .setB1(0.0)
                 .setB2(0.0);
-        new CreateBranchFeedersBuilder()
+        new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBbsId1("bbs5")
                 .withPositionOrder1(115)

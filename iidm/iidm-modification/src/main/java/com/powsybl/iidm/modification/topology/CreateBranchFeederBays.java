@@ -20,7 +20,7 @@ import java.util.Objects;
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateBranchFeeders extends AbstractCreateConnectableFeeders {
+public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays {
 
     private final BranchAdder<?> branchAdder;
     private final String bbsId1;
@@ -30,8 +30,8 @@ public class CreateBranchFeeders extends AbstractCreateConnectableFeeders {
     private final ConnectablePosition.Direction direction1;
     private final ConnectablePosition.Direction direction2;
 
-    CreateBranchFeeders(BranchAdder<?> branchAdder, String bbsId1, String bbsId2, Integer positionOrder1, Integer positionOrder2,
-                        ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
+    CreateBranchFeederBays(BranchAdder<?> branchAdder, String bbsId1, String bbsId2, Integer positionOrder1, Integer positionOrder2,
+                           ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
         super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
         this.bbsId1 = Objects.requireNonNull(bbsId1);

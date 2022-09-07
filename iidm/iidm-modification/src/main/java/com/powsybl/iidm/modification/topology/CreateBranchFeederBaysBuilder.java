@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateBranchFeedersBuilder {
+public class CreateBranchFeederBaysBuilder {
 
     private BranchAdder<?> branchAdder = null;
     private String bbsId1 = null;
@@ -22,41 +22,41 @@ public class CreateBranchFeedersBuilder {
     private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.TOP;
     private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
 
-    public CreateBranchFeeders build() {
-        return new CreateBranchFeeders(branchAdder, bbsId1, bbsId2, positionOrder1, positionOrder2, direction1, direction2);
+    public CreateBranchFeederBays build() {
+        return new CreateBranchFeederBays(branchAdder, bbsId1, bbsId2, positionOrder1, positionOrder2, direction1, direction2);
     }
 
-    public CreateBranchFeedersBuilder withBranchAdder(BranchAdder<?> branchAdder) {
+    public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?> branchAdder) {
         this.branchAdder = branchAdder;
         return this;
     }
 
-    public CreateBranchFeedersBuilder withBbsId1(String bbsId1) {
+    public CreateBranchFeederBaysBuilder withBbsId1(String bbsId1) {
         this.bbsId1 = bbsId1;
         return this;
     }
 
-    public CreateBranchFeedersBuilder withBbsId2(String bbsId2) {
+    public CreateBranchFeederBaysBuilder withBbsId2(String bbsId2) {
         this.bbsId2 = bbsId2;
         return this;
     }
 
-    public CreateBranchFeedersBuilder withPositionOrder1(int positionOrder1) {
+    public CreateBranchFeederBaysBuilder withPositionOrder1(int positionOrder1) {
         this.positionOrder1 = positionOrder1;
         return this;
     }
 
-    public CreateBranchFeedersBuilder withPositionOrder2(int positionOrder2) {
+    public CreateBranchFeederBaysBuilder withPositionOrder2(int positionOrder2) {
         this.positionOrder2 = positionOrder2;
         return this;
     }
 
-    public CreateBranchFeedersBuilder withDirection1(ConnectablePosition.Direction direction1) {
+    public CreateBranchFeederBaysBuilder withDirection1(ConnectablePosition.Direction direction1) {
         this.direction1 = direction1;
         return this;
     }
 
-    public CreateBranchFeedersBuilder withDirection2(ConnectablePosition.Direction direction2) {
+    public CreateBranchFeederBaysBuilder withDirection2(ConnectablePosition.Direction direction2) {
         this.direction2 = direction2;
         return this;
     }

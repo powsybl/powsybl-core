@@ -20,7 +20,7 @@ import java.util.Objects;
  *
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateFeederBay extends AbstractCreateConnectableFeeders {
+public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
 
     private final InjectionAdder<?> injectionAdder;
     private final String bbsId;
