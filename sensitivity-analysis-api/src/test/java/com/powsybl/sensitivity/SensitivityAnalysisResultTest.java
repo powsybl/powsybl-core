@@ -74,8 +74,8 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
         assertEquals(4d, result.getBranchCurrent1FunctionReferenceValue("l2"), 0d);
         assertEquals(2, result.getPreContingencyValues().size());
 
-        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, result.getContingencyStatus("NHV1_NHV2_2").getStatus());
-        assertEquals(SensitivityAnalysisResult.Status.NO_IMPACT, result.getContingencyStatus("NHV2_NHV3").getStatus());
+        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, result.getContingencyStatus("NHV1_NHV2_2"));
+        assertEquals(SensitivityAnalysisResult.Status.NO_IMPACT, result.getContingencyStatus("NHV2_NHV3"));
     }
 
     @Test
