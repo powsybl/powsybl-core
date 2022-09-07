@@ -95,12 +95,12 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
-        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
-        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
-        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
+        double r = context.getReader().readDoubleAttribute("r");
+        double x = context.getReader().readDoubleAttribute("x");
+        double g1 = context.getReader().readDoubleAttribute("g1");
+        double b1 = context.getReader().readDoubleAttribute("b1");
+        double g2 = context.getReader().readDoubleAttribute("g2");
+        double b2 = context.getReader().readDoubleAttribute("b2");
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)
@@ -117,7 +117,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     @Override
     protected void readSubElements(Line l, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+            switch (context.getReader().getElementName()) {
                 case ACTIVE_POWER_LIMITS_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, l.newActivePowerLimits1(), context.getReader()));

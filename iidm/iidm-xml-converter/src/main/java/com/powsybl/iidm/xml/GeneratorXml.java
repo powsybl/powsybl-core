@@ -88,10 +88,10 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     @Override
     protected void readSubElements(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+            switch (context.getReader().getElementName()) {
                 case "regulatingTerminal":
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    String side = context.getReader().getAttributeValue(null, "side");
+                    String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
+                    String side = context.getReader().readStringAttribute("side");
                     context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getNetwork(), id, side)));
                     break;
 

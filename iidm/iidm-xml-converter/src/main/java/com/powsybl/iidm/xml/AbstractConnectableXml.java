@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
@@ -156,34 +157,34 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         writer.writeDoubleAttribute("q" + indexToString(index), t.getQ(), Double.NaN);
     }
 
-    protected static void readPQ(Integer index, Terminal t, XMLStreamReader reader) {
-        double p = XmlUtil.readOptionalDoubleAttribute(reader, "p" + indexToString(index));
-        double q = XmlUtil.readOptionalDoubleAttribute(reader, "q" + indexToString(index));
+    protected static void readPQ(Integer index, Terminal t, XmlReader reader) {
+        double p = reader.readDoubleAttribute("p" + indexToString(index));
+        double q = reader.readDoubleAttribute("q" + indexToString(index));
         t.setP(p)
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
+    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, XmlReader reader) throws XMLStreamException {
         readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
     }
 
-    public static void readApparentPowerLimits(Integer index, ApparentPowerLimitsAdder apparentPowerLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
+    public static void readApparentPowerLimits(Integer index, ApparentPowerLimitsAdder apparentPowerLimitsAdder, XmlReader reader) throws XMLStreamException {
         readLoadingLimits(index, APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
     }
 
-    public static void readCurrentLimits(Integer index, CurrentLimitsAdder currentLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
+    public static void readCurrentLimits(Integer index, CurrentLimitsAdder currentLimitsAdder, XmlReader reader) throws XMLStreamException {
         readLoadingLimits(index, CURRENT_LIMITS, currentLimitsAdder, reader);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, XMLStreamReader reader) throws XMLStreamException {
-        double permanentLimit = XmlUtil.readOptionalDoubleAttribute(reader, "permanentLimit");
+    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, XmlReader reader) throws XMLStreamException {
+        double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         XmlUtil.readUntilEndElement(type + indexToString(index), reader, () -> {
-            if ("temporaryLimit".equals(reader.getLocalName())) {
-                String name = reader.getAttributeValue(null, "name");
-                int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration", Integer.MAX_VALUE);
-                double value = XmlUtil.readOptionalDoubleAttribute(reader, "value", Double.MAX_VALUE);
-                boolean fictitious = XmlUtil.readOptionalBoolAttribute(reader, "fictitious", false);
+            if ("temporaryLimit".equals(reader.getElementName())) {
+                String name = reader.readStringAttribute("name");
+                int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
+                double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
+                boolean fictitious = reader.readBooleanAttribute("fictitious", false);
                 adder.beginTemporaryLimit()
                         .setName(name)
                         .setAcceptableDuration(acceptableDuration)

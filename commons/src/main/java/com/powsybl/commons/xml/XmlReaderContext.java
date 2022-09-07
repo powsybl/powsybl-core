@@ -13,5 +13,5 @@ import javax.xml.stream.XMLStreamReader;
  */
 public interface XmlReaderContext {
 
-    XMLStreamReader getReader();
+    XmlReader getReader();
 }

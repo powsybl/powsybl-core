@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
@@ -21,25 +22,25 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  */
 public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOptions> implements XmlReaderContext {
 
-    private final XMLStreamReader reader;
+    private final XmlReader reader;
 
     private final List<Runnable> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
     private final Set<String> extensionsNamespaceUri = new HashSet<>();
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XmlReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION);
     }
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, IidmXmlVersion version) {
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XmlReader reader, ImportOptions options, IidmXmlVersion version) {
         super(anonymizer, version);
         this.reader = Objects.requireNonNull(reader);
         this.options = Objects.requireNonNull(options);
     }
 
     @Override
-    public XMLStreamReader getReader() {
+    public XmlReader getReader() {
         return reader;
     }
 
