@@ -17,9 +17,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
@@ -58,6 +56,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+        Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
         for (int side : sides) {
             String bbsId = getBbsId(side);
             BusbarSection bbs = network.getBusbarSection(bbsId); //If the busbar exists, topology of the associated voltage level is node/breaker
@@ -70,7 +69,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 return;
             }
             VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
-            int connectableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+            int connectableNode = firstAvailableNodes.compute(voltageLevel, (vl, node) -> node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1);
             setNode(side, connectableNode, voltageLevel.getId());
         }
 
