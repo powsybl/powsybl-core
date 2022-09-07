@@ -7,10 +7,12 @@
 package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.powsybl.contingency.Contingency;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,11 +23,14 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
 
     private final JsonGenerator jsonGenerator;
 
-    private List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatusBuffer;
+    private final List<Contingency> contingencies;
 
-    public SensitivityResultJsonWriter(JsonGenerator jsonGenerator) {
+    private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatusBuffer;
+
+    public SensitivityResultJsonWriter(JsonGenerator jsonGenerator, List<Contingency> contingencies) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
-        this.contingencyStatusBuffer = new ArrayList<>();
+        this.contingencies = Objects.requireNonNull(contingencies);
+        this.contingencyStatusBuffer = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
         try {
             jsonGenerator.writeStartArray();
             jsonGenerator.writeStartArray();
@@ -40,8 +45,8 @@ public class SensitivityResultJsonWriter implements SensitivityResultWriter, Aut
     }
 
     @Override
-    public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
-        contingencyStatusBuffer.add(status);
+    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+        contingencyStatusBuffer.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
     }
 
     @Override
