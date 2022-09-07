@@ -487,7 +487,7 @@ public class SensitivityAnalysisResult {
      * @param contingencyId The contingency id
      * @return The associated status.
      */
-    public SensitivityContingencyStatus getContingencyStatusByContingencyId(String contingencyId) {
+    public SensitivityContingencyStatus getContingencyStatus(String contingencyId) {
         return statusByContingencyId.get(contingencyId);
     }
 }
