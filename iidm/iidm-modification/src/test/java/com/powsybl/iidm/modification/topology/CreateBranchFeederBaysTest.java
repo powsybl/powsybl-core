@@ -59,6 +59,30 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
     }
 
     @Test
+    public void baseInternalLineTest() throws IOException {
+        LineAdder lineAdder = network.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBbsId1("bbs2")
+                .withPositionOrder1(105)
+                .withDirection1(TOP)
+                .withBbsId2("bbs1")
+                .withPositionOrder2(14)
+                .withDirection2(BOTTOM)
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-internal-line.xml");
+    }
+
+    @Test
     public void getUnusedOrderPositionAfter() {
         LineAdder lineAdder = network.newLine()
                 .setId("lineTest")
