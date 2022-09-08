@@ -7,13 +7,18 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -24,6 +29,8 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectVoltageLevelOnLine.class);
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -122,7 +129,12 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
                       ComputationManager computationManager, Reporter reporter) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
-            throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+            LOG.error("Voltage level {} not found", voltageLevelId);
+            notFoundVoltageLevelReport(reporter, voltageLevelId);
+            if (throwException) {
+                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+            }
+            return;
         }
 
         // Set parameters of the two lines replacing the existing line
@@ -138,7 +150,12 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
             if (bus == null) {
-                throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
+                LOG.error("Bus {} not found in voltage level {}", bbsOrBusId, voltageLevelId);
+                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevelId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
+                }
+                return;
             }
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
@@ -154,7 +171,12 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
             if (bbs == null) {
-                throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
+                LOG.error("Bus bar section {} not found", bbsOrBusId);
+                notFoundBusbarSectionReport(reporter, bbsOrBusId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
+                }
+                return;
             }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
@@ -167,6 +189,7 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         }
 
         // Remove the existing line
+        String originalLineId = line.getId();
         line.remove();
 
         // Create the two lines
@@ -174,6 +197,16 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         Line line2 = adder2.add();
         addLoadingLimits(line1, limits1, Branch.Side.ONE);
         addLoadingLimits(line2, limits2, Branch.Side.TWO);
+        LOG.info("Voltage level {} connected to lines {} and {} replacing line {}.", voltageLevelId, line1Id, line2Id, originalLineId);
+        reporter.report(Report.builder()
+                .withKey("voltageConnectedOnLine")
+                .withDefaultMessage("Voltage level ${voltageLevelId} connected to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
+                .withValue("voltageLevelId", voltageLevelId)
+                .withValue("line1Id", line1Id)
+                .withValue("line2Id", line2Id)
+                .withValue("originalLineId", originalLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
     }
 
     public String getVoltageLevelId() {
