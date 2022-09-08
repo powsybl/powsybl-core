@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**
@@ -171,6 +172,26 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void switchesNegativeVoltage() {
+        assertTrue(importAndCompareXiidm("Switches-negative-voltage"));
+    }
+
+    @Test
+    public void switchesMissingVoltage() {
+        assertTrue(importAndCompareXiidm("Switches-missing-voltage"));
+    }
+
+    @Test
+    public void switchesMissingAngle() {
+        assertTrue(importAndCompareXiidm("Switches-missing-angle"));
+    }
+
+    @Test
+    public void switchesWithoutBus() {
+        assertTrue(importAndCompareXiidm("Switches-without-bus"));
+    }
+
+    @Test
     public void transformerPhaseGBComplete() {
         assertTrue(importJsonAndCompareXiidm("Transformer-Phase-GB-complete"));
     }
@@ -218,6 +239,16 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void hvdc() {
         assertTrue(importAndCompareXiidm("Hvdc"));
+    }
+
+    @Test
+    public void capabilityCurve() {
+        assertTrue(importAndCompareXiidm("CapabilityCurve"));
+    }
+
+    @Test
+    public void threeWindingsTransformerWinding1Ratio() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerWinding1Ratio"));
     }
 
     private boolean importAndCompareXiidm(String powerfactoryCase) {

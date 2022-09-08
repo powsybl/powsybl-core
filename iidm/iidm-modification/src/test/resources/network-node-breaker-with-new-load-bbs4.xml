@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" xmlns:cp="http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:cp="http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="subst" name="subst" country="FR">
         <iidm:voltageLevel id="vl1" name="vl1" nominalV="380.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -39,6 +39,9 @@
                 <iidm:switch id="btrf18" name="btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" node1="32" node2="33"/>
                 <iidm:switch id="dline11_2" name="dline11_2" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="34"/>
                 <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="34" node2="35"/>
+                <iidm:switch id="newLoad_BREAKER" kind="BREAKER" retained="true" open="false" node1="36" node2="37"/>
+                <iidm:switch id="newLoad_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="37" node2="3"/>
+                <iidm:switch id="newLoad_DISCONNECTOR1" kind="DISCONNECTOR" retained="false" open="true" node1="37" node2="1"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
@@ -48,6 +51,7 @@
             </iidm:generator>
             <iidm:load id="load1" name="load1" loadType="UNDEFINED" p0="10.0" q0="10.0" node="4"/>
             <iidm:load id="load2" name="load2" loadType="UNDEFINED" p0="10.0" q0="10.0" node="8"/>
+            <iidm:load id="newLoad" loadType="UNDEFINED" p0="0.0" q0="0.0" node="36"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="vl2" name="vl2" nominalV="225.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -115,19 +119,6 @@
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="line1" name="line1" r="2.0" x="14.745" g1="1.0" b1="1.0" g2="1.0" b2="1.0" node1="35" voltageLevelId1="vl1" node2="2" voltageLevelId2="vlSubst2"/>
-    <iidm:extension id="line1">
-        <cp:position>
-            <cp:feeder1 name="line1" order="70" direction="TOP"/>
-            <cp:feeder2 name="line1" order="10" direction="TOP"/>
-        </cp:position>
-    </iidm:extension>
-    <iidm:extension id="trf8">
-        <cp:position>
-            <cp:feeder1 name="trf81" order="90" direction="TOP"/>
-            <cp:feeder2 name="trf82" order="60" direction="BOTTOM"/>
-            <cp:feeder3 name="trf83" order="40" direction="TOP"/>
-        </cp:position>
-    </iidm:extension>
     <iidm:extension id="load3">
         <cp:position>
             <cp:feeder name="load3" order="0" direction="TOP"/>
@@ -146,6 +137,48 @@
     <iidm:extension id="load1">
         <cp:position>
             <cp:feeder name="load1" order="0" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="bbs1_2">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="bbs7">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="bbs5">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="bbs6">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="bbs3">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="bbs4">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="newLoad">
+        <cp:position>
+            <cp:feeder name="newLoad" order="115" direction="BOTTOM"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="bbs1">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="bbs2">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="line1">
+        <cp:position>
+            <cp:feeder1 name="line1" order="70" direction="TOP"/>
+            <cp:feeder2 name="line1" order="10" direction="TOP"/>
+        </cp:position>
+    </iidm:extension>
+    <iidm:extension id="trf8">
+        <cp:position>
+            <cp:feeder1 name="trf81" order="90" direction="TOP"/>
+            <cp:feeder2 name="trf82" order="60" direction="BOTTOM"/>
+            <cp:feeder3 name="trf83" order="40" direction="TOP"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="trf6">
@@ -192,24 +225,6 @@
             <cp:feeder2 name="trf1" order="10" direction="TOP"/>
         </cp:position>
     </iidm:extension>
-    <iidm:extension id="bbs1_2">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="bbs7">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="bbs5">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="bbs6">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="bbs3">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="bbs4">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
-    </iidm:extension>
     <iidm:extension id="gen1">
         <cp:position>
             <cp:feeder name="gen1" order="20" direction="BOTTOM"/>
@@ -224,11 +239,5 @@
         <cp:position>
             <cp:feeder name="gen4" order="20" direction="BOTTOM"/>
         </cp:position>
-    </iidm:extension>
-    <iidm:extension id="bbs1">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
-    </iidm:extension>
-    <iidm:extension id="bbs2">
-        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
     </iidm:extension>
 </iidm:network>

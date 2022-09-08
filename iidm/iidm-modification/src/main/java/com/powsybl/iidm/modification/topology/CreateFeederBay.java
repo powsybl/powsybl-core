@@ -6,36 +6,21 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNodeBreakerSwitches;
 
 /**
  * This method adds a new injection bay on an existing busbar section. The voltage level containing the
  * busbar section should be described in node/breaker topology. The injection is created and connected to
  * the busbar section with a breaker and a closed disconnector. The injection is also connected to all
  * the parallel busbar sections, if any, with an open disconnector.
+ *
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateFeederBay implements NetworkModification {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateFeederBay.class);
+public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
 
     private final InjectionAdder<?> injectionAdder;
     private final String bbsId;
@@ -52,6 +37,7 @@ public class CreateFeederBay implements NetworkModification {
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
     CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, Integer injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+        super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.bbsId = Objects.requireNonNull(bbsId);
         this.injectionPositionOrder = injectionPositionOrder;
@@ -59,104 +45,17 @@ public class CreateFeederBay implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network, false, Reporter.NO_OP);
+    protected String getBbsId(int side) {
+        return bbsId;
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager, Reporter reporter) {
-        apply(network, false, reporter);
+    protected void setNode(int side, int node, String voltageLevelId) {
+        injectionAdder.setNode(node);
     }
 
     @Override
-    public void apply(Network network, Reporter reporter) {
-        apply(network, false, reporter);
-    }
-
-    @Override
-    public void apply(Network network, boolean throwException, Reporter reporter) {
-        BusbarSection bbs = network.getBusbarSection(bbsId); //If the busbar exists, topology of the associated voltage level is node/breaker
-        if (bbs == null) {
-            LOGGER.error("Busbar section {} not found.", bbsId);
-            notFoundBusbarSectionReport(reporter, bbsId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Busbar section %s not found.", bbsId));
-            }
-            return;
-        }
-
-        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
-        int injectionNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-        int forkNode = injectionNode + 1;
-        injectionAdder.setNode(injectionNode);
-        Injection<?> injection = add(injectionAdder);
-        if (injection.getNetwork() != network) {
-            injection.remove();
-            LOGGER.error("Network given in parameters and in injectionAdder are different. Injection '{}' of type {} was added then removed",
-                    injection.getId(), injection.getType());
-            networkMismatchReport(reporter, injection.getId(), injection.getType());
-            if (throwException) {
-                throw new PowsyblException("Network given in parameters and in injectionAdder are different. Injection was added then removed");
-            }
-            return;
-        }
-        String injectionId = injection.getId();
-
-        Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-        if (!takenFeederPositions.isEmpty()) {
-            if (takenFeederPositions.contains(injectionPositionOrder)) {
-                LOGGER.error("InjectionPositionOrder {} already taken.", injectionPositionOrder);
-                injectionPositionOrderAlreadyTakenReport(reporter, injectionPositionOrder);
-                if (throwException) {
-                    throw new PowsyblException(String.format("InjectionPositionOrder %d already taken.", injectionPositionOrder));
-                }
-                return;
-            }
-            injection.newExtension(ConnectablePositionAdder.class)
-                    .newFeeder()
-                    .withDirection(injectionDirection)
-                    .withOrder(injectionPositionOrder)
-                    .withName(injectionId)
-                    .add()
-                    .add();
-        } else {
-            LOGGER.warn("No extensions found on voltageLevel {}. The extension on the injection is not created.", voltageLevel.getId());
-            noConnectablePositionExtension(reporter, voltageLevel);
-        }
-        // create switches and a breaker linking the injection to the busbar sections.
-        createTopology(network, voltageLevel, injectionNode, forkNode, injection, reporter);
-    }
-
-    private void createTopology(Network network, VoltageLevel voltageLevel, int injectionNode, int forkNode, Injection<?> injection, Reporter reporter) {
-        String injectionId = injection.getId();
-        BusbarSection bbs = network.getBusbarSection(bbsId);
-        int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(injectionNode, forkNode, bbsNode, injectionId, voltageLevel.getNodeBreakerView());
-        BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
-        int parallelBbsNumber = 0;
-        if (position == null) {
-            LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
-            noBusbarSectionPositionExtensionReport(reporter, bbs);
-        } else {
-            List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
-                    .filter(b -> !b.getId().equals(bbsId)).collect(Collectors.toList());
-            parallelBbsNumber = bbsList.size();
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, injectionId, bbsList);
-        }
-        LOGGER.info("New injection {} was added to voltage level {} on busbar section {}", injectionId, voltageLevel.getId(), bbs.getId());
-        newInjectionAddedReport(reporter, voltageLevel.getId(), bbsId, injection, parallelBbsNumber);
-    }
-
-    private void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String injectionId, List<BusbarSection> bbsList) {
-        bbsList.forEach(b -> {
-            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), injectionId, voltageLevel.getNodeBreakerView(), true);
-        });
-    }
-
-    private Injection<?> add(InjectionAdder<?> injectionAdder) {
+    protected Connectable<?> add() {
         if (injectionAdder instanceof LoadAdder) {
             return ((LoadAdder) injectionAdder).add();
         } else if (injectionAdder instanceof BatteryAdder) {
@@ -176,5 +75,30 @@ public class CreateFeederBay implements NetworkModification {
         } else {
             throw new AssertionError("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
         }
+    }
+
+    @Override
+    protected VoltageLevel getVoltageLevel(int side, Connectable<?> connectable) {
+        return ((Injection<?>) connectable).getTerminal().getVoltageLevel();
+    }
+
+    @Override
+    protected int getPositionOrder(int side) {
+        return injectionPositionOrder;
+    }
+
+    @Override
+    protected ConnectablePosition.Direction getDirection(int side) {
+        return injectionDirection;
+    }
+
+    @Override
+    protected int getNode(int side, Connectable<?> connectable) {
+        return ((Injection<?>) connectable).getTerminal().getNodeBreakerView().getNode();
+    }
+
+    @Override
+    protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
+        return connectablePositionAdder.newFeeder();
     }
 }

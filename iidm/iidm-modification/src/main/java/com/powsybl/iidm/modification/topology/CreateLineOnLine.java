@@ -7,9 +7,14 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -23,7 +28,9 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateLineOnLine implements NetworkModification {
+public class CreateLineOnLine extends AbstractNetworkModification {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CreateLineOnLine.class);
 
     private final String voltageLevelId;
     private final String bbsOrBusId;
@@ -183,12 +190,13 @@ public class CreateLineOnLine implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
+        // Checks
+        if (!checkVoltageLevelAndBusbarSectionOrBus(network, voltageLevelId, bbsOrBusId, throwException, reporter, LOG)) {
+            return;
+        }
 
-    @Override
-    public void apply(Network network) {
         // Create the fictitious voltage Level at the attachment point
         VoltageLevel fictitiousVl;
         if (createFictSubstation) {
@@ -252,15 +260,9 @@ public class CreateLineOnLine implements NetworkModification {
 
         // Create topology in the existing voltage level
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (voltageLevel == null) {
-            throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
-        }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
-            if (bus == null) {
-                throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
-            }
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
                     .setId(originalLineId + "_BUS")
@@ -274,9 +276,6 @@ public class CreateLineOnLine implements NetworkModification {
                     .add();
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
-            if (bbs == null) {
-                throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
-            }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             lineAdder.setNode2(firstAvailableNode);
@@ -286,7 +285,17 @@ public class CreateLineOnLine implements NetworkModification {
         }
 
         // Create the new line
-        lineAdder.add();
+        Line newLine = lineAdder.add();
+        LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
+        reporter.report(Report.builder()
+                .withKey("newLineOnLineCreated")
+                .withDefaultMessage("New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
+                .withValue("newLineId", newLine.getId())
+                .withValue("line1Id", line1Id)
+                .withValue("line2Id", line2Id)
+                .withValue("originalLineId", originalLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
     }
 
     public String getVoltageLevelId() {
