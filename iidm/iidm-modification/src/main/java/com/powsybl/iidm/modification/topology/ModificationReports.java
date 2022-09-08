@@ -37,22 +37,22 @@ final class ModificationReports {
                 .build());
     }
 
-    static void injectionPositionOrderAlreadyTakenReport(Reporter reporter, int injectionPositionOrder) {
+    static void positionOrderAlreadyTakenReport(Reporter reporter, int positionOrder) {
         reporter.report(Report.builder()
-                .withKey("injectionPositionOrderAlreadyTaken")
-                .withDefaultMessage("InjectionPositionOrder ${injectionPositionOrder} already taken.")
-                .withValue("injectionPositionOrder", injectionPositionOrder)
+                .withKey("positionOrderAlreadyTaken")
+                .withDefaultMessage("positionOrder ${positionOrder} already taken.")
+                .withValue("positionOrder", positionOrder)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
 
-    static void newInjectionAddedReport(Reporter reporter, String voltageLevelId, String bbsId, Injection<?> injection, int parallelBbsNumber) {
+    static void newConnectableAddedReport(Reporter reporter, String voltageLevelId, String bbsId, Connectable<?> connectable, int parallelBbsNumber) {
         reporter.report(Report.builder()
-                .withKey("newInjectionAdded")
-                .withDefaultMessage("New feeder bay ${injectionId} of type ${injectionType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector" +
+                .withKey("newConnectableAdded")
+                .withDefaultMessage("New feeder bay associated to ${connectableId} of type ${connectableType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector" +
                         "and on ${parallelBbsNumber} parallel busbar sections with an open disconnector.")
-                .withValue("injectionId", injection.getId())
-                .withValue("injectionType", injection.getType().toString())
+                .withValue("connectableId", connectable.getId())
+                .withValue("connectableType", connectable.getType().toString())
                 .withValue(voltageLevelIdString, voltageLevelId)
                 .withValue("bbsId", bbsId)
                 .withValue("parallelBbsNumber", parallelBbsNumber)
@@ -91,7 +91,7 @@ final class ModificationReports {
     static void noConnectablePositionExtension(Reporter reporter, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("noConnectablePositionExtensions")
-                .withDefaultMessage("No extensions found on voltageLevel ${voltageLevel}. The extension on the injection is not created.")
+                .withDefaultMessage("No extensions found on voltageLevel ${voltageLevel}. The extension on the connectable is not created.")
                 .withValue("voltageLevel", voltageLevel.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
