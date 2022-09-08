@@ -47,10 +47,10 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBbsId1("bbs5")
-                .withPositionOrder1(115)
+                .withPositionOrder1(85)
                 .withDirection1(BOTTOM)
                 .withBbsId2("bbs1")
-                .withPositionOrder2(121)
+                .withPositionOrder2(75)
                 .withDirection2(TOP)
                 .build();
         modification.apply(network);
