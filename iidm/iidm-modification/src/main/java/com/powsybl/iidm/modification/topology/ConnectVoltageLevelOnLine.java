@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -127,13 +125,8 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (voltageLevel == null) {
-            LOG.error("Voltage level {} not found", voltageLevelId);
-            notFoundVoltageLevelReport(reporter, voltageLevelId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
-            }
+        // Checks
+        if (!checkVoltageLevelAndBusbarSectionOrBus(network, voltageLevelId, bbsOrBusId, throwException, reporter, LOG)) {
             return;
         }
 
@@ -146,17 +139,10 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         LoadingLimitsBags limits2 = new LoadingLimitsBags(line::getActivePowerLimits2, line::getApparentPowerLimits2, line::getCurrentLimits2);
 
         // Create the topology inside the existing voltage level
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
-            if (bus == null) {
-                LOG.error("Bus {} not found in voltage level {}", bbsOrBusId, voltageLevelId);
-                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevelId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
-                }
-                return;
-            }
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
                     .setId(line.getId() + "_BUS_1")
@@ -170,14 +156,6 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
             adder2.setBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
-            if (bbs == null) {
-                LOG.error("Bus bar section {} not found", bbsOrBusId);
-                notFoundBusbarSectionReport(reporter, bbsOrBusId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
-                }
-                return;
-            }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", line.getId(), voltageLevel.getNodeBreakerView());

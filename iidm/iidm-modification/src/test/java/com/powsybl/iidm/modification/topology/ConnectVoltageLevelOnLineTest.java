@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -115,5 +117,34 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-vl.xml");
+    }
+
+    @Test
+    public void testExceptions() {
+        Network network1 = createNbNetwork();
+        NetworkModification modification1 = new ConnectVoltageLevelOnLineBuilder()
+                .withVoltageLevelId("NOT_EXISTING")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .build();
+        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Voltage level NOT_EXISTING is not found", exception1.getMessage());
+
+        NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId("NOT_EXISTING")
+                .withLine(network1.getLine("CJ"))
+                .build();
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Busbar section NOT_EXISTING is not found", exception2.getMessage());
+
+        Network network2 = createBbNetwork();
+        NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
+                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
+                .withBusbarSectionOrBusId("NOT_EXISTING")
+                .withLine(network2.getLine("NHV1_NHV2_1"))
+                .build();
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
+        assertEquals("Bus NOT_EXISTING is not found", exception3.getMessage());
     }
 }
