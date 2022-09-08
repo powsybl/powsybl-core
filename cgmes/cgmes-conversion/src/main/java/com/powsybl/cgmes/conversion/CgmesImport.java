@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -17,13 +16,14 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterScope;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
-import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.slf4j.Logger;
@@ -60,7 +60,15 @@ public class CgmesImport implements Importer {
                 BOUNDARY_LOCATION,
                 ParameterType.STRING,
                 "The location of boundary files",
-                boundaryPath);
+                boundaryPath,
+                null,
+                ParameterScope.TECHNICAL);
+        postProcessorsParameter = new Parameter(
+                POST_PROCESSORS,
+                ParameterType.STRING_LIST,
+                "Post processors",
+                Collections.emptyList(),
+                postProcessors.stream().map(CgmesImportPostProcessor::getName).collect(Collectors.toList()));
     }
 
     public CgmesImport(PlatformConfig platformConfig) {
@@ -79,6 +87,7 @@ public class CgmesImport implements Importer {
     public List<Parameter> getParameters() {
         List<Parameter> allParams = new ArrayList<>(STATIC_PARAMETERS);
         allParams.add(boundaryLocationParameter);
+        allParams.add(postProcessorsParameter);
         return Collections.unmodifiableList(allParams);
     }
 
@@ -230,18 +239,19 @@ public class CgmesImport implements Importer {
                                 p,
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
                                 defaultValueConfig));
+        String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
-            config.setNamingStrategy(NamingStrategyFactory.create(ds, ds.getBaseName() + "_id_mapping.csv"));
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
         } else {
-            config.setNamingStrategy(NamingStrategyFactory.create(ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
         }
         return config;
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
         return Parameter
-                .readStringList(getFormat(), p, POST_PROCESSORS_PARAMETER, defaultValueConfig)
+                .readStringList(getFormat(), p, postProcessorsParameter, defaultValueConfig)
                 .stream()
                 .filter(name -> {
                     boolean found = postProcessors.containsKey(name);
@@ -274,6 +284,7 @@ public class CgmesImport implements Importer {
     public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
     public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
+    public static final String ID_MAPPING_FILE_NAMING_STRATEGY = "iidm.import.cgmes.id-mapping-file-naming-strategy";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
@@ -327,22 +338,26 @@ public class CgmesImport implements Importer {
             ID_MAPPING_FILE_PATH,
             ParameterType.STRING,
             "Path of ID mapping file",
-            null);
+            null,
+            null,
+            ParameterScope.TECHNICAL);
+    private static final Parameter ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER = new Parameter(
+            ID_MAPPING_FILE_NAMING_STRATEGY,
+            ParameterType.STRING,
+            "Configure what type of naming strategy you want to use for the provided ID mapping file",
+            NamingStrategyFactory.IDENTITY);
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
             "Import control areas",
             Boolean.TRUE);
-    private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
-            POST_PROCESSORS,
-            ParameterType.STRING_LIST,
-            "Post processors",
-            Collections.emptyList());
     private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(
             POWSYBL_TRIPLESTORE,
             ParameterType.STRING,
             "The triplestore used during the import",
-            TripleStoreFactory.defaultImplementation())
+            TripleStoreFactory.defaultImplementation(),
+            null,
+            ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
     private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
         PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
@@ -369,7 +384,7 @@ public class CgmesImport implements Importer {
             SOURCE_FOR_IIDM_ID_MRID,
             List.of(SOURCE_FOR_IIDM_ID_MRID, SOURCE_FOR_IIDM_ID_RDFID));
 
-    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
@@ -378,8 +393,8 @@ public class CgmesImport implements Importer {
             CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
             ID_MAPPING_FILE_PATH_PARAMETER,
+            ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
-            POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
             SOURCE_FOR_IIDM_ID_PARAMETER,
@@ -387,6 +402,7 @@ public class CgmesImport implements Importer {
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
+    private final Parameter postProcessorsParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;
     private final ParameterDefaultValueConfig defaultValueConfig;
 

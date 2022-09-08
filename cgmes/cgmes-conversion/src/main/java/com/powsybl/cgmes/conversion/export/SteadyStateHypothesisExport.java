@@ -49,13 +49,13 @@ public final class SteadyStateHypothesisExport {
             }
 
             writeEnergyConsumers(network, cimNamespace, writer, context);
-            writeEquivalentInjections(network, cimNamespace, writer);
+            writeEquivalentInjections(network, cimNamespace, writer, context);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer, context);
             writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer, context);
             writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer);
-            writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer);
+            writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer, context);
             writeConverters(network, cimNamespace, writer, context);
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer, context);
@@ -83,7 +83,7 @@ public final class SteadyStateHypothesisExport {
         for (Connectable<?> c : network.getConnectables()) {
             if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, cimNamespace, writer);
+                    writeTerminal(t, cimNamespace, writer, context);
                 }
             }
         }
@@ -92,38 +92,48 @@ public final class SteadyStateHypothesisExport {
             // The status of the switch is "open" if any of the original terminals were not connected
             // An original "closed" switch with any terminal disconnected
             // will be exported as "open" with terminals connected
-            sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1)
-                .ifPresent(tid1 -> writeTerminal(tid1, true, cimNamespace, writer));
-            sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2)
-                .ifPresent(tid2 -> writeTerminal(tid2, true, cimNamespace, writer));
+            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1).isPresent()) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1), true, cimNamespace, writer);
+            }
+            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2).isPresent()) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2), true, cimNamespace, writer);
+            }
         }
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected
-            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
-                .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
+            if (dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal").isPresent()) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer);
+            }
             // Terminal for boundary side of original line/switch is always connected
-            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary")
-                .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
+            if (dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").isPresent()) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary"), true, cimNamespace, writer);
+            }
         }
     }
 
-    private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // One equivalent injection for every dangling line
         for (DanglingLine dl : network.getDanglingLines()) {
-            writeEquivalentInjection(dl, cimNamespace, writer);
+            writeEquivalentInjection(dl, cimNamespace, writer, context);
         }
+    }
+
+    private static String cgmesTapChangerId(TwoWindingsTransformer twt, String tapChangerKind, CgmesExportContext context) {
+        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 1;
+        if (twt.getAliasFromType(aliasType).isEmpty()) {
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tapChangerKind + 2;
+        }
+        return context.getNamingStrategy().getCgmesIdFromAlias(twt, aliasType);
     }
 
     private static void writeTapChangers(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
-                String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
-                    .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String ptcId = cgmesTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, context);
                 writeTapChanger(twt, ptcId, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
             }
             if (twt.hasRatioTapChanger()) {
-                String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
-                    .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String rtcId = cgmesTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, context);
                 writeTapChanger(twt, rtcId, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
             }
         }
@@ -132,11 +142,11 @@ public final class SteadyStateHypothesisExport {
             int i = 1;
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
-                    String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i);
                     writeTapChanger(twt, ptcId, leg.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER_TABULAR, regulatingControlViews, cimNamespace, writer, context);
                 }
                 if (leg.hasRatioTapChanger()) {
-                    String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i);
                     writeTapChanger(twt, rtcId, leg.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER, regulatingControlViews, cimNamespace, writer, context);
                 }
                 i++;
@@ -190,15 +200,15 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeEndElement();
-            addRegulatingControlView(s, regulatingControlViews);
+            addRegulatingControlView(s, regulatingControlViews, context);
         }
     }
 
-    private static void addRegulatingControlView(ShuntCompensator s, Map<String, List<RegulatingControlView>> regulatingControlViews) {
+    private static void addRegulatingControlView(ShuntCompensator s, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
         if (s.hasProperty(REGULATING_CONTROL_PROPERTY)) {
             // PowSyBl has considered the control as discrete, with a certain targetDeadband
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = s.getProperty(REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(s, REGULATING_CONTROL_PROPERTY);
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
                 s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
@@ -229,15 +239,15 @@ public final class SteadyStateHypothesisExport {
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generator");
             writer.writeEndElement();
 
-            addRegulatingControlView(g, regulatingControlViews);
+            addRegulatingControlView(g, regulatingControlViews, context);
         }
     }
 
-    private static void addRegulatingControlView(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews) {
+    private static void addRegulatingControlView(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
         if (g.hasProperty(REGULATING_CONTROL_PROPERTY)) {
             // PowSyBl has considered the control as continuous and with targetDeadband of size 0
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
-            String rcid = g.getProperty(REGULATING_CONTROL_PROPERTY);
+            String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, REGULATING_CONTROL_PROPERTY);
             double targetDeadband = 0;
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
                 g.isVoltageRegulatorOn(), targetDeadband, g.getTargetV(), "k");
@@ -261,7 +271,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
 
             if (svc.hasProperty(REGULATING_CONTROL_PROPERTY)) {
-                String rcid = svc.getProperty(REGULATING_CONTROL_PROPERTY);
+                String rcid = context.getNamingStrategy().getCgmesIdFromProperty(svc, REGULATING_CONTROL_PROPERTY);
                 double targetDeadband = 0;
                 // Regulating control could be reactive power or voltage
                 double targetValue;
@@ -445,8 +455,8 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminal(Terminal t, String cimNamespace, XMLStreamWriter writer) {
-        writeTerminal(CgmesExportUtil.getTerminalId(t), t.isConnected(), cimNamespace, writer);
+    private static void writeTerminal(Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        writeTerminal(CgmesExportUtil.getTerminalId(t, context), t.isConnected(), cimNamespace, writer);
     }
 
     private static void writeTerminal(String terminalId, boolean connected, String cimNamespace, XMLStreamWriter writer) {
@@ -461,10 +471,12 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeEquivalentInjection(DanglingLine dl, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEquivalentInjection(DanglingLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Optional<String> ei = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
         if (ei.isPresent()) {
-            CgmesExportUtil.writeStartAbout("EquivalentInjection", ei.get(), cimNamespace, writer);
+            // Ensure equivalent injection identifier is valid
+            String cgmesId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer);
             writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
             writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
             writer.writeEndElement();
@@ -613,13 +625,13 @@ public final class SteadyStateHypothesisExport {
         return p * Math.sqrt((1 - powerFactor * powerFactor) / (powerFactor * powerFactor));
     }
 
-    private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Multiple generators may share the same generation unit,
         // we will choose the participation factor from the last generator that references the generating unit
         // We only consider generators that have participation factors
         Map<String, GeneratingUnit> generatingUnits = new HashMap<>();
         for (Generator g : network.getGenerators()) {
-            GeneratingUnit gu = generatingUnitForGenerator(g);
+            GeneratingUnit gu = generatingUnitForGenerator(g, context);
             if (gu != null) {
                 generatingUnits.put(gu.id, gu);
             }
@@ -629,10 +641,10 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static GeneratingUnit generatingUnitForGenerator(Generator g) {
+    private static GeneratingUnit generatingUnitForGenerator(Generator g, CgmesExportContext context) {
         if (g.hasProperty(GENERATING_UNIT_PROPERTY) && g.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF")) {
             GeneratingUnit gu = new GeneratingUnit();
-            gu.id = g.getProperty(GENERATING_UNIT_PROPERTY);
+            gu.id = context.getNamingStrategy().getCgmesIdFromProperty(g, GENERATING_UNIT_PROPERTY);
             gu.participationFactor = Double.valueOf(g.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
             gu.className = generatingUnitClassname(g);
             return gu;

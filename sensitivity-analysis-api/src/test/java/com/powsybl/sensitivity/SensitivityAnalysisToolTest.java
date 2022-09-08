@@ -90,13 +90,14 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), COMMAND_NAME, 8, 3);
+        assertCommand(tool.getCommand(), COMMAND_NAME, 10, 3);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", true, true);
         assertOption(tool.getCommand().getOptions(), "factors-file", true, true);
         assertOption(tool.getCommand().getOptions(), "contingencies-file", false, true);
         assertOption(tool.getCommand().getOptions(), "variable-sets-file", false, true);
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "output-contingency-file", false, true);
     }
 
     @Test
@@ -114,9 +115,11 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         assertTrue(Files.exists(fileSystem.getPath("output.json")));
         List<SensitivityValue> values;
+        List<SensitivityAnalysisResult.SensitivityContingencyStatus> status;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
-            values = objectMapper.readValue(reader, new TypeReference<>() {
-            });
+            List<List<Object>> lists = objectMapper.readValue(reader, new TypeReference<>() { });
+            values = objectMapper.convertValue(lists.get(0), new TypeReference<>() { });
+            status = objectMapper.convertValue(lists.get(1), new TypeReference<>() { });
         }
         assertEquals(2, values.size());
         SensitivityValue value0 = values.get(0);
@@ -125,6 +128,11 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
         SensitivityValue value1 = values.get(1);
         assertEquals(1, value1.getFactorIndex());
         assertEquals(0, value1.getContingencyIndex());
+
+        assertEquals(1, status.size());
+        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = status.get(0);
+        assertEquals("NHV1_NHV2_2", status0.getContingencyId());
+        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, status0.getStatus());
     }
 
     @Test
@@ -136,7 +144,8 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--factors-file", "factors.json",
             "--contingencies-file", "contingencies.json",
             "--parameters-file", "parameters.json",
-            "--output-file", "output.csv"},
+            "--output-file", "output.csv",
+            "--output-contingency-file", "outputContingency.csv"},
                 CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
 
         Path outputCsvFile = fileSystem.getPath("output.csv");
@@ -148,6 +157,16 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
                "NHV1_NHV2_2;1;0.00000;0.00000")
                 + System.lineSeparator());
         assertEquals(outputCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputCsvFile)));
+
+        Path outputContingencyStatusCsvFile = fileSystem.getPath("outputContingency.csv");
+        assertTrue(Files.exists(outputContingencyStatusCsvFile));
+        String outputContingencyStatusCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
+                "Sensitivity analysis contingency status result",
+                "Contingency ID;Contingency Status",
+                "NHV1_NHV2_2;CONVERGED")
+                + System.lineSeparator());
+        assertEquals(outputContingencyStatusCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputContingencyStatusCsvFile)));
+
     }
 
     @Test
@@ -175,6 +194,88 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--factors-file", "factors.json",
             "--output-file", "output.txt"},
                 3, "", "Unsupported output format: output.txt");
+    }
+
+    @Test
+    public void checkThrowsWhenOutputFileAndContingencyDiffFormat() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME,
+            "--case-file", "network.xiidm",
+            "--factors-file", "factors.json",
+            "--output-file", "output.csv",
+            "--output-contingency-file", "outputContingency.json"},
+                3, "", "output-file and output-contingency-file files must have the same format.");
+    }
+
+    @Test
+    public void runJsonOutputAutoContingencyOut() throws IOException {
+        String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
+                "Running analysis..." + System.lineSeparator();
+        assertCommand(new String[] {COMMAND_NAME,
+            "--case-file", "network.xiidm",
+            "--factors-file", "factors.json",
+            "--contingencies-file", "contingencies.json",
+            "--parameters-file", "parameters.json",
+            "--output-file", "outputCustom.csv"},
+                CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
+
+        Path outputCsvFile = fileSystem.getPath("outputCustom.csv");
+        assertTrue(Files.exists(outputCsvFile));
+        Path outputContingencyCsvFile = fileSystem.getPath("outputCustom_contingency_status.csv");
+        assertTrue(Files.exists(outputContingencyCsvFile));
+    }
+
+    @Test
+    public void runCommandWithSingleOutput() throws IOException {
+        String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
+                "Running analysis..." + System.lineSeparator();
+        assertCommand(new String[] {COMMAND_NAME,
+            "--case-file", "network.xiidm",
+            "--factors-file", "factors.json",
+            "--contingencies-file", "contingencies.json",
+            "--variable-sets-file", "variableSets.json",
+            "--parameters-file", "parameters.json",
+            "--output-file", "output.json",
+            "--single-output"},
+                CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
+
+        SensitivityAnalysisResult result;
+        try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
+            result = objectMapper.readValue(reader, new TypeReference<>() {
+            });
+        }
+        assertEquals(2, result.getValues().size());
+        SensitivityValue value0 = result.getValues().get(0);
+        assertEquals(0, value0.getFactorIndex());
+        assertEquals(0, value0.getContingencyIndex());
+        SensitivityValue value1 = result.getValues().get(1);
+        assertEquals(1, value1.getFactorIndex());
+        assertEquals(0, value1.getContingencyIndex());
+
+        assertEquals(1, result.getContingencyStatuses().size());
+        SensitivityAnalysisResult.SensitivityContingencyStatus status0 = result.getContingencyStatuses().get(0);
+        assertEquals("NHV1_NHV2_2", status0.getContingencyId());
+        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, status0.getStatus());
+
+        assertEquals(2, result.getFactors().size());
+        SensitivityFactor factor0 = result.getFactors().get(0);
+        assertEquals("NHV1_NHV2_1", factor0.getFunctionId());
+        assertEquals("GEN", factor0.getVariableId());
+        SensitivityFactor factor1 = result.getFactors().get(1);
+        assertEquals("NHV1_NHV2_1", factor1.getFunctionId());
+        assertEquals("glsk", factor1.getVariableId());
+    }
+
+    @Test
+    public void checkThrowsSingleOutputCSV() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME,
+            "--case-file", "network.xiidm",
+            "--factors-file", "factors.json",
+            "--contingencies-file", "contingencies.json",
+            "--variable-sets-file", "variableSets.json",
+            "--parameters-file", "parameters.json",
+            "--output-file", "output.csv",
+            "--single-output"},
+                3, "", "Unsupported single-output option does not support csv file as argument of output-file. Must be json.");
     }
 
     @Test
