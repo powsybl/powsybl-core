@@ -404,7 +404,7 @@ public final class TopologyModificationUtils {
         Optional<Integer> nextSliceMin = getMinOrderUsedAfter(allOrders, sectionIndex);
         Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
         int min = sliceMax.map(o -> o + 1).orElse(
-                getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(Integer.MAX_VALUE));
+                getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(Integer.MIN_VALUE));
         int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
