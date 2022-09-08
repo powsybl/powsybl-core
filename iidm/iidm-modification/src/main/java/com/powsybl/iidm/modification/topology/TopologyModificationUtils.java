@@ -21,11 +21,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotInVoltageLevel;
-import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotSupported;
-import static com.powsybl.iidm.modification.topology.ModificationReports.substationRemovedReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.voltageLevelRemovedReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.voltageLevelRemovingEquipmentsLeftReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -117,6 +113,43 @@ public final class TopologyModificationUtils {
             throw new PowsyblException("Percent should not be undefined");
         }
         return percent;
+    }
+
+    static boolean checkVoltageLevelAndBusbarSectionOrBus(Network network, String voltageLevelId, String bbsOrBusId, boolean throwException, Reporter reporter, Logger logger) {
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            logger.error("Voltage level {} not found", voltageLevelId);
+            notFoundVoltageLevelReport(reporter, voltageLevelId);
+            if (throwException) {
+                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+            }
+            return false;
+        }
+        TopologyKind topologyKind = voltageLevel.getTopologyKind();
+        if (topologyKind == TopologyKind.NODE_BREAKER) {
+            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            if (bbs == null) {
+                logger.error("Bus bar section {} not found", bbsOrBusId);
+                notFoundBusbarSectionReport(reporter, bbsOrBusId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
+                }
+                return false;
+            }
+        } else if (topologyKind == TopologyKind.BUS_BREAKER) {
+            Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
+            if (bus == null) {
+                logger.error("Bus {} not found in voltage level {}", bbsOrBusId, voltageLevelId);
+                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevelId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
+                }
+                return false;
+            }
+        } else {
+            throw new AssertionError();
+        }
+        return true;
     }
 
     static LineAdder createLineAdder(double percent, String id, String name, String voltageLevelId1, String voltageLevelId2, Network network, Line line) {
