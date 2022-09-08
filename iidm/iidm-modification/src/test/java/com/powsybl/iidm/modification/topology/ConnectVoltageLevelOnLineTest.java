@@ -29,8 +29,11 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     @Test
     public void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine("VLTEST", BBS,
-                network.getLine("CJ"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-vl.xml");
@@ -39,8 +42,11 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     @Test
     public void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS,
-                network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-nb-vl.xml");
@@ -49,8 +55,11 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     @Test
     public void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, "bus",
-                network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
+                .withBusbarSectionOrBusId("bus")
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-bb-vl.xml");
@@ -60,7 +69,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void testConstructor() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
-        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, line);
+        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId(BBS).withLine(line).build();
         assertEquals(VOLTAGE_LEVEL_ID, modification.getVoltageLevelId());
         assertEquals(BBS, modification.getBbsOrBusId());
         assertEquals(50, modification.getPercent(), 0.0);
@@ -75,7 +84,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void testSetters() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
-        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, line);
+        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId(BBS).withLine(line).build();
         modification.setPercent(40.0)
                 .setLine1Id(line.getId() + "_A")
                 .setLine1Name("A")
