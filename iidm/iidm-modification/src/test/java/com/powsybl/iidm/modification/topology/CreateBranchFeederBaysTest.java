@@ -30,7 +30,7 @@ import static org.junit.Assert.assertThrows;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
+public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
 
     private Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
@@ -55,7 +55,7 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
                 .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-line-feeders-bbs.xml");
+                "/network-node-breaker-with-new-line.xml");
     }
 
     @Test
