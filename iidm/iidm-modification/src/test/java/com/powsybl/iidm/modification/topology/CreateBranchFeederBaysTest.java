@@ -21,11 +21,10 @@ import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.*;
@@ -83,10 +82,6 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-internal-line.xml");
-
-        Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
-        assertEquals(List.of(14, 105), positionsByConnectable.get("lineTest"));
-        assertEquals(14, positionsByConnectable.size());
     }
 
     @Test
