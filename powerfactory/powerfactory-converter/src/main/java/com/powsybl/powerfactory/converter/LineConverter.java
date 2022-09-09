@@ -109,6 +109,14 @@ class LineConverter extends AbstractConverter {
             double g = typeLneModelShuntConductance(typLne) * dline;
             double b = typeLneModelShuntSusceptance(typLne) * dline;
 
+            int numberOfParallelLines = elmLne.findIntAttributeValue("nlnum").orElse(1);
+            if (numberOfParallelLines > 1) {
+                r /= numberOfParallelLines;
+                x /= numberOfParallelLines;
+                g *= numberOfParallelLines;
+                b *= numberOfParallelLines;
+            }
+
             return new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5);
         }
 
