@@ -315,7 +315,7 @@ public final class TopologyModificationUtils {
         TreeMap<Integer, List<Integer>> ordersBySectionIndex = new TreeMap<>();
         connectablesBySectionIndex.forEach((sectionIndex, connectables) -> {
             List<Integer> orders = new ArrayList<>();
-            connectables.forEach(connectable -> addOrder(connectable, voltageLevel, orders));
+            connectables.forEach(connectable -> addOrderPositions(connectable, voltageLevel, orders));
             ordersBySectionIndex.put(sectionIndex, orders);
         });
 
@@ -444,7 +444,7 @@ public final class TopologyModificationUtils {
      */
     public static Set<Integer> getFeederPositions(VoltageLevel voltageLevel) {
         Set<Integer> feederPositionsOrders = new HashSet<>();
-        voltageLevel.getConnectables().forEach(connectable -> addOrder(connectable, voltageLevel, feederPositionsOrders));
+        voltageLevel.getConnectables().forEach(connectable -> addOrderPositions(connectable, voltageLevel, feederPositionsOrders));
         return feederPositionsOrders;
     }
 
@@ -456,65 +456,35 @@ public final class TopologyModificationUtils {
         voltageLevel.getConnectables().forEach(connectable -> {
             ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
             if (position != null) {
-                List<Integer> orders = getOrders(position, voltageLevel, connectable, false, Reporter.NO_OP);
+                List<Integer> orders = getOrderPositions(position, voltageLevel, connectable, false, Reporter.NO_OP);
                 feederPositionsOrders.put(connectable.getId(), orders);
             }
         });
         return feederPositionsOrders;
     }
 
-    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
-        addOrder(connectable, voltageLevel, feederPositionsOrders, false, Reporter.NO_OP);
+    private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
+        addOrderPositions(connectable, voltageLevel, feederPositionsOrders, false, Reporter.NO_OP);
     }
 
     /**
-     * Method adding order(s) of a connectable on a given voltage level to the given collection.
+     * Method adding order position(s) of a connectable on a given voltage level to the given collection.
      */
-    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, Reporter reporter) {
+    private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, Reporter reporter) {
         ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
         if (position != null) {
-            List<Integer> orders = getOrders(position, voltageLevel, connectable, throwException, reporter);
+            List<Integer> orders = getOrderPositions(position, voltageLevel, connectable, throwException, reporter);
             feederPositionsOrders.addAll(orders);
         }
     }
 
-    private static List<Integer> getOrders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
-        List<Integer> orders = new ArrayList<>();
+    private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
         if (connectable instanceof Injection) {
-            position.getFeeder().getOrder().ifPresent(orders::add);
+            return getInjectionOrder(position, voltageLevel, (Injection<?>) connectable, throwException, reporter);
         } else if (connectable instanceof Branch) {
-            Branch<?> branch = (Branch<?>) connectable;
-            if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-                position.getFeeder1().getOrder().ifPresent(orders::add);
-            }
-            if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
-                position.getFeeder2().getOrder().ifPresent(orders::add);
-            }
-            if (orders.isEmpty()) {
-                LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
-                connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
-                if (throwException) {
-                    throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
-                }
-            }
+            return getBranchOrders(position, voltageLevel, (Branch<?>) connectable, throwException, reporter);
         } else if (connectable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
-            if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
-                position.getFeeder1().getOrder().ifPresent(orders::add);
-            }
-            if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
-                position.getFeeder2().getOrder().ifPresent(orders::add);
-            }
-            if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
-                position.getFeeder3().getOrder().ifPresent(orders::add);
-            }
-            if (orders.isEmpty()) {
-                LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
-                connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
-                if (throwException) {
-                    throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
-                }
-            }
+            return get3wtOrders(position, voltageLevel, (ThreeWindingsTransformer) connectable, throwException, reporter);
         } else {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
@@ -522,10 +492,52 @@ public final class TopologyModificationUtils {
                 throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
             }
         }
-        if (orders.size() > 1) {
-            Collections.sort(orders);
+        return Collections.emptyList();
+    }
+
+    private static List<Integer> getInjectionOrder(ConnectablePosition<?> position, VoltageLevel voltageLevel, Injection<?> injection, boolean throwException, Reporter reporter) {
+        List<Integer> singleOrder = position.getFeeder().getOrder().map(List::of).orElse(Collections.emptyList());
+        checkConnectableInVoltageLevel(singleOrder, voltageLevel, injection, throwException, reporter);
+        return singleOrder;
+    }
+
+    private static List<Integer> getBranchOrders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Branch<?> branch, boolean throwException, Reporter reporter) {
+        List<Integer> orders = new ArrayList<>();
+        if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+            position.getFeeder1().getOrder().ifPresent(orders::add);
         }
+        if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
+            position.getFeeder2().getOrder().ifPresent(orders::add);
+        }
+        checkConnectableInVoltageLevel(orders, voltageLevel, branch, throwException, reporter);
+        Collections.sort(orders);
         return orders;
+    }
+
+    private static List<Integer> get3wtOrders(ConnectablePosition<?> position, VoltageLevel voltageLevel, ThreeWindingsTransformer twt, boolean throwException, Reporter reporter) {
+        List<Integer> orders = new ArrayList<>();
+        if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
+            position.getFeeder1().getOrder().ifPresent(orders::add);
+        }
+        if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
+            position.getFeeder2().getOrder().ifPresent(orders::add);
+        }
+        if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
+            position.getFeeder3().getOrder().ifPresent(orders::add);
+        }
+        checkConnectableInVoltageLevel(orders, voltageLevel, twt, throwException, reporter);
+        Collections.sort(orders);
+        return orders;
+    }
+
+    private static void checkConnectableInVoltageLevel(List<Integer> orders, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
+        if (orders.isEmpty()) {
+            LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
+            connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
+            if (throwException) {
+                throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
+            }
+        }
     }
 
     /**
