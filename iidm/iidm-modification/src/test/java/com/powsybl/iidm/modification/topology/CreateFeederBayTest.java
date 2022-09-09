@@ -18,6 +18,7 @@ import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -333,9 +334,9 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
     @Test
     public void testGetPositionsByConnectable() {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        Map<String, Integer> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
+        Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
         assertTrue(positionsByConnectable.containsKey("load1"));
-        assertEquals(70, positionsByConnectable.get("line1"), 0);
+        assertEquals(List.of(70), positionsByConnectable.get("line1"));
         assertEquals(13, positionsByConnectable.size());
     }
 }
