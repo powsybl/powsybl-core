@@ -73,19 +73,6 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
         if (feeder != null && (feeder1 != null || feeder2 != null || feeder3 != null)) {
             throw new IllegalArgumentException("feeder and feeder 1|2|3 are exclusives");
         }
-        boolean error = false;
-        if (feeder1 != null) {
-            if (feeder2 == null && feeder3 != null) {
-                error = true;
-            }
-        } else {
-            if (feeder2 != null || feeder3 != null) {
-                error = true;
-            }
-        }
-        if (error) {
-            throw new IllegalArgumentException("feeder 1|2|3 have to be set in the right order");
-        }
     }
 
 }
