@@ -94,20 +94,20 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             int positionOrder = getPositionOrder(side);
             if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().count() == 1) {
                 // check that there is only one connectable (that we added) or there are existing position extensions on other connectables
-                if (takenFeederPositions.contains(positionOrder)) {
+                if (!takenFeederPositions.contains(positionOrder)) {
+                    getFeederAdder(side, connectablePositionAdder)
+                            .withDirection(getDirection(side))
+                            .withOrder(positionOrder)
+                            .withName(connectableId)
+                            .add();
+                    createConnectablePosition = true;
+                } else {
                     LOGGER.error("PositionOrder {} already taken.", positionOrder);
                     positionOrderAlreadyTakenReport(reporter, positionOrder);
                     if (throwException) {
                         throw new PowsyblException(String.format("PositionOrder %d already taken.", positionOrder));
                     }
-                    return;
                 }
-                getFeederAdder(side, connectablePositionAdder)
-                        .withDirection(getDirection(side))
-                        .withOrder(positionOrder)
-                        .withName(connectableId)
-                        .add();
-                createConnectablePosition = true;
             } else {
                 LOGGER.warn("No extensions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
                 noConnectablePositionExtension(reporter, voltageLevel);
