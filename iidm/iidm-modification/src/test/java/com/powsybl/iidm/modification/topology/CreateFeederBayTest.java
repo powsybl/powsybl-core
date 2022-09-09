@@ -18,11 +18,12 @@ import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.*;
@@ -122,7 +123,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Network given in parameters and in injectionAdder are different. Injection was added then removed", e0.getMessage());
+        assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
 
         //wrong bbsId
         CreateFeederBay modification1 = new CreateFeederBayBuilder()
@@ -142,7 +143,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
-        assertEquals("InjectionPositionOrder 0 already taken.", e2.getMessage());
+        assertEquals("PositionOrder 0 already taken.", e2.getMessage());
     }
 
     @Test
@@ -328,5 +329,14 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
 
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception2.getMessage());
+    }
+
+    @Test
+    public void testGetPositionsByConnectable() {
+        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
+        assertTrue(positionsByConnectable.containsKey("load1"));
+        assertEquals(List.of(70), positionsByConnectable.get("line1"));
+        assertEquals(13, positionsByConnectable.size());
     }
 }

@@ -6,17 +6,28 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.contingency.Contingency;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SensitivityResultModelWriter implements SensitivityResultWriter {
 
+    private final List<Contingency> contingencies;
+
     private final List<SensitivityValue> values = new ArrayList<>();
 
-    private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatuses = new ArrayList<>();
+    private final List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatuses;
+
+    public SensitivityResultModelWriter(List<Contingency> contingencies) {
+        this.contingencies = Objects.requireNonNull(contingencies);
+        contingencyStatuses = new ArrayList<>(Collections.nCopies(contingencies.size(), null));
+    }
 
     public List<SensitivityValue> getValues() {
         return values;
@@ -32,7 +43,7 @@ public class SensitivityResultModelWriter implements SensitivityResultWriter {
     }
 
     @Override
-    public void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status) {
-        contingencyStatuses.add(status);
+    public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+        contingencyStatuses.set(contingencyIndex, new SensitivityAnalysisResult.SensitivityContingencyStatus(contingencies.get(contingencyIndex).getId(), status));
     }
 }
