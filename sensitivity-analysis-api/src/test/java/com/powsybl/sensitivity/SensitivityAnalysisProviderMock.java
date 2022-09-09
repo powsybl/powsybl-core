@@ -53,7 +53,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
             }
         });
         for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-            resultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.CONVERGED);
+            resultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.SUCCEED);
         }
         return CompletableFuture.completedFuture(null);
     }
