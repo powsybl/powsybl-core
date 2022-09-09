@@ -122,8 +122,8 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void twoBusesLineWithNumberOfParalellLines() {
-        assertTrue(importAndCompareXiidm("TwoBusesLineWithNumberOfParalellLines"));
+    public void twoBusesLineWithNumberOfParallelLines() {
+        assertTrue(importAndCompareXiidm("TwoBusesLineWithNumberOfParallelLines"));
     }
 
     @Test
