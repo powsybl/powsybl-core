@@ -54,7 +54,9 @@ public class SensitivityAnalysisResult {
 
     private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
-    enum Status {
+    private final Map<String, SensitivityContingencyStatus> statusByContingencyId = new HashMap<>();
+
+    public enum Status {
         CONVERGED,
         FAILED,
         NO_IMPACT
@@ -62,27 +64,27 @@ public class SensitivityAnalysisResult {
 
     public static class SensitivityContingencyStatus {
 
-        private final Contingency contingency;
+        private final String contingencyId;
 
         private final Status status;
 
-        public Contingency getContingency() {
-            return contingency;
+        public String getContingencyId() {
+            return contingencyId;
         }
 
         public Status getStatus() {
             return status;
         }
 
-        public SensitivityContingencyStatus(Contingency contingency, Status status) {
-            this.contingency = contingency;
-            this.status = status;
+        public SensitivityContingencyStatus(String contingencyId, Status status) {
+            this.contingencyId = Objects.requireNonNull(contingencyId);
+            this.status = Objects.requireNonNull(status);
         }
 
         public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
             try {
                 jsonGenerator.writeStartObject();
-                jsonGenerator.writeStringField("contingencyId", contingencyStatus.contingency != null ? contingencyStatus.contingency.getId() : "");
+                jsonGenerator.writeStringField("contingencyId", contingencyStatus.getContingencyId());
                 jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
                 jsonGenerator.writeEndObject();
             } catch (IOException e) {
@@ -105,7 +107,7 @@ public class SensitivityAnalysisResult {
                     if (token == JsonToken.FIELD_NAME) {
                         parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
-                        return new SensitivityContingencyStatus(context.contingency, context.status);
+                        return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
                     }
                 }
             } catch (IOException e) {
@@ -143,12 +145,15 @@ public class SensitivityAnalysisResult {
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
-            Contingency contingency = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingency() : null;
-            String contingencyId = contingency != null ? contingency.getId() : null;
+            String contingencyId = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingencyId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
             valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType()), value);
             functionReferenceByContingencyAndFunction.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
+        }
+
+        for (SensitivityContingencyStatus status : contingencyStatuses) {
+            this.statusByContingencyId.put(status.getContingencyId(), status);
         }
     }
 
@@ -474,5 +479,15 @@ public class SensitivityAnalysisResult {
      */
     public double getBusVoltageFunctionReferenceValue(String functionId) {
         return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+    }
+
+    /**
+     * Get the status associated to a contingency id
+     *
+     * @param contingencyId The contingency id
+     * @return The associated status.
+     */
+    public Status getContingencyStatus(String contingencyId) {
+        return statusByContingencyId.get(contingencyId).getStatus();
     }
 }
