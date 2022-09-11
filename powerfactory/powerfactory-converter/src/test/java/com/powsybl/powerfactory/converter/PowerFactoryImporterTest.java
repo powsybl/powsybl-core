@@ -247,6 +247,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void transformersWithPhaseAngleClock() {
+        assertTrue(importAndCompareXiidm("TransformersWithPhaseAngleClock"));
+    }
+
+    @Test
     public void threeWindingsTransformerWinding1Ratio() {
         assertTrue(importAndCompareXiidm("ThreeWindingsTransformerWinding1Ratio"));
     }
