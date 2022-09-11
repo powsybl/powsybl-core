@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
@@ -122,7 +121,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Network given in parameters and in injectionAdder are different. Injection was added then removed", e0.getMessage());
+        assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
 
         //wrong bbsId
         CreateFeederBay modification1 = new CreateFeederBayBuilder()
@@ -142,7 +141,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
-        assertEquals("InjectionPositionOrder 0 already taken.", e2.getMessage());
+        assertEquals("PositionOrder 0 already taken.", e2.getMessage());
     }
 
     @Test
@@ -287,18 +286,6 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
         addVscConverterStationModification.apply(network);
         roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-equipments-bbs1.xml");
-    }
-
-    @Test
-    public void testFeederOrders() {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl1"));
-        assertEquals(13, feederOrders.size());
-        assertTrue(feederOrders.contains(100));
-        Set<Integer> feederOrders2 = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl2"));
-        assertEquals(9, feederOrders2.size());
-        Set<Integer> feederOrders3 = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vlSubst2"));
-        assertEquals(1, feederOrders3.size());
     }
 
     @Test

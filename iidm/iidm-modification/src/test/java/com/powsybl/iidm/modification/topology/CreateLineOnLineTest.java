@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -31,7 +33,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbNetwork();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine("VLTEST", BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withVoltageLevelId("VLTEST").withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-l.xml");
@@ -42,7 +44,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-nb-l.xml");
@@ -53,7 +55,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-bb-l.xml");
@@ -64,7 +66,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        CreateLineOnLine modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        CreateLineOnLine modification = new CreateLineOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         assertEquals(VOLTAGE_LEVEL_ID, modification.getVoltageLevelId());
         assertEquals(BBS, modification.getBbsOrBusId());
         assertEquals(50, modification.getPercent(), 0.0);
@@ -86,7 +88,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        CreateLineOnLine modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        CreateLineOnLine modification = new CreateLineOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.setPercent(40.0)
                 .setFictitiousVlId("FICT_VL")
                 .setFictitiousVlName("FICT")
@@ -150,6 +152,43 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-l.xml");
 
+    }
+
+    @Test
+    public void testExceptions() {
+        Network network1 = createNbNetwork();
+        Line line1 = network1.getLine("CJ");
+        LineAdder adder1 = createLineAdder(line1, network1);
+
+        NetworkModification modification1 = new CreateLineOnLineBuilder()
+                .withVoltageLevelId("NOT_EXISTING")
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(line1)
+                .withLineAdder(adder1)
+                .build();
+        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Voltage level NOT_EXISTING is not found", exception1.getMessage());
+
+        NetworkModification modification2 = new CreateLineOnLineBuilder()
+                .withVoltageLevelId("VLTEST")
+                .withBusbarSectionOrBusId("NOT_EXISTING")
+                .withLine(line1)
+                .withLineAdder(adder1)
+                .build();
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Busbar section NOT_EXISTING is not found", exception2.getMessage());
+
+        Network network2 = createBbNetwork();
+        Line line2 = network2.getLine("NHV1_NHV2_1");
+        LineAdder adder2 = createLineAdder(line2, network2);
+        NetworkModification modification3 = new CreateLineOnLineBuilder()
+                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
+                .withBusbarSectionOrBusId("NOT_EXISTING")
+                .withLine(line2)
+                .withLineAdder(adder2)
+                .build();
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
+        assertEquals("Bus NOT_EXISTING is not found", exception3.getMessage());
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

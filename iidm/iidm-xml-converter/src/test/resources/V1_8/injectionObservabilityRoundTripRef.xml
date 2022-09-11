@@ -38,8 +38,8 @@
     </iidm:extension>
     <iidm:extension id="BAT">
         <io:injectionObservability observable="true">
-            <io:qualityP standardDeviation="0.03"/>
-            <io:qualityQ standardDeviation="0.6"/>
+            <io:qualityP standardDeviation="0.03" redundant="false"/>
+            <io:qualityQ standardDeviation="0.6" redundant="false"/>
         </io:injectionObservability>
     </iidm:extension>
 </iidm:network>
