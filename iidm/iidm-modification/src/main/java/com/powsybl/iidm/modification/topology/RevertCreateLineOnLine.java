@@ -19,13 +19,12 @@ import com.powsybl.iidm.network.VoltageLevel;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.createdLineReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.noAttachmentPointAndOrAttachedVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.noTeePointAndOrAttachedVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundLineReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.removedLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.calcMinLoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
 
@@ -62,7 +61,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
      *
      * @param lineAZId     The non-null ID of the first line
      * @param lineBZId     The non-null ID of the second line
-     * @param lineCZId     The non-null ID of the third line (connecting attachment point to attached voltage level)
+     * @param lineCZId     The non-null ID of the third line (connecting tee point to attached voltage level)
      * @param lineId       The non-null ID of the new line to be created
      * @param lineName     The optional name of the new line to be created
      */
@@ -132,10 +131,10 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
             }
         }
 
-        // Check the configuration and find the attachment point and the attached voltage level :
-        // attachment point is the voltage level in common with lineAZ and lineBZ
+        // Check the configuration and find the tee point and the attached voltage level :
+        // tee point is the voltage level in common with lineAZ and lineBZ
         // attached voltage level is the voltage level of lineCZ, not in common with lineAZ or lineBZ
-        VoltageLevel attachmentPoint = null;
+        VoltageLevel teePoint = null;
         VoltageLevel attachedVoltageLevel = null;
         boolean configOk = false;
         Branch.Side newLineSide1 = null;
@@ -156,18 +155,18 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
                         lineAZVlId2.equals(lineCZVlId1) || lineAZVlId2.equals(lineCZVlId2))) {
             configOk = true;
 
-            String attachmentPointId = lineAZVlId1.equals(lineBZVlId1) || lineAZVlId1.equals(lineBZVlId2) ? lineAZVlId1 : lineAZVlId2;
-            attachmentPoint = network.getVoltageLevel(attachmentPointId);
+            String teePointId = lineAZVlId1.equals(lineBZVlId1) || lineAZVlId1.equals(lineBZVlId2) ? lineAZVlId1 : lineAZVlId2;
+            teePoint = network.getVoltageLevel(teePointId);
 
-            newLineSide1 = lineAZVlId1.equals(attachmentPointId) ? Branch.Side.TWO : Branch.Side.ONE;
-            newLineSide2 = lineBZVlId1.equals(attachmentPointId) ? Branch.Side.TWO : Branch.Side.ONE;
+            newLineSide1 = lineAZVlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
+            newLineSide2 = lineBZVlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
 
             String attachedVoltageLevelId = lineCZVlId1.equals(lineBZVlId1) || lineCZVlId1.equals(lineBZVlId2) ? lineCZVlId2 : lineCZVlId1;
             attachedVoltageLevel = network.getVoltageLevel(attachedVoltageLevelId);
         }
 
-        if (!configOk || attachmentPoint == null || attachedVoltageLevel == null) {
-            noAttachmentPointAndOrAttachedVoltageLevelReport(reporter, lineAZId, lineBZId, lineCZId);
+        if (!configOk || teePoint == null || attachedVoltageLevel == null) {
+            noTeePointAndOrAttachedVoltageLevelReport(reporter, lineAZId, lineBZId, lineCZId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineAZId, lineBZId, lineCZId));
             } else {
@@ -182,8 +181,13 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         attachLine(lineAZ.getTerminal(newLineSide1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(lineBZ.getTerminal(newLineSide2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
-        // build the limits associated to the new line
-        LoadingLimitsBags limits = calcMinLoadingLimitsBags(lineAZ, lineBZ);
+        // get lineAZ limits on newLineSide1
+        Branch.Side limitsLineAZSide = newLineSide1;
+        LoadingLimitsBags limitsLineAZ = new LoadingLimitsBags(() -> lineAZ.getActivePowerLimits(limitsLineAZSide), () -> lineAZ.getApparentPowerLimits(limitsLineAZSide), () -> lineAZ.getCurrentLimits(limitsLineAZSide));
+
+        // get lineBZ limits on newLineSide2
+        Branch.Side limitsLineBZSide = newLineSide2;
+        LoadingLimitsBags limitsLineBZ = new LoadingLimitsBags(() -> lineBZ.getActivePowerLimits(limitsLineBZSide), () -> lineBZ.getApparentPowerLimits(limitsLineBZSide), () -> lineBZ.getCurrentLimits(limitsLineBZSide));
 
         // Remove the three existing lines
         lineAZ.remove();
@@ -197,12 +201,12 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
         // Create the new line
         Line line = lineAdder.add();
-        addLoadingLimits(line, limits, Branch.Side.ONE);
-        addLoadingLimits(line, limits, Branch.Side.TWO);
+        addLoadingLimits(line, limitsLineAZ, Branch.Side.ONE);
+        addLoadingLimits(line, limitsLineBZ, Branch.Side.TWO);
         createdLineReport(reporter, lineId);
 
         // remove attachment point and attachment point substation, if necessary
-        removeVoltageLevelAndSubstation(attachmentPoint, reporter);
+        removeVoltageLevelAndSubstation(teePoint, reporter);
 
         // remove attached voltage level and attached substation, if necessary
         removeVoltageLevelAndSubstation(attachedVoltageLevel, reporter);

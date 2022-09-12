@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static com.powsybl.commons.ComparisonUtils.compareXml;
+
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */

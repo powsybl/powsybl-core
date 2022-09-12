@@ -131,8 +131,8 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         assertEquals(1, status.size());
         SensitivityAnalysisResult.SensitivityContingencyStatus status0 = status.get(0);
-        assertEquals("NHV1_NHV2_2", status0.getContingency().getId());
-        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, status0.getStatus());
+        assertEquals("NHV1_NHV2_2", status0.getContingencyId());
+        assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
     }
 
     @Test
@@ -163,7 +163,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
         String outputContingencyStatusCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
                 "Sensitivity analysis contingency status result",
                 "Contingency ID;Contingency Status",
-                "NHV1_NHV2_2;CONVERGED")
+                "NHV1_NHV2_2;SUCCESS")
                 + System.lineSeparator());
         assertEquals(outputContingencyStatusCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputContingencyStatusCsvFile)));
 
@@ -253,8 +253,8 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         assertEquals(1, result.getContingencyStatuses().size());
         SensitivityAnalysisResult.SensitivityContingencyStatus status0 = result.getContingencyStatuses().get(0);
-        assertEquals("NHV1_NHV2_2", status0.getContingency().getId());
-        assertEquals(SensitivityAnalysisResult.Status.CONVERGED, status0.getStatus());
+        assertEquals("NHV1_NHV2_2", status0.getContingencyId());
+        assertEquals(SensitivityAnalysisResult.Status.SUCCESS, status0.getStatus());
 
         assertEquals(2, result.getFactors().size());
         SensitivityFactor factor0 = result.getFactors().get(0);

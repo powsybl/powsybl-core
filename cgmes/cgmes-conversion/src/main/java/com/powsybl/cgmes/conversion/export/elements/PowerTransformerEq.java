@@ -24,6 +24,7 @@ public final class PowerTransformerEq {
     private static final String EQ_POWERTRANSFORMEREND_X = "PowerTransformerEnd.x";
     private static final String EQ_POWERTRANSFORMEREND_G = "PowerTransformerEnd.g";
     private static final String EQ_POWERTRANSFORMEREND_B = "PowerTransformerEnd.b";
+    private static final String EQ_POWERTRANSFORMEREND_RATEDS = "PowerTransformerEnd.ratedS";
     private static final String EQ_POWERTRANSFORMEREND_RATEDU = "PowerTransformerEnd.ratedU";
 
     public static void write(String id, String transformerName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -31,7 +32,8 @@ public final class PowerTransformerEq {
         writer.writeEndElement();
     }
 
-    public static void writeEnd(String id, String transformerEndName, String transformerId, int endNumber, double r, double x, double g, double b, double ratedU, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeEnd(String id, String transformerEndName, String transformerId, int endNumber, double r, double x, double g, double b,
+                                double ratedS, double ratedU, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_ENDNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(endNumber));
@@ -48,6 +50,11 @@ public final class PowerTransformerEq {
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_B);
         writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
+        if (!Double.isNaN(ratedS)) {
+            writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDS);
+            writer.writeCharacters(CgmesExportUtil.format(ratedS));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
         writer.writeCharacters(CgmesExportUtil.format(ratedU));
         writer.writeEndElement();
