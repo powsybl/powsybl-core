@@ -27,7 +27,6 @@ import static com.powsybl.iidm.modification.topology.ModificationReports.removed
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.calcMinLoadingLimitsBags;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
 
@@ -147,8 +146,11 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         attachLine(line1.getTerminal(side1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line2.getTerminal(side2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
-        // build the limits associated to the new line
-        LoadingLimitsBags limits = calcMinLoadingLimitsBags(line1, line2);
+        // get line1 limits on side1
+        LoadingLimitsBags limitsLine1 = new LoadingLimitsBags(() -> line1.getActivePowerLimits(side1), () -> line1.getApparentPowerLimits(side1), () -> line1.getCurrentLimits(side1));
+
+        // get line2 limits on side2
+        LoadingLimitsBags limitsLine2 = new LoadingLimitsBags(() -> line2.getActivePowerLimits(side2), () -> line2.getApparentPowerLimits(side2), () -> line2.getCurrentLimits(side2));
 
         // Remove the two existing lines
         line1.remove();
@@ -159,8 +161,8 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         // Create the new line
         Line line = lineAdder.add();
-        addLoadingLimits(line, limits, Branch.Side.ONE);
-        addLoadingLimits(line, limits, Branch.Side.TWO);
+        addLoadingLimits(line, limitsLine1, Branch.Side.ONE);
+        addLoadingLimits(line, limitsLine2, Branch.Side.TWO);
         createdLineReport(reporter, lineId);
 
         // remove voltage level and substation in common, if necessary
