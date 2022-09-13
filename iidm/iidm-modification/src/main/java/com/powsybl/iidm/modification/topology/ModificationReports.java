@@ -191,6 +191,29 @@ final class ModificationReports {
                 .build());
     }
 
+    static void busbarsInDifferentVoltageLevels(Reporter reporter, String busbarSectionId1, String busbarSectionId2) {
+        reporter.report(Report.builder()
+                .withKey("busbarsInDifferentVoltageLevels")
+                .withDefaultMessage("Busbar sections ${busbarSectionId1} and ${busbarSectionId2} are in two different voltage levels.")
+                .withValue("busbarSectionId1", busbarSectionId1)
+                .withValue("busbarSectionId2", busbarSectionId2)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void newCouplingDeviceAddedReport(Reporter reporter, String voltageLevelId, String bbsId1, String bbsId2, int nbOpenDisconnectors) {
+        reporter.report(Report.builder()
+                .withKey("newCouplingDeviceAdded")
+                .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects busbar sections ${bbsId1} and ${bbsId2} with closed disconnectors" +
+                        "and ${nbOpenDisconnectors} were created on parallel busbar sections.")
+                .withValue(voltageLevelId, voltageLevelId)
+                .withValue("bbsId1", bbsId1)
+                .withValue("bbsId2", bbsId2)
+                .withValue("nbOpenDisconnectors", nbOpenDisconnectors)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
     private ModificationReports() {
     }
 }

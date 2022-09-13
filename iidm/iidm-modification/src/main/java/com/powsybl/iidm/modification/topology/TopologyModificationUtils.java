@@ -519,6 +519,16 @@ public final class TopologyModificationUtils {
         return bbs;
     }
 
+    /**
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
+        bbsList.forEach(b -> {
+            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
+            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), baseId, voltageLevel.getNodeBreakerView(), true);
+        });
+    }
+
     private TopologyModificationUtils() {
     }
 }
