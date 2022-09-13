@@ -222,7 +222,7 @@
         <switch id="SEI1_Disj SEI11_L" name="Disj SEI11_L" kind="BREAKER" retained="false" open="false" node1="18" node2="19"/>
         <switch id="SEI1_Sect 1 SEI11_L" name="Sect 1 SEI11_L" kind="DISCONNECTOR" retained="false" open="false" node1="19" node2="0"/>
         <switch id="SEI1_Sect mnv SEI11_L" name="Sect mnv SEI11_L" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="1"/>
-        <switch id="SEI1_Disj SEI11_L2" name="Disj SEI11_L2" kind="BREAKER" retained="false" open="false" node1="20" node2="21"/> 
+        <switch id="SEI1_Disj SEI11_L2" name="Disj SEI11_L2" kind="BREAKER" retained="false" open="false" node1="20" node2="21"/>
         <switch id="SEI1_Sect 1 SEI11_L2" name="Sect 1 SEI11_L2" kind="DISCONNECTOR" retained="false" open="true" node1="21" node2="0"/>
         <switch id="SEI1_Sect mnv SEI11_L2" name="Sect mnv SEI11_L2" kind="DISCONNECTOR" retained="false" open="false" node1="21" node2="1"/>
      </nodeBreakerTopology>
@@ -300,8 +300,7 @@
   </line>
   <line id="S_SE_1" r="3" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="3" voltageLevelId2="SE_poste" node2="5" p1="144.00006428404029" p2="-144.00006428404029">
     <currentLimits1 permanentLimit="500.00006103515625">
-      <temporaryLimit name="20'" acceptableDuration="1200" value="500.00006103515625"/>
-      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="20'" acceptableDuration="1200" value="550"/>
       <temporaryLimit name="10'" acceptableDuration="600" value="600"/>
       <temporaryLimit name="1'" acceptableDuration="1"/>
     </currentLimits1>
@@ -309,8 +308,7 @@
   </line>
   <line id="S_SE_2" r="4" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="5" voltageLevelId2="SE_poste" node2="7" p1="144.00006428404029" p2="-144.00006428404029">
     <currentLimits1 permanentLimit="500.00006103515625">
-      <temporaryLimit name="20'" acceptableDuration="1200" value="500.00006103515625"/>
-      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="20'" acceptableDuration="1200" value="550"/>
       <temporaryLimit name="10'" acceptableDuration="600" value="600"/>
       <temporaryLimit name="1'" acceptableDuration="1"/>
     </currentLimits1>
@@ -318,8 +316,7 @@
   </line>
   <line id="S_SO_1" r="5" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="8" voltageLevelId2="SO_poste" node2="14" p1="-144.00006428404023" p2="144.00006428404023">
     <currentLimits1 permanentLimit="500.00006103515625">
-      <temporaryLimit name="20'" acceptableDuration="1200" value="500.00006103515625"/>
-      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="20'" acceptableDuration="1200" value="550"/>
       <temporaryLimit name="10'" acceptableDuration="600" value="600"/>
       <temporaryLimit name="1'" acceptableDuration="1"/>
     </currentLimits1>
@@ -327,8 +324,7 @@
   </line>
   <line id="S_SO_2" r="6" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="10" voltageLevelId2="SO_poste" node2="16" p1="-144.00006428404023" p2="144.00006428404023">
     <currentLimits1 permanentLimit="500.00006103515625">
-      <temporaryLimit name="20'" acceptableDuration="1200" value="500.00006103515625"/>
-      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="20'" acceptableDuration="1200" value="550"/>
       <temporaryLimit name="10'" acceptableDuration="600" value="600"/>
       <temporaryLimit name="1'" acceptableDuration="1"/>
     </currentLimits1>
