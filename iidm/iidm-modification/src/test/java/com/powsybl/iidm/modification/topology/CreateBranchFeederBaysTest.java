@@ -21,11 +21,10 @@ import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.*;
@@ -52,13 +51,39 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
                 .withBbsId1("bbs5")
                 .withPositionOrder1(85)
                 .withDirection1(BOTTOM)
+                .withFeederName1("lineTestFeeder1")
                 .withBbsId2("bbs1")
                 .withPositionOrder2(75)
+                .withFeederName2("lineTestFeeder2")
                 .withDirection2(TOP)
                 .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-line.xml");
+    }
+
+    @Test
+    public void usedOrderLineTest() throws IOException {
+        LineAdder lineAdder = network.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBbsId1("bbs1")
+                .withPositionOrder1(70)
+                .withDirection1(TOP)
+                .withBbsId2("bbs5")
+                .withPositionOrder2(85)
+                .withDirection2(BOTTOM)
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-line-order-used.xml");
     }
 
     @Test
@@ -83,10 +108,6 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-internal-line.xml");
-
-        Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
-        assertEquals(List.of(14, 105), positionsByConnectable.get("lineTest"));
-        assertEquals(14, positionsByConnectable.size());
     }
 
     @Test

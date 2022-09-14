@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This method adds a new injection bay on an existing busbar section. The voltage level containing the
@@ -25,22 +26,24 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     private final InjectionAdder<?> injectionAdder;
     private final String bbsId;
     private final int injectionPositionOrder;
+    private final String injectionFeederName;
     private final ConnectablePosition.Direction injectionDirection;
 
     /**
-     * Constructor.
-     *
      * @param injectionAdder         The injection adder.
      * @param bbsId                  The ID of the existing busbar section where we want to connect the injection.
      *                               Please note that there will be switches between this busbar section and the connection point of the injection. This switch will be closed.
      * @param injectionPositionOrder The order of the injection to be attached from its extension {@link ConnectablePosition}.
+     * @param injectionFeederName    The name of the feeder indicated in the extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
-    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, Integer injectionPositionOrder, ConnectablePosition.Direction injectionDirection) {
+    CreateFeederBay(InjectionAdder<?> injectionAdder, String bbsId, Integer injectionPositionOrder,
+                    String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.bbsId = Objects.requireNonNull(bbsId);
         this.injectionPositionOrder = injectionPositionOrder;
+        this.injectionFeederName = injectionFeederName;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
     }
 
@@ -85,6 +88,11 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     @Override
     protected int getPositionOrder(int side) {
         return injectionPositionOrder;
+    }
+
+    @Override
+    protected Optional<String> getFeederName(int side) {
+        return Optional.ofNullable(injectionFeederName);
     }
 
     @Override
