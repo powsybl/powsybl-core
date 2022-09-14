@@ -19,11 +19,13 @@ public class CreateBranchFeederBaysBuilder {
     private String bbsId2 = null;
     private Integer positionOrder1 = null;
     private Integer positionOrder2 = null;
+    private String feederName1 = null;
+    private String feederName2 = null;
     private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.TOP;
     private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
 
     public CreateBranchFeederBays build() {
-        return new CreateBranchFeederBays(branchAdder, bbsId1, bbsId2, positionOrder1, positionOrder2, direction1, direction2);
+        return new CreateBranchFeederBays(branchAdder, bbsId1, bbsId2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2);
     }
 
     public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?> branchAdder) {
@@ -48,6 +50,16 @@ public class CreateBranchFeederBaysBuilder {
 
     public CreateBranchFeederBaysBuilder withPositionOrder2(int positionOrder2) {
         this.positionOrder2 = positionOrder2;
+        return this;
+    }
+
+    public CreateBranchFeederBaysBuilder withFeederName1(String feederName1) {
+        this.feederName1 = feederName1;
+        return this;
+    }
+
+    public CreateBranchFeederBaysBuilder withFeederName2(String feederName2) {
+        this.feederName2 = feederName2;
         return this;
     }
 

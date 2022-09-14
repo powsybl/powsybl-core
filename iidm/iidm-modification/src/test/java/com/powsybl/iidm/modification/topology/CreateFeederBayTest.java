@@ -43,6 +43,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionAdder(loadAdder)
                 .withBbsId("bbs4")
                 .withInjectionPositionOrder(115)
+                .withInjectionFeederName("newLoadFeeder")
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
