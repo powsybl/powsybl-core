@@ -90,8 +90,8 @@ class CommonImpedanceConverter extends AbstractConverter {
             puModel.b1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y12Eu.getImaginary(), puModel.b1, vn1, vn2, sn);
 
             Complex y21Eu = new Complex(puModel.r21, puModel.x21).reciprocal();
-            puModel.g2 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y21Eu.getReal(), puModel.g2, vn1, vn2, sn);
-            puModel.b2 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y21Eu.getImaginary(), puModel.b2, vn1, vn2, sn);
+            puModel.g2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y21Eu.getReal(), puModel.g2, vn1, vn2, sn);
+            puModel.b2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y21Eu.getImaginary(), puModel.b2, vn1, vn2, sn);
 
             return puModel;
         }
