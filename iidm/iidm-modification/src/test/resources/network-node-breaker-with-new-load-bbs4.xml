@@ -159,7 +159,7 @@
     </iidm:extension>
     <iidm:extension id="newLoad">
         <cp:position>
-            <cp:feeder name="newLoad" order="115" direction="BOTTOM"/>
+            <cp:feeder name="newLoadFeeder" order="115" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="bbs1">
