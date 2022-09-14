@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="CommonImpedanceWithDifferentNominal" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S6">
+        <iidm:voltageLevel id="VL6" nominalV="110.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL6_1 Bus 1-Slack" node="0"/>
+                <iidm:switch id="VL6_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL6_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="50.470001220703125" voltageRegulatorOn="true" targetP="50.470001220703125" targetV="116.59999370574951" targetQ="0.0" node="2">
+                <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S7">
+        <iidm:voltageLevel id="VL7" nominalV="110.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL7_2 Bus 2" node="0"/>
+                <iidm:switch id="VL7_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL7_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S8">
+        <iidm:voltageLevel id="VL8" nominalV="90.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL8_3 Bus 2-Load" node="0"/>
+                <iidm:switch id="VL8_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL8_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="1"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="lne_1_2_1" r="31.007963180541992" x="94.67198181152344" g1="0.0" b1="1.0815001583099366E-4" g2="0.0" b2="1.0815001583099366E-4" node1="1" voltageLevelId1="VL6" node2="1" voltageLevelId2="VL7"/>
+    <iidm:line id="zpu_2_3_1" r="-20.87217049598694" x="135.59435691833497" g1="2.0162817530775237E-4" b1="0.0013098610311145429" g2="2.0162817530775237E-4" b2="0.0013098610311145429" node1="2" voltageLevelId1="VL7" node2="2" voltageLevelId2="VL8"/>
+</iidm:network>
