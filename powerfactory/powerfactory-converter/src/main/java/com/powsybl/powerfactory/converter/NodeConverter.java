@@ -114,13 +114,16 @@ class NodeConverter extends AbstractConverter {
             if (connectedObj == null) {
                 getImportContext().cubiclesObjectNotFound.add(staCubic);
             } else {
-                int referenceNode = createNodeSwitchAndInternalConnection(vl, node, staCubic, connectedObj.getDataClassName().equals("ElmCoup"));
+                int outOfService = connectedObj.findIntAttributeValue("outserv").orElse(0);
+                int referenceNode = createNodeSwitchAndInternalConnection(vl, node, staCubic, connectedObj.getDataClassName().equals("ElmCoup"),
+                    connectedObj.getLocName(), outOfService == 1);
                 mapConnectedObjToNode(vl, referenceNode, busIndexIn, connectedObj);
             }
         }
     }
 
-    private int createNodeSwitchAndInternalConnection(VoltageLevel vl, int node, DataObject staCubic, boolean isConnectedObjSwitch) {
+    private int createNodeSwitchAndInternalConnection(VoltageLevel vl, int node, DataObject staCubic,
+        boolean isConnectedObjSwitch, String connectedObId, boolean outOfService) {
         List<DataObject> staSwitches = staCubic.getChildrenByClass("StaSwitch");
 
         int referenceNode = node;
@@ -139,6 +142,13 @@ class NodeConverter extends AbstractConverter {
             referenceNode = additionalNode;
         } else {
             throw new PowerFactoryException("Only one staSwitch is allowed inside a cubicle");
+        }
+
+        // we have decided to create fictitious switches to map the outOfService attribute to IIDM
+        if (outOfService) {
+            int additionalNode = createNode(vl);
+            new SwitchConverter(getImportContext(), getNetwork()).createFictitiousSwitch(vl, referenceNode, additionalNode, connectedObId);
+            referenceNode = additionalNode;
         }
 
         return referenceNode;
