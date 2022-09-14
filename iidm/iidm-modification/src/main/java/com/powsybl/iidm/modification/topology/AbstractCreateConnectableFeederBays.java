@@ -44,6 +44,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract int getPositionOrder(int side);
 
+    protected abstract Optional<String> getFeederName(int side);
+
     protected abstract ConnectablePosition.Direction getDirection(int side);
 
     protected abstract int getNode(int side, Connectable<?> connectable);
@@ -98,7 +100,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                     getFeederAdder(side, connectablePositionAdder)
                             .withDirection(getDirection(side))
                             .withOrder(positionOrder)
-                            .withName(connectableId)
+                            .withName(getFeederName(side).orElse(connectableId))
                             .add();
                     createConnectablePosition = true;
                 } else {
