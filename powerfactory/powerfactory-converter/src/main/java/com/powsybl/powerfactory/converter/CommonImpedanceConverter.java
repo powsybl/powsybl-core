@@ -13,6 +13,8 @@ import com.powsybl.powerfactory.model.DataObject;
 
 import java.util.List;
 
+import org.apache.commons.math3.complex.Complex;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -74,17 +76,22 @@ class CommonImpedanceConverter extends AbstractConverter {
         private static CommonImpedanceModel create(DataObject elmZpu, double vn1, double vn2) {
             CommonImpedanceModel puModel = commonImpedancePerUnitModel(elmZpu);
 
+            // Support common impedance lines with different nominal voltage at ends
+
             float sn = elmZpu.getFloatAttributeValue("Sn");
 
-            puModel.r12 = impedanceFromPerUnitToEngineeringUnits(puModel.r12, vn1, sn);
-            puModel.x12 = impedanceFromPerUnitToEngineeringUnits(puModel.x12, vn1, sn);
-            puModel.r21 = impedanceFromPerUnitToEngineeringUnits(puModel.r21, vn2, sn);
-            puModel.x21 = impedanceFromPerUnitToEngineeringUnits(puModel.x21, vn2, sn);
+            puModel.r12 = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(puModel.r12, vn1, vn2, sn);
+            puModel.x12 = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(puModel.x12, vn1, vn2, sn);
+            puModel.r21 = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(puModel.r21, vn1, vn2, sn);
+            puModel.x21 = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(puModel.x21, vn1, vn2, sn);
 
-            puModel.g1 = admittanceFromPerUnitToEngineeringUnits(puModel.g1, vn1, sn);
-            puModel.b1 = admittanceFromPerUnitToEngineeringUnits(puModel.b1, vn1, sn);
-            puModel.g2 = admittanceFromPerUnitToEngineeringUnits(puModel.g2, vn2, sn);
-            puModel.b2 = admittanceFromPerUnitToEngineeringUnits(puModel.b2, vn2, sn);
+            Complex y12Eu = new Complex(puModel.r12, puModel.x12).reciprocal();
+            puModel.g1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y12Eu.getReal(), puModel.g1, vn1, vn2, sn);
+            puModel.b1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y12Eu.getImaginary(), puModel.b1, vn1, vn2, sn);
+
+            Complex y21Eu = new Complex(puModel.r21, puModel.x21).reciprocal();
+            puModel.g2 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y21Eu.getReal(), puModel.g2, vn1, vn2, sn);
+            puModel.b2 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(y21Eu.getImaginary(), puModel.b2, vn1, vn2, sn);
 
             return puModel;
         }
