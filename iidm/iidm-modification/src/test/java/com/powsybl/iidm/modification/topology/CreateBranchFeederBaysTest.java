@@ -51,8 +51,10 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
                 .withBbsId1("bbs5")
                 .withPositionOrder1(85)
                 .withDirection1(BOTTOM)
+                .withFeederName1("lineTestFeeder1")
                 .withBbsId2("bbs1")
                 .withPositionOrder2(75)
+                .withFeederName2("lineTestFeeder2")
                 .withDirection2(TOP)
                 .build();
         modification.apply(network);
