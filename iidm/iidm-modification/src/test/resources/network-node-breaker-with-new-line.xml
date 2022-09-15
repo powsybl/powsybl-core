@@ -168,8 +168,8 @@
     </iidm:extension>
     <iidm:extension id="lineTest">
         <cp:position>
-            <cp:feeder1 name="lineTest" order="85" direction="BOTTOM"/>
-            <cp:feeder2 name="lineTest" order="75" direction="TOP"/>
+            <cp:feeder1 name="lineTestFeeder1" order="85" direction="BOTTOM"/>
+            <cp:feeder2 name="lineTestFeeder2" order="75" direction="TOP"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="line1">
