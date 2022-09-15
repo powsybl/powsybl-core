@@ -12,12 +12,12 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -39,7 +39,7 @@ class SwitchConverter extends AbstractConverter {
         NodeRef nodeRef1 = nodeRefs.get(0);
         NodeRef nodeRef2 = nodeRefs.get(1);
         if (!nodeRef1.voltageLevelId.equals(nodeRef2.voltageLevelId)) {
-            throw new PowsyblException("ElmCoup not connected to same ElmSubstat at both sides: " + elmCoup);
+            throw new PowerFactoryException("ElmCoup not connected to same ElmSubstat at both sides: " + elmCoup);
         }
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef1.voltageLevelId);
@@ -106,7 +106,7 @@ class SwitchConverter extends AbstractConverter {
                         switchKind = SwitchKind.DISCONNECTOR;
                         break;
                     default:
-                        throw new PowsyblException("Unknown switch type: " + aUsage);
+                        throw new PowerFactoryException("Unknown switch type: " + aUsage);
                 }
             } else {
                 switchKind = SwitchKind.BREAKER;
