@@ -7,8 +7,10 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 
 /**
@@ -33,6 +35,9 @@ public class DiscreteMeasurementsAdderImplProvider<I extends Identifiable<I>> im
 
     @Override
     public DiscreteMeasurementsAdderImpl<I> newAdder(I extendable) {
+        if (extendable instanceof Network) {
+            throw new PowsyblException("Discrete measurements not supported for networks");
+        }
         return new DiscreteMeasurementsAdderImpl<>(extendable);
     }
 }
