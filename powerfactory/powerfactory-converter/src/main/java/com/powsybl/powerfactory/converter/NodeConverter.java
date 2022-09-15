@@ -123,7 +123,7 @@ class NodeConverter extends AbstractConverter {
     }
 
     private int createNodeSwitchAndInternalConnection(VoltageLevel vl, int node, DataObject staCubic,
-        boolean isConnectedObjSwitch, String connectedObId, boolean outOfService) {
+        boolean isConnectedObjSwitch, String connectedObjId, boolean outOfService) {
         List<DataObject> staSwitches = staCubic.getChildrenByClass("StaSwitch");
 
         int referenceNode = node;
@@ -147,7 +147,7 @@ class NodeConverter extends AbstractConverter {
         // we have decided to create fictitious switches to map the outOfService attribute to IIDM
         if (outOfService) {
             int additionalNode = createNode(vl);
-            new SwitchConverter(getImportContext(), getNetwork()).createFictitiousSwitch(vl, referenceNode, additionalNode, connectedObId);
+            new SwitchConverter(getImportContext(), getNetwork()).createFictitiousSwitch(vl, referenceNode, additionalNode, connectedObjId);
             referenceNode = additionalNode;
         }
 
