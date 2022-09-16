@@ -54,21 +54,13 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         BusbarSection bbs1 = network.getBusbarSection(bbsId1);
         if (bbs1 == null) {
-            LOGGER.error("Busbar section {} not found.", bbsId1);
-            notFoundBusbarSectionReport(reporter, bbsId1);
-            if (throwException) {
-                throw new PowsyblException(String.format("Busbar section %s not found.", bbsId1));
-            }
+            bbsDoesNotExist(bbsId1, reporter, throwException);
             return;
         }
 
         BusbarSection bbs2 = network.getBusbarSection(bbsId2);
-        if (bbs1 == null) {
-            LOGGER.error("Busbar section {} not found.", bbsId2);
-            notFoundBusbarSectionReport(reporter, bbsId2);
-            if (throwException) {
-                throw new PowsyblException(String.format("Busbar section %s not found.", bbsId2));
-            }
+        if (bbs2 == null) {
+            bbsDoesNotExist(bbsId2, reporter, throwException);
             return;
         }
 
@@ -120,6 +112,14 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
         LOGGER.info("New coupling device was added to voltage level {} between busbar sections {} and {}", voltageLevel1.getId(), bbs1.getId(), bbs2.getId());
         newCouplingDeviceAddedReport(reporter, voltageLevel1.getId(), bbsId1, bbsId2, nbOpenDisconnectors);
+    }
+
+    private void bbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
+        LOGGER.error("Busbar section {} not found.", bbsId);
+        notFoundBusbarSectionReport(reporter, bbsId);
+        if (throwException) {
+            throw new PowsyblException(String.format("Busbar section %s not found.", bbsId));
+        }
     }
 
 }
