@@ -11,9 +11,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
- * Extension storing the minimum admissible short circuit current (IpMin) and the maximum allowable
- * short-circuit current (IpMax) for voltage levels, buses and busbar sections.
- *
  * @author Coline Piloquet <coline.piloquet@rte-france.com>
  */
 public interface IdentifiableShortCircuit<I extends Identifiable<I>> extends Extension<I> {

@@ -10,7 +10,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Generator;
 
 /**
- * Extension storing the reactance of generators for short-circuit calculations.
  *
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
  */
