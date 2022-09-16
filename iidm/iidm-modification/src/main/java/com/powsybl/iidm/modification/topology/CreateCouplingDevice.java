@@ -37,7 +37,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
     private final String bbsId2;
 
-    public CreateCouplingDevice(String bbsId1, String bbsId2) {
+    CreateCouplingDevice(String bbsId1, String bbsId2) {
         this.bbsId1 = bbsId1;
         this.bbsId2 = bbsId2;
     }
