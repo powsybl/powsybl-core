@@ -30,7 +30,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void attachVoltageLevelOnLineNbTest() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
@@ -97,7 +97,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testCompleteBuilder() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(40)
                 .withBusbarSectionOrBusId(BBS)
@@ -114,7 +114,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testIncompleteBuilder() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
@@ -126,7 +126,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testExceptions() {
-        Network network1 = createNbNetwork();
+        Network network1 = createNbNetworkWithBusbarSection();
 
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
