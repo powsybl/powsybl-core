@@ -7,12 +7,8 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 
 
@@ -40,10 +36,6 @@ public class IdentifiableShortCircuitAdderImplProvider<I extends Identifiable<I>
 
     @Override
     public IdentifiableShortCircuitAdderImpl<I> newAdder(I extendable) {
-        //TODO: replace bus by ConfiguredBus when it is public
-        if (!(extendable instanceof VoltageLevel) && !(extendable instanceof Bus) && !(extendable instanceof BusbarSection)) {
-            throw new PowsyblException("IdentifiableShortCircuit extension only supported for voltage levels, buses and busbar sections");
-        }
         return new IdentifiableShortCircuitAdderImpl<>(extendable);
     }
 }
