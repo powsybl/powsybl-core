@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-action</artifactId>
-        <version>4.10.0</version>
+        <version>4.10.1</version>
     </parent>
 
     <artifactId>powsybl-action-simulator</artifactId>
