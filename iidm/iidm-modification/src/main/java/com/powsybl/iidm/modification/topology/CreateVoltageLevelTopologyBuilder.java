@@ -109,7 +109,6 @@ public class CreateVoltageLevelTopologyBuilder {
      *
      * @param switchKinds
      */
-
     public CreateVoltageLevelTopologyBuilder withSwitchKinds(List<SwitchKind> switchKinds) {
         this.switchKinds = switchKinds != null ? new ArrayList<>(switchKinds) : null;
         return this;
