@@ -24,8 +24,10 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.c
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
 
 /**
- * Creates symmetrical topology in a given voltage level,
+ * Creates symmetrical matrix topology in a given voltage level,
  * containing a given number of busbar with a given number of sections each.
+ *
+ * See {@link CreateVoltageLevelTopologyBuilder}.
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
