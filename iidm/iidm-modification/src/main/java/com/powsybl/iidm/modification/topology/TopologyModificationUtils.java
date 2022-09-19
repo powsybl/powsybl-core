@@ -156,24 +156,6 @@ public final class TopologyModificationUtils {
         }
     }
 
-    static boolean checkVoltageLevelTopology(Identifiable<?> identifiable, VoltageLevel voltageLevel, boolean throwException, Reporter reporter, Logger logger) {
-        if (identifiable instanceof Bus && voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
-            logger.error("{} is a bus. Voltage level {} should be BUS_BREAKER.", identifiable.getId(), voltageLevel.getId());
-            reporter.report(Report.builder()
-                    .withKey("unexpectedNodeBreakerTopology")
-                    .withDefaultMessage("${busId} is a bus. Voltage level ${voltageLevelId} should be BUS_BREAKER.")
-                    .withValue("busId", identifiable.getId())
-                    .withValue("voltageLevelId", voltageLevel.getId())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
-            if (throwException) {
-                throw new PowsyblException(identifiable.getId() + " is a bus. Voltage level " + voltageLevel.getId() + " should be BUS_BREAKER.");
-            }
-            return false;
-        }
-        return true;
-    }
-
     static LineAdder createLineAdder(double percent, String id, String name, String voltageLevelId1, String voltageLevelId2, Network network, Line line) {
         return network.newLine()
                 .setId(id)

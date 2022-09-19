@@ -136,24 +136,32 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
 
-        NetworkModification modification2 = new CreateLineOnLineBuilder()
+        NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line1)
                 .withLineAdder(adder1)
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Identifiable NOT_EXISTING not found", exception1.getMessage());
 
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
-        NetworkModification modification3 = new CreateLineOnLineBuilder()
+        NetworkModification modification2 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, Reporter.NO_OP));
+        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+
+        NetworkModification modification3 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId("LOAD")
+                .withLine(line2)
+                .withLineAdder(adder2)
+                .build();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception3.getMessage());
+        assertEquals("Identifiable LOAD is not a bus or a busbar section", exception3.getMessage());
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

@@ -163,9 +163,6 @@ public class CreateLineOnLine extends AbstractNetworkModification {
         if (voltageLevel == null) {
             return;
         }
-        if (!checkVoltageLevelTopology(identifiable, voltageLevel, throwException, reporter, LOG)) {
-            return;
-        }
 
         // Create the fictitious voltage Level at the attachment point
         VoltageLevel fictitiousVl;

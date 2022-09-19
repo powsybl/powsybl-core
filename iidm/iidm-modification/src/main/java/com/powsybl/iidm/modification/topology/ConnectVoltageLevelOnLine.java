@@ -104,9 +104,6 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         if (voltageLevel == null) {
             return;
         }
-        if (!checkVoltageLevelTopology(identifiable, voltageLevel, throwException, reporter, LOG)) {
-            return;
-        }
 
         // Set parameters of the two lines replacing the existing line
         LineAdder adder1 = createLineAdder(percent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), voltageLevel.getId(), network, line);
