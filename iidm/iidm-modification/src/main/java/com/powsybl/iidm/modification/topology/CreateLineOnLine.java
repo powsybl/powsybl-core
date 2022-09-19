@@ -32,7 +32,6 @@ public class CreateLineOnLine extends AbstractNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateLineOnLine.class);
 
-    private final String voltageLevelId;
     private final String bbsOrBusId;
 
     private final Line line;
@@ -53,47 +52,11 @@ public class CreateLineOnLine extends AbstractNetworkModification {
     private String line2Name;
 
     /**
-     * Constructor. <br>
-     * <p>
-     * percent is 50. <br>
-     * fictitiousVlId is line.getId() + "_VL". <br>
-     * line1Id is line.getId() + "_1" <br>
-     * line2Id is line.getId() + "_2". <br>
-     * @deprecated Use {@link CreateLineOnLineBuilder} instead.
-     */
-    @Deprecated(since = "4.10.0")
-    public CreateLineOnLine(String voltageLevelId, String bbsOrBusId, Line line, LineAdder lineAdder) {
-        this(50, voltageLevelId, bbsOrBusId, line.getId() + "_VL", line.getId() + "_1",
-                line.getId() + "_2", line, lineAdder);
-    }
-
-    /**
-     * Constructor. <br>
-     * <p>
-     * fictitiousVlName is null <br>
-     * createFictitiousSubstation is false. <br>
-     * fictitiousSubstationId is line.getId() + "_S" <br>
-     * fictitiousSubstationName is null. <br>
-     * line1Name is null. <br>
-     * line2Name is null. <br>
-     *
-     * @deprecated Use {@link CreateLineOnLineBuilder} instead.
-     */
-    @Deprecated(since = "4.10.0")
-    public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String line1Id,
-                            String line2Id, Line line, LineAdder lineAdder) {
-        this(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, null, false,
-                line.getId() + "_S", null, line1Id, null, line2Id, null, line,
-                lineAdder);
-    }
-
-    /**
      * Constructor.
      *
      * @param percent                  When the existing line is cut, percent is equal to the ratio between the parameters of the first line
      *                                 and the parameters of the line that is cut multiplied by 100. 100 minus percent is equal to the ratio
      *                                 between the parameters of the second line and the parameters of the line that is cut multiplied by 100.
-     * @param voltageLevelId           The voltage level with the given ID that we want to connect to the initial line.
      * @param bbsOrBusId               The ID of the existing bus or bus bar section of the voltage level voltageLevelId where we want to connect the line
      *                                 that will be between this voltage level and the fictitious voltage level.
      *                                 Please note that there will be switches between this bus or bus bar section and the connection point of the line.
@@ -112,11 +75,10 @@ public class CreateLineOnLine extends AbstractNetworkModification {
      *
      * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
-    public CreateLineOnLine(double percent, String voltageLevelId, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
+    public CreateLineOnLine(double percent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                             boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                             String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
         this.percent = checkPercent(percent);
-        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
@@ -193,7 +155,15 @@ public class CreateLineOnLine extends AbstractNetworkModification {
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
-        if (!checkVoltageLevelAndBusbarSectionOrBus(network, voltageLevelId, bbsOrBusId, throwException, reporter, LOG)) {
+        Identifiable<?> identifiable = checkIdentifiable(bbsOrBusId, network, throwException, reporter, LOG);
+        if (identifiable == null) {
+            return;
+        }
+        VoltageLevel voltageLevel = getVoltageLevel(identifiable, throwException, reporter, LOG);
+        if (voltageLevel == null) {
+            return;
+        }
+        if (!checkVoltageLevelTopology(identifiable, voltageLevel, throwException, reporter, LOG)) {
             return;
         }
 
@@ -256,10 +226,9 @@ public class CreateLineOnLine extends AbstractNetworkModification {
                 .add();
 
         // Set the end points of the new line
-        lineAdder.setNode1(3).setVoltageLevel1(fictitiousVlId).setVoltageLevel2(voltageLevelId);
+        lineAdder.setNode1(3).setVoltageLevel1(fictitiousVlId).setVoltageLevel2(voltageLevel.getId());
 
         // Create topology in the existing voltage level
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
@@ -296,10 +265,6 @@ public class CreateLineOnLine extends AbstractNetworkModification {
                 .withValue("originalLineId", originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
-    }
-
-    public String getVoltageLevelId() {
-        return voltageLevelId;
     }
 
     public String getBbsOrBusId() {

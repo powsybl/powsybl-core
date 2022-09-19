@@ -30,7 +30,6 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
-                .withVoltageLevelId("VLTEST")
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
@@ -43,7 +42,6 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
-                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
@@ -56,7 +54,6 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
-                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
@@ -69,8 +66,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void testConstructor() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
-        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId(BBS).withLine(line).build();
-        assertEquals(VOLTAGE_LEVEL_ID, modification.getVoltageLevelId());
+        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).build();
         assertEquals(BBS, modification.getBbsOrBusId());
         assertEquals(50, modification.getPercent(), 0.0);
         assertSame(line, modification.getLine());
@@ -84,7 +80,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void testSetters() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
-        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withVoltageLevelId(VOLTAGE_LEVEL_ID).withBusbarSectionOrBusId(BBS).withLine(line).build();
+        ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).build();
         modification.setPercent(40.0)
                 .setLine1Id(line.getId() + "_A")
                 .setLine1Name("A")
@@ -102,7 +98,6 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withPercent(40)
-                .withVoltageLevelId("VLTEST")
                 .withBusbarSectionOrBusId(BBS)
                 .withLine1Id("FICT1L")
                 .withLine1Name("FICT1LName")
@@ -119,7 +114,6 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void testIncompleteBuilder() throws IOException {
         Network network = createNbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
-                .withVoltageLevelId("VLTEST")
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
@@ -131,29 +125,20 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     @Test
     public void testExceptions() {
         Network network1 = createNbNetwork();
-        NetworkModification modification1 = new ConnectVoltageLevelOnLineBuilder()
-                .withVoltageLevelId("NOT_EXISTING")
-                .withBusbarSectionOrBusId(BBS)
-                .withLine(network1.getLine("CJ"))
-                .build();
-        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Voltage level NOT_EXISTING is not found", exception1.getMessage());
 
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
-                .withVoltageLevelId("VLTEST")
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
                 .build();
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Busbar section NOT_EXISTING is not found", exception2.getMessage());
+        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
 
         Network network2 = createBbNetwork();
         NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
-                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Bus NOT_EXISTING is not found", exception3.getMessage());
+        assertEquals("Identifiable NOT_EXISTING not found", exception3.getMessage());
     }
 }

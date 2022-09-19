@@ -8,7 +8,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -115,39 +117,59 @@ public final class TopologyModificationUtils {
         return percent;
     }
 
-    static boolean checkVoltageLevelAndBusbarSectionOrBus(Network network, String voltageLevelId, String bbsOrBusId, boolean throwException, Reporter reporter, Logger logger) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (voltageLevel == null) {
-            logger.error("Voltage level {} not found", voltageLevelId);
-            notFoundVoltageLevelReport(reporter, voltageLevelId);
+    static Identifiable<?> checkIdentifiable(String id, Network network, boolean throwException, Reporter reporter, Logger logger) {
+        Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            logger.error("Identifiable {} not found", id);
+            reporter.report(Report.builder()
+                    .withKey("notFoundIdentifiable")
+                    .withDefaultMessage("Identifiable ${identifiableId} not found")
+                    .withValue("identifiableId", id)
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
             if (throwException) {
-                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
+                throw new PowsyblException("Identifiable " + id + " not found");
+            }
+        }
+        return identifiable;
+    }
+
+    static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, Reporter reporter, Logger logger) {
+        if (identifiable instanceof Bus) {
+            Bus bus = (Bus) identifiable;
+            return bus.getVoltageLevel();
+        } else if (identifiable instanceof BusbarSection) {
+            BusbarSection bbs = (BusbarSection) identifiable;
+            return bbs.getTerminal().getVoltageLevel();
+        } else {
+            logger.error("Identifiable {} is not a bus or a busbar section", identifiable.getId());
+            reporter.report(Report.builder()
+                    .withKey("unexpectedIdentifiableType")
+                    .withDefaultMessage("Identifiable ${identifiableId} is not a bus or a busbar section")
+                    .withValue("identifiableId", identifiable.getId())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
+            if (throwException) {
+                throw new PowsyblException("Identifiable " + identifiable.getId() + " is not a bus or a busbar section");
+            }
+            return null;
+        }
+    }
+
+    static boolean checkVoltageLevelTopology(Identifiable<?> identifiable, VoltageLevel voltageLevel, boolean throwException, Reporter reporter, Logger logger) {
+        if (identifiable instanceof Bus && voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
+            logger.error("{} is a bus. Voltage level {} should be BUS_BREAKER.", identifiable.getId(), voltageLevel.getId());
+            reporter.report(Report.builder()
+                    .withKey("unexpectedNodeBreakerTopology")
+                    .withDefaultMessage("${busId} is a bus. Voltage level ${voltageLevelId} should be BUS_BREAKER.")
+                    .withValue("busId", identifiable.getId())
+                    .withValue("voltageLevelId", voltageLevel.getId())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
+            if (throwException) {
+                throw new PowsyblException(identifiable.getId() + " is a bus. Voltage level " + voltageLevel.getId() + " should be BUS_BREAKER.");
             }
             return false;
-        }
-        TopologyKind topologyKind = voltageLevel.getTopologyKind();
-        if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
-            if (bbs == null) {
-                logger.error("Bus bar section {} not found", bbsOrBusId);
-                notFoundBusbarSectionReport(reporter, bbsOrBusId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
-                }
-                return false;
-            }
-        } else if (topologyKind == TopologyKind.BUS_BREAKER) {
-            Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
-            if (bus == null) {
-                logger.error("Bus {} not found in voltage level {}", bbsOrBusId, voltageLevelId);
-                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevelId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
-                }
-                return false;
-            }
-        } else {
-            throw new AssertionError();
         }
         return true;
     }

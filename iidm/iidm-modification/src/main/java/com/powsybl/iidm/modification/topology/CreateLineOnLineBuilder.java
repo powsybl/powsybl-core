@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.LineAdder;
  */
 public class CreateLineOnLineBuilder {
 
-    private String voltageLevelId = null;
     private String bbsOrBusId = null;
 
     private Line line = null;
@@ -35,18 +34,13 @@ public class CreateLineOnLineBuilder {
     private String line2Name = null;
 
     public CreateLineOnLine build() {
-        return new CreateLineOnLine(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, fictitiousVlName,
+        return new CreateLineOnLine(percent, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
                 line1Id, line1Name, line2Id, line2Name, line, lineAdder);
     }
 
     public CreateLineOnLineBuilder withPercent(double percent) {
         this.percent = percent;
-        return this;
-    }
-
-    public CreateLineOnLineBuilder withVoltageLevelId(String voltageLevelId) {
-        this.voltageLevelId = voltageLevelId;
         return this;
     }
 
