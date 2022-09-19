@@ -525,7 +525,7 @@ public final class TopologyModificationUtils {
     static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), baseId, voltageLevel.getNodeBreakerView(), true);
+            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode) + String.valueOf(forkNode), baseId, voltageLevel.getNodeBreakerView(), true);
         });
     }
 

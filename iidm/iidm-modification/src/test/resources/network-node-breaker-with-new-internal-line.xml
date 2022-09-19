@@ -41,10 +41,10 @@
                 <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="34" node2="35"/>
                 <iidm:switch id="lineTest1_BREAKER" kind="BREAKER" retained="true" open="false" node1="36" node2="38"/>
                 <iidm:switch id="lineTest1_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="38" node2="1"/>
-                <iidm:switch id="lineTest1_DISCONNECTOR3" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="3"/>
+                <iidm:switch id="lineTest1_DISCONNECTOR338" kind="DISCONNECTOR" retained="false" open="true" node1="38" node2="3"/>
                 <iidm:switch id="lineTest2_BREAKER" kind="BREAKER" retained="true" open="false" node1="37" node2="39"/>
                 <iidm:switch id="lineTest2_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="39" node2="0"/>
-                <iidm:switch id="lineTest2_DISCONNECTOR2" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="2"/>
+                <iidm:switch id="lineTest2_DISCONNECTOR239" kind="DISCONNECTOR" retained="false" open="true" node1="39" node2="2"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>

@@ -69,4 +69,28 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
 
     }
 
+    @Test
+    public void createCouplingDeviceWithoutPositionExtensions() throws IOException {
+        Network network = Importers.loadNetwork("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        NetworkModification modification = new CreateCouplingDeviceBuilder()
+                .withBusbarSectionId1("bbs1")
+                .withBusbarSectionId2("bbs2")
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/testNetworkNodeBreakerWithCouplingDeviceWithoutExtensions.xml");
+    }
+
+    @Test
+    public void createCouplingDevice3BusbarSections() throws IOException {
+        Network network = Importers.loadNetwork("testNetwork3BusbarSections.xiidm", getClass().getResourceAsStream("/testNetwork3BusbarSections.xiidm"));
+        NetworkModification modification = new CreateCouplingDeviceBuilder()
+                .withBusbarSectionId1("VLTEST13")
+                .withBusbarSectionId2("VLTEST23")
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/testNetwork3BusbarSectionsWithCouplingDevice.xiidm");
+    }
+
 }
