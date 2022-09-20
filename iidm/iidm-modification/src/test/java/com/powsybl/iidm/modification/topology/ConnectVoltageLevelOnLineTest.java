@@ -11,8 +11,10 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -140,5 +142,22 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
                 .build();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
         assertEquals("Identifiable NOT_EXISTING not found", exception3.getMessage());
+    }
+
+    @Test
+    public void testIgnore() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        NetworkModification modification1 = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId("NOT_EXISTING")
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
+        modification1.apply(network);
+        NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId("LOAD")
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
+        modification2.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/eurostag-tutorial-example1.xml");
     }
 }
