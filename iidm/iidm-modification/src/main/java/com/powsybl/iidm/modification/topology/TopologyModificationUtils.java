@@ -8,9 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -107,52 +105,6 @@ public final class TopologyModificationUtils {
 
         private double getValue() {
             return value;
-        }
-    }
-
-    static double checkPercent(double percent) {
-        if (Double.isNaN(percent)) {
-            throw new PowsyblException("Percent should not be undefined");
-        }
-        return percent;
-    }
-
-    static Identifiable<?> checkIdentifiable(String id, Network network, boolean throwException, Reporter reporter, Logger logger) {
-        Identifiable<?> identifiable = network.getIdentifiable(id);
-        if (identifiable == null) {
-            logger.error("Identifiable {} not found", id);
-            reporter.report(Report.builder()
-                    .withKey("notFoundIdentifiable")
-                    .withDefaultMessage("Identifiable ${identifiableId} not found")
-                    .withValue("identifiableId", id)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
-            if (throwException) {
-                throw new PowsyblException("Identifiable " + id + " not found");
-            }
-        }
-        return identifiable;
-    }
-
-    static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, Reporter reporter, Logger logger) {
-        if (identifiable instanceof Bus) {
-            Bus bus = (Bus) identifiable;
-            return bus.getVoltageLevel();
-        } else if (identifiable instanceof BusbarSection) {
-            BusbarSection bbs = (BusbarSection) identifiable;
-            return bbs.getTerminal().getVoltageLevel();
-        } else {
-            logger.error("Identifiable {} is not a bus or a busbar section", identifiable.getId());
-            reporter.report(Report.builder()
-                    .withKey("unexpectedIdentifiableType")
-                    .withDefaultMessage("Identifiable ${identifiableId} is not a bus or a busbar section")
-                    .withValue("identifiableId", identifiable.getId())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
-            if (throwException) {
-                throw new PowsyblException("Identifiable " + identifiable.getId() + " is not a bus or a busbar section");
-            }
-            return null;
         }
     }
 

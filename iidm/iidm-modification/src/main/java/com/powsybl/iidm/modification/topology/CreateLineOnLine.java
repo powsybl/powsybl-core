@@ -11,7 +11,6 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,16 +27,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateLineOnLine extends AbstractNetworkModification {
+public class CreateLineOnLine extends AbstractLineConnectionModification<CreateLineOnLine> {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateLineOnLine.class);
 
-    private final String bbsOrBusId;
-
-    private final Line line;
     private final LineAdder lineAdder;
-
-    private double percent;
 
     private String fictitiousVlId;
     private String fictitiousVlName;
@@ -46,15 +40,10 @@ public class CreateLineOnLine extends AbstractNetworkModification {
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
 
-    private String line1Id;
-    private String line1Name;
-    private String line2Id;
-    private String line2Name;
-
     /**
      * Constructor.
      *
-     * @param percent                  When the existing line is cut, percent is equal to the ratio between the parameters of the first line
+     * @param positionPercent                  When the existing line is cut, percent is equal to the ratio between the parameters of the first line
      *                                 and the parameters of the line that is cut multiplied by 100. 100 minus percent is equal to the ratio
      *                                 between the parameters of the second line and the parameters of the line that is cut multiplied by 100.
      * @param bbsOrBusId               The ID of the existing bus or bus bar section of the voltage level voltageLevelId where we want to connect the line
@@ -75,21 +64,15 @@ public class CreateLineOnLine extends AbstractNetworkModification {
      *
      * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
-    public CreateLineOnLine(double percent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
+    public CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                             boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                             String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
-        this.percent = checkPercent(percent);
-        this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
+        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
         this.createFictSubstation = createFictSubstation;
         this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
         this.fictitiousSubstationName = fictitiousSubstationName;
-        this.line1Id = Objects.requireNonNull(line1Id);
-        this.line1Name = line1Name;
-        this.line2Id = Objects.requireNonNull(line2Id);
-        this.line2Name = line2Name;
-        this.line = Objects.requireNonNull(line);
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
@@ -98,11 +81,6 @@ public class CreateLineOnLine extends AbstractNetworkModification {
             throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
         }
         return fictitiousSubstationId;
-    }
-
-    public CreateLineOnLine setPercent(double percent) {
-        this.percent = checkPercent(percent);
-        return this;
     }
 
     public CreateLineOnLine setFictitiousVlId(String fictitiousVlId) {
@@ -131,36 +109,11 @@ public class CreateLineOnLine extends AbstractNetworkModification {
         return this;
     }
 
-    public CreateLineOnLine setLine1Id(String line1Id) {
-        this.line1Id = Objects.requireNonNull(line1Id);
-        return this;
-    }
-
-    public CreateLineOnLine setLine1Name(String line1Name) {
-        this.line1Name = line1Name;
-        return this;
-    }
-
-    public CreateLineOnLine setLine2Id(String line2Id) {
-        this.line2Id = Objects.requireNonNull(line2Id);
-        return this;
-    }
-
-    public CreateLineOnLine setLine2Name(String line2Name) {
-        this.line2Name = line2Name;
-        return this;
-    }
-
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
-        Identifiable<?> identifiable = checkIdentifiable(bbsOrBusId, network, throwException, reporter, LOG);
-        if (identifiable == null) {
-            return;
-        }
-        VoltageLevel voltageLevel = getVoltageLevel(identifiable, throwException, reporter, LOG);
-        if (voltageLevel == null) {
+        if (failChecks(network, throwException, reporter, LOG)) {
             return;
         }
 
@@ -189,8 +142,8 @@ public class CreateLineOnLine extends AbstractNetworkModification {
         }
 
         // Create the two lines replacing the existing line
-        LineAdder adder1 = createLineAdder(percent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), fictitiousVlId, network, line);
-        LineAdder adder2 = createLineAdder(100 - percent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
+        LineAdder adder1 = createLineAdder(positionPercent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), fictitiousVlId, network, line);
+        LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, fictitiousVlId, line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
         LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
@@ -264,20 +217,8 @@ public class CreateLineOnLine extends AbstractNetworkModification {
                 .build());
     }
 
-    public String getBbsOrBusId() {
-        return bbsOrBusId;
-    }
-
-    public Line getLine() {
-        return line;
-    }
-
     public LineAdder getLineAdder() {
         return lineAdder;
-    }
-
-    public double getPercent() {
-        return percent;
     }
 
     public String getFictitiousVlId() {
@@ -298,21 +239,5 @@ public class CreateLineOnLine extends AbstractNetworkModification {
 
     public String getFictitiousSubstationName() {
         return fictitiousSubstationName;
-    }
-
-    public String getLine1Id() {
-        return line1Id;
-    }
-
-    public String getLine1Name() {
-        return line1Name;
-    }
-
-    public String getLine2Id() {
-        return line2Id;
-    }
-
-    public String getLine2Name() {
-        return line2Name;
     }
 }

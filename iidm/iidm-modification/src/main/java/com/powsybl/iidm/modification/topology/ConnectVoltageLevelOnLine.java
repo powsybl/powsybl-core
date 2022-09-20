@@ -10,12 +10,9 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
@@ -26,20 +23,9 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
+public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModification<ConnectVoltageLevelOnLine> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectVoltageLevelOnLine.class);
-
-    private final String bbsOrBusId;
-
-    private final Line line;
-
-    private double positionPercent;
-
-    private String line1Id;
-    private String line1Name;
-    private String line2Id;
-    private String line2Name;
 
     /**
      * Constructor.
@@ -58,50 +44,14 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
                               String line2Id, String line2Name, Line line) {
-        this.positionPercent = checkPercent(positionPercent);
-        this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
-        this.line1Id = Objects.requireNonNull(line1Id);
-        this.line1Name = line1Name;
-        this.line2Id = Objects.requireNonNull(line2Id);
-        this.line2Name = line2Name;
-        this.line = Objects.requireNonNull(line);
-    }
-
-    public ConnectVoltageLevelOnLine setPositionPercent(double positionPercent) {
-        this.positionPercent = checkPercent(positionPercent);
-        return this;
-    }
-
-    public ConnectVoltageLevelOnLine setLine1Id(String line1Id) {
-        this.line1Id = Objects.requireNonNull(line1Id);
-        return this;
-    }
-
-    public ConnectVoltageLevelOnLine setLine1Name(String line1Name) {
-        this.line1Name = line1Name;
-        return this;
-    }
-
-    public ConnectVoltageLevelOnLine setLine2Id(String line2Id) {
-        this.line2Id = Objects.requireNonNull(line2Id);
-        return this;
-    }
-
-    public ConnectVoltageLevelOnLine setLine2Name(String line2Name) {
-        this.line2Name = line2Name;
-        return this;
+        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
     }
 
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
-        Identifiable<?> identifiable = checkIdentifiable(bbsOrBusId, network, throwException, reporter, LOG);
-        if (identifiable == null) {
-            return;
-        }
-        VoltageLevel voltageLevel = getVoltageLevel(identifiable, throwException, reporter, LOG);
-        if (voltageLevel == null) {
+        if (failChecks(network, throwException, reporter, LOG)) {
             return;
         }
 
@@ -159,33 +109,5 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
                 .withValue("originalLineId", originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
-    }
-
-    public String getBbsOrBusId() {
-        return bbsOrBusId;
-    }
-
-    public Line getLine() {
-        return line;
-    }
-
-    public double getPositionPercent() {
-        return positionPercent;
-    }
-
-    public String getLine1Id() {
-        return line1Id;
-    }
-
-    public String getLine1Name() {
-        return line1Name;
-    }
-
-    public String getLine2Id() {
-        return line2Id;
-    }
-
-    public String getLine2Name() {
-        return line2Name;
     }
 }

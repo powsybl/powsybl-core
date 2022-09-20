@@ -67,7 +67,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
         CreateLineOnLine modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
-        modification.setPercent(40.0)
+        modification.setPositionPercent(40.0)
                 .setFictitiousVlId("FICT_VL")
                 .setFictitiousVlName("FICT")
                 .setCreateFictSubstation(true)
@@ -77,7 +77,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
                 .setLine1Name("A")
                 .setLine2Id(line.getId() + "_B")
                 .setLine2Name("B");
-        assertEquals(40, modification.getPercent(), 0.0);
+        assertEquals(40, modification.getPositionPercent(), 0.0);
         assertEquals("FICT_VL", modification.getFictitiousVlId());
         assertEquals("FICT", modification.getFictitiousVlName());
         assertTrue(modification.isCreateFictSubstation());
@@ -98,7 +98,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(line)
                 .withLineAdder(adder)
-                .withPercent(40)
+                .withPositionPercent(40)
                 .withFictitiousVoltageLevelId("FICTVL")
                 .withFictitiousVoltageLevelName("FICTITIOUSVL")
                 .withCreateFictitiousSubstation(true)
