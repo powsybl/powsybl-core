@@ -34,7 +34,7 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
 
     private final Line line;
 
-    private double percent;
+    private double positionPercent;
 
     private String line1Id;
     private String line1Name;
@@ -44,7 +44,7 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
     /**
      * Constructor.
      *
-     * @param percent        When the existing line is cut, percent is equal to the ratio between the parameters of the first line
+     * @param positionPercent        When the existing line is cut, percent is equal to the ratio between the parameters of the first line
      *                       and the parameters of the line that is cut multiplied by 100. 100 minus percent is equal to the ratio
      *                       between the parameters of the second line and the parameters of the line that is cut multiplied by 100.
      * @param bbsOrBusId     The ID of the configured bus or bus bar section to which the lines will be linked to at the attachment point.
@@ -56,9 +56,9 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
      *
      * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
-    ConnectVoltageLevelOnLine(double percent, String bbsOrBusId, String line1Id, String line1Name,
-                                     String line2Id, String line2Name, Line line) {
-        this.percent = checkPercent(percent);
+    ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
+                              String line2Id, String line2Name, Line line) {
+        this.positionPercent = checkPercent(positionPercent);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line1Name = line1Name;
@@ -67,8 +67,8 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         this.line = Objects.requireNonNull(line);
     }
 
-    public ConnectVoltageLevelOnLine setPercent(double percent) {
-        this.percent = checkPercent(percent);
+    public ConnectVoltageLevelOnLine setPositionPercent(double positionPercent) {
+        this.positionPercent = checkPercent(positionPercent);
         return this;
     }
 
@@ -106,8 +106,8 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         }
 
         // Set parameters of the two lines replacing the existing line
-        LineAdder adder1 = createLineAdder(percent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), voltageLevel.getId(), network, line);
-        LineAdder adder2 = createLineAdder(100 - percent, line2Id, line2Name, voltageLevel.getId(), line.getTerminal2().getVoltageLevel().getId(), network, line);
+        LineAdder adder1 = createLineAdder(positionPercent, line1Id, line1Name, line.getTerminal1().getVoltageLevel().getId(), voltageLevel.getId(), network, line);
+        LineAdder adder2 = createLineAdder(100 - positionPercent, line2Id, line2Name, voltageLevel.getId(), line.getTerminal2().getVoltageLevel().getId(), network, line);
         attachLine(line.getTerminal1(), adder1, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(line.getTerminal2(), adder2, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
         LoadingLimitsBags limits1 = new LoadingLimitsBags(line::getActivePowerLimits1, line::getApparentPowerLimits1, line::getCurrentLimits1);
@@ -169,8 +169,8 @@ public class ConnectVoltageLevelOnLine extends AbstractNetworkModification {
         return line;
     }
 
-    public double getPercent() {
-        return percent;
+    public double getPositionPercent() {
+        return positionPercent;
     }
 
     public String getLine1Id() {

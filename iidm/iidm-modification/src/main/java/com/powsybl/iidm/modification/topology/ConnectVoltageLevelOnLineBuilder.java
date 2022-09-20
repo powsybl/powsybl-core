@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Line;
  */
 public class ConnectVoltageLevelOnLineBuilder {
 
-    private double percent = 50;
+    private double positionPercent = 50;
 
     private String bbsOrBusId = null;
 
@@ -25,12 +25,12 @@ public class ConnectVoltageLevelOnLineBuilder {
     private Line line = null;
 
     public ConnectVoltageLevelOnLine build() {
-        return new ConnectVoltageLevelOnLine(percent, bbsOrBusId, line1Id, line1Name,
+        return new ConnectVoltageLevelOnLine(positionPercent, bbsOrBusId, line1Id, line1Name,
                 line2Id, line2Name, line);
     }
 
-    public ConnectVoltageLevelOnLineBuilder withPercent(double percent) {
-        this.percent = percent;
+    public ConnectVoltageLevelOnLineBuilder withPositionPercent(double positionPercent) {
+        this.positionPercent = positionPercent;
         return this;
     }
 

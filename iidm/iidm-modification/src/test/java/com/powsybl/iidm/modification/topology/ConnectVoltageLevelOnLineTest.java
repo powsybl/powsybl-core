@@ -68,7 +68,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
         Line line = network.getLine("NHV1_NHV2_1");
         ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).build();
         assertEquals(BBS, modification.getBbsOrBusId());
-        assertEquals(50, modification.getPercent(), 0.0);
+        assertEquals(50, modification.getPositionPercent(), 0.0);
         assertSame(line, modification.getLine());
         assertEquals(line.getId() + "_1", modification.getLine1Id());
         assertNull(modification.getLine1Name());
@@ -81,12 +81,12 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).build();
-        modification.setPercent(40.0)
+        modification.setPositionPercent(40.0)
                 .setLine1Id(line.getId() + "_A")
                 .setLine1Name("A")
                 .setLine2Id(line.getId() + "_B")
                 .setLine2Name("B");
-        assertEquals(40, modification.getPercent(), 0.0);
+        assertEquals(40, modification.getPositionPercent(), 0.0);
         assertEquals(line.getId() + "_A", modification.getLine1Id());
         assertEquals("A", modification.getLine1Name());
         assertEquals(line.getId() + "_B", modification.getLine2Id());
@@ -97,7 +97,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
     public void testCompleteBuilder() throws IOException {
         Network network = createNbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
-                .withPercent(40)
+                .withPositionPercent(40)
                 .withBusbarSectionOrBusId(BBS)
                 .withLine1Id("FICT1L")
                 .withLine1Name("FICT1LName")
