@@ -52,7 +52,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
         Network network = createNbNetwork();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine("VLTEST", BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
         // create additional line to test bad configuration
@@ -142,7 +142,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
@@ -163,7 +163,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
         NetworkModification modificationWithError = new ReplaceTeePointByVoltageLevelOnLineBuilder()
