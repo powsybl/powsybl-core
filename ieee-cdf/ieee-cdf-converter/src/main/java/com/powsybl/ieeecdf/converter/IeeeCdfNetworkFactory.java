@@ -190,7 +190,7 @@ public final class IeeeCdfNetworkFactory {
         if (meshed) {
             parseLines(model, settings, name + "-mesh.csv");
         }
-        return new IeeeCdfImporter().createNetwork(model, networkFactory, name, false);
+        return new IeeeCdfImporter().convert(model, networkFactory, name, false);
     }
 
     public static Network create33(NetworkFactory networkFactory, boolean meshed) {
@@ -216,5 +216,4 @@ public final class IeeeCdfNetworkFactory {
     public static Network create69() {
         return create69(false);
     }
-
 }

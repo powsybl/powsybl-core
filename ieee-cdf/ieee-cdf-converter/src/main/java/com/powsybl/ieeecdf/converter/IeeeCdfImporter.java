@@ -489,13 +489,13 @@ public class IeeeCdfImporter implements Importer {
             boolean ignoreBaseVoltage = Parameter.readBoolean(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                 ParameterDefaultValueConfig.INSTANCE);
 
-            return createNetwork(ieeeCdfModel, networkFactory, dataSource.getBaseName(), ignoreBaseVoltage);
+            return convert(ieeeCdfModel, networkFactory, dataSource.getBaseName(), ignoreBaseVoltage);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    Network createNetwork(IeeeCdfModel ieeeCdfModel, NetworkFactory networkFactory, String networkId, boolean ignoreBaseVoltage) {
+    Network convert(IeeeCdfModel ieeeCdfModel, NetworkFactory networkFactory, String networkId, boolean ignoreBaseVoltage) {
         PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
 
         Network network = networkFactory.createNetwork(networkId, FORMAT);
