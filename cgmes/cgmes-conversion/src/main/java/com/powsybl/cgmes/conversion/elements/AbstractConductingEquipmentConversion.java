@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -397,17 +398,19 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     protected VoltageLevel voltageLevel() {
         if (terminals[0].iidmVoltageLevelId != null) {
             return context.network().getVoltageLevel(terminals[0].iidmVoltageLevelId);
-        } else {
+        } else if (terminals[0].voltageLevel != null) {
             return terminals[0].voltageLevel;
         }
+        throw new CgmesModelException(type + " " + id + " has no container");
     }
 
     VoltageLevel voltageLevel(int n) {
         if (terminals[n - 1].iidmVoltageLevelId != null) {
             return context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId);
-        } else {
+        } else if (terminals[n - 1].voltageLevel != null) {
             return terminals[n - 1].voltageLevel;
         }
+        throw new CgmesModelException("Side " + n + " of " + type + " " + id + " has no container");
     }
 
     protected Optional<Substation> substation() {
