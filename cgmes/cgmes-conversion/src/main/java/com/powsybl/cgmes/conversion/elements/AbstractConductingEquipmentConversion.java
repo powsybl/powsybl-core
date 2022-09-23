@@ -136,7 +136,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 missing(nodeIdPropertyName() + k);
                 return false;
             }
-            if (voltageLevel(k) == null) {
+            if (voltageLevel(k).isEmpty()) {
                 missing(String.format("VoltageLevel of terminal %d %s (iidm %s)",
                     k,
                     cgmesVoltageLevelId(k),
@@ -186,7 +186,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected boolean isBoundary(int n) {
-        return voltageLevel(n) == null || context.boundary().containsNode(nodeId(n));
+        return voltageLevel(n).isEmpty() || context.boundary().containsNode(nodeId(n));
     }
 
     public void convertToDanglingLine(int boundarySide) {
@@ -221,13 +221,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             missing("Equipment for modeling consumption/injection at boundary node");
         }
 
-        DanglingLineAdder dlAdder = voltageLevel(modelSide).newDanglingLine()
-            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-            .setR(r)
-            .setX(x)
-            .setG(gch)
-            .setB(bch)
-            .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+        DanglingLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newDanglingLine()
+                        .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                        .setR(r)
+                        .setX(x)
+                        .setG(gch)
+                        .setB(bch)
+                        .setUcteXnodeCode(findUcteXnodeCode(boundaryNode)))
+                .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);
         EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(
@@ -404,13 +405,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         throw new CgmesModelException(type + " " + id + " has no container");
     }
 
-    VoltageLevel voltageLevel(int n) {
+    Optional<VoltageLevel> voltageLevel(int n) {
         if (terminals[n - 1].iidmVoltageLevelId != null) {
-            return context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId);
+            return Optional.ofNullable(context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId));
         } else if (terminals[n - 1].voltageLevel != null) {
-            return terminals[n - 1].voltageLevel;
+            return Optional.of(terminals[n - 1].voltageLevel);
         }
-        throw new CgmesModelException("Side " + n + " of " + type + " " + id + " has no container");
+        return Optional.empty();
     }
 
     protected Optional<Substation> substation() {
