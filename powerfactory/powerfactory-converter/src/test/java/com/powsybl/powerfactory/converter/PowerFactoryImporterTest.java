@@ -217,6 +217,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void commonImpedanceWithDifferentNominal() {
+        assertTrue(importAndCompareXiidm("CommonImpedanceWithDifferentNominal"));
+    }
+
+    @Test
     public void twoBusesGeneratorAndShuntRL() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRL"));
     }

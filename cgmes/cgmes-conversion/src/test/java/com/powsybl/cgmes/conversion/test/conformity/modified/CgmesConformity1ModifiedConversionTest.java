@@ -931,6 +931,17 @@ public class CgmesConformity1ModifiedConversionTest {
         checkTerminals(cgmesSeq.dcLineSegments(), cgmesNoSeq.dcLineSegments(), "DCLineSegment", "DCTerminal1", "DCTerminal2");
     }
 
+    @Test
+    public void microGridBaseBEStationSupply() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBEStationSupply().dataSource(), null);
+        Load l = network.getLoad("b1480a00-b427-4001-a26c-51954d2bb7e9_station_supply");
+        System.err.println(network.getExtension(CgmesModelExtension.class).getCgmesModel().energyConsumers().tabulateLocals());
+        assertNotNull(l);
+        assertEquals(6.5, l.getP0(), 1e-3);
+        assertEquals(0.001, l.getQ0(), 1e-3);
+        assertEquals(LoadType.AUXILIARY, l.getLoadType());
+    }
+
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {
         Map<String, String> eqsSeqTerminal1 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal1PropertyName)));
         Map<String, String> eqsSeqTerminal2 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal2PropertyName)));
