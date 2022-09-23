@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -51,16 +50,16 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static double readTargetDeadband(NetworkXmlReaderContext context) {
         double[] targetDeadband = new double[1];
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            targetDeadband[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), TARGET_DEADBAND);
+            targetDeadband[0] = context.getReader().readDoubleAttribute(TARGET_DEADBAND);
             // in IIDM-XML version 1.0, NaN as targetDeadband when regulating is allowed.
             // in IIDM-XML version 1.1 and more recent, it is forbidden and throws an exception
             // to prevent issues, targetDeadband is set to 0 in this case
-            if (Boolean.parseBoolean(context.getReader().getAttributeValue(null, ATTR_REGULATING)) && Double.isNaN(targetDeadband[0])) {
+            if (context.getReader().readBooleanAttribute(ATTR_REGULATING) && Double.isNaN(targetDeadband[0])) {
                 targetDeadband[0] = 0;
             }
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2,
-                context, () -> targetDeadband[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), TARGET_DEADBAND));
+                context, () -> targetDeadband[0] = context.getReader().readDoubleAttribute(TARGET_DEADBAND));
         return targetDeadband[0];
     }
 
@@ -73,7 +72,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), name);
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
         writeTapChanger(rtc, context);
         context.getWriter().writeStringAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
@@ -85,26 +84,32 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
+            context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
             writeTapChangerStep(rtcs, context.getWriter());
         }
-        context.getWriter().writeEndElement();
+        context.getWriter().writeEndNode();
     }
 
     protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) throws XMLStreamException {
-        int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_LOW_TAP_POSITION);
+        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context);
-        boolean loadTapChangingCapabilities = XmlUtil.readBoolAttribute(context.getReader(), "loadTapChangingCapabilities");
-        double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
+        boolean loadTapChangingCapabilities = context.getReader().readBooleanAttribute("loadTapChangingCapabilities");
+        double targetV = context.getReader().readDoubleAttribute("targetV");
         adder.setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
                 .setTargetV(targetV);
-        XmlUtil.consumeOptionalIntAttribute(context.getReader(), ATTR_TAP_POSITION, adder::setTapPosition);
-        XmlUtil.consumeOptionalBoolAttribute(context.getReader(), ATTR_REGULATING, adder::setRegulating);
+        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
+        if (tapPosition != null) {
+            adder.setTapPosition(tapPosition);
+        }
+        Boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING);
+        if (regulating != null) {
+            adder.setRegulating(regulating);
+        }
         boolean[] hasTerminalRef = new boolean[1];
-        XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(elementName, () -> {
+            switch (context.getReader().getNodeName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
@@ -140,7 +145,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), name);
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
         writeTapChanger(ptc, context);
         context.getWriter().writeEnumAttribute("regulationMode", ptc.getRegulationMode());
         if ((ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP) || !Double.isNaN(ptc.getRegulationValue())) {
@@ -154,28 +159,34 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         }
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
+            context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
             writeTapChangerStep(ptcs, context.getWriter());
             context.getWriter().writeDoubleAttribute("alpha", ptcs.getAlpha());
         }
-        context.getWriter().writeEndElement();
+        context.getWriter().writeEndNode();
     }
 
     protected static void readPhaseTapChanger(String name, PhaseTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) throws XMLStreamException {
-        int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_LOW_TAP_POSITION);
+        int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context);
-        PhaseTapChanger.RegulationMode regulationMode = XmlUtil.readOptionalEnum(context.getReader(), "regulationMode", PhaseTapChanger.RegulationMode.class);
-        double regulationValue = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "regulationValue");
+        PhaseTapChanger.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", PhaseTapChanger.RegulationMode.class);
+        double regulationValue = context.getReader().readDoubleAttribute("regulationValue");
         adder
                 .setLowTapPosition(lowTapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setRegulationMode(regulationMode)
                 .setRegulationValue(regulationValue);
-        XmlUtil.consumeOptionalIntAttribute(context.getReader(), ATTR_TAP_POSITION, adder::setTapPosition);
-        XmlUtil.consumeOptionalBoolAttribute(context.getReader(), ATTR_REGULATING, adder::setRegulating);
+        Integer tapPosition = context.getReader().readIntAttribute(ATTR_TAP_POSITION);
+        if (tapPosition != null) {
+            adder.setTapPosition(tapPosition);
+        }
+        Boolean regulating = context.getReader().readBooleanAttribute(ATTR_REGULATING);
+        if (regulating != null) {
+            adder.setRegulating(regulating);
+        }
         boolean[] hasTerminalRef = new boolean[1];
-        XmlUtil.readUntilEndElement(name, context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(name, () -> {
+            switch (context.getReader().getNodeName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
                         adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
@@ -190,7 +201,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                             .setG(g)
                             .setB(b)
                             .setRho(rho));
-                    double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
+                    double alpha = context.getReader().readDoubleAttribute("alpha");
                     stepAdder.setAlpha(alpha)
                             .endStep();
                     break;
@@ -213,18 +224,18 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     private static void readTerminalRef(NetworkXmlReaderContext context, boolean[] hasTerminalRef, BiConsumer<String, String > consumer) {
-        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-        String side = context.getReader().getAttributeValue(null, "side");
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
+        String side = context.getReader().readStringAttribute("side");
         context.getEndTasks().add(() -> consumer.accept(id, side));
         hasTerminalRef[0] = true;
     }
 
     private static void readSteps(NetworkXmlReaderContext context, StepConsumer consumer) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
-        double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
+        double r = context.getReader().readDoubleAttribute("r");
+        double x = context.getReader().readDoubleAttribute("x");
+        double g = context.getReader().readDoubleAttribute("g");
+        double b = context.getReader().readDoubleAttribute("b");
+        double rho = context.getReader().readDoubleAttribute("rho");
         consumer.accept(r, x, g, b, rho);
     }
 
@@ -235,7 +246,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
      * @param consumer the method will used apparent power value read
      */
     protected static void readRatedS(String name, NetworkXmlReaderContext context, DoubleConsumer consumer) {
-        double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), name);
+        double ratedS = context.getReader().readDoubleAttribute(name);
         consumer.accept(ratedS);
     }
 

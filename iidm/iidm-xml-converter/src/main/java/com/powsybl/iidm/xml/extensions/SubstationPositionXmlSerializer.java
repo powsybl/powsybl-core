@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.Coordinate;
@@ -32,7 +31,7 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
 
     @Override
     public void write(SubstationPosition substationPosition, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(getNamespaceUri(), "coordinate");
+        context.getWriter().writeEmptyNode(getNamespaceUri(), "coordinate");
         context.getWriter().writeDoubleAttribute("longitude", substationPosition.getCoordinate().getLongitude());
         context.getWriter().writeDoubleAttribute("latitude", substationPosition.getCoordinate().getLatitude());
     }
@@ -40,9 +39,9 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
     @Override
     public SubstationPosition read(Substation substation, XmlReaderContext context) throws XMLStreamException {
         Coordinate[] coordinate = new Coordinate[1];
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
-            double longitude = XmlUtil.readDoubleAttribute(context.getReader(), "longitude");
-            double latitude = XmlUtil.readDoubleAttribute(context.getReader(), "latitude");
+        context.getReader().readUntilEndNode(getExtensionName(), () -> {
+            double longitude = context.getReader().readDoubleAttribute("longitude");
+            double latitude = context.getReader().readDoubleAttribute("latitude");
             coordinate[0] = new Coordinate(latitude, longitude);
         });
         return substation.newExtension(SubstationPositionAdder.class)

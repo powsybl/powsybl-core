@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.BranchStatus;
@@ -32,12 +31,12 @@ public class BranchStatusXmlSerializer<C extends Connectable<C>> extends Abstrac
 
     @Override
     public void write(BranchStatus<C> branchStatus, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeElementContent(branchStatus.getStatus().name());
+        context.getWriter().writeNodeContent(branchStatus.getStatus().name());
     }
 
     @Override
     public BranchStatus<C> read(C connectable, XmlReaderContext context) throws XMLStreamException {
-        BranchStatus.Status status = BranchStatus.Status.valueOf(XmlUtil.readText("branchStatus", context.getReader()));
+        BranchStatus.Status status = BranchStatus.Status.valueOf(context.getReader().readUntilEndNode("branchStatus", null));
         BranchStatusAdder<C> adder = connectable.newExtension(BranchStatusAdder.class);
         return adder.withStatus(status)
                 .add();

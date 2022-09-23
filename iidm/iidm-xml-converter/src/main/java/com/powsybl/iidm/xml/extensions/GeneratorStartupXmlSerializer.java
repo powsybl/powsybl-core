@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorStartup;
@@ -103,19 +102,19 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         switch (extensionVersionStr) {
             case ITESLA_1_0:
             case V_1_0:
-                plannedActivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "predefinedActivePowerSetpoint");
-                startUpCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "startUpCost");
+                plannedActivePowerSetpoint = context.getReader().readDoubleAttribute("predefinedActivePowerSetpoint");
+                startUpCost = context.getReader().readDoubleAttribute("startUpCost");
                 break;
             case V_1_1:
-                plannedActivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedActivePowerSetpoint");
-                startUpCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "startupCost");
+                plannedActivePowerSetpoint = context.getReader().readDoubleAttribute("plannedActivePowerSetpoint");
+                startUpCost = context.getReader().readDoubleAttribute("startupCost");
                 break;
             default:
                 throw new PowsyblException("Unsupported startup version: " + extensionVersionStr);
         }
-        double marginalCost = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "marginalCost");
-        double plannedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "plannedOutageRate");
-        double forcedOutageRate = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "forcedOutageRate");
+        double marginalCost = context.getReader().readDoubleAttribute("marginalCost");
+        double plannedOutageRate = context.getReader().readDoubleAttribute("plannedOutageRate");
+        double forcedOutageRate = context.getReader().readDoubleAttribute("forcedOutageRate");
         return generator.newExtension(GeneratorStartupAdder.class)
                 .withPlannedActivePowerSetpoint(plannedActivePowerSetpoint)
                 .withStartupCost(startUpCost)

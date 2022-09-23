@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -57,12 +56,12 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
 
     @Override
     protected Battery readRootElementAttributes(BatteryAdder adder, NetworkXmlReaderContext context) {
-        double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(),
+        double targetP = context.getReader().readDoubleAttribute(
                 IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8));
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(),
+        double targetQ = context.getReader().readDoubleAttribute(
                 IidmXmlUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmXmlVersion.V_1_8));
-        double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
-        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
+        double minP = context.getReader().readDoubleAttribute("minP");
+        double maxP = context.getReader().readDoubleAttribute("maxP");
         readNodeOrBus(adder, context);
         Battery b = adder.setTargetP(targetP)
                 .setTargetQ(targetQ)
@@ -75,8 +74,8 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
 
     @Override
     protected void readSubElements(Battery b, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case "reactiveCapabilityCurve":
                 case "minMaxReactiveLimits":
                     ReactiveLimitsXml.INSTANCE.read(b, context);

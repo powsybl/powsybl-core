@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
@@ -21,7 +20,6 @@ import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -43,9 +41,9 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
         for (Measurement measurement : extension.getMeasurements()) {
             boolean hasProperty = !measurement.getPropertyNames().isEmpty();
             if (hasProperty) {
-                writer.writeStartElement(getNamespaceUri(), MEASUREMENT);
+                writer.writeStartNode(getNamespaceUri(), MEASUREMENT);
             } else {
-                writer.writeEmptyElement(getNamespaceUri(), MEASUREMENT);
+                writer.writeEmptyNode(getNamespaceUri(), MEASUREMENT);
             }
             if (measurement.getId() != null) {
                 writer.writeStringAttribute("id", measurement.getId());
@@ -56,12 +54,12 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
             writer.writeDoubleAttribute("standardDeviation", measurement.getStandardDeviation());
             writer.writeBooleanAttribute("valid", measurement.isValid());
             for (String name : measurement.getPropertyNames()) {
-                writer.writeEmptyElement(getNamespaceUri(), "property");
+                writer.writeEmptyNode(getNamespaceUri(), "property");
                 writer.writeStringAttribute("name", name);
                 writer.writeStringAttribute(VALUE, measurement.getProperty(name));
             }
             if (hasProperty) {
-                writer.writeEndElement();
+                writer.writeEndNode();
             }
         }
     }
@@ -70,30 +68,27 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
     public Measurements<C> read(C extendable, XmlReaderContext context) throws XMLStreamException {
         MeasurementsAdder<C> measurementsAdder = extendable.newExtension(MeasurementsAdder.class);
         Measurements<C> measurements = measurementsAdder.add();
-        XMLStreamReader reader = context.getReader();
-        XmlUtil.readUntilEndElement(getExtensionName(), reader, () -> {
-            if (reader.getLocalName().equals(MEASUREMENT)) {
+        var reader = context.getReader();
+        reader.readUntilEndNode(getExtensionName(), () -> {
+            if (reader.getNodeName().equals(MEASUREMENT)) {
                 MeasurementAdder adder = measurements.newMeasurement()
-                        .setId(reader.getAttributeValue(null, "id"))
-                        .setType(Measurement.Type.valueOf(reader.getAttributeValue(null, "type")))
-                        .setValue(XmlUtil.readOptionalDoubleAttribute(reader, VALUE))
-                        .setStandardDeviation(XmlUtil.readOptionalDoubleAttribute(reader, "standardDeviation"))
-                        .setValid(XmlUtil.readBoolAttribute(reader, "valid"));
-                String side = reader.getAttributeValue(null, "side");
-                if (side != null) {
-                    adder.setSide(Measurement.Side.valueOf(side));
-                }
-                XmlUtil.readUntilEndElement(MEASUREMENT, reader, () -> {
-                    if (reader.getLocalName().equals("property")) {
-                        adder.putProperty(reader.getAttributeValue(null, "name"),
-                                reader.getAttributeValue(null, VALUE));
+                        .setId(reader.readStringAttribute("id"))
+                        .setType(reader.readEnumAttribute("type", Measurement.Type.class))
+                        .setValue(reader.readDoubleAttribute(VALUE))
+                        .setStandardDeviation(reader.readDoubleAttribute("standardDeviation"))
+                        .setValid(reader.readBooleanAttribute("valid"))
+                        .setSide(reader.readEnumAttribute("side", Measurement.Side.class));
+                reader.readUntilEndNode(MEASUREMENT, () -> {
+                    if (reader.getNodeName().equals("property")) {
+                        adder.putProperty(reader.readStringAttribute("name"),
+                                reader.readStringAttribute(VALUE));
                     } else {
-                        throw new PowsyblException("Unexpected element: " + reader.getLocalName());
+                        throw new PowsyblException("Unexpected element: " + reader.getNodeName());
                     }
                 });
                 adder.add();
             } else {
-                throw new PowsyblException("Unexpected element: " + reader.getLocalName());
+                throw new PowsyblException("Unexpected element: " + reader.getNodeName());
             }
         });
         return measurements;

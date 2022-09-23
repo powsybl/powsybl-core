@@ -7,14 +7,12 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlReader;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -90,9 +88,9 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static void readNodeOrBus(InjectionAdder adder, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS));
+        Integer node = context.getReader().readIntAttribute(NODE);
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -105,14 +103,14 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static void readNodeOrBus(BranchAdder adder, NetworkXmlReaderContext context) {
-        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
-        String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
-        Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");
-        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId1"));
-        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
-        String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus2"));
-        Integer node2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node2");
-        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId2"));
+        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus1"));
+        String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus1"));
+        Integer node1 = context.getReader().readIntAttribute("node1");
+        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId1"));
+        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus2"));
+        String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("connectableBus2"));
+        Integer node2 = context.getReader().readIntAttribute("node2");
+        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId2"));
         if (bus1 != null) {
             adder.setBus1(bus1);
         }
@@ -136,10 +134,10 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static void readNodeOrBus(int index, LegAdder adder, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + index));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + index));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + index);
-        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + index));
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(BUS + index));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(CONNECTABLE_BUS + index));
+        Integer node = context.getReader().readIntAttribute(NODE + index);
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("voltageLevelId" + index));
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -179,8 +177,8 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, XmlReader reader) throws XMLStreamException {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
-        XmlUtil.readUntilEndElement(type + indexToString(index), reader, () -> {
-            if ("temporaryLimit".equals(reader.getElementName())) {
+        reader.readUntilEndNode(type + indexToString(index), () -> {
+            if ("temporaryLimit".equals(reader.getNodeName())) {
                 String name = reader.readStringAttribute("name");
                 int acceptableDuration = reader.readIntAttribute("acceptableDuration", Integer.MAX_VALUE);
                 double value = reader.readDoubleAttribute("value", Double.MAX_VALUE);
@@ -231,20 +229,20 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         if (!Double.isNaN(limits.getPermanentLimit())
                 || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEmptyElement(nsUri, type + indexToString(index));
+                writer.writeEmptyNode(nsUri, type + indexToString(index));
             } else {
-                writer.writeStartElement(nsUri, type + indexToString(index));
+                writer.writeStartNode(nsUri, type + indexToString(index));
             }
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
             for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                writer.writeEmptyElement(version.getNamespaceURI(valid), "temporaryLimit");
+                writer.writeEmptyNode(version.getNamespaceURI(valid), "temporaryLimit");
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
             }
             if (!limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEndElement();
+                writer.writeEndNode();
             }
         }
     }

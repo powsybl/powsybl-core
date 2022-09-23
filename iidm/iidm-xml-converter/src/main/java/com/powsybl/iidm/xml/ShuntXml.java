@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -82,19 +81,19 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) {
         if (sc.getModelType() == ShuntCompensatorModelType.LINEAR) {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
+            context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection());
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
             context.getWriter().writeStringAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "section");
+                    context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), "section");
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
                 }
-                context.getWriter().writeEndElement();
+                context.getWriter().writeEndNode();
             });
         } else {
             throw new PowsyblException("Unexpected shunt type " + sc.getModelType() + " for shunt " + sc.getId());
@@ -114,18 +113,18 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected void readElement(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
-            double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
-            double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
+            boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+            double targetV = context.getReader().readDoubleAttribute("targetV");
+            double targetDeadband = context.getReader().readDoubleAttribute("targetDeadband");
             adder.setTargetV(targetV)
                     .setTargetDeadband(targetDeadband)
-                    .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+                    .setVoltageRegulatorOn(voltageRegulatorOn);
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> adder.setVoltageRegulatorOn(false));
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), B_PER_SECTION);
-            int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), MAXIMUM_SECTION_COUNT);
-            int sectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
+            double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
+            int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
+            int sectionCount = context.getReader().readIntAttribute("currentSectionCount");
             adder.setSectionCount(sectionCount);
             adder.newLinearModel()
                     .setBPerSection(bPerSection)
@@ -133,40 +132,40 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     .add();
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            Integer sectionCount = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "sectionCount");
+            Integer sectionCount = context.getReader().readIntAttribute("sectionCount");
             if (sectionCount != null) {
                 adder.setSectionCount(sectionCount);
             }
         });
         readNodeOrBus(adder, context);
-        double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
-        double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
+        double p = context.getReader().readDoubleAttribute("p");
+        double q = context.getReader().readDoubleAttribute("q");
         String[] regId = new String[1];
         String[] regSide = new String[1];
         Map<String, String> properties = new HashMap<>();
         Map<String, String> aliases = new HashMap<>();
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case REGULATING_TERMINAL:
-                    regId[0] = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    regSide[0] = context.getReader().getAttributeValue(null, "side");
+                    regId[0] = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
+                    regSide[0] = context.getReader().readStringAttribute("side");
                     break;
                 case PropertiesXml.PROPERTY:
-                    String name = context.getReader().getAttributeValue(null, "name");
-                    String value = context.getReader().getAttributeValue(null, "value");
+                    String name = context.getReader().readStringAttribute("name");
+                    String value = context.getReader().readStringAttribute("value");
                     properties.put(name, value);
                     break;
                 case AliasesXml.ALIAS:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    String aliasType = context.getReader().getAttributeValue(null, "type");
-                    String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
+                    String aliasType = context.getReader().readStringAttribute("type");
+                    String alias = context.getAnonymizer().deanonymizeString(context.getReader().readContent());
                     aliases.put(alias, aliasType);
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), B_PER_SECTION);
-                    double gPerSection = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "gPerSection");
-                    int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), MAXIMUM_SECTION_COUNT);
+                    double bPerSection = context.getReader().readDoubleAttribute(B_PER_SECTION);
+                    double gPerSection = context.getReader().readDoubleAttribute("gPerSection");
+                    int maximumSectionCount = context.getReader().readIntAttribute(MAXIMUM_SECTION_COUNT);
                     adder.newLinearModel()
                             .setBPerSection(bPerSection)
                             .setGPerSection(gPerSection)
@@ -176,22 +175,22 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                 case SHUNT_NON_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
-                    XmlUtil.readUntilEndElement(SHUNT_NON_LINEAR_MODEL, context.getReader(), () -> {
-                        if ("section".equals(context.getReader().getLocalName())) {
-                            double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
-                            double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
+                    context.getReader().readUntilEndNode(SHUNT_NON_LINEAR_MODEL, () -> {
+                        if ("section".equals(context.getReader().getNodeName())) {
+                            double b = context.getReader().readDoubleAttribute("b");
+                            double g = context.getReader().readDoubleAttribute("g");
                             modelAdder.beginSection()
                                     .setB(b)
                                     .setG(g)
                                     .endSection();
                         } else {
-                            throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
+                            throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <" + id + ">");
                         }
                     });
                     modelAdder.add();
                     break;
                 default:
-                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
+                    throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <" + id + ">");
             }
         });
         ShuntCompensator sc = adder.add();

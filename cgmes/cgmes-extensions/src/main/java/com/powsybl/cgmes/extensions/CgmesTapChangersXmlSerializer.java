@@ -10,8 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
@@ -19,7 +19,6 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -38,7 +37,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XmlWriter writer = networkContext.getWriter();
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
-            writer.writeStartElement(getNamespaceUri(), "tapChanger");
+            writer.writeStartNode(getNamespaceUri(), "tapChanger");
             writer.writeStringAttribute("id", tapChanger.getId());
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
@@ -48,31 +47,31 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
                         .orElseThrow(() -> new PowsyblException("Step should be defined")));
             }
             writer.writeStringAttribute("controlId", tapChanger.getControlId());
-            writer.writeEndElement();
+            writer.writeEndNode();
         }
     }
 
     @Override
     public CgmesTapChangers<C> read(C extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        XMLStreamReader reader = networkContext.getReader();
+        XmlReader reader = networkContext.getReader();
         extendable.newExtension(CgmesTapChangersAdder.class).add();
         CgmesTapChangers<C> tapChangers = extendable.getExtension(CgmesTapChangers.class);
-        XmlUtil.readUntilEndElement(getExtensionName(), reader, () -> {
-            if (reader.getLocalName().equals("tapChanger")) {
+        reader.readUntilEndNode(getExtensionName(), () -> {
+            if (reader.getNodeName().equals("tapChanger")) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
-                        .setId(reader.getAttributeValue(null, "id"))
-                        .setCombinedTapChangerId(reader.getAttributeValue(null, "combinedTapChangerId"))
-                        .setType(reader.getAttributeValue(null, "type"))
-                        .setHiddenStatus(XmlUtil.readOptionalBoolAttribute(reader, "hidden", false))
-                        .setControlId(reader.getAttributeValue(null, "controlId"));
-                String stepStr = reader.getAttributeValue(null, "step");
-                if (stepStr != null) {
-                    adder.setStep(Integer.parseInt(stepStr));
+                        .setId(reader.readStringAttribute("id"))
+                        .setCombinedTapChangerId(reader.readStringAttribute("combinedTapChangerId"))
+                        .setType(reader.readStringAttribute("type"))
+                        .setHiddenStatus(reader.readBooleanAttribute("hidden", false))
+                        .setControlId(reader.readStringAttribute("controlId"));
+                Integer step = reader.readIntAttribute("step");
+                if (step != null) {
+                    adder.setStep(step);
                 }
                 adder.add();
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesTapChangers>");
+                throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <cgmesTapChangers>");
             }
         });
         return extendable.getExtension(CgmesTapChangers.class);

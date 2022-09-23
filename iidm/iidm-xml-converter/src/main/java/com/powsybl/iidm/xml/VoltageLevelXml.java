@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -84,7 +83,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
         IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmXmlVersion.V_1_1, context);
         for (BusbarSection bs : IidmXmlUtil.sorted(vl.getNodeBreakerView().getBusbarSections(), context.getOptions())) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
@@ -108,18 +107,18 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 double fictP0 = vl.getNodeBreakerView().getFictitiousP0(node);
                 double fictQ0 = vl.getNodeBreakerView().getFictitiousQ0(node);
                 if (fictP0 != 0.0 || fictQ0 != 0.0) {
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "inj");
+                    context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), "inj");
                     context.getWriter().writeIntAttribute("node", node);
                     context.getWriter().writeDoubleAttribute("fictitiousP0", fictP0, 0.0);
                     context.getWriter().writeDoubleAttribute("fictitiousQ0", fictQ0, 0.0);
                 }
             }
         });
-        context.getWriter().writeEndElement();
+        context.getWriter().writeEndNode();
     }
 
     private static void writeCalculatedBus(Bus bus, Set<Integer> nodes, NetworkXmlWriterContext context) {
-        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "bus");
+        context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), "bus");
         context.getWriter().writeDoubleAttribute("v", bus.getV());
         context.getWriter().writeDoubleAttribute("angle", bus.getAngle());
         context.getWriter().writeStringAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
@@ -132,7 +131,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
         for (Bus b : IidmXmlUtil.sorted(vl.getBusBreakerView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
@@ -147,18 +146,18 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             }
             BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
-        context.getWriter().writeEndElement();
+        context.getWriter().writeEndNode();
     }
 
     private void writeBusBranchTopology(VoltageLevel vl, NetworkXmlWriterContext context) {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
         for (Bus b : IidmXmlUtil.sorted(vl.getBusView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
             }
             BusXml.INSTANCE.write(b, null, context);
         }
-        context.getWriter().writeEndElement();
+        context.getWriter().writeEndNode();
     }
 
     private void writeGenerators(VoltageLevel vl, NetworkXmlWriterContext context) {
@@ -246,10 +245,10 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     @Override
     protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, NetworkXmlReaderContext context) {
-        double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
-        double lowVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "lowVoltageLimit");
-        double highVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "highVoltageLimit");
-        TopologyKind topologyKind = TopologyKind.valueOf(context.getReader().getAttributeValue(null, "topologyKind"));
+        double nominalV = context.getReader().readDoubleAttribute("nominalV");
+        double lowVoltageLimit = context.getReader().readDoubleAttribute("lowVoltageLimit");
+        double highVoltageLimit = context.getReader().readDoubleAttribute("highVoltageLimit");
+        TopologyKind topologyKind = context.getReader().readEnumAttribute("topologyKind", TopologyKind.class);
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)
@@ -260,8 +259,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     @Override
     protected void readSubElements(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case NODE_BREAKER_TOPOLOGY_ELEMENT_NAME:
                     readNodeBreakerTopology(vl, context);
                     break;
@@ -310,8 +309,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private void readNodeBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> LOGGER.trace("attribute " + NODE_BREAKER_TOPOLOGY_ELEMENT_NAME + ".nodeCount is ignored."));
-        XmlUtil.readUntilEndElement(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(NODE_BREAKER_TOPOLOGY_ELEMENT_NAME, () -> {
+            switch (context.getReader().getNodeName()) {
                 case BusbarSectionXml.ROOT_ELEMENT_NAME:
                     BusbarSectionXml.INSTANCE.read(vl, context);
                     break;
@@ -333,16 +332,16 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
+                    throw new AssertionError("Unexpected element: " + context.getReader().getNodeName());
             }
         });
     }
 
     private void readCalculatedBus(VoltageLevel vl, NetworkXmlReaderContext context) {
         IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BusXml.ROOT_ELEMENT_NAME, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
-        double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
-        String nodesString = context.getReader().getAttributeValue(null, "nodes");
+        double v = context.getReader().readDoubleAttribute("v");
+        double angle = context.getReader().readDoubleAttribute("angle");
+        String nodesString = context.getReader().readStringAttribute("nodes");
         context.getEndTasks().add(() -> {
             for (String str : nodesString.split(",")) {
                 int node = Integer.parseInt(str);
@@ -360,9 +359,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private void readFictitiousInjection(VoltageLevel vl, NetworkXmlReaderContext context) {
         IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "inj", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_8, context);
-        int node = XmlUtil.readIntAttribute(context.getReader(), "node");
-        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitiousP0");
-        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitiousQ0");
+        int node = context.getReader().readIntAttribute("node");
+        double p0 = context.getReader().readDoubleAttribute("fictitiousP0");
+        double q0 = context.getReader().readDoubleAttribute("fictitiousQ0");
         if (!Double.isNaN(p0)) {
             vl.getNodeBreakerView().setFictitiousP0(node, p0);
         }
@@ -372,8 +371,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void readBusBreakerTopology(VoltageLevel vl, NetworkXmlReaderContext context) throws XMLStreamException {
-        XmlUtil.readUntilEndElement(BUS_BREAKER_TOPOLOGY_ELEMENT_NAME, context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(BUS_BREAKER_TOPOLOGY_ELEMENT_NAME, () -> {
+            switch (context.getReader().getNodeName()) {
                 case BusXml.ROOT_ELEMENT_NAME:
                     BusXml.INSTANCE.read(vl, context);
                     break;
@@ -383,7 +382,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
+                    throw new AssertionError("Unexpected element: " + context.getReader().getNodeName());
             }
         });
     }

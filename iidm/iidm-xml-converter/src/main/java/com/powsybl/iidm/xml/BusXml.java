@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -56,14 +55,14 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     @Override
     protected Bus readRootElementAttributes(BusAdder adder, NetworkXmlReaderContext context) {
-        double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
-        double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
+        double v = context.getReader().readDoubleAttribute("v");
+        double angle = context.getReader().readDoubleAttribute("angle");
         Bus b = adder.add();
         b.setV(v);
         b.setAngle(angle);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> {
-            double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitiousP0");
-            double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitiousQ0");
+            double p0 = context.getReader().readDoubleAttribute("fictitiousP0");
+            double q0 = context.getReader().readDoubleAttribute("fictitiousQ0");
             if (!Double.isNaN(p0)) {
                 b.setFictitiousP0(p0);
             }
@@ -76,6 +75,6 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     @Override
     protected void readSubElements(Bus b, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> BusXml.super.readSubElements(b, context));
+        context.getReader().readUntilEndNode(getRootElementName(), () -> BusXml.super.readSubElements(b, context));
     }
 }

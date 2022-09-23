@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -22,14 +21,14 @@ public class NodeBreakerViewInternalConnectionXml {
     }
 
     protected void write(int node1, int node2, NetworkXmlWriterContext context) {
-        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
+        context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         context.getWriter().writeStringAttribute("node1", Integer.toString(node1));
         context.getWriter().writeStringAttribute("node2", Integer.toString(node2));
     }
 
     protected void read(VoltageLevel vl, NetworkXmlReaderContext context) {
-        int node1 = XmlUtil.readIntAttribute(context.getReader(), "node1");
-        int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
+        int node1 = context.getReader().readIntAttribute("node1");
+        int node2 = context.getReader().readIntAttribute("node2");
         vl.getNodeBreakerView().newInternalConnection().setNode1(node1).setNode2(node2).add();
     }
 }

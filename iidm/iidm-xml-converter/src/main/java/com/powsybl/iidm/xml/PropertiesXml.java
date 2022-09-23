@@ -25,7 +25,7 @@ public final class PropertiesXml {
         if (identifiable.hasProperty()) {
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
+                context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
                 context.getWriter().writeStringAttribute(NAME, name);
                 context.getWriter().writeStringAttribute(VALUE, value);
             }
@@ -33,9 +33,9 @@ public final class PropertiesXml {
     }
 
     public static void read(Identifiable identifiable, NetworkXmlReaderContext context) {
-        assert context.getReader().getLocalName().equals(PROPERTY);
-        String name = context.getReader().getAttributeValue(null, NAME);
-        String value = context.getReader().getAttributeValue(null, VALUE);
+        assert context.getReader().getNodeName().equals(PROPERTY);
+        String name = context.getReader().readStringAttribute(NAME);
+        String value = context.getReader().readStringAttribute(VALUE);
         identifiable.setProperty(name, value);
     }
 

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
@@ -50,10 +49,9 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
 
     @Override
     protected Load readRootElementAttributes(LoadAdder adder, NetworkXmlReaderContext context) {
-        String loadTypeStr = context.getReader().getAttributeValue(null, "loadType");
-        LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
-        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
-        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
+        LoadType loadType = context.getReader().readEnumAttribute("loadType", LoadType.class, LoadType.UNDEFINED);
+        double p0 = context.getReader().readDoubleAttribute("p0");
+        double q0 = context.getReader().readDoubleAttribute("q0");
         readNodeOrBus(adder, context);
         Load l = adder.setLoadType(loadType)
                 .setP0(p0)
@@ -65,6 +63,6 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
 
     @Override
     protected void readSubElements(Load l, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> LoadXml.super.readSubElements(l, context));
+        context.getReader().readUntilEndNode(getRootElementName(), () -> LoadXml.super.readSubElements(l, context));
     }
 }

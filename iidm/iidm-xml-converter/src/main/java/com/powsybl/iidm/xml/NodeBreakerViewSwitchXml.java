@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -46,18 +45,18 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.NodeBreakerView.SwitchAdder adder, NetworkXmlReaderContext context) {
-        boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
-        SwitchKind kind = SwitchKind.valueOf(context.getReader().getAttributeValue(null, "kind"));
-        boolean retained = XmlUtil.readBoolAttribute(context.getReader(), "retained");
+        boolean open = context.getReader().readBooleanAttribute("open");
+        SwitchKind kind = context.getReader().readEnumAttribute("kind", SwitchKind.class);
+        boolean retained = context.getReader().readBooleanAttribute("retained");
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
+            boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
             adder.setFictitious(fictitious);
         });
-        int node1 = XmlUtil.readIntAttribute(context.getReader(), "node1");
-        int node2 = XmlUtil.readIntAttribute(context.getReader(), "node2");
+        int node1 = context.getReader().readIntAttribute("node1");
+        int node2 = context.getReader().readIntAttribute("node2");
         // Discard switches with same node at both ends
         if (node1 == node2) {
-            LOGGER.warn("Discard switch with same node at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+            LOGGER.warn("Discard switch with same node at both ends. Id: {}", context.getReader().readStringAttribute("id"));
             return null;
         } else {
             return adder.setKind(kind)

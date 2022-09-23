@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
@@ -39,8 +38,8 @@ public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> ex
 
     @Override
     public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) throws XMLStreamException {
-        double ipMax = XmlUtil.readDoubleAttribute(context.getReader(), "ipMax");
-        double ipMin = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ipMin");
+        double ipMax = context.getReader().readDoubleAttribute("ipMax");
+        double ipMin = context.getReader().readDoubleAttribute("ipMin");
         IdentifiableShortCircuitAdder<I> adder = identifiable.newExtension(IdentifiableShortCircuitAdder.class);
         return adder.withIpMax(ipMax)
                 .withIpMin(ipMin)

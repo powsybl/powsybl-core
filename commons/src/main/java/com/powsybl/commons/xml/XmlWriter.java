@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlWriter implements HierarchicalDataWriter {
+public class XmlWriter implements TreeDataWriter {
 
     private final XMLStreamWriter writer;
 
@@ -24,7 +24,7 @@ public class XmlWriter implements HierarchicalDataWriter {
     }
 
     @Override
-    public void writeStartElement(String ns, String name) {
+    public void writeStartNode(String ns, String name) {
         try {
             writer.writeStartElement(ns, name);
         } catch (XMLStreamException e) {
@@ -33,7 +33,7 @@ public class XmlWriter implements HierarchicalDataWriter {
     }
 
     @Override
-    public void writeEmptyElement(String ns, String name) {
+    public void writeEmptyNode(String ns, String name) {
         try {
             writer.writeEmptyElement(ns, name);
         } catch (XMLStreamException e) {
@@ -42,7 +42,7 @@ public class XmlWriter implements HierarchicalDataWriter {
     }
 
     @Override
-    public void writeEndElement() {
+    public void writeEndNode() {
         try {
             writer.writeEndElement();
         } catch (XMLStreamException e) {
@@ -51,7 +51,7 @@ public class XmlWriter implements HierarchicalDataWriter {
     }
 
     @Override
-    public void writeElementContent(String value) {
+    public void writeNodeContent(String value) {
         try {
             writer.writeCharacters(value);
         } catch (XMLStreamException e) {
@@ -73,7 +73,9 @@ public class XmlWriter implements HierarchicalDataWriter {
     @Override
     public void writeFloatAttribute(String name, float value) {
         try {
-            XmlUtil.writeFloat(name, value, writer);
+            if (!Float.isNaN(value)) {
+                writer.writeAttribute(name, Float.toString(value));
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -82,7 +84,9 @@ public class XmlWriter implements HierarchicalDataWriter {
     @Override
     public void writeDoubleAttribute(String name, double value) {
         try {
-            XmlUtil.writeDouble(name, value, writer);
+            if (!Double.isNaN(value)) {
+                writer.writeAttribute(name, Double.toString(value));
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -91,7 +95,9 @@ public class XmlWriter implements HierarchicalDataWriter {
     @Override
     public void writeDoubleAttribute(String name, double value, double absentValue) {
         try {
-            XmlUtil.writeOptionalDouble(name, value, absentValue, writer);
+            if (!Double.isNaN(value) && value != absentValue) {
+                writer.writeAttribute(name, Double.toString(value));
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -100,7 +106,7 @@ public class XmlWriter implements HierarchicalDataWriter {
     @Override
     public void writeIntAttribute(String name, int value) {
         try {
-            XmlUtil.writeInt(name, value, writer);
+            writer.writeAttribute(name, Integer.toString(value));
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -109,7 +115,9 @@ public class XmlWriter implements HierarchicalDataWriter {
     @Override
     public void writeIntAttribute(String name, int value, int absentValue) {
         try {
-            XmlUtil.writeOptionalInt(name, value, absentValue, writer);
+            if (value != absentValue) {
+                writer.writeAttribute(name, Integer.toString(value));
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -118,7 +126,9 @@ public class XmlWriter implements HierarchicalDataWriter {
     @Override
     public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
         try {
-            XmlUtil.writeOptionalEnum(name, value, writer);
+            if (value != null) {
+                writer.writeAttribute(name, value.name());
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -136,7 +146,9 @@ public class XmlWriter implements HierarchicalDataWriter {
     @Override
     public void writeBooleanAttribute(String name, boolean value, boolean absentValue) {
         try {
-            XmlUtil.writeOptionalBoolean(name, value, absentValue, writer);
+            if (value != absentValue) {
+                writer.writeAttribute(name, Boolean.toString(value));
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }

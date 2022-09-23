@@ -6,8 +6,6 @@
  */
 package com.powsybl.commons.xml;
 
-import javax.xml.stream.XMLStreamReader;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */

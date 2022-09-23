@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -48,8 +47,8 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
 
     @Override
     protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, NetworkXmlReaderContext context) {
-        float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
-        float powerFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "powerFactor");
+        float lossFactor = context.getReader().readFloatAttribute("lossFactor");
+        float powerFactor = context.getReader().readFloatAttribute("powerFactor");
         readNodeOrBus(adder, context);
         LccConverterStation cs = adder
                 .setLossFactor(lossFactor)
@@ -61,6 +60,6 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
 
     @Override
     protected void readSubElements(LccConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> LccConverterStationXml.super.readSubElements(cs, context));
+        context.getReader().readUntilEndNode(getRootElementName(), () -> LccConverterStationXml.super.readSubElements(cs, context));
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -116,9 +115,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                 IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
             }
             Optional<CurrentLimits> currentLimits = leg.getCurrentLimits();
-            if (currentLimits.isPresent()) {
-                writeCurrentLimits(i[0], currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-            }
+            currentLimits.ifPresent(limits -> writeCurrentLimits(i[0], limits, context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
             i[0]++;
         }
     }
@@ -148,30 +145,30 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        double r1 = XmlUtil.readDoubleAttribute(context.getReader(), "r1");
-        double x1 = XmlUtil.readDoubleAttribute(context.getReader(), "x1");
-        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
-        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
-        double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
-        double r2 = XmlUtil.readDoubleAttribute(context.getReader(), "r2");
-        double x2 = XmlUtil.readDoubleAttribute(context.getReader(), "x2");
-        double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
-        double r3 = XmlUtil.readDoubleAttribute(context.getReader(), "r3");
-        double x3 = XmlUtil.readDoubleAttribute(context.getReader(), "x3");
-        double ratedU3 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU3");
+        double r1 = context.getReader().readDoubleAttribute("r1");
+        double x1 = context.getReader().readDoubleAttribute("x1");
+        double g1 = context.getReader().readDoubleAttribute("g1");
+        double b1 = context.getReader().readDoubleAttribute("b1");
+        double ratedU1 = context.getReader().readDoubleAttribute("ratedU1");
+        double r2 = context.getReader().readDoubleAttribute("r2");
+        double x2 = context.getReader().readDoubleAttribute("x2");
+        double ratedU2 = context.getReader().readDoubleAttribute("ratedU2");
+        double r3 = context.getReader().readDoubleAttribute("r3");
+        double x3 = context.getReader().readDoubleAttribute("x3");
+        double ratedU3 = context.getReader().readDoubleAttribute("ratedU3");
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
         LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
         LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            double ratedU0 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU0");
+            double ratedU0 = context.getReader().readDoubleAttribute("ratedU0");
             adder.setRatedU0(ratedU0);
 
-            double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
-            double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
+            double g2 = context.getReader().readDoubleAttribute("g2");
+            double b2 = context.getReader().readDoubleAttribute("b2");
             legAdder2.setG(g2).setB(b2);
 
-            double g3 = XmlUtil.readDoubleAttribute(context.getReader(), "g3");
-            double b3 = XmlUtil.readDoubleAttribute(context.getReader(), "b3");
+            double g3 = context.getReader().readDoubleAttribute("g3");
+            double b3 = context.getReader().readDoubleAttribute("b3");
             legAdder3.setG(g3).setB(b3);
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
@@ -194,8 +191,8 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void readSubElements(ThreeWindingsTransformer tx, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case ACTIVE_POWER_LIMITS_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tx.getLeg1().newActivePowerLimits(), context.getReader()));

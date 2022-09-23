@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadZipModel;
@@ -41,13 +40,13 @@ public class LoadZipModelXmlSerializer extends AbstractExtensionXmlSerializer<Lo
 
     @Override
     public LoadZipModel read(Load load, XmlReaderContext context) {
-        double a1 = XmlUtil.readDoubleAttribute(context.getReader(), "a1");
-        double a2 = XmlUtil.readDoubleAttribute(context.getReader(), "a2");
-        double a3 = XmlUtil.readDoubleAttribute(context.getReader(), "a3");
-        double a4 = XmlUtil.readDoubleAttribute(context.getReader(), "a4");
-        double a5 = XmlUtil.readDoubleAttribute(context.getReader(), "a5");
-        double a6 = XmlUtil.readDoubleAttribute(context.getReader(), "a6");
-        double v0 = XmlUtil.readDoubleAttribute(context.getReader(), "v0");
+        double a1 = context.getReader().readDoubleAttribute("a1");
+        double a2 = context.getReader().readDoubleAttribute("a2");
+        double a3 = context.getReader().readDoubleAttribute("a3");
+        double a4 = context.getReader().readDoubleAttribute("a4");
+        double a5 = context.getReader().readDoubleAttribute("a5");
+        double a6 = context.getReader().readDoubleAttribute("a6");
+        double v0 = context.getReader().readDoubleAttribute("v0");
         return new LoadZipModel(load, a1, a2, a3, a4, a5, a6, v0);
     }
 }

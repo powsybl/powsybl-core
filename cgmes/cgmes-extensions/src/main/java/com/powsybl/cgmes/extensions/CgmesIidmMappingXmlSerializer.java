@@ -12,7 +12,6 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -41,7 +40,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     public void write(CgmesIidmMapping extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         extension.getUnmappedTopologicalNodes().forEach(cgmesTopologicalNode -> {
-            context.getWriter().writeEmptyElement(getNamespaceUri(), "unmappedTopologicalNode");
+            context.getWriter().writeEmptyNode(getNamespaceUri(), "unmappedTopologicalNode");
             context.getWriter().writeStringAttribute("id", cgmesTopologicalNode.getCgmesId());
             context.getWriter().writeStringAttribute("name", cgmesTopologicalNode.getName());
             context.getWriter().writeEnumAttribute(SOURCE, cgmesTopologicalNode.getSource());
@@ -50,10 +49,10 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                 .filter(b -> extension.isTopologicalNodeMapped(b.getId()))
                 .forEach(b -> {
                     try {
-                        context.getWriter().writeStartElement(getNamespaceUri(), "link");
+                        context.getWriter().writeStartNode(getNamespaceUri(), "link");
                         writeBusIdentification(b, networkContext);
                         writeTopologicalNodes(extension, b, context);
-                        context.getWriter().writeEndElement();
+                        context.getWriter().writeEndNode();
                     } catch (XMLStreamException e) {
                         throw new UncheckedXmlStreamException(e);
                     }
@@ -66,20 +65,20 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         CgmesIidmMappingAdder mappingAdder = extendable.newExtension(CgmesIidmMappingAdder.class);
         mappingAdder.add();
         CgmesIidmMapping mapping = extendable.getExtension(CgmesIidmMapping.class);
-        XmlUtil.readUntilEndElement("cgmesIidmMapping", context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode("cgmesIidmMapping", () -> {
+            switch (context.getReader().getNodeName()) {
                 case "link":
                     String busId = readBusIdentification(extendable, networkContext);
                     readTopologicalNodes(context, mapping, busId);
                     break;
                 case "unmappedTopologicalNode":
-                    String name = context.getReader().getAttributeValue(null, "name");
-                    String id = context.getReader().getAttributeValue(null, "id");
-                    String sourceTN = context.getReader().getAttributeValue(null, SOURCE);
+                    String name = context.getReader().readStringAttribute("name");
+                    String id = context.getReader().readStringAttribute("id");
+                    String sourceTN = context.getReader().readStringAttribute(SOURCE);
                     mapping.putUnmappedTopologicalNode(id, name, Source.valueOf(sourceTN));
                     break;
                 default:
-                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <cgmesIidmMapping>");
+                    throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <cgmesIidmMapping>");
             }
         });
         mapping.addTopologyListener();
@@ -112,7 +111,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     private void writeTopologicalNodes(CgmesIidmMapping extension, Bus b, XmlWriterContext context) {
         extension.getTopologicalNodes(b.getId()).forEach(ctn -> {
             try {
-                context.getWriter().writeEmptyElement(getNamespaceUri(), "topologicalNode");
+                context.getWriter().writeEmptyNode(getNamespaceUri(), "topologicalNode");
                 writeTopologicalNode(ctn, context);
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
@@ -127,8 +126,8 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     }
 
     private static String readBusIdentification(Network network, NetworkXmlReaderContext context) {
-        String equipmentId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "equipmentId"));
-        int side = Integer.parseInt(context.getReader().getAttributeValue(null, "side"));
+        String equipmentId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("equipmentId"));
+        int side = context.getReader().readIntAttribute("side");
         Identifiable i = network.getIdentifiable(equipmentId);
         if (!(i instanceof Connectable)) {
             throw new PowsyblException("Equipment is not connectable " + equipmentId);
@@ -137,17 +136,17 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         return busId;
     }
 
-    private void readTopologicalNodes(XmlReaderContext context, CgmesIidmMapping mapping, String busId) throws XMLStreamException {
-        XmlUtil.readUntilEndElement("link", context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+    private void readTopologicalNodes(XmlReaderContext context, CgmesIidmMapping mapping, String busId) {
+        context.getReader().readUntilEndNode("link", () -> {
+            switch (context.getReader().getNodeName()) {
                 case "topologicalNode":
-                    String name = context.getReader().getAttributeValue(null, "name");
-                    String id = context.getReader().getAttributeValue(null, "id");
-                    String sourceTN = context.getReader().getAttributeValue(null, SOURCE);
+                    String name = context.getReader().readStringAttribute("name");
+                    String id = context.getReader().readStringAttribute("id");
+                    String sourceTN = context.getReader().readStringAttribute(SOURCE);
                     mapping.putTopologicalNode(busId, id, name, Source.valueOf(sourceTN));
                     break;
                 default:
-                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <cgmesIidmMapping>");
+                    throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <cgmesIidmMapping>");
             }
         });
     }

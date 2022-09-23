@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
@@ -38,8 +37,8 @@ public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSeri
 
     @Override
     public BusbarSectionPosition read(BusbarSection busbarSection, XmlReaderContext context) {
-        int busbarIndex = XmlUtil.readIntAttribute(context.getReader(), "busbarIndex");
-        int sectionIndex = XmlUtil.readIntAttribute(context.getReader(), "sectionIndex");
+        int busbarIndex = context.getReader().readIntAttribute("busbarIndex");
+        int sectionIndex = context.getReader().readIntAttribute("sectionIndex");
         return busbarSection.newExtension(BusbarSectionPositionAdder.class)
             .withBusbarIndex(busbarIndex)
             .withSectionIndex(sectionIndex)

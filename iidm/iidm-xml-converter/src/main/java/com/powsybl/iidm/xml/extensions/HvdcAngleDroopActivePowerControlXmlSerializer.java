@@ -11,7 +11,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -41,9 +40,9 @@ public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExten
 
     @Override
     public HvdcAngleDroopActivePowerControl read(HvdcLine hvdcLine, XmlReaderContext context) throws XMLStreamException {
-        float p0 = XmlUtil.readFloatAttribute(context.getReader(), "p0");
-        float droop = XmlUtil.readFloatAttribute(context.getReader(), "droop");
-        boolean enabled = XmlUtil.readBoolAttribute(context.getReader(), "enabled");
+        float p0 = context.getReader().readFloatAttribute("p0");
+        float droop = context.getReader().readFloatAttribute("droop");
+        boolean enabled = context.getReader().readBooleanAttribute("enabled");
 
         return hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
                 .withP0(p0)

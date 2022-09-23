@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
@@ -43,12 +42,12 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
     @Override
     public ThreeWindingsTransformerToBeEstimated read(ThreeWindingsTransformer extendable, XmlReaderContext context) {
         return extendable.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
-                .withRatioTapChanger1Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger1Status"))
-                .withRatioTapChanger2Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger2Status"))
-                .withRatioTapChanger3Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger3Status"))
-                .withPhaseTapChanger1Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger1Status"))
-                .withPhaseTapChanger2Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger2Status"))
-                .withPhaseTapChanger3Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger3Status"))
+                .withRatioTapChanger1Status(context.getReader().readBooleanAttribute("ratioTapChanger1Status"))
+                .withRatioTapChanger2Status(context.getReader().readBooleanAttribute("ratioTapChanger2Status"))
+                .withRatioTapChanger3Status(context.getReader().readBooleanAttribute("ratioTapChanger3Status"))
+                .withPhaseTapChanger1Status(context.getReader().readBooleanAttribute("phaseTapChanger1Status"))
+                .withPhaseTapChanger2Status(context.getReader().readBooleanAttribute("phaseTapChanger2Status"))
+                .withPhaseTapChanger3Status(context.getReader().readBooleanAttribute("phaseTapChanger3Status"))
                 .add();
     }
 }

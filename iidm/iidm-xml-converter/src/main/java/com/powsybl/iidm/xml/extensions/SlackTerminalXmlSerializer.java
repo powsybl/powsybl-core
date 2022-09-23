@@ -79,8 +79,8 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
     @Override
     public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
-        String side = networkContext.getReader().getAttributeValue(null, "side");
+        String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("id"));
+        String side = networkContext.getReader().readStringAttribute("side");
         Terminal terminal = TerminalRefXml.readTerminalRef(voltageLevel.getNetwork(), id, side);
         return voltageLevel.newExtension(SlackTerminalAdder.class)
                 .withTerminal(terminal)

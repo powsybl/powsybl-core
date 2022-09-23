@@ -12,7 +12,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
@@ -42,8 +41,8 @@ public class HvdcOperatorActivePowerRangeXmlSerializer extends AbstractExtension
 
     @Override
     public HvdcOperatorActivePowerRange read(HvdcLine hvdcLine, XmlReaderContext context) {
-        float oprFromCS1toCS2 = XmlUtil.readOptionalFloatAttribute(context.getReader(), "fromCS1toCS2");
-        float oprFromCS2toCS1 = XmlUtil.readOptionalFloatAttribute(context.getReader(), "fromCS2toCS1");
+        float oprFromCS1toCS2 = context.getReader().readFloatAttribute("fromCS1toCS2");
+        float oprFromCS2toCS1 = context.getReader().readFloatAttribute("fromCS2toCS1");
         return hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class)
                 .withOprFromCS1toCS2(oprFromCS1toCS2)
                 .withOprFromCS2toCS1(oprFromCS2toCS1)

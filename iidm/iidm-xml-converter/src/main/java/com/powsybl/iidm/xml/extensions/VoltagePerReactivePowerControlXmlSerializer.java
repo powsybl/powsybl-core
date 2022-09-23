@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
@@ -36,7 +35,7 @@ public class VoltagePerReactivePowerControlXmlSerializer extends AbstractExtensi
 
     @Override
     public VoltagePerReactivePowerControl read(StaticVarCompensator svc, XmlReaderContext context) {
-        double slope = XmlUtil.readDoubleAttribute(context.getReader(), "slope");
+        double slope = context.getReader().readDoubleAttribute("slope");
         return svc.newExtension(VoltagePerReactivePowerControlAdder.class)
                 .withSlope(slope)
                 .add();

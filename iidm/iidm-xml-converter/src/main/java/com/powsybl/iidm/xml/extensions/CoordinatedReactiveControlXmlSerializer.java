@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
@@ -36,7 +35,7 @@ public class CoordinatedReactiveControlXmlSerializer extends AbstractExtensionXm
 
     @Override
     public CoordinatedReactiveControl read(Generator extendable, XmlReaderContext context) {
-        double qPercent = XmlUtil.readDoubleAttribute(context.getReader(), "qPercent");
+        double qPercent = context.getReader().readDoubleAttribute("qPercent");
         return extendable.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(qPercent)
                 .add();

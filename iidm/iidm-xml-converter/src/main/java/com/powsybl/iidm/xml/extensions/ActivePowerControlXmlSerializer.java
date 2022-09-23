@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
@@ -37,8 +36,8 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
 
     @Override
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
-        boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
-        float droop = XmlUtil.readFloatAttribute(context.getReader(), "droop");
+        boolean participate = context.getReader().readBooleanAttribute("participate");
+        float droop = context.getReader().readFloatAttribute("droop");
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
         return activePowerControlAdder.withParticipate(participate)
                 .withDroop(droop)

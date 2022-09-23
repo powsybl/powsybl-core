@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
@@ -51,13 +50,13 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
 
     @Override
     protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
-        HvdcLine.ConvertersMode convertersMode = XmlUtil.readOptionalEnum(context.getReader(), "convertersMode", HvdcLine.ConvertersMode.class);
-        double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "activePowerSetpoint");
-        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
-        String converterStation1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation1"));
-        String converterStation2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation2"));
+        double r = context.getReader().readDoubleAttribute("r");
+        double nominalV = context.getReader().readDoubleAttribute("nominalV");
+        HvdcLine.ConvertersMode convertersMode = context.getReader().readEnumAttribute("convertersMode", HvdcLine.ConvertersMode.class);
+        double activePowerSetpoint = context.getReader().readDoubleAttribute("activePowerSetpoint");
+        double maxP = context.getReader().readDoubleAttribute("maxP");
+        String converterStation1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("converterStation1"));
+        String converterStation2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("converterStation2"));
         return adder.setR(r)
                 .setNominalV(nominalV)
                 .setConvertersMode(convertersMode)
@@ -70,6 +69,6 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
 
     @Override
     protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> HvdcLineXml.super.readSubElements(l, context));
+        context.getReader().readUntilEndNode(getRootElementName(), () -> HvdcLineXml.super.readSubElements(l, context));
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -48,16 +47,16 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
 
     @Override
     protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, NetworkXmlReaderContext context) {
-        boolean open = XmlUtil.readBoolAttribute(context.getReader(), "open");
+        boolean open = context.getReader().readBooleanAttribute("open");
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
+            boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);
             adder.setFictitious(fictitious);
         });
-        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
-        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
+        String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus1"));
+        String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("bus2"));
         // Discard switches with same bus at both ends
         if (bus1.equals(bus2)) {
-            LOGGER.warn("Discard switch with same bus at both ends. Id: {}", context.getReader().getAttributeValue(null, "id"));
+            LOGGER.warn("Discard switch with same bus at both ends. Id: {}", context.getReader().readStringAttribute("id"));
             return null;
         } else {
             return adder.setOpen(open)

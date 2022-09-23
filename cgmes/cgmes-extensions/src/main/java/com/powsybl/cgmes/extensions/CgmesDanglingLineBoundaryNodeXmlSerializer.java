@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.DanglingLine;
 
@@ -39,8 +38,8 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
 
     @Override
     public CgmesDanglingLineBoundaryNode read(DanglingLine extendable, XmlReaderContext context) throws XMLStreamException {
-        boolean isHvdc = XmlUtil.readBoolAttribute(context.getReader(), "isHvdc");
-        String lineEnergyIdentificationCodeEic = context.getReader().getAttributeValue(null, "lineEnergyIdentificationCodeEic");
+        boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
+        String lineEnergyIdentificationCodeEic = context.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
         extendable.newExtension(CgmesDanglingLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
         return extendable.getExtension(CgmesDanglingLineBoundaryNode.class);
     }

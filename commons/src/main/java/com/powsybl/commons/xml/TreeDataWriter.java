@@ -9,15 +9,15 @@ package com.powsybl.commons.xml;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface HierarchicalDataWriter {
+public interface TreeDataWriter extends AutoCloseable {
 
-    void writeStartElement(String ns, String name);
+    void writeStartNode(String ns, String name);
 
-    void writeEmptyElement(String ns, String name);
+    void writeEmptyNode(String ns, String name);
 
-    void writeEndElement();
+    void writeEndNode();
 
-    void writeElementContent(String value);
+    void writeNodeContent(String value);
 
     void writeStringAttribute(String name, String value);
 
@@ -36,6 +36,4 @@ public interface HierarchicalDataWriter {
     void writeBooleanAttribute(String name, boolean value);
 
     void writeBooleanAttribute(String name, boolean value, boolean absentValue);
-
-    void close();
 }

@@ -10,8 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
@@ -19,7 +19,6 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -40,25 +39,25 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
         writer.writeIntAttribute("svVersion", extension.getSvVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
         for (String dep : extension.getDependencies()) {
-            writer.writeStartElement(getNamespaceUri(), "dependentOn");
-            writer.writeElementContent(dep);
-            writer.writeEndElement();
+            writer.writeStartNode(getNamespaceUri(), "dependentOn");
+            writer.writeNodeContent(dep);
+            writer.writeEndNode();
         }
     }
 
     @Override
     public CgmesSvMetadata read(Network extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        XMLStreamReader reader = networkContext.getReader();
+        XmlReader reader = networkContext.getReader();
         CgmesSvMetadataAdder adder = extendable.newExtension(CgmesSvMetadataAdder.class);
-        adder.setDescription(reader.getAttributeValue(null, "description"))
-                .setSvVersion(XmlUtil.readIntAttribute(reader, "svVersion"))
-                .setModelingAuthoritySet(reader.getAttributeValue(null, "modelingAuthoritySet"));
-        XmlUtil.readUntilEndElement("cgmesSvMetadata", reader, () -> {
-            if (reader.getLocalName().equals("dependentOn")) {
-                adder.addDependency(reader.getElementText());
+        adder.setDescription(reader.readStringAttribute("description"))
+                .setSvVersion(reader.readIntAttribute("svVersion"))
+                .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
+        reader.readUntilEndNode("cgmesSvMetadata", () -> {
+            if (reader.getNodeName().equals("dependentOn")) {
+                adder.addDependency(reader.readContent());
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesSvMetadata>");
+                throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <cgmesSvMetadata>");
             }
         });
         adder.add();

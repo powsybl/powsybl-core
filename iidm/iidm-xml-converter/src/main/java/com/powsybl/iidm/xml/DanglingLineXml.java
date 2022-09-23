@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -121,21 +120,20 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
-        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
-        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        double p0 = context.getReader().readDoubleAttribute("p0");
+        double q0 = context.getReader().readDoubleAttribute("q0");
+        double r = context.getReader().readDoubleAttribute("r");
+        double x = context.getReader().readDoubleAttribute("x");
+        double g = context.getReader().readDoubleAttribute("g");
+        double b = context.getReader().readDoubleAttribute("b");
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            String voltageRegulationOnStr = context.getReader().getAttributeValue(null, "generationVoltageRegulationOn");
-            if (voltageRegulationOnStr != null) {
-                double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MIN_P);
-                double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_MAX_P);
-                boolean voltageRegulationOn = Boolean.parseBoolean(voltageRegulationOnStr);
-                double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_P);
-                double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_V);
-                double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), GENERATION_TARGET_Q);
+            Boolean voltageRegulationOn = context.getReader().readBooleanAttribute("generationVoltageRegulationOn");
+            if (voltageRegulationOn != null) {
+                double minP = context.getReader().readDoubleAttribute(GENERATION_MIN_P);
+                double maxP = context.getReader().readDoubleAttribute(GENERATION_MAX_P);
+                double targetP = context.getReader().readDoubleAttribute(GENERATION_TARGET_P);
+                double targetV = context.getReader().readDoubleAttribute(GENERATION_TARGET_V);
+                double targetQ = context.getReader().readDoubleAttribute(GENERATION_TARGET_Q);
                 adder.newGeneration()
                         .setMinP(minP)
                         .setMaxP(maxP)
@@ -146,7 +144,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                         .add();
             }
         });
-        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
+        String ucteXnodeCode = context.getReader().readStringAttribute("ucteXnodeCode");
         readNodeOrBus(adder, context);
         DanglingLine dl = adder.setP0(p0)
                 .setQ0(q0)
@@ -162,8 +160,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case ACTIVE_POWER_LIMITS:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(null, dl.newActivePowerLimits(), context.getReader()));

@@ -17,8 +17,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -143,126 +141,6 @@ public final class XmlUtil {
 
     public static String readText(String endElementName, XMLStreamReader reader) throws XMLStreamException {
         return readUntilEndElement(endElementName, reader, () -> { });
-    }
-
-    public static void writeOptionalBoolean(String name, boolean value, boolean absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != absentValue) {
-            writer.writeAttribute(name, Boolean.toString(value));
-        }
-    }
-
-    public static void writeDouble(String name, double value, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Double.isNaN(value)) {
-            writer.writeAttribute(name, Double.toString(value));
-        }
-    }
-
-    public static void writeOptionalDouble(String name, double value, double absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Double.isNaN(value) && value != absentValue) {
-            writer.writeAttribute(name, Double.toString(value));
-        }
-    }
-
-    public static void writeFloat(String name, float value, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Float.isNaN(value)) {
-            writer.writeAttribute(name, Float.toString(value));
-        }
-    }
-
-    public static void writeOptionalFloat(String name, float value, float absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (!Float.isNaN(value) && value != absentValue) {
-            writer.writeAttribute(name, Float.toString(value));
-        }
-    }
-
-    public static void writeInt(String name, int value, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(name, Integer.toString(value));
-    }
-
-    public static void writeOptionalInt(String name, int value, int absentValue, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != absentValue) {
-            writer.writeAttribute(name, Integer.toString(value));
-        }
-    }
-
-    public static void writeOptionalString(String name, String value, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != null) {
-            writer.writeAttribute(name, value);
-        }
-    }
-
-    public static <E extends Enum<E>> void writeOptionalEnum(String name, E value, XMLStreamWriter writer) throws XMLStreamException {
-        if (value != null) {
-            writer.writeAttribute(name, value.name());
-        }
-    }
-
-    public static int readIntAttribute(XMLStreamReader reader, String attributeName) {
-        return Integer.parseInt(reader.getAttributeValue(null, attributeName));
-    }
-
-    public static boolean readBoolAttribute(XMLStreamReader reader, String attributeName) {
-        return Boolean.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    public static boolean readOptionalBoolAttribute(XMLStreamReader reader, String attributeName, boolean defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Boolean.valueOf(attributeValue) : defaultValue;
-    }
-
-    public static double readDoubleAttribute(XMLStreamReader reader, String attributeName) {
-        return Double.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    public static double readOptionalDoubleAttribute(XMLStreamReader reader, String attributeName) {
-        return readOptionalDoubleAttribute(reader, attributeName, Double.NaN);
-    }
-
-    public static double readOptionalDoubleAttribute(XMLStreamReader reader, String attributeName, double defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Double.valueOf(attributeValue) : defaultValue;
-    }
-
-    public static Integer readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Integer.valueOf(attributeValue) : null;
-    }
-
-    public static int readOptionalIntegerAttribute(XMLStreamReader reader, String attributeName, int defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
-    }
-
-    public static float readFloatAttribute(XMLStreamReader reader, String attributeName) {
-        return Float.valueOf(reader.getAttributeValue(null, attributeName));
-    }
-
-    public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName) {
-        return readOptionalFloatAttribute(reader, attributeName, Float.NaN);
-    }
-
-    public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName, float defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
-    }
-
-    public static <E extends Enum<E>> E readOptionalEnum(XMLStreamReader reader, String attributeName, Class<E> enumClass) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        return attributeValue != null ? Enum.valueOf(enumClass, attributeValue) : null;
-    }
-
-    public static void consumeOptionalBoolAttribute(XMLStreamReader reader, String attributeName, Consumer<Boolean> consumer) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        if (attributeValue != null) {
-            consumer.accept(Boolean.parseBoolean(attributeValue));
-        }
-    }
-
-    public static void consumeOptionalIntAttribute(XMLStreamReader reader, String attributeName, IntConsumer consumer) {
-        String attributeValue = reader.getAttributeValue(null, attributeName);
-        if (attributeValue != null) {
-            consumer.accept(Integer.parseInt(attributeValue));
-        }
     }
 
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {

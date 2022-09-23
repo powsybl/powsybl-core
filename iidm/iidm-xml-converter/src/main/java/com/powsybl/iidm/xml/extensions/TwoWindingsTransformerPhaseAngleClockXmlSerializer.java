@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
@@ -38,7 +37,7 @@ public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
 
     @Override
     public TwoWindingsTransformerPhaseAngleClock read(TwoWindingsTransformer extendable, XmlReaderContext context) {
-        int phaseAngleClock = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock", 0);
+        int phaseAngleClock = context.getReader().readIntAttribute("phaseAngleClock", 0);
         return extendable.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
                 .withPhaseAngleClock(phaseAngleClock)
                 .add();

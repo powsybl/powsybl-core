@@ -81,15 +81,15 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     @Override
     protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
 
-        Country country = Optional.ofNullable(context.getReader().getAttributeValue(null, COUNTRY))
+        Country country = Optional.ofNullable(context.getReader().readStringAttribute(COUNTRY))
                 .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))
                 .orElse(null);
-        String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
-        String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
+        String tso = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("tso"));
+        String geographicalTags = context.getReader().readStringAttribute("geographicalTags");
         if (geographicalTags != null) {
             adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
                     .map(tag -> context.getAnonymizer().deanonymizeString(tag))
-                    .toArray(size -> new String[size]));
+                    .toArray(String[]::new));
         }
         return adder.setCountry(country)
                 .setTso(tso)
@@ -98,8 +98,8 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected void readSubElements(Substation s, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case VoltageLevelXml.ROOT_ELEMENT_NAME:
                     VoltageLevelXml.INSTANCE.read(s, context);
                     break;

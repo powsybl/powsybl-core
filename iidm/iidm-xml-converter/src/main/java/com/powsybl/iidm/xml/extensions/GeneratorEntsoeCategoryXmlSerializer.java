@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
@@ -61,12 +60,12 @@ public class GeneratorEntsoeCategoryXmlSerializer implements ExtensionXmlSeriali
 
     @Override
     public void write(GeneratorEntsoeCategory entsoeCategory, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeElementContent(Integer.toString(entsoeCategory.getCode()));
+        context.getWriter().writeNodeContent(Integer.toString(entsoeCategory.getCode()));
     }
 
     @Override
     public GeneratorEntsoeCategory read(Generator generator, XmlReaderContext context) throws XMLStreamException {
-        int code = Integer.parseInt(XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), null));
+        int code = Integer.parseInt(context.getReader().readUntilEndNode(getExtensionName(), null));
         return generator.newExtension(GeneratorEntsoeCategoryAdder.class)
                 .withCode(code)
                 .add();

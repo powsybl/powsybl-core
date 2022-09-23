@@ -6,41 +6,114 @@
  */
 package com.powsybl.commons.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlReader {
+public class XmlReader implements TreeDataReader {
 
-    private XMLStreamReader reader;
+    private final XMLStreamReader reader;
 
     public XmlReader(XMLStreamReader reader) {
         this.reader = Objects.requireNonNull(reader);
     }
 
+    @Override
     public double readDoubleAttribute(String name) {
-        return XmlUtil.readDoubleAttribute(reader, name);
+        return readDoubleAttribute(name, Double.NaN);
     }
 
+    @Override
     public double readDoubleAttribute(String name, double defaultValue) {
-        return XmlUtil.readOptionalDoubleAttribute(reader, name, defaultValue);
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
     }
 
+    @Override
+    public float readFloatAttribute(String name) {
+        return readFloatAttribute(name, Float.NaN);
+    }
+
+    @Override
+    public float readFloatAttribute(String name, float defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Float.parseFloat(attributeValue) : defaultValue;
+    }
+
+    @Override
     public String readStringAttribute(String name) {
         return reader.getAttributeValue(null, name);
     }
 
+    @Override
+    public Integer readIntAttribute(String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Integer.valueOf(attributeValue) : null;
+    }
+
+    @Override
     public int readIntAttribute(String name, int defaultValue) {
-        return XmlUtil.readOptionalIntegerAttribute(reader, name, defaultValue);
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
     }
 
+    @Override
+    public Boolean readBooleanAttribute(String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Boolean.valueOf(attributeValue) : null;
+    }
+
+    @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
-        return XmlUtil.readOptionalBoolAttribute(reader, name, defaultValue);
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Boolean.parseBoolean(attributeValue) : defaultValue;
     }
 
-    public String getElementName() {
+    @Override
+    public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz) {
+        return readEnumAttribute(name, clazz, null);
+    }
+
+    @Override
+    public <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz, T defaultValue) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? Enum.valueOf(clazz, attributeValue) : defaultValue;
+    }
+
+    @Override
+    public String getNodeName() {
         return reader.getLocalName();
+    }
+
+    @Override
+    public String readContent() {
+        try {
+            return reader.getElementText();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    @Override
+    public String readUntilEndNode(String endNodeName, XmlUtil.XmlEventHandler eventHandler) {
+        try {
+            return XmlUtil.readUntilEndElement(endNodeName, reader, eventHandler);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    @Override
+    public String readUntilEndNodeWithDepth(String endNodeName, XmlUtil.XmlEventHandlerWithDepth eventHandler) {
+        try {
+            return XmlUtil.readUntilEndElementWithDepth(endNodeName, reader, eventHandler);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 }

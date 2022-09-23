@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -69,8 +68,8 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
-        double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
-        double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
+        double bMin = context.getReader().readDoubleAttribute("bMin");
+        double bMax = context.getReader().readDoubleAttribute("bMax");
 
         String[] voltageSetpointName = {"voltageSetpoint"};
         String[] reactivePowerSetpointName = {"reactivePowerSetpoint"};
@@ -78,11 +77,10 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
             voltageSetpointName[0] = "voltageSetPoint";
             reactivePowerSetpointName[0] = "reactivePowerSetPoint";
         });
-        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), voltageSetpointName[0]);
-        double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), reactivePowerSetpointName[0]);
+        double voltageSetpoint = context.getReader().readDoubleAttribute(voltageSetpointName[0]);
+        double reactivePowerSetpoint = context.getReader().readDoubleAttribute(reactivePowerSetpointName[0]);
 
-        String regulationModeStr = context.getReader().getAttributeValue(null, "regulationMode");
-        StaticVarCompensator.RegulationMode regulationMode = regulationModeStr != null ? StaticVarCompensator.RegulationMode.valueOf(regulationModeStr) : null;
+        StaticVarCompensator.RegulationMode regulationMode = context.getReader().readEnumAttribute("regulationMode", StaticVarCompensator.RegulationMode.class);
         adder.setBmin(bMin)
                 .setBmax(bMax)
                 .setVoltageSetpoint(voltageSetpoint)
@@ -96,11 +94,11 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            if (context.getReader().getNodeName().equals(REGULATING_TERMINAL)) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-                String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                String side = context.getReader().getAttributeValue(null, "side");
+                String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
+                String side = context.getReader().readStringAttribute("side");
                 context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml
                         .readTerminalRef(svc.getNetwork(), id, side)));
             } else {

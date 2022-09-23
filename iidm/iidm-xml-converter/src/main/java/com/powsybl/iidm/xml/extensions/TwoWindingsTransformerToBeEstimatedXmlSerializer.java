@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
@@ -40,8 +39,8 @@ public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractEx
     @Override
     public TwoWindingsTransformerToBeEstimated read(TwoWindingsTransformer extendable, XmlReaderContext context) {
         return extendable.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
-                .withRatioTapChangerStatus(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChangerStatus"))
-                .withPhaseTapChangerStatus(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChangerStatus"))
+                .withRatioTapChangerStatus(context.getReader().readBooleanAttribute("ratioTapChangerStatus"))
+                .withPhaseTapChangerStatus(context.getReader().readBooleanAttribute("phaseTapChangerStatus"))
                 .add();
     }
 }

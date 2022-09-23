@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
@@ -62,15 +61,14 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
-        String energySourceStr = context.getReader().getAttributeValue(null, "energySource");
-        EnergySource energySource = energySourceStr != null ? EnergySource.valueOf(energySourceStr) : null;
-        double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "minP");
-        double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "maxP");
-        double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedS");
-        String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
-        double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetP");
-        double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
+        EnergySource energySource = context.getReader().readEnumAttribute("energySource", EnergySource.class);
+        double minP = context.getReader().readDoubleAttribute("minP");
+        double maxP = context.getReader().readDoubleAttribute("maxP");
+        double ratedS = context.getReader().readDoubleAttribute("ratedS");
+        Boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+        double targetP = context.getReader().readDoubleAttribute("targetP");
+        double targetV = context.getReader().readDoubleAttribute("targetV");
+        double targetQ = context.getReader().readDoubleAttribute("targetQ");
         readNodeOrBus(adder, context);
         adder.setEnergySource(energySource)
                 .setMinP(minP)
@@ -79,7 +77,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                 .setTargetP(targetP)
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
-                .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+                .setVoltageRegulatorOn(voltageRegulatorOn);
         Generator g = adder.add();
         readPQ(null, g.getTerminal(), context.getReader());
         return g;
@@ -87,8 +85,8 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected void readSubElements(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getElementName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case "regulatingTerminal":
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String side = context.getReader().readStringAttribute("side");

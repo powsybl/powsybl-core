@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
@@ -40,9 +39,9 @@ public class GeneratorShortCircuitXmlSerializer extends AbstractExtensionXmlSeri
 
     @Override
     public GeneratorShortCircuit read(Generator generator, XmlReaderContext context) throws XMLStreamException {
-        double directSubtransX = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "directSubtransX");
-        double directTransX = XmlUtil.readDoubleAttribute(context.getReader(), "directTransX");
-        double stepUpTransformerX = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "stepUpTransformerX");
+        double directSubtransX = context.getReader().readDoubleAttribute("directSubtransX");
+        double directTransX = context.getReader().readDoubleAttribute("directTransX");
+        double stepUpTransformerX = context.getReader().readDoubleAttribute("stepUpTransformerX");
         return generator.newExtension(GeneratorShortCircuitAdder.class)
                 .withDirectSubtransX(directSubtransX)
                 .withDirectTransX(directTransX)

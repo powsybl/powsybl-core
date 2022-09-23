@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.slf4j.Logger;
@@ -117,14 +116,14 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     private static void readHalf(TieLineAdder.HalfLineAdder adder, NetworkXmlReaderContext context, int side) {
-        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
-        String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r_" + side);
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x_" + side);
-        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1_" + side);
-        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1_" + side);
-        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
-        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id_" + side));
+        String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("name_" + side));
+        double r = context.getReader().readDoubleAttribute("r_" + side);
+        double x = context.getReader().readDoubleAttribute("x_" + side);
+        double g1 = context.getReader().readDoubleAttribute("g1_" + side);
+        double b1 = context.getReader().readDoubleAttribute("b1_" + side);
+        double g2 = context.getReader().readDoubleAttribute("g2_" + side);
+        double b2 = context.getReader().readDoubleAttribute("b2_" + side);
         adder.setId(id)
                 .setName(name)
                 .setR(r)
@@ -135,7 +134,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .setB2(b2);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
+            boolean fictitious = context.getReader().readBooleanAttribute("fictitious_" + side, false);
             adder.setFictitious(fictitious);
         });
         adder.add();
@@ -146,16 +145,16 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         readHalf(adder.newHalfLine1(), context, 1);
         readHalf(adder.newHalfLine2(), context, 2);
         readNodeOrBus(adder, context);
-        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
+        String ucteXnodeCode = context.getReader().readStringAttribute("ucteXnodeCode");
         TieLine tl  = adder.setUcteXnodeCode(ucteXnodeCode)
                 .add();
         readPQ(1, tl.getTerminal1(), context.getReader());
         readPQ(2, tl.getTerminal2(), context.getReader());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            double half1BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
-            double half2BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
-            double half1BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
-            double half2BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
+            double half1BoundaryP = context.getReader().readDoubleAttribute("xnodeP_1");
+            double half2BoundaryP = context.getReader().readDoubleAttribute("xnodeP_2");
+            double half1BoundaryQ = context.getReader().readDoubleAttribute("xnodeQ_1");
+            double half2BoundaryQ = context.getReader().readDoubleAttribute("xnodeQ_2");
             context.getEndTasks().add(() -> {
                 checkBoundaryValue(half1BoundaryP, tl.getHalf1().getBoundary().getP(), "xnodeP_1", tl.getId());
                 checkBoundaryValue(half2BoundaryP, tl.getHalf2().getBoundary().getP(), "xnodeP_2", tl.getId());
@@ -168,8 +167,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case ACTIVE_POWER_LIMITS_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tl.newActivePowerLimits1(), context.getReader()));

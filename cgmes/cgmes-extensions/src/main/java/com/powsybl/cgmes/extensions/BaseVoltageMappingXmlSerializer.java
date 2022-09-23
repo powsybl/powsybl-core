@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 
@@ -37,7 +36,7 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
         sortedBaseVoltages.forEach((nominalV, baseVoltageSource) -> {
-            context.getWriter().writeEmptyElement(getNamespaceUri(), "baseVoltage");
+            context.getWriter().writeEmptyNode(getNamespaceUri(), "baseVoltage");
             context.getWriter().writeDoubleAttribute("nominalVoltage", nominalV);
             context.getWriter().writeEnumAttribute("source", baseVoltageSource.getSource());
             context.getWriter().writeStringAttribute("id", baseVoltageSource.getId());
@@ -49,14 +48,14 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
         BaseVoltageMappingAdder mappingAdder = extendable.newExtension(BaseVoltageMappingAdder.class);
         mappingAdder.add();
         BaseVoltageMapping mapping = extendable.getExtension(BaseVoltageMapping.class);
-        XmlUtil.readUntilEndElement(getName(), context.getReader(), () -> {
-            if (context.getReader().getLocalName().equals("baseVoltage")) {
-                double nominalV = Double.parseDouble(context.getReader().getAttributeValue(null, "nominalVoltage"));
-                String sourceBV = context.getReader().getAttributeValue(null, "source");
-                String baseVoltageId = context.getReader().getAttributeValue(null, "id");
+        context.getReader().readUntilEndNode(getName(), () -> {
+            if (context.getReader().getNodeName().equals("baseVoltage")) {
+                double nominalV = context.getReader().readDoubleAttribute("nominalVoltage");
+                String sourceBV = context.getReader().readStringAttribute("source");
+                String baseVoltageId = context.getReader().readStringAttribute("id");
                 mapping.addBaseVoltage(nominalV, baseVoltageId, Source.valueOf(sourceBV));
             } else {
-                throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <baseVoltageMapping>");
+                throw new PowsyblException("Unknown element name <" + context.getReader().getNodeName() + "> in <baseVoltageMapping>");
             }
         });
         return mapping;

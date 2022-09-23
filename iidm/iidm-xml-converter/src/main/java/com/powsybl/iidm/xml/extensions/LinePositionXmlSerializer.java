@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.Coordinate;
@@ -35,7 +34,7 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     @Override
     public void write(LinePosition<T> linePosition, XmlWriterContext context) throws XMLStreamException {
         for (Coordinate point : linePosition.getCoordinates()) {
-            context.getWriter().writeEmptyElement(getNamespaceUri(), "coordinate");
+            context.getWriter().writeEmptyNode(getNamespaceUri(), "coordinate");
             context.getWriter().writeDoubleAttribute("longitude", point.getLongitude());
             context.getWriter().writeDoubleAttribute("latitude", point.getLatitude());
         }
@@ -44,9 +43,9 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     @Override
     public LinePosition<T> read(T line, XmlReaderContext context) throws XMLStreamException {
         List<Coordinate> coordinates = new ArrayList<>();
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
-            double longitude = XmlUtil.readDoubleAttribute(context.getReader(), "longitude");
-            double latitude = XmlUtil.readDoubleAttribute(context.getReader(), "latitude");
+        context.getReader().readUntilEndNode(getExtensionName(), () -> {
+            double longitude = context.getReader().readDoubleAttribute("longitude");
+            double latitude = context.getReader().readDoubleAttribute("latitude");
             coordinates.add(new Coordinate(latitude, longitude));
         });
         LinePositionAdder<T> adder = line.newExtension(LinePositionAdder.class);

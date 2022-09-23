@@ -10,8 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
@@ -19,7 +19,6 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -41,25 +40,25 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
         writer.writeIntAttribute("sshVersion", extension.getSshVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
         for (String dep : extension.getDependencies()) {
-            writer.writeStartElement(getNamespaceUri(), "dependentOn");
-            writer.writeElementContent(dep);
-            writer.writeEndElement();
+            writer.writeStartNode(getNamespaceUri(), "dependentOn");
+            writer.writeNodeContent(dep);
+            writer.writeEndNode();
         }
     }
 
     @Override
     public CgmesSshMetadata read(Network extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        XMLStreamReader reader = networkContext.getReader();
+        XmlReader reader = networkContext.getReader();
         CgmesSshMetadataAdder adder = extendable.newExtension(CgmesSshMetadataAdder.class);
-        adder.setDescription(reader.getAttributeValue(null, "description"))
-                .setSshVersion(XmlUtil.readIntAttribute(reader, "sshVersion"))
-                .setModelingAuthoritySet(reader.getAttributeValue(null, "modelingAuthoritySet"));
-        XmlUtil.readUntilEndElement("cgmesSshMetadata", reader, () -> {
-            if (reader.getLocalName().equals("dependentOn")) {
-                adder.addDependency(reader.getElementText());
+        adder.setDescription(reader.readStringAttribute("description"))
+                .setSshVersion(reader.readIntAttribute("sshVersion"))
+                .setModelingAuthoritySet(reader.readStringAttribute("modelingAuthoritySet"));
+        reader.readUntilEndNode("cgmesSshMetadata", () -> {
+            if (reader.getNodeName().equals("dependentOn")) {
+                adder.addDependency(reader.readContent());
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesSshMetadata>");
+                throw new PowsyblException("Unknown element name <" + reader.getNodeName() + "> in <cgmesSshMetadata>");
             }
         });
         adder.add();

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
@@ -62,16 +61,16 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, NetworkXmlReaderContext context) {
-        String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
-        float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
-        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetpoint");
-        double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetpoint");
+        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+        float lossFactor = context.getReader().readFloatAttribute("lossFactor");
+        double voltageSetpoint = context.getReader().readDoubleAttribute("voltageSetpoint");
+        double reactivePowerSetpoint = context.getReader().readDoubleAttribute("reactivePowerSetpoint");
         readNodeOrBus(adder, context);
         adder
                 .setLossFactor(lossFactor)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
-                .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+                .setVoltageRegulatorOn(voltageRegulatorOn);
         VscConverterStation cs = adder.add();
         readPQ(null, cs.getTerminal(), context.getReader());
         return cs;
@@ -79,16 +78,16 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case "reactiveCapabilityCurve":
                 case "minMaxReactiveLimits":
                     ReactiveLimitsXml.INSTANCE.read(cs, context);
                     break;
                 case REGULATING_TERMINAL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    String side = context.getReader().getAttributeValue(null, "side");
+                    String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
+                    String side = context.getReader().readStringAttribute("side");
                     context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml
                             .readTerminalRef(cs.getNetwork(), id, side)));
                     break;

@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.xml.IidmXmlVersion;
@@ -85,21 +84,21 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
 
     @Override
     public MergedXnode read(Line line, XmlReaderContext context) {
-        double rdp = XmlUtil.readDoubleAttribute(context.getReader(), "rdp");
-        double xdp = XmlUtil.readDoubleAttribute(context.getReader(), "xdp");
-        double xnodeP1 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP1");
-        double xnodeQ1 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ1");
-        double xnodeP2 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP2");
-        double xnodeQ2 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ2");
-        String code = context.getReader().getAttributeValue(null, "code");
+        double rdp = context.getReader().readDoubleAttribute("rdp");
+        double xdp = context.getReader().readDoubleAttribute("xdp");
+        double xnodeP1 = context.getReader().readDoubleAttribute("xnodeP1");
+        double xnodeQ1 = context.getReader().readDoubleAttribute("xnodeQ1");
+        double xnodeP2 = context.getReader().readDoubleAttribute("xnodeP2");
+        double xnodeQ2 = context.getReader().readDoubleAttribute("xnodeQ2");
+        String code = context.getReader().readStringAttribute("code");
         String line1Name = "";
         String line2Name = "";
         if (context instanceof NetworkXmlReaderContext) {
             NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
             String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
             if ("1.1".equals(extensionVersionStr)) {
-                line1Name = context.getReader().getAttributeValue(null, "line1Name");
-                line2Name = context.getReader().getAttributeValue(null, "line2Name");
+                line1Name = context.getReader().readStringAttribute("line1Name");
+                line2Name = context.getReader().readStringAttribute("line2Name");
             }
         }
 

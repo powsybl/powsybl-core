@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -32,12 +31,10 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     private void writePosition(ConnectablePosition.Feeder feeder, Integer i, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(getNamespaceUri(), "feeder" + (i != null ? i : ""));
+        context.getWriter().writeEmptyNode(getNamespaceUri(), "feeder" + (i != null ? i : ""));
         context.getWriter().writeStringAttribute("name", feeder.getName());
         Optional<Integer> oOrder = feeder.getOrder();
-        if (oOrder.isPresent()) {
-            context.getWriter().writeIntAttribute("order", oOrder.get());
-        }
+        oOrder.ifPresent(integer -> context.getWriter().writeIntAttribute("order", integer));
         context.getWriter().writeStringAttribute("direction", feeder.getDirection().name());
     }
 
@@ -58,19 +55,19 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     private void readPosition(XmlReaderContext context, ConnectablePositionAdder.FeederAdder<C> adder) {
-        String name = context.getReader().getAttributeValue(null, "name");
-        Optional.ofNullable(XmlUtil.readOptionalIntegerAttribute(context.getReader(), "order")).
+        String name = context.getReader().readStringAttribute("name");
+        Optional.ofNullable(context.getReader().readIntAttribute("order")).
                 ifPresent(adder::withOrder);
-        ConnectablePosition.Direction direction = ConnectablePosition.Direction.valueOf(context.getReader().getAttributeValue(null, "direction"));
+        ConnectablePosition.Direction direction = context.getReader().readEnumAttribute("direction", ConnectablePosition.Direction.class);
         adder.withName(name).withDirection(direction).add();
     }
 
     @Override
     public ConnectablePosition read(Connectable connectable, XmlReaderContext context) throws XMLStreamException {
         ConnectablePositionAdder<C> adder = ((Connectable<?>) connectable).newExtension(ConnectablePositionAdder.class);
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
+        context.getReader().readUntilEndNode(getExtensionName(), () -> {
 
-            switch (context.getReader().getLocalName()) {
+            switch (context.getReader().getNodeName()) {
                 case "feeder":
                     readPosition(context, adder.newFeeder());
                     break;

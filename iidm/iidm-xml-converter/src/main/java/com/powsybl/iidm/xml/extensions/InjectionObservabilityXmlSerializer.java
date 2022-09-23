@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Injection;
@@ -49,7 +48,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
 
     private void writeOptionalQuality(String elementName, ObservabilityQuality<T> quality, XmlWriter writer) {
         if (quality != null) {
-            writer.writeEmptyElement(getNamespaceUri(), elementName);
+            writer.writeEmptyNode(getNamespaceUri(), elementName);
             writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
             writer.writeBooleanAttribute(REDUNDANT, quality.isRedundant(), false);
         }
@@ -57,36 +56,36 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
 
     @Override
     public InjectionObservability<T> read(T identifiable, XmlReaderContext context) throws XMLStreamException {
-        boolean observable = XmlUtil.readOptionalBoolAttribute(context.getReader(), "observable", false);
+        boolean observable = context.getReader().readBooleanAttribute("observable", false);
 
         InjectionObservabilityAdder<T> adder = identifiable.newExtension(InjectionObservabilityAdder.class)
                 .withObservable(observable);
 
-        XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+        context.getReader().readUntilEndNode(getExtensionName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case QUALITY_P: {
-                    var standardDeviation = XmlUtil.readDoubleAttribute(context.getReader(), STANDARD_DEVIATION);
-                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), REDUNDANT);
+                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
+                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
                     adder.withStandardDeviationP(standardDeviation)
                             .withRedundantP(redundant);
                     break;
                 }
                 case QUALITY_Q: {
-                    var standardDeviation = XmlUtil.readDoubleAttribute(context.getReader(), STANDARD_DEVIATION);
-                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), REDUNDANT);
+                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
+                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
                     adder.withStandardDeviationQ(standardDeviation)
                             .withRedundantQ(redundant);
                     break;
                 }
                 case QUALITY_V: {
-                    var standardDeviation = XmlUtil.readDoubleAttribute(context.getReader(), STANDARD_DEVIATION);
-                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), REDUNDANT);
+                    var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
+                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
                     adder.withStandardDeviationV(standardDeviation)
                             .withRedundantV(redundant);
                     break;
                 }
                 default: {
-                    throw new PowsyblException("Unexpected element: " + context.getReader().getLocalName());
+                    throw new PowsyblException("Unexpected element: " + context.getReader().getNodeName());
                 }
             }
         });
