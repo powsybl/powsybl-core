@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -31,7 +29,7 @@ public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractEx
     }
 
     @Override
-    public void write(TwoWindingsTransformerToBeEstimated extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(TwoWindingsTransformerToBeEstimated extension, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("ratioTapChangerStatus", extension.shouldEstimateRatioTapChanger());
         context.getWriter().writeBooleanAttribute("phaseTapChangerStatus", extension.shouldEstimatePhaseTapChanger());
     }

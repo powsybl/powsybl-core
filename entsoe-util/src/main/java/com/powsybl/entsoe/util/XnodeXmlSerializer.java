@@ -13,8 +13,6 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.DanglingLine;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -27,7 +25,7 @@ public class XnodeXmlSerializer extends AbstractExtensionXmlSerializer<DanglingL
     }
 
     @Override
-    public void write(Xnode xnode, XmlWriterContext context) throws XMLStreamException {
+    public void write(Xnode xnode, XmlWriterContext context) {
         context.getWriter().writeStringAttribute("code", xnode.getCode());
     }
 

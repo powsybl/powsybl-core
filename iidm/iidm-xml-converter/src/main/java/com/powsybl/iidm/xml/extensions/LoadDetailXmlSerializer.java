@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -31,7 +29,7 @@ public class LoadDetailXmlSerializer extends AbstractExtensionXmlSerializer<Load
     }
 
     @Override
-    public void write(LoadDetail detail, XmlWriterContext context) throws XMLStreamException {
+    public void write(LoadDetail detail, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("fixedActivePower", detail.getFixedActivePower());
         context.getWriter().writeDoubleAttribute("fixedReactivePower", detail.getFixedReactivePower());
         context.getWriter().writeDoubleAttribute("variableActivePower", detail.getVariableActivePower());

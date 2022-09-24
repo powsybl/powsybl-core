@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -30,7 +28,7 @@ public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSeri
     }
 
     @Override
-    public void write(BusbarSectionPosition busbarSectionPosition, XmlWriterContext context) throws XMLStreamException {
+    public void write(BusbarSectionPosition busbarSectionPosition, XmlWriterContext context) {
         context.getWriter().writeIntAttribute("busbarIndex", busbarSectionPosition.getBusbarIndex());
         context.getWriter().writeIntAttribute("sectionIndex", busbarSectionPosition.getSectionIndex());
     }

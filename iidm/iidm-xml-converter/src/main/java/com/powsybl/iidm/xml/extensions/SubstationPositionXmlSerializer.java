@@ -16,8 +16,6 @@ import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
@@ -30,14 +28,14 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
     }
 
     @Override
-    public void write(SubstationPosition substationPosition, XmlWriterContext context) throws XMLStreamException {
+    public void write(SubstationPosition substationPosition, XmlWriterContext context) {
         context.getWriter().writeEmptyNode(getNamespaceUri(), "coordinate");
         context.getWriter().writeDoubleAttribute("longitude", substationPosition.getCoordinate().getLongitude());
         context.getWriter().writeDoubleAttribute("latitude", substationPosition.getCoordinate().getLatitude());
     }
 
     @Override
-    public SubstationPosition read(Substation substation, XmlReaderContext context) throws XMLStreamException {
+    public SubstationPosition read(Substation substation, XmlReaderContext context) {
         Coordinate[] coordinate = new Coordinate[1];
         context.getReader().readUntilEndNode(getExtensionName(), () -> {
             double longitude = context.getReader().readDoubleAttribute("longitude");

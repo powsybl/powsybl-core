@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  *
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
@@ -31,14 +29,14 @@ public class GeneratorShortCircuitXmlSerializer extends AbstractExtensionXmlSeri
     }
 
     @Override
-    public void write(GeneratorShortCircuit generatorShortCircuit, XmlWriterContext context) throws XMLStreamException {
+    public void write(GeneratorShortCircuit generatorShortCircuit, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("directSubtransX", generatorShortCircuit.getDirectSubtransX());
         context.getWriter().writeDoubleAttribute("directTransX", generatorShortCircuit.getDirectTransX());
         context.getWriter().writeDoubleAttribute("stepUpTransformerX", generatorShortCircuit.getStepUpTransformerX());
     }
 
     @Override
-    public GeneratorShortCircuit read(Generator generator, XmlReaderContext context) throws XMLStreamException {
+    public GeneratorShortCircuit read(Generator generator, XmlReaderContext context) {
         double directSubtransX = context.getReader().readDoubleAttribute("directSubtransX");
         double directTransX = context.getReader().readDoubleAttribute("directTransX");
         double stepUpTransformerX = context.getReader().readDoubleAttribute("stepUpTransformerX");

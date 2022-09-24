@@ -14,8 +14,6 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadZipModel;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -28,7 +26,7 @@ public class LoadZipModelXmlSerializer extends AbstractExtensionXmlSerializer<Lo
     }
 
     @Override
-    public void write(LoadZipModel zipModel, XmlWriterContext context) throws XMLStreamException {
+    public void write(LoadZipModel zipModel, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("a1", zipModel.getA1());
         context.getWriter().writeDoubleAttribute("a2", zipModel.getA2());
         context.getWriter().writeDoubleAttribute("a3", zipModel.getA3());

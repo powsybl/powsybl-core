@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -39,7 +37,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
     }
 
     @Override
-    public void write(BranchObservability<T> branchObservability, XmlWriterContext context) throws XMLStreamException {
+    public void write(BranchObservability<T> branchObservability, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("observable", branchObservability.isObservable(), false);
 
         // qualityP1
@@ -55,7 +53,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         writeOptionalQuality(context, branchObservability.getQualityQ2(), QUALITY_Q, Side.TWO);
     }
 
-    private void writeOptionalQuality(XmlWriterContext context, ObservabilityQuality<T> quality, String type, Side side) throws XMLStreamException {
+    private void writeOptionalQuality(XmlWriterContext context, ObservabilityQuality<T> quality, String type, Side side) {
         if (quality == null) {
             return;
         }
@@ -66,7 +64,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
     }
 
     @Override
-    public BranchObservability<T> read(T identifiable, XmlReaderContext context) throws XMLStreamException {
+    public BranchObservability<T> read(T identifiable, XmlReaderContext context) {
         boolean observable = context.getReader().readBooleanAttribute("observable", false);
 
         BranchObservabilityAdder<T> adder = identifiable.newExtension(BranchObservabilityAdder.class)

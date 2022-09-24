@@ -14,7 +14,6 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
     }
 
     @Override
-    public void write(BaseVoltageMapping extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(BaseVoltageMapping extension, XmlWriterContext context) {
         Map<Double, BaseVoltageMapping.BaseVoltageSource> sortedBaseVoltages = extension.getBaseVoltages().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
@@ -44,7 +43,7 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
     }
 
     @Override
-    public BaseVoltageMapping read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public BaseVoltageMapping read(Network extendable, XmlReaderContext context) {
         BaseVoltageMappingAdder mappingAdder = extendable.newExtension(BaseVoltageMappingAdder.class);
         mappingAdder.add();
         BaseVoltageMapping mapping = extendable.getExtension(BaseVoltageMapping.class);

@@ -13,8 +13,6 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Line;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -28,7 +26,7 @@ public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSeri
     }
 
     @Override
-    public void write(CgmesLineBoundaryNode extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesLineBoundaryNode extension, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
         extension.getLineEnergyIdentificationCodeEic()
                 .ifPresent(lineEnergyIdentificationCodeEic -> {

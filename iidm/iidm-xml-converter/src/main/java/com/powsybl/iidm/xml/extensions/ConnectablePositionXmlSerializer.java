@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
 /**
@@ -30,7 +29,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                 "cp");
     }
 
-    private void writePosition(ConnectablePosition.Feeder feeder, Integer i, XmlWriterContext context) throws XMLStreamException {
+    private void writePosition(ConnectablePosition.Feeder feeder, Integer i, XmlWriterContext context) {
         context.getWriter().writeEmptyNode(getNamespaceUri(), "feeder" + (i != null ? i : ""));
         context.getWriter().writeStringAttribute("name", feeder.getName());
         Optional<Integer> oOrder = feeder.getOrder();
@@ -39,7 +38,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     @Override
-    public void write(ConnectablePosition connectablePosition, XmlWriterContext context) throws XMLStreamException {
+    public void write(ConnectablePosition connectablePosition, XmlWriterContext context) {
         if (connectablePosition.getFeeder() != null) {
             writePosition(connectablePosition.getFeeder(), null, context);
         }
@@ -63,7 +62,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     @Override
-    public ConnectablePosition read(Connectable connectable, XmlReaderContext context) throws XMLStreamException {
+    public ConnectablePosition read(Connectable connectable, XmlReaderContext context) {
         ConnectablePositionAdder<C> adder = ((Connectable<?>) connectable).newExtension(ConnectablePositionAdder.class);
         context.getReader().readUntilEndNode(getExtensionName(), () -> {
 

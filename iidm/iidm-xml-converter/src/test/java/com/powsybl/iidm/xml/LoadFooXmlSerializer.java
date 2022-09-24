@@ -14,8 +14,6 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadFooExt;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -28,7 +26,7 @@ public class LoadFooXmlSerializer extends AbstractExtensionXmlSerializer<Load, L
     }
 
     @Override
-    public void write(LoadFooExt loadFoo, XmlWriterContext context) throws XMLStreamException {
+    public void write(LoadFooExt loadFoo, XmlWriterContext context) {
     }
 
     @Override

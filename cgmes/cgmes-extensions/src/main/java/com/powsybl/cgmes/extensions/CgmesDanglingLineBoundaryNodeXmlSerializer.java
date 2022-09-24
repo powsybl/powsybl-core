@@ -13,8 +13,6 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.DanglingLine;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -28,7 +26,7 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
     }
 
     @Override
-    public void write(CgmesDanglingLineBoundaryNode extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesDanglingLineBoundaryNode extension, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("isHvdc", extension.isHvdc());
         extension.getLineEnergyIdentificationCodeEic()
                 .ifPresent(lineEnergyIdentificationCodeEic -> {
@@ -37,7 +35,7 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNode read(DanglingLine extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesDanglingLineBoundaryNode read(DanglingLine extendable, XmlReaderContext context) {
         boolean isHvdc = context.getReader().readBooleanAttribute("isHvdc");
         String lineEnergyIdentificationCodeEic = context.getReader().readStringAttribute("lineEnergyIdentificationCodeEic");
         extendable.newExtension(CgmesDanglingLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();

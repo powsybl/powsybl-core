@@ -11,7 +11,6 @@ import com.powsybl.commons.Versionable;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -57,9 +56,9 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
 
     String getNamespacePrefix();
 
-    void write(E extension, XmlWriterContext context) throws XMLStreamException;
+    void write(E extension, XmlWriterContext context);
 
-    E read(T extendable, XmlReaderContext context) throws XMLStreamException;
+    E read(T extendable, XmlReaderContext context);
 
     default String getName() {
         return getExtensionName();

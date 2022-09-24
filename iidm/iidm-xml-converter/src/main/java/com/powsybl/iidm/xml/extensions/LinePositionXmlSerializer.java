@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.LinePositionAdder;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     }
 
     @Override
-    public void write(LinePosition<T> linePosition, XmlWriterContext context) throws XMLStreamException {
+    public void write(LinePosition<T> linePosition, XmlWriterContext context) {
         for (Coordinate point : linePosition.getCoordinates()) {
             context.getWriter().writeEmptyNode(getNamespaceUri(), "coordinate");
             context.getWriter().writeDoubleAttribute("longitude", point.getLongitude());
@@ -41,7 +40,7 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     }
 
     @Override
-    public LinePosition<T> read(T line, XmlReaderContext context) throws XMLStreamException {
+    public LinePosition<T> read(T line, XmlReaderContext context) {
         List<Coordinate> coordinates = new ArrayList<>();
         context.getReader().readUntilEndNode(getExtensionName(), () -> {
             double longitude = context.getReader().readDoubleAttribute("longitude");

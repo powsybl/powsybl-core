@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
@@ -29,7 +27,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     }
 
     @Override
-    public void write(ActivePowerControl activePowerControl, XmlWriterContext context) throws XMLStreamException {
+    public void write(ActivePowerControl activePowerControl, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate());
         context.getWriter().writeFloatAttribute("droop", activePowerControl.getDroop());
     }

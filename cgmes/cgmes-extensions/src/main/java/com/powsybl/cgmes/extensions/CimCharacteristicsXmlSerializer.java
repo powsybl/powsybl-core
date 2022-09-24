@@ -17,8 +17,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -31,7 +29,7 @@ public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSeriali
     }
 
     @Override
-    public void write(CimCharacteristics extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CimCharacteristics extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XmlWriter writer = networkContext.getWriter();
         writer.writeEnumAttribute("topologyKind", extension.getTopologyKind());
@@ -39,7 +37,7 @@ public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSeriali
     }
 
     @Override
-    public CimCharacteristics read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CimCharacteristics read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XmlReader reader = networkContext.getReader();
         extendable.newExtension(CimCharacteristicsAdder.class)

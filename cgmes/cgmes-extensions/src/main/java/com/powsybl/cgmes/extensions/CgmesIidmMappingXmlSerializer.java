@@ -8,7 +8,6 @@ package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -17,7 +16,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,7 +35,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     }
 
     @Override
-    public void write(CgmesIidmMapping extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesIidmMapping extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         extension.getUnmappedTopologicalNodes().forEach(cgmesTopologicalNode -> {
             context.getWriter().writeEmptyNode(getNamespaceUri(), "unmappedTopologicalNode");
@@ -48,19 +46,15 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         extension.getExtendable().getBusView().getBusStream()
                 .filter(b -> extension.isTopologicalNodeMapped(b.getId()))
                 .forEach(b -> {
-                    try {
-                        context.getWriter().writeStartNode(getNamespaceUri(), "link");
-                        writeBusIdentification(b, networkContext);
-                        writeTopologicalNodes(extension, b, context);
-                        context.getWriter().writeEndNode();
-                    } catch (XMLStreamException e) {
-                        throw new UncheckedXmlStreamException(e);
-                    }
+                    context.getWriter().writeStartNode(getNamespaceUri(), "link");
+                    writeBusIdentification(b, networkContext);
+                    writeTopologicalNodes(extension, b, context);
+                    context.getWriter().writeEndNode();
                 });
     }
 
     @Override
-    public CgmesIidmMapping read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesIidmMapping read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         CgmesIidmMappingAdder mappingAdder = extendable.newExtension(CgmesIidmMappingAdder.class);
         mappingAdder.add();
@@ -96,7 +90,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         return !cgmesIidmMapping.isTopologicalNodeEmpty();
     }
 
-    private static void writeBusIdentification(Bus b, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeBusIdentification(Bus b, NetworkXmlWriterContext context) {
         // BusView buses have a calculated bus identifier that should not be used as a persistent identification
         // We write a bus reference using the equipment and side of the first connected terminal
         Iterator<? extends Terminal> it = b.getConnectedTerminals().iterator();
@@ -110,16 +104,12 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
 
     private void writeTopologicalNodes(CgmesIidmMapping extension, Bus b, XmlWriterContext context) {
         extension.getTopologicalNodes(b.getId()).forEach(ctn -> {
-            try {
-                context.getWriter().writeEmptyNode(getNamespaceUri(), "topologicalNode");
-                writeTopologicalNode(ctn, context);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            context.getWriter().writeEmptyNode(getNamespaceUri(), "topologicalNode");
+            writeTopologicalNode(ctn, context);
         });
     }
 
-    private void writeTopologicalNode(CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode, XmlWriterContext context) throws XMLStreamException {
+    private void writeTopologicalNode(CgmesIidmMapping.CgmesTopologicalNode cgmesTopologicalNode, XmlWriterContext context) {
         context.getWriter().writeStringAttribute("id", cgmesTopologicalNode.getCgmesId());
         context.getWriter().writeStringAttribute("name", cgmesTopologicalNode.getName());
         context.getWriter().writeEnumAttribute(SOURCE, cgmesTopologicalNode.getSource());
@@ -132,8 +122,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         if (!(i instanceof Connectable)) {
             throw new PowsyblException("Equipment is not connectable " + equipmentId);
         }
-        String busId = terminalSide((Connectable) i, side).getBusView().getBus().getId();
-        return busId;
+        return terminalSide((Connectable) i, side).getBusView().getBus().getId();
     }
 
     private void readTopologicalNodes(XmlReaderContext context, CgmesIidmMapping mapping, String busId) {
@@ -153,8 +142,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
 
     private static Terminal terminalSide(Connectable c, int side) {
         List<? extends Terminal> l = c.getTerminals();
-        Terminal t = l.get(side - 1);
-        return t;
+        return l.get(side - 1);
     }
 
     private static int terminalSide(Terminal t, Connectable c) {

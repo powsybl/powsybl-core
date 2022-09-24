@@ -13,14 +13,13 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
-import com.powsybl.iidm.network.test.ScadaNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.test.ScadaNetworkFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -84,7 +83,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         }
 
         @Override
-        public void write(BusbarSectionExt busbarSectionExt, XmlWriterContext context) throws XMLStreamException {
+        public void write(BusbarSectionExt busbarSectionExt, XmlWriterContext context) {
         }
 
         @Override

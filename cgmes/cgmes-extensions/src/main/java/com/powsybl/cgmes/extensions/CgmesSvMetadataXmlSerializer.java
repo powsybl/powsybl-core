@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -32,7 +30,7 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
     }
 
     @Override
-    public void write(CgmesSvMetadata extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesSvMetadata extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XmlWriter writer = networkContext.getWriter();
         writer.writeStringAttribute("description", extension.getDescription());
@@ -46,7 +44,7 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
     }
 
     @Override
-    public CgmesSvMetadata read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesSvMetadata read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XmlReader reader = networkContext.getReader();
         CgmesSvMetadataAdder adder = extendable.newExtension(CgmesSvMetadataAdder.class);

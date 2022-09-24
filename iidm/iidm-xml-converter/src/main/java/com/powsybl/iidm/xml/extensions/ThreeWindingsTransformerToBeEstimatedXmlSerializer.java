@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -30,7 +28,7 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
     }
 
     @Override
-    public void write(ThreeWindingsTransformerToBeEstimated extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(ThreeWindingsTransformerToBeEstimated extension, XmlWriterContext context) {
         context.getWriter().writeStringAttribute("ratioTapChanger1Status", String.valueOf(extension.shouldEstimateRatioTapChanger1()));
         context.getWriter().writeStringAttribute("ratioTapChanger2Status", String.valueOf(extension.shouldEstimateRatioTapChanger2()));
         context.getWriter().writeStringAttribute("ratioTapChanger3Status", String.valueOf(extension.shouldEstimateRatioTapChanger3()));

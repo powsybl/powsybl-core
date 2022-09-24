@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -29,7 +27,7 @@ public class CoordinatedReactiveControlXmlSerializer extends AbstractExtensionXm
     }
 
     @Override
-    public void write(CoordinatedReactiveControl coordinatedReactiveControl, XmlWriterContext context) throws XMLStreamException {
+    public void write(CoordinatedReactiveControl coordinatedReactiveControl, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("qPercent", coordinatedReactiveControl.getQPercent());
     }
 

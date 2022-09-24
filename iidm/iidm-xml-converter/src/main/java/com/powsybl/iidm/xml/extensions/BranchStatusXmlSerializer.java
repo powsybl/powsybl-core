@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.extensions.BranchStatusAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
@@ -30,12 +28,12 @@ public class BranchStatusXmlSerializer<C extends Connectable<C>> extends Abstrac
     }
 
     @Override
-    public void write(BranchStatus<C> branchStatus, XmlWriterContext context) throws XMLStreamException {
+    public void write(BranchStatus<C> branchStatus, XmlWriterContext context) {
         context.getWriter().writeNodeContent(branchStatus.getStatus().name());
     }
 
     @Override
-    public BranchStatus<C> read(C connectable, XmlReaderContext context) throws XMLStreamException {
+    public BranchStatus<C> read(C connectable, XmlReaderContext context) {
         BranchStatus.Status status = BranchStatus.Status.valueOf(context.getReader().readUntilEndNode("branchStatus", null));
         BranchStatusAdder<C> adder = connectable.newExtension(BranchStatusAdder.class);
         return adder.withStatus(status)

@@ -19,8 +19,6 @@ import com.powsybl.iidm.network.extensions.MeasurementAdder;
 import com.powsybl.iidm.network.extensions.Measurements;
 import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -36,7 +34,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
     }
 
     @Override
-    public void write(Measurements<C> extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(Measurements<C> extension, XmlWriterContext context) {
         XmlWriter writer = context.getWriter();
         for (Measurement measurement : extension.getMeasurements()) {
             boolean hasProperty = !measurement.getPropertyNames().isEmpty();
@@ -65,7 +63,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
     }
 
     @Override
-    public Measurements<C> read(C extendable, XmlReaderContext context) throws XMLStreamException {
+    public Measurements<C> read(C extendable, XmlReaderContext context) {
         MeasurementsAdder<C> measurementsAdder = extendable.newExtension(MeasurementsAdder.class);
         Measurements<C> measurements = measurementsAdder.add();
         var reader = context.getReader();

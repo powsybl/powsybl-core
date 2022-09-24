@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -148,7 +147,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
         }
 
         @Override
-        public void write(NetworkSourceExtension networkSource, XmlWriterContext context) throws XMLStreamException {
+        public void write(NetworkSourceExtension networkSource, XmlWriterContext context) {
             context.getWriter().writeStringAttribute("sourceData", networkSource.getSourceData());
         }
 

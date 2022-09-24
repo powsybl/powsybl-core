@@ -14,8 +14,6 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadBarExt;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -28,7 +26,7 @@ public class LoadBarXmlSerializer extends AbstractExtensionXmlSerializer<Load, L
     }
 
     @Override
-    public void write(LoadBarExt loadBar, XmlWriterContext context) throws XMLStreamException {
+    public void write(LoadBarExt loadBar, XmlWriterContext context) {
     }
 
     @Override

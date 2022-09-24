@@ -13,8 +13,6 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Substation;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -27,12 +25,12 @@ public class EntsoeAreaXmlSerializer extends AbstractExtensionXmlSerializer<Subs
     }
 
     @Override
-    public void write(EntsoeArea country, XmlWriterContext context) throws XMLStreamException {
+    public void write(EntsoeArea country, XmlWriterContext context) {
         context.getWriter().writeNodeContent(country.getCode().name());
     }
 
     @Override
-    public EntsoeArea read(Substation substation, XmlReaderContext context) throws XMLStreamException {
+    public EntsoeArea read(Substation substation, XmlReaderContext context) {
         EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(context.getReader().readUntilEndNode(getExtensionName(), null));
         substation.newExtension(EntsoeAreaAdder.class).withCode(code).add();
         return substation.getExtension(EntsoeArea.class);

@@ -18,7 +18,6 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -59,7 +58,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
     }
 
     @Override
-    public void write(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
+    public void write(MergedXnode xnode, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("rdp", xnode.getRdp());
         context.getWriter().writeDoubleAttribute("xdp", xnode.getXdp());
         context.getWriter().writeDoubleAttribute("xnodeP1", xnode.getXnodeP1());

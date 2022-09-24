@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  */
@@ -31,7 +29,7 @@ public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
     }
 
     @Override
-    public void write(TwoWindingsTransformerPhaseAngleClock extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(TwoWindingsTransformerPhaseAngleClock extension, XmlWriterContext context) {
         context.getWriter().writeIntAttribute("phaseAngleClock", extension.getPhaseAngleClock(), 0);
     }
 

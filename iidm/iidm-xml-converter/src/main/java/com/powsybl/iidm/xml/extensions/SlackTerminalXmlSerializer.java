@@ -22,7 +22,6 @@ import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -69,7 +68,7 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
     }
 
     @Override
-    public void write(SlackTerminal slackTerminal, XmlWriterContext context) throws XMLStreamException {
+    public void write(SlackTerminal slackTerminal, XmlWriterContext context) {
         Terminal terminal = slackTerminal.getTerminal();
         if (terminal != null) {
             TerminalRefXml.writeTerminalRefAttribute(slackTerminal.getTerminal(), (NetworkXmlWriterContext) context);

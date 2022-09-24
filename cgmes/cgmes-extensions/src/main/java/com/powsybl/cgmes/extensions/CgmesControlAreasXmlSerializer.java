@@ -40,7 +40,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     }
 
     @Override
-    public void write(CgmesControlAreas extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesControlAreas extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XmlWriter writer = networkContext.getWriter();
         for (CgmesControlArea controlArea : extension.getCgmesControlAreas()) {
@@ -64,7 +64,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     }
 
     @Override
-    public CgmesControlAreas read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesControlAreas read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XmlReader reader = networkContext.getReader();
         extendable.newExtension(CgmesControlAreasAdder.class).add();

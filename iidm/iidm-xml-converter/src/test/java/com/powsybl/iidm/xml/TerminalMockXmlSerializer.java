@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.TerminalMockExt;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +70,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
     }
 
     @Override
-    public void write(TerminalMockExt extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(TerminalMockExt extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String extensionVersion = networkContext.getOptions().getExtensionVersion(getExtensionName())
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
@@ -79,7 +78,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
     }
 
     @Override
-    public TerminalMockExt read(Load extendable, XmlReaderContext context) throws XMLStreamException {
+    public TerminalMockExt read(Load extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         checkReadingCompatibility(networkContext);
 

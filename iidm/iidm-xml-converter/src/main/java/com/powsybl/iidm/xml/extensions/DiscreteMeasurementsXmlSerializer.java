@@ -20,8 +20,6 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -37,7 +35,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     }
 
     @Override
-    public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) {
         XmlWriter writer = context.getWriter();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
             boolean hasProperty = !discreteMeasurement.getPropertyNames().isEmpty();
@@ -76,7 +74,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     }
 
     @Override
-    public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) throws XMLStreamException {
+    public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) {
         DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
         DiscreteMeasurements<I> discreteMeasurements = adder.add();
         XmlReader reader = context.getReader();
@@ -90,7 +88,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
         return discreteMeasurements;
     }
 
-    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, XmlReader reader) throws XMLStreamException {
+    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, XmlReader reader) {
         DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
                 .setId(reader.readStringAttribute("id"))
                 .setType(reader.readEnumAttribute("type", DiscreteMeasurement.Type.class))

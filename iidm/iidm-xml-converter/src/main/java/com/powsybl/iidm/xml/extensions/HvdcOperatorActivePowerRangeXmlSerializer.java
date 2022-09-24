@@ -17,8 +17,6 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
@@ -34,7 +32,7 @@ public class HvdcOperatorActivePowerRangeXmlSerializer extends AbstractExtension
     }
 
     @Override
-    public void write(HvdcOperatorActivePowerRange opr, XmlWriterContext context) throws XMLStreamException {
+    public void write(HvdcOperatorActivePowerRange opr, XmlWriterContext context) {
         context.getWriter().writeFloatAttribute("fromCS1toCS2", opr.getOprFromCS1toCS2());
         context.getWriter().writeFloatAttribute("fromCS2toCS1", opr.getOprFromCS2toCS1());
     }

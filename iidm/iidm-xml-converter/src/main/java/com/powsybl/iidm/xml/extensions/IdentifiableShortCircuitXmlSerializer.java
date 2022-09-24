@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  *
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
@@ -31,13 +29,13 @@ public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> ex
     }
 
     @Override
-    public void write(IdentifiableShortCircuit identifiableShortCircuit, XmlWriterContext context) throws XMLStreamException {
+    public void write(IdentifiableShortCircuit identifiableShortCircuit, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("ipMax", identifiableShortCircuit.getIpMax());
         context.getWriter().writeDoubleAttribute("ipMin", identifiableShortCircuit.getIpMin());
     }
 
     @Override
-    public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) throws XMLStreamException {
+    public IdentifiableShortCircuit read(I identifiable, XmlReaderContext context) {
         double ipMax = context.getReader().readDoubleAttribute("ipMax");
         double ipMin = context.getReader().readDoubleAttribute("ipMin");
         IdentifiableShortCircuitAdder<I> adder = identifiable.newExtension(IdentifiableShortCircuitAdder.class);

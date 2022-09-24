@@ -16,8 +16,6 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
@@ -32,14 +30,14 @@ public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExten
     }
 
     @Override
-    public void write(HvdcAngleDroopActivePowerControl extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(HvdcAngleDroopActivePowerControl extension, XmlWriterContext context) {
         context.getWriter().writeFloatAttribute("p0", extension.getP0());
         context.getWriter().writeFloatAttribute("droop", extension.getDroop());
         context.getWriter().writeStringAttribute("enabled", Boolean.toString(extension.isEnabled()));
     }
 
     @Override
-    public HvdcAngleDroopActivePowerControl read(HvdcLine hvdcLine, XmlReaderContext context) throws XMLStreamException {
+    public HvdcAngleDroopActivePowerControl read(HvdcLine hvdcLine, XmlReaderContext context) {
         float p0 = context.getReader().readFloatAttribute("p0");
         float droop = context.getReader().readFloatAttribute("droop");
         boolean enabled = context.getReader().readBooleanAttribute("enabled");

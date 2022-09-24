@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -29,7 +27,7 @@ public class VoltagePerReactivePowerControlXmlSerializer extends AbstractExtensi
     }
 
     @Override
-    public void write(VoltagePerReactivePowerControl control, XmlWriterContext context) throws XMLStreamException {
+    public void write(VoltagePerReactivePowerControl control, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("slope", control.getSlope());
     }
 

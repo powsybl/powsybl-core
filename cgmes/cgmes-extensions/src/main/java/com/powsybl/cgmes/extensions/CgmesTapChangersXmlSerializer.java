@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
@@ -33,7 +31,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
     }
 
     @Override
-    public void write(CgmesTapChangers<C> extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesTapChangers<C> extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XmlWriter writer = networkContext.getWriter();
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
@@ -52,7 +50,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
     }
 
     @Override
-    public CgmesTapChangers<C> read(C extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesTapChangers<C> read(C extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XmlReader reader = networkContext.getReader();
         extendable.newExtension(CgmesTapChangersAdder.class).add();

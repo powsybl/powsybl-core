@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 
 /**
@@ -59,12 +58,12 @@ public class GeneratorEntsoeCategoryXmlSerializer implements ExtensionXmlSeriali
     }
 
     @Override
-    public void write(GeneratorEntsoeCategory entsoeCategory, XmlWriterContext context) throws XMLStreamException {
+    public void write(GeneratorEntsoeCategory entsoeCategory, XmlWriterContext context) {
         context.getWriter().writeNodeContent(Integer.toString(entsoeCategory.getCode()));
     }
 
     @Override
-    public GeneratorEntsoeCategory read(Generator generator, XmlReaderContext context) throws XMLStreamException {
+    public GeneratorEntsoeCategory read(Generator generator, XmlReaderContext context) {
         int code = Integer.parseInt(context.getReader().readUntilEndNode(getExtensionName(), null));
         return generator.newExtension(GeneratorEntsoeCategoryAdder.class)
                 .withCode(code)

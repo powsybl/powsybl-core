@@ -18,8 +18,6 @@ import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -39,7 +37,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
     }
 
     @Override
-    public void write(InjectionObservability<T> injectionObservability, XmlWriterContext context) throws XMLStreamException {
+    public void write(InjectionObservability<T> injectionObservability, XmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("observable", injectionObservability.isObservable(), false);
         writeOptionalQuality(QUALITY_P, injectionObservability.getQualityP(), context.getWriter());
         writeOptionalQuality(QUALITY_Q, injectionObservability.getQualityQ(), context.getWriter());
@@ -55,7 +53,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
     }
 
     @Override
-    public InjectionObservability<T> read(T identifiable, XmlReaderContext context) throws XMLStreamException {
+    public InjectionObservability<T> read(T identifiable, XmlReaderContext context) {
         boolean observable = context.getReader().readBooleanAttribute("observable", false);
 
         InjectionObservabilityAdder<T> adder = identifiable.newExtension(InjectionObservabilityAdder.class)

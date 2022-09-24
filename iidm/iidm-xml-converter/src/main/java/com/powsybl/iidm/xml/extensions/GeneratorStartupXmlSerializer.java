@@ -20,7 +20,6 @@ import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -67,7 +66,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
     }
 
     @Override
-    public void write(GeneratorStartup startup, XmlWriterContext context) throws XMLStreamException {
+    public void write(GeneratorStartup startup, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String extVersionStr = networkContext.getExtensionVersion("startup")
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
@@ -94,7 +93,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
     }
 
     @Override
-    public GeneratorStartup read(Generator generator, XmlReaderContext context) throws XMLStreamException {
+    public GeneratorStartup read(Generator generator, XmlReaderContext context) {
         double plannedActivePowerSetpoint;
         double startUpCost;
         NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
