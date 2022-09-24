@@ -25,17 +25,30 @@ public class JsonWriter implements TreeDataWriter {
 
     @Override
     public void writeStartNode(String ns, String name) {
-
+        try {
+            jsonGenerator.writeStartObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void writeEmptyNode(String ns, String name) {
-
+        try {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeEndObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void writeEndNode() {
-
+        try {
+            jsonGenerator.writeEndObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override

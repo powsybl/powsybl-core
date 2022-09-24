@@ -45,7 +45,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                 writer.writeEmptyNode(getNamespaceUri(), DISCRETE_MEASUREMENT);
             }
             writer.writeStringAttribute("id", discreteMeasurement.getId());
-            writer.writeStringAttribute("type", discreteMeasurement.getType().toString());
+            writer.writeEnumAttribute("type", discreteMeasurement.getType());
             writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
             writer.writeEnumAttribute("valueType", discreteMeasurement.getValueType());
             switch (discreteMeasurement.getValueType()) {

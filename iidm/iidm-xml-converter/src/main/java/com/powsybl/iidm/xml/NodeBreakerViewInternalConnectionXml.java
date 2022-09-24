@@ -22,8 +22,8 @@ public class NodeBreakerViewInternalConnectionXml {
 
     protected void write(int node1, int node2, NetworkXmlWriterContext context) {
         context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
-        context.getWriter().writeStringAttribute("node1", Integer.toString(node1));
-        context.getWriter().writeStringAttribute("node2", Integer.toString(node2));
+        context.getWriter().writeIntAttribute("node1", node1);
+        context.getWriter().writeIntAttribute("node2", node2);
     }
 
     protected void read(VoltageLevel vl, NetworkXmlReaderContext context) {

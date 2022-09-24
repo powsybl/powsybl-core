@@ -34,11 +34,11 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) {
-        context.getWriter().writeStringAttribute("energySource", g.getEnergySource().name());
+        context.getWriter().writeEnumAttribute("energySource", g.getEnergySource());
         context.getWriter().writeDoubleAttribute("minP", g.getMinP());
         context.getWriter().writeDoubleAttribute("maxP", g.getMaxP());
         context.getWriter().writeDoubleAttribute("ratedS", g.getRatedS());
-        context.getWriter().writeStringAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
+        context.getWriter().writeBooleanAttribute("voltageRegulatorOn", g.isVoltageRegulatorOn());
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());

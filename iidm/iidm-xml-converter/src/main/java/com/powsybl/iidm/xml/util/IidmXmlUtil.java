@@ -301,7 +301,7 @@ public final class IidmXmlUtil {
     public static void writeBooleanAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean value, boolean defaultValue,
                                                                ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
         writeAttributeFromMinimumVersion(rootElementName, attributeName, value != defaultValue, type,
-                minVersion, context, () -> context.getWriter().writeStringAttribute(attributeName, Boolean.toString(value)));
+                minVersion, context, () -> context.getWriter().writeBooleanAttribute(attributeName, value));
     }
 
     /**

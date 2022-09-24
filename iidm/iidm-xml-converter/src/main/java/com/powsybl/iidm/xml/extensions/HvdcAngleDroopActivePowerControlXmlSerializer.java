@@ -33,7 +33,7 @@ public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExten
     public void write(HvdcAngleDroopActivePowerControl extension, XmlWriterContext context) {
         context.getWriter().writeFloatAttribute("p0", extension.getP0());
         context.getWriter().writeFloatAttribute("droop", extension.getDroop());
-        context.getWriter().writeStringAttribute("enabled", Boolean.toString(extension.isEnabled()));
+        context.getWriter().writeBooleanAttribute("enabled", extension.isEnabled());
     }
 
     @Override

@@ -54,12 +54,12 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             double bPerSection = model instanceof ShuntCompensatorLinearModel ? ((ShuntCompensatorLinearModel) model).getBPerSection() : sc.getB();
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, bPerSection);
             int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
-            context.getWriter().writeStringAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(maximumSectionCount));
+            context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, maximumSectionCount);
             int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
-            context.getWriter().writeStringAttribute("currentSectionCount", Integer.toString(currentSectionCount));
+            context.getWriter().writeIntAttribute("currentSectionCount", currentSectionCount);
         });
         if (sc.findSectionCount().isPresent()) {
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeStringAttribute("sectionCount", Integer.toString(sc.getSectionCount())));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeIntAttribute("sectionCount", sc.getSectionCount()));
         }
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetV", sc.getTargetV(),
@@ -84,7 +84,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection());
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
-            context.getWriter().writeStringAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
+            context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, sc.getMaximumSectionCount());
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);

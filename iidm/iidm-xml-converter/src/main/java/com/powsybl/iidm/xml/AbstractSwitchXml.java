@@ -33,9 +33,9 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
 
     @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
-        context.getWriter().writeStringAttribute("kind", s.getKind().name());
-        context.getWriter().writeStringAttribute("retained", Boolean.toString(s.isRetained()));
-        context.getWriter().writeStringAttribute("open", Boolean.toString(s.isOpen()));
+        context.getWriter().writeEnumAttribute("kind", s.getKind());
+        context.getWriter().writeBooleanAttribute("retained", s.isRetained());
+        context.getWriter().writeBooleanAttribute("open", s.isOpen());
 
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> context.getWriter().writeBooleanAttribute("fictitious", s.isFictitious(), false));
     }

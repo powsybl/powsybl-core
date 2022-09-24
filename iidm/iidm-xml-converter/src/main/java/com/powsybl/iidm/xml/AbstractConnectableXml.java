@@ -74,8 +74,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     private static void writeNode(Integer index, Terminal t, NetworkXmlWriterContext context) {
-        context.getWriter().writeStringAttribute(NODE + indexToString(index),
-                Integer.toString(t.getNodeBreakerView().getNode()));
+        context.getWriter().writeIntAttribute(NODE + indexToString(index), t.getNodeBreakerView().getNode());
     }
 
     private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) {

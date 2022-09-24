@@ -64,9 +64,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     private static void writeTapChanger(TapChanger<?, ?> tc, NetworkXmlWriterContext context) {
-        context.getWriter().writeStringAttribute(ATTR_LOW_TAP_POSITION, Integer.toString(tc.getLowTapPosition()));
+        context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
         if (tc.findTapPosition().isPresent()) {
-            context.getWriter().writeStringAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition()));
+            context.getWriter().writeIntAttribute(ATTR_TAP_POSITION, tc.getTapPosition());
         }
         writeTargetDeadband(tc.getTargetDeadband(), context);
     }
@@ -74,9 +74,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), name);
         writeTapChanger(rtc, context);
-        context.getWriter().writeStringAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
+        context.getWriter().writeBooleanAttribute("loadTapChangingCapabilities", rtc.hasLoadTapChangingCapabilities());
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
-            context.getWriter().writeStringAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
+            context.getWriter().writeBooleanAttribute(ATTR_REGULATING, rtc.isRegulating());
         }
         context.getWriter().writeDoubleAttribute("targetV", rtc.getTargetV());
         if (rtc.getRegulationTerminal() != null) {
@@ -152,7 +152,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             context.getWriter().writeDoubleAttribute("regulationValue", ptc.getRegulationValue());
         }
         if ((ptc.getRegulationMode() != null && ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP) || ptc.isRegulating()) {
-            context.getWriter().writeStringAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
+            context.getWriter().writeBooleanAttribute(ATTR_REGULATING, ptc.isRegulating());
         }
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefXml.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
