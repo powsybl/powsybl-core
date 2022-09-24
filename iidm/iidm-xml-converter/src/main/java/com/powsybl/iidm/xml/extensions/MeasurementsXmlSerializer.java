@@ -10,8 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
@@ -35,7 +35,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
 
     @Override
     public void write(Measurements<C> extension, XmlWriterContext context) {
-        XmlWriter writer = context.getWriter();
+        TreeDataWriter writer = context.getWriter();
         for (Measurement measurement : extension.getMeasurements()) {
             boolean hasProperty = !measurement.getPropertyNames().isEmpty();
             if (hasProperty) {

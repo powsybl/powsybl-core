@@ -11,5 +11,5 @@ package com.powsybl.commons.xml;
  */
 public interface XmlWriterContext {
 
-    XmlWriter getWriter();
+    TreeDataWriter getWriter();
 }

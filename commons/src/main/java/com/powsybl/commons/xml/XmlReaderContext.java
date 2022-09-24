@@ -11,5 +11,5 @@ package com.powsybl.commons.xml;
  */
 public interface XmlReaderContext {
 
-    XmlReader getReader();
+    TreeDataReader getReader();
 }

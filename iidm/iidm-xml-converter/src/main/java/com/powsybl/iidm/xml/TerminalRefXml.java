@@ -8,7 +8,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.xml.XmlWriter;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 
 /**
@@ -24,7 +24,7 @@ public final class TerminalRefXml {
         writeTerminalRef(t, context, namespace, elementName, context.getWriter());
     }
 
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XmlWriter writer) {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, TreeDataWriter writer) {
         writer.writeEmptyNode(namespace, elementName);
         writeTerminalRefAttribute(t, context, writer);
     }
@@ -33,7 +33,7 @@ public final class TerminalRefXml {
         writeTerminalRefAttribute(t, context, context.getWriter());
     }
 
-    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context, XmlWriter writer) {
+    public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context, TreeDataWriter writer) {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());

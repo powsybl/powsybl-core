@@ -10,9 +10,9 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReader;
+import com.powsybl.commons.xml.TreeDataReader;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
@@ -36,7 +36,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
 
     @Override
     public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) {
-        XmlWriter writer = context.getWriter();
+        TreeDataWriter writer = context.getWriter();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
             boolean hasProperty = !discreteMeasurement.getPropertyNames().isEmpty();
             if (hasProperty) {
@@ -77,7 +77,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) {
         DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
         DiscreteMeasurements<I> discreteMeasurements = adder.add();
-        XmlReader reader = context.getReader();
+        TreeDataReader reader = context.getReader();
         reader.readUntilEndNode(getExtensionName(), () -> {
             if (reader.getNodeName().equals(DISCRETE_MEASUREMENT)) {
                 readDiscreteMeasurement(discreteMeasurements, reader);
@@ -88,7 +88,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
         return discreteMeasurements;
     }
 
-    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, XmlReader reader) {
+    private static <I extends Identifiable<I>> void readDiscreteMeasurement(DiscreteMeasurements<I> discreteMeasurements, TreeDataReader reader) {
         DiscreteMeasurementAdder adder = discreteMeasurements.newDiscreteMeasurement()
                 .setId(reader.readStringAttribute("id"))
                 .setType(reader.readEnumAttribute("type", DiscreteMeasurement.Type.class))
