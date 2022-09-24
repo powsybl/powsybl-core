@@ -10,9 +10,9 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReader;
+import com.powsybl.commons.xml.TreeDataReader;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -42,7 +42,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     @Override
     public void write(CgmesControlAreas extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XmlWriter writer = networkContext.getWriter();
+        TreeDataWriter writer = networkContext.getWriter();
         for (CgmesControlArea controlArea : extension.getCgmesControlAreas()) {
             writer.writeStartNode(getNamespaceUri(), CONTROL_AREA);
             writer.writeStringAttribute("id", controlArea.getId());
@@ -66,7 +66,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     @Override
     public CgmesControlAreas read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        XmlReader reader = networkContext.getReader();
+        TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas mapping = extendable.getExtension(CgmesControlAreas.class);
         reader.readUntilEndNode(getExtensionName(), () -> {
@@ -85,7 +85,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         return extendable.getExtension(CgmesControlAreas.class);
     }
 
-    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, XmlReader reader, CgmesControlArea cgmesControlArea, Network network) throws XMLStreamException {
+    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, TreeDataReader reader, CgmesControlArea cgmesControlArea, Network network) throws XMLStreamException {
         reader.readUntilEndNode(CONTROL_AREA, () -> {
             String id;
             String side;

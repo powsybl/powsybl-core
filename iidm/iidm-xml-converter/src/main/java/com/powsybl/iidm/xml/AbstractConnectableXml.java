@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlReader;
-import com.powsybl.commons.xml.XmlWriter;
+import com.powsybl.commons.xml.TreeDataReader;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -150,31 +150,31 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.setVoltageLevel(voltageLevelId);
     }
 
-    protected static void writePQ(Integer index, Terminal t, XmlWriter writer) {
+    protected static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {
         writer.writeDoubleAttribute("p" + indexToString(index), t.getP(), Double.NaN);
         writer.writeDoubleAttribute("q" + indexToString(index), t.getQ(), Double.NaN);
     }
 
-    protected static void readPQ(Integer index, Terminal t, XmlReader reader) {
+    protected static void readPQ(Integer index, Terminal t, TreeDataReader reader) {
         double p = reader.readDoubleAttribute("p" + indexToString(index));
         double q = reader.readDoubleAttribute("q" + indexToString(index));
         t.setP(p)
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, XmlReader reader) throws XMLStreamException {
+    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) throws XMLStreamException {
         readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
     }
 
-    public static void readApparentPowerLimits(Integer index, ApparentPowerLimitsAdder apparentPowerLimitsAdder, XmlReader reader) throws XMLStreamException {
+    public static void readApparentPowerLimits(Integer index, ApparentPowerLimitsAdder apparentPowerLimitsAdder, TreeDataReader reader) {
         readLoadingLimits(index, APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
     }
 
-    public static void readCurrentLimits(Integer index, CurrentLimitsAdder currentLimitsAdder, XmlReader reader) throws XMLStreamException {
+    public static void readCurrentLimits(Integer index, CurrentLimitsAdder currentLimitsAdder, TreeDataReader reader) {
         readLoadingLimits(index, CURRENT_LIMITS, currentLimitsAdder, reader);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, XmlReader reader) throws XMLStreamException {
+    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, TreeDataReader reader) {
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         reader.readUntilEndNode(type + indexToString(index), () -> {
@@ -194,37 +194,37 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.add();
     }
 
-    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, XmlWriter writer, IidmXmlVersion version,
+    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, TreeDataWriter writer, IidmXmlVersion version,
                                               boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, ACTIVE_POWER_LIMITS);
     }
 
-    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, XmlWriter writer, IidmXmlVersion version,
+    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, TreeDataWriter writer, IidmXmlVersion version,
                                               boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions, APPARENT_POWER_LIMITS);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, IidmXmlVersion version,
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmXmlVersion version,
                                           ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version, true, exportOptions);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, IidmXmlVersion version,
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, IidmXmlVersion version,
                                           boolean valid, ExportOptions exportOptions) {
         writeCurrentLimits(index, limits, writer, version.getNamespaceURI(valid), version, valid, exportOptions);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, String nsUri, IidmXmlVersion version,
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmXmlVersion version,
                                           ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, nsUri, version, true, exportOptions, CURRENT_LIMITS);
     }
 
-    public static void writeCurrentLimits(Integer index, CurrentLimits limits, XmlWriter writer, String nsUri, IidmXmlVersion version,
+    public static void writeCurrentLimits(Integer index, CurrentLimits limits, TreeDataWriter writer, String nsUri, IidmXmlVersion version,
                                           boolean valid, ExportOptions exportOptions) {
         writeLoadingLimits(index, limits, writer, nsUri, version, valid, exportOptions, CURRENT_LIMITS);
     }
 
-    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, XmlWriter writer, String nsUri, IidmXmlVersion version,
+    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, TreeDataWriter writer, String nsUri, IidmXmlVersion version,
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (!Double.isNaN(limits.getPermanentLimit())
                 || !limits.getTemporaryLimits().isEmpty()) {

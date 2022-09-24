@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.XmlWriter;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -32,7 +32,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static final String RATIO_TAP_CHANGER = "ratioTapChanger";
     private static final String PHASE_TAP_CHANGER = "phaseTapChanger";
 
-    protected static void writeTapChangerStep(TapChangerStep<?> tcs, XmlWriter writer) {
+    protected static void writeTapChangerStep(TapChangerStep<?> tcs, TreeDataWriter writer) {
         writer.writeDoubleAttribute("r", tcs.getR());
         writer.writeDoubleAttribute("x", tcs.getX());
         writer.writeDoubleAttribute("g", tcs.getG());

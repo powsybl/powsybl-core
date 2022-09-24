@@ -6,10 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
@@ -19,13 +20,13 @@ import java.util.*;
  */
 public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOptions> implements XmlWriterContext {
 
-    private final XmlWriter writer;
+    private final TreeDataWriter writer;
     private final ExportOptions options;
     private final BusFilter filter;
     private final boolean valid;
     private final Set<Identifiable> exportedEquipments;
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XmlWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, TreeDataWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version, boolean valid) {
         super(anonymizer, version);
         this.writer = Objects.requireNonNull(writer);
         this.options = options;
@@ -43,7 +44,7 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
     }
 
     @Override
-    public XmlWriter getWriter() {
+    public TreeDataWriter getWriter() {
         return writer;
     }
 

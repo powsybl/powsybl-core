@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReader;
+import com.powsybl.commons.xml.TreeDataReader;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
@@ -20,18 +20,18 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  */
 public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOptions> implements XmlReaderContext {
 
-    private final XmlReader reader;
+    private final TreeDataReader reader;
 
     private final List<Runnable> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
     private final Set<String> extensionsNamespaceUri;
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XmlReader reader) {
+    public NetworkXmlReaderContext(Anonymizer anonymizer, TreeDataReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION, Collections.emptySet());
     }
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XmlReader reader, ImportOptions options, IidmXmlVersion version,
+    public NetworkXmlReaderContext(Anonymizer anonymizer, TreeDataReader reader, ImportOptions options, IidmXmlVersion version,
                                    Set<String> extensionsNamespaceUri) {
         super(anonymizer, version);
         this.reader = Objects.requireNonNull(reader);
@@ -40,7 +40,7 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
     }
 
     @Override
-    public XmlReader getReader() {
+    public TreeDataReader getReader() {
         return reader;
     }
 

@@ -9,9 +9,9 @@ package com.powsybl.cgmes.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReader;
+import com.powsybl.commons.xml.TreeDataReader;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -31,7 +31,7 @@ public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSeriali
     @Override
     public void write(CimCharacteristics extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XmlWriter writer = networkContext.getWriter();
+        TreeDataWriter writer = networkContext.getWriter();
         writer.writeEnumAttribute("topologyKind", extension.getTopologyKind());
         writer.writeIntAttribute("cimVersion", extension.getCimVersion());
     }
@@ -39,7 +39,7 @@ public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSeriali
     @Override
     public CimCharacteristics read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        XmlReader reader = networkContext.getReader();
+        TreeDataReader reader = networkContext.getReader();
         extendable.newExtension(CimCharacteristicsAdder.class)
                 .setTopologyKind(reader.readEnumAttribute("topologyKind", CgmesTopologyKind.class))
                 .setCimVersion(reader.readIntAttribute("cimVersion"))

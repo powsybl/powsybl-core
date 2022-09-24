@@ -10,9 +10,9 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReader;
+import com.powsybl.commons.xml.TreeDataReader;
+import com.powsybl.commons.xml.TreeDataWriter;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
@@ -33,7 +33,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
     @Override
     public void write(CgmesSshMetadata extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
-        XmlWriter writer = networkContext.getWriter();
+        TreeDataWriter writer = networkContext.getWriter();
         writer.writeStringAttribute("description", extension.getDescription());
         writer.writeIntAttribute("sshVersion", extension.getSshVersion());
         writer.writeStringAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
@@ -47,7 +47,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
     @Override
     public CgmesSshMetadata read(Network extendable, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        XmlReader reader = networkContext.getReader();
+        TreeDataReader reader = networkContext.getReader();
         CgmesSshMetadataAdder adder = extendable.newExtension(CgmesSshMetadataAdder.class);
         adder.setDescription(reader.readStringAttribute("description"))
                 .setSshVersion(reader.readIntAttribute("sshVersion"))
