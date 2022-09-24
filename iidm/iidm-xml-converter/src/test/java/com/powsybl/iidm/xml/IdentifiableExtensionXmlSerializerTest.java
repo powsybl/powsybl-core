@@ -154,7 +154,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
 
         @Override
         public NetworkSourceExtension read(Network network, XmlReaderContext context) {
-            String sourceData = context.getReader().getAttributeValue(null, "sourceData");
+            String sourceData = context.getReader().readStringAttribute("sourceData");
             return new NetworkSourceExtension(sourceData);
         }
     }

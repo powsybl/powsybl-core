@@ -12,7 +12,6 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 

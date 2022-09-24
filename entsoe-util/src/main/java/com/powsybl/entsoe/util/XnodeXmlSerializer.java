@@ -33,7 +33,7 @@ public class XnodeXmlSerializer extends AbstractExtensionXmlSerializer<DanglingL
 
     @Override
     public Xnode read(DanglingLine dl, XmlReaderContext context) {
-        String code = context.getReader().getAttributeValue(null, "code");
+        String code = context.getReader().readStringAttribute("code");
         dl.newExtension(XnodeAdder.class).withCode(code).add();
         return dl.getExtension(Xnode.class);
     }

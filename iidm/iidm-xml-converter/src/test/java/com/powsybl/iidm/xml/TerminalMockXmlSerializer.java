@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -85,16 +84,16 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
         checkReadingCompatibility(networkContext);
 
         TerminalMockExt terminalMockExt = new TerminalMockExt(extendable);
-        XmlUtil.readUntilEndElement(getExtensionName(), networkContext.getReader(), () -> {
-            if (networkContext.getReader().getLocalName().equals("terminal")) {
-                String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
-                String side = networkContext.getReader().getAttributeValue(null, "side");
+        networkContext.getReader().readUntilEndNode(getExtensionName(), () -> {
+            if (networkContext.getReader().getNodeName().equals("terminal")) {
+                String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().readStringAttribute("id"));
+                String side = networkContext.getReader().readStringAttribute("side");
                 networkContext.getEndTasks().add(() -> {
                     Network network = extendable.getNetwork();
                     terminalMockExt.setTerminal(TerminalRefXml.readTerminalRef(network, id, side));
                 });
             } else {
-                throw new AssertionError("Unexpected element: " + networkContext.getReader().getLocalName());
+                throw new AssertionError("Unexpected element: " + networkContext.getReader().getNodeName());
             }
         });
         return terminalMockExt;

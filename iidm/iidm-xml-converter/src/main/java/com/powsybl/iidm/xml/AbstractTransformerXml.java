@@ -54,7 +54,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             // in IIDM-XML version 1.0, NaN as targetDeadband when regulating is allowed.
             // in IIDM-XML version 1.1 and more recent, it is forbidden and throws an exception
             // to prevent issues, targetDeadband is set to 0 in this case
-            if (context.getReader().readBooleanAttribute(ATTR_REGULATING) && Double.isNaN(targetDeadband[0])) {
+            if (context.getReader().readBooleanAttribute(ATTR_REGULATING, false) && Double.isNaN(targetDeadband[0])) {
                 targetDeadband[0] = 0;
             }
         });

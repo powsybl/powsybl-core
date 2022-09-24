@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Substation;
 
@@ -34,7 +33,7 @@ public class EntsoeAreaXmlSerializer extends AbstractExtensionXmlSerializer<Subs
 
     @Override
     public EntsoeArea read(Substation substation, XmlReaderContext context) throws XMLStreamException {
-        EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), null));
+        EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(context.getReader().readUntilEndNode(getExtensionName(), null));
         substation.newExtension(EntsoeAreaAdder.class).withCode(code).add();
         return substation.getExtension(EntsoeArea.class);
     }

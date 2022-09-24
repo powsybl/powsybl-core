@@ -65,21 +65,21 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
             switch (context.getReader().getNodeName()) {
                 case QUALITY_P: {
                     var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
+                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
                     adder.withStandardDeviationP(standardDeviation)
                             .withRedundantP(redundant);
                     break;
                 }
                 case QUALITY_Q: {
                     var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
+                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
                     adder.withStandardDeviationQ(standardDeviation)
                             .withRedundantQ(redundant);
                     break;
                 }
                 case QUALITY_V: {
                     var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT);
+                    var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
                     adder.withStandardDeviationV(standardDeviation)
                             .withRedundantV(redundant);
                     break;
