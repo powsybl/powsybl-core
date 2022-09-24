@@ -244,13 +244,6 @@ public final class NetworkXml {
         return versionExist;
     }
 
-    private static void writeMainAttributes(Network n, TreeDataWriter writer) {
-        writer.writeStringAttribute(ID, n.getId());
-        writer.writeStringAttribute(CASE_DATE, n.getCaseDate().toString());
-        writer.writeIntAttribute(FORECAST_DISTANCE, n.getForecastDistance());
-        writer.writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
-    }
-
     private static XmlWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
@@ -266,7 +259,10 @@ public final class NetworkXml {
     }
 
     private static void writeBaseNetwork(Network n, NetworkXmlWriterContext context) {
-        writeMainAttributes(n, context.getWriter());
+        context.getWriter().writeStringAttribute(ID, n.getId());
+        context.getWriter().writeStringAttribute(CASE_DATE, n.getCaseDate().toString());
+        context.getWriter().writeIntAttribute(FORECAST_DISTANCE, n.getForecastDistance());
+        context.getWriter().writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> context.getWriter().writeEnumAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel()));
 
