@@ -151,8 +151,8 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static void writePQ(Integer index, Terminal t, TreeDataWriter writer) {
-        writer.writeDoubleAttribute("p" + indexToString(index), t.getP(), Double.NaN);
-        writer.writeDoubleAttribute("q" + indexToString(index), t.getQ(), Double.NaN);
+        writer.writeDoubleAttribute("p" + indexToString(index), t.getP());
+        writer.writeDoubleAttribute("q" + indexToString(index), t.getQ());
     }
 
     protected static void readPQ(Integer index, Terminal t, TreeDataReader reader) {

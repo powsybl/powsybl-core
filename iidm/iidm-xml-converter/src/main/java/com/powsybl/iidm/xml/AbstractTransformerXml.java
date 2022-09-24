@@ -257,6 +257,6 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
      * @param context the XMLStreamWriter accessor
      */
     protected static void writeRatedS(String name, double ratedS, NetworkXmlWriterContext context) {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> context.getWriter().writeDoubleAttribute(name, ratedS, Double.NaN));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> context.getWriter().writeDoubleAttribute(name, ratedS));
     }
 }

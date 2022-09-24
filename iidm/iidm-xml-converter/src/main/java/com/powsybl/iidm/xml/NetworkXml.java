@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
@@ -16,6 +18,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.xml.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
@@ -244,18 +247,34 @@ public final class NetworkXml {
         return versionExist;
     }
 
-    private static XmlWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
-        IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
-        String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        writer.setPrefix(IIDM_PREFIX, namespaceUri);
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
-        writer.writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
-        writer.writeNamespace(IIDM_PREFIX, namespaceUri);
-        if (!options.withNoExtension()) {
-            writeExtensionNamespaces(n, options, writer);
+    private static XmlWriter initializeXmlWriter(Network n, OutputStream os, ExportOptions options) {
+        try {
+            IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
+            XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
+            String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            writer.setPrefix(IIDM_PREFIX, namespaceUri);
+            IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
+            writer.writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+            writer.writeNamespace(IIDM_PREFIX, namespaceUri);
+            if (!options.withNoExtension()) {
+                writeExtensionNamespaces(n, options, writer);
+            }
+            return new XmlWriter(writer);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
-        return new XmlWriter(writer);
+    }
+
+    private static JsonWriter initializeJsonWriter(Network n, OutputStream os, ExportOptions options) {
+        JsonFactory jsonFactory = JsonUtil.createJsonFactory();
+        try {
+            JsonGenerator generator = jsonFactory.createGenerator(os)
+                    .useDefaultPrettyPrinter();
+            generator.writeStartObject();
+            return new JsonWriter(generator);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     private static void writeBaseNetwork(Network n, NetworkXmlWriterContext context) {
@@ -334,11 +353,20 @@ public final class NetworkXml {
         }
     }
 
+    private static TreeDataWriter createTreeDataWriter(Network n, ExportOptions options, OutputStream os) {
+        switch (options.getFormat()) {
+            case XML:
+                return initializeXmlWriter(n, os, options);
+            case JSON:
+                return initializeJsonWriter(n, os, options);
+            default:
+                throw new PowsyblException("Unsupported IIDM format: " + options.getFormat());
+        }
+    }
+
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
-        try (TreeDataWriter writer = initializeWriter(n, os, options)) {
+        try (TreeDataWriter writer = createTreeDataWriter(n, options, os)) {
             return write(n, options, writer);
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
         }
     }
 
