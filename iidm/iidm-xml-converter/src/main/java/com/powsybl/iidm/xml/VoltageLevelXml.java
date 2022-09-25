@@ -132,12 +132,17 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+
+        context.getWriter().writeStartNodes("buses");
         for (Bus b : IidmXmlUtil.sorted(vl.getBusBreakerView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
             }
             BusXml.INSTANCE.write(b, null, context);
         }
+        context.getWriter().writeEndNodes();
+
+        context.getWriter().writeStartNodes("switches");
         for (Switch sw : IidmXmlUtil.sorted(vl.getBusBreakerView().getSwitches(), context.getOptions())) {
             Bus b1 = vl.getBusBreakerView().getBus1(sw.getId());
             Bus b2 = vl.getBusBreakerView().getBus2(sw.getId());
@@ -146,6 +151,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             }
             BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
+        context.getWriter().writeEndNodes();
+
         context.getWriter().writeEndNode();
     }
 
@@ -161,75 +168,91 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeGenerators(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("generators");
         for (Generator g : IidmXmlUtil.sorted(vl.getGenerators(), context.getOptions())) {
             if (!context.getFilter().test(g)) {
                 continue;
             }
             GeneratorXml.INSTANCE.write(g, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private void writeBatteries(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("batteries");
         for (Battery b : IidmXmlUtil.sorted(vl.getBatteries(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
             }
             BatteryXml.INSTANCE.write(b, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private void writeLoads(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("loads");
         for (Load l : IidmXmlUtil.sorted(vl.getLoads(), context.getOptions())) {
             if (!context.getFilter().test(l)) {
                 continue;
             }
             LoadXml.INSTANCE.write(l, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("shuntCompensators");
         for (ShuntCompensator sc : IidmXmlUtil.sorted(vl.getShuntCompensators(), context.getOptions())) {
             if (!context.getFilter().test(sc)) {
                 continue;
             }
             ShuntXml.INSTANCE.write(sc, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("danglingLines");
         for (DanglingLine dl : IidmXmlUtil.sorted(vl.getDanglingLines(), context.getOptions())) {
             if (!context.getFilter().test(dl)) {
                 continue;
             }
             DanglingLineXml.INSTANCE.write(dl, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private void writeStaticVarCompensators(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("staticVarCompensators");
         for (StaticVarCompensator svc : IidmXmlUtil.sorted(vl.getStaticVarCompensators(), context.getOptions())) {
             if (!context.getFilter().test(svc)) {
                 continue;
             }
             StaticVarCompensatorXml.INSTANCE.write(svc, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private void writeVscConverterStations(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("vscConverterStations");
         for (VscConverterStation cs : IidmXmlUtil.sorted(vl.getVscConverterStations(), context.getOptions())) {
             if (!context.getFilter().test(cs)) {
                 continue;
             }
             VscConverterStationXml.INSTANCE.write(cs, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private void writeLccConverterStations(VoltageLevel vl, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("lccConverterStations");
         for (LccConverterStation cs : IidmXmlUtil.sorted(vl.getLccConverterStations(), context.getOptions())) {
             if (!context.getFilter().test(cs)) {
                 continue;
             }
             LccConverterStationXml.INSTANCE.write(cs, vl, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     @Override

@@ -11,6 +11,10 @@ package com.powsybl.commons.xml;
  */
 public interface TreeDataWriter extends AutoCloseable {
 
+    void writeStartNodes(String name);
+
+    void writeEndNodes();
+
     void writeStartNode(String ns, String name);
 
     void writeEmptyNode(String ns, String name);

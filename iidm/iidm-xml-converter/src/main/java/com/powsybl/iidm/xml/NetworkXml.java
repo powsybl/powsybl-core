@@ -309,12 +309,15 @@ public final class NetworkXml {
     }
 
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("substations");
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
             SubstationXml.INSTANCE.write(s, n, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static void writeTransformers(BusFilter filter, Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("twoWindingsTransformers");
         for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
             if (twt.getSubstation().isEmpty() && filter.test(twt)) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
@@ -322,6 +325,9 @@ public final class NetworkXml {
                 TwoWindingsTransformerXml.INSTANCE.write(twt, n, context);
             }
         }
+        context.getWriter().writeEndNodes();
+
+        context.getWriter().writeStartNodes("threeWindingsTransformers");
         for (ThreeWindingsTransformer twt : IidmXmlUtil.sorted(n.getThreeWindingsTransformers(), context.getOptions())) {
             if (twt.getSubstation().isEmpty() && filter.test(twt)) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
@@ -329,9 +335,11 @@ public final class NetworkXml {
                 ThreeWindingsTransformerXml.INSTANCE.write(twt, n, context);
             }
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static void writeLines(BusFilter filter, Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("lines");
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
             if (!filter.test(l)) {
                 continue;
@@ -342,15 +350,18 @@ public final class NetworkXml {
                 LineXml.INSTANCE.write(l, n, context);
             }
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static void writeHvdcLines(BusFilter filter, Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("hvdcLines");
         for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
             if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                 continue;
             }
             HvdcLineXml.INSTANCE.write(l, n, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static TreeDataWriter createTreeDataWriter(Network n, ExportOptions options, OutputStream os) {

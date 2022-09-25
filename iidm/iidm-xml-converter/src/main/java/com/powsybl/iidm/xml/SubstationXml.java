@@ -39,9 +39,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) {
         Optional<Country> country = s.getCountry();
-        if (country.isPresent()) {
-            context.getWriter().writeStringAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(country.get()).toString());
-        }
+        country.ifPresent(value -> context.getWriter().writeStringAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(value).toString()));
         if (s.getTso() != null) {
             context.getWriter().writeStringAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
@@ -54,9 +52,13 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("voltageLevels");
         for (VoltageLevel vl : IidmXmlUtil.sorted(s.getVoltageLevels(), context.getOptions())) {
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }
+        context.getWriter().writeEndNodes();
+
+        context.getWriter().writeStartNodes("twoWindingsTransformers");
         Iterable<TwoWindingsTransformer> twts = IidmXmlUtil.sorted(s.getTwoWindingsTransformers(), context.getOptions());
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt)) {
@@ -64,6 +66,9 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
             }
             TwoWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
+        context.getWriter().writeEndNodes();
+
+        context.getWriter().writeStartNodes("threeWindingsTransformers");
         Iterable<ThreeWindingsTransformer> twts2 = IidmXmlUtil.sorted(s.getThreeWindingsTransformers(), context.getOptions());
         for (ThreeWindingsTransformer twt : twts2) {
             if (!context.getFilter().test(twt)) {
@@ -71,6 +76,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
             }
             ThreeWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
+        context.getWriter().writeEndNodes();
     }
 
     @Override

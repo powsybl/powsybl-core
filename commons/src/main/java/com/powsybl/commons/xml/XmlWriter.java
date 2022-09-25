@@ -24,6 +24,16 @@ public class XmlWriter implements TreeDataWriter {
     }
 
     @Override
+    public void writeStartNodes(String name) {
+        // nothing to do
+    }
+
+    @Override
+    public void writeEndNodes() {
+        // nothing to do
+    }
+
+    @Override
     public void writeStartNode(String ns, String name) {
         try {
             writer.writeStartElement(ns, name);

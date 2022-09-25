@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Objects;
 
 /**
@@ -19,24 +21,55 @@ public class JsonWriter implements TreeDataWriter {
 
     private final JsonGenerator jsonGenerator;
 
+    enum Context {
+        NODE,
+        NODES
+    }
+
+    private final Deque<Context> context = new ArrayDeque<>();
+
     public JsonWriter(JsonGenerator jsonGenerator) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
     }
 
     @Override
+    public void writeStartNodes(String name) {
+        try {
+            jsonGenerator.writeFieldName(name);
+            jsonGenerator.writeStartArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        context.push(Context.NODES);
+    }
+
+    @Override
+    public void writeEndNodes() {
+        try {
+            jsonGenerator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        context.pop();
+    }
+
+    @Override
     public void writeStartNode(String ns, String name) {
         try {
+            if (context.getFirst() == Context.NODE) {
+                jsonGenerator.writeFieldName(name);
+            }
             jsonGenerator.writeStartObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        context.push(Context.NODE);
     }
 
     @Override
     public void writeEmptyNode(String ns, String name) {
         try {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -49,6 +82,7 @@ public class JsonWriter implements TreeDataWriter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        context.pop();
     }
 
     @Override
