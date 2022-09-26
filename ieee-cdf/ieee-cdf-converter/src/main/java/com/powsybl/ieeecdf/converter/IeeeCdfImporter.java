@@ -482,42 +482,47 @@ public class IeeeCdfImporter implements Importer {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(networkFactory);
 
-        Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
-
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
             // parse file
             IeeeCdfModel ieeeCdfModel = new IeeeCdfReader().read(reader);
 
-            // set date and time
-            IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
-            if (ieeeCdfTitle.getDate() != null) {
-                ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
-                network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
-            }
-
             boolean ignoreBaseVoltage = Parameter.readBoolean(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                 ParameterDefaultValueConfig.INSTANCE);
-            PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
 
-            // build container to fit IIDM requirements
-            Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus = ieeeCdfModel.getBuses().stream().collect(Collectors.toMap(IeeeCdfBus::getNumber, Function.identity()));
-
-            ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
-                IeeeCdfBus::getNumber,
-                IeeeCdfBranch::getTapBusNumber,
-                IeeeCdfBranch::getzBusNumber,
-                branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
-                IeeeCdfImporter::isTransformer,
-                busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
-                busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
-                substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
-
-            // create objects
-            createBuses(ieeeCdfModel, containerMapping, perUnitContext, network);
-            createBranches(ieeeCdfModel, containerMapping, perUnitContext, network);
+            return convert(ieeeCdfModel, networkFactory, dataSource.getBaseName(), ignoreBaseVoltage);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    Network convert(IeeeCdfModel ieeeCdfModel, NetworkFactory networkFactory, String networkId, boolean ignoreBaseVoltage) {
+        PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
+
+        Network network = networkFactory.createNetwork(networkId, FORMAT);
+
+        // set date and time
+        IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
+        if (ieeeCdfTitle.getDate() != null) {
+            ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
+            network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+        }
+
+        // build container to fit IIDM requirements
+        Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus = ieeeCdfModel.getBuses().stream().collect(Collectors.toMap(IeeeCdfBus::getNumber, Function.identity()));
+
+        ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
+            IeeeCdfBus::getNumber,
+            IeeeCdfBranch::getTapBusNumber,
+            IeeeCdfBranch::getzBusNumber,
+            branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
+            IeeeCdfImporter::isTransformer,
+            busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
+            busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
+            substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
+
+        // create objects
+        createBuses(ieeeCdfModel, containerMapping, perUnitContext, network);
+        createBranches(ieeeCdfModel, containerMapping, perUnitContext, network);
 
         return network;
     }
