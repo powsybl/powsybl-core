@@ -818,6 +818,14 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniNodeBreakerSubstationNode() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSubstationNode().dataSource(),
+                        NetworkFactory.findDefault(), null);
+        assertNotNull(network); // Check it doesn't fail when a connectivity node is in substation
+    }
+
+    @Test
     public void smallBusBranchTieFlowWithoutControlArea() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallBusBranchTieFlowsWithoutControlArea().dataSource(), NetworkFactory.findDefault(), null);
         assertNull(network.getExtension(CgmesControlAreas.class));
