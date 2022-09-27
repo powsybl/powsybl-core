@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
@@ -25,7 +26,8 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 
 /**
  * Adds a coupling device between two busbar sections. If topology extensions are present, then it creates open
- * disconnectors to connect the breaker to every parallel busbar section. If there are exactly two busbar sections and
+ * disconnectors to connect the breaker to every parallel busbar section, else does not create them.
+ * If there are exactly two busbar sections and
  * that they must have the same sectionIndex, then no open disconnector is created.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -38,15 +40,15 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     private final String bbsId2;
 
     CreateCouplingDevice(String bbsId1, String bbsId2) {
-        this.bbsId1 = bbsId1;
-        this.bbsId2 = bbsId2;
+        this.bbsId1 = Objects.requireNonNull(bbsId1, "Busbar section 1 not defined");
+        this.bbsId2 = Objects.requireNonNull(bbsId2, "Busbar section 2 not defined");
     }
 
-    protected String getBbsId1() {
+    public String getBbsId1() {
         return bbsId1;
     }
 
-    protected String getBbsId2() {
+    public String getBbsId2() {
         return bbsId2;
     }
 
@@ -96,7 +98,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
                         .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
                         .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position2.getSectionIndex())
                         .filter(b -> !b.getId().equals(bbsId2)).collect(Collectors.toList());
-                if (!(bbsList1.size() == 1 && position1.getSectionIndex() == position2.getSectionIndex())) {
+                if (bbsList1.size() != 1 || position1.getSectionIndex() != position2.getSectionIndex()) { // if both busbar sections not in same section or in same section with other busbar sections
                     nbOpenDisconnectors = bbsList1.size() * 2;
                     createTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, "NEW", bbsList1);
                     createTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, "NEW", bbsList2);
@@ -114,7 +116,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         newCouplingDeviceAddedReport(reporter, voltageLevel1.getId(), bbsId1, bbsId2, nbOpenDisconnectors);
     }
 
-    private void bbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
+    private static void bbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
         LOGGER.error("Busbar section {} not found.", bbsId);
         notFoundBusbarSectionReport(reporter, bbsId);
         if (throwException) {
