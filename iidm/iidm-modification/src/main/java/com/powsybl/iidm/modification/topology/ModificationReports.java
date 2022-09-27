@@ -11,6 +11,8 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
+import java.util.EnumSet;
+
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -201,6 +203,17 @@ final class ModificationReports {
                 .build());
     }
 
+    static void unsupportedVoltageLevelTopologyKind(Reporter reporter, String voltageLevelId, TopologyKind expected, TopologyKind actual) {
+        reporter.report(Report.builder()
+                .withKey("unsupportedVoltageLevelTopologyKind")
+                .withDefaultMessage("Voltage Level ${voltageLevelId} has an unsupported topology ${actualTopology}. Should be ${excptectedTopology}")
+                .withValue("voltageLevelId", voltageLevelId)
+                .withValue("actualTopology", actual.name())
+                .withValue("expectedTopology", expected.name())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void newCouplingDeviceAddedReport(Reporter reporter, String voltageLevelId, String bbsId1, String bbsId2, int nbOpenDisconnectors) {
         reporter.report(Report.builder()
                 .withKey("newCouplingDeviceAdded")
@@ -211,6 +224,16 @@ final class ModificationReports {
                 .withValue("bbsId2", bbsId2)
                 .withValue("nbOpenDisconnectors", nbOpenDisconnectors)
                 .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void unsupportedSwitchKind(Reporter reporter, EnumSet<SwitchKind> expected, SwitchKind actual) {
+        reporter.report(Report.builder()
+                .withKey("unsupportedSwitchKind")
+                .withDefaultMessage("Unsupported switch kinds ${actualSwitchKinds}. Should be ${expectedSwitchKind}. No switch created at this position.")
+                .withValue("actualSwitchKind", actual.name())
+                .withValue("expectedSwitchKinds", expected.toString())
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
 
