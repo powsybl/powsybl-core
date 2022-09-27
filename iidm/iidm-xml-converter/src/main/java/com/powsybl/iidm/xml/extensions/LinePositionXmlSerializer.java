@@ -33,9 +33,10 @@ public class LinePositionXmlSerializer<T extends Identifiable<T>> extends Abstra
     @Override
     public void write(LinePosition<T> linePosition, XmlWriterContext context) {
         for (Coordinate point : linePosition.getCoordinates()) {
-            context.getWriter().writeEmptyNode(getNamespaceUri(), "coordinate");
+            context.getWriter().writeStartNode(getNamespaceUri(), "coordinate");
             context.getWriter().writeDoubleAttribute("longitude", point.getLongitude());
             context.getWriter().writeDoubleAttribute("latitude", point.getLatitude());
+            context.getWriter().writeEndNode();
         }
     }
 

@@ -10,6 +10,8 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,6 +20,13 @@ import java.util.Objects;
 public class XmlWriter implements TreeDataWriter {
 
     private final XMLStreamWriter writer;
+
+    private String currentNodeNs;
+    private String currentNodeName;
+    private final List<String> names = new ArrayList<>();
+    private final List<String> values = new ArrayList<>();
+    private final List<String> prefixes = new ArrayList<>();
+    private final List<String> namespaces = new ArrayList<>();
 
     public XmlWriter(XMLStreamWriter writer) {
         this.writer = Objects.requireNonNull(writer);
@@ -36,33 +45,69 @@ public class XmlWriter implements TreeDataWriter {
     @Override
     public void writeStartNode(String ns, String name) {
         try {
-            writer.writeStartElement(ns, name);
+            if (currentNodeName != null) {
+                writePrefixes();
+                writer.writeStartElement(currentNodeNs, currentNodeName);
+                flushAttributes();
+            }
+            currentNodeNs = ns;
+            currentNodeName = name;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    @Override
-    public void writeEmptyNode(String ns, String name) {
-        try {
-            writer.writeEmptyElement(ns, name);
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+    private void writePrefixes() throws XMLStreamException {
+        for (int i = 0; i < prefixes.size(); i++) {
+            writer.setPrefix(prefixes.get(i), namespaces.get(i));
         }
+    }
+
+    private void flushAttributes() throws XMLStreamException {
+        for (int i = 0; i < prefixes.size(); i++) {
+            writer.writeNamespace(prefixes.get(i), namespaces.get(i));
+        }
+        prefixes.clear();
+        namespaces.clear();
+        for (int i = 0; i < names.size(); i++) {
+            writer.writeAttribute(names.get(i), values.get(i));
+        }
+        names.clear();
+        values.clear();
     }
 
     @Override
     public void writeEndNode() {
         try {
-            writer.writeEndElement();
+            if (currentNodeName != null) {
+                writer.writeEmptyElement(currentNodeNs, currentNodeName);
+                flushAttributes();
+                currentNodeNs = null;
+                currentNodeName = null;
+            } else {
+                writer.writeEndElement();
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
     @Override
+    public void writeNs(String prefix, String ns) {
+        prefixes.add(prefix);
+        namespaces.add(ns);
+    }
+
+    @Override
     public void writeNodeContent(String value) {
         try {
+            if (currentNodeName != null) {
+                writePrefixes();
+                writer.writeStartElement(currentNodeNs, currentNodeName);
+                flushAttributes();
+                currentNodeName = null;
+                currentNodeNs = null;
+            }
             writer.writeCharacters(value);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -71,96 +116,69 @@ public class XmlWriter implements TreeDataWriter {
 
     @Override
     public void writeStringAttribute(String name, String value) {
-        try {
-            if (value != null) {
-                writer.writeAttribute(name, value);
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+        if (value != null) {
+            names.add(name);
+            values.add(value);
         }
     }
 
     @Override
     public void writeFloatAttribute(String name, float value) {
-        try {
-            if (!Float.isNaN(value)) {
-                writer.writeAttribute(name, Float.toString(value));
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+        if (!Float.isNaN(value)) {
+            names.add(name);
+            values.add(Float.toString(value));
         }
     }
 
     @Override
     public void writeDoubleAttribute(String name, double value) {
-        try {
-            if (!Double.isNaN(value)) {
-                writer.writeAttribute(name, Double.toString(value));
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+        if (!Double.isNaN(value)) {
+            names.add(name);
+            values.add(Double.toString(value));
         }
     }
 
     @Override
     public void writeDoubleAttribute(String name, double value, double absentValue) {
-        try {
-            if (!Double.isNaN(value) && value != absentValue) {
-                writer.writeAttribute(name, Double.toString(value));
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+        if (!Double.isNaN(value) && value != absentValue) {
+            names.add(name);
+            values.add(Double.toString(value));
         }
     }
 
     @Override
     public void writeIntAttribute(String name, int value) {
-        try {
-            writer.writeAttribute(name, Integer.toString(value));
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
+        names.add(name);
+        values.add(Integer.toString(value));
     }
 
     @Override
     public void writeIntAttribute(String name, int value, int absentValue) {
-        try {
-            if (value != absentValue) {
-                writer.writeAttribute(name, Integer.toString(value));
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+        if (value != absentValue) {
+            names.add(name);
+            values.add(Integer.toString(value));
         }
     }
 
     @Override
     public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
-        try {
-            if (value != null) {
-                writer.writeAttribute(name, value.name());
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+        if (value != null) {
+            names.add(name);
+            values.add(value.name());
         }
     }
 
     @Override
     public void writeBooleanAttribute(String name, boolean value) {
-        try {
-            writer.writeAttribute(name, Boolean.toString(value));
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
+        names.add(name);
+        values.add(Boolean.toString(value));
     }
 
     @Override
     public void writeBooleanAttribute(String name, boolean value, boolean absentValue) {
-        try {
-            if (value != absentValue) {
-                writer.writeAttribute(name, Boolean.toString(value));
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
+        if (value != absentValue) {
+            names.add(name);
+            values.add(Boolean.toString(value));
         }
     }
 

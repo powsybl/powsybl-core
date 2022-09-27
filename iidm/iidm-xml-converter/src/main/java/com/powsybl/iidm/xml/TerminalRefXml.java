@@ -25,8 +25,9 @@ public final class TerminalRefXml {
     }
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, TreeDataWriter writer) {
-        writer.writeEmptyNode(namespace, elementName);
+        writer.writeStartNode(namespace, elementName);
         writeTerminalRefAttribute(t, context, writer);
+        writer.writeEndNode();
     }
 
     public static void writeTerminalRefAttribute(Terminal t, NetworkXmlWriterContext context) {

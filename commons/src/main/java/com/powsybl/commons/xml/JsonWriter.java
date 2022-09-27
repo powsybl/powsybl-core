@@ -56,7 +56,7 @@ public class JsonWriter implements TreeDataWriter {
     @Override
     public void writeStartNode(String ns, String name) {
         try {
-            if (context.getFirst() == Context.NODE) {
+            if (!context.isEmpty() && context.getFirst() == Context.NODE) {
                 jsonGenerator.writeFieldName(name);
             }
             jsonGenerator.writeStartObject();
@@ -64,15 +64,6 @@ public class JsonWriter implements TreeDataWriter {
             throw new UncheckedIOException(e);
         }
         context.push(Context.NODE);
-    }
-
-    @Override
-    public void writeEmptyNode(String ns, String name) {
-        try {
-            jsonGenerator.writeStartObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @Override
@@ -86,8 +77,13 @@ public class JsonWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeNodeContent(String value) {
+    public void writeNs(String prefix, String ns) {
+        // nothing to do
+    }
 
+    @Override
+    public void writeNodeContent(String value) {
+        // TODO
     }
 
     @Override
@@ -170,7 +166,6 @@ public class JsonWriter implements TreeDataWriter {
     @Override
     public void close() {
         try {
-            jsonGenerator.writeEndObject();
             jsonGenerator.close();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

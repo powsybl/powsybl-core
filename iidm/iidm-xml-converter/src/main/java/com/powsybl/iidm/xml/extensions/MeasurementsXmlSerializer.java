@@ -37,12 +37,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
     public void write(Measurements<C> extension, XmlWriterContext context) {
         TreeDataWriter writer = context.getWriter();
         for (Measurement measurement : extension.getMeasurements()) {
-            boolean hasProperty = !measurement.getPropertyNames().isEmpty();
-            if (hasProperty) {
-                writer.writeStartNode(getNamespaceUri(), MEASUREMENT);
-            } else {
-                writer.writeEmptyNode(getNamespaceUri(), MEASUREMENT);
-            }
+            writer.writeStartNode(getNamespaceUri(), MEASUREMENT);
             if (measurement.getId() != null) {
                 writer.writeStringAttribute("id", measurement.getId());
             }
@@ -52,13 +47,12 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
             writer.writeDoubleAttribute("standardDeviation", measurement.getStandardDeviation());
             writer.writeBooleanAttribute("valid", measurement.isValid());
             for (String name : measurement.getPropertyNames()) {
-                writer.writeEmptyNode(getNamespaceUri(), "property");
+                writer.writeStartNode(getNamespaceUri(), "property");
                 writer.writeStringAttribute("name", name);
                 writer.writeStringAttribute(VALUE, measurement.getProperty(name));
-            }
-            if (hasProperty) {
                 writer.writeEndNode();
             }
+            writer.writeEndNode();
         }
     }
 

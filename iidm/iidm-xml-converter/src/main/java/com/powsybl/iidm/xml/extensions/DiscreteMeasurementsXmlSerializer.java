@@ -38,12 +38,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) {
         TreeDataWriter writer = context.getWriter();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
-            boolean hasProperty = !discreteMeasurement.getPropertyNames().isEmpty();
-            if (hasProperty) {
-                writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT);
-            } else {
-                writer.writeEmptyNode(getNamespaceUri(), DISCRETE_MEASUREMENT);
-            }
+            writer.writeStartNode(getNamespaceUri(), DISCRETE_MEASUREMENT);
             writer.writeStringAttribute("id", discreteMeasurement.getId());
             writer.writeEnumAttribute("type", discreteMeasurement.getType());
             writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
@@ -63,13 +58,12 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
             }
             writer.writeStringAttribute("valid", String.valueOf(discreteMeasurement.isValid()));
             for (String name : discreteMeasurement.getPropertyNames()) {
-                writer.writeEmptyNode(getNamespaceUri(), "property");
+                writer.writeStartNode(getNamespaceUri(), "property");
                 writer.writeStringAttribute("name", name);
                 writer.writeStringAttribute(VALUE, discreteMeasurement.getProperty(name));
-            }
-            if (hasProperty) {
                 writer.writeEndNode();
             }
+            writer.writeEndNode();
         }
     }
 

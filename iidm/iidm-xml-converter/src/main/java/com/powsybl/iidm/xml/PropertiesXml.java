@@ -25,9 +25,10 @@ public final class PropertiesXml {
         if (identifiable.hasProperty()) {
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
-                context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
                 context.getWriter().writeStringAttribute(NAME, name);
                 context.getWriter().writeStringAttribute(VALUE, value);
+                context.getWriter().writeEndNode();
             }
         }
     }

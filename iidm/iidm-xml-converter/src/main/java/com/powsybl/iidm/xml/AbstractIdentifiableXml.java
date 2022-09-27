@@ -42,12 +42,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         if (!isValid(identifiable, parent)) {
             return;
         }
-        boolean isNotEmptyElement = hasSubElements(identifiable, context) || identifiable.hasProperty() || identifiable.hasAliases();
-        if (isNotEmptyElement) {
-            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
-        } else {
-            context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
-        }
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), getRootElementName());
         context.getWriter().writeStringAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
         ((Identifiable<?>) identifiable).getOptionalName().ifPresent(name -> {
             context.getWriter().writeStringAttribute("name", context.getAnonymizer().anonymizeString(name));
@@ -64,9 +59,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         PropertiesXml.write(identifiable, context);
 
         writeSubElements(identifiable, parent, context);
-        if (isNotEmptyElement) {
-            context.getWriter().writeEndNode();
-        }
+
+        context.getWriter().writeEndNode();
 
         context.addExportedEquipment(identifiable);
     }

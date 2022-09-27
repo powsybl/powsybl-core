@@ -81,17 +81,19 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) {
         if (sc.getModelType() == ShuntCompensatorModelType.LINEAR) {
-            context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
+            context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
             context.getWriter().writeDoubleAttribute(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection());
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, sc.getMaximumSectionCount());
+            context.getWriter().writeEndNode();
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
-                    context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), "section");
+                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "section");
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
+                    context.getWriter().writeEndNode();
                 }
                 context.getWriter().writeEndNode();
             });

@@ -30,11 +30,12 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     private void writePosition(ConnectablePosition.Feeder feeder, Integer i, XmlWriterContext context) {
-        context.getWriter().writeEmptyNode(getNamespaceUri(), "feeder" + (i != null ? i : ""));
+        context.getWriter().writeStartNode(getNamespaceUri(), "feeder" + (i != null ? i : ""));
         context.getWriter().writeStringAttribute("name", feeder.getName());
         Optional<Integer> oOrder = feeder.getOrder();
         oOrder.ifPresent(integer -> context.getWriter().writeIntAttribute("order", integer));
         context.getWriter().writeStringAttribute("direction", feeder.getDirection().name());
+        context.getWriter().writeEndNode();
     }
 
     @Override

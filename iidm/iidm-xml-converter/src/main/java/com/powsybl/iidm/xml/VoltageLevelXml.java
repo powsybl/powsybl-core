@@ -107,10 +107,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 double fictP0 = vl.getNodeBreakerView().getFictitiousP0(node);
                 double fictQ0 = vl.getNodeBreakerView().getFictitiousQ0(node);
                 if (fictP0 != 0.0 || fictQ0 != 0.0) {
-                    context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), "inj");
+                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "inj");
                     context.getWriter().writeIntAttribute("node", node);
                     context.getWriter().writeDoubleAttribute("fictitiousP0", fictP0, 0.0);
                     context.getWriter().writeDoubleAttribute("fictitiousQ0", fictQ0, 0.0);
+                    context.getWriter().writeEndNode();
                 }
             }
         });
@@ -118,10 +119,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private static void writeCalculatedBus(Bus bus, Set<Integer> nodes, NetworkXmlWriterContext context) {
-        context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), "bus");
+        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "bus");
         context.getWriter().writeDoubleAttribute("v", bus.getV());
         context.getWriter().writeDoubleAttribute("angle", bus.getAngle());
         context.getWriter().writeStringAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
+        context.getWriter().writeEndNode();
     }
 
     private void writeNodeBreakerTopologyInternalConnections(VoltageLevel vl, NetworkXmlWriterContext context) {

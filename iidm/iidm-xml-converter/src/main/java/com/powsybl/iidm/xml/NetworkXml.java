@@ -125,7 +125,7 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeExtensionNamespaces(Network n, ExportOptions options, XmlWriter writer) {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         // Get the list of the serializers needed to export the current network
@@ -149,8 +149,7 @@ public final class NetworkXml {
             } else {
                 extensionPrefixes.add(extensionXmlSerializer.getNamespacePrefix());
             }
-            writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
-            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
+            writer.writeNs(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
         }
     }
 
@@ -161,16 +160,10 @@ public final class NetworkXml {
             throw new AssertionError("Extension XML Serializer of " + extension.getName() + " should not be null");
         }
         String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
-        if (extensionXmlSerializer.hasSubElements()) {
-            writer.writeStartNode(namespaceUri, extension.getName());
-        } else {
-            writer.writeEmptyNode(namespaceUri, extension.getName());
-        }
+        writer.writeStartNode(namespaceUri, extension.getName());
         context.getExtensionVersion(extension.getName()).ifPresent(extensionXmlSerializer::checkExtensionVersionSupported);
         extensionXmlSerializer.write(extension, context);
-        if (extensionXmlSerializer.hasSubElements()) {
-            writer.writeEndNode();
-        }
+        writer.writeEndNode();
     }
 
     private static ExtensionXmlSerializer getExtensionXmlSerializer(ExportOptions options, Extension<? extends Identifiable<?>> extension) {
@@ -252,14 +245,14 @@ public final class NetworkXml {
             IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
             XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
             String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-            writer.setPrefix(IIDM_PREFIX, namespaceUri);
             IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
-            writer.writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
-            writer.writeNamespace(IIDM_PREFIX, namespaceUri);
+            XmlWriter xmlWriter = new XmlWriter(writer);
+            xmlWriter.writeStartNode(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+            xmlWriter.writeNs(IIDM_PREFIX, namespaceUri);
             if (!options.withNoExtension()) {
-                writeExtensionNamespaces(n, options, writer);
+                writeExtensionNamespaces(n, options, xmlWriter);
             }
-            return new XmlWriter(writer);
+            return xmlWriter;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -270,8 +263,9 @@ public final class NetworkXml {
         try {
             JsonGenerator generator = jsonFactory.createGenerator(os)
                     .useDefaultPrettyPrinter();
-            generator.writeStartObject();
-            return new JsonWriter(generator);
+            JsonWriter jsonWriter = new JsonWriter(generator);
+            jsonWriter.writeStartNode(null, NETWORK_ROOT_ELEMENT_NAME);
+            return jsonWriter;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -17,9 +17,9 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeStartNode(String ns, String name);
 
-    void writeEmptyNode(String ns, String name);
-
     void writeEndNode();
+
+    void writeNs(String prefix, String ns);
 
     void writeNodeContent(String value);
 

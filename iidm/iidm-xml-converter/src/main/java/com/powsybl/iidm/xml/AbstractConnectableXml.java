@@ -227,22 +227,17 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                                            boolean valid, ExportOptions exportOptions, String type) {
         if (!Double.isNaN(limits.getPermanentLimit())
                 || !limits.getTemporaryLimits().isEmpty()) {
-            if (limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEmptyNode(nsUri, type + indexToString(index));
-            } else {
-                writer.writeStartNode(nsUri, type + indexToString(index));
-            }
+            writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
             for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
-                writer.writeEmptyNode(version.getNamespaceURI(valid), "temporaryLimit");
+                writer.writeStartNode(version.getNamespaceURI(valid), "temporaryLimit");
                 writer.writeStringAttribute("name", tl.getName());
                 writer.writeIntAttribute("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE);
                 writer.writeDoubleAttribute("value", tl.getValue(), Double.MAX_VALUE);
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
-            }
-            if (!limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEndNode();
             }
+            writer.writeEndNode();
         }
     }
 

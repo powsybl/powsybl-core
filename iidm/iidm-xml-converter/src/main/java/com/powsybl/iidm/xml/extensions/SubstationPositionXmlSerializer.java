@@ -29,9 +29,10 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
 
     @Override
     public void write(SubstationPosition substationPosition, XmlWriterContext context) {
-        context.getWriter().writeEmptyNode(getNamespaceUri(), "coordinate");
+        context.getWriter().writeStartNode(getNamespaceUri(), "coordinate");
         context.getWriter().writeDoubleAttribute("longitude", substationPosition.getCoordinate().getLongitude());
         context.getWriter().writeDoubleAttribute("latitude", substationPosition.getCoordinate().getLatitude());
+        context.getWriter().writeEndNode();
     }
 
     @Override

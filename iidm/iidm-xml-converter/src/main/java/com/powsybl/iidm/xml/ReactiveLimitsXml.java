@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -31,19 +29,21 @@ public class ReactiveLimitsXml {
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), "point");
+                    context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "point");
                     context.getWriter().writeDoubleAttribute("p", point.getP());
                     context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, point.getMinQ());
                     context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, point.getMaxQ());
+                    context.getWriter().writeEndNode();
                 }
                 context.getWriter().writeEndNode();
                 break;
 
             case MIN_MAX:
                 MinMaxReactiveLimits limits = holder.getReactiveLimits(MinMaxReactiveLimits.class);
-                context.getWriter().writeEmptyNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_MIN_MAX_REACTIVE_LIMITS);
+                context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_MIN_MAX_REACTIVE_LIMITS);
                 context.getWriter().writeDoubleAttribute(ATTR_MIN_Q, limits.getMinQ());
                 context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, limits.getMaxQ());
+                context.getWriter().writeEndNode();
                 break;
 
             default:
@@ -51,7 +51,7 @@ public class ReactiveLimitsXml {
         }
     }
 
-    public void read(ReactiveLimitsHolder holder, NetworkXmlReaderContext context) throws XMLStreamException {
+    public void read(ReactiveLimitsHolder holder, NetworkXmlReaderContext context) {
         switch (context.getReader().getNodeName()) {
             case ELEM_REACTIVE_CAPABILITY_CURVE:
                 ReactiveCapabilityCurveAdder curveAdder = holder.newReactiveCapabilityCurve();
