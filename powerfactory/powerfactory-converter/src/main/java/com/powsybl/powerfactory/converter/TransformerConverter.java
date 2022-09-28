@@ -8,6 +8,8 @@ package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -78,6 +80,10 @@ class TransformerConverter extends AbstractConverter {
             .add();
 
         tc.ifPresent(t -> tapChangerToIidm(t, t2wt));
+
+        Optional<PhaseAngleClockModel> pacModel = PhaseAngleClockModel.create(typTr2);
+        pacModel.ifPresent(phaseAngleClockModel -> t2wt.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
+            .withPhaseAngleClock(phaseAngleClockModel.pac).add());
     }
 
     void createThreeWindings(DataObject elmTr3) {
@@ -165,6 +171,15 @@ class TransformerConverter extends AbstractConverter {
         tc1.ifPresent(tc -> tapChangerToIidm(tc, t3wt.getLeg1()));
         tc2.ifPresent(tc -> tapChangerToIidm(tc, t3wt.getLeg2()));
         tc3.ifPresent(tc -> tapChangerToIidm(tc, t3wt.getLeg3()));
+
+        PhaseAngleClock3WModel pac3WModel = PhaseAngleClock3WModel.create(typTr3);
+        Optional<PhaseAngleClockModel> pac2 = pac3WModel.getEnd(windingTypeEnds.get(1));
+        Optional<PhaseAngleClockModel> pac3 = pac3WModel.getEnd(windingTypeEnds.get(2));
+        if (pac2.isPresent() || pac3.isPresent()) {
+            t3wt.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
+                .withPhaseAngleClockLeg2(pac2.isPresent() ? pac2.get().pac : 0)
+                .withPhaseAngleClockLeg3(pac3.isPresent() ? pac3.get().pac : 0).add();
+        }
     }
 
     private static boolean highVoltageAtEnd1(VoltageLevel vl1, VoltageLevel vl2) {
@@ -332,7 +347,7 @@ class TransformerConverter extends AbstractConverter {
             // calculate leakage impedance from short circuit measures
             double zpu = shortCircuitVoltage / 100;
             double rpu = copperLosses / (1000 * ratedApparentPower);
-            double xpu = Math.sqrt(zpu * zpu - rpu * rpu);
+            double xpu = Math.sqrt(zpu * zpu - rpu * rpu) * Math.signum(shortCircuitVoltage);
 
             double r = impedanceFromPerUnitToEngineeringUnits(rpu, nominalVoltage, ratedApparentPower);
             double x = impedanceFromPerUnitToEngineeringUnits(xpu, nominalVoltage, ratedApparentPower);
@@ -458,6 +473,43 @@ class TransformerConverter extends AbstractConverter {
             rated3WModel.ratedModels.put(WindingType.MEDIUM, new RatedModel(utrnM, ratedU0, strnM));
             rated3WModel.ratedModels.put(WindingType.LOW, new RatedModel(utrnL, ratedU0, strnL));
             return rated3WModel;
+        }
+    }
+
+    private static final class PhaseAngleClockModel {
+        private final int pac;
+
+        private PhaseAngleClockModel(int pac) {
+            this.pac = pac;
+        }
+
+        private static Optional<PhaseAngleClockModel> create(DataObject typTr2) {
+            float nt2ag = typTr2.findFloatAttributeValue("nt2ag").orElse(0f);
+            if (nt2ag > 0) {
+                return Optional.of(new PhaseAngleClockModel((int) nt2ag));
+            } else {
+                return Optional.empty();
+            }
+        }
+    }
+
+    private static final class PhaseAngleClock3WModel {
+        private final Map<WindingType, Optional<PhaseAngleClockModel>> phaseAngleClockModels = new EnumMap<>(WindingType.class);
+
+        private Optional<PhaseAngleClockModel> getEnd(WindingType windingType) {
+            return phaseAngleClockModels.get(windingType);
+        }
+
+        private static PhaseAngleClock3WModel create(DataObject typTr3) {
+            float nt3agL = typTr3.findFloatAttributeValue("nt3ag_l").orElse(0f);
+            float nt3agM = typTr3.findFloatAttributeValue("nt3ag_m").orElse(0f);
+            float nt3agH = typTr3.findFloatAttributeValue("nt3ag_h").orElse(0f);
+
+            PhaseAngleClock3WModel phaseAngleClockModel = new PhaseAngleClock3WModel();
+            phaseAngleClockModel.phaseAngleClockModels.put(WindingType.LOW, nt3agL > 0 ? Optional.of(new PhaseAngleClockModel((int) nt3agL)) : Optional.empty());
+            phaseAngleClockModel.phaseAngleClockModels.put(WindingType.MEDIUM, nt3agM > 0 ? Optional.of(new PhaseAngleClockModel((int) nt3agM)) : Optional.empty());
+            phaseAngleClockModel.phaseAngleClockModels.put(WindingType.HIGH, nt3agH > 0 ? Optional.of(new PhaseAngleClockModel((int) nt3agH)) : Optional.empty());
+            return phaseAngleClockModel;
         }
     }
 

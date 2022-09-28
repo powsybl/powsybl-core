@@ -57,11 +57,10 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         if (quality == null) {
             return;
         }
-        context.getWriter().writeStartNode(getNamespaceUri(), type);
-        context.getWriter().writeEnumAttribute(SIDE, side);
-        context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-        context.getWriter().writeBooleanAttribute(REDUNDANT, quality.isRedundant(), false);
-        context.getWriter().writeEndNode();
+        context.getWriter().writeEmptyElement(getNamespaceUri(), type);
+        context.getWriter().writeAttribute(SIDE, side.name());
+        XmlUtil.writeDouble(STANDARD_DEVIATION, quality.getStandardDeviation(), context.getWriter());
+        XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), context.getWriter());
     }
 
     @Override

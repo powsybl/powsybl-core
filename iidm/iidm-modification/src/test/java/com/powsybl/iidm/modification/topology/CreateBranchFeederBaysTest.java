@@ -10,7 +10,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -25,12 +28,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.g
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertThrows;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
+public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
 
     private Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
@@ -47,15 +49,65 @@ public class CreateBranchFeedersTest extends AbstractXmlConverterTest {
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
                 .withBbsId1("bbs5")
-                .withPositionOrder1(115)
+                .withPositionOrder1(85)
                 .withDirection1(BOTTOM)
+                .withFeederName1("lineTestFeeder1")
                 .withBbsId2("bbs1")
-                .withPositionOrder2(121)
+                .withPositionOrder2(75)
+                .withFeederName2("lineTestFeeder2")
                 .withDirection2(TOP)
                 .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/network-node-breaker-with-new-line-feeders-bbs.xml");
+                "/network-node-breaker-with-new-line.xml");
+    }
+
+    @Test
+    public void usedOrderLineTest() throws IOException {
+        LineAdder lineAdder = network.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBbsId1("bbs1")
+                .withPositionOrder1(70)
+                .withDirection1(TOP)
+                .withBbsId2("bbs5")
+                .withPositionOrder2(85)
+                .withDirection2(BOTTOM)
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-line-order-used.xml");
+    }
+
+    @Test
+    public void baseInternalLineTest() throws IOException {
+        LineAdder lineAdder = network.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBbsId1("bbs2")
+                .withPositionOrder1(105)
+                .withDirection1(TOP)
+                .withBbsId2("bbs1")
+                .withPositionOrder2(14)
+                .withDirection2(BOTTOM)
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network-node-breaker-with-new-internal-line.xml");
     }
 
     @Test

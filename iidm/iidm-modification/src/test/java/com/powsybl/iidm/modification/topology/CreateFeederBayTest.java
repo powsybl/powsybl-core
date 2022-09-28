@@ -18,11 +18,10 @@ import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.Assert.*;
@@ -44,6 +43,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
                 .withInjectionAdder(loadAdder)
                 .withBbsId("bbs4")
                 .withInjectionPositionOrder(115)
+                .withInjectionFeederName("newLoadFeeder")
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
@@ -290,18 +290,6 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
     }
 
     @Test
-    public void testFeederOrders() {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl1"));
-        assertEquals(13, feederOrders.size());
-        assertTrue(feederOrders.contains(100));
-        Set<Integer> feederOrders2 = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl2"));
-        assertEquals(9, feederOrders2.size());
-        Set<Integer> feederOrders3 = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vlSubst2"));
-        assertEquals(1, feederOrders3.size());
-    }
-
-    @Test
     public void testWithoutExtension() {
         Network network = Importers.loadNetwork("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
@@ -328,14 +316,5 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
 
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception2.getMessage());
-    }
-
-    @Test
-    public void testGetPositionsByConnectable() {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        Map<String, Integer> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
-        assertTrue(positionsByConnectable.containsKey("load1"));
-        assertEquals(70, positionsByConnectable.get("line1"), 0);
-        assertEquals(13, positionsByConnectable.size());
     }
 }

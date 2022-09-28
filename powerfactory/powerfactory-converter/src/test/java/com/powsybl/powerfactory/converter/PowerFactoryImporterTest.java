@@ -122,6 +122,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void twoBusesLineWithNumberOfParallelLines() {
+        assertTrue(importAndCompareXiidm("TwoBusesLineWithNumberOfParallelLines"));
+    }
+
+    @Test
     public void twoBusesGeneratorTest() {
         assertTrue(importAndCompareXiidm("TwoBusesGenerator"));
     }
@@ -212,6 +217,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void commonImpedanceWithDifferentNominal() {
+        assertTrue(importAndCompareXiidm("CommonImpedanceWithDifferentNominal"));
+    }
+
+    @Test
     public void twoBusesGeneratorAndShuntRL() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRL"));
     }
@@ -244,6 +254,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void capabilityCurve() {
         assertTrue(importAndCompareXiidm("CapabilityCurve"));
+    }
+
+    @Test
+    public void transformersWithPhaseAngleClock() {
+        assertTrue(importAndCompareXiidm("TransformersWithPhaseAngleClock"));
     }
 
     @Test

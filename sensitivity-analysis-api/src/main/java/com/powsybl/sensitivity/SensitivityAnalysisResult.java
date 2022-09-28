@@ -57,8 +57,8 @@ public class SensitivityAnalysisResult {
     private final Map<String, SensitivityContingencyStatus> statusByContingencyId = new HashMap<>();
 
     public enum Status {
-        CONVERGED,
-        FAILED,
+        SUCCESS,
+        FAILURE,
         NO_IMPACT
     }
 
