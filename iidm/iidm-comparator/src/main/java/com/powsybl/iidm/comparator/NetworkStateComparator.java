@@ -300,6 +300,8 @@ public class NetworkStateComparator {
         }
     };
 
+    private static final InjectionPColumnMapper<ShuntCompensator> SHUNT_P = new InjectionPColumnMapper<>();
+
     private static final InjectionQColumnMapper<ShuntCompensator> SHUNT_Q = new InjectionQColumnMapper<>();
 
     private static final class DiffColumnMapper<T extends Identifiable> implements ColumnMapper<T> {
@@ -389,7 +391,7 @@ public class NetworkStateComparator {
 
     private static final List<ColumnMapper<Load>> LOAD_MAPPERS = ImmutableList.of(LOAD_P, LOAD_Q);
 
-    private static final List<ColumnMapper<ShuntCompensator>> SHUNT_MAPPERS = ImmutableList.of(SHUNT_SECTIONS, SHUNT_Q);
+    private static final List<ColumnMapper<ShuntCompensator>> SHUNT_MAPPERS = ImmutableList.of(SHUNT_SECTIONS, SHUNT_P, SHUNT_Q);
 
     private final Network network;
 
@@ -475,10 +477,12 @@ public class NetworkStateComparator {
         // auto filter
         sheetContext.getSheet().setAutoFilter(new CellRangeAddress(1, 1, stateColumnOffset, stateColumnOffset + 3 * mappers.size() - 1));
 
-        // create diff stats
-        createRowFooter(sheetContext, diffColumnOffset, mappers, 0, "Max", (fromCell, toCell) -> "MAX(" + fromCell + ":" + toCell + ")");
-        createRowFooter(sheetContext, diffColumnOffset, mappers, 1, "Min", (fromCell, toCell) -> "MIN(" + fromCell + ":" + toCell + ")");
-        createRowFooter(sheetContext, diffColumnOffset, mappers, 2, "Average", (fromCell, toCell) -> "AVERAGE(" + fromCell + ":" + toCell + ")");
+        // create diff stats (only if there is at least one object to compare, otherwise current code creates circular references in worksheet).
+        if (!objs.isEmpty()) {
+            createRowFooter(sheetContext, diffColumnOffset, mappers, 0, "Max", (fromCell, toCell) -> "MAX(" + fromCell + ":" + toCell + ")");
+            createRowFooter(sheetContext, diffColumnOffset, mappers, 1, "Min", (fromCell, toCell) -> "MIN(" + fromCell + ":" + toCell + ")");
+            createRowFooter(sheetContext, diffColumnOffset, mappers, 2, "Average", (fromCell, toCell) -> "AVERAGE(" + fromCell + ":" + toCell + ")");
+        }
     }
 
     private <T extends Identifiable> void createRowFooter(SheetContext<T> sheetContext, int diffColumnOffset,
