@@ -8,7 +8,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.xml.TreeDataWriter;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 
 /**

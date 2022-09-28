@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -88,7 +86,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             if (context.getReader().getNodeName().equals(REGULATING_TERMINAL)) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);

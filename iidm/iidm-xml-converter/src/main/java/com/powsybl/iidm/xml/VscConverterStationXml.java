@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
 
 /**
@@ -72,7 +71,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(VscConverterStation cs, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
                 case "reactiveCapabilityCurve":

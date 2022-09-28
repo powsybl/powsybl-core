@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -69,7 +67,7 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected void readSubElements(Bus b, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Bus b, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> BusXml.super.readSubElements(b, context));
     }
 }

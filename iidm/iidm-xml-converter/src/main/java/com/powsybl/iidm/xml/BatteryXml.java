@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
@@ -68,7 +66,7 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
     }
 
     @Override
-    protected void readSubElements(Battery b, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Battery b, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
                 case "reactiveCapabilityCurve":

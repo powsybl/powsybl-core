@@ -10,16 +10,14 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.TreeDataReader;
-import com.powsybl.commons.xml.TreeDataWriter;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -86,7 +84,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         return extendable.getExtension(CgmesControlAreas.class);
     }
 
-    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, TreeDataReader reader, CgmesControlArea cgmesControlArea, Network network) throws XMLStreamException {
+    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, TreeDataReader reader, CgmesControlArea cgmesControlArea, Network network) {
         reader.readUntilEndNode(CONTROL_AREA, () -> {
             String id;
             String side;

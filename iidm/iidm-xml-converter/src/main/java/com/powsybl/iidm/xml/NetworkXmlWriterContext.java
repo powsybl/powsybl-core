@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.TreeDataWriter;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.xml.XmlWriter;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 

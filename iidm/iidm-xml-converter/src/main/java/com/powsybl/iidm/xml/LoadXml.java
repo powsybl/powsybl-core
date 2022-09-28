@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -57,7 +55,7 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected void readSubElements(Load l, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Load l, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> LoadXml.super.readSubElements(l, context));
     }
 }

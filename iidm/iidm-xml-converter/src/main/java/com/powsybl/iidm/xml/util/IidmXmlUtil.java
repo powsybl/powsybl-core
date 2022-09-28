@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Identifiable;
@@ -16,7 +15,6 @@ import com.powsybl.iidm.xml.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -32,20 +30,6 @@ public final class IidmXmlUtil {
 
     private static final String MAXIMUM_REASON = "IIDM-XML version should be <= ";
     private static final String MINIMUM_REASON = "IIDM-XML version should be >= ";
-
-    public interface IidmXmlRunnable extends Runnable {
-
-        @Override
-        default void run() {
-            try {
-                runWithXmlStreamException();
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        }
-
-        void runWithXmlStreamException() throws XMLStreamException;
-    }
 
     public enum ErrorMessage {
         NOT_SUPPORTED("not supported"),
@@ -230,7 +214,7 @@ public final class IidmXmlUtil {
      */
     public static void assertMinimumVersionAndRunIfNotDefault(boolean valueIsNotDefault, String rootElementName,
                                                               String elementName, ErrorMessage type, IidmXmlVersion minVersion,
-                                                              NetworkXmlReaderContext context, IidmXmlRunnable runnable) {
+                                                              NetworkXmlReaderContext context, Runnable runnable) {
         if (valueIsNotDefault) {
             assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
             runnable.run();
@@ -246,7 +230,7 @@ public final class IidmXmlUtil {
      */
     public static void assertMinimumVersionAndRunIfNotDefault(boolean valueIsNotDefault, String rootElementName,
                                                               String elementName, ErrorMessage type, IidmXmlVersion minVersion,
-                                                              NetworkXmlWriterContext context, IidmXmlRunnable runnable) {
+                                                              NetworkXmlWriterContext context, Runnable runnable) {
         if (valueIsNotDefault) {
             assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
             runFromMinimumVersion(minVersion, context, runnable::run);
@@ -277,7 +261,7 @@ public final class IidmXmlUtil {
     /**
      * Run a given runnable if the context's IIDM-XML version equals or is more recent than a given minimum IIDM-XML version.
      */
-    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, IidmXmlRunnable runnable) {
+    public static <C extends AbstractNetworkXmlContext> void runFromMinimumVersion(IidmXmlVersion minVersion, C context, Runnable runnable) {
         if (context.getVersion().compareTo(minVersion) >= 0) {
             runnable.run();
         }
@@ -287,7 +271,7 @@ public final class IidmXmlUtil {
     /**
      * Run a given runnable if the context's IIDM-XML version equals or is older than a given maximum IIDM-XML version.
      */
-    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, IidmXmlRunnable runnable) {
+    public static <C extends AbstractNetworkXmlContext> void runUntilMaximumVersion(IidmXmlVersion maxVersion, C context, Runnable runnable) {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
             runnable.run();
         }
@@ -327,7 +311,7 @@ public final class IidmXmlUtil {
 
     private static void writeAttributeFromMinimumVersion(String rootElementName, String attributeName, boolean isNotDefaultValue,
                                                          ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context,
-                                                         IidmXmlRunnable write) {
+                                                         Runnable write) {
         if (context.getVersion().compareTo(minVersion) >= 0) {
             write.run();
         } else {

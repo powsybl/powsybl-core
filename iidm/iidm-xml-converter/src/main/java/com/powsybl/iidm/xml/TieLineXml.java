@@ -11,7 +11,6 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
 /**
@@ -156,7 +155,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     @Override
-    protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
                 case ACTIVE_POWER_LIMITS_1:

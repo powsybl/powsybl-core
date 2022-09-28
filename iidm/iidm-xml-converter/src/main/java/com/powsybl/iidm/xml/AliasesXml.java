@@ -9,8 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
@@ -30,7 +28,7 @@ public final class AliasesXml {
         }
     }
 
-    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
+    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) {
         assert context.getReader().getNodeName().equals(ALIAS);
         String[] aliasType = new String[1];
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute("type"));

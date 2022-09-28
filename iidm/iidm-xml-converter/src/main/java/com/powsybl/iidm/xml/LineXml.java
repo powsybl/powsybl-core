@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
 /**
@@ -100,7 +99,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected void readSubElements(Line l, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Line l, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
                 case ACTIVE_POWER_LIMITS_1:

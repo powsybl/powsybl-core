@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -79,7 +77,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected void readSubElements(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Generator g, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
                 case "regulatingTerminal":

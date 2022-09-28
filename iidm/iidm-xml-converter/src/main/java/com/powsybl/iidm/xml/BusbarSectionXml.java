@@ -12,8 +12,6 @@ import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -64,7 +62,7 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     }
 
     @Override
-    protected void readSubElements(BusbarSection bs, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(BusbarSection bs, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> BusbarSectionXml.super.readSubElements(bs, context));
     }
 }

@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -63,7 +61,7 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> HvdcLineXml.super.readSubElements(l, context));
     }
 }

@@ -6,13 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.xml.TreeDataReader;
-import com.powsybl.commons.xml.TreeDataWriter;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -161,7 +159,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) throws XMLStreamException {
+    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, TreeDataReader reader) {
         readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
     }
 
@@ -245,7 +243,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
      * @deprecated Use {@link TerminalRefXml#writeTerminalRef(Terminal, NetworkXmlWriterContext, String)} instead.
      */
     @Deprecated
-    protected static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
+    protected static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) {
         TerminalRefXml.writeTerminalRef(t, context, elementName);
     }
 

@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -98,7 +97,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected void readSubElements(Substation s, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Substation s, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
                 case VoltageLevelXml.ROOT_ELEMENT_NAME:

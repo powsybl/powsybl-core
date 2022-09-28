@@ -8,6 +8,7 @@ package com.powsybl.commons.xml;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataReader;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,26 +32,13 @@ public final class XmlUtil {
     private XmlUtil() {
     }
 
-    public interface XmlEventHandler {
-
-        void onStartElement() throws XMLStreamException;
-    }
-
-    /**
-     * An richer event handler which give element depth with each start event.
-     */
-    public interface XmlEventHandlerWithDepth {
-
-        void onStartElement(int elementDepth) throws XMLStreamException;
-    }
-
-    public static void readUntilStartElement(String path, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+    public static void readUntilStartElement(String path, XMLStreamReader reader, TreeDataReader.EventHandler handler) throws XMLStreamException {
         Objects.requireNonNull(path);
         String[] elements = path.split("/");
         readUntilStartElement(elements, reader, handler);
     }
 
-    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, TreeDataReader.EventHandler handler) throws XMLStreamException {
         Objects.requireNonNull(elements);
         if (elements.length == 0) {
             throw new PowsyblException("Empty element list");
@@ -93,7 +81,7 @@ public final class XmlUtil {
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
-    public static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler eventHandler) throws XMLStreamException {
+    public static String readUntilEndElement(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandler eventHandler) throws XMLStreamException {
         return readUntilEndElementWithDepth(endElementName, reader, elementDepth -> {
             if (eventHandler != null) {
                 eventHandler.onStartElement();
@@ -101,7 +89,7 @@ public final class XmlUtil {
         });
     }
 
-    public static String readUntilEndElementWithDepth(String endElementName, XMLStreamReader reader, XmlEventHandlerWithDepth eventHandler) throws XMLStreamException {
+    public static String readUntilEndElementWithDepth(String endElementName, XMLStreamReader reader, TreeDataReader.EventHandlerWithDepth eventHandler) throws XMLStreamException {
         Objects.requireNonNull(endElementName);
         Objects.requireNonNull(reader);
 

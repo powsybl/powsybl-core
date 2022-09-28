@@ -8,8 +8,6 @@ package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlWriterContext;
 
 import java.io.InputStream;
 import java.util.Collections;

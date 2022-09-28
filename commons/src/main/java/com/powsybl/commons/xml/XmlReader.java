@@ -7,6 +7,7 @@
 package com.powsybl.commons.xml;
 
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.io.TreeDataReader;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -100,7 +101,7 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
-    public String readUntilEndNode(String endNodeName, XmlUtil.XmlEventHandler eventHandler) {
+    public String readUntilEndNode(String endNodeName, EventHandler eventHandler) {
         try {
             return XmlUtil.readUntilEndElement(endNodeName, reader, eventHandler);
         } catch (XMLStreamException e) {
@@ -109,7 +110,7 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
-    public String readUntilEndNodeWithDepth(String endNodeName, XmlUtil.XmlEventHandlerWithDepth eventHandler) {
+    public String readUntilEndNodeWithDepth(String endNodeName, EventHandlerWithDepth eventHandler) {
         try {
             return XmlUtil.readUntilEndElementWithDepth(endNodeName, reader, eventHandler);
         } catch (XMLStreamException e) {

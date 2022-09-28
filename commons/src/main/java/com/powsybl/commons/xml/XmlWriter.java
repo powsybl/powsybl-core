@@ -7,6 +7,7 @@
 package com.powsybl.commons.xml;
 
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.io.TreeDataWriter;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;

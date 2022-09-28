@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
 /**
@@ -142,7 +141,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> {
             switch (context.getReader().getNodeName()) {
                 case ACTIVE_POWER_LIMITS:

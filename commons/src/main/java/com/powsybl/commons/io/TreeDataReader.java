@@ -4,12 +4,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.commons.xml;
+package com.powsybl.commons.io;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface TreeDataReader {
+
+    interface EventHandler {
+
+        void onStartElement();
+    }
+
+    /**
+     * An richer event handler which give element depth with each start event.
+     */
+    interface EventHandlerWithDepth {
+
+        void onStartElement(int elementDepth);
+    }
 
     double readDoubleAttribute(String name);
 
@@ -37,7 +50,7 @@ public interface TreeDataReader {
 
     String readContent();
 
-    String readUntilEndNode(String endElementName, XmlUtil.XmlEventHandler eventHandler);
+    String readUntilEndNode(String endElementName, EventHandler eventHandler);
 
-    String readUntilEndNodeWithDepth(String endElementName, XmlUtil.XmlEventHandlerWithDepth eventHandler);
+    String readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler);
 }

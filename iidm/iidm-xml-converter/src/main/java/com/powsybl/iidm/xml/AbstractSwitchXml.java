@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,7 +34,7 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
     }
 
     @Override
-    protected void readSubElements(Switch s, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(Switch s, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> AbstractSwitchXml.super.readSubElements(s, context));
     }
 }

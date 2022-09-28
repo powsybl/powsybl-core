@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import javax.xml.stream.XMLStreamException;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -54,7 +52,7 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected void readSubElements(LccConverterStation cs, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(LccConverterStation cs, NetworkXmlReaderContext context) {
         context.getReader().readUntilEndNode(getRootElementName(), () -> LccConverterStationXml.super.readSubElements(cs, context));
     }
 }
