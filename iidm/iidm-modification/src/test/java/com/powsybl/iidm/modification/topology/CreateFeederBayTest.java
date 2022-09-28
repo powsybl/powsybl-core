@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateFeederBayTest extends AbstractXmlConverterTest  {
+public class CreateFeederBayTest extends AbstractXmlConverterTest {
 
     @Test
     public void baseLoadTest() throws IOException {

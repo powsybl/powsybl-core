@@ -287,7 +287,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
         cnx.add(parentSt, context);
         // add rest of statements for subject
-        createStatements(cnx, objNs, objType, statement, context,  resource);
+        createStatements(cnx, objNs, objType, statement, context, resource);
         return resource.getLocalName();
     }
 

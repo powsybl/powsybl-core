@@ -56,7 +56,7 @@ public class ResourceSet {
     public InputStream newInputStream(String fileName) {
         Objects.requireNonNull(fileName);
         if (!fileNames.contains(fileName)) {
-            throw new IllegalArgumentException("File '" + fileName  + "' not found");
+            throw new IllegalArgumentException("File '" + fileName + "' not found");
         }
         return getClass().getResourceAsStream(getResourceName(dir, fileName));
     }
