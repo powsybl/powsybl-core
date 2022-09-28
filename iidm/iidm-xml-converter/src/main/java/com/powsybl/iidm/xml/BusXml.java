@@ -29,11 +29,6 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     }
 
     @Override
-    protected boolean hasSubElements(Bus b) {
-        return false;
-    }
-
-    @Override
     protected void writeRootElementAttributes(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("v", b.getV());
         context.getWriter().writeDoubleAttribute("angle", b.getAngle());

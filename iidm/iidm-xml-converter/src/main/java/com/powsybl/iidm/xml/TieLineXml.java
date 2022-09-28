@@ -31,16 +31,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return ROOT_ELEMENT_NAME;
     }
 
-    @Override
-    protected boolean hasSubElements(TieLine tl) {
-        throw new AssertionError("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(TieLine tl, NetworkXmlWriterContext context) {
-        return hasValidOperationalLimits(tl, context);
-    }
-
     private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) {
         Boundary boundary = halfLine.getBoundary();
         context.getWriter().writeStringAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));

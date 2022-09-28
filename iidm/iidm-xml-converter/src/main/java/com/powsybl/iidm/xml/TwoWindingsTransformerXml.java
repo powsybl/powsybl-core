@@ -28,16 +28,6 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected boolean hasSubElements(TwoWindingsTransformer twt) {
-        throw new AssertionError("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(TwoWindingsTransformer twt, NetworkXmlWriterContext context) {
-        return hasValidOperationalLimits(twt, context) || twt.hasRatioTapChanger() || twt.hasPhaseTapChanger();
-    }
-
-    @Override
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("r", twt.getR());
         context.getWriter().writeDoubleAttribute("x", twt.getX());

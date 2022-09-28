@@ -29,11 +29,6 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected boolean hasSubElements(Load l) {
-        return false;
-    }
-
-    @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeEnumAttribute("loadType", l.getLoadType());
         context.getWriter().writeDoubleAttribute("p0", l.getP0());

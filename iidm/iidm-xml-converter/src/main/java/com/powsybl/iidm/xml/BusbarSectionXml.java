@@ -30,11 +30,6 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     }
 
     @Override
-    protected boolean hasSubElements(BusbarSection bs) {
-        return false;
-    }
-
-    @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeIntAttribute("node", bs.getTerminal().getNodeBreakerView().getNode());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_0, context, () -> {

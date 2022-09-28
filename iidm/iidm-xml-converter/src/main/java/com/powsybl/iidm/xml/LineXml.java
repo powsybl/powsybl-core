@@ -28,16 +28,6 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected boolean hasSubElements(Line l) {
-        throw new AssertionError("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(Line l, NetworkXmlWriterContext context) {
-        return hasValidOperationalLimits(l, context);
-    }
-
-    @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("r", l.getR());
         context.getWriter().writeDoubleAttribute("x", l.getX());

@@ -28,11 +28,6 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
     }
 
     @Override
-    protected boolean hasSubElements(Battery b) {
-        return true;
-    }
-
-    @Override
     protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute(IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8),
                 b.getTargetP());

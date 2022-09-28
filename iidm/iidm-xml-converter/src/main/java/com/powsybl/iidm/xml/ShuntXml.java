@@ -35,16 +35,6 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     }
 
     @Override
-    protected boolean hasSubElements(ShuntCompensator sc) {
-        return sc != sc.getRegulatingTerminal().getConnectable();
-    }
-
-    @Override
-    protected boolean hasSubElements(ShuntCompensator sc, NetworkXmlWriterContext context) {
-        return hasSubElements(sc) || context.getVersion().compareTo(IidmXmlVersion.V_1_3) >= 0;
-    }
-
-    @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) {
         if (ShuntCompensatorModelType.NON_LINEAR == sc.getModelType()) {
             IidmXmlUtil.assertMinimumVersion(getRootElementName(), SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);

@@ -28,11 +28,6 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected boolean hasSubElements(HvdcLine identifiable) {
-        return false;
-    }
-
-    @Override
     protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("r", l.getR());
         context.getWriter().writeDoubleAttribute("nominalV", l.getNominalV());

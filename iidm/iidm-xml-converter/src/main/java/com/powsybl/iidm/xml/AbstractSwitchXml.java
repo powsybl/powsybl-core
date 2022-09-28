@@ -27,11 +27,6 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
     }
 
     @Override
-    protected boolean hasSubElements(Switch s) {
-        return false;
-    }
-
-    @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeEnumAttribute("kind", s.getKind());
         context.getWriter().writeBooleanAttribute("retained", s.isRetained());

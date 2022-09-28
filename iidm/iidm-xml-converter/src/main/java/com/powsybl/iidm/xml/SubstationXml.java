@@ -32,11 +32,6 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected boolean hasSubElements(Substation s) {
-        return true;
-    }
-
-    @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) {
         Optional<Country> country = s.getCountry();
         country.ifPresent(value -> context.getWriter().writeStringAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(value).toString()));

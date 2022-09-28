@@ -23,12 +23,6 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract String getRootElementName();
 
-    protected abstract boolean hasSubElements(T identifiable);
-
-    protected boolean hasSubElements(T identifiable, NetworkXmlWriterContext context) {
-        return hasSubElements(identifiable);
-    }
-
     protected boolean isValid(T identifiable, P parent) {
         return true;
     }

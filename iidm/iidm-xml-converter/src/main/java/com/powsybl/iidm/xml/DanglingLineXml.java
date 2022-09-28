@@ -34,23 +34,6 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected boolean hasSubElements(DanglingLine dl) {
-        throw new AssertionError("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(DanglingLine dl, NetworkXmlWriterContext context) {
-        return hasValidGeneration(dl, context) || hasValidOperationalLimits(dl, context);
-    }
-
-    private static boolean hasValidGeneration(DanglingLine dl, NetworkXmlWriterContext context) {
-        if (dl.getGeneration() != null) {
-            return context.getVersion().compareTo(IidmXmlVersion.V_1_3) > 0;
-        }
-        return false;
-    }
-
-    @Override
     protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) {
         DanglingLine.Generation generation = dl.getGeneration();
         double[] p0 = new double[1];

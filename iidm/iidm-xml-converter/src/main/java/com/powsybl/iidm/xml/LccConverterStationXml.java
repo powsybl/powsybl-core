@@ -28,11 +28,6 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected boolean hasSubElements(LccConverterStation cs) {
-        return false;
-    }
-
-    @Override
     protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());
         context.getWriter().writeFloatAttribute("powerFactor", cs.getPowerFactor());

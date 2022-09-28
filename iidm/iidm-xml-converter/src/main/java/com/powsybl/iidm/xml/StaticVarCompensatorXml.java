@@ -30,11 +30,6 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    protected boolean hasSubElements(StaticVarCompensator svc) {
-        return svc != svc.getRegulatingTerminal().getConnectable();
-    }
-
-    @Override
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("bMin", svc.getBmin());
         context.getWriter().writeDoubleAttribute("bMax", svc.getBmax());

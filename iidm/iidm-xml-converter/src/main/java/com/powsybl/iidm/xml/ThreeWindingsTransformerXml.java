@@ -35,24 +35,6 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected boolean hasSubElements(ThreeWindingsTransformer twt) {
-        throw new AssertionError("Should not be called");
-    }
-
-    @Override
-    protected boolean hasSubElements(ThreeWindingsTransformer twt, NetworkXmlWriterContext context) {
-        return (twt.getLeg1().hasRatioTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
-                || twt.getLeg2().hasRatioTapChanger()
-                || twt.getLeg3().hasRatioTapChanger()
-                || (twt.getLeg1().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
-                || (twt.getLeg2().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
-                || (twt.getLeg3().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
-                || hasValidOperationalLimits(twt.getLeg1(), context)
-                || hasValidOperationalLimits(twt.getLeg2(), context)
-                || hasValidOperationalLimits(twt.getLeg3(), context);
-    }
-
-    @Override
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("r1", twt.getLeg1().getR());
         context.getWriter().writeDoubleAttribute("x1", twt.getLeg1().getX());

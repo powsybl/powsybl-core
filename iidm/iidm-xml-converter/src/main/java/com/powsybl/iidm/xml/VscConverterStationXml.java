@@ -32,11 +32,6 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    protected boolean hasSubElements(VscConverterStation cs) {
-        return true;
-    }
-
-    @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeBooleanAttribute("voltageRegulatorOn", cs.isVoltageRegulatorOn());
         context.getWriter().writeFloatAttribute("lossFactor", cs.getLossFactor());

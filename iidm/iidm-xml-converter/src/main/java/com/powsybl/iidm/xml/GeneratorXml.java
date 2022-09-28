@@ -28,11 +28,6 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected boolean hasSubElements(Generator g) {
-        return true;
-    }
-
-    @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeEnumAttribute("energySource", g.getEnergySource());
         context.getWriter().writeDoubleAttribute("minP", g.getMinP());

@@ -38,11 +38,6 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     @Override
-    protected boolean hasSubElements(VoltageLevel vl) {
-        return true;
-    }
-
-    @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("nominalV", vl.getNominalV());
         context.getWriter().writeDoubleAttribute("lowVoltageLimit", vl.getLowVoltageLimit());
