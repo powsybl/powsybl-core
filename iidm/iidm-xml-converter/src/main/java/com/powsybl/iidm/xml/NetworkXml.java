@@ -22,7 +22,9 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.json.JsonWriter;
-import com.powsybl.commons.xml.*;
+import com.powsybl.commons.xml.XmlReader;
+import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
@@ -263,9 +265,8 @@ public final class NetworkXml {
 
     private static JsonWriter initializeJsonWriter(Network n, OutputStream os, ExportOptions options) {
         JsonFactory jsonFactory = JsonUtil.createJsonFactory();
-        try {
-            JsonGenerator generator = jsonFactory.createGenerator(os)
-                    .useDefaultPrettyPrinter();
+        try (JsonGenerator generator = jsonFactory.createGenerator(os)
+                .useDefaultPrettyPrinter()) {
             JsonWriter jsonWriter = new JsonWriter(generator);
             jsonWriter.writeStartNode(null, NETWORK_ROOT_ELEMENT_NAME);
             return jsonWriter;

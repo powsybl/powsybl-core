@@ -14,10 +14,12 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
  */
 public final class AliasesXml {
 
+    static final String ALIASES = "aliases";
     static final String ALIAS = "alias";
 
     public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) {
         IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ALIAS, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+        context.getWriter().writeStartNodes(ALIASES);
         for (String alias : identifiable.getAliases()) {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ALIAS);
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> identifiable.getAliasType(alias).ifPresent(type -> {
@@ -26,6 +28,7 @@ public final class AliasesXml {
             context.getWriter().writeNodeContent(context.getAnonymizer().anonymizeString(alias));
             context.getWriter().writeEndNode();
         }
+        context.getWriter().writeEndNodes();
     }
 
     public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) {
