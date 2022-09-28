@@ -80,6 +80,7 @@ public class XmlWriter implements TreeDataWriter {
     public void writeEndNode() {
         try {
             if (currentNodeName != null) {
+                writePrefixes();
                 writer.writeEmptyElement(currentNodeNs, currentNodeName);
                 flushAttributes();
                 currentNodeNs = null;

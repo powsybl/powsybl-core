@@ -35,10 +35,11 @@ public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSeriali
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
         sortedBaseVoltages.forEach((nominalV, baseVoltageSource) -> {
-            context.getWriter().writeEmptyNode(getNamespaceUri(), "baseVoltage");
+            context.getWriter().writeStartNode(getNamespaceUri(), "baseVoltage");
             context.getWriter().writeDoubleAttribute("nominalVoltage", nominalV);
             context.getWriter().writeEnumAttribute("source", baseVoltageSource.getSource());
             context.getWriter().writeStringAttribute("id", baseVoltageSource.getId());
+            context.getWriter().writeEndNode();
         });
     }
 

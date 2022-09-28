@@ -21,12 +21,30 @@ public class JsonWriter implements TreeDataWriter {
 
     private final JsonGenerator jsonGenerator;
 
-    enum Context {
-        NODE,
-        NODES
+    enum ContextType {
+        OBJECT,
+        ARRAY
     }
 
-    private final Deque<Context> context = new ArrayDeque<>();
+    static final class Context {
+
+        private final ContextType type;
+
+        private final String arrayFieldName;
+
+        private int objectCount = 0;
+
+        private Context(ContextType type) {
+            this(type, null);
+        }
+
+        private Context(ContextType type, String arrayFieldName) {
+            this.type = Objects.requireNonNull(type);
+            this.arrayFieldName = arrayFieldName;
+        }
+    }
+
+    private final Deque<Context> contextQueue = new ArrayDeque<>();
 
     public JsonWriter(JsonGenerator jsonGenerator) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
@@ -34,36 +52,44 @@ public class JsonWriter implements TreeDataWriter {
 
     @Override
     public void writeStartNodes(String name) {
-        try {
-            jsonGenerator.writeFieldName(name);
-            jsonGenerator.writeStartArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        context.push(Context.NODES);
+        contextQueue.push(new Context(ContextType.ARRAY, name));
     }
 
     @Override
     public void writeEndNodes() {
         try {
-            jsonGenerator.writeEndArray();
+            Context context = Objects.requireNonNull(contextQueue.pop());
+            if (context.type != ContextType.ARRAY) {
+                throw new IllegalStateException();
+            }
+            if (context.objectCount > 0) {
+                jsonGenerator.writeEndArray();
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        context.pop();
     }
 
     @Override
     public void writeStartNode(String ns, String name) {
         try {
-            if (!context.isEmpty() && context.getFirst() == Context.NODE) {
-                jsonGenerator.writeFieldName(name);
+            Context context = contextQueue.peekFirst();
+            if (context != null) {
+                if (context.type == ContextType.ARRAY) {
+                    if (context.objectCount == 0) {
+                        jsonGenerator.writeFieldName(context.arrayFieldName);
+                        jsonGenerator.writeStartArray();
+                    }
+                    context.objectCount++;
+                } else if (context.type == ContextType.OBJECT) {
+                    jsonGenerator.writeFieldName(name);
+                }
             }
             jsonGenerator.writeStartObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        context.push(Context.NODE);
+        contextQueue.push(new Context(ContextType.OBJECT));
     }
 
     @Override
@@ -73,7 +99,7 @@ public class JsonWriter implements TreeDataWriter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        context.pop();
+        contextQueue.pop();
     }
 
     @Override
@@ -83,7 +109,7 @@ public class JsonWriter implements TreeDataWriter {
 
     @Override
     public void writeNodeContent(String value) {
-        // TODO
+        writeStringAttribute("content", value);
     }
 
     @Override
@@ -144,7 +170,9 @@ public class JsonWriter implements TreeDataWriter {
 
     @Override
     public <E extends Enum<E>> void writeEnumAttribute(String name, E value) {
-
+        if (value != null) {
+            writeStringAttribute(name, value.name());
+        }
     }
 
     @Override

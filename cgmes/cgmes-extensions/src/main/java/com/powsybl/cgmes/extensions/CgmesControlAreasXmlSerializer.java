@@ -54,9 +54,10 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
             }
             for (Boundary boundary : controlArea.getBoundaries()) {
                 if (boundary.getConnectable() != null) { // TODO: delete this later, only for compatibility
-                    writer.writeEmptyNode(getNamespaceUri(), "boundary");
+                    writer.writeStartNode(getNamespaceUri(), "boundary");
                     writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
                     writer.writeEnumAttribute("side", boundary.getSide());
+                    writer.writeEndNode();
                 }
             }
             writer.writeEndNode();

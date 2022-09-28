@@ -13,6 +13,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -24,13 +26,12 @@ public class EurostagJsonTest extends AbstractXmlConverterTest {
         ExportOptions exportOptions = new ExportOptions().setFormat(IidmFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(IidmFormat.JSON);
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
-        NetworkXml.write(network, exportOptions, System.out);
-//        roundTripTest(network,
-//            (n, xmlFile) -> NetworkXml.write(n, exportOptions, xmlFile),
-//            xmlFile -> {
-//                return network;
-//               // return NetworkXml.read(xmlFile, importOptions);
-//            },
-//            getVersionedNetworkPath("eurostag-tutorial1-lf.json", CURRENT_IIDM_XML_VERSION));
+        roundTripTest(network,
+            (n, xmlFile) -> NetworkXml.write(n, exportOptions, xmlFile),
+            xmlFile -> {
+                return network;
+               // return NetworkXml.read(xmlFile, importOptions);
+            },
+            getVersionedNetworkPath("eurostag-tutorial1-lf.json", CURRENT_IIDM_XML_VERSION));
     }
 }

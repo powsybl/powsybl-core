@@ -38,10 +38,11 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     public void write(CgmesIidmMapping extension, XmlWriterContext context) {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         extension.getUnmappedTopologicalNodes().forEach(cgmesTopologicalNode -> {
-            context.getWriter().writeEmptyNode(getNamespaceUri(), "unmappedTopologicalNode");
+            context.getWriter().writeStartNode(getNamespaceUri(), "unmappedTopologicalNode");
             context.getWriter().writeStringAttribute("id", cgmesTopologicalNode.getCgmesId());
             context.getWriter().writeStringAttribute("name", cgmesTopologicalNode.getName());
             context.getWriter().writeEnumAttribute(SOURCE, cgmesTopologicalNode.getSource());
+            context.getWriter().writeEndNode();
         });
         extension.getExtendable().getBusView().getBusStream()
                 .filter(b -> extension.isTopologicalNodeMapped(b.getId()))
@@ -104,8 +105,9 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
 
     private void writeTopologicalNodes(CgmesIidmMapping extension, Bus b, XmlWriterContext context) {
         extension.getTopologicalNodes(b.getId()).forEach(ctn -> {
-            context.getWriter().writeEmptyNode(getNamespaceUri(), "topologicalNode");
+            context.getWriter().writeStartNode(getNamespaceUri(), "topologicalNode");
             writeTopologicalNode(ctn, context);
+            context.getWriter().writeEndNode();
         });
     }
 
