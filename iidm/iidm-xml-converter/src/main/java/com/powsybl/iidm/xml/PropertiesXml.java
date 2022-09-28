@@ -23,6 +23,7 @@ public final class PropertiesXml {
 
     public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) {
         if (identifiable.hasProperty()) {
+            context.getWriter().writeStartNodes("properties");
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), PROPERTY);
@@ -30,6 +31,7 @@ public final class PropertiesXml {
                 context.getWriter().writeStringAttribute(VALUE, value);
                 context.getWriter().writeEndNode();
             }
+            context.getWriter().writeEndNodes();
         }
     }
 

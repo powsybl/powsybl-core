@@ -227,6 +227,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 || !limits.getTemporaryLimits().isEmpty()) {
             writer.writeStartNode(nsUri, type + indexToString(index));
             writer.writeDoubleAttribute("permanentLimit", limits.getPermanentLimit());
+            writer.writeStartNodes("temporaryLimits");
             for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
                 writer.writeStartNode(version.getNamespaceURI(valid), "temporaryLimit");
                 writer.writeStringAttribute("name", tl.getName());
@@ -235,6 +236,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 writer.writeBooleanAttribute("fictitious", tl.isFictitious(), false);
                 writer.writeEndNode();
             }
+            writer.writeEndNodes();
             writer.writeEndNode();
         }
     }

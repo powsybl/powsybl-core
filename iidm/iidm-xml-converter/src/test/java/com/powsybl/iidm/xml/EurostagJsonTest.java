@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -21,7 +20,6 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 public class EurostagJsonTest extends AbstractXmlConverterTest {
 
     @Test
-    @Ignore
     public void loadFlowResultsTest() throws IOException {
         ExportOptions exportOptions = new ExportOptions().setFormat(IidmFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(IidmFormat.JSON);

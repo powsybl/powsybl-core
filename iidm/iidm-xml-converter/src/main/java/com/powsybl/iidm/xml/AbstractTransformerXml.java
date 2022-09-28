@@ -81,12 +81,16 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (rtc.getRegulationTerminal() != null) {
             TerminalRefXml.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
+
+        context.getWriter().writeStartNodes("steps");
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
             RatioTapChangerStep rtcs = rtc.getStep(p);
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
             writeTapChangerStep(rtcs, context.getWriter());
             context.getWriter().writeEndNode();
         }
+        context.getWriter().writeEndNodes();
+
         context.getWriter().writeEndNode();
     }
 
@@ -157,6 +161,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (ptc.getRegulationTerminal() != null) {
             TerminalRefXml.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
+
+        context.getWriter().writeStartNodes("steps");
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_STEP);
@@ -164,6 +170,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             context.getWriter().writeDoubleAttribute("alpha", ptcs.getAlpha());
             context.getWriter().writeEndNode();
         }
+        context.getWriter().writeEndNodes();
+
         context.getWriter().writeEndNode();
     }
 

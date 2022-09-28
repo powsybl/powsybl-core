@@ -78,12 +78,14 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
+                context.getWriter().writeStartNodes("sections");
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "section");
                     context.getWriter().writeDoubleAttribute("b", s.getB());
                     context.getWriter().writeDoubleAttribute("g", s.getG());
                     context.getWriter().writeEndNode();
                 }
+                context.getWriter().writeEndNodes();
                 context.getWriter().writeEndNode();
             });
         } else {

@@ -28,6 +28,7 @@ public class ReactiveLimitsXml {
             case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
+                context.getWriter().writeStartNodes("points");
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "point");
                     context.getWriter().writeDoubleAttribute("p", point.getP());
@@ -35,6 +36,7 @@ public class ReactiveLimitsXml {
                     context.getWriter().writeDoubleAttribute(ATTR_MAX_Q, point.getMaxQ());
                     context.getWriter().writeEndNode();
                 }
+                context.getWriter().writeEndNodes();
                 context.getWriter().writeEndNode();
                 break;
 
