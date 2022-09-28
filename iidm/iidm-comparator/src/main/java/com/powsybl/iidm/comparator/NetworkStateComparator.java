@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.comparator;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.powsybl.iidm.network.*;
 import org.apache.poi.ss.usermodel.*;
@@ -379,19 +378,19 @@ public class NetworkStateComparator {
         }
     }
 
-    private static final List<ColumnMapper<Bus>> BUS_MAPPERS = ImmutableList.of(BUS_V, BUS_ANGLE);
+    private static final List<ColumnMapper<Bus>> BUS_MAPPERS = List.of(BUS_V, BUS_ANGLE);
 
-    private static final List<ColumnMapper<Line>> LINE_MAPPERS = ImmutableList.of(LINE_P1, LINE_P2, LINE_Q1, LINE_Q2);
+    private static final List<ColumnMapper<Line>> LINE_MAPPERS = List.of(LINE_P1, LINE_P2, LINE_Q1, LINE_Q2);
 
-    private static final List<ColumnMapper<TwoWindingsTransformer>> TRANSFO_MAPPERS = ImmutableList.of(TWT_P1, TWT_P2, TWT_Q1, TWT_Q2, TWT_RATIO_TAP, TWT_PHASE_TAP, TWT_RATIO, TWT_DEPHA);
+    private static final List<ColumnMapper<TwoWindingsTransformer>> TRANSFO_MAPPERS = List.of(TWT_P1, TWT_P2, TWT_Q1, TWT_Q2, TWT_RATIO_TAP, TWT_PHASE_TAP, TWT_RATIO, TWT_DEPHA);
 
-    private static final List<ColumnMapper<Generator>> GENERATOR_MAPPERS = ImmutableList.of(GEN_P, GEN_Q, GEN_V);
+    private static final List<ColumnMapper<Generator>> GENERATOR_MAPPERS = List.of(GEN_P, GEN_Q, GEN_V);
 
-    private static final List<ColumnMapper<HvdcConverterStation>> HVDC_MAPPERS = ImmutableList.of(HVDC_P, HVDC_Q, HVDC_V);
+    private static final List<ColumnMapper<HvdcConverterStation>> HVDC_MAPPERS = List.of(HVDC_P, HVDC_Q, HVDC_V);
 
-    private static final List<ColumnMapper<Load>> LOAD_MAPPERS = ImmutableList.of(LOAD_P, LOAD_Q);
+    private static final List<ColumnMapper<Load>> LOAD_MAPPERS = List.of(LOAD_P, LOAD_Q);
 
-    private static final List<ColumnMapper<ShuntCompensator>> SHUNT_MAPPERS = ImmutableList.of(SHUNT_SECTIONS, SHUNT_P, SHUNT_Q);
+    private static final List<ColumnMapper<ShuntCompensator>> SHUNT_MAPPERS = List.of(SHUNT_SECTIONS, SHUNT_P, SHUNT_Q);
 
     private final Network network;
 
