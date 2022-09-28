@@ -46,7 +46,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
 
     private void writeOptionalQuality(String elementName, ObservabilityQuality<T> quality, TreeDataWriter writer) {
         if (quality != null) {
-            writer.writeStartElement(getNamespaceUri(), elementName);
+            writer.writeStartNode(getNamespaceUri(), elementName);
             writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
             writer.writeBooleanAttribute(REDUNDANT, quality.isRedundant(), writer);
         }
