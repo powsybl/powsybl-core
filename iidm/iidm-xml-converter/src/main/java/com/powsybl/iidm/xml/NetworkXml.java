@@ -130,7 +130,7 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtensionNamespaces(Network n, ExportOptions options, XmlWriter writer) {
+    private static void writeExtensionNamespaces(Network n, ExportOptions options, TreeDataWriter writer) {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         // Get the list of the serializers needed to export the current network
@@ -245,31 +245,23 @@ public final class NetworkXml {
         return versionExist;
     }
 
-    private static XmlWriter initializeXmlWriter(Network n, OutputStream os, ExportOptions options) {
+    private static XmlWriter initializeXmlWriter(OutputStream os, ExportOptions options) {
         try {
-            IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
             XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
-            String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-            IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
-            XmlWriter xmlWriter = new XmlWriter(writer);
-            xmlWriter.writeStartNode(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
-            xmlWriter.writeNs(IIDM_PREFIX, namespaceUri);
-            if (!options.withNoExtension()) {
-                writeExtensionNamespaces(n, options, xmlWriter);
-            }
-            return xmlWriter;
+            return new XmlWriter(writer);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    private static JsonWriter initializeJsonWriter(Network n, OutputStream os, ExportOptions options) {
+    private static JsonWriter initializeJsonWriter(OutputStream os, ExportOptions options) {
         JsonFactory jsonFactory = JsonUtil.createJsonFactory();
-        try (JsonGenerator generator = jsonFactory.createGenerator(os)
-                .useDefaultPrettyPrinter()) {
-            JsonWriter jsonWriter = new JsonWriter(generator);
-            jsonWriter.writeStartNode(null, NETWORK_ROOT_ELEMENT_NAME);
-            return jsonWriter;
+        try {
+            JsonGenerator generator = jsonFactory.createGenerator(os);
+            if (options.isIndent()) {
+                generator = generator.useDefaultPrettyPrinter();
+            }
+            return new JsonWriter(generator);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -297,6 +289,7 @@ public final class NetworkXml {
     }
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) {
+        context.getWriter().writeStartNodes("voltageLevels");
         for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
             if (voltageLevel.getSubstation().isEmpty()) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
@@ -304,6 +297,7 @@ public final class NetworkXml {
                 VoltageLevelXml.INSTANCE.write(voltageLevel, n, context);
             }
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) {
@@ -362,33 +356,36 @@ public final class NetworkXml {
         context.getWriter().writeEndNodes();
     }
 
-    private static TreeDataWriter createTreeDataWriter(Network n, ExportOptions options, OutputStream os) {
+    private static TreeDataWriter createTreeDataWriter(ExportOptions options, OutputStream os) {
         switch (options.getFormat()) {
             case XML:
-                return initializeXmlWriter(n, os, options);
+                return initializeXmlWriter(os, options);
             case JSON:
-                return initializeJsonWriter(n, os, options);
+                return initializeJsonWriter(os, options);
             default:
                 throw new PowsyblException("Unsupported IIDM format: " + options.getFormat());
         }
     }
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
-        try (TreeDataWriter writer = createTreeDataWriter(n, options, os)) {
-            return write(n, options, writer);
+        try (TreeDataWriter writer = createTreeDataWriter(options, os)) {
+            IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
+            String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
+            writer.writeStartNode(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+            writer.writeNs(IIDM_PREFIX, namespaceUri);
+            if (!options.withNoExtension()) {
+                writeExtensionNamespaces(n, options, writer);
+            }
+            BusFilter filter = BusFilter.create(n, options);
+            Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            writeBaseNetwork(n, context);
+            // write extensions
+            writeExtensions(n, context, options);
+            context.getWriter().writeEndNode();
+            return context.getAnonymizer();
         }
-    }
-
-    public static Anonymizer write(Network n, ExportOptions options, TreeDataWriter writer) {
-        BusFilter filter = BusFilter.create(n, options);
-        Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
-        IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        writeBaseNetwork(n, context);
-        // write extensions
-        writeExtensions(n, context, options);
-        context.getWriter().writeEndNode();
-        return context.getAnonymizer();
     }
 
     public static Anonymizer write(Network n, OutputStream os) {
