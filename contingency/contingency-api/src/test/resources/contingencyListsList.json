@@ -1,0 +1,45 @@
+{
+  "type" : "list",
+  "version" : "1.0",
+  "name" : "listslist1",
+  "contingencyLists" : [ {
+    "type" : "criterion",
+    "version" : "1.0",
+    "name" : "list1",
+    "identifiableType" : "LINE",
+    "criteria" : [ {
+      "type" : "COUNTRY",
+      "country1" : "FR",
+      "country2" : "BE"
+    }, {
+      "type" : "NOMINAL_VOLTAGE",
+      "voltageInterval1" : {
+        "nominalVoltageLowBound" : 200.0,
+        "nominalVoltageHighBound" : 230.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      },
+      "voltageInterval2" : {
+        "nominalVoltageLowBound" : 380.0,
+        "nominalVoltageHighBound" : 420.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      }
+    }, {
+      "type" : "PROPERTY",
+      "propertyKey" : "property",
+      "propertyValue" : "val1"
+    } ]
+  }, {
+    "type" : "default",
+    "version" : "1.0",
+    "name" : "",
+    "contingencies" : [ {
+      "id" : "contingency1",
+      "elements" : [ {
+        "id" : "GEN",
+        "type" : "GENERATOR"
+      } ]
+    } ]
+  } ]
+}

@@ -43,6 +43,11 @@ public class DefaultContingencyList implements ContingencyList {
         return name;
     }
 
+    @Override
+    public String getType() {
+        return "default";
+    }
+
     public List<Contingency> getContingencies() {
         return contingencies;
     }

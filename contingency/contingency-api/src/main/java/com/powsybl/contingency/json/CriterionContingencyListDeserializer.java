@@ -1,10 +1,9 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -12,8 +11,9 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.CriterionContingencyList;
 import com.powsybl.contingency.DefaultContingencyList;
+import com.powsybl.contingency.contingency.list.criterion.Criterion;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,17 +21,19 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultContingencyList> {
+public class CriterionContingencyListDeserializer extends StdDeserializer<CriterionContingencyList> {
 
-    public DefaultContingencyListDeserializer() {
+    public CriterionContingencyListDeserializer() {
         super(DefaultContingencyList.class);
     }
 
-    public DefaultContingencyList deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+    @Override
+    public CriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
-        List<Contingency> contingencies = Collections.emptyList();
+        String identifiableType = null;
+        List<Criterion> criteria = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -47,9 +49,13 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
                     parser.nextToken();
                     break;
 
-                case "contingencies":
+                case "identifiableType":
+                    identifiableType = parser.nextTextValue();
+                    break;
+
+                case "criteria":
                     parser.nextToken();
-                    contingencies = parser.readValueAs(new TypeReference<ArrayList<Contingency>>() {
+                    criteria = parser.readValueAs(new TypeReference<ArrayList<Criterion>>() {
                     });
                     break;
 
@@ -57,7 +63,6 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        return new DefaultContingencyList(name, contingencies);
+        return new CriterionContingencyList(name, identifiableType, criteria);
     }
 }

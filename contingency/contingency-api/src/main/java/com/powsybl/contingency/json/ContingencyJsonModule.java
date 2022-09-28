@@ -7,9 +7,8 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.DefaultContingencyList;
+import com.powsybl.contingency.*;
+import com.powsybl.contingency.contingency.list.criterion.Criterion;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,12 +17,19 @@ import com.powsybl.contingency.DefaultContingencyList;
 public class ContingencyJsonModule extends SimpleModule {
 
     public ContingencyJsonModule() {
+        addSerializer(Criterion.class, new CriterionSerializer());
+        addSerializer(CriterionContingencyList.class, new CriterionContingencyListSerializer());
         addSerializer(DefaultContingencyList.class, new DefaultContingencyListSerializer());
         addSerializer(Contingency.class, new ContingencySerializer());
         addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
+        addSerializer(ContingencyListsList.class, new ContingencyListsListSerializer());
 
+        addDeserializer(Criterion.class, new CriterionDeserializer());
+        addDeserializer(CriterionContingencyList.class, new CriterionContingencyListDeserializer());
         addDeserializer(DefaultContingencyList.class, new DefaultContingencyListDeserializer());
         addDeserializer(Contingency.class, new ContingencyDeserializer());
         addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
+        addDeserializer(ContingencyListsList.class, new ContingencyListsListDeserializer());
+        addDeserializer(ContingencyList.class, new ContingencyListDeserializer());
     }
 }

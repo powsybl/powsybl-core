@@ -37,6 +37,11 @@ public class GroovyContingencyList implements ContingencyList {
     }
 
     @Override
+    public String getType() {
+        return "groovy";
+    }
+
+    @Override
     public List<Contingency> getContingencies(Network network) {
         return new ContingencyDslLoader(codeSource).load(network);
     }

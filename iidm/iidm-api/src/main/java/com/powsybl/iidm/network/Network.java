@@ -917,4 +917,8 @@ public interface Network extends Container<Network> {
         }
         return this;
     }
+
+    default <I extends Identifiable<I>> Stream<I> getIdentifiableTypeStream(IdentifiableType identifiableType) {
+        return null;
+    }
 }

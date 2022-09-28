@@ -31,6 +31,11 @@ public interface ContingencyList {
     String getName();
 
     /**
+     * Return the type of this contingency list
+     */
+    String getType();
+
+    /**
      * Return a list of contingency for the given network.
      */
     List<Contingency> getContingencies(Network network);
