@@ -6,9 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.io.TreeDataWriter;
-import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.commons.extensions.XmlWriterContext;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
@@ -33,14 +32,6 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
         this.filter = filter;
         this.valid = valid;
         this.exportedEquipments = new HashSet<>();
-    }
-
-    NetworkXmlWriterContext(Anonymizer anonymizer, XmlWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
-        this(anonymizer, writer, options, filter, version, true);
-    }
-
-    NetworkXmlWriterContext(Anonymizer anonymizer, XmlWriter writer, ExportOptions options, BusFilter filter) {
-        this(anonymizer, writer, options, filter, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
     }
 
     @Override
