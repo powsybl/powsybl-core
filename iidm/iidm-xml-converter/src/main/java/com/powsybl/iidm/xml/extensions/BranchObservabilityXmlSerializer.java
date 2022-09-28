@@ -60,7 +60,8 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         context.getWriter().writeStartNode(getNamespaceUri(), type);
         context.getWriter().writeEnumAttribute(SIDE, side);
         context.getWriter().writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-        context.getWriter().writeBooleanAttribute(REDUNDANT, quality.isRedundant(), context.getWriter());
+        quality.isRedundant().ifPresent(redundant -> context.getWriter().writeBooleanAttribute(REDUNDANT, redundant));
+        context.getWriter().writeEndNode();
     }
 
     @Override

@@ -48,7 +48,8 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
         if (quality != null) {
             writer.writeStartNode(getNamespaceUri(), elementName);
             writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            writer.writeBooleanAttribute(REDUNDANT, quality.isRedundant(), writer);
+            quality.isRedundant().ifPresent(redundant -> writer.writeBooleanAttribute(REDUNDANT, redundant));
+            writer.writeEndNode();
         }
     }
 
