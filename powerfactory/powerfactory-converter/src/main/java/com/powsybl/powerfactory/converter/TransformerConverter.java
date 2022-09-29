@@ -347,7 +347,7 @@ class TransformerConverter extends AbstractConverter {
             // calculate leakage impedance from short circuit measures
             double zpu = shortCircuitVoltage / 100;
             double rpu = copperLosses / (1000 * ratedApparentPower);
-            double xpu = Math.sqrt(zpu * zpu - rpu * rpu);
+            double xpu = Math.sqrt(zpu * zpu - rpu * rpu) * Math.signum(shortCircuitVoltage);
 
             double r = impedanceFromPerUnitToEngineeringUnits(rpu, nominalVoltage, ratedApparentPower);
             double x = impedanceFromPerUnitToEngineeringUnits(xpu, nominalVoltage, ratedApparentPower);
