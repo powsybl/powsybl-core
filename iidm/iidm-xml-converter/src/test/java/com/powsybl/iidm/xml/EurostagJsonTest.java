@@ -21,8 +21,8 @@ public class EurostagJsonTest extends AbstractXmlConverterTest {
 
     @Test
     public void loadFlowResultsTest() throws IOException {
-        ExportOptions exportOptions = new ExportOptions().setFormat(IidmFormat.JSON);
-        ImportOptions importOptions = new ImportOptions().setFormat(IidmFormat.JSON);
+        ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON);
+        ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
         roundTripTest(network,
             (n, xmlFile) -> NetworkXml.write(n, exportOptions, xmlFile),

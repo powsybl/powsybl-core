@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public enum IidmFormat {
+public enum TreeDataFormat {
     XML,
     JSON
 }

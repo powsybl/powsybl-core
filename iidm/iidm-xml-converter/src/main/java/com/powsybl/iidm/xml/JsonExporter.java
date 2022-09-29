@@ -13,38 +13,38 @@ import com.powsybl.iidm.export.Exporter;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
- * XML export of an IIDM model.
+ * JSON export of an IIDM model.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Exporter.class)
-public class XMLExporter extends AbstractTreeDataExporter {
+public class JsonExporter extends AbstractTreeDataExporter {
 
-    public XMLExporter() {
+    public JsonExporter() {
         this(PlatformConfig.defaultConfig());
     }
 
-    public XMLExporter(PlatformConfig platformConfig) {
+    public JsonExporter(PlatformConfig platformConfig) {
         super(platformConfig);
     }
 
     @Override
     public String getFormat() {
-        return "XIIDM";
+        return "JIIDM";
     }
 
     @Override
     public String getComment() {
-        return "IIDM XML v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter";
+        return "IIDM JSON v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter";
     }
 
     @Override
     protected TreeDataFormat getTreeDataFormat() {
-        return TreeDataFormat.XML;
+        return TreeDataFormat.JSON;
     }
 
     @Override
     protected String getExtension() {
-        return "xiidm";
+        return "jiidm";
     }
 }

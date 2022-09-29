@@ -17,7 +17,7 @@ public abstract class AbstractOptions<T> {
 
     protected Set<String> extensions;
 
-    protected IidmFormat format = IidmFormat.XML;
+    protected TreeDataFormat format = TreeDataFormat.XML;
 
     public abstract T setExtensions(Set<String> extensions);
 
@@ -53,11 +53,11 @@ public abstract class AbstractOptions<T> {
 
     public abstract boolean isThrowExceptionIfExtensionNotFound();
 
-    public IidmFormat getFormat() {
+    public TreeDataFormat getFormat() {
         return format;
     }
 
-    public T setFormat(IidmFormat format) {
+    public T setFormat(TreeDataFormat format) {
         this.format = Objects.requireNonNull(format);
         return (T) this;
     }
