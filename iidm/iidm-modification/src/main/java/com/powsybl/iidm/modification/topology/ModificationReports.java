@@ -191,6 +191,15 @@ final class ModificationReports {
                 .build());
     }
 
+    static void noCouplingDeviceOnSameBusbarSection(Reporter reporter, String busbarSectionId) {
+        reporter.report(Report.builder()
+                .withKey("noCouplingDeviceOnSameBusbarSection")
+                .withDefaultMessage("No coupling device can be created on a same busbar section (${bbsId}).")
+                .withValue("bbsId", busbarSectionId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void busbarsInDifferentVoltageLevels(Reporter reporter, String busbarSectionId1, String busbarSectionId2) {
         reporter.report(Report.builder()
                 .withKey("busbarsInDifferentVoltageLevels")

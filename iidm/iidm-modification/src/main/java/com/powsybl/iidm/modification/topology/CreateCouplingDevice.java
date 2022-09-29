@@ -63,14 +63,8 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         BusbarSection bbs1 = network.getBusbarSection(bbsId1);
-        if (bbs1 == null) {
-            bbsDoesNotExist(bbsId1, reporter, throwException);
-            return;
-        }
-
         BusbarSection bbs2 = network.getBusbarSection(bbsId2);
-        if (bbs2 == null) {
-            bbsDoesNotExist(bbsId2, reporter, throwException);
+        if (failBbs(bbs1, bbs2, reporter, throwException)) {
             return;
         }
 
@@ -125,6 +119,26 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
         LOGGER.info("New coupling device was added to voltage level {} between busbar sections {} and {}", voltageLevel1.getId(), bbs1.getId(), bbs2.getId());
         newCouplingDeviceAddedReport(reporter, voltageLevel1.getId(), bbsId1, bbsId2, nbOpenDisconnectors);
+    }
+
+    private boolean failBbs(BusbarSection bbs1, BusbarSection bbs2, Reporter reporter, boolean throwException) {
+        if (bbs1 == null) {
+            bbsDoesNotExist(bbsId1, reporter, throwException);
+            return true;
+        }
+        if (bbs2 == null) {
+            bbsDoesNotExist(bbsId2, reporter, throwException);
+            return true;
+        }
+        if (bbs1 == bbs2) {
+            LOGGER.error("No coupling device can be created on a same busbar section ({})", bbsId1);
+            noCouplingDeviceOnSameBusbarSection(reporter, bbsId1);
+            if (throwException) {
+                throw new PowsyblException(String.format("No coupling device can be created on a same busbar section (%s)", bbsId1));
+            }
+            return true;
+        }
+        return false;
     }
 
     private static void bbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
