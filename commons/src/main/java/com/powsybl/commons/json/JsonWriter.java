@@ -72,7 +72,7 @@ public class JsonWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeStartNode(String ns, String name) {
+    public void writeStartNode(String namespace, String name) {
         try {
             Context context = contextQueue.peekFirst();
             if (context != null) {
@@ -104,7 +104,7 @@ public class JsonWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeNs(String prefix, String ns) {
+    public void writeNamespace(String prefix, String namespace) {
         // nothing to do
     }
 

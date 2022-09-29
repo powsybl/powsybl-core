@@ -22,7 +22,7 @@ public class XmlWriter implements TreeDataWriter {
 
     private final XMLStreamWriter writer;
 
-    private String currentNodeNs;
+    private String currentNodeNamespace;
     private String currentNodeName;
     private final List<String> names = new ArrayList<>();
     private final List<String> values = new ArrayList<>();
@@ -44,14 +44,14 @@ public class XmlWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeStartNode(String ns, String name) {
+    public void writeStartNode(String namespace, String name) {
         try {
             if (currentNodeName != null) {
                 writePrefixes();
-                writer.writeStartElement(currentNodeNs, currentNodeName);
+                writer.writeStartElement(currentNodeNamespace, currentNodeName);
                 flushAttributes();
             }
-            currentNodeNs = ns;
+            currentNodeNamespace = namespace;
             currentNodeName = name;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -82,9 +82,9 @@ public class XmlWriter implements TreeDataWriter {
         try {
             if (currentNodeName != null) {
                 writePrefixes();
-                writer.writeEmptyElement(currentNodeNs, currentNodeName);
+                writer.writeEmptyElement(currentNodeNamespace, currentNodeName);
                 flushAttributes();
-                currentNodeNs = null;
+                currentNodeNamespace = null;
                 currentNodeName = null;
             } else {
                 writer.writeEndElement();
@@ -95,9 +95,9 @@ public class XmlWriter implements TreeDataWriter {
     }
 
     @Override
-    public void writeNs(String prefix, String ns) {
+    public void writeNamespace(String prefix, String namespace) {
         prefixes.add(prefix);
-        namespaces.add(ns);
+        namespaces.add(namespace);
     }
 
     @Override
@@ -105,10 +105,10 @@ public class XmlWriter implements TreeDataWriter {
         try {
             if (currentNodeName != null) {
                 writePrefixes();
-                writer.writeStartElement(currentNodeNs, currentNodeName);
+                writer.writeStartElement(currentNodeNamespace, currentNodeName);
                 flushAttributes();
                 currentNodeName = null;
-                currentNodeNs = null;
+                currentNodeNamespace = null;
             }
             writer.writeCharacters(value);
         } catch (XMLStreamException e) {

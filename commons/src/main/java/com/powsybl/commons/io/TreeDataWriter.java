@@ -15,11 +15,11 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeEndNodes();
 
-    void writeStartNode(String ns, String name);
+    void writeStartNode(String namespace, String name);
 
     void writeEndNode();
 
-    void writeNs(String prefix, String ns);
+    void writeNamespace(String prefix, String namespace);
 
     void writeNodeContent(String value);
 

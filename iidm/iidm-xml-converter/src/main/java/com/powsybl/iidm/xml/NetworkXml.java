@@ -154,7 +154,7 @@ public final class NetworkXml {
             } else {
                 extensionPrefixes.add(extensionXmlSerializer.getNamespacePrefix());
             }
-            writer.writeNs(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
+            writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), namespaceUri);
         }
     }
 
@@ -374,7 +374,7 @@ public final class NetworkXml {
             String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
             IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
             writer.writeStartNode(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
-            writer.writeNs(IIDM_PREFIX, namespaceUri);
+            writer.writeNamespace(IIDM_PREFIX, namespaceUri);
             if (!options.withNoExtension()) {
                 writeExtensionNamespaces(n, options, writer);
             }
