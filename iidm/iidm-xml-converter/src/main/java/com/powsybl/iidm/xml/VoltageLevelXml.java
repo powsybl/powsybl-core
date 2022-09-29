@@ -79,22 +79,31 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
         IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmXmlVersion.V_1_1, context);
+
+        context.getWriter().writeStartNodes("busbarSections");
         for (BusbarSection bs : IidmXmlUtil.sorted(vl.getNodeBreakerView().getBusbarSections(), context.getOptions())) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
         }
+        context.getWriter().writeEndNodes();
+
+        context.getWriter().writeStartNodes("switches");
         for (Switch sw : IidmXmlUtil.sorted(vl.getNodeBreakerView().getSwitches(), context.getOptions())) {
             NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
+        context.getWriter().writeEndNodes();
+
         writeNodeBreakerTopologyInternalConnections(vl, context);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
             Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
+            context.getWriter().writeStartNodes("buses");
             IidmXmlUtil.sorted(vl.getBusView().getBusStream(), context.getOptions())
                     .filter(bus -> !Double.isNaN(bus.getV()) || !Double.isNaN(bus.getAngle()))
                     .forEach(bus -> {
                         Set<Integer> nodes = nodesByBus.get(bus.getId());
                         writeCalculatedBus(bus, nodes, context);
                     });
+            context.getWriter().writeEndNodes();
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> {
             for (int node : vl.getNodeBreakerView().getNodes()) {

@@ -208,7 +208,7 @@ public final class NetworkXml {
     }
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) {
-
+        context.getWriter().writeStartNodes("extensions");
         for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), options)) {
             if (!context.isExportedEquipment(identifiable)) {
                 continue;
@@ -226,6 +226,7 @@ public final class NetworkXml {
                 context.getWriter().writeEndNode();
             }
         }
+        context.getWriter().writeEndNodes();
     }
 
     private static boolean canTheExtensionBeWritten(ExtensionXmlSerializer extensionXmlSerializer, IidmXmlVersion version, ExportOptions options) {
