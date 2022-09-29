@@ -240,7 +240,7 @@ final class ModificationReports {
     static void unsupportedVoltageLevelTopologyKind(Reporter reporter, String voltageLevelId, TopologyKind expected, TopologyKind actual) {
         reporter.report(Report.builder()
                 .withKey("unsupportedVoltageLevelTopologyKind")
-                .withDefaultMessage("Voltage Level ${voltageLevelId} has an unsupported topology ${actualTopology}. Should be ${excptectedTopology}")
+                .withDefaultMessage("Voltage Level ${voltageLevelId} has an unsupported topology ${actualTopology}. Should be ${expectedTopology}")
                 .withValue("voltageLevelId", voltageLevelId)
                 .withValue("actualTopology", actual.name())
                 .withValue("expectedTopology", expected.name())
@@ -251,10 +251,21 @@ final class ModificationReports {
     static void unsupportedSwitchKind(Reporter reporter, EnumSet<SwitchKind> expected, SwitchKind actual) {
         reporter.report(Report.builder()
                 .withKey("unsupportedSwitchKind")
-                .withDefaultMessage("Unsupported switch kinds ${actualSwitchKinds}. Should be ${expectedSwitchKind}. No switch created at this position.")
-                .withValue("actualSwitchKind", actual.name())
+                .withDefaultMessage("Unsupported switch kinds ${actualSwitchKinds}. Should be ${expectedSwitchKinds}. No switch created at this position.")
+                .withValue("actualSwitchKinds", actual.name())
                 .withValue("expectedSwitchKinds", expected.toString())
                 .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    static void createdNewSymmetricalTopology(Reporter reporter, String voltageLevelId, int busbarCount, int sectionCount) {
+        reporter.report(Report.builder()
+                .withKey("SymmetricalTopologyCreated")
+                .withDefaultMessage("New symmetrical topology in voltage level ${voltageLevelId}: creation of ${busbarCount} busbar(s) with ${sectionCount} section(s) each.")
+                .withValue("voltageLevelId", voltageLevelId)
+                .withValue("busbarCount", busbarCount)
+                .withValue("sectionCount", sectionCount)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
