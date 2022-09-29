@@ -98,7 +98,7 @@ public class LineAdapterTest {
         assertEquals(lineRef.isOverloaded(), lineAdapted.isOverloaded());
         assertEquals(lineRef.isOverloaded(0.0f), lineAdapted.isOverloaded(0.0f));
         assertEquals(lineRef.getOverloadDuration(), lineAdapted.getOverloadDuration());
-        assertEquals(lineRef.checkPermanentLimit(Branch.Side.ONE, 0.0f,  LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.ONE, 0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkPermanentLimit(Branch.Side.ONE, 0.0f, LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.ONE, 0.0f, LimitType.CURRENT));
         assertEquals(lineRef.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
         assertEquals(lineRef.checkPermanentLimit1(0.0f, LimitType.CURRENT), lineAdapted.checkPermanentLimit1(0.0f, LimitType.CURRENT));
         assertEquals(lineRef.checkPermanentLimit1(LimitType.CURRENT), lineAdapted.checkPermanentLimit1(LimitType.CURRENT));

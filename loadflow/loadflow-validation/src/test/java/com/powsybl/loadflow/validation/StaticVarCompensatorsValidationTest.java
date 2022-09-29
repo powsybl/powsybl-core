@@ -69,7 +69,7 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
         Mockito.when(svcTerminal.getBusView()).thenReturn(svcBusView);
         Mockito.when(svcTerminal.getVoltageLevel()).thenReturn(voltageLevel);
 
-        svc =  Mockito.mock(StaticVarCompensator.class);
+        svc = Mockito.mock(StaticVarCompensator.class);
         Mockito.when(svc.getId()).thenReturn("svc");
         Mockito.when(svc.getTerminal()).thenReturn(svcTerminal);
         Mockito.when(svc.getReactivePowerSetpoint()).thenReturn(reactivePowerSetpoint);

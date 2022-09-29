@@ -96,16 +96,16 @@ public class NodeCalcEqualsTest {
     @Test
     public void minOperationTest() {
         new EqualsTester()
-                .addEqualityGroup(new MinNodeCalc(new IntegerNodeCalc(1), 3),  new MinNodeCalc(new IntegerNodeCalc(1), 3))
-                .addEqualityGroup(new MinNodeCalc(new IntegerNodeCalc(2), 5),  new MinNodeCalc(new IntegerNodeCalc(2), 5))
+                .addEqualityGroup(new MinNodeCalc(new IntegerNodeCalc(1), 3), new MinNodeCalc(new IntegerNodeCalc(1), 3))
+                .addEqualityGroup(new MinNodeCalc(new IntegerNodeCalc(2), 5), new MinNodeCalc(new IntegerNodeCalc(2), 5))
                 .testEquals();
     }
 
     @Test
     public void maxOperationTest() {
         new EqualsTester()
-                .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(1), 3),  new MaxNodeCalc(new IntegerNodeCalc(1), 3))
-                .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(2), 5),  new MaxNodeCalc(new IntegerNodeCalc(2), 5))
+                .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(1), 3), new MaxNodeCalc(new IntegerNodeCalc(1), 3))
+                .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(2), 5), new MaxNodeCalc(new IntegerNodeCalc(2), 5))
                 .testEquals();
     }
 }
