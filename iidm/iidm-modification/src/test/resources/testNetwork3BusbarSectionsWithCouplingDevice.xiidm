@@ -32,10 +32,10 @@
             <iidm:switch id="VLTEST_BREAKER" kind="BREAKER" retained="true" open="false" node1="18" node2="19"/>
             <iidm:switch id="VLTEST_DISCONNECTOR_6" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="18"/>
             <iidm:switch id="VLTEST_DISCONNECTOR_7" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="19"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR718" kind="DISCONNECTOR" retained="false" open="true" node1="18" node2="7"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR818" kind="DISCONNECTOR" retained="false" open="true" node1="18" node2="8"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR619" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="6"/>
-            <iidm:switch id="VLTEST_DISCONNECTOR819" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="8"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR_18_7" kind="DISCONNECTOR" retained="false" open="true" node1="18" node2="7"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR_18_8" kind="DISCONNECTOR" retained="false" open="true" node1="18" node2="8"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR_19_6" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="6"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR_19_8" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="8"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="A" country="FR">
