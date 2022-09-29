@@ -28,13 +28,13 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
 
     private double standardDeviationQ2 = Double.NaN;
 
-    private boolean redundantP1 = false;
+    private Boolean redundantP1 = null;
 
-    private boolean redundantP2 = false;
+    private Boolean redundantP2 = null;
 
-    private boolean redundantQ1 = false;
+    private Boolean redundantQ1 = null;
 
-    private boolean redundantQ2 = false;
+    private Boolean redundantQ2 = null;
 
     public BranchObservabilityAdderImpl(B extendable) {
         super(extendable);
@@ -77,13 +77,13 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
     }
 
     @Override
-    public BranchObservabilityAdder<B> withRedundantP1(boolean redundantP1) {
+    public BranchObservabilityAdder<B> withRedundantP1(Boolean redundantP1) {
         this.redundantP1 = redundantP1;
         return this;
     }
 
     @Override
-    public BranchObservabilityAdder<B> withRedundantP2(boolean redundantP2) {
+    public BranchObservabilityAdder<B> withRedundantP2(Boolean redundantP2) {
         this.redundantP2 = redundantP2;
         return this;
     }
@@ -101,13 +101,13 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
     }
 
     @Override
-    public BranchObservabilityAdder<B> withRedundantQ1(boolean redundantQ1) {
+    public BranchObservabilityAdder<B> withRedundantQ1(Boolean redundantQ1) {
         this.redundantQ1 = redundantQ1;
         return this;
     }
 
     @Override
-    public BranchObservabilityAdder<B> withRedundantQ2(boolean redundantQ2) {
+    public BranchObservabilityAdder<B> withRedundantQ2(Boolean redundantQ2) {
         this.redundantQ2 = redundantQ2;
         return this;
     }
