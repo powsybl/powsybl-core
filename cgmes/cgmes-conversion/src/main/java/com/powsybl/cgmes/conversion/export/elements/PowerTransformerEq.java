@@ -18,6 +18,7 @@ public final class PowerTransformerEq {
 
     private static final String EQ_TRANSFORMEREND_ENDNUMBER = "TransformerEnd.endNumber";
     private static final String EQ_TRANSFORMEREND_TERMINAL = "TransformerEnd.Terminal";
+    private static final String EQ_TRANSFORMEREND_BASEVOLTAGE = "TransformerEnd.BaseVoltage";
 
     private static final String EQ_POWERTRANSFORMEREND_POWERTRANSFORMER = "PowerTransformerEnd.PowerTransformer";
     private static final String EQ_POWERTRANSFORMEREND_R = "PowerTransformerEnd.r";
@@ -33,7 +34,7 @@ public final class PowerTransformerEq {
     }
 
     public static void writeEnd(String id, String transformerEndName, String transformerId, int endNumber, double r, double x, double g, double b,
-                                double ratedS, double ratedU, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+                                double ratedS, double ratedU, String terminalId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_ENDNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(endNumber));
@@ -60,6 +61,7 @@ public final class PowerTransformerEq {
         writer.writeEndElement();
         CgmesExportUtil.writeReference(EQ_POWERTRANSFORMEREND_POWERTRANSFORMER, transformerId, cimNamespace, writer);
         CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_TERMINAL, terminalId, cimNamespace, writer);
+        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_BASEVOLTAGE, baseVoltageId, cimNamespace, writer);
         writer.writeEndElement();
     }
 
