@@ -51,7 +51,7 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void createCouplingDeviceThrowsException() throws IOException {
+    public void createCouplingDeviceThrowsException() {
         Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
@@ -68,6 +68,12 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, Reporter.NO_OP));
         assertEquals("Busbar sections bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
 
+        NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
+                .withBusbarSectionId1("bbs1")
+                .withBusbarSectionId2("bbs1")
+                .build();
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, Reporter.NO_OP));
+        assertEquals("No coupling device can be created on a same busbar section (bbs1)", e2.getMessage());
     }
 
     @Test
@@ -93,5 +99,4 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/testNetwork3BusbarSectionsWithCouplingDevice.xiidm");
     }
-
 }
