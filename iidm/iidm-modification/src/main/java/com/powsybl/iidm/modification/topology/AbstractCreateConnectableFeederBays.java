@@ -94,7 +94,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             VoltageLevel voltageLevel = getVoltageLevel(side, connectable);
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
             int positionOrder = getPositionOrder(side);
-            if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().count() == 1) {
+            if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).count() == 1) {
                 // check that there is only one connectable (that we added) or there are existing position extensions on other connectables
                 if (!takenFeederPositions.contains(positionOrder)) {
                     getFeederAdder(side, connectablePositionAdder)
