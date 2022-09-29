@@ -26,7 +26,14 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
 
     @Override
     public void convert() {
-        LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
+        LoadType loadType;
+        if (loadKind.endsWith("StationSupply")) {
+            loadType = LoadType.AUXILIARY;
+        } else if (id.contains("fict")) {
+            loadType = LoadType.FICTITIOUS;
+        } else {
+            loadType = LoadType.UNDEFINED;
+        }
         LoadAdder adder = voltageLevel().newLoad()
                 .setP0(p0())
                 .setQ0(q0())
