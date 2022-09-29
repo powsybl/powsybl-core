@@ -106,6 +106,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             context.getWriter().writeEndNodes();
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_8, context, () -> {
+            context.getWriter().writeStartNodes("fictitiousInjections");
             for (int node : vl.getNodeBreakerView().getNodes()) {
                 double fictP0 = vl.getNodeBreakerView().getFictitiousP0(node);
                 double fictQ0 = vl.getNodeBreakerView().getFictitiousQ0(node);
@@ -117,6 +118,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     context.getWriter().writeEndNode();
                 }
             }
+            context.getWriter().writeEndNodes();
         });
         context.getWriter().writeEndNode();
     }
