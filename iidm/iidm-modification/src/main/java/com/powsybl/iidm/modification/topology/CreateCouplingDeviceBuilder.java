@@ -15,8 +15,10 @@ public class CreateCouplingDeviceBuilder {
 
     private String busbarSectionId2 = null;
 
+    private String switchPrefixId = null;
+
     public CreateCouplingDevice build() {
-        return new CreateCouplingDevice(busbarSectionId1, busbarSectionId2);
+        return new CreateCouplingDevice(busbarSectionId1, busbarSectionId2, switchPrefixId);
     }
 
     public CreateCouplingDeviceBuilder withBusbarSectionId1(String bbsId1) {
@@ -29,4 +31,8 @@ public class CreateCouplingDeviceBuilder {
         return this;
     }
 
+    public CreateCouplingDeviceBuilder withSwitchPrefixId(String switchPrefixId) {
+        this.switchPrefixId = switchPrefixId;
+        return this;
+    }
 }

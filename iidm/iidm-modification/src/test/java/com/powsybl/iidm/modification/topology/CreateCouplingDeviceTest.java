@@ -31,6 +31,7 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
         NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs1")
                 .withBusbarSectionId2("bbs3")
+                .withSwitchPrefixId("sw")
                 .build();
         couplingDeviceModif.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,

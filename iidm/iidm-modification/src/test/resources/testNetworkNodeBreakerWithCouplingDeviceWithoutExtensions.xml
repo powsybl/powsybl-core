@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:cp="http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="testCase11" caseDate="2022-07-26T13:56:23.057+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="subst" name="subst" country="FR">
         <iidm:voltageLevel id="vl1" name="vl1" nominalV="380.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -39,9 +39,9 @@
                 <iidm:switch id="btrf18" name="btrf18" fictitious="true" kind="BREAKER" retained="true" open="false" node1="32" node2="33"/>
                 <iidm:switch id="dline11_2" name="dline11_2" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="34"/>
                 <iidm:switch id="bline11_2" name="bline11_2" fictitious="true" kind="BREAKER" retained="true" open="false" node1="34" node2="35"/>
-                <iidm:switch id="NEW_BREAKER" kind="BREAKER" retained="true" open="false" node1="36" node2="37"/>
-                <iidm:switch id="NEW_DISCONNECTOR0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="36"/>
-                <iidm:switch id="NEW_DISCONNECTOR1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="37"/>
+                <iidm:switch id="vl1_BREAKER" kind="BREAKER" retained="true" open="false" node1="36" node2="37"/>
+                <iidm:switch id="vl1_DISCONNECTOR_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="36"/>
+                <iidm:switch id="vl1_DISCONNECTOR_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="37"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="gen1" name="gen1" energySource="OTHER" minP="0.0" maxP="20.0" voltageRegulatorOn="false" targetP="10.0" targetQ="10.0" node="6">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>

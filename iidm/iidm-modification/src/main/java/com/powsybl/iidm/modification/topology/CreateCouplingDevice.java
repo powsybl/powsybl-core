@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
@@ -39,9 +40,12 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
     private final String bbsId2;
 
-    CreateCouplingDevice(String bbsId1, String bbsId2) {
+    private String switchPrefixId;
+
+    CreateCouplingDevice(String bbsId1, String bbsId2, String switchPrefixId) {
         this.bbsId1 = Objects.requireNonNull(bbsId1, "Busbar section 1 not defined");
         this.bbsId2 = Objects.requireNonNull(bbsId2, "Busbar section 2 not defined");
+        this.switchPrefixId = switchPrefixId;
     }
 
     public String getBbsId1() {
@@ -50,6 +54,10 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
     public String getBbsId2() {
         return bbsId2;
+    }
+
+    public Optional<String> getSwitchPrefixId() {
+        return Optional.ofNullable(switchPrefixId);
     }
 
     @Override
@@ -76,14 +84,17 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             }
             return;
         }
+        if (switchPrefixId == null) {
+            switchPrefixId = voltageLevel1.getId();
+        }
         int breakerNode1 = voltageLevel1.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int breakerNode2 = breakerNode1 + 1;
         int bbs1Node = bbs1.getTerminal().getNodeBreakerView().getNode();
         int bbs2Node = bbs2.getTerminal().getNodeBreakerView().getNode();
 
-        createNBBreaker(breakerNode1, breakerNode2, "", "NEW", voltageLevel1.getNodeBreakerView(), false);
-        createNBDisconnector(bbs1Node, breakerNode1, String.valueOf(bbs1Node), "NEW", voltageLevel1.getNodeBreakerView(), false);
-        createNBDisconnector(bbs2Node, breakerNode2, String.valueOf(bbs2Node), "NEW", voltageLevel1.getNodeBreakerView(), false);
+        createNBBreaker(breakerNode1, breakerNode2, "", switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
+        createNBDisconnector(bbs1Node, breakerNode1, "_" + bbs1Node, switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
+        createNBDisconnector(bbs2Node, breakerNode2, "_" + bbs2Node, switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
 
         BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
         BusbarSectionPosition position2 = bbs2.getExtension(BusbarSectionPosition.class);
@@ -100,8 +111,8 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
                         .filter(b -> !b.getId().equals(bbsId2)).collect(Collectors.toList());
                 if (bbsList1.size() != 1 || position1.getSectionIndex() != position2.getSectionIndex()) { // if both busbar sections not in same section or in same section with other busbar sections
                     nbOpenDisconnectors = bbsList1.size() * 2;
-                    createTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, "NEW", bbsList1);
-                    createTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, "NEW", bbsList2);
+                    createTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, bbsList1);
+                    createTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, bbsList2);
                 }
             } else {
                 LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
