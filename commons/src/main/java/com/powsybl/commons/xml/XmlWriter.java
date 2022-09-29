@@ -12,8 +12,10 @@ import com.powsybl.commons.io.TreeDataWriter;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -160,6 +162,13 @@ public class XmlWriter implements TreeDataWriter {
             names.add(name);
             values.add(Integer.toString(value));
         }
+    }
+
+    @Override
+    public void writeIntArrayAttribute(String name, Collection<Integer> values) {
+        writeStringAttribute(name, values.stream()
+                .map(i -> Integer.toString(i))
+                .collect(Collectors.joining(",")));
     }
 
     @Override

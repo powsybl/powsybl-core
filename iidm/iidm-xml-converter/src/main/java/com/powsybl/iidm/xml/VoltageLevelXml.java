@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -127,7 +126,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), "bus");
         context.getWriter().writeDoubleAttribute("v", bus.getV());
         context.getWriter().writeDoubleAttribute("angle", bus.getAngle());
-        context.getWriter().writeStringAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
+        context.getWriter().writeIntArrayAttribute("nodes", nodes);
         context.getWriter().writeEndNode();
     }
 

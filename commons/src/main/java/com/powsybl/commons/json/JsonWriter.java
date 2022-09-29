@@ -12,6 +12,7 @@ import com.powsybl.commons.io.TreeDataWriter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.Objects;
 
@@ -166,6 +167,20 @@ public class JsonWriter implements TreeDataWriter {
     public void writeIntAttribute(String name, int value, int absentValue) {
         if (value != absentValue) {
             writeIntAttribute(name, value);
+        }
+    }
+
+    @Override
+    public void writeIntArrayAttribute(String name, Collection<Integer> values) {
+        try {
+            jsonGenerator.writeFieldName(name);
+            jsonGenerator.writeStartArray();
+            for (int value : values) {
+                jsonGenerator.writeNumber(value);
+            }
+            jsonGenerator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

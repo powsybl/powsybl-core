@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.io;
 
+import java.util.Collection;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -34,6 +36,8 @@ public interface TreeDataWriter extends AutoCloseable {
     void writeIntAttribute(String name, int value);
 
     void writeIntAttribute(String name, int value, int absentValue);
+
+    void writeIntArrayAttribute(String name, Collection<Integer> values);
 
     <E extends Enum<E>> void writeEnumAttribute(String name, E value);
 
