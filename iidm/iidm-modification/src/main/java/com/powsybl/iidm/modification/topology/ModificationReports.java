@@ -15,8 +15,10 @@ import com.powsybl.iidm.network.*;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 final class ModificationReports {
-    static String voltageLevelIdString = "voltageLevelId";
-    static String lineIdString = "lineId";
+
+    private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
+    private static final String LINE_ID = "lineId";
+    private static final String BBS_ID = "bbsId";
 
     static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
         reporter.report(Report.builder()
@@ -53,8 +55,8 @@ final class ModificationReports {
                         "and on ${parallelBbsNumber} parallel busbar sections with an open disconnector.")
                 .withValue("connectableId", connectable.getId())
                 .withValue("connectableType", connectable.getType().toString())
-                .withValue(voltageLevelIdString, voltageLevelId)
-                .withValue("bbsId", bbsId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withValue(BBS_ID, bbsId)
                 .withValue("parallelBbsNumber", parallelBbsNumber)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -64,7 +66,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("noBusbarSectionPositionExtension")
                 .withDefaultMessage("No busbar section position extension found on ${bbsId}, only one disconnector is created.")
-                .withValue("bbsId", bbs.getId())
+                .withValue(BBS_ID, bbs.getId())
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
@@ -83,7 +85,7 @@ final class ModificationReports {
                 .withKey("connectableNotInVoltageLevel")
                 .withDefaultMessage("Given connectable ${connectableId} not in voltageLevel ${voltageLevelId}")
                 .withValue("connectableId", connectable.getId())
-                .withValue(voltageLevelIdString, voltageLevel.getId())
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -101,7 +103,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("lineNotFound")
                 .withDefaultMessage("Line ${lineId} is not found")
-                .withValue(lineIdString, lineId)
+                .withValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -110,7 +112,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("lineRemoved")
                 .withDefaultMessage("Line ${lineId} removed")
-                .withValue(lineIdString, lineId)
+                .withValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -119,7 +121,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("lineCreated")
                 .withDefaultMessage("Line ${lineId} created")
-                .withValue(lineIdString, lineId)
+                .withValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -155,7 +157,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("voltageLevelNotFound")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
-                .withValue(voltageLevelIdString, voltageLevelId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -176,7 +178,7 @@ final class ModificationReports {
                 .withKey("busNotFound")
                 .withDefaultMessage("Bus ${busId} is not found in voltage level ${voltageLevelId}")
                 .withValue("busId", busId)
-                .withValue(voltageLevelIdString, voltageLevelId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -186,7 +188,7 @@ final class ModificationReports {
                 .withKey("busbarSectionNotFound")
                 .withDefaultMessage("Busbar section ${busbarSectionId} is not found in voltage level ${voltageLevelId}")
                 .withValue("busbarSectionId", busbarSectionId)
-                .withValue(voltageLevelIdString, voltageLevelId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -195,7 +197,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("noCouplingDeviceOnSameBusbarSection")
                 .withDefaultMessage("No coupling device can be created on a same busbar section (${bbsId}).")
-                .withValue("bbsId", busbarSectionId)
+                .withValue(BBS_ID, busbarSectionId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
