@@ -825,6 +825,19 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Get a connectable by its ID or alias
+     *
+     * @param id the id or an alias of the equipment
+     */
+    default Connectable<?> getConnectable(String id) {
+        Identifiable<?> identifiable = getIdentifiable(id);
+        if (identifiable instanceof Connectable<?>) {
+            return (Connectable<?>) identifiable;
+        }
+        return null;
+    }
+
+    /**
      * Count the connectables of the network
      *
      * @return the count of all the connectables

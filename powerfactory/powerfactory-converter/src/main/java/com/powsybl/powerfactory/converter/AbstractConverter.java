@@ -57,6 +57,18 @@ public abstract class AbstractConverter {
         return admitance * sbase / (vnom * vnom);
     }
 
+    static double impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
+        return impedance * vnom1 * vnom2 / sbase;
+    }
+
+    static double admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom1 * vnom1) - (1 - vnom2 / vnom1) * admittanceTransmissionEu;
+    }
+
+    static double admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom2 * vnom2) - (1 - vnom1 / vnom2) * admittanceTransmissionEu;
+    }
+
     static void createInternalConnection(VoltageLevel vl, int node1, int node2) {
         vl.getNodeBreakerView().newInternalConnection()
             .setNode1(node1)
