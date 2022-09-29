@@ -37,6 +37,8 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                     case "list":
                         ContingencyListsListDeserializer contingencyListsListDeserializer = new ContingencyListsListDeserializer();
                         return contingencyListsListDeserializer.deserialize(parser, deserializationContext);
+                    default:
+                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
                 }
             }
             parser.nextToken();

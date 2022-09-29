@@ -64,18 +64,6 @@ public class CountryCriterion implements Criterion {
         return country == null || injectionCountry == country;
     }
 
-    private boolean filterVoltageLevel(VoltageLevel voltageLevel) {
-        Substation substation = voltageLevel.getSubstation().orElse(null);
-        if (substation == null) {
-            return false;
-        }
-        Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null) {
-            return false;
-        }
-        return country == null || injectionCountry == country;
-    }
-
     private boolean filterInjection(Terminal terminal) {
         Substation substation = terminal.getVoltageLevel().getSubstation().orElse(null);
         if (substation == null) {

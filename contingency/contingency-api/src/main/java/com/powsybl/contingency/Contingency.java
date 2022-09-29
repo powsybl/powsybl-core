@@ -6,6 +6,7 @@
  */
 package com.powsybl.contingency;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.modification.NetworkModificationList;
@@ -349,5 +350,33 @@ public class Contingency extends AbstractExtendable<Contingency> {
      */
     public static Contingency load(String loadId) {
         return builder(loadId).addLoad(loadId).build();
+    }
+
+    public static ContingencyElement getContingencyElement(Identifiable<?> identifiable) {
+        if (identifiable instanceof Line) {
+            return new LineContingency(identifiable.getId());
+        } else if (identifiable instanceof BusbarSection) {
+            return new BusbarSectionContingency(identifiable.getId());
+        } else if (identifiable instanceof TwoWindingsTransformer) {
+            return new TwoWindingsTransformerContingency(identifiable.getId());
+        } else if (identifiable instanceof ThreeWindingsTransformer) {
+            return new ThreeWindingsTransformerContingency(identifiable.getId());
+        } else if (identifiable instanceof Generator) {
+            return new GeneratorContingency(identifiable.getId());
+        } else if (identifiable instanceof Switch) {
+            return new SwitchContingency(identifiable.getId());
+        } else if (identifiable instanceof DanglingLine) {
+            return new DanglingLineContingency(identifiable.getId());
+        } else if (identifiable instanceof Load) {
+            return new LoadContingency(identifiable.getId());
+        } else if (identifiable instanceof HvdcLine) {
+            return new HvdcLineContingency(identifiable.getId());
+        } else if (identifiable instanceof ShuntCompensator) {
+            return new ShuntCompensatorContingency(identifiable.getId());
+        } else if (identifiable instanceof StaticVarCompensator) {
+            return new StaticVarCompensatorContingency(identifiable.getId());
+        } else {
+            throw new PowsyblException(identifiable.getId() + " can not be a ContingencyElement");
+        }
     }
 }

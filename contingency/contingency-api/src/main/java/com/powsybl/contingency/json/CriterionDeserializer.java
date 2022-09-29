@@ -6,7 +6,6 @@
  */
 package com.powsybl.contingency.json;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,7 +28,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
     }
 
     @Override
-    public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+    public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Criterion.CriterionType type = null;
         NominalVoltageCriterion.VoltageInterval voltageInterval = null;
         NominalVoltageCriterion.VoltageInterval voltageInterval1 = null;
@@ -93,6 +92,9 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("type of criterion can not be null");
         }
         switch (type) {
             case PROPERTY:

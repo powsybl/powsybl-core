@@ -1,0 +1,20 @@
+{
+  "type" : "identifiant",
+  "version" : "1.0",
+  "identifiableType" : "LINE",
+  "identifiers" : [ {
+    "type" : "SIMPLE",
+    "identifier" : "identifier"
+  }, {
+    "type" : "UCTE",
+    "voltageLevelId1" : "vl1",
+    "voltageLevelId2" : "vl2",
+    "order" : 1
+  }, {
+    "type" : "LIST",
+    "identifierList" : [ {
+      "type" : "SIMPLE",
+      "identifier" : "identifier1"
+    } ]
+  } ]
+}
