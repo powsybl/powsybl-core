@@ -46,8 +46,8 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         Double minP;
         Double maxP;
         Boolean voltageRegulatorOn;
-        Double newTargetV;
-        Double newTargetQ;
+        Double targetV;
+        Double targetQ;
         List<Action> actions;
     }
 
@@ -118,13 +118,13 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     parser.nextToken();
                     context.voltageRegulatorOn = parser.getBooleanValue();
                     return true;
-                case "newTargetV":
+                case "targetV":
                     parser.nextToken();
-                    context.newTargetV = parser.getDoubleValue();
+                    context.targetV = parser.getDoubleValue();
                     return true;
-                case "newTargetQ":
+                case "targetQ":
                     parser.nextToken();
-                    context.newTargetQ = parser.getDoubleValue();
+                    context.targetQ = parser.getDoubleValue();
                     return true;
                 case "actions":
                     parser.nextToken();
@@ -178,11 +178,11 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 if (context.voltageRegulatorOn != null) {
                     generatorAction.setVoltageRegulatorOn(context.voltageRegulatorOn);
                 }
-                if (context.newTargetV != null) {
-                    generatorAction.setActivePowerValue(context.newTargetV);
+                if (context.targetV != null) {
+                    generatorAction.setTargetV(context.targetV);
                 }
-                if (context.newTargetQ != null) {
-                    generatorAction.setActivePowerValue(context.newTargetQ);
+                if (context.targetQ != null) {
+                    generatorAction.setTargetQ(context.targetQ);
                 }
                 return generatorAction;
             case MultipleActionsAction.NAME:

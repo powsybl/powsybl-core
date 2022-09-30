@@ -30,8 +30,8 @@ public class GeneratorAction extends AbstractAction {
     private Double minP;
     private Double maxP;
     private Boolean voltageRegulatorOn;
-    private Double newTargetV; // absolute value only.
-    private Double newTargetQ; // absolute value only.
+    private Double targetV; // absolute value only.
+    private Double targetQ; // absolute value only.
 
     public GeneratorAction(String id, String generatorId) {
         super(id);
@@ -92,21 +92,21 @@ public class GeneratorAction extends AbstractAction {
         return this;
     }
 
-    public Optional<Double> getNewTargetV() {
-        return Optional.ofNullable(newTargetV);
+    public Optional<Double> getTargetV() {
+        return Optional.ofNullable(targetV);
     }
 
-    public GeneratorAction setNewTargetV(double newTargetV) {
-        this.newTargetV = newTargetV;
+    public GeneratorAction setTargetV(double targetV) {
+        this.targetV = targetV;
         return this;
     }
 
-    public Optional<Double> getNewTargetQ() {
-        return Optional.ofNullable(newTargetQ);
+    public Optional<Double> getTargetQ() {
+        return Optional.ofNullable(targetQ);
     }
 
-    public GeneratorAction setNewTargetQ(double newTargetQ) {
-        this.newTargetQ = newTargetQ;
+    public GeneratorAction setTargetQ(double targetQ) {
+        this.targetQ = targetQ;
         return this;
     }
 }

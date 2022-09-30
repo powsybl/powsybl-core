@@ -72,11 +72,11 @@ public class ActionSerializer extends StdSerializer<Action> {
                 if (((GeneratorAction) action).isVoltageRegulatorOn().isPresent()) {
                     jsonGenerator.writeBooleanField("voltageRegulatorOn", ((GeneratorAction) action).isVoltageRegulatorOn().get());
                 }
-                if (((GeneratorAction) action).getNewTargetV().isPresent()) {
-                    jsonGenerator.writeNumberField("newTargetV", ((GeneratorAction) action).getNewTargetV().get());
+                if (((GeneratorAction) action).getTargetV().isPresent()) {
+                    jsonGenerator.writeNumberField("targetV", ((GeneratorAction) action).getTargetV().get());
                 }
-                if (((GeneratorAction) action).getNewTargetQ().isPresent()) {
-                    jsonGenerator.writeNumberField("newTargetQ", ((GeneratorAction) action).getNewTargetQ().get());
+                if (((GeneratorAction) action).getTargetQ().isPresent()) {
+                    jsonGenerator.writeNumberField("targetQ", ((GeneratorAction) action).getTargetQ().get());
                 }
                 break;
             case MultipleActionsAction.NAME:
