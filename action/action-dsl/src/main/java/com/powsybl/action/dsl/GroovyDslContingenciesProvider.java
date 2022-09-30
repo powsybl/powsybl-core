@@ -29,7 +29,7 @@ public class GroovyDslContingenciesProvider extends AbstractDslContingenciesProv
         super(path);
     }
 
-    public  GroovyDslContingenciesProvider(final InputStream input) {
+    public GroovyDslContingenciesProvider(final InputStream input) {
         super(input);
     }
 

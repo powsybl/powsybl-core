@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  */
 public final class GLTestUtils {
 
-    public static final Coordinate SUBSTATION_1 =  new Coordinate(51.380348205566406, 0.5492960214614868);
+    public static final Coordinate SUBSTATION_1 = new Coordinate(51.380348205566406, 0.5492960214614868);
     public static final Coordinate SUBSTATION_2 = new Coordinate(52.00010299682617, 0.30759671330451965);
     public static final Coordinate LINE_1 = new Coordinate(51.529258728027344, 0.5132722854614258);
     public static final Coordinate LINE_2 = new Coordinate(51.944923400878906, 0.4120868146419525);

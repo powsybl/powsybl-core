@@ -33,7 +33,7 @@ public class AsciiTableFormatterTest {
     public void testAsciiTableFormatter1() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
                 new Column("column1").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.writeCell("Line:1 Cell:1", 2)
@@ -56,7 +56,7 @@ public class AsciiTableFormatterTest {
     public void testAsciiTableFormatter2() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.writeCell("Line:1 Cell:1", 1)
@@ -82,7 +82,7 @@ public class AsciiTableFormatterTest {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-             AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+             AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.writeCell("Line:1 Cell:1", 1)
@@ -97,7 +97,7 @@ public class AsciiTableFormatterTest {
     public void testEmptyLines() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-             AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+             AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
                 new Column("column1").setColspan(4),
                 new Column("column2").setColspan(2))) {
             formatter.writeCell("Line:1 Cell:1")

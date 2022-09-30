@@ -126,7 +126,7 @@ public final class EquipmentExport {
         return vl.getId() + "_" + node + "_" + CONNECTIVITY_NODE_SUFFIX;
     }
 
-    private static String  buildNodeKey(Bus bus) {
+    private static String buildNodeKey(Bus bus) {
         return bus.getId() + "_" + CONNECTIVITY_NODE_SUFFIX;
     }
 

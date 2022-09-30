@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BusResultSerializer extends StdSerializer<BusResult>  {
+public class BusResultSerializer extends StdSerializer<BusResult> {
 
     public BusResultSerializer() {
         super(BusResult.class);

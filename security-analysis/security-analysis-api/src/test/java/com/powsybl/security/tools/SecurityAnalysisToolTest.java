@@ -96,7 +96,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     private static CommandLine mockCommandLine(Map<String, String> options, Set<String> flags) {
-        CommandLine cli =  mock(CommandLine.class);
+        CommandLine cli = mock(CommandLine.class);
         when(cli.hasOption(any())).thenReturn(false);
         when(cli.getOptionValue(any())).thenReturn(null);
         options.forEach((k, v) -> {

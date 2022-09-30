@@ -253,12 +253,12 @@ public class Conversion {
 
     private Source isBoundaryTopologicalNode(String graph) {
         //There are unit tests where the boundary file contains the sequence "TPBD" and others "TP_BD"
-        return graph.contains("TP") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
+        return graph.contains("TP") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
     }
 
     private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
-        return graph.contains("EQ") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
+        return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {
@@ -750,7 +750,7 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile  getProfileForInitialValuesShuntSectionsTapPositions() {
+        public StateProfile getProfileForInitialValuesShuntSectionsTapPositions() {
             return profileForInitialValuesShuntSectionsTapPositions;
         }
 
