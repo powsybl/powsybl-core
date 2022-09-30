@@ -6,15 +6,11 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -33,6 +29,7 @@ public class RegulatingControlMapping {
     private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
     private final RegulatingControlMappingForShuntCompensators regulatingControlMappingForShuntCompensators;
     private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
+    private final RegulatingControlMappingForVscConverters regulatingControlMappingForVscConverters;
 
     RegulatingControlMapping(Context context) {
         this.context = context;
@@ -40,6 +37,7 @@ public class RegulatingControlMapping {
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
         regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this, context);
         regulatingControlMappingForShuntCompensators = new RegulatingControlMappingForShuntCompensators(this, context);
+        regulatingControlMappingForVscConverters = new RegulatingControlMappingForVscConverters(context);
     }
 
     public RegulatingControlMappingForGenerators forGenerators() {
@@ -56,6 +54,10 @@ public class RegulatingControlMapping {
 
     public RegulatingControlMappingForStaticVarCompensators forStaticVarCompensators() {
         return regulatingControlMappingForStaticVarCompensators;
+    }
+
+    public RegulatingControlMappingForVscConverters forVscConverters() {
+        return regulatingControlMappingForVscConverters;
     }
 
     public static class RegulatingControl {
@@ -111,6 +113,7 @@ public class RegulatingControlMapping {
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
         regulatingControlMappingForShuntCompensators.applyRegulatingControls(network);
         regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
+        regulatingControlMappingForVscConverters.applyRegulatingControls(network);
 
         cachedRegulatingControls.forEach((key, value) -> {
             if (value.correctlySet == null || !value.correctlySet) {
@@ -120,31 +123,6 @@ public class RegulatingControlMapping {
         });
 
         cachedRegulatingControls.clear();
-    }
-
-    Terminal findRegulatingTerminal(String cgmesTerminalId) {
-        return findRegulatingTerminal(cgmesTerminalId, false);
-    }
-
-    Terminal findRegulatingTerminal(String cgmesTerminalId, boolean canBeNull) {
-        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).filter(Terminal::isConnected)
-                .orElseGet(() -> {
-                    if (canBeNull) {
-                        return null;
-                    }
-                    CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
-                    if (cgmesTerminal != null) {
-                        // Try to obtain Terminal from TopologicalNode
-                        String topologicalNode = cgmesTerminal.topologicalNode();
-                        context.invalid(REGULATING_TERMINAL, () -> String.format("No connected IIDM terminal has been found for CGMES terminal %s. " +
-                            "A connected terminal linked to the topological node %s is searched.",
-                            cgmesTerminalId, topologicalNode));
-                        return context.terminalMapping().findFromTopologicalNode(topologicalNode);
-                    } else {
-                        context.invalid(REGULATING_TERMINAL, "No CGMES terminal found with identifier " + cgmesTerminalId);
-                        return null;
-                    }
-                });
     }
 
     static boolean isControlModeVoltage(String controlMode) {
@@ -157,20 +135,5 @@ public class RegulatingControlMapping {
 
     static String getRegulatingControlId(PropertyBag p) {
         return p.getId(REGULATING_CONTROL);
-    }
-
-    Terminal getRegulatingTerminal(Injection injection, String cgmesTerminal) {
-        // Will take default terminal ONLY if it has not been explicitly defined in CGMES
-        // the default terminal is the local terminal
-        Terminal terminal = injection.getTerminal();
-        if (cgmesTerminal != null) {
-            terminal = findRegulatingTerminal(cgmesTerminal);
-            // If terminal is null here it means that no IIDM terminal has been found
-            // from the initial CGMES terminal or topological node,
-            // we will consider the regulating control invalid,
-            // in this case we will not use the default terminal
-            // (no localization of regulating controls)
-        }
-        return terminal;
     }
 }

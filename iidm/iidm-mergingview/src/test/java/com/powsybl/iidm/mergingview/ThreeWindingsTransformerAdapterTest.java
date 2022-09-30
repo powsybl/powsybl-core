@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -35,8 +34,9 @@ public class ThreeWindingsTransformerAdapterTest {
         assertTrue(twt instanceof ThreeWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
 
-        assertNotNull(twt.getSubstation());
-        assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, twt.getType());
+        assertTrue(twt.getSubstation().isPresent());
+        assertNotNull(twt.getNullableSubstation());
+        assertEquals(IdentifiableType.THREE_WINDINGS_TRANSFORMER, twt.getType());
 
         assertEquals(twt.getLeg1().getTerminal(), twt.getTerminal(Side.ONE));
         assertEquals(Side.ONE, twt.getSide(twt.getLeg1().getTerminal()));
@@ -69,7 +69,7 @@ public class ThreeWindingsTransformerAdapterTest {
                 .setValue(1200)
                 .endTemporaryLimit()
                 .add();
-        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits());
+        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits().orElse(null));
         // --> RatioTapChanger
         final RatioTapChanger ratioTapChangerInLeg1 = leg1.newRatioTapChanger()
                     .setTargetV(200.0)
@@ -113,6 +113,7 @@ public class ThreeWindingsTransformerAdapterTest {
                     .setTapPosition(1)
                     .setLowTapPosition(0)
                     .setRegulating(false)
+                    .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                     .beginStep()
                         .setR(1.0)
                         .setX(2.0)

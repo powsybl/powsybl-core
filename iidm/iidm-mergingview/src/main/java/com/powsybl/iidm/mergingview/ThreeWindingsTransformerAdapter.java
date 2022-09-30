@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -94,8 +95,33 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public CurrentLimits getCurrentLimits() {
+        public Optional<CurrentLimits> getCurrentLimits() {
             return getDelegate().getCurrentLimits();
+        }
+
+        @Override
+        public CurrentLimits getNullableCurrentLimits() {
+            return getDelegate().getNullableCurrentLimits();
+        }
+
+        @Override
+        public Optional<ActivePowerLimits> getActivePowerLimits() {
+            return getDelegate().getActivePowerLimits();
+        }
+
+        @Override
+        public ActivePowerLimits getNullableActivePowerLimits() {
+            return getDelegate().getNullableActivePowerLimits();
+        }
+
+        @Override
+        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+            return getDelegate().getApparentPowerLimits();
+        }
+
+        @Override
+        public ApparentPowerLimits getNullableApparentPowerLimits() {
+            return getDelegate().getNullableApparentPowerLimits();
         }
 
         @Override
@@ -104,18 +130,8 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public ApparentPowerLimits getApparentPowerLimits() {
-            return getDelegate().getApparentPowerLimits();
-        }
-
-        @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
             return getDelegate().newApparentPowerLimits();
-        }
-
-        @Override
-        public ActivePowerLimits getActivePowerLimits() {
-            return getDelegate().getActivePowerLimits();
         }
 
         @Override
@@ -218,18 +234,13 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     }
 
     @Override
-    public Substation getSubstation() {
-        return getIndex().getSubstation(getDelegate().getSubstation());
+    public Optional<Substation> getSubstation() {
+        return getDelegate().getSubstation().map(s -> getIndex().getSubstation(s));
     }
 
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
-    @Override
-    public ConnectableType getType() {
-        return getDelegate().getType();
-    }
-
     @Override
     public double getRatedU0() {
         return getDelegate().getRatedU0();
@@ -239,7 +250,7 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         throw MergingView.createNotImplementedException();
     }
 }

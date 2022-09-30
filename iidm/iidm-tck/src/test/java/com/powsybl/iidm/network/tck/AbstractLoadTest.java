@@ -219,6 +219,82 @@ public abstract class AbstractLoadTest {
         network.removeListener(mockedListener);
     }
 
+    @Test
+    public void move() {
+        Load loadNbv = network.getLoad("CF");
+
+        // Moving to existing node (with no equipment)
+        loadNbv.getTerminal().getNodeBreakerView().moveConnectable(3, voltageLevel.getId());
+        assertEquals(3, loadNbv.getTerminal().getNodeBreakerView().getNode());
+
+        // Moving to existing node (with equipment)
+        Terminal.NodeBreakerView nbv0 = loadNbv.getTerminal().getNodeBreakerView();
+        try {
+            nbv0.moveConnectable(4, "C");
+            fail();
+        } catch (ValidationException e) {
+            assertEquals("Load 'CF': an equipment (CJ) is already connected to node 4 of voltage level C", e.getMessage());
+        }
+
+        // Moving to non existing node: node created
+        loadNbv.getTerminal().getNodeBreakerView().moveConnectable(6, voltageLevel.getId());
+        assertEquals(6, loadNbv.getTerminal().getNodeBreakerView().getNode());
+
+        // Moving to non-connected bus in bus breaker view
+        VoltageLevel vlBbv = network.newVoltageLevel()
+                .setId("vlBbv")
+                .setNominalV(45)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        Bus bbvBus0 = vlBbv.getBusBreakerView().newBus()
+                .setId("bbvBus0")
+                .add();
+        loadNbv.getTerminal().getBusBreakerView().moveConnectable(bbvBus0.getId(), false);
+        assertNull(loadNbv.getTerminal().getBusBreakerView().getBus());
+        assertEquals(bbvBus0, loadNbv.getTerminal().getBusBreakerView().getConnectableBus());
+
+        // Moving to connected bus in bus breaker view
+        Bus bbvBus1 = vlBbv.getBusBreakerView().newBus()
+                .setId("bbvBus1")
+                .add();
+        loadNbv.getTerminal().getBusBreakerView().moveConnectable(bbvBus1.getId(), true);
+        assertEquals(bbvBus1, loadNbv.getTerminal().getBusBreakerView().getBus());
+        assertEquals(bbvBus1, loadNbv.getTerminal().getBusBreakerView().getConnectableBus());
+
+        // Moving to unknown bus in bus breaker view
+        Terminal.BusBreakerView bbv0 = loadNbv.getTerminal().getBusBreakerView();
+        try {
+            bbv0.moveConnectable("unknownBus", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Bus 'unknownBus' not found", e.getMessage());
+        }
+
+        // Moving load in bus breaker view to connected bus in bus breaker view
+        Load loadBbv = vlBbv.newLoad()
+                .setId("loadBbv")
+                .setP0(2.0)
+                .setQ0(1.0)
+                .setBus(bbvBus1.getId())
+                .add();
+        loadBbv.getTerminal().getBusBreakerView().moveConnectable(bbvBus1.getId(), true);
+        assertEquals(bbvBus1, loadBbv.getTerminal().getBusBreakerView().getBus());
+        assertEquals(bbvBus1, loadBbv.getTerminal().getBusBreakerView().getConnectableBus());
+
+        // Moving to (now existing & available) node
+        loadBbv.getTerminal().getNodeBreakerView().moveConnectable(6, voltageLevel.getId());
+        assertEquals(6, loadBbv.getTerminal().getNodeBreakerView().getNode());
+
+        // Moving to unknown voltage level
+        Terminal.NodeBreakerView nbv = loadBbv.getTerminal().getNodeBreakerView();
+        try {
+            nbv.moveConnectable(6, "unknownVl");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Voltage level 'unknownVl' not found", e.getMessage());
+        }
+    }
+
     private void createLoad(String id, double p0, double q0) {
         voltageLevel.newLoad()
                         .setId(id)
@@ -228,4 +304,30 @@ public abstract class AbstractLoadTest {
                     .add();
     }
 
+    @Test
+    public void removePropertyTest() {
+        Load load = network.getLoad("CE");
+        assertNotNull(load);
+        assertFalse(load.hasProperty("a"));
+        assertNull(load.getProperty("a"));
+        load.setProperty("a", "b");
+        assertTrue(load.hasProperty("a"));
+        assertNotNull(load.getProperty("a"));
+        assertEquals("b", load.getProperty("a"));
+        load.removeProperty("a");
+        assertFalse(load.hasProperty("a"));
+        assertNull(load.getProperty("a"));
+    }
+
+    @Test
+    public void setNameTest() {
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        network.addListener(mockedListener);
+        Load load = network.getLoad("CE");
+        assertNotNull(load);
+        assertTrue(load.getOptionalName().isEmpty());
+        load.setName("FOO");
+        assertEquals("FOO", load.getOptionalName().orElseThrow());
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, "FOO");
+    }
 }

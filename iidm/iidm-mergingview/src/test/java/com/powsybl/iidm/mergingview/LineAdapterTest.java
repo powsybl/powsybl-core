@@ -17,8 +17,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -81,25 +79,26 @@ public class LineAdapterTest {
         assertEquals(b2, lineAdapted.getB2(), 0.0);
         lineAdapted.setB2(++b2);
         assertEquals(b2, lineAdapted.getB2(), 0.0);
-        assertSame(lineRef.getCurrentLimits1(), lineAdapted.getCurrentLimits1());
-        assertSame(lineRef.getActivePowerLimits1(), lineAdapted.getActivePowerLimits1());
-        assertSame(lineRef.getApparentPowerLimits1(), lineAdapted.getApparentPowerLimits1());
-        assertSame(lineRef.getCurrentLimits2(), lineAdapted.getCurrentLimits2());
-        assertSame(lineRef.getActivePowerLimits2(), lineAdapted.getActivePowerLimits2());
-        assertSame(lineRef.getApparentPowerLimits2(), lineAdapted.getApparentPowerLimits2());
-        assertSame(lineRef.getCurrentLimits(Branch.Side.ONE), lineAdapted.getCurrentLimits(Branch.Side.ONE));
-        assertSame(lineRef.getActivePowerLimits(Branch.Side.ONE), lineAdapted.getActivePowerLimits(Branch.Side.ONE));
-        assertSame(lineRef.getApparentPowerLimits(Branch.Side.ONE), lineAdapted.getApparentPowerLimits(Branch.Side.ONE));
-        assertSame(lineRef.getCurrentLimits(Branch.Side.TWO), lineAdapted.getCurrentLimits(Branch.Side.TWO));
-        assertSame(lineRef.getActivePowerLimits(Branch.Side.TWO), lineAdapted.getActivePowerLimits(Branch.Side.TWO));
-        assertSame(lineRef.getApparentPowerLimits(Branch.Side.TWO), lineAdapted.getApparentPowerLimits(Branch.Side.TWO));
+
+        assertSame(lineRef.getCurrentLimits1().orElse(null), lineAdapted.getCurrentLimits1().orElse(null));
+        assertSame(lineRef.getActivePowerLimits1().orElse(null), lineAdapted.getActivePowerLimits1().orElse(null));
+        assertSame(lineRef.getApparentPowerLimits1().orElse(null), lineAdapted.getApparentPowerLimits1().orElse(null));
+        assertSame(lineRef.getCurrentLimits2().orElse(null), lineAdapted.getCurrentLimits2().orElse(null));
+        assertSame(lineRef.getActivePowerLimits2().orElse(null), lineAdapted.getActivePowerLimits2().orElse(null));
+        assertSame(lineRef.getApparentPowerLimits2().orElse(null), lineAdapted.getApparentPowerLimits2().orElse(null));
+        assertSame(lineRef.getCurrentLimits(Branch.Side.ONE).orElse(null), lineAdapted.getCurrentLimits(Branch.Side.ONE).orElse(null));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.ONE).orElse(null), lineAdapted.getActivePowerLimits(Branch.Side.ONE).orElse(null));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.ONE).orElse(null), lineAdapted.getApparentPowerLimits(Branch.Side.ONE).orElse(null));
+        assertSame(lineRef.getCurrentLimits(Branch.Side.TWO).orElse(null), lineAdapted.getCurrentLimits(Branch.Side.TWO).orElse(null));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.TWO).orElse(null), lineAdapted.getActivePowerLimits(Branch.Side.TWO).orElse(null));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.TWO).orElse(null), lineAdapted.getApparentPowerLimits(Branch.Side.TWO).orElse(null));
         assertEquals(lineRef.getOperationalLimits1().size(), lineAdapted.getOperationalLimits1().size());
         assertEquals(lineRef.getOperationalLimits2().size(), lineAdapted.getOperationalLimits2().size());
 
         assertEquals(lineRef.isOverloaded(), lineAdapted.isOverloaded());
         assertEquals(lineRef.isOverloaded(0.0f), lineAdapted.isOverloaded(0.0f));
         assertEquals(lineRef.getOverloadDuration(), lineAdapted.getOverloadDuration());
-        assertEquals(lineRef.checkPermanentLimit(Branch.Side.ONE, 0.0f,  LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.ONE, 0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkPermanentLimit(Branch.Side.ONE, 0.0f, LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.ONE, 0.0f, LimitType.CURRENT));
         assertEquals(lineRef.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
         assertEquals(lineRef.checkPermanentLimit1(0.0f, LimitType.CURRENT), lineAdapted.checkPermanentLimit1(0.0f, LimitType.CURRENT));
         assertEquals(lineRef.checkPermanentLimit1(LimitType.CURRENT), lineAdapted.checkPermanentLimit1(LimitType.CURRENT));
@@ -134,6 +133,32 @@ public class LineAdapterTest {
         verify(visitor, times(2)).visitLine(any(Line.class), any(Branch.Side.class));
 
         // Not implemented yet !
+
+        //Move
+        String vlNbId = "VLNB";
+        VoltageLevel vlNb = mergingView.getSubstation("P1")
+                .newVoltageLevel()
+                .setId(vlNbId)
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNbId));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNbId));
+
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable("busId", false));
+
+        String ngen2Id = "NGEN2";
+        Bus ngen2 = mergingView.getVoltageLevel("VLGEN").getBusBreakerView()
+                .newBus()
+                .setId(ngen2Id)
+                .add();
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(ngen2Id, true));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getBusBreakerView().moveConnectable(ngen2Id, true));
+
+        String vlGenId = "VLGEN";
+        VoltageLevel vlgen = mergingView.getVoltageLevel(vlGenId);
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlGenId));
+
         TestUtil.notImplemented(lineAdapted::remove);
     }
 
@@ -230,8 +255,12 @@ public class LineAdapterTest {
         double angle2 = -1.7e-3;
         double lossesQ = q1 + q2;
         // Update P & Q
+        dl1.setP0(-607.7783748702557);
+        dl1.setQ0(-75.43639718320378);
         dl1.getTerminal().setP(p1).setQ(q1);
         dl1.getTerminal().getBusView().getBus().setV(v1).setAngle(angle1);
+        dl2.setP0(596.6050999999967);
+        dl2.setQ0(546.8941796000062);
         dl2.getTerminal().setP(p2).setQ(q2);
         dl2.getTerminal().getBusView().getBus().setV(v2).setAngle(angle2);
         // Check P & Q are updated
@@ -239,12 +268,12 @@ public class LineAdapterTest {
         SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 1.0e-8);
         assertEquals(expectedSV2.getP(), dl2.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 1.0e-8);
     }
 
     @Test

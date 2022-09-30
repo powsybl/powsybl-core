@@ -6,8 +6,7 @@
  */
 package com.powsybl.security.results;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.commons.extensions.AbstractExtendable;
 
 import java.util.Objects;
 
@@ -18,7 +17,7 @@ import java.util.Objects;
  *
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class BranchResult {
+public class BranchResult extends AbstractExtendable<BranchResult> {
 
     private final String branchId;
 
@@ -34,17 +33,30 @@ public class BranchResult {
 
     private final double i2;
 
-    @JsonCreator
-    public BranchResult(@JsonProperty("branchId") String branchId, @JsonProperty("p1") double p1, @JsonProperty("q1") double q1,
-                        @JsonProperty("i1") double i1, @JsonProperty("p2") double p2,
-                        @JsonProperty("q2") double q2, @JsonProperty("i2") double i2) {
+    /**
+     * Flow transfer from the branch in contingency to the branch with id branchId.
+     * <p>
+     * It is a ratio computed as : <i>p1i,N-1 - p1i,N / p1j,N</i>, where :
+     * <b>p1i,N</b> the active power flow on side 1 of the branch branchId at pre contingency stage.
+     * <b>p1i,N-1</b> the active power flow on side 1 of the same branch at post contingency stage.
+     * <b>p1j,N</b> the active power flow on side 1 of lost branch j at pre contingency stage.
+     * Verifying : <i>p1i,N-1 = P1i,N + flow transfer(j->i) * p1j,N</i>
+     */
+    private final double flowTransfer;
+
+    public BranchResult(String branchId, double p1, double q1, double i1, double p2, double q2, double i2) {
+        this(branchId, p1, q1, i1, p2, q2, i2, Double.NaN);
+    }
+
+    public BranchResult(String branchId, double p1, double q1, double i1, double p2, double q2, double i2, double flowTransfer) {
         this.branchId = Objects.requireNonNull(branchId);
-        this.p1 = Objects.requireNonNull(p1);
-        this.q1 = Objects.requireNonNull(q1);
-        this.i1 = Objects.requireNonNull(i1);
-        this.p2 = Objects.requireNonNull(p2);
-        this.q2 = Objects.requireNonNull(q2);
-        this.i2 = Objects.requireNonNull(i2);
+        this.p1 = p1;
+        this.q1 = q1;
+        this.i1 = i1;
+        this.p2 = p2;
+        this.q2 = q2;
+        this.i2 = i2;
+        this.flowTransfer = flowTransfer;
     }
 
     @Override
@@ -98,6 +110,10 @@ public class BranchResult {
         return q2;
     }
 
+    public double getFlowTransfer() {
+        return flowTransfer;
+    }
+
     @Override
     public String toString() {
         return "BranchResult{" +
@@ -108,6 +124,7 @@ public class BranchResult {
             ", p2=" + p2 +
             ", q2=" + q2 +
             ", i2=" + i2 +
+            ", flowTransfer=" + flowTransfer +
             '}';
     }
 }

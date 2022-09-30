@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.contingency.tasks.CompoundModificationTask;
-import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.modification.NetworkModificationList;
+import com.powsybl.iidm.modification.NetworkModification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,10 +70,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
         elements.remove(element);
     }
 
-    public ModificationTask toTask() {
-        List<ModificationTask> subTasks = elements.stream().map(ContingencyElement::toTask).collect(Collectors.toList());
-
-        return new CompoundModificationTask(subTasks);
+    public NetworkModification toModification() {
+        return new NetworkModificationList(elements.stream().map(ContingencyElement::toModification).collect(Collectors.toList()));
     }
 
     boolean isValid(Network network) {
@@ -119,6 +117,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
                 case THREE_WINDINGS_TRANSFORMER:
                     valid = checkThreeWindingsTransformerContingency(this, (ThreeWindingsTransformerContingency) element, network);
+                    break;
+
+                case LOAD:
+                    valid = checkLoadContingency(this, (LoadContingency) element, network);
                     break;
 
                 default:
@@ -232,63 +234,120 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkLoadContingency(Contingency contingency, LoadContingency element, Network network) {
+        if (network.getLoad(element.getId()) == null) {
+            LOGGER.warn("Load '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     public static ContingencyBuilder builder(String id) {
         return new ContingencyBuilder(id);
     }
 
+    /**
+     * Creates a new contingency on the branch whose id is given
+     */
     public static Contingency branch(String id) {
         return builder(id).addBranch(id).build();
     }
 
+    /**
+     * Creates a new contingency on the branch whose id is given, on the side of the given voltage level
+     */
     public static Contingency branch(String id, String voltageLevelId) {
         return builder(id).addBranch(id, voltageLevelId).build();
     }
 
+    /**
+     * Creates a new contingency on the busbar section whose id is given
+     */
     public static Contingency busbarSection(String id) {
         return builder(id).addBusbarSection(id).build();
     }
 
+    /**
+     * Creates a new contingency on the generator whose id is given
+     */
     public static Contingency generator(String id) {
         return builder(id).addGenerator(id).build();
     }
 
+    /**
+     * Creates a new contingency on the hvdc line whose id is given
+     */
     public static Contingency hvdcLine(String id) {
         return builder(id).addHvdcLine(id).build();
     }
 
+    /**
+     * Creates a new contingency on the hvdc line whose id is given, on the side of the given voltage level
+     */
     public static Contingency hvdcLine(String id, String voltageLevelId) {
         return builder(id).addHvdcLine(id, voltageLevelId).build();
     }
 
+    /**
+     * Creates a new contingency on the line whose id is given
+     */
     public static Contingency line(String id) {
         return builder(id).addLine(id).build();
     }
 
+    /**
+     * Creates a new contingency on the line whose id is given, on the side of the given voltage level
+     */
     public static Contingency line(String id, String voltageLevelId) {
         return builder(id).addLine(id, voltageLevelId).build();
     }
 
+    /**
+     * Creates a new contingency on the shunt compensator whose id is given
+     */
     public static Contingency shuntCompensator(String id) {
         return builder(id).addShuntCompensator(id).build();
     }
 
+    /**
+     * Creates a new contingency on the static var compensator whose id is given
+     */
     public static Contingency staticVarCompensator(String id) {
         return builder(id).addStaticVarCompensator(id).build();
     }
 
+    /**
+     * Creates a new contingency on the two-windings transformer whose id is given
+     */
     public static Contingency twoWindingsTransformer(String id) {
         return builder(id).addTwoWindingsTransformer(id).build();
     }
 
+    /**
+     * Creates a new contingency on the two-windings transformer whose id is given, on the side of the given voltage level
+     */
     public static Contingency twoWindingsTransformer(String id, String voltageLevelId) {
         return builder(id).addTwoWindingsTransformer(id, voltageLevelId).build();
     }
 
+    /**
+     * Creates a new contingency on the dangline line whose id is given
+     */
     public static Contingency danglingLine(String id) {
         return builder(id).addDanglingLine(id).build();
     }
 
+    /**
+     * Creates a new contingency on the three-windings transformer whose id is given
+     */
     public static Contingency threeWindingsTransformer(String id) {
         return builder(id).addThreeWindingsTransformer(id).build();
+    }
+
+    /**
+     * Creates a new contingency on the load whose id is given
+     */
+    public static Contingency load(String loadId) {
+        return builder(loadId).addLoad(loadId).build();
     }
 }

@@ -11,6 +11,7 @@ import gnu.trove.list.array.TIntArrayList;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -181,6 +182,42 @@ public interface UndirectedGraph<V, E> {
     int getEdgeVertex1(int e);
 
     /**
+     * Return the edge objects connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return an iterable of the edge objects
+     */
+    List<E> getEdgeObjectsConnectedToVertex(int v);
+
+    /**
+     * Return the edge objects connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return a stream of the edge objects
+     */
+    Stream<E> getEdgeObjectConnectedToVertexStream(int v);
+
+    /**
+     * Return the indices of the edges connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return an iterable of the edge indices
+     */
+    List<Integer> getEdgesConnectedToVertex(int v);
+
+    /**
+     * Return the indices of the edges connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return a stream of the edge indices
+     */
+    IntStream getEdgeConnectedToVertexStream(int v);
+
+    /**
      * Return the index of the second vertex that the specified edge is connected to.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the edge doesn't exist.
      *
@@ -234,17 +271,31 @@ public interface UndirectedGraph<V, E> {
      * @param v the vertex index where the traverse has to start.
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @param encountered the list of traversed vertices.
+     * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
+     * has been returned from the traverser, true otherwise
      */
-    void traverse(int v, Traverser traverser, boolean[] encountered);
+    boolean traverse(int v, Traverser traverser, boolean[] encountered);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.
      * This method allocates a boolean array and calls {@link #traverse(int, Traverser, boolean[])}.
-     *
      * @param v the vertex index where the traverse has to start.
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
+     * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
+     * has been returned from the traverser, true otherwise
      */
-    void traverse(int v, Traverser traverser);
+    boolean traverse(int v, Traverser traverser);
+
+    /**
+     * Traverse the entire graph, starting at each vertex index of the specified vertices array v.
+     * This method allocates a boolean array and calls {@link #traverse(int, Traverser, boolean[])} for each entry of
+     * the array.
+     * @param v the array of vertex indices where the traverse has to start.
+     * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
+     * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
+     * has been returned from the traverser, true otherwise
+     */
+    boolean traverse(int[] v, Traverser traverser);
 
     /**
      * Find all paths from the specified vertex.
@@ -262,14 +313,14 @@ public interface UndirectedGraph<V, E> {
      *
      * @param l the listener to add.
      */
-    void addListener(UndirectedGraphListener l);
+    void addListener(UndirectedGraphListener<V, E> l);
 
     /**
      * Remove a {@link UndirectedGraphListener} to stop listening the graph changes.
      *
      * @param l the listener to remove.
      */
-    void removeListener(UndirectedGraphListener l);
+    void removeListener(UndirectedGraphListener<V, E> l);
 
     /**
      * Prints the entire graph to the specified {@link PrintStream}.
@@ -280,4 +331,10 @@ public interface UndirectedGraph<V, E> {
      * @param edgeToString the function to use to render the values of edges.
      */
     void print(PrintStream out, Function<V, String> vertexToString, Function<E, String> edgeToString);
+
+    /**
+     * Remove from the vertices which are not connected to any edge, and which have no associated object.
+     * If {@code andAlsoDanglingEdges} is true, also remove dangling edges.
+     */
+    void removeIsolatedVertices(boolean andAlsoDanglingEdges);
 }

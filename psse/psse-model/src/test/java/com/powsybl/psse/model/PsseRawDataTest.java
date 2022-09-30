@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -28,17 +29,18 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -111,12 +113,22 @@ public class PsseRawDataTest extends AbstractConverterTest {
             }
         };
         FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
-        return new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
+        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
+        return TestUtil.normalizeLineSeparator(json);
+    }
+
+    private static String loadReference(String path) {
+        try {
+            InputStream is = Objects.requireNonNull(PsseRawDataTest.class.getResourceAsStream(path));
+            return TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Test
     public void ieee14BusTest() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_14_bus.json");
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -266,7 +278,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee14BusWhitespaceAsDelimiterTest() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_14_bus.json");
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14WhitespaceAsDelimiterRaw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -274,7 +286,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee14IsolatedBusesTest() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_isolated_buses.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_14_isolated_buses.json");
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14IsolatedBusesRaw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -343,7 +355,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void ieee14BusRev35RawxTest() throws IOException {
         PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14Rawx35(), "rawx", new Context());
-        String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
+        String jsonRef = loadReference("/IEEE_14_bus_rev35.json");
         assertEquals(jsonRef, toJson(rawData));
     }
 
@@ -405,7 +417,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14BusRev35Test() throws IOException {
         PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14Raw35(), "raw", new Context());
         assertNotNull(rawData);
-        String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
+        String jsonRef = loadReference("/IEEE_14_bus_rev35.json");
         assertEquals(jsonRef, toJson(rawData));
     }
 
@@ -552,7 +564,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee24BusTest() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_24_bus.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_24_bus.json");
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee24Raw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -571,7 +583,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee24BusRev35Test() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_24_bus_rev35.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_24_bus_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee24Raw35(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -590,7 +602,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee24BusRev35RawxTest() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_24_bus_rev35.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_24_bus_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee24Rawx35(), "rawx", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -648,7 +660,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee14BusCompletedTest() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_completed.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_14_bus_completed.json");
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14CompletedRaw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -656,7 +668,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee14BusCompletedRev35Test() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_completed_rev35.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_14_bus_completed_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14CompletedRaw35(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -664,7 +676,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     @Test
     public void ieee14BusCompletedRev35RawxTest() throws IOException {
-        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_completed_rev35.json")), StandardCharsets.UTF_8);
+        String expectedJson = loadReference("/IEEE_14_bus_completed_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14CompletedRawx35(), "rawx", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
@@ -722,8 +734,8 @@ public class PsseRawDataTest extends AbstractConverterTest {
             String s = String.format("%s%n", warning);
             sb.append(s);
         });
-        String warningsRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_invalid.txt")), StandardCharsets.UTF_8);
-        assertEquals(warningsRef, sb.toString());
+        String warningsRef = loadReference("/IEEE_14_bus_invalid.txt");
+        assertEquals(warningsRef, TestUtil.normalizeLineSeparator(sb.toString()));
         assertFalse(psseValidation.isValidCase());
     }
 

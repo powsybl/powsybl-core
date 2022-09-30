@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -31,6 +32,8 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
+
+    private boolean removed = false;
 
     SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
         super(id, name, fictitious);
@@ -77,6 +80,9 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public NetworkImpl getNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed substation " + id);
+        }
         return networkRef.get();
     }
 
@@ -185,15 +191,18 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     public void remove() {
         Substations.checkRemovability(this);
 
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+
         Set<VoltageLevelExt> vls = new HashSet<>(voltageLevels);
         for (VoltageLevelExt vl : vls) {
             // Remove all branches, transformers and HVDC lines
             List<Connectable> connectables = Lists.newArrayList(vl.getConnectables());
             for (Connectable connectable : connectables) {
-                ConnectableType type = connectable.getType();
+                IdentifiableType type = connectable.getType();
                 if (VoltageLevels.MULTIPLE_TERMINALS_CONNECTABLE_TYPES.contains(type)) {
                     connectable.remove();
-                } else if (type == ConnectableType.HVDC_CONVERTER_STATION) {
+                } else if (type == IdentifiableType.HVDC_CONVERTER_STATION) {
                     HvdcLine hvdcLine = getNetwork().getHvdcLine((HvdcConverterStation) connectable);
                     if (hvdcLine != null) {
                         hvdcLine.remove();
@@ -206,9 +215,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         }
 
         // Remove this substation from the network
-        getNetwork().getIndex().remove(this);
+        network.getIndex().remove(this);
 
-        getNetwork().getListeners().notifyRemoval(this);
+        network.getListeners().notifyAfterRemoval(id);
+        removed = true;
     }
 
     void remove(VoltageLevelExt voltageLevelExt) {

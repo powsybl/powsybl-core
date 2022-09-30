@@ -6,12 +6,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
+import com.powsybl.iidm.network.impl.util.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
+
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -144,11 +148,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
                         + "' not found");
             }
-            if (voltageLevel.getSubstation() != substation) {
-                throw new ValidationException(this,
-                        "voltage level shall belong to the substation '"
-                                + substation.getId() + "'");
-            }
             return voltageLevel;
         }
 
@@ -172,10 +171,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         @Override
         public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getId());
+            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation != null ? substation.getId() : "");
         }
     }
 
+    private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
 
     private LegAdderImpl legAdder1;
@@ -187,7 +187,13 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     private double ratedU0 = Double.NaN;
 
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
+        networkRef = null;
         this.substation = substation;
+    }
+
+    ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
+        this.networkRef = networkRef;
+        substation = null;
     }
 
     ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, SubstationImpl substation) {
@@ -198,7 +204,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     @Override
     protected NetworkImpl getNetwork() {
-        return substation.getNetwork();
+        return Optional.ofNullable(networkRef)
+                .map(Ref::get)
+                .orElseGet(() -> Optional.ofNullable(substation)
+                        .map(SubstationImpl::getNetwork)
+                        .orElseThrow(() -> new PowsyblException("Three windings transformer has no container")));
     }
 
     @Override
@@ -286,11 +296,19 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        // check that the 3 windings transformer is attachable on the 3 sides (only
-        // verify)
-        voltageLevel1.attach(terminal1, true);
-        voltageLevel2.attach(terminal2, true);
-        voltageLevel3.attach(terminal3, true);
+        if (substation != null) {
+            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
+                throw new ValidationException(this,
+                        "the 3 windings of the transformer shall belong to the substation '"
+                                + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel3.getSubstation().map(Substation::getId).orElse("null") + "')");
+            }
+        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent() || voltageLevel3.getSubstation().isPresent()) {
+            throw new ValidationException(this,
+                    "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
+                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
+        }
 
         // Define ratedU0 equal to ratedU1 if it has not been defined
         if (Double.isNaN(ratedU0)) {
@@ -298,17 +316,24 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(getNetwork().getRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
-                ratedU0);
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(), leg1, leg2, leg3,
+            ratedU0);
+        transformer.addTerminal(terminal1);
+        transformer.addTerminal(terminal2);
+        transformer.addTerminal(terminal3);
+
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);
         terminal1.setNum(1);
         terminal2.setNum(2);
         terminal3.setNum(3);
-        transformer.addTerminal(terminal1);
-        transformer.addTerminal(terminal2);
-        transformer.addTerminal(terminal3);
+
+        // check that the 3 windings transformer is attachable on the 3 sides (only
+        // verify)
+        voltageLevel1.attach(terminal1, true);
+        voltageLevel2.attach(terminal2, true);
+        voltageLevel3.attach(terminal3, true);
 
         // do attach
         voltageLevel1.attach(terminal1, false);
@@ -317,7 +342,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
-
         return transformer;
     }
 }

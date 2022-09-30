@@ -7,12 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Optional;
 
 /**
  *
@@ -57,27 +56,35 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (l.getActivePowerLimits1() != null) {
+        Optional<ActivePowerLimits> activePowerLimits1 = l.getActivePowerLimits1();
+        if (activePowerLimits1.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, l.getActivePowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, activePowerLimits1.get(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (l.getApparentPowerLimits1() != null) {
+        Optional<ApparentPowerLimits> apparentPowerLimits1 = l.getApparentPowerLimits1();
+        if (apparentPowerLimits1.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, l.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (l.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, l.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
+        Optional<CurrentLimits> currentLimits1 = l.getCurrentLimits1();
+        if (currentLimits1.isPresent()) {
+            writeCurrentLimits(1, currentLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
-        if (l.getActivePowerLimits2() != null) {
+        Optional<ActivePowerLimits> activePowerLimits2 = l.getActivePowerLimits2();
+        if (activePowerLimits2.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, l.getActivePowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, activePowerLimits2.get(), context.getWriter(), context.getVersion(),
+                    context.isValid(), context.getOptions()));
         }
-        if (l.getApparentPowerLimits2() != null) {
+        Optional<ApparentPowerLimits> apparentPowerLimits2 = l.getApparentPowerLimits2();
+        if (apparentPowerLimits2.isPresent()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, l.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
-        if (l.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, l.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
+        Optional<CurrentLimits> currentLimits2 = l.getCurrentLimits2();
+        if (currentLimits2.isPresent()) {
+            writeCurrentLimits(2, currentLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 

@@ -7,18 +7,18 @@
 
 package com.powsybl.triplestore.api;
 
+import com.powsybl.commons.datasource.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.commons.datasource.DataSource;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -28,6 +28,10 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
     public AbstractPowsyblTripleStore() {
         queryPrefixes = new HashMap<>();
         defineQueryPrefix("rdf", RDF_NAMESPACE);
+    }
+
+    protected static String createRdfId() {
+        return "_" + UUID.randomUUID();
     }
 
     public void defineQueryPrefix(String prefix, String cimNamespace) {

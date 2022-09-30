@@ -35,7 +35,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         String generatingUnitType = p.getLocal("generatingUnitType");
         PowerFlow f = powerFlow();
 
-        // Default targetP from initial P defined in EQ GeneratingUnit
+        // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
         double targetP = p.asDouble("initialP", 0);
         double targetQ = 0;
         // Flow values may come from Terminal or Equipment (SSH RotatingMachine)
@@ -58,7 +58,14 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
         if (p.asInt("referencePriority", 0) > 0) {
-            SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
+            // We could find multiple generators with the same priority,
+            // we will only change the terminal of the slack extension if the previous was not connected
+            SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
+            if (st == null) {
+                SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
+            } else if (!st.getTerminal().isConnected()) {
+                st.setTerminal(g.getTerminal());
+            }
         }
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {

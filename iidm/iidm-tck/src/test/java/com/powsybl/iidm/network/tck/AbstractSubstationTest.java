@@ -78,6 +78,16 @@ public abstract class AbstractSubstationTest {
                .onElementAdded(any(Substation.class), anyString(), anyString());
         // Remove observer
         network.removeListener(mockedListener);
+
+        // Remove
+        substation.remove();
+        assertNotNull(substation);
+        try {
+            substation.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed substation sub", e.getMessage());
+        }
     }
 
     @Test

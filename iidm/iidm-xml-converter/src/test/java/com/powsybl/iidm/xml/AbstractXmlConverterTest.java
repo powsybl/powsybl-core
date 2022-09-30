@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
@@ -43,6 +42,13 @@ public abstract class AbstractXmlConverterTest extends AbstractConverterTest {
      */
     protected InputStream getVersionedNetworkAsStream(String fileName, IidmXmlVersion version) {
         return getClass().getResourceAsStream(getVersionedNetworkPath(fileName, version));
+    }
+
+    /**
+     * Return an input stream of the test resource IIDM-XML file with a given file name.
+     */
+    protected InputStream getNetworkAsStream(String fileName) {
+        return getClass().getResourceAsStream(fileName);
     }
 
     /**

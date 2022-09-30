@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,12 +48,12 @@ public abstract class AbstractBatteryTest {
         Battery battery = network.getBattery("BAT");
         assertNotNull(battery);
 
-        double p0 = 11.0;
-        battery.setP0(p0);
-        assertEquals(p0, battery.getP0(), 0.0);
-        double q0 = 12.0;
-        battery.setQ0(q0);
-        assertEquals(q0, battery.getQ0(), 0.0);
+        double targetP = 11.0;
+        battery.setTargetP(targetP);
+        assertEquals(targetP, battery.getTargetP(), 0.0);
+        double targetQ = 12.0;
+        battery.setTargetQ(targetQ);
+        assertEquals(targetQ, battery.getTargetQ(), 0.0);
         double minP = 10.0;
         battery.setMinP(minP);
         assertEquals(minP, battery.getMinP(), 0.0);
@@ -60,7 +61,7 @@ public abstract class AbstractBatteryTest {
         battery.setMaxP(maxP);
         assertEquals(maxP, battery.getMaxP(), 0.0);
 
-        assertEquals(ConnectableType.BATTERY, battery.getType());
+        assertEquals(IdentifiableType.BATTERY, battery.getType());
 
         assertEquals("NBAT", battery.getTerminal().getBusBreakerView().getBus().getId());
     }
@@ -121,8 +122,8 @@ public abstract class AbstractBatteryTest {
                 .setId(BAT_ID)
                 .setMaxP(20.0)
                 .setMinP(10.0)
-                .setP0(15.0)
-                .setQ0(10.0)
+                .setTargetP(15.0)
+                .setTargetQ(10.0)
                 .setBus("NBAT")
                 .add();
         Battery battery = network.getBattery(BAT_ID);
@@ -130,8 +131,8 @@ public abstract class AbstractBatteryTest {
         assertEquals(BAT_ID, battery.getId());
         assertEquals(20.0, battery.getMaxP(), 0.0);
         assertEquals(10.0, battery.getMinP(), 0.0);
-        assertEquals(15.0, battery.getP0(), 0.0);
-        assertEquals(10.0, battery.getQ0(), 0.0);
+        assertEquals(15.0, battery.getTargetP(), 0.0);
+        assertEquals(10.0, battery.getTargetQ(), 0.0);
     }
 
     @Test
@@ -150,12 +151,96 @@ public abstract class AbstractBatteryTest {
 
     @Test
     public void testRemove() {
+        String unmodifiableRemovedEqMessage = "Cannot modify removed equipment " + TO_REMOVE;
         createBattery(TO_REMOVE, 11.0, 12, 10, 20.0);
         int count = network.getBatteryCount();
         Battery battery = network.getBattery(TO_REMOVE);
         assertNotNull(battery);
         battery.remove();
         assertNotNull(battery);
+        Terminal terminal = battery.getTerminal();
+        assertNotNull(terminal);
+        try {
+            terminal.isConnected();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access connectivity status of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getBusView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            terminal.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
+        }
+        Terminal.BusBreakerView bbView = terminal.getBusBreakerView();
+        assertNotNull(bbView);
+        try {
+            bbView.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        Terminal.NodeBreakerView nbView = terminal.getNodeBreakerView();
+        try {
+            nbView.moveConnectable(0, "VL");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setP(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            terminal.setQ(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            bbView.setConnectableBus("TEST");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals(unmodifiableRemovedEqMessage, e.getMessage());
+        }
+        try {
+            battery.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed equipment toRemove", e.getMessage());
+        }
         assertEquals(count - 1L, network.getBatteryCount());
         assertNull(network.getBattery(TO_REMOVE));
     }
@@ -171,11 +256,11 @@ public abstract class AbstractBatteryTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(11.0, battery.getP0(), 0.0);
-        assertEquals(12.0, battery.getQ0(), 0.0);
+        assertEquals(11.0, battery.getTargetP(), 0.0);
+        assertEquals(12.0, battery.getTargetQ(), 0.0);
         // change values in s4
-        battery.setP0(11.1);
-        battery.setQ0(12.2);
+        battery.setTargetP(11.1);
+        battery.setTargetQ(12.2);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -183,30 +268,30 @@ public abstract class AbstractBatteryTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(11.1, battery.getP0(), 0.0);
-        assertEquals(12.2, battery.getQ0(), 0.0);
+        assertEquals(11.1, battery.getTargetP(), 0.0);
+        assertEquals(12.2, battery.getTargetQ(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(11.0, battery.getP0(), 0.0);
-        assertEquals(12.0, battery.getQ0(), 0.0);
+        assertEquals(11.0, battery.getTargetP(), 0.0);
+        assertEquals(12.0, battery.getTargetQ(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         try {
-            battery.getP0();
+            battery.getTargetP();
             fail();
         } catch (Exception ignored) {
             // ignore
         }
     }
 
-    private void createBattery(String id, double p0, double q0, double minP, double maxP) {
+    private void createBattery(String id, double targetP, double targetQ, double minP, double maxP) {
         voltageLevel.newBattery()
                 .setId(id)
-                .setP0(p0)
-                .setQ0(q0)
+                .setTargetP(targetP)
+                .setTargetQ(targetQ)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setBus("NBAT")

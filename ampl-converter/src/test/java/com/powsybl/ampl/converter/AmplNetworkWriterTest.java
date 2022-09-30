@@ -12,14 +12,7 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
-import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.network.test.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,6 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -43,6 +38,8 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     public void test() {
         AmplExporter exporter = new AmplExporter();
         Assert.assertEquals("AMPL", exporter.getFormat());
+        Assert.assertEquals("IIDM to AMPL converter", exporter.getComment());
+        Assert.assertEquals(5, exporter.getParameters().size());
     }
 
     @Test

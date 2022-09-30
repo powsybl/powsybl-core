@@ -20,11 +20,11 @@ rule('rule2') {
 }
 
 action('action1') {
-    tasks {
+    modifications {
     }
 }
 
 action('action2') {
-    tasks {
+    modifications {
     }
 }

@@ -6,13 +6,13 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
-import com.powsybl.contingency.tasks.StaticVarCompensatorTripping;
+import com.powsybl.iidm.modification.tripping.StaticVarCompensatorTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class StaticVarCompensatorContingency extends AbstractInjectionContingency {
+public class StaticVarCompensatorContingency extends AbstractContingency {
 
     public StaticVarCompensatorContingency(String id) {
         super(id);
@@ -24,7 +24,7 @@ public class StaticVarCompensatorContingency extends AbstractInjectionContingenc
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public Tripping toModification() {
         return new StaticVarCompensatorTripping(id);
     }
 

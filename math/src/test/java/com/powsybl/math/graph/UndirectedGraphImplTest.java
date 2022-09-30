@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -48,6 +49,8 @@ public class UndirectedGraphImplTest {
 
     }
 
+    private static final int VERTEX_LIMIT = 100;
+
     private UndirectedGraph<Vertex, Object> graph;
 
     public UndirectedGraphImplTest() {
@@ -55,7 +58,7 @@ public class UndirectedGraphImplTest {
 
     @Before
     public void setUp() {
-        graph = new UndirectedGraphImpl<>();
+        graph = new UndirectedGraphImpl<>(VERTEX_LIMIT);
     }
 
     @After
@@ -67,12 +70,39 @@ public class UndirectedGraphImplTest {
     public void testConstructor() {
         assertEquals(0, graph.getVertexCount());
         assertEquals(0, graph.getEdgeCount());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new UndirectedGraphImpl<>(0));
+        assertEquals("Vertex limit should be positive", e.getMessage());
     }
 
     @Test
     public void testAddVertex() {
         graph.addVertex();
         assertEquals(1, graph.getVertexCount());
+    }
+
+    @Test
+    public void testAddVertexIfNotPresent() {
+        graph.addVertexIfNotPresent(0);
+        assertEquals(1, graph.getVertexCount());
+        graph.addVertexIfNotPresent(0);
+        assertEquals(1, graph.getVertexCount());
+
+        graph.addVertexIfNotPresent(VERTEX_LIMIT - 1);
+        assertEquals(2, graph.getVertexCount());
+        graph.addVertexIfNotPresent(VERTEX_LIMIT - 1);
+        assertEquals(2, graph.getVertexCount());
+    }
+
+    @Test
+    public void testAddVertexIfNotPresentNegative() {
+        exception.expect(PowsyblException.class);
+        graph.addVertexIfNotPresent(-1);
+    }
+
+    @Test
+    public void testAddVertexIfNotPresentLimit() {
+        exception.expect(PowsyblException.class);
+        graph.addVertexIfNotPresent(VERTEX_LIMIT);
     }
 
     @Test
@@ -107,6 +137,17 @@ public class UndirectedGraphImplTest {
         graph.removeVertex(2);
         exception.expect(PowsyblException.class);
         graph.removeVertex(0);
+    }
+
+    @Test
+    public void testRemoveVertexAndAdd() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.removeVertex(0);
+        graph.addVertex();
+        assertEquals(2, graph.getVertexCount());
+        assertEquals(2, graph.getVertices().length);
+        graph.setVertexObject(0, new Vertex("test"));
     }
 
     @Test
@@ -193,11 +234,33 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
+    public void testGetEdgesFromVertex() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null);
+        graph.addEdge(1, 2, null);
+        assertEquals(Arrays.asList(0, 1), graph.getEdgesConnectedToVertex(1));
+        assertEquals(Collections.singletonList(0), graph.getEdgesConnectedToVertex(0));
+    }
+
+    @Test
     public void testGetEdgeObject() {
         graph.addVertex();
         graph.addVertex();
         int e = graph.addEdge(0, 1, "Arrow");
         assertEquals("Arrow", graph.getEdgeObject(e));
+    }
+
+    @Test
+    public void testGetEdgeObjectFromVertex() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, "Arrow01");
+        graph.addEdge(1, 2, "Arrow12");
+        assertEquals(Collections.singletonList("Arrow01"), graph.getEdgeObjectsConnectedToVertex(0));
+        assertEquals(Arrays.asList("Arrow01", "Arrow12"), graph.getEdgeObjectsConnectedToVertex(1));
     }
 
     @Test
@@ -330,31 +393,32 @@ public class UndirectedGraphImplTest {
 
     @Test
     public void testAddListener() {
-        UndirectedGraphListener listener1 = Mockito.mock(UndirectedGraphListener.class);
-        UndirectedGraphListener listener2 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener1 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener2 = Mockito.mock(UndirectedGraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
-        Mockito.verify(listener1, Mockito.never()).graphChanged();
-        Mockito.verify(listener2, Mockito.never()).graphChanged();
+        Mockito.verify(listener1, Mockito.never()).vertexAdded(Mockito.anyInt());
+        Mockito.verify(listener2, Mockito.never()).vertexAdded(Mockito.anyInt());
         graph.addVertex();
-        Mockito.verify(listener1, Mockito.atLeastOnce()).graphChanged();
-        Mockito.verify(listener2, Mockito.atLeastOnce()).graphChanged();
+        Mockito.verify(listener1, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
+        Mockito.verify(listener2, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
     }
 
     @Test
     public void testRemoveListener() {
-        UndirectedGraphListener listener1 = Mockito.mock(UndirectedGraphListener.class);
-        UndirectedGraphListener listener2 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener1 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener2 = Mockito.mock(UndirectedGraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
         graph.removeListener(listener1);
         graph.addVertex();
-        Mockito.verify(listener1, Mockito.never()).graphChanged();
-        Mockito.verify(listener2, Mockito.atLeastOnce()).graphChanged();
+        Mockito.verify(listener1, Mockito.never()).vertexAdded(Mockito.anyInt());
+        Mockito.verify(listener2, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
     }
 
 
     /**
+     * <pre>
      *           0
      *           |
      *         ---------
@@ -368,7 +432,7 @@ public class UndirectedGraphImplTest {
      *           -------
      *              |
      *              5
-     *
+     * </pre>
      *  edges:
      *  0 <-> 1 : 0
      *  0 <-> 2 : 1
@@ -403,15 +467,33 @@ public class UndirectedGraphImplTest {
         Traverser traverser = Mockito.mock(Traverser.class);
         // Stops  on 1, 2 and 3
         Mockito.when(traverser.traverse(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(TraverseResult.CONTINUE);
-        Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE);
-        Mockito.when(traverser.traverse(4, 4, 2)).thenReturn(TraverseResult.TERMINATE);
-        Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE);
+        Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE_PATH);
+        Mockito.when(traverser.traverse(4, 4, 2)).thenReturn(TraverseResult.TERMINATE_PATH);
+        Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE_PATH);
         boolean[] encountered = new boolean[graph.getVertexCount()];
         Arrays.fill(encountered, false);
         graph.traverse(5, traverser, encountered);
-        // Only vertex 4 and 5 encontered
+        // Only vertex 4 and 5 encountered
         assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
-        graph.traverse(4, traverser);
+
+        Arrays.fill(encountered, false);
+        Traverser traverser2 = (v1, e, v2) -> {
+            encountered[v1] = true;
+            return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
+        };
+
+        graph.traverse(4, traverser2);
+        // Only vertex 4 and 5 encountered
+        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
+
+        Arrays.fill(encountered, false);
+        Traverser traverser3 = (v1, e, v2) -> {
+            return v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
+        };
+
+        graph.traverse(5, traverser3, encountered);
+        // Only vertices on first path encountering 0 are encountered
+        assertArrayEquals(new boolean[] {false, true, false, false, true, true}, encountered);
     }
 
     @Test
@@ -447,5 +529,79 @@ public class UndirectedGraphImplTest {
         assertFalse(graph.vertexExists(0));
         graph.addVertex();
         assertTrue(graph.vertexExists(0));
+    }
+
+    @Test
+    public void removeIsolatedVertices() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(1, 2, null);
+        graph.setVertexObject(0, new Vertex(""));
+
+        assertEquals(3, graph.getVertexCount());
+        // Vertex 0 is isolated but has an associated object: it must not be removed.
+        graph.removeIsolatedVertices(false);
+        assertEquals(3, graph.getVertexCount());
+        graph.setVertexObject(0, null);
+        // Now vertex 0 must be removed.
+        graph.removeIsolatedVertices(false);
+        assertEquals(2, graph.getVertexCount());
+    }
+
+    /**
+     * <pre>
+     *    0   1
+     *    |   |
+     *      2
+     *      |
+     *      3 </pre>
+     */
+    @Test
+    public void removeIsolatedVerticesAndDanglingEdges() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 2, null);
+        graph.addEdge(1, 2, null);
+        graph.addEdge(2, 3, null);
+        graph.setVertexObject(0, new Vertex("V1"));
+        graph.setVertexObject(3, new Vertex("V2"));
+        assertEquals(4, graph.getVertexCount());
+        assertEquals(3, graph.getEdgeCount());
+        graph.removeIsolatedVertices(true);
+        assertEquals(3, graph.getVertexCount());
+        assertArrayEquals(new int[] {0, 2, 3}, graph.getVertices()); // 1 has been removed
+        assertEquals(2, graph.getEdgeCount());
+        assertArrayEquals(new int[] {0, 2}, graph.getEdges()); // 1-2 has been removed
+
+        graph.addVertexIfNotPresent(1); // restore vertex 1
+        graph.addEdge(1, 2, null); // and corresponding edge
+        graph.setVertexObject(0, null); // 0 is now a dangling vertex
+        graph.removeIsolatedVertices(true);
+        assertEquals(1, graph.getVertexCount());
+        assertArrayEquals(new int[] {3}, graph.getVertices()); // 0, 1 and 2 have been removed
+        assertEquals(0, graph.getEdgeCount());
+    }
+
+    /**
+     * <pre>
+     *    0 -- 1 -- 2</pre>
+     */
+    @Test
+    public void removeIsolatedVerticesAndTwoDanglingEdges() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null);
+        graph.addEdge(1, 2, null);
+        graph.setVertexObject(0, new Vertex("V1"));
+        assertEquals(3, graph.getVertexCount());
+        assertEquals(2, graph.getEdgeCount());
+        graph.removeIsolatedVertices(true);
+        assertEquals(1, graph.getVertexCount());
+        assertArrayEquals(new int[] {0}, graph.getVertices()); // 1 and 2 have been removed, 0 is kept (has an associated object)
+        assertEquals(0, graph.getEdgeCount()); // 0-1 and 1-2 have both been removed
     }
 }

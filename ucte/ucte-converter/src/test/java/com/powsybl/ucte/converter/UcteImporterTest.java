@@ -30,14 +30,14 @@ public class UcteImporterTest {
         // Import network that could fail because of id conflicts due to trim mechanism
         ReadOnlyDataSource dataSource = new ResourceDataSource("importIssue", new ResourceSet("/", "importIssue.uct"));
 
-        new UcteImporter().importData(dataSource, null);
+        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
     @Test
     public void countryAssociationIssueTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("countryIssue", new ResourceSet("/", "countryIssue.uct"));
 
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(Country.ES, network.getSubstation("EHORTA").getCountry().orElse(null));
         assertEquals(1, network.getSubstation("EHORTA").getVoltageLevelStream().count());
@@ -50,7 +50,7 @@ public class UcteImporterTest {
     public void germanTsosImport() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("germanTsos", new ResourceSet("/", "germanTsos.uct"));
 
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         //Check D4 is correctly parsed
         EntsoeArea ext = network.getSubstation("D4NEUR").getExtension(EntsoeArea.class);
@@ -75,7 +75,7 @@ public class UcteImporterTest {
     public void elementNameTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         // Test Element name Line
         assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperty("elementName"));
         // Test Dangling Line element name
@@ -113,7 +113,7 @@ public class UcteImporterTest {
     public void xnodeMergingIssueTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("mergedXnodeIssue", new ResourceSet("/", "mergedXnodeIssue.uct"));
 
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(2, network.getVoltageLevelCount());
         assertEquals(1, network.getDanglingLineCount());
@@ -122,15 +122,15 @@ public class UcteImporterTest {
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
         MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
         assertNotNull(mergedXnode);
-        assertNotNull(l.getCurrentLimits1());
-        assertNotNull(l.getCurrentLimits2());
+        assertTrue(l.getCurrentLimits1().isPresent());
+        assertTrue(l.getCurrentLimits2().isPresent());
     }
 
     @Test
     public void lineAndTransformerSameId() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("sameId", new ResourceSet("/", "sameId.uct"));
 
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(0, network.getLineCount());
         assertEquals(1, network.getTwoWindingsTransformerCount());
@@ -140,14 +140,14 @@ public class UcteImporterTest {
     @Test
     public void testCouplerToXnodeImport() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("couplerToXnodeExample", new ResourceSet("/", "couplerToXnodeExample.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(1, network.getBusBreakerView().getBusStream().count());
     }
 
     @Test
     public void testEmptyLastCharacterOfLineImport() {
         ResourceDataSource dataSource = new ResourceDataSource("lastCharacterIssue", new ResourceSet("/", "lastCharacterIssue.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(2, network.getBusBreakerView().getBusStream().count());
     }
 
@@ -161,15 +161,15 @@ public class UcteImporterTest {
         exceptionRule.expect(IllegalArgumentException.class);
         exceptionRule.expectMessage("with two different nominal voltages");
 
-        new UcteImporter().importData(dataSource, null);
+        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
     @Test
     public void testVoltageRegulatingXnode() {
         ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         DanglingLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
-        assertEquals(true, dl.getGeneration().isVoltageRegulationOn());
+        assertTrue(dl.getGeneration().isVoltageRegulationOn());
         assertEquals(409.08, dl.getGeneration().getTargetV(), 0.01);
         assertEquals(1.0, dl.getGeneration().getTargetP(), 0.01);
         assertEquals(2.0, dl.getGeneration().getMaxP(), 0.01);
@@ -181,7 +181,7 @@ public class UcteImporterTest {
     @Test
     public void testXnodeTransformer() {
         ResourceDataSource dataSource = new ResourceDataSource("xNodeTransformer", new ResourceSet("/", "xNodeTransformer.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(2, network.getBusBreakerView().getBusStream().count());
     }
 
@@ -200,13 +200,13 @@ public class UcteImporterTest {
     @Test
     public void testInvalidRegulation() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidRegulationNetwork", new ResourceSet("/", "invalidRegulationNetwork.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
     @Test
     public void testInvalidVoltageReference() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidVoltageReference", new ResourceSet("/", "invalidVoltageReference.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
     @Test
@@ -244,6 +244,23 @@ public class UcteImporterTest {
     public void importOfNetworkWithXnodesConnectedToMoreThanTwoClosedLineMustFail() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeThreeClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
         assertThrows(UcteException.class, () -> new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null));
+    }
+
+    @Test
+    public void checkPhaseShifterRegulationMode() {
+        ResourceDataSource dataSource = new ResourceDataSource("phaseShifterActivePowerOn", new ResourceSet("/", "phaseShifterActivePowerOn.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertSame(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, network.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1").getPhaseTapChanger().getRegulationMode());
+        assertSame(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getRegulationMode());
+        assertEquals(0.0, network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getTargetDeadband(), 10E-3);
+        assertEquals(network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getTerminal1(), network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getRegulationTerminal());
+    }
+
+    @Test
+    public void ignoreCoupler() {
+        ResourceDataSource dataSource = new ResourceDataSource("ignoreCoupler", new ResourceSet("/", "ignoreCoupler.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertNull(network.getSwitch("BBBBBB11 BBBBBB11 1"));
     }
 }
 

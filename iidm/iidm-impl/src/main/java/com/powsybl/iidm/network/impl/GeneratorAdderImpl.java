@@ -118,18 +118,23 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     @Override
     public GeneratorImpl add() {
+        NetworkImpl network = getNetwork();
+        if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
+            voltageRegulatorOn = false;
+        }
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkEnergySource(this, energySource);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, network.getMinValidationLevel()));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
-                = new GeneratorImpl(getNetwork().getRef(),
+                = new GeneratorImpl(network.getRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
                                     voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
@@ -137,8 +142,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                                     ratedS);
         generator.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(generator);
-        getNetwork().getListeners().notifyCreation(generator);
+        network.getIndex().checkAndAdd(generator);
+        network.getListeners().notifyCreation(generator);
         return generator;
     }
 

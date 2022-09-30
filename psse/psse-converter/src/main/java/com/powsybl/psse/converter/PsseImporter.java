@@ -7,34 +7,36 @@
 package com.powsybl.psse.converter;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
-import com.powsybl.psse.model.*;
+import com.powsybl.psse.converter.extensions.PsseConversionContextExtensionAdder;
+import com.powsybl.psse.converter.extensions.PsseModelExtensionAdder;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.*;
 import com.powsybl.psse.model.pf.io.PowerFlowDataFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
@@ -143,6 +145,11 @@ public class PsseImporter implements Importer {
             Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
             // TODO store the PsseContext with the Network to be able to export back using its information
             convert(pssePowerFlowModel, network, parameters, version);
+
+            // Add the model and context as extensions
+            network.newExtension(PsseModelExtensionAdder.class).withModel(pssePowerFlowModel).add();
+            network.newExtension(PsseConversionContextExtensionAdder.class).withContext(context).add();
+
             return network;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -153,19 +160,18 @@ public class PsseImporter implements Importer {
         // set date and time
         // TODO
 
-        // build container to fit IIDM requirements
-        // build container to fit IIDM requirements
-        ContainersMapping containersMapping = defineContainersMappging(psseModel);
-
-        boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
+        boolean ignoreBaseVoltage = Parameter.readBoolean(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                 ParameterDefaultValueConfig.INSTANCE);
         PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
 
         // The map gives access to PsseBus object with the int bus Number
-        Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
+        Map<Integer, PsseBus> busNumToPsseBus = psseModel.getBuses().stream().collect(Collectors.toMap(PsseBus::getI, Function.identity()));
+
+        // build container to fit IIDM requirements
+        ContainersMapping containersMapping = defineContainersMapping(psseModel, busNumToPsseBus, perUnitContext);
 
         // create buses
-        createBuses(psseModel, containersMapping, perUnitContext, network, busNumToPsseBus);
+        createBuses(psseModel, containersMapping, perUnitContext, network);
 
         // Create loads
         for (PsseLoad psseLoad : psseModel.getLoads()) {
@@ -215,37 +221,78 @@ public class PsseImporter implements Importer {
         return network;
     }
 
-    private ContainersMapping defineContainersMappging(PssePowerFlowModel psseModel) {
-        List<Object> branches = ImmutableList.builder()
-            .addAll(psseModel.getNonTransformerBranches())
-            .addAll(psseModel.getTransformers())
-            .build();
+    private ContainersMapping defineContainersMapping(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext) {
+        List<Edge> edges = new ArrayList<>();
+        // only zeroImpedance Lines are necessary and they are not allowed, so nothing to do
 
-        ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getI();
-        ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getJ();
-        ToIntFunction<Object> branchToNum3 = branch -> branch instanceof PsseNonTransformerBranch ? 0 : ((PsseTransformer) branch).getK();
-        ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getR12();
-        ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getX12();
-        Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
+        psseModel.getTransformers().forEach(t -> {
+            if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
+                edges.add(new Edge(t.getI(), t.getJ(), true, false));
+            } else { // threeWindingsTransformers with zero impedance are not allowed
+                edges.add(new Edge(t.getI(), t.getJ(), true, false));
+                edges.add(new Edge(t.getI(), t.getK(), true, false));
+            }
+        });
 
-        return ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
-            branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,
-            busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
+        return ContainersMapping.create(psseModel.getBuses(), edges,
+            PsseBus::getI,
+            Edge::getBus1,
+            Edge::getBus2,
+            Edge::isZeroImpedance,
+            Edge::isTransformer,
+            busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
+            busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty busNums")),
+            substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty substationNums")));
+    }
+
+    private double getNominalVFromBusNumber(Map<Integer, PsseBus> busNumToPsseBus, int busNumber, PerUnitContext perUnitContext) {
+        if (!busNumToPsseBus.containsKey(busNumber)) { // never should happen
+            throw new PsseException("busId without PsseBus" + busNumber);
+        }
+        return VoltageLevelConverter.getNominalV(busNumToPsseBus.get(busNumber), perUnitContext.isIgnoreBaseVoltage());
     }
 
     private static void createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,
-        PerUnitContext perUnitContext, Network network, Map<Integer, PsseBus> busNumToPsseBus) {
+        PerUnitContext perUnitContext, Network network) {
         for (PsseBus psseBus : psseModel.getBuses()) {
 
             Substation substation = new SubstationConverter(psseBus, containersMapping, network).create();
             VoltageLevel voltageLevel = new VoltageLevelConverter(psseBus, containersMapping, perUnitContext, network).create(substation);
             new BusConverter(psseBus, containersMapping, network).create(voltageLevel);
-
-            busNumToPsseBus.put(psseBus.getI(), psseBus);
         }
     }
 
-    public static class PerUnitContext {
+    private static final class Edge {
+        private final int bus1;
+        private final int bus2;
+        private final boolean transformer;
+        private final boolean zeroImpedance;
+
+        private Edge(int bus1, int bus2, boolean transformer, boolean zeroImpedance) {
+            this.bus1 = bus1;
+            this.bus2 = bus2;
+            this.transformer = transformer;
+            this.zeroImpedance = zeroImpedance;
+        }
+
+        private int getBus1() {
+            return bus1;
+        }
+
+        private int getBus2() {
+            return bus2;
+        }
+
+        private boolean isTransformer() {
+            return transformer;
+        }
+
+        private boolean isZeroImpedance() {
+            return zeroImpedance;
+        }
+    }
+
+    static class PerUnitContext {
         private final double sb;
         private final boolean ignoreBaseVoltage;
 
@@ -254,11 +301,11 @@ public class PsseImporter implements Importer {
             this.ignoreBaseVoltage = ignoreBaseVoltage;
         }
 
-        public double getSb() {
+        double getSb() {
             return sb;
         }
 
-        public boolean isIgnoreBaseVoltage() {
+        boolean isIgnoreBaseVoltage() {
             return ignoreBaseVoltage;
         }
     }

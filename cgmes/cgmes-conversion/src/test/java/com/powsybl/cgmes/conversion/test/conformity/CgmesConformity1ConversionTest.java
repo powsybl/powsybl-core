@@ -10,14 +10,18 @@ package com.powsybl.cgmes.conversion.test.conformity;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1NetworkCatalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -66,10 +70,10 @@ public class CgmesConformity1ConversionTest {
         t.testConversion(null, CgmesConformity1Catalog.microGridBaseCaseBE());
 
         Map<String, TxData> expected = new HashMap<>();
-        expected.put("_84ed55f4-61f5-4d9d-8755-bba7b877a246", new TxData(3, 0, 0, 1, 0));
-        expected.put("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", new TxData(2, 0, 1, 0, 0));
-        expected.put("_b94318f6-6d24-4f56-96b9-df2531ad6543", new TxData(2, 1, 0, 0, 0));
-        expected.put("_e482b89a-fa84-4ea9-8e70-a83d44790957", new TxData(2, 0, 0, 1, 0));
+        expected.put("84ed55f4-61f5-4d9d-8755-bba7b877a246", new TxData(3, 0, 0, 1, 0));
+        expected.put("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", new TxData(2, 0, 1, 0, 0));
+        expected.put("b94318f6-6d24-4f56-96b9-df2531ad6543", new TxData(2, 1, 0, 0, 0));
+        expected.put("e482b89a-fa84-4ea9-8e70-a83d44790957", new TxData(2, 0, 0, 1, 0));
         actual.keySet().forEach(tx -> assertEquals(expected.get(tx), actual.get(tx)));
     }
 
@@ -77,10 +81,12 @@ public class CgmesConformity1ConversionTest {
     public void microGridBaseCaseBERoundtripBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
         ConversionTester t = new ConversionTester(
-            importParams,
+            importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig());
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -90,9 +96,11 @@ public class CgmesConformity1ConversionTest {
     public void microGridBaseCaseBERoundtrip() throws IOException {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
         // are recalculated and we need to increase the tolerance
-        ConversionTester t = new ConversionTester(
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        ConversionTester t = new ConversionTester(new Properties(), exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }
@@ -101,12 +109,14 @@ public class CgmesConformity1ConversionTest {
     public void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
         // are recalculated and we need to increase the tolerance
-        Properties properties = new Properties();
-        properties.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
         ConversionTester t = new ConversionTester(
-            properties,
+            importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5));
+            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }
@@ -121,7 +131,7 @@ public class CgmesConformity1ConversionTest {
         // the interpretation of the location of tap changer
         // relative to the transmission impedance is correct
         Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_STATE_VALUES, "SV");
+        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         ConversionTester t = new ConversionTester(
             params,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -162,7 +172,7 @@ public class CgmesConformity1ConversionTest {
         // But the SSH data says the synchronous machine has control disabled
         // So the generator is not participating in the voltage regulation
         // Voltage regulating must be off
-        assertFalse(tester.lastConvertedNetwork().getGenerator("_2970a2b7-b840-4e9c-b405-0cb854cd2318").isVoltageRegulatorOn());
+        assertFalse(tester.lastConvertedNetwork().getGenerator("2970a2b7-b840-4e9c-b405-0cb854cd2318").isVoltageRegulatorOn());
     }
 
     @Test
@@ -171,7 +181,7 @@ public class CgmesConformity1ConversionTest {
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances from SV values
         Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_USED_FOR_INITIAL_STATE_VALUES, "SV");
+        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
         ConversionTester t = new ConversionTester(
             params,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -215,10 +225,10 @@ public class CgmesConformity1ConversionTest {
             new ComparisonConfig());
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.miniNodeBreaker());
-        Substation substation = t.lastConvertedNetwork().getSubstation("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_S");
+        Substation substation = t.lastConvertedNetwork().getSubstation("183d126d-2522-4ff2-a8cd-c5016cf09c1b_S");
         assertNotNull(substation);
         assertEquals("boundary", substation.getOptionalName().orElse(null));
-        VoltageLevel voltageLevel = t.lastConvertedNetwork().getVoltageLevel("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_VL");
+        VoltageLevel voltageLevel = t.lastConvertedNetwork().getVoltageLevel("183d126d-2522-4ff2-a8cd-c5016cf09c1b_VL");
         assertNotNull(voltageLevel);
         assertEquals("boundary", voltageLevel.getOptionalName().orElse(null));
     }
@@ -236,7 +246,7 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), NetworkFactory.findDefault(), null));
 
     }
 
@@ -246,7 +256,7 @@ public class CgmesConformity1ConversionTest {
     // LoadFlow)
     // must produce identical identifiers for calculated buses
     public void smallNodeBreakerStableBusNaming() {
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), NetworkFactory.findDefault(), null);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()
@@ -266,17 +276,17 @@ public class CgmesConformity1ConversionTest {
 
     @Test
     public void miniNodeBreakerOnlyEQ() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreakerOnlyEQ().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreakerOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
     public void smallNodeBreakerOnlyEQ() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     @Test
     public void smallNodeBreakerHvdcOnlyEQ() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
     }
 
     private static class TxData {

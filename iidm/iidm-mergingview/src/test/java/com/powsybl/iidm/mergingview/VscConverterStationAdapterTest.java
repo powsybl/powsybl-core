@@ -39,7 +39,7 @@ public class VscConverterStationAdapterTest {
         cs1.setLossFactor(0.022f);
         assertEquals(0.022f, cs1.getLossFactor(), 0.0f);
         assertNotNull(cs1.getTerminal());
-        assertEquals(ConnectableType.HVDC_CONVERTER_STATION, cs1.getType());
+        assertEquals(IdentifiableType.HVDC_CONVERTER_STATION, cs1.getType());
         assertEquals(1, cs1.getTerminals().size());
 
         assertNotNull(cs1.getReactiveLimits());
@@ -88,5 +88,16 @@ public class VscConverterStationAdapterTest {
         assertEquals(405.0, converterStation.getVoltageSetpoint(), 0.0);
         assertTrue(converterStation.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(converterStation.getReactivePowerSetpoint()));
+    }
+
+    @Test
+    public void testRegulatingTerminal() {
+        final VscConverterStation cs1 = mergingView.getVscConverterStation("C1");
+        final VscConverterStation cs2 = mergingView.getVscConverterStation("C2");
+        assertEquals(cs1.getTerminal(), cs2.getRegulatingTerminal());
+        cs1.setRegulatingTerminal(cs2.getTerminal());
+        assertEquals(cs2.getTerminal(), cs1.getRegulatingTerminal());
+        cs2.setRegulatingTerminal(null);
+        assertEquals(cs2.getTerminal(), cs2.getRegulatingTerminal());
     }
 }

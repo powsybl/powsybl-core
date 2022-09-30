@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -32,12 +33,10 @@ class NodeEquipment {
 
     private final Map<String, List<EquipmentReference>> nodeEquipment;
 
-    NodeEquipment(CgmesModel cgmesModel, Adjacency adjacency) {
+    NodeEquipment(CgmesModel cgmesModel, AcDcConverterNodes acDcConverterNodes, Adjacency adjacency) {
         nodeEquipment = new HashMap<>();
 
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegment(cgmesModel, adjacency, dcls));
-
-        AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
 
         acDcConverterNodes.getConverterNodes().values()
             .forEach(value -> addEquipment(adjacency, value.id, value.acNode,
@@ -151,9 +150,9 @@ class NodeEquipment {
         if (listEquipment == null) {
             return false;
         }
-        return listEquipment.stream()
-            .filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER)
-            .count() >= 2;
+        // Only one equipment with same Id
+        return listEquipment.stream().filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER).map(eq -> eq.equipmentId)
+            .collect(Collectors.toSet()).size() >= 2;
     }
 
     boolean containsAcDcConverter(String node, String acDcConverter) {
@@ -165,6 +164,24 @@ class NodeEquipment {
             .anyMatch(eq -> eq.equipmentId.equals(acDcConverter) && eq.type == EquipmentType.AC_DC_CONVERTER);
     }
 
+    int acDcConvertersConnectedTo(String node) {
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
+        if (listEquipment == null) {
+            return 0;
+        }
+        return listEquipment.stream().filter(eq -> eq.type == EquipmentType.AC_DC_CONVERTER).map(eq -> eq.equipmentId)
+        .collect(Collectors.toSet()).size();
+    }
+
+    boolean existDcLineSegmentBetweenBothNodes(String node1, String node2) {
+        List<EquipmentReference> listEquipment1 = nodeEquipment.get(node1);
+        List<EquipmentReference> listEquipment2 = nodeEquipment.get(node2);
+        if (listEquipment1 == null || listEquipment2 == null) {
+            return false;
+        }
+        return listEquipment1.stream().anyMatch(eq -> eq.type == EquipmentType.DC_LINE_SEGMENT && listEquipment2.contains(eq));
+    }
+
     boolean connectedEquipment(String equipment1, String equipment2, List<String> nodes) {
         return nodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
     }
@@ -174,9 +191,10 @@ class NodeEquipment {
         if (listEquipment == null) {
             return false;
         }
+        // Only one equipment with same Id
         return listEquipment.stream()
             .filter(eq -> eq.equipmentId.equals(equipment1) || eq.equipmentId.equals(equipment2))
-            .count() == 2;
+            .collect(Collectors.toSet()).size() == 2;
     }
 
     Map<String, List<EquipmentReference>> getNodeEquipment() {

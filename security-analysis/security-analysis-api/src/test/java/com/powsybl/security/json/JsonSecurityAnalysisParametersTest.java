@@ -7,14 +7,17 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.SecurityAnalysisParameters;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import static org.junit.Assert.*;
 
@@ -26,14 +29,15 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
-        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParameters.json");
+        parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.2);
+        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.1.json");
     }
 
     @Test
     public void writeExtension() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonSecurityAnalysisParameters::write, AbstractConverterTest::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
+        writeTest(parameters, JsonSecurityAnalysisParameters::write, ComparisonUtils::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
     }
 
     @Test
@@ -54,9 +58,8 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
 
     @Test
     public void readError() {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unexpected");
-        JsonSecurityAnalysisParameters.read(getClass().getResourceAsStream("/SecurityAnalysisParametersInvalid.json"));
+        InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisParametersInvalid.json");
+        assertThrows("Unexpected field: unexpected", AssertionError.class, () -> JsonSecurityAnalysisParameters.read(inputStream));
     }
 
     @Test
@@ -75,16 +78,37 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
         assertNotEquals(oldExtension.getParameterString(), updatedExtension.getParameterString());
     }
 
-    static class DummyExtension extends AbstractExtension<SecurityAnalysisParameters> {
+    @Test
+    public void readJsonVersion10() {
+        SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.json"));
+        assertEquals(0.1, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), 0.0001);
+    }
+
+    @Test
+    public void readJsonVersion11() {
+        SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.1.json"));
+        assertEquals(0.2, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), 0.0001);
+    }
+
+    @Test
+    public void readJsonVersion10Invalid() {
+        InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisParametersV1Invalid.json");
+        assertThrows("SecurityAnalysisParameters. Tag: specificCompatibility is not valid for version 1.0. Version should be > 1.0",
+                PowsyblException.class, () -> JsonSecurityAnalysisParameters.read(inputStream));
+    }
+
+    public static class DummyExtension extends AbstractExtension<SecurityAnalysisParameters> {
         public double parameterDouble;
         public boolean parameterBoolean;
         public String parameterString;
 
-        DummyExtension() {
+        public DummyExtension() {
             super();
         }
 
-        DummyExtension(DummyExtension another) {
+        public DummyExtension(DummyExtension another) {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;
@@ -120,8 +144,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
         }
     }
 
-    @AutoService(JsonSecurityAnalysisParameters.ExtensionSerializer.class)
-    public static class DummySerializer implements JsonSecurityAnalysisParameters.ExtensionSerializer<DummyExtension> {
+    public static class DummySerializer implements ExtensionJsonSerializer<SecurityAnalysisParameters, DummyExtension> {
         private interface SerializationSpec {
 
             @JsonIgnore

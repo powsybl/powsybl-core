@@ -11,6 +11,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import com.powsybl.security.results.*;
+import com.powsybl.security.results.OperatorStrategyResult;
+import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
 
@@ -29,8 +31,9 @@ public class SecurityAnalysisResultBuilder {
     private final List<SecurityAnalysisInterceptor> interceptors;
 
     // Below are volatile objects used for building the actual complete result
-    private final PreContingencyResult preContingencyResult;
+    private PreContingencyResult preContingencyResult;
     private final List<PostContingencyResult> postContingencyResults = Collections.synchronizedList(new ArrayList<>());
+    private final List<OperatorStrategyResult> operatorStrategyResults = Collections.synchronizedList(new ArrayList<>());
 
     public SecurityAnalysisResultBuilder(LimitViolationFilter filter, SecurityAnalysisResultContext context,
                                          Collection<SecurityAnalysisInterceptor> interceptors) {
@@ -44,24 +47,8 @@ public class SecurityAnalysisResultBuilder {
         this(filter, context, Collections.emptyList());
     }
 
-    private void setPreContingencyResult(LimitViolationsResult preContingencyResult) {
-        this.preContingencyResult.setLimitViolationsResult(preContingencyResult);
-    }
-
     private void addPostContingencyResult(PostContingencyResult result) {
         postContingencyResults.add(Objects.requireNonNull(result));
-    }
-
-    private void addPreContingencyBranchResults(Map<String, BranchResult> preContingencyBranchResults) {
-        this.preContingencyResult.addPreContingencyBranchResults(Objects.requireNonNull(preContingencyBranchResults.values()));
-    }
-
-    private void addPreContingencyBusResults(Map<String, BusResults> preContingencyBusResults) {
-        this.preContingencyResult.addPreContingencyBusResults(Objects.requireNonNull(preContingencyBusResults.values()));
-    }
-
-    private void addPreContingencyThreeWindingsTransformerResults(Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this.preContingencyResult.addPreContingencyThreeWindingsTransformerResults(Objects.requireNonNull(threeWindingsTransformerResults.values()));
     }
 
     /**
@@ -105,6 +92,26 @@ public class SecurityAnalysisResultBuilder {
     }
 
     /**
+     * Initiates the creation of the result for one {@link OperatorStrategy}.
+     *
+     * @param strategy the operator strategy for which a result should be created
+     * @return a {@link OperatorStrategyResultBuilder} instance.
+     */
+    public OperatorStrategyResultBuilder operatorStrategy(OperatorStrategy strategy) {
+        return operatorStrategy(strategy, context);
+    }
+
+    /**
+     * Initiates the creation of the result for one {@link OperatorStrategy}.
+     *
+     * @param strategy the operator strategy for which a result should be created
+     * @return a {@link OperatorStrategyResultBuilder} instance.
+     */
+    public OperatorStrategyResultBuilder operatorStrategy(OperatorStrategy strategy, SecurityAnalysisResultContext strategyContext) {
+        return new OperatorStrategyResultBuilder(strategy, strategyContext);
+    }
+
+    /**
      * Finalizes the result.
      *
      * @return the N situation result builder
@@ -114,7 +121,7 @@ public class SecurityAnalysisResultBuilder {
             throw new IllegalStateException("Pre-contingency result is not yet defined, cannot build security analysis result.");
         }
 
-        SecurityAnalysisResult res = new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        SecurityAnalysisResult res = new SecurityAnalysisResult(preContingencyResult, postContingencyResults, operatorStrategyResults);
         res.setNetworkMetadata(new NetworkMetadata(context.getNetwork()));
         interceptors.forEach(i -> i.onSecurityAnalysisResult(res, context));
 
@@ -128,11 +135,11 @@ public class SecurityAnalysisResultBuilder {
 
         protected boolean computationOk;
 
-        protected final Map<String, BranchResult> branchResults = new HashMap<>();
+        protected final List<BranchResult> branchResults = new ArrayList<>();
 
-        protected final Map<String, BusResults> busResults = new HashMap<>();
+        protected final List<BusResult> busResults = new ArrayList<>();
 
-        protected final Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults = new HashMap<>();
+        protected final List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
 
         protected final List<LimitViolation> violations = new ArrayList<>();
 
@@ -187,17 +194,17 @@ public class SecurityAnalysisResultBuilder {
         }
 
         public B addBranchResult(BranchResult branchResult) {
-            this.branchResults.put(branchResult.getBranchId(), branchResult);
+            this.branchResults.add(branchResult);
             return (B) this;
         }
 
-        public B addBusResult(BusResults busResults) {
-            this.busResults.put(busResults.getBusId(), busResults);
+        public B addBusResult(BusResult busResult) {
+            this.busResults.add(busResult);
             return (B) this;
         }
 
         public B addThreeWindingsTransformerResult(ThreeWindingsTransformerResult threeWindingsTransformerResult) {
-            this.threeWindingsTransformerResults.put(threeWindingsTransformerResult.getThreeWindingsTransformerId(), threeWindingsTransformerResult);
+            this.threeWindingsTransformerResults.add(threeWindingsTransformerResult);
             return (B) this;
         }
 
@@ -221,10 +228,7 @@ public class SecurityAnalysisResultBuilder {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
             interceptors.forEach(i -> i.onPreContingencyResult(res, resultContext));
-            setPreContingencyResult(res);
-            addPreContingencyBranchResults(branchResults);
-            addPreContingencyBusResults(busResults);
-            addPreContingencyThreeWindingsTransformerResults(threeWindingsTransformerResults);
+            preContingencyResult = new PreContingencyResult(res, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
             return SecurityAnalysisResultBuilder.this;
         }
     }
@@ -253,15 +257,45 @@ public class SecurityAnalysisResultBuilder {
          */
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations, branchResults, busResults, threeWindingsTransformerResults);
+            PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations,
+                    branchResults, busResults, threeWindingsTransformerResults);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
 
             return SecurityAnalysisResultBuilder.this;
         }
+    }
 
-        public void addPostContingency(PostContingencyResult res) {
-            addPostContingencyResult(res);
+    public class OperatorStrategyResultBuilder extends AbstractLimitViolationsResultBuilder<OperatorStrategyResultBuilder> {
+
+        private final OperatorStrategy strategy;
+
+        OperatorStrategyResultBuilder(OperatorStrategy strategy, SecurityAnalysisResultContext resultContext) {
+            super(Objects.requireNonNull(resultContext));
+            this.strategy = Objects.requireNonNull(strategy);
+        }
+
+        @Override
+        public OperatorStrategyResultBuilder addViolation(LimitViolation violation, SecurityAnalysisResultContext limitViolationContext) {
+            Objects.requireNonNull(limitViolationContext);
+            violations.add(Objects.requireNonNull(violation));
+            //TODO: call to interceptors
+            return this;
+        }
+
+        /**
+         * Finalize the creation of the OperatorStrategyResult instance
+         *
+         * @return the parent {@link SecurityAnalysisResultBuilder} instance.
+         */
+        public SecurityAnalysisResultBuilder endOperatorStrategy() {
+            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
+            LimitViolationsResult limitViolationsResult = new LimitViolationsResult(computationOk, filteredViolations);
+            NetworkResult networkResult = new NetworkResult(branchResults, busResults, threeWindingsTransformerResults);
+            OperatorStrategyResult res = new OperatorStrategyResult(strategy, limitViolationsResult, networkResult);
+            //TODO: call to interceptors
+            operatorStrategyResults.add(res);
+            return SecurityAnalysisResultBuilder.this;
         }
     }
 }

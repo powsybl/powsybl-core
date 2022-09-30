@@ -7,8 +7,12 @@
 package com.powsybl.iidm.export;
 
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
-import java.util.Properties;
+import com.powsybl.commons.parameters.Parameter;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This is the base class for all IIDM exporters.
@@ -25,6 +29,40 @@ import java.util.Properties;
 public interface Exporter {
 
     /**
+     * Get all supported export formats.
+     */
+    static Collection<String> getFormats(ExportersLoader loader) {
+        Objects.requireNonNull(loader);
+        return loader.loadExporters().stream().map(Exporter::getFormat).collect(Collectors.toSet());
+    }
+
+    static Collection<String> getFormats() {
+        return getFormats(new ExportersServiceLoader());
+    }
+
+    /**
+     * Find an exporter.
+     *
+     * @param format the export format
+     * @return the exporter if one exists for the given format or
+     * <code>null</code> otherwise
+     */
+    static Exporter find(ExportersLoader loader, String format) {
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(loader);
+        for (Exporter e : loader.loadExporters()) {
+            if (format.equals(e.getFormat())) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    static Exporter find(String format) {
+        return find(new ExportersServiceLoader(), format);
+    }
+
+    /**
      * Get a unique identifier of the format.
      */
     String getFormat();
@@ -35,12 +73,34 @@ public interface Exporter {
     String getComment();
 
     /**
+     * Get a description of export parameters
+     * @return
+     */
+    default List<Parameter> getParameters() {
+        return Collections.emptyList();
+    }
+
+    /**
      * Export a model.
      *
      * @param network the model
      * @param parameters some properties to configure the export
      * @param dataSource data source
      */
-    void export(Network network, Properties parameters, DataSource dataSource);
+    default void export(Network network, Properties parameters, DataSource dataSource) {
+        export(network, parameters, dataSource, Reporter.NO_OP);
+    }
+
+    /**
+     * Export a model.
+     *
+     * @param network the model
+     * @param parameters some properties to configure the export
+     * @param dataSource data source
+     * @param reporter the reporter used for functional logs
+     */
+    default void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter) {
+        export(network, parameters, dataSource);
+    }
 
 }

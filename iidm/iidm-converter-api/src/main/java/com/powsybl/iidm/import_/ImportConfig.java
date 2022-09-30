@@ -6,13 +6,14 @@
  */
 package com.powsybl.iidm.import_;
 
-import com.powsybl.commons.config.ModuleConfig;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  *
@@ -22,6 +23,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportConfig {
+
+    public static final Supplier<ImportConfig> CACHE = Suppliers.memoize(ImportConfig::load);
 
     private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
 
@@ -33,13 +36,9 @@ public class ImportConfig {
 
     public static ImportConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        List<String> postProcessors;
-        if (platformConfig.moduleExists("import")) {
-            ModuleConfig config = platformConfig.getModuleConfig("import");
-            postProcessors = config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS);
-        } else {
-            postProcessors = DEFAULT_POST_PROCESSORS;
-        }
+        List<String> postProcessors = platformConfig.getOptionalModuleConfig("import")
+                .flatMap(config -> config.getOptionalStringListProperty("postProcessors"))
+                .orElse(DEFAULT_POST_PROCESSORS);
         return new ImportConfig(postProcessors);
     }
 

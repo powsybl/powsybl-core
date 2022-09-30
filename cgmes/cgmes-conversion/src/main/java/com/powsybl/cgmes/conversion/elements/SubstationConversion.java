@@ -8,9 +8,11 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.SubstationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -30,39 +32,42 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
 
     @Override
     public void convert() {
-        String subRegion = p.getId("SubRegion");
         String subRegionName = p.get("subRegionName");
         String regionName = p.get("regionName");
 
         Country country = CountryConversion.fromRegionName(regionName)
                 .orElseGet(() -> CountryConversion.fromSubregionName(subRegionName)
                         .orElse(null));
-        String geo = subRegion;
 
-        // TODO add naminStrategy (for regions and substations)
         // After applying naming strategy it is possible that two CGMES substations are mapped
         // to the same Network substation, so we should check if corresponding substation has
         // already been created
-        String geoTag = context.namingStrategy().getGeographicalTag(geo);
+        String geoTag = context.namingStrategy().getGeographicalTag(subRegionName);
 
         String iidmSubstationId = context.substationIdMapping().substationIidm(id);
         Substation substation = context.network().getSubstation(iidmSubstationId);
         assert substation == null;
-        Substation s = context.network().newSubstation()
+        SubstationAdder adder = context.network().newSubstation()
                 .setId(iidmSubstationId)
                 .setName(iidmName())
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                .setCountry(country)
-                .setGeographicalTags(geoTag)
-                .add();
-        addAliases(s);
+                .setCountry(country);
+        if (geoTag != null) {
+            adder.setGeographicalTags(geoTag);
+        }
+        Substation s = adder.add();
+        addAliasesAndProperties(s, p.getId("SubRegion"), p.getId("Region"), regionName);
     }
 
-    private void addAliases(Substation s) {
+    private void addAliasesAndProperties(Substation s, String subRegionId, String regionId, String regionName) {
         int index = 0;
         for (String mergedSub : context.substationIdMapping().mergedSubstations(s.getId())) {
             index++;
             s.addAlias(mergedSub, "MergedSubstation" + index, context.config().isEnsureIdAliasUnicity());
         }
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId", subRegionId);
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId", regionId);
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName", regionName);
+        context.namingStrategy().readIdMapping(s, "Substation");
     }
 }

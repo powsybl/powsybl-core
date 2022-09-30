@@ -8,6 +8,8 @@ package com.powsybl.iidm.network;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  *
@@ -39,6 +41,17 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     int getTapPosition();
 
     /**
+     * Get an optional containing the current tap position if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findTapPosition() {
+        return OptionalInt.of(getTapPosition());
+    }
+
+    /**
      * Set the current tap position.
      * <p>
      * It is expected to be contained between the lowest and the highest tap position.
@@ -49,6 +62,14 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * @param tapPosition the current tap position
      */
     C setTapPosition(int tapPosition);
+
+    /**
+     * Unset the current tap position: tap position is now undefined.
+     * Note: this can be done <b>only</b> in SCADA validation level.
+     */
+    default C unsetTapPosition() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
 
     /**
      * Get the number of steps.
@@ -70,6 +91,22 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * @see VariantManager
      */
     S getCurrentStep();
+
+    /**
+     * Get the position of the neutral step (rho = 1, alpha = 0) if it exists.
+     * Otherwise return an empty optional.
+     */
+    default OptionalInt getNeutralPosition() {
+        return OptionalInt.empty();
+    }
+
+    /**
+     * Get the neutral step (rho = 1, alpha = 0) if it exists.
+     * Otherwise return an empty optional.
+     */
+    default Optional<S> getNeutralStep() {
+        return Optional.empty();
+    }
 
     /**
      * Get the regulating status.

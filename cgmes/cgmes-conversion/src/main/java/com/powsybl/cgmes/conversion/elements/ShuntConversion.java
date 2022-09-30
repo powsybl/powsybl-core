@@ -31,13 +31,13 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
+        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
             case SSH:
                 return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
             case SV:
                 return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
             default:
-                throw new PowsyblException("Unexpected profile used for initial state values");
+                throw new PowsyblException("Unexpected profile used for initial values");
         }
     }
 
@@ -80,14 +80,9 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         ShuntCompensator shunt = adder.add();
         addAliasesAndProperties(shunt);
 
-        // At a shunt terminal, only Q can be set
-        PowerFlow f = powerFlow();
-        if (f.defined()) {
-            double q = f.q();
-            if (context.config().changeSignForShuntReactivePowerFlowInitialState()) {
-                q = -q;
-            }
-            f = new PowerFlow(Double.NaN, q);
+        PowerFlow f = powerFlowSV();
+        if (f.defined() && context.config().changeSignForShuntReactivePowerFlowInitialState()) {
+            f = new PowerFlow(-f.p(), -f.q());
         }
         context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);

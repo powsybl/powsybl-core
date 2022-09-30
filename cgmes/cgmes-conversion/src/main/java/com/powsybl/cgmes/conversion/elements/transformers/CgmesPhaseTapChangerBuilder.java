@@ -7,14 +7,14 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.Comparator;
-import java.util.function.Supplier;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Comparator;
+import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -24,12 +24,15 @@ import com.powsybl.triplestore.api.PropertyBags;
 public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder {
 
     private final String type;
+    private final String typeLowerCase;
     private final String tableId;
     private final double xtx;
 
     CgmesPhaseTapChangerBuilder(PropertyBag phaseTapChanger, double xtx, Context context) {
         super(phaseTapChanger, context);
-        this.type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
+        this.type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE);
+        // To optimise comparisons with valid types
+        this.typeLowerCase = this.type.toLowerCase();
         this.tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         this.xtx = xtx;
     }
@@ -41,7 +44,11 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
             context.invalid(CgmesNames.PHASE_TAP_CHANGER_TYPE, utype);
             return null;
         }
-        return super.build();
+
+        // We keep the original type of tap changer (linear, symmetrical, asymmetrical)
+        // The type stored here will eventually be used to determine the class in the SSH export
+        // If only SSH export is written, the type used should match the original one
+        return super.build().setType(toClassTypeFromClassOrKind(type));
     }
 
     private boolean validType() {
@@ -62,7 +69,16 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         if (isLinear()) {
             addStepsLinear();
         } else if (isTabular()) {
-            addStepsFromTable();
+            PropertyBags table = context.phaseTapChangerTable(tableId);
+            if (table == null) {
+                addStepsLinear();
+                return;
+            }
+            if (isTableValid(tableId, table)) {
+                addStepsFromTable(table);
+            } else {
+                addStepsLinear();
+            }
         } else if (isAsymmetrical()) {
             addStepsAsymmetrical();
         } else if (isSymmetrical()) {
@@ -74,8 +90,6 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private void addStepsLinear() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         double stepPhaseShiftIncrement = p.asDouble(CgmesNames.STEP_PHASE_SHIFT_INCREMENT);
         for (int step = lowStep; step <= highStep; step++) {
@@ -91,11 +105,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         stepXforLinearAndSymmetrical();
     }
 
-    private void addStepsFromTable() {
-        PropertyBags table = context.phaseTapChangerTable(tableId);
-        if (table == null) {
-            return;
-        }
+    private void addStepsFromTable(PropertyBags table) {
         Comparator<PropertyBag> byStep = Comparator
                 .comparingInt((PropertyBag p) -> p.asInt(CgmesNames.STEP));
         table.sort(byStep);
@@ -119,8 +129,6 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private void addStepsAsymmetrical() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         double stepVoltageIncrement = p.asDouble(CgmesNames.VOLTAGE_STEP_INCREMENT);
         double windingConnectionAngle = p.asDouble(CgmesNames.WINDING_CONNECTION_ANGLE);
@@ -166,8 +174,6 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private void addStepsSymmetrical() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         double stepVoltageIncrement = p.asDouble(CgmesNames.VOLTAGE_STEP_INCREMENT);
         double stepPhaseShiftIncrement = p.asDouble(CgmesNames.STEP_PHASE_SHIFT_INCREMENT);
@@ -215,18 +221,34 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private boolean isLinear() {
-        return type != null && type.endsWith(CgmesNames.LINEAR);
+        return typeLowerCase != null && typeLowerCase.endsWith(CgmesNames.LINEAR);
     }
 
     private boolean isTabular() {
-        return tableId != null && type != null && type.endsWith(CgmesNames.TABULAR);
+        return tableId != null && typeLowerCase != null && typeLowerCase.endsWith(CgmesNames.TABULAR);
     }
 
     private boolean isSymmetrical() {
-        return type != null && !type.endsWith(CgmesNames.ASYMMETRICAL) && type.endsWith(CgmesNames.SYMMETRICAL);
+        return typeLowerCase != null && !typeLowerCase.endsWith(CgmesNames.ASYMMETRICAL) && typeLowerCase.endsWith(CgmesNames.SYMMETRICAL);
     }
 
     private boolean isAsymmetrical() {
-        return type != null && type.endsWith(CgmesNames.ASYMMETRICAL);
+        return typeLowerCase != null && typeLowerCase.endsWith(CgmesNames.ASYMMETRICAL);
     }
+
+    private static String toClassTypeFromClassOrKind(String type) {
+        // If type is obtained from CIM14 kind PhaseTapChanger.phaseTapChangerType
+        // It has the pattern PhaseTapChangerKind.<type>
+        // where type can be symmetrical, asymmetrical
+        if (type.startsWith("PhaseTapChangerKind.")) {
+            int idot = type.indexOf('.');
+            String kind = type.substring(idot + 1);
+            String camelKind = kind.substring(0, 1).toUpperCase() + kind.substring(1);
+            return "PhaseTapChanger" + camelKind;
+        }
+        // Otherwise, type has been read from the class name,
+        // we do not have to transform it
+        return type;
+    }
+
 }

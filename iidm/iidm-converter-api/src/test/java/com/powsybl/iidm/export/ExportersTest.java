@@ -6,18 +6,24 @@
  */
 package com.powsybl.iidm.export;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.AbstractConvertersTest;
-
+import com.powsybl.iidm.tools.ExporterMockWithReporter;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.Collection;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -34,21 +40,21 @@ public class ExportersTest extends AbstractConvertersTest {
 
     @Test
     public void getFormats() {
-        Collection<String> formats = Exporters.getFormats(loader);
+        Collection<String> formats = Exporter.getFormats(loader);
         assertEquals(1, formats.size());
         assertTrue(formats.contains(TEST_FORMAT));
     }
 
     @Test
     public void getExporter() {
-        Exporter exporter = Exporters.getExporter(loader, TEST_FORMAT);
+        Exporter exporter = Exporter.find(loader, TEST_FORMAT);
         assertNotNull(exporter);
         assertSame(testExporter, exporter);
     }
 
     @Test
     public void getNullExporter() {
-        Exporter exporter = Exporters.getExporter(loader, UNSUPPORTED_FORMAT);
+        Exporter exporter = Exporter.find(loader, UNSUPPORTED_FORMAT);
         assertNull(exporter);
     }
 
@@ -97,9 +103,27 @@ public class ExportersTest extends AbstractConvertersTest {
     @Test
     public void export3() throws IOException {
         Path dir = Files.createTempDirectory("tmp-export");
-        Exporters.export(loader, TEST_FORMAT, null, null,  dir.toString(), "tmp");
+        Exporters.export(loader, TEST_FORMAT, null, null, dir.toString(), "tmp");
         try (InputStream is = Files.newInputStream(dir.resolve("tmp.tst"))) {
             assertEquals(Byte.BYTES, is.read());
         }
+    }
+
+    @Test
+    public void exportWithReporter() throws Exception {
+        Exporter testExporter = new ExporterMockWithReporter();
+        DataSource dataSource = Exporters.createDataSource(path);
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing exporter reporter");
+        testExporter.export(null, null, dataSource, reporter);
+        Optional<Report> report = reporter.getReports().stream().findFirst();
+        assertTrue(report.isPresent());
+
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+
+        InputStream refStream = getClass().getResourceAsStream("/exportReporterTest.txt");
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
     }
 }

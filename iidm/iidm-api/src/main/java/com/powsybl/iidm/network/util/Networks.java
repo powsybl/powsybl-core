@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 
 import javax.script.*;
@@ -19,7 +20,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -348,9 +351,7 @@ public final class Networks {
      * @return the list of nodes (N/B topology) for each bus of a Bus view
      */
     public static Map<String, Set<Integer>> getNodesByBus(VoltageLevel voltageLevel) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
+        checkNodeBreakerVoltageLevel(voltageLevel);
 
         Map<String, Set<Integer>> nodesByBus = new TreeMap<>();
         for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
@@ -376,31 +377,55 @@ public final class Networks {
         return nodesByBus;
     }
 
+    public static IntStream getNodes(String busId, VoltageLevel voltageLevel, Function<Terminal, Bus> getBusFromTerminal) {
+        checkNodeBreakerVoltageLevel(voltageLevel);
+        Set<Integer> nodes = new TreeSet<>();
+        for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
+            Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(i);
+            if (terminal != null) {
+                Bus bus = getBusFromTerminal.apply(terminal);
+                if (bus != null && bus.getId().equals(busId)) {
+                    nodes.add(i);
+                }
+            } else {
+                // If there is no terminal for the current node, we try to find one traversing the topology
+                Terminal equivalentTerminal = Networks.getEquivalentTerminal(voltageLevel, i);
+
+                if (equivalentTerminal != null) {
+                    Bus bus = getBusFromTerminal.apply(equivalentTerminal);
+                    if (bus != null && bus.getId().equals(busId)) {
+                        nodes.add(i);
+                    }
+                }
+            }
+        }
+        return nodes.stream().mapToInt(Integer::intValue);
+    }
+
     /**
      * Return a terminal for the specified node.
      * If a terminal is attached to the node, return this terminal. Otherwise, this method traverses the topology and return
-     * the closest and equivalent terminal.
+     * the first equivalent terminal found.
      *
      * @param voltageLevel The voltage level to traverse
      * @param node The starting node
      * @return A terminal for the specified node or null.
      */
     public static Terminal getEquivalentTerminal(VoltageLevel voltageLevel, int node) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
-        }
+        checkNodeBreakerVoltageLevel(voltageLevel);
 
         Terminal[] equivalentTerminal = new Terminal[1];
 
-        VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
+        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
             if (sw != null && sw.isOpen()) {
-                return false;
+                return TraverseResult.TERMINATE_PATH;
             }
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
             if (t != null) {
                 equivalentTerminal[0] = t;
+                return TraverseResult.TERMINATE_TRAVERSER;
             }
-            return t == null;
+            return TraverseResult.CONTINUE;
         };
 
         voltageLevel.getNodeBreakerView().traverse(node, traverser);
@@ -408,4 +433,9 @@ public final class Networks {
         return equivalentTerminal[0];
     }
 
+    private static void checkNodeBreakerVoltageLevel(VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
+        }
+    }
 }

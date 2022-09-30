@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import com.powsybl.iidm.network.IdentifiableType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,6 @@ import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -48,7 +48,7 @@ public class Context {
         // based on existing node-breaker info
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
-        namingStrategy = new NamingStrategy.Identity();
+        namingStrategy = config.getNamingStrategy();
         cgmesBoundary = new CgmesBoundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
@@ -99,7 +99,7 @@ public class Context {
     }
 
     private boolean setPQAllowed(Terminal t) {
-        return t.getConnectable().getType() != ConnectableType.BUSBAR_SECTION;
+        return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
     }
 
     public NodeMapping nodeMapping() {

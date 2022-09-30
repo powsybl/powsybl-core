@@ -9,7 +9,7 @@ package com.powsybl.action.dsl;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public enum  RuleType {
+public enum RuleType {
     APPLY,
     TEST;
 }

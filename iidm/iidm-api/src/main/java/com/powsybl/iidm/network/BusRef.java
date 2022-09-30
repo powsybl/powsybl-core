@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Optional;
 
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = IdBasedBusRef.class)
+    @JsonSubTypes.Type(value = IdBasedBusRef.class)
 })
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface BusRef {

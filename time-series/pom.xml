@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.4.0-SNAPSHOT</version>
+        <version>4.11.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -25,6 +25,7 @@
 
     <modules>
         <module>time-series-api</module>
+        <module>time-series-dsl</module>
     </modules>
 
 </project>

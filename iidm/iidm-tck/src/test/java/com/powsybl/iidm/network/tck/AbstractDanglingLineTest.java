@@ -84,7 +84,7 @@ public abstract class AbstractDanglingLineTest {
                     .add();
         DanglingLine danglingLine = network.getDanglingLine(id);
         // adder
-        assertEquals(ConnectableType.DANGLING_LINE, danglingLine.getType());
+        assertEquals(IdentifiableType.DANGLING_LINE, danglingLine.getType());
         assertEquals(r, danglingLine.getR(), 0.0);
         assertEquals(x, danglingLine.getX(), 0.0);
         assertEquals(g, danglingLine.getG(), 0.0);
@@ -120,19 +120,17 @@ public abstract class AbstractDanglingLineTest {
         danglingLine.newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .add();
-        assertEquals(100.0, danglingLine.getCurrentLimits().getPermanentLimit(), 0.0);
+        assertEquals(100.0, danglingLine.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         danglingLine.newActivePowerLimits()
                 .setPermanentLimit(60.0)
                 .add();
-        assertEquals(60.0, danglingLine.getActivePowerLimits().getPermanentLimit(), 0.0);
+        assertEquals(60.0, danglingLine.getActivePowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         danglingLine.newApparentPowerLimits()
                 .setPermanentLimit(132.0)
                 .add();
-        assertEquals(132.0, danglingLine.getApparentPowerLimits().getPermanentLimit(), 0.0);
-
-        assertEquals(3, danglingLine.getOperationalLimits().size());
+        assertEquals(132.0, danglingLine.getApparentPowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         Bus bus = voltageLevel.getBusBreakerView().getBus(BUS_VL_ID);
         Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();

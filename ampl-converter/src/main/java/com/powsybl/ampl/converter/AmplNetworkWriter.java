@@ -14,37 +14,10 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.ComponentConstants;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
@@ -55,14 +28,8 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 import static com.powsybl.ampl.converter.AmplConstants.VARIANT;
@@ -279,7 +246,7 @@ public class AmplNetworkWriter {
                         .writeCell(maxV)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
+                        .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
                         .writeCell(vl.getId())
                         .writeCell(vl.getNameOrId());
                 addExtensions(num, vl);
@@ -299,7 +266,7 @@ public class AmplNetworkWriter {
                         .writeCell(Float.NaN)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl1.getSubstation().getCountry().map(Enum::toString).orElse(""))
+                        .writeCell(vl1.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
                         .writeCell(vlId)
                         .writeCell("");
                 addExtensions(num, twt);
@@ -321,7 +288,7 @@ public class AmplNetworkWriter {
                         .writeCell(maxV)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
+                        .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
                         .writeCell(dl.getId() + "_voltageLevel")
                         .writeCell("");
                 addExtensions(num, dl);
@@ -642,7 +609,7 @@ public class AmplNetworkWriter {
                         .writeCell(tl.getHalf1().getBoundary().getP()) // xnode node flow side 1
                         .writeCell(t1.getQ())
                         .writeCell(tl.getHalf1().getBoundary().getQ()) // xnode node flow side 1
-                        .writeCell(getPermanentLimit(l.getCurrentLimits1()))
+                        .writeCell(getPermanentLimit(l.getCurrentLimits1().orElse(null)))
                         .writeCell(Float.NaN)
                         .writeCell(merged)
                         .writeCell(faultNum)
@@ -670,7 +637,7 @@ public class AmplNetworkWriter {
                         .writeCell(tl.getHalf2().getBoundary().getQ()) // xnode node flow side 2
                         .writeCell(t2.getQ())
                         .writeCell(Float.NaN)
-                        .writeCell(getPermanentLimit(l.getCurrentLimits2()))
+                        .writeCell(getPermanentLimit(l.getCurrentLimits2().orElse(null)))
                         .writeCell(merged)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
@@ -697,8 +664,8 @@ public class AmplNetworkWriter {
                         .writeCell(t2.getP())
                         .writeCell(t1.getQ())
                         .writeCell(t2.getQ())
-                        .writeCell(getPermanentLimit(l.getCurrentLimits1()))
-                        .writeCell(getPermanentLimit(l.getCurrentLimits2()))
+                        .writeCell(getPermanentLimit(l.getCurrentLimits1().orElse(null)))
+                        .writeCell(getPermanentLimit(l.getCurrentLimits2().orElse(null)))
                         .writeCell(merged)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
@@ -782,8 +749,8 @@ public class AmplNetworkWriter {
                     .writeCell(t2.getP())
                     .writeCell(t1.getQ())
                     .writeCell(t2.getQ())
-                    .writeCell(getPermanentLimit(twt.getCurrentLimits1()))
-                    .writeCell(getPermanentLimit(twt.getCurrentLimits2()))
+                    .writeCell(getPermanentLimit(twt.getCurrentLimits1().orElse(null)))
+                    .writeCell(getPermanentLimit(twt.getCurrentLimits2().orElse(null)))
                     .writeCell(false) // TODO to update
                     .writeCell(faultNum)
                     .writeCell(actionNum)
@@ -891,7 +858,7 @@ public class AmplNetworkWriter {
                         .writeCell(Double.NaN)
                         .writeCell(t1.getQ())
                         .writeCell(Double.NaN)
-                        .writeCell(getPermanentLimit(twt.getLeg1().getCurrentLimits()))
+                        .writeCell(getPermanentLimit(twt.getLeg1().getCurrentLimits().orElse(null)))
                         .writeCell(false)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
@@ -920,7 +887,7 @@ public class AmplNetworkWriter {
                         .writeCell(Double.NaN)
                         .writeCell(t2.getQ())
                         .writeCell(Double.NaN)
-                        .writeCell(getPermanentLimit(twt.getLeg2().getCurrentLimits()))
+                        .writeCell(getPermanentLimit(twt.getLeg2().getCurrentLimits().orElse(null)))
                         .writeCell(Double.NaN)
                         .writeCell(false)
                         .writeCell(faultNum)
@@ -950,7 +917,7 @@ public class AmplNetworkWriter {
                         .writeCell(Double.NaN)
                         .writeCell(t3.getQ())
                         .writeCell(Double.NaN)
-                        .writeCell(getPermanentLimit(twt.getLeg3().getCurrentLimits()))
+                        .writeCell(getPermanentLimit(twt.getLeg3().getCurrentLimits().orElse(null)))
                         .writeCell(Double.NaN)
                         .writeCell(false)
                         .writeCell(faultNum)
@@ -988,7 +955,7 @@ public class AmplNetworkWriter {
             SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(dl, true);
             double p2 = sv.getP();
             double q2 = sv.getQ();
-            double patl = getPermanentLimit(dl.getCurrentLimits());
+            double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
             formatter.writeCell(variantIndex)
                     .writeCell(num)
                     .writeCell(bus1Num)
@@ -1630,8 +1597,8 @@ public class AmplNetworkWriter {
                 context.batteryIdsToExport.add(id);
                 int num = mapper.getInt(AmplSubset.BATTERY, id);
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-                double p0 = b.getP0();
-                double q0 = b.getQ0();
+                double targetP = b.getTargetP();
+                double targetQ = b.getTargetQ();
                 double minP = b.getMinP();
                 double maxP = b.getMaxP();
 
@@ -1640,8 +1607,8 @@ public class AmplNetworkWriter {
                         .writeCell(busNum)
                         .writeCell(conBusNum != -1 ? conBusNum : busNum)
                         .writeCell(vlNum)
-                        .writeCell(p0)
-                        .writeCell(q0)
+                        .writeCell(targetP)
+                        .writeCell(targetQ)
                         .writeCell(minP)
                         .writeCell(maxP)
                         .writeCell(b.getReactiveLimits().getMinQ(maxP))
@@ -1707,28 +1674,33 @@ public class AmplNetworkWriter {
     private void writeBranchCurrentLimits(TableFormatter formatter) throws IOException {
         for (Branch<?> branch : network.getBranches()) {
             String branchId = branch.getId();
-            if (branch.getCurrentLimits1() != null) {
-                writeTemporaryCurrentLimits(branch.getCurrentLimits1(), formatter, branchId, true, "_1_");
+            Optional<CurrentLimits> currentLimits1 = branch.getCurrentLimits1();
+            if (currentLimits1.isPresent()) {
+                writeTemporaryCurrentLimits(currentLimits1.get(), formatter, branchId, true, "_1_");
             }
-            if (branch.getCurrentLimits2() != null) {
-                writeTemporaryCurrentLimits(branch.getCurrentLimits2(), formatter, branchId, false, "_2_");
+            Optional<CurrentLimits> currentLimits2 = branch.getCurrentLimits2();
+            if (currentLimits2.isPresent()) {
+                writeTemporaryCurrentLimits(currentLimits2.get(), formatter, branchId, false, "_2_");
             }
         }
     }
 
     private void writeThreeWindingsTransformerCurrentLimits(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            if (twt.getLeg1().getCurrentLimits() != null) {
+            Optional<CurrentLimits> currentLimits1 = twt.getLeg1().getCurrentLimits();
+            if (currentLimits1.isPresent()) {
                 String branchId = twt.getId() + AmplConstants.LEG1_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg1().getCurrentLimits(), formatter, branchId, true, "");
+                writeTemporaryCurrentLimits(currentLimits1.get(), formatter, branchId, true, "");
             }
-            if (twt.getLeg2().getCurrentLimits() != null) {
+            Optional<CurrentLimits> currentLimits2 = twt.getLeg2().getCurrentLimits();
+            if (currentLimits2.isPresent()) {
                 String branchId = twt.getId() + AmplConstants.LEG2_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg2().getCurrentLimits(), formatter, branchId, true, "");
+                writeTemporaryCurrentLimits(currentLimits2.get(), formatter, branchId, true, "");
             }
-            if (twt.getLeg3().getCurrentLimits() != null) {
+            Optional<CurrentLimits> currentLimits3 = twt.getLeg3().getCurrentLimits();
+            if (currentLimits3.isPresent()) {
                 String branchId = twt.getId() + AmplConstants.LEG3_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg3().getCurrentLimits(), formatter, branchId, true, "");
+                writeTemporaryCurrentLimits(currentLimits3.get(), formatter, branchId, true, "");
             }
         }
     }
@@ -1736,8 +1708,9 @@ public class AmplNetworkWriter {
     private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
         for (DanglingLine dl : network.getDanglingLines()) {
             String branchId = dl.getId();
-            if (dl.getCurrentLimits() != null) {
-                writeTemporaryCurrentLimits(dl.getCurrentLimits(), formatter, branchId, true, "");
+            Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
+            if (currentLimits.isPresent()) {
+                writeTemporaryCurrentLimits(currentLimits.get(), formatter, branchId, true, "");
             }
         }
     }

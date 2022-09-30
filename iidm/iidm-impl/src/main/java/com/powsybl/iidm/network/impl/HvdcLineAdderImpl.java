@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -104,25 +105,26 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     @Override
     public HvdcLine add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         ValidationUtil.checkR(this, r);
-        ValidationUtil.checkConvertersMode(this, convertersMode);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
         ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
         ValidationUtil.checkHvdcMaxP(this, maxP);
-        AbstractHvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
+        AbstractHvdcConverterStation<?> converterStation1 = network.getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
             throw new PowsyblException("Side 1 converter station " + converterStationId1 + " not found");
         }
-        AbstractHvdcConverterStation<?> converterStation2 = getNetwork().getHvdcConverterStation(converterStationId2);
+        AbstractHvdcConverterStation<?> converterStation2 = network.getHvdcConverterStation(converterStationId2);
         if (converterStation2 == null) {
             throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
         }
         HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, isFictitious(), r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
-        getNetwork().getIndex().checkAndAdd(hvdcLine);
-        getNetwork().getListeners().notifyCreation(hvdcLine);
+        network.getIndex().checkAndAdd(hvdcLine);
+        network.getListeners().notifyCreation(hvdcLine);
         return hvdcLine;
     }
 

@@ -6,51 +6,36 @@
  */
 package com.powsybl.sensitivity;
 
-import org.junit.Rule;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityValueTest {
-
-    private static final double EPSILON_COMPARISON = 1e-5;
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+public class SensitivityValueTest extends AbstractConverterTest {
 
     @Test
-    public void checkNullFactorThrows() {
-        exception.expect(NullPointerException.class);
-        new SensitivityValue(null, 1.f, 2.f, 3.f);
+    public void test() {
+        SensitivityValue value = new SensitivityValue(0, -1, 1d, 2d);
+        assertEquals(0, value.getFactorIndex());
+        assertEquals(-1, value.getContingencyIndex());
+        assertEquals(1d, value.getValue(), 0d);
+        assertEquals(2d, value.getFunctionReference(), 0d);
+        assertEquals("SensitivityValue(factorIndex=0, contingencyIndex='-1', value=1.0, functionReference=2.0)", value.toString());
     }
 
     @Test
-    public void getFactor() {
-        SensitivityFactor factor = Mockito.mock(SensitivityFactor.class);
-        SensitivityValue sensitivityValue = new SensitivityValue(factor, 1.f, 2.f, 3.f);
-        assertSame(factor, sensitivityValue.getFactor());
-    }
-
-    @Test
-    public void getValue() {
-        SensitivityValue sensitivityValue = new SensitivityValue(Mockito.mock(SensitivityFactor.class), 1.f, 2.f, 3.f);
-        assertEquals(1.f, sensitivityValue.getValue(), EPSILON_COMPARISON);
-    }
-
-    @Test
-    public void getFunctionReference() {
-        SensitivityValue sensitivityValue = new SensitivityValue(Mockito.mock(SensitivityFactor.class), 1.f, 2.f, 3.f);
-        assertEquals(2.f, sensitivityValue.getFunctionReference(), EPSILON_COMPARISON);
-    }
-
-    @Test
-    public void getVariableReference() {
-        SensitivityValue sensitivityValue = new SensitivityValue(Mockito.mock(SensitivityFactor.class), 1.f, 2.f, 3.f);
-        assertEquals(3.f, sensitivityValue.getVariableReference(), EPSILON_COMPARISON);
+    public void testJson() throws IOException {
+        SensitivityValue value = new SensitivityValue(0, 0, 1d, 2d);
+        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
+        roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityValue.class, objectMapper), "/valueRef.json");
     }
 }

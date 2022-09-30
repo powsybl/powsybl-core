@@ -9,14 +9,12 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
+import com.powsybl.math.graph.TraverseResult;
 
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Provides higher level methods to manipulate node-breaker topology graph.
@@ -37,26 +35,14 @@ public final class NodeBreakerTopology {
     public static void removeIsolatedSwitches(VoltageLevel.NodeBreakerView topo) {
         Objects.requireNonNull(topo, "Node breaker topology view is null.");
 
-        int[] nodes = topo.getNodes();
-        final TIntSet encountered = new TIntHashSet();
         final Set<Switch> encounteredSwitches = new HashSet<>();
+        int[] nodesWithTerminal = Arrays.stream(topo.getNodes()).filter(n -> topo.getTerminal(n) != null).toArray();
+        topo.traverse(nodesWithTerminal, (n1, sw, n2) -> {
+            encounteredSwitches.add(sw); // the traversing started from a terminal, thus the switch is not isolated
+            return TraverseResult.CONTINUE; // if n2 has a terminal, we could also choose to stop as it will be or has already been traversed
+        });
 
-        for (int n : nodes) {
-            if (encountered.contains(n) || topo.getTerminal(n) == null) {
-                continue;
-            }
-            encountered.add(n);
-            topo.traverse(n, (n1, sw, n2) -> {
-                encountered.add(n2);
-                encounteredSwitches.add(sw);
-                return topo.getTerminal(n2) == null;
-            });
-        }
-
-        List<Switch> toRemove = topo.getSwitchStream().filter(sw -> !encounteredSwitches.contains(sw)).collect(Collectors.toList());
-        for (Switch sw : toRemove) {
-            topo.removeSwitch(sw.getId());
-        }
+        topo.getSwitchStream().filter(sw -> !encounteredSwitches.contains(sw)).forEach(s -> topo.removeSwitch(s.getId()));
     }
 
     /**

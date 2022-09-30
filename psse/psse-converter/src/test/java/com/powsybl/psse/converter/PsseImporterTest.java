@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
 
@@ -83,7 +84,7 @@ public class PsseImporterTest extends AbstractConverterTest {
         Assert.assertFalse(importer.exists(dsCaseInvalidx));
     }
 
-    public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    private void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 
@@ -150,6 +151,11 @@ public class PsseImporterTest extends AbstractConverterTest {
     @Test
     public void twoTerminalDc() throws IOException {
         importTest("twoTerminalDc", "twoTerminalDc.raw", false);
+    }
+
+    @Test
+    public void twoWindingsTransformerPhase() throws IOException {
+        importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
     }
 
     @Test

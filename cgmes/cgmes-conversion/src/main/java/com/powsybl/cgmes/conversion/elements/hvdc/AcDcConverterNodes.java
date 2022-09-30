@@ -7,11 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -55,6 +51,10 @@ class AcDcConverterNodes {
 
     Map<String, AcDcConverterNode> getConverterNodes() {
         return converterNodes;
+    }
+
+    List<String> getDcNodes(String acDcConverterId) {
+        return Optional.ofNullable(converterNodes.get(acDcConverterId).dcNode).orElse(Collections.emptyList());
     }
 
     static class AcDcConverterNode {

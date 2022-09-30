@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.model;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
@@ -23,6 +25,13 @@ import java.util.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class FullModel {
+
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(() -> {
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        return factory;
+    });
 
     private final String id;
 
@@ -134,11 +143,7 @@ public class FullModel {
         Objects.requireNonNull(reader);
         ParsingContext context = new ParsingContext();
         try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-            XMLStreamReader xmlReader = factory.createXMLStreamReader(reader);
+            XMLStreamReader xmlReader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(reader);
             try {
                 XmlUtil.readUntilStartElement(new String[] {"/", CgmesNames.RDF, CgmesNames.FULL_MODEL}, xmlReader, () -> {
                     context.id = xmlReader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, CgmesNames.ABOUT);
@@ -176,6 +181,7 @@ public class FullModel {
                 });
             } finally {
                 xmlReader.close();
+                XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
             }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

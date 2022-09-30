@@ -6,31 +6,43 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
+import com.google.common.base.Stopwatch;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.ComponentDefaultConfig;
-import com.powsybl.contingency.*;
+import com.powsybl.commons.io.table.TableFormatter;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyList;
+import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
-import com.powsybl.sensitivity.converter.SensitivityAnalysisResultExporters;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
-import com.powsybl.sensitivity.converter.CsvSensitivityAnalysisResultExporter;
+import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
@@ -42,10 +54,12 @@ public class SensitivityAnalysisTool implements Tool {
 
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
-    private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String FACTORS_FILE_OPTION = "factors-file";
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
+    private static final String VARIABLE_SETS_FILE_OPTION = "variable-sets-file";
     private static final String PARAMETERS_FILE = "parameters-file";
+    private static final String OUTPUT_CONTINGENCY_STATUS_FILE_OPTION = "output-contingency-file";
+    private static final String SINGLE_OUTPUT = "single-output";
 
     @Override
     public Command getCommand() {
@@ -85,15 +99,24 @@ public class SensitivityAnalysisTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
-                        .desc("sensitivity analysis results output path")
+                options.addOption(Option.builder().longOpt(VARIABLE_SETS_FILE_OPTION)
+                        .desc("variable sets input file path")
                         .hasArg()
                         .argName("FILE")
                         .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
-                        .desc("the output format " + SensitivityAnalysisResultExporters.getFormats())
+                options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
+                        .desc("Sensitivity results output path")
                         .hasArg()
-                        .argName("FORMAT")
+                        .argName("FILE")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)
+                        .desc("contingency status output path (csv only)")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
+                options.addOption(Option.builder().longOpt(SINGLE_OUTPUT)
+                        .desc("Output sensitivity analysis results in a single json file using output file option (values, factors and contingency status).")
                         .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
                         .desc("sensitivity analysis parameters as JSON file")
@@ -112,23 +135,47 @@ public class SensitivityAnalysisTool implements Tool {
         };
     }
 
+    private static boolean isCsv(Path outputFile) {
+        String fileName = outputFile.getFileName().toString();
+        if (fileName.endsWith(".json")) {
+            return false;
+        } else if (fileName.endsWith(".csv")) {
+            return true;
+        } else {
+            throw new PowsyblException("Unsupported output format: " + fileName);
+        }
+    }
+
+    private static String buildContingencyStatusPath(String outputFile) {
+        return outputFile.replace(".csv", "_contingency_status.csv");
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
-        Path outputFile = null;
-        String format = null;
-        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
+        Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
+        boolean csv = isCsv(outputFile);
+        Path outputFileStatus;
 
-        // process a single network: output-file/output-format options available
-        if (line.hasOption(OUTPUT_FILE_OPTION)) {
-            outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
-            if (!line.hasOption(OUTPUT_FORMAT_OPTION)) {
-                throw new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION);
+        if (csv) {
+            if (line.hasOption(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION)) {
+                outputFileStatus = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CONTINGENCY_STATUS_FILE_OPTION));
+            } else {
+                outputFileStatus = context.getFileSystem().getPath(buildContingencyStatusPath(line.getOptionValue(OUTPUT_FILE_OPTION)));
             }
-            format = line.getOptionValue(OUTPUT_FORMAT_OPTION);
+            boolean contingencyCsv = isCsv(outputFileStatus);
+            if (!contingencyCsv) {
+                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " files must have the same format (csv).");
+            }
+
+            if (line.hasOption(SINGLE_OUTPUT)) {
+                throw new PowsyblException("Unsupported " + SINGLE_OUTPUT + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
+            }
+        } else {
+            outputFileStatus = null;
         }
 
-        Path sensitivityFactorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
+        Path factorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
@@ -137,32 +184,74 @@ public class SensitivityAnalysisTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
+        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper()
+                .registerModule(new ContingencyJsonModule());
+
         SensitivityAnalysisParameters params = SensitivityAnalysisParameters.load();
 
         if (line.hasOption(PARAMETERS_FILE)) {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
-            JsonSensitivityAnalysisParameters.update(params, parametersFile);
+            JsonUtil.readJsonAndUpdate(parametersFile, params, objectMapper);
         }
-        SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
-        SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
 
-        List<Contingency> contingencies = Collections.emptyList();
-        if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
-            contingencies = ContingencyList.load(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION))).getContingencies(network);
-        }
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, factorsProvider, contingencies, params);
+        List<Contingency> contingencies = line.hasOption(CONTINGENCIES_FILE_OPTION)
+                ? ContingencyList.load(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION))).getContingencies(network)
+                : Collections.emptyList();
 
-        if (!result.isOk()) {
-            context.getErrorStream().println("Initial state divergence");
+        List<SensitivityVariableSet> variableSets;
+        if (line.hasOption(VARIABLE_SETS_FILE_OPTION)) {
+            try (Reader reader = Files.newBufferedReader(context.getFileSystem().getPath(line.getOptionValue(VARIABLE_SETS_FILE_OPTION)), StandardCharsets.UTF_8)) {
+                variableSets = objectMapper.readValue(reader, new TypeReference<>() {
+                });
+            }
         } else {
-            if (outputFile != null) {
-                context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                SensitivityAnalysisResultExporters.export(result, outputFile, format);
+            variableSets = Collections.emptyList();
+        }
+
+        SensitivityFactorJsonReader factorsReader = new SensitivityFactorJsonReader(factorsFile);
+
+        context.getOutputStream().println("Running analysis...");
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager()) {
+
+            if (line.hasOption(SINGLE_OUTPUT)) {
+                if (csv) {
+                    throw new PowsyblException("Unsupported " + SINGLE_OUTPUT + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
+                }
+                List<SensitivityFactor> factors = new ArrayList<>();
+                factorsReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) ->
+                        factors.add(new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)));
+                SensitivityAnalysisResult result = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                        factors, contingencies, variableSets, params,
+                        computationManager, Reporter.NO_OP);
+                ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
+                JsonUtil.writeJson(outputFile, result, sensiObjectMapper);
             } else {
-                // To avoid the closing of System.out
-                Writer writer = new OutputStreamWriter(context.getOutputStream());
-                new CsvSensitivityAnalysisResultExporter().export(result, writer);
+                if (csv) {
+                    try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
+                         Writer writerStatuses = Files.newBufferedWriter(outputFileStatus, StandardCharsets.UTF_8);
+                         TableFormatter formatter = SensitivityResultCsvWriter.createTableFormatter(writer);
+                         TableFormatter formatterStatus = SensitivityResultCsvWriter.createContingencyStatusTableFormatter(writerStatuses)) {
+                        SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, contingencies);
+                        SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                                factorsReader, valuesWriter, contingencies, variableSets, params,
+                                computationManager, Reporter.NO_OP);
+                    }
+                } else {
+                    JsonFactory factory = JsonUtil.createJsonFactory();
+                    try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
+                         JsonGenerator generator = factory.createGenerator(writer);
+                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, contingencies)) {
+                        generator.useDefaultPrettyPrinter();
+                        SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                                factorsReader, valuesWriter, contingencies, variableSets, params,
+                                computationManager, Reporter.NO_OP);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }
             }
         }
+        context.getOutputStream().println("Analysis done in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
     }
 }

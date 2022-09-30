@@ -16,14 +16,16 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.import_.ImportOptions;
+import com.powsybl.commons.extensions.ExtensionProvider;
+import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
@@ -48,6 +51,8 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  */
 @AutoService(Importer.class)
 public class XMLImporter implements Importer {
+
+    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, "network"));
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
 
@@ -64,7 +69,8 @@ public class XMLImporter implements Importer {
             .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
     private static final Parameter EXTENSIONS_LIST_PARAMETER
-            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null);
+            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null,
+            EXTENSIONS_SUPPLIER.get().getProviders().stream().map(ExtensionProvider::getExtensionName).collect(Collectors.toList()));
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -125,12 +131,14 @@ public class XMLImporter implements Importer {
                                 String name = xmlsr.getLocalName();
                                 String ns = xmlsr.getNamespaceURI();
                                 return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name)
-                                        && Stream.of(IidmXmlVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns));
+                                        && (Stream.of(IidmXmlVersion.values()).anyMatch(v -> v.getNamespaceURI().equals(ns))
+                                        || Stream.of(IidmXmlVersion.values()).filter(v -> v.compareTo(IidmXmlVersion.V_1_7) >= 0).anyMatch(v -> v.getNamespaceURI(false).equals(ns)));
                             }
                         }
                     } finally {
                         try {
                             xmlsr.close();
+                            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
                         } catch (XMLStreamException e) {
                             LOGGER.error(e.toString(), e);
                         }
@@ -192,8 +200,8 @@ public class XMLImporter implements Importer {
 
     private ImportOptions createImportOptions(Properties parameters) {
         return new ImportOptions()
-                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
+                .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
     }
 }
 

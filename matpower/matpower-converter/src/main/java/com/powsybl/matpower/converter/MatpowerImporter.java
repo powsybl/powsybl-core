@@ -8,15 +8,16 @@ package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.matpower.model.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -26,10 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
@@ -38,10 +38,6 @@ import java.util.Properties;
 public class MatpowerImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatpowerImporter.class);
-
-    private static final String FORMAT = "MATPOWER";
-
-    private static final String EXT = "mat";
 
     private static final String BUS_PREFIX = "BUS";
     private static final String GENERATOR_PREFIX = "GEN";
@@ -57,23 +53,29 @@ public class MatpowerImporter implements Importer {
             "Ignore base voltage specified in the file",
             Boolean.TRUE);
 
-    private static final class PerUnitContext {
+    private static final class Context {
 
         private final double baseMva; // base apparent power
 
         private final boolean ignoreBaseMva;
 
-        private PerUnitContext(double baseMva, boolean ignoreBaseMva) {
+        private final List<Bus> slackBuses = new ArrayList<>();
+
+        private Context(double baseMva, boolean ignoreBaseMva) {
             this.baseMva = baseMva;
             this.ignoreBaseMva = ignoreBaseMva;
         }
 
-        public boolean isIgnoreBaseMva() {
+        private boolean isIgnoreBaseMva() {
             return ignoreBaseMva;
         }
 
         private double getBaseMva() {
             return baseMva;
+        }
+
+        private List<Bus> getSlackBuses() {
+            return slackBuses;
         }
     }
 
@@ -98,7 +100,7 @@ public class MatpowerImporter implements Importer {
         return prefix + "-" + from + "-" + to;
     }
 
-    private static void createBuses(MatpowerModel model, ContainersMapping containerMapping, Network network, PerUnitContext perUnitContext) {
+    private static void createBuses(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
         for (MBus mBus : model.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(mBus.getNumber());
             String substationId = containerMapping.getSubstationId(voltageLevelId);
@@ -107,24 +109,46 @@ public class MatpowerImporter implements Importer {
             Substation substation = createSubstation(network, substationId);
 
             // create voltage level
-            VoltageLevel voltageLevel = createVoltageLevel(mBus, voltageLevelId, substation, network, perUnitContext);
+            VoltageLevel voltageLevel = createVoltageLevel(mBus, voltageLevelId, substation, network, context);
 
             // create bus
-            createBus(mBus, voltageLevel);
+            Bus bus = createBus(mBus, voltageLevel);
+            if (mBus.getType() == MBus.Type.REF) {
+                context.getSlackBuses().add(bus);
+            }
+
+            // create voltage limits
+            createVoltageLimits(mBus, voltageLevel);
 
             // create load
             createLoad(mBus, voltageLevel);
 
             // create shunt compensator
-            createShuntCompensator(mBus, voltageLevel, perUnitContext);
+            createShuntCompensator(mBus, voltageLevel, context);
 
             //create generators
             createGenerators(model, mBus, voltageLevel);
         }
     }
 
+    private static void createVoltageLimits(MBus mBus, VoltageLevel voltageLevel) {
+        // as in IIDM, we only have one min and one max voltage level by voltage level we keep only the most severe ones
+        if (mBus.getMinimumVoltageMagnitude() != 0) {
+            double lowVoltageLimit = mBus.getMinimumVoltageMagnitude() * voltageLevel.getNominalV();
+            if (Double.isNaN(voltageLevel.getLowVoltageLimit()) || lowVoltageLimit > voltageLevel.getLowVoltageLimit()) {
+                voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+            }
+        }
+        if (mBus.getMaximumVoltageMagnitude() != 0) {
+            double highVoltageLimit = mBus.getMaximumVoltageMagnitude() * voltageLevel.getNominalV();
+            if (Double.isNaN(voltageLevel.getHighVoltageLimit()) || highVoltageLimit < voltageLevel.getHighVoltageLimit()) {
+                voltageLevel.setHighVoltageLimit(highVoltageLimit);
+            }
+        }
+    }
+
     private static void createGenerators(MatpowerModel model, MBus mBus, VoltageLevel voltageLevel) {
-        model.getGenerators().stream().filter(gen -> gen.getNumber() == mBus.getNumber()).forEach(mGen -> {
+        for (MGen mGen : model.getGeneratorsByBusNum(mBus.getNumber())) {
             String busId = getId(BUS_PREFIX, mGen.getNumber());
             String genId = getId(GENERATOR_PREFIX, mGen.getNumber());
             Generator generator = voltageLevel.newGenerator()
@@ -159,18 +183,19 @@ public class MatpowerImporter implements Importer {
                         .setMaxQ(mGen.getMaximumReactivePowerOutput())
                         .add();
             }
-            LOGGER.debug("Created generator {}", generator.getId());
-        });
+            LOGGER.trace("Created generator {}", generator.getId());
+        }
     }
 
     private static Bus createBus(MBus mBus, VoltageLevel voltageLevel) {
         String busId = getId(BUS_PREFIX, mBus.getNumber());
         Bus bus = voltageLevel.getBusBreakerView().newBus()
                 .setId(busId)
+                .setName(mBus.getName())
                 .add();
         bus.setV(mBus.getVoltageMagnitude() * voltageLevel.getNominalV())
                 .setAngle(mBus.getVoltageAngle());
-        LOGGER.debug("Created bus {}", bus.getId());
+        LOGGER.trace("Created bus {}", bus.getId());
         return bus;
     }
 
@@ -180,13 +205,17 @@ public class MatpowerImporter implements Importer {
             substation = network.newSubstation()
                     .setId(substationId)
                     .add();
-            LOGGER.debug("Created substation {}", substation.getId());
+            LOGGER.trace("Created substation {}", substation.getId());
         }
         return substation;
     }
 
-    private static VoltageLevel createVoltageLevel(MBus mBus, String voltageLevelId, Substation substation, Network network, PerUnitContext perUnitContext) {
-        double nominalV = perUnitContext.isIgnoreBaseMva() || mBus.getBaseVoltage() == 0 ? 1 : mBus.getBaseVoltage();
+    private static double getNominalV(MBus mBus, boolean ignoreBaseVoltage) {
+        return ignoreBaseVoltage || mBus.getBaseVoltage() == 0 ? 1 : mBus.getBaseVoltage();
+    }
+
+    private static VoltageLevel createVoltageLevel(MBus mBus, String voltageLevelId, Substation substation, Network network, Context context) {
+        double nominalV = getNominalV(mBus, context.isIgnoreBaseMva());
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             voltageLevel = substation.newVoltageLevel()
@@ -194,7 +223,7 @@ public class MatpowerImporter implements Importer {
                     .setNominalV(nominalV)
                     .setTopologyKind(TopologyKind.BUS_BREAKER)
                     .add();
-            LOGGER.debug("Created voltagelevel {}", voltageLevel.getId());
+            LOGGER.trace("Created voltagelevel {}", voltageLevel.getId());
         }
         return voltageLevel;
     }
@@ -210,26 +239,27 @@ public class MatpowerImporter implements Importer {
                 .setP0(mBus.getRealPowerDemand())
                 .setQ0(mBus.getReactivePowerDemand())
                 .add();
-            LOGGER.debug("Created load {}", newLoad.getId());
+            LOGGER.trace("Created load {}", newLoad.getId());
         }
     }
 
-    private static void createShuntCompensator(MBus mBus, VoltageLevel voltageLevel, PerUnitContext perUnitContext) {
+    private static void createShuntCompensator(MBus mBus, VoltageLevel voltageLevel, Context context) {
         if (mBus.getShuntSusceptance() != 0) {
             String busId = getId(BUS_PREFIX, mBus.getNumber());
             String shuntId = getId(SHUNT_PREFIX, mBus.getNumber());
-            double zb = voltageLevel.getNominalV() * voltageLevel.getNominalV() / perUnitContext.getBaseMva();
+            double zb = voltageLevel.getNominalV() * voltageLevel.getNominalV() / context.getBaseMva();
             ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                     .setId(shuntId)
                     .setConnectableBus(busId)
                     .setBus(busId)
+                    .setVoltageRegulatorOn(false)
                     .setSectionCount(1);
             adder.newLinearModel()
-                    .setBPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
+                    .setBPerSection(mBus.getShuntSusceptance() / context.getBaseMva() / zb)
                     .setMaximumSectionCount(1)
                     .add();
             ShuntCompensator newShunt = adder.add();
-            LOGGER.debug("Created shunt {}", newShunt.getId());
+            LOGGER.trace("Created shunt {}", newShunt.getId());
         }
     }
 
@@ -241,7 +271,26 @@ public class MatpowerImporter implements Importer {
         return generator.getStatus() > 0;
     }
 
-    private static void createBranches(MatpowerModel model, ContainersMapping containerMapping, Network network, PerUnitContext perUnitContext) {
+    private static void createApparentPowerLimits(MBranch mBranch, ApparentPowerLimitsAdder limitsAdder) {
+        limitsAdder.setPermanentLimit(mBranch.getRateA()); // long term rating
+        if (mBranch.getRateB() != 0) {
+            limitsAdder.beginTemporaryLimit()
+                    .setName("RateB")
+                    .setValue(mBranch.getRateB())
+                    .setAcceptableDuration(60 * 20) // 20' for short term rating
+                    .endTemporaryLimit();
+        }
+        if (mBranch.getRateC() != 0) {
+            limitsAdder.beginTemporaryLimit()
+                    .setName("RateC")
+                    .setValue(mBranch.getRateC())
+                    .setAcceptableDuration(60) // 1' for emergency rating
+                    .endTemporaryLimit();
+        }
+        limitsAdder.add();
+    }
+
+    private static void createBranches(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
         for (MBranch mBranch : model.getBranches()) {
 
             String bus1Id = getId(BUS_PREFIX, mBranch.getFrom());
@@ -250,13 +299,14 @@ public class MatpowerImporter implements Importer {
             String voltageLevel2Id = containerMapping.getVoltageLevelId(mBranch.getTo());
             VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
             VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-            double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getBaseMva();
+            double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / context.getBaseMva();
             boolean isInService = isInService(mBranch);
             String connectedBus1 = isInService ? bus1Id : null;
             String connectedBus2 = isInService ? bus2Id : null;
 
+            Branch<?> branch;
             if (isTransformer(model, mBranch)) {
-                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().newTwoWindingsTransformer()
+                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(network::newTwoWindingsTransformer)
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(connectedBus1)
@@ -272,9 +322,23 @@ public class MatpowerImporter implements Importer {
                         .setG(0)
                         .setB(mBranch.getB() / zb)
                         .add();
-                LOGGER.debug("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
+                if (mBranch.getPhaseShiftAngle() != 0) {
+                    newTwt.newPhaseTapChanger()
+                            .setTapPosition(0)
+                            .beginStep()
+                            .setRho(1)
+                            .setAlpha(-mBranch.getPhaseShiftAngle())
+                            .setR(0)
+                            .setX(0)
+                            .setG(0)
+                            .setB(0)
+                            .endStep()
+                            .add();
+                }
+                branch = newTwt;
+                LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
-                Line newLine = network.newLine()
+                branch = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(connectedBus1)
@@ -290,7 +354,15 @@ public class MatpowerImporter implements Importer {
                         .setG2(0)
                         .setB2(mBranch.getB() / zb / 2)
                         .add();
-                LOGGER.debug("Created line {} {} {}", newLine.getId(), bus1Id, bus2Id);
+                LOGGER.trace("Created line {} {} {}", branch.getId(), bus1Id, bus2Id);
+            }
+            if (mBranch.getRateA() != 0) {
+                // we create the apparent power limit arbitrary on both sides
+                // there is probably something to fix on IIDM API to not have sided apparent
+                // power limits. Apparent power does not depend on voltage so it does not make
+                // sens to associate the limit to a branch side.
+                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits1());
+                createApparentPowerLimits(mBranch, branch.newApparentPowerLimits2());
             }
         }
     }
@@ -298,7 +370,7 @@ public class MatpowerImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource.exists(null, EXT);
+            return dataSource.exists(null, MatpowerConstants.EXT);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -311,7 +383,7 @@ public class MatpowerImporter implements Importer {
 
     @Override
     public String getFormat() {
-        return FORMAT;
+        return MatpowerConstants.FORMAT;
     }
 
     @Override
@@ -319,8 +391,8 @@ public class MatpowerImporter implements Importer {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            try (InputStream is = fromDataSource.newInputStream(null, EXT);
-                 OutputStream os = toDataSource.newOutputStream(null, EXT, false)) {
+            try (InputStream is = fromDataSource.newInputStream(null, MatpowerConstants.EXT);
+                 OutputStream os = toDataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
@@ -337,34 +409,53 @@ public class MatpowerImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(networkFactory);
-        Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
+        Network network = networkFactory.createNetwork(dataSource.getBaseName(), MatpowerConstants.FORMAT);
 
         //there is no time & date declared in the MATPOWER file: set a default now()
         network.setCaseDate(DateTime.now());
 
         try {
-            try (InputStream iStream = dataSource.newInputStream(null, EXT)) {
+            try (InputStream iStream = dataSource.newInputStream(null, MatpowerConstants.EXT)) {
 
                 MatpowerModel model = MatpowerReader.read(iStream, dataSource.getBaseName());
-                LOGGER.debug("MATPOWER model {}", model.getCaseName());
+                LOGGER.debug("MATPOWER model '{}'", model.getCaseName());
+
+                boolean ignoreBaseVoltage = Parameter.readBoolean(MatpowerConstants.FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
+                    ParameterDefaultValueConfig.INSTANCE);
+
+                Map<Integer, MBus> busNumToMBus = model.getBuses().stream().collect(Collectors.toMap(MBus::getNumber, Function.identity()));
 
                 ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
-                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, branch -> isTransformer(model, branch),
-                    busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next()), substationNum -> getId(SUBSTATION_PREFIX, substationNum));
+                    MBus::getNumber,
+                    MBranch::getFrom,
+                    MBranch::getTo,
+                    branch -> branch.getR() == 0.0 && branch.getX() == 0.0,
+                    branch -> isTransformer(model, branch),
+                    busNumber -> getNominalVFromBusNumber(busNumToMBus, busNumber, ignoreBaseVoltage),
+                    busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums"))),
+                    substationNums -> getId(SUBSTATION_PREFIX, substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums"))));
 
-                boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
-                        ParameterDefaultValueConfig.INSTANCE);
+                Context context = new Context(model.getBaseMva(), ignoreBaseVoltage);
 
-                PerUnitContext perUnitContext = new PerUnitContext(model.getBaseMva(), ignoreBaseVoltage);
+                createBuses(model, containerMapping, network, context);
 
-                createBuses(model, containerMapping, network, perUnitContext);
+                createBranches(model, containerMapping, network, context);
 
-                createBranches(model, containerMapping, network, perUnitContext);
+                for (Bus slackBus : context.getSlackBuses()) {
+                    SlackTerminal.attach(slackBus);
+                }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
         return network;
+    }
+
+    private double getNominalVFromBusNumber(Map<Integer, MBus> busNumToMBus, int busNumber, boolean ignoreBaseVoltage) {
+        if (!busNumToMBus.containsKey(busNumber)) { // never should happen
+            throw new PowsyblException("busId without MBus" + busNumber);
+        }
+        return getNominalV(busNumToMBus.get(busNumber), ignoreBaseVoltage);
     }
 }

@@ -6,13 +6,13 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
-import com.powsybl.contingency.tasks.DanglingLineTripping;
+import com.powsybl.iidm.modification.tripping.DanglingLineTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineContingency extends AbstractInjectionContingency {
+public class DanglingLineContingency extends AbstractContingency {
 
     public DanglingLineContingency(String id) {
         super(id);
@@ -24,7 +24,7 @@ public class DanglingLineContingency extends AbstractInjectionContingency {
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public Tripping toModification() {
         return new DanglingLineTripping(id);
     }
 }

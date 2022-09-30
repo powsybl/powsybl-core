@@ -6,12 +6,9 @@
  */
 package com.powsybl.math.matrix;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 import org.scijava.nativelib.NativeLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -27,9 +24,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SparseMatrix extends AbstractMatrix {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SparseMatrix.class);
+public class SparseMatrix extends AbstractMatrix {
 
     private static native void nativeInit();
 
@@ -101,6 +96,8 @@ class SparseMatrix extends AbstractMatrix {
      */
     private final TDoubleArrayListHack values;
 
+    private double rgrowthThreshold = SparseLUDecomposition.DEFAULT_RGROWTH_THRESHOLD;
+
     private int currentColumn = -1; // just for matrix filling
 
     /**
@@ -147,10 +144,10 @@ class SparseMatrix extends AbstractMatrix {
      */
     SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
         if (rowCount < 0) {
-            throw new IllegalArgumentException("row count has to be positive");
+            throw new MatrixException("row count has to be positive");
         }
         if (columnCount < 0) {
-            throw new IllegalArgumentException("column count has to be positive");
+            throw new MatrixException("column count has to be positive");
         }
         this.rowCount = rowCount;
         this.columnCount = columnCount;
@@ -160,6 +157,14 @@ class SparseMatrix extends AbstractMatrix {
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
+    }
+
+    public double getRgrowthThreshold() {
+        return rgrowthThreshold;
+    }
+
+    public void setRgrowthThreshold(double rgrowthThreshold) {
+        this.rgrowthThreshold = rgrowthThreshold;
     }
 
     /**
@@ -215,7 +220,7 @@ class SparseMatrix extends AbstractMatrix {
      * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
      * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are filled in wrong order.
+     * @throws MatrixException if values are filled in wrong order.
      */
     @Override
     public void set(int i, int j, double value) {
@@ -224,15 +229,24 @@ class SparseMatrix extends AbstractMatrix {
             // ok, continue to fill row
         } else if (j > currentColumn) {
             // start new column
-            columnStart[j] = values.size();
+            for (int k = currentColumn + 1; k <= j; k++) {
+                columnStart[k] = values.size();
+            }
             currentColumn = j;
         } else {
-            throw new PowsyblException("Columns have to be filled in the right order");
+            throw new MatrixException("Columns have to be filled in the right order");
         }
         values.add(value);
         rowIndices.add(i);
         columnStart[columnStart.length - 1] = values.size();
         columnValueCount[j]++;
+    }
+
+    private void fillLastEmptyColumns() {
+        for (int k = currentColumn + 1; k < columnCount; k++) {
+            columnStart[k] = values.size();
+        }
+        currentColumn = columnCount - 1;
     }
 
     /**
@@ -242,7 +256,7 @@ class SparseMatrix extends AbstractMatrix {
      * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
      * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are filled in wrong order.
+     * @throws MatrixException if values are filled in wrong order.
      */
     @Override
     public void add(int i, int j, double value) {
@@ -256,7 +270,7 @@ class SparseMatrix extends AbstractMatrix {
             currentColumn = j;
             startNewColumn = true;
         } else {
-            throw new PowsyblException("Columns have to be filled in the right order");
+            throw new MatrixException("Columns have to be filled in the right order");
         }
         if (!startNewColumn && i == rowIndices.get(rowIndices.size() - 1)) {
             int vi = values.size() - 1;
@@ -276,12 +290,46 @@ class SparseMatrix extends AbstractMatrix {
      * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
      * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are filled in wrong order.
+     * @throws MatrixException if values are filled in wrong order.
      */
     @Override
     public Element addAndGetElement(int i, int j, double value) {
         add(i, j, value);
         return new SparseElement(values.size() - 1);
+    }
+
+    @Override
+    public int addAndGetIndex(int i, int j, double value) {
+        add(i, j, value);
+        return values.size() - 1;
+    }
+
+    private void checkElementIndex(int index) {
+        if (index < 0 || index >= values.size()) {
+            throw new MatrixException("Element index out of bound [0, " + (values.size() - 1) + "]");
+        }
+    }
+
+    @Override
+    public void setAtIndex(int index, double value) {
+        checkElementIndex(index);
+        setQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void setQuickAtIndex(int index, double value) {
+        values.set(index, value);
+    }
+
+    @Override
+    public void addAtIndex(int index, double value) {
+        checkElementIndex(index);
+        addQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void addQuickAtIndex(int index, double value) {
+        values.setQuick(index, values.getQuick(index) + value);
     }
 
     @Override
@@ -291,19 +339,50 @@ class SparseMatrix extends AbstractMatrix {
 
     @Override
     public LUDecomposition decomposeLU() {
+        fillLastEmptyColumns();
         return new SparseLUDecomposition(this);
     }
 
     private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
+    private native SparseMatrix add(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2, double alpha, double beta);
+
+    public SparseMatrix times(SparseMatrix other) {
+        Objects.requireNonNull(other);
+        fillLastEmptyColumns();
+        other.fillLastEmptyColumns();
+        SparseMatrix result = times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                other.rowCount, other.columnCount, other.columnStart, other.rowIndices.getData(), other.values.getData());
+        result.setRgrowthThreshold(rgrowthThreshold);
+        return result;
+    }
+
+    public SparseMatrix times(SparseMatrix other, double scalar) {
+        SparseMatrix result = times(other);
+        result.values.transformValues(v -> v * scalar);
+        return result;
+    }
+
     @Override
-    public Matrix times(Matrix other) {
-        if (!(other instanceof SparseMatrix)) {
-            throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
-        }
-        SparseMatrix o = (SparseMatrix) other;
-        return times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
-                     o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+    public Matrix times(Matrix other, double scalar) {
+        SparseMatrix o = Objects.requireNonNull(other).toSparse();
+        return times(o, scalar);
+    }
+
+    public SparseMatrix add(SparseMatrix other, double alpha, double beta) {
+        Objects.requireNonNull(other);
+        fillLastEmptyColumns();
+        other.fillLastEmptyColumns();
+        SparseMatrix result = add(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                other.rowCount, other.columnCount, other.columnStart, other.rowIndices.getData(), other.values.getData(), alpha, beta);
+        result.setRgrowthThreshold(rgrowthThreshold);
+        return result;
+    }
+
+    @Override
+    public Matrix add(Matrix other, double alpha, double beta) {
+        SparseMatrix o = Objects.requireNonNull(other).toSparse();
+        return add(o, alpha, beta);
     }
 
     @Override
@@ -347,6 +426,16 @@ class SparseMatrix extends AbstractMatrix {
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return values.size();
+    }
+
+    private native SparseMatrix transpose(int m, int n, int[] ap, int[] ai, double[] ax);
+
+    @Override
+    public SparseMatrix transpose() {
+        fillLastEmptyColumns();
+        SparseMatrix transposed = transpose(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData());
+        transposed.setRgrowthThreshold(rgrowthThreshold);
+        return transposed;
     }
 
     @Override

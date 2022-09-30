@@ -78,8 +78,23 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
         return getVersion(IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
     }
 
+    public boolean versionExists(IidmXmlVersion networkVersion) {
+        return extensionVersions.containsKey(networkVersion);
+    }
+
+    /**
+     * get the oldest version of an extension working with a network version.
+     *
+     * @param networkVersion
+     * @return
+     */
     public String getVersion(IidmXmlVersion networkVersion) {
         return extensionVersions.get(networkVersion).last();
+    }
+
+    @Override
+    public Set<String> getVersions() {
+        return namespaceUris.keySet();
     }
 
     protected void checkReadingCompatibility(NetworkXmlReaderContext networkContext) {

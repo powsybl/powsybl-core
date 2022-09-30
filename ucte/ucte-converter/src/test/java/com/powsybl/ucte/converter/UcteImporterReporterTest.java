@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -38,10 +39,6 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
 
     private static final String WORK_DIR = "/tmp";
 
-    protected static String normalizeLineSeparator(String str) {
-        return str.replace("\r\n", "\n").replace("\r", "\n");
-    }
-
     @Test
     public void testReportElementName() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
@@ -64,8 +61,8 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         reporter.export(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/elementNameImportReport.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
         assertEquals(refLogExport, logExport);
     }
 
@@ -81,7 +78,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
         assertEquals(1, rm.getReports().size());
         assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
-        assertEquals(4, rm.getSubReporters().size());
+        assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
 
@@ -92,14 +89,14 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
         assertEquals(1, rm.getReports().size());
         assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
-        assertEquals(4, rm.getSubReporters().size());
+        assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
         rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
         assertEquals(1, rm.getReports().size());
         assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
-        assertEquals(4, rm.getSubReporters().size());
+        assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
 

@@ -10,7 +10,9 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
@@ -18,12 +20,15 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
+import com.powsybl.security.action.Action;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
+import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
@@ -91,7 +96,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     private static CommandLine mockCommandLine(Map<String, String> options, Set<String> flags) {
-        CommandLine cli =  mock(CommandLine.class);
+        CommandLine cli = mock(CommandLine.class);
         when(cli.hasOption(any())).thenReturn(false);
         when(cli.getOptionValue(any())).thenReturn(null);
         options.forEach((k, v) -> {
@@ -237,10 +242,29 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
         }
     }
 
+    @Test
+    public void testRunWithBuilderCreation() throws Exception {
+
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
+             ByteArrayOutputStream berr = new ByteArrayOutputStream();
+             PrintStream out = new PrintStream(bout);
+             PrintStream err = new PrintStream(berr);
+             ComputationManager cm = mock(ComputationManager.class)) {
+
+            CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+
+            ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
+
+            PowsyblException e = assertThrows(PowsyblException.class, () -> tool.run(cl, context));
+            assertTrue(e.getMessage().startsWith("Property ContingenciesProviderFactory is not set"));
+        }
+    }
+
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
             CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
             SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
             when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
@@ -264,7 +288,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisExceptionProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

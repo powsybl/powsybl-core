@@ -10,6 +10,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.ComparisonUtils.compareXml;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 
 /**
@@ -42,7 +45,7 @@ public class SimpleAnonymizerTest extends AbstractXmlConverterTest {
         }
 
         // re-import the IIDM XML using the CSV mapping file
-        Network network2 = new XMLImporter(platformConfig).importData(dataSource, null);
+        Network network2 = new XMLImporter(platformConfig).importData(dataSource, NetworkFactory.findDefault(), null);
         MemDataSource dataSource2 = new MemDataSource();
         new XMLExporter(platformConfig).export(network2, null, dataSource2);
 

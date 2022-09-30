@@ -31,17 +31,17 @@ public class BatteryAdapterTest {
         final Battery battery = createBattery();
 
         assertSame(battery, mergingView.getBattery("BATEST"));
-        assertEquals(ConnectableType.BATTERY, battery.getType());
+        assertEquals(IdentifiableType.BATTERY, battery.getType());
         assertTrue(battery instanceof BatteryAdapter);
         assertSame(mergingView, battery.getNetwork());
         assertEquals("BATEST", battery.getId());
         assertTrue(battery.isFictitious());
-        assertEquals(15.0d, battery.getP0(), delta);
-        assertNotNull(battery.setP0(0.0d));
-        assertEquals(0.0d, battery.getP0(), delta);
-        assertEquals(-15.0d, battery.getQ0(), delta);
-        assertNotNull(battery.setQ0(0.0d));
-        assertEquals(0.0d, battery.getQ0(), delta);
+        assertEquals(15.0d, battery.getTargetP(), delta);
+        assertNotNull(battery.setTargetP(0.0d));
+        assertEquals(0.0d, battery.getTargetP(), delta);
+        assertEquals(-15.0d, battery.getTargetQ(), delta);
+        assertNotNull(battery.setTargetQ(0.0d));
+        assertEquals(0.0d, battery.getTargetQ(), delta);
         assertEquals(-9999.99d, battery.getMinP(), delta);
         assertNotNull(battery.setMinP(-9999.95d));
         assertEquals(-9999.95d, battery.getMinP(), delta);

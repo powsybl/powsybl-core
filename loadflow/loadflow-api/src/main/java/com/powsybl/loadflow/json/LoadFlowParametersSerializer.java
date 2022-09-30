@@ -35,7 +35,7 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         jsonGenerator.writeBooleanField("phaseShifterRegulationOn", parameters.isPhaseShifterRegulationOn());
         jsonGenerator.writeBooleanField("noGeneratorReactiveLimits", parameters.isNoGeneratorReactiveLimits());
         jsonGenerator.writeBooleanField("twtSplitShuntAdmittance", parameters.isTwtSplitShuntAdmittance());
-        jsonGenerator.writeBooleanField("simulShunt", parameters.isSimulShunt());
+        jsonGenerator.writeBooleanField("shuntCompensatorVoltageControlOn", parameters.isShuntCompensatorVoltageControlOn());
         jsonGenerator.writeBooleanField("readSlackBus", parameters.isReadSlackBus());
         jsonGenerator.writeBooleanField("writeSlackBus", parameters.isWriteSlackBus());
         jsonGenerator.writeBooleanField("dc", parameters.isDc());
@@ -48,8 +48,9 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         }
         jsonGenerator.writeEndArray();
         jsonGenerator.writeStringField("connectedComponentMode", parameters.getConnectedComponentMode().name());
+        jsonGenerator.writeBooleanField("hvdcAcEmulation", parameters.isHvdcAcEmulation());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers()::get);
 
         jsonGenerator.writeEndObject();
     }

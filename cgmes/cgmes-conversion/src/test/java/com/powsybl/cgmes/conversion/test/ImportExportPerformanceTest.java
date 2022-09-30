@@ -19,6 +19,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class ImportExportPerformanceTest {
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
         importParameters.put("storeCgmesModelAsNetworkExtension", "true");
-        Network n = i.importData(ds, importParameters);
+        Network n = i.importData(ds, NetworkFactory.findDefault(), importParameters);
         CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         cgmes.print(LOG::info);
 
@@ -79,7 +80,9 @@ public class ImportExportPerformanceTest {
         Path exportFolder = fs.getPath("impl-" + ts);
         Files.createDirectories(exportFolder);
         DataSource exportDataSource = new FileDataSource(exportFolder, "");
-        e.export(n, new Properties(), exportDataSource);
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.CIM_VERSION, "16");
+        e.export(n, exportParameters, exportDataSource);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(ImportExportPerformanceTest.class);

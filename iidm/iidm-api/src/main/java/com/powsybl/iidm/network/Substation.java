@@ -136,6 +136,8 @@ public interface Substation extends Container<Substation> {
 
     /**
      * Get a builder to create a new two windings transformer in the substation.
+     * Only use this builder if the two ends of the transformer are in the substation.
+     * Else use {@link Network#newTwoWindingsTransformer()}.
      */
     TwoWindingsTransformerAdder newTwoWindingsTransformer();
 
@@ -172,6 +174,8 @@ public interface Substation extends Container<Substation> {
 
     /**
      * Get a builder to create a new 3 windings transformer in the substation.
+     * Only use this builder if the three ends of the transformer are in the substation.
+     * Else use {@link Network#newThreeWindingsTransformer()}.
      */
     ThreeWindingsTransformerAdder newThreeWindingsTransformer();
 
@@ -214,5 +218,10 @@ public interface Substation extends Container<Substation> {
      */
     default void remove() {
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.SUBSTATION;
     }
 }

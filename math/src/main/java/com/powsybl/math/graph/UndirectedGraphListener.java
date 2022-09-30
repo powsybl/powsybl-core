@@ -6,11 +6,33 @@
  */
 package com.powsybl.math.graph;
 
+import java.util.Collection;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface UndirectedGraphListener {
+public interface UndirectedGraphListener<V, E> {
 
-    void graphChanged();
+    void vertexAdded(int v);
+
+    void vertexObjectSet(int v, V obj);
+
+    void vertexRemoved(int v, V obj);
+
+    void allVerticesRemoved();
+
+    void edgeAdded(int e, E obj);
+
+    default void edgeBeforeRemoval(int e, E obj) {
+        // Do nothing
+    }
+
+    void edgeRemoved(int e, E obj);
+
+    void allEdgesBeforeRemoval(Collection<E> obj);
+
+    default void allEdgesRemoved(Collection<E> obj) {
+        // Do nothing
+    }
 }

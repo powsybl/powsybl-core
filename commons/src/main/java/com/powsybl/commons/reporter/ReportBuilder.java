@@ -10,9 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
- *
- * <p>A builder to create {@link Report} objects.
+ * A builder to create {@link Report} objects.
  *
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
@@ -189,6 +187,9 @@ public class ReportBuilder {
      * @return a reference to this object
      */
     public ReportBuilder withSeverity(TypedValue severity) {
+        if (!severity.getType().equals(TypedValue.SEVERITY)) {
+            throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
+        }
         values.put(Report.REPORT_SEVERITY_KEY, severity);
         return this;
     }

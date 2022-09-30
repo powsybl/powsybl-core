@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
+  <md:FullModel rdf:about="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66">
+    <md:Model.created>2014-06-01T11:21:24</md:Model.created>
+    <md:Model.scenarioTime>2017-10-02T09:30:00Z</md:Model.scenarioTime>
+	<md:Model.version>2</md:Model.version>
+	<md:Model.description>CGMES Conformity Assessment: MicroGridTestConfiguration (Boundary MAS). The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://entsoe.eu/CAS2.0/MicroGridTestConfiguration</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/TopologyBoundary/3/1</md:Model.profile>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66" />
+  </md:FullModel>
+  <cim:ConnectivityNode rdf:about="#_b675a570-cb6e-11e1-bcee-406c8f32ef58">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_d4affe50316740bdbbf4ae9c7cbf3cfd" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_b67c8340-cb6e-11e1-bcee-406c8f32ef58">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_f03d65b2a51049ffa533e433721145c1" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_b67cf870-cb6e-11e1-bcee-406c8f32ef58">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_9d25a1f9e5d14d47b6dcde99c4380b40" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_b66f15c0-cb6e-11e1-bcee-406c8f32ef58">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_8d7bad8bcc634e0796e362390d9040b6" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_b6978550-cb6e-11e1-bcee-406c8f32ef58">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_1fa19c281c8f4e1eaad9e1cab70f923e" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_1c4a9e9c-ef00-42c9-9845-f64f9ca1e57a">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_1098b1c9-dc85-40ce-b65c-39ae02a3afaa" />
+  </cim:ConnectivityNode>
+  <cim:TopologicalNode rdf:ID="_f03d65b2a51049ffa533e433721145c1">
+    <cim:IdentifiedObject.description>RG CE; 400 kV; OHL</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>TN_Border_GY11</cim:IdentifiedObject.name>
+	<entsoe:IdentifiedObject.shortName>XWI_GY11</entsoe:IdentifiedObject.shortName>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-HU-00002U</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_65dd04e792584b3b912374e35dec032e" />
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_f03d65b2a51049ffa533e433721145c1_X" />
+    <entsoe:TopologicalNode.fromEndIsoCode>AT</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Wien</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>APG</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>HU</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Győr</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>MAVIR</entsoe:TopologicalNode.toEndNameTso>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_d4affe50316740bdbbf4ae9c7cbf3cfd">
+    <cim:IdentifiedObject.description>RG CE; 400 kV; OHL (2)</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>TN_Border_AL11</cim:IdentifiedObject.name>
+	<entsoe:IdentifiedObject.shortName>XCA_AL11</entsoe:IdentifiedObject.shortName>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-ES-PT-10004U</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_65dd04e792584b3b912374e35dec032e" />
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_d4affe50316740bdbbf4ae9c7cbf3cfd_X" />
+    <entsoe:TopologicalNode.fromEndIsoCode>ES</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Cartelle</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>REE</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>PT</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Alto Lindoso</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>REN</entsoe:TopologicalNode.toEndNameTso>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_9d25a1f9e5d14d47b6dcde99c4380b40">
+    <cim:IdentifiedObject.description>RG CE; 400 kV; OHL (2)</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>TN_Border_MA11</cim:IdentifiedObject.name>
+	<entsoe:IdentifiedObject.shortName>XKA_MA11</entsoe:IdentifiedObject.shortName>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-SI-00001T</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_65dd04e792584b3b912374e35dec032e" />
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_9d25a1f9e5d14d47b6dcde99c4380b40_X" />
+    <entsoe:TopologicalNode.fromEndIsoCode>AT</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Kainachtal</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>APG</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>SI</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Maribor</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>ELES</entsoe:TopologicalNode.toEndNameTso>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_8d7bad8bcc634e0796e362390d9040b6">
+    <cim:IdentifiedObject.description>RG CE; 220 kV; OHL</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>TN_Border_ST23</cim:IdentifiedObject.name>
+	<entsoe:IdentifiedObject.shortName>XZE_ST23</entsoe:IdentifiedObject.shortName>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-00016Z</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_7891a026ba2c42098556665efd13ba94" />
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_8d7bad8bcc634e0796e362390d9040b6_X" />
+    <entsoe:TopologicalNode.fromEndIsoCode>AT</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Zell/Ziller</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>APG</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>DE</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Strass</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>TIWAG-Netz</entsoe:TopologicalNode.toEndNameTso>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_1fa19c281c8f4e1eaad9e1cab70f923e">
+    <cim:IdentifiedObject.description>RG CE; 220 kV; OHL</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>TN_Border_ST24</cim:IdentifiedObject.name>
+	<entsoe:IdentifiedObject.shortName>XZE_ST24</entsoe:IdentifiedObject.shortName>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-00017X</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_7891a026ba2c42098556665efd13ba94" />
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_1fa19c281c8f4e1eaad9e1cab70f923e_X" />
+    <entsoe:TopologicalNode.fromEndIsoCode>AT</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Zell/Ziller</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>APG</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>DE</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Strass</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>TIWAG-Netz</entsoe:TopologicalNode.toEndNameTso>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_1098b1c9-dc85-40ce-b65c-39ae02a3afaa">
+    <cim:IdentifiedObject.description>HVDC-AC; 220 kV; OHL</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>Border_HVDC-AC</cim:IdentifiedObject.name>
+	<entsoe:IdentifiedObject.shortName>HVDC-AC-1</entsoe:IdentifiedObject.shortName>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-DC-NL-00082X</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_7891a026ba2c42098556665efd13ba94" />
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_8FE2EC11-3357-4506-BF11-80302102B3F2" />
+    <entsoe:TopologicalNode.fromEndIsoCode>NL</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>HVDC/NL</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>NL</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>BE</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>NL_AC-1</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>NL-HVDC-1</entsoe:TopologicalNode.toEndNameTso>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+  </cim:TopologicalNode>
+</rdf:RDF>

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
@@ -48,10 +49,16 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals("twt", transformer.getId());
         assertEquals(TWT_NAME, transformer.getOptionalName().orElse(null));
         assertEquals(TWT_NAME, transformer.getNameOrId());
-        assertEquals(substation, transformer.getSubstation());
-        assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
+        assertEquals(substation, transformer.getSubstation().orElse(null));
+        assertEquals(IdentifiableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
 
         assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
+        VoltageLevel vl1 = network.getVoltageLevel("vl1");
+        assertEquals(1, Iterables.size(vl1.getThreeWindingsTransformers()));
+        assertEquals(1, vl1.getThreeWindingsTransformerStream().count());
+        assertEquals(1, vl1.getThreeWindingsTransformerCount());
+        assertSame(transformer, vl1.getThreeWindingsTransformers().iterator().next());
+        assertSame(transformer, vl1.getThreeWindingsTransformerStream().findFirst().get());
 
         // leg1 adder
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
@@ -117,15 +124,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits());
+        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits().orElse(null));
         ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
                 .setPermanentLimit(400)
                 .add();
-        assertSame(activePowerLimits1, leg1.getActivePowerLimits());
+        assertSame(activePowerLimits1, leg1.getActivePowerLimits().orElse(null));
         ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
                 .setPermanentLimit(2.4)
                 .add();
-        assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits());
+        assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
         assertEquals(3, leg1.getOperationalLimits().size());
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
@@ -141,7 +148,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg2, leg2.getCurrentLimits());
+        assertSame(currentLimitsInLeg2, leg2.getCurrentLimits().orElse(null));
 
         RatioTapChanger ratioTapChangerInLeg3 = createRatioTapChanger(leg3,
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
@@ -156,7 +163,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setValue(1200)
             .endTemporaryLimit()
             .add();
-        assertSame(currentLimitsInLeg3, leg3.getCurrentLimits());
+        assertSame(currentLimitsInLeg3, leg3.getCurrentLimits().orElse(null));
 
         PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(leg1,
             transformer.getTerminal(ThreeWindingsTransformer.Side.ONE));
@@ -267,6 +274,94 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             r[0] += 1e-5;
             x[0] += 1e-6;
         });
+    }
+
+    @Test
+    public void invalidSubstationContainer() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("3 windings transformer 'twt': the 3 windings of the transformer shall belong to the substation 'sub'");
+        network.newVoltageLevel()
+                .setId("no_substation")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setNominalV(200.0)
+                .setLowVoltageLimit(180.0)
+                .setHighVoltageLimit(220.0)
+                .add()
+                .getBusBreakerView().newBus().setId("no_substation_bus").add();
+        substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("no_substation")
+                .setBus("no_substation_bus")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(2.05)
+                .setRatedS(2.06)
+                .setVoltageLevel("vl2")
+                .setBus("busB")
+                .add()
+                .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl2")
+                .setBus("busB")
+                .add()
+                .add();
+    }
+
+    @Test
+    public void missingSubstationContainer() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("3 windings transformer 'twt': the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations");
+        network.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("vl1")
+                .setBus("busA")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(2.05)
+                .setRatedS(2.06)
+                .setVoltageLevel("vl2")
+                .setBus("busB")
+                .add()
+                .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl2")
+                .setBus("busB")
+                .add()
+                .add();
     }
 
     @Test

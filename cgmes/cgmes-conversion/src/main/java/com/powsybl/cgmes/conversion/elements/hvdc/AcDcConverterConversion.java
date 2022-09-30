@@ -10,12 +10,11 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
+import com.powsybl.cgmes.conversion.elements.AbstractReactiveLimitsOwnerConversion;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.LccConverterStationAdder;
-import com.powsybl.iidm.network.VscConverterStation;
-import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -23,20 +22,16 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class AcDcConverterConversion extends AbstractConductingEquipmentConversion {
+public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversion {
 
     private static final double DEFAULT_POWER_FACTOR = 0.8;
 
-    enum VscRegulation {
-        REACTIVE_POWER,
-        VOLTAGE
-    }
-
-    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, Context context) {
+    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, String acDcConverterDcTerminalId, Context context) {
         super("ACDCConverter", c, context);
 
         this.converterType = Objects.requireNonNull(converterType);
         this.lossFactor = lossFactor;
+        this.acDcConverterDcTerminalId = Objects.requireNonNull(acDcConverterDcTerminalId);
     }
 
     @Override
@@ -55,27 +50,17 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
     public void convert() {
         Objects.requireNonNull(converterType);
         if (converterType.equals(HvdcType.VSC)) {
-            VscRegulation vscRegulation = decodeVscRegulation(p.getLocal("qPccControl"));
-            boolean voltageRegulatorOn = false;
-            double voltageSetpoint = 0;
-            double reactivePowerSetpoint = 0;
-            if (vscRegulation == VscRegulation.VOLTAGE) {
-                voltageRegulatorOn = true;
-                voltageSetpoint = p.asDouble("targetUpcc");
-            } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
-                reactivePowerSetpoint = -p.asDouble("targetQpcc");
-            }
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
-                .setLossFactor((float) this.lossFactor)
-                .setVoltageRegulatorOn(voltageRegulatorOn)
-                .setVoltageSetpoint(voltageSetpoint)
-                .setReactivePowerSetpoint(reactivePowerSetpoint);
+                .setLossFactor((float) this.lossFactor);
             identify(adder);
             connect(adder);
+            RegulatingControlMappingForVscConverters.initialize(adder);
             VscConverterStation c = adder.add();
             addAliasesAndProperties(c);
 
             convertedTerminals(c.getTerminal());
+            convertReactiveLimits(c);
+            context.regulatingControlMapping().forVscConverters().add(c.getId(), p);
         } else if (converterType.equals(HvdcType.LCC)) {
 
             // TODO: There are two modes of control: dcVoltage and activePower
@@ -84,7 +69,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                 .setLossFactor((float) this.lossFactor)
-                .setPowerFactor((float) DEFAULT_POWER_FACTOR);
+                .setPowerFactor((float) getPowerFactor(p));
             identify(adder);
             connect(adder);
             LccConverterStation c = adder.add();
@@ -95,19 +80,24 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         }
     }
 
-    public void setLccPowerFactor(double powerFactor) {
-        this.lccConverter.setPowerFactor((float) powerFactor);
+    @Override
+    protected void addAliasesAndProperties(Identifiable<?> identifiable) {
+        super.addAliasesAndProperties(identifiable);
+        identifiable.addAlias(acDcConverterDcTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal");
     }
 
-    private static VscRegulation decodeVscRegulation(String qPccControl) {
-        if (qPccControl != null) {
-            if (qPccControl.endsWith("voltagePcc")) {
-                return VscRegulation.VOLTAGE;
-            } else if (qPccControl.endsWith("reactivePcc")) {
-                return VscRegulation.REACTIVE_POWER;
-            }
+    private static double getPowerFactor(PropertyBag propertyBag) {
+        double p = propertyBag.asDouble("p");
+        double q = propertyBag.asDouble("q");
+        double powerFactor = p / Math.hypot(p, q);
+        if (Double.isNaN(powerFactor)) {
+            return DEFAULT_POWER_FACTOR;
         }
-        return null;
+        return powerFactor;
+    }
+
+    public void setLccPowerFactor(double powerFactor) {
+        this.lccConverter.setPowerFactor((float) powerFactor);
     }
 
     LccConverterStation getLccConverter() {
@@ -116,5 +106,6 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
     private final HvdcType converterType;
     private final double lossFactor;
+    private final String acDcConverterDcTerminalId;
     private LccConverterStation lccConverter = null;
 }

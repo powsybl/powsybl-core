@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,7 +54,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("r1", twt.getLeg1().getR(), context.getWriter());
         XmlUtil.writeDouble("x1", twt.getLeg1().getX(), context.getWriter());
         XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
@@ -89,7 +90,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(ThreeWindingsTransformer twt, Container<? extends Identifiable<?>> c, NetworkXmlWriterContext context) throws XMLStreamException {
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasRatioTapChanger(), ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1,
                 IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context, () -> writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context));
         IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1,
@@ -103,16 +104,20 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            if (leg.getActivePowerLimits() != null) {
+            Optional<ActivePowerLimits> activePowerLimits = leg.getActivePowerLimits();
+            if (activePowerLimits.isPresent()) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], leg.getActivePowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], activePowerLimits.get(), context.getWriter(),
+                        context.getVersion(), context.isValid(), context.getOptions()));
             }
-            if (leg.getApparentPowerLimits() != null) {
+            Optional<ApparentPowerLimits> apparentPowerLimits = leg.getApparentPowerLimits();
+            if (apparentPowerLimits.isPresent()) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], leg.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
             }
-            if (leg.getCurrentLimits() != null) {
-                writeCurrentLimits(i[0], leg.getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
+            Optional<CurrentLimits> currentLimits = leg.getCurrentLimits();
+            if (currentLimits.isPresent()) {
+                writeCurrentLimits(i[0], currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
             }
             i[0]++;
         }
@@ -131,8 +136,14 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected ThreeWindingsTransformerAdder createAdder(Substation s) {
-        return s.newThreeWindingsTransformer();
+    protected ThreeWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
+        if (c instanceof Network) {
+            return ((Network) c).newThreeWindingsTransformer();
+        }
+        if (c instanceof Substation) {
+            return ((Substation) c).newThreeWindingsTransformer();
+        }
+        throw new AssertionError();
     }
 
     @Override

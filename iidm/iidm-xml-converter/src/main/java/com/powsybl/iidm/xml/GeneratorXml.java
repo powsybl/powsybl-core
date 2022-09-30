@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -50,7 +49,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (!Objects.equals(g, g.getRegulatingTerminal().getConnectable())) {
+        if (g != g.getRegulatingTerminal().getConnectable()) {
             TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
         ReactiveLimitsXml.INSTANCE.write(g, context);
@@ -63,24 +62,25 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
-        EnergySource energySource = EnergySource.valueOf(context.getReader().getAttributeValue(null, "energySource"));
-        double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
-        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
+        String energySourceStr = context.getReader().getAttributeValue(null, "energySource");
+        EnergySource energySource = energySourceStr != null ? EnergySource.valueOf(energySourceStr) : null;
+        double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "minP");
+        double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "maxP");
         double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedS");
-        boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
-        double targetP = XmlUtil.readDoubleAttribute(context.getReader(), "targetP");
+        String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
+        double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetP");
         double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
         double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
         readNodeOrBus(adder, context);
-        Generator g = adder.setEnergySource(energySource)
+        adder.setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setRatedS(ratedS)
-                .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetP(targetP)
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
-                .add();
+                .setVoltageRegulatorOn(Boolean.parseBoolean(voltageRegulatorOn));
+        Generator g = adder.add();
         readPQ(null, g.getTerminal(), context.getReader());
         return g;
     }

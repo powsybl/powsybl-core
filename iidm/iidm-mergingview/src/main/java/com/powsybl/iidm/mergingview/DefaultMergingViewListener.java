@@ -33,7 +33,12 @@ class DefaultMergingViewListener implements NetworkListener {
     }
 
     @Override
-    public void onRemoval(final Identifiable identifiable) {
+    public void beforeRemoval(final Identifiable identifiable) {
+        // Nothing to do
+    }
+
+    @Override
+    public void afterRemoval(String id) {
         // Nothing to do
     }
 }

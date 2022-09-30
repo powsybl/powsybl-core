@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-time-series</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.4.0-SNAPSHOT</version>
+        <version>4.11.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-time-series-api</artifactId>
@@ -24,10 +24,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.gmavenplus</groupId>
-                <artifactId>gmavenplus-plugin</artifactId>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -38,6 +34,13 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -53,10 +56,6 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.threeten</groupId>
             <artifactId>threeten-extra</artifactId>
         </dependency>
@@ -66,7 +65,7 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- test dependencies -->
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava-testlib</artifactId>

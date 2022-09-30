@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -106,7 +106,7 @@ public final class IidmXmlUtil {
     /**
      * Assert that the writer context's IIDM-XML version equals or is less recent than a given IIDM-XML version.
      * If not, throw an exception or log an error with a given type of error message,
-     * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
+     * depending of {@link ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
      */
     public static void assertMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(maxVersion) > 0) {
@@ -127,7 +127,7 @@ public final class IidmXmlUtil {
     /**
      * Assert that the writer context's IIDM-XML version equals or is less recent than a given IIDM-XML version.
      * If not, throw an exception or log an error with a given type of error message,
-     * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
+     * depending of {@link ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
      */
     public static void assertMaximumVersion(String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(maxVersion) > 0) {
@@ -146,9 +146,19 @@ public final class IidmXmlUtil {
     }
 
     /**
+     * Assert that the reader context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
+     * If not, throw an exception with a given type of error message.
+     */
+    public static void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, IidmXmlVersion version) {
+        if (version.compareTo(minVersion) < 0) {
+            throw createException(rootElementName, elementName, type, minVersion, version, MINIMUM_REASON);
+        }
+    }
+
+    /**
      * Assert that the writer context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception or log an error with a given type of error message,
-     * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
+     * depending of {@link ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
      */
     public static void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
@@ -169,11 +179,24 @@ public final class IidmXmlUtil {
     /**
      * Assert that the writer context's IIDM-XML version equals or is more recent than a given IIDM-XML version.
      * If not, throw an exception or log an error with a given type of error message,
-     * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
+     * depending of {@link ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
      */
     public static void assertMinimumVersion(String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
             createExceptionOrLogError(elementName, type, minVersion, MINIMUM_REASON, context);
+        }
+    }
+
+    /**
+     * Assert that the reader context's IIDM-XML version equals or is more recent than a given IIDM-XML version if the value of an attribute or the state of an equipment
+     * is not default (interpretable for previous versions).
+     * If not, throw an exception with a given type of error message.
+     */
+    public static void assertMinimumVersionIfNotDefault(boolean valueIsNotDefault, String rootElementName,
+                                                        String elementName, ErrorMessage type, IidmXmlVersion minVersion,
+                                                        IidmXmlVersion version) {
+        if (valueIsNotDefault) {
+            assertMinimumVersion(rootElementName, elementName, type, minVersion, version);
         }
     }
 
@@ -194,7 +217,7 @@ public final class IidmXmlUtil {
      * Assert that the writer context's IIDM-XML version equals or is more recent than a given IIDM-XML version if the value of an attribute or the state of an equipment
      * is not default (interpretable for previous versions).
      * If not, throw an exception or log an error with a given type of error message,
-     * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
+     * depending of {@link ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
      */
     public static void assertMinimumVersionIfNotDefault(boolean valueIsNotDefault, String rootElementName,
                                                         String elementName, ErrorMessage type, IidmXmlVersion minVersion,
@@ -223,7 +246,7 @@ public final class IidmXmlUtil {
      * Assert that the writer context's IIDM-XML version equals or is more recent than a given IIDM-XML version if the value of an attribute or the state of an equipment
      * is not default (interpretable for previous versions).
      * If not, throw an exception or log an error with a given type of error message,
-     * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
+     * depending of {@link ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
      * If the value is not default and the version is compatible, run a given runnable.
      */
     public static void assertMinimumVersionAndRunIfNotDefault(boolean valueIsNotDefault, String rootElementName,
@@ -248,7 +271,7 @@ public final class IidmXmlUtil {
     /**
      * Assert that the writer context's IIDM-XML version is strictly older than a given IIDM-XML version.
      * If not, throw an exception or log an error with a given type of error message,
-     * depending of {@link com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
+     * depending of {@link ExportOptions.IidmVersionIncompatibilityBehavior} found in the {@link ExportOptions} of the given context.
      */
     public static void assertStrictMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(maxVersion) >= 0) {
@@ -324,6 +347,18 @@ public final class IidmXmlUtil {
     public static void writeIntAttributeUntilMaximumVersion(String attributeName, int value, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getVersion().compareTo(maxVersion) <= 0) {
             XmlUtil.writeInt(attributeName, value, context.getWriter());
+        }
+    }
+
+    /**
+     * Get an attribute name depending on IIDM-XML version.
+     * @return oldName if version strictly older than comparisonVersion, else newName.
+     */
+    public static String getAttributeName(String oldName, String newName, IidmXmlVersion version, IidmXmlVersion comparisonVersion) {
+        if (version.compareTo(comparisonVersion) < 0) {
+            return oldName;
+        } else {
+            return newName;
         }
     }
 

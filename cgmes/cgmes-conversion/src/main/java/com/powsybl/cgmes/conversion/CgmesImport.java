@@ -8,25 +8,24 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterScope;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -49,14 +49,26 @@ public class CgmesImport implements Importer {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
+        String boundaryPath = platformConfig.getConfigDir()
+                .map(dir -> dir.resolve(FORMAT).resolve("boundary"))
+                .map(Path::toString)
+                .orElse(null);
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
-        this.boundaryLocationParameter = new Parameter(
+        boundaryLocationParameter = new Parameter(
                 BOUNDARY_LOCATION,
                 ParameterType.STRING,
                 "The location of boundary files",
-                platformConfig.getConfigDir().resolve(FORMAT).resolve("boundary").toString());
+                boundaryPath,
+                null,
+                ParameterScope.TECHNICAL);
+        postProcessorsParameter = new Parameter(
+                POST_PROCESSORS,
+                ParameterType.STRING_LIST,
+                "Post processors",
+                Collections.emptyList(),
+                postProcessors.stream().map(CgmesImportPostProcessor::getName).collect(Collectors.toList()));
     }
 
     public CgmesImport(PlatformConfig platformConfig) {
@@ -75,6 +87,7 @@ public class CgmesImport implements Importer {
     public List<Parameter> getParameters() {
         List<Parameter> allParams = new ArrayList<>(STATIC_PARAMETERS);
         allParams.add(boundaryLocationParameter);
+        allParams.add(postProcessorsParameter);
         return Collections.unmodifiableList(allParams);
     }
 
@@ -101,8 +114,15 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
-        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
-        return new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
+        TripleStoreOptions options = new TripleStoreOptions();
+        String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
+        if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
+            options.setRemoveInitialUnderscoreForIdentifiers(true);
+        } else if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_RDFID)) {
+            options.setRemoveInitialUnderscoreForIdentifiers(false);
+        }
+        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), options);
+        return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory).convert();
     }
 
     @Override
@@ -122,14 +142,21 @@ public class CgmesImport implements Importer {
     }
 
     private ReadOnlyDataSource boundary(Properties p) {
-        Path loc = Paths.get(
-                ConversionParameters.readStringParameter(
-                        getFormat(),
-                        p,
-                        boundaryLocationParameter,
-                        defaultValueConfig));
+        String loc = Parameter.readString(
+                getFormat(),
+                p,
+                boundaryLocationParameter,
+                defaultValueConfig);
+        if (loc == null) {
+            return null;
+        }
+        Path ploc = Path.of(loc);
+        if (!Files.exists(ploc)) {
+            LOGGER.warn("Location of boundaries does not exist {}. No attempt to load boundaries will be made", loc);
+            return null;
+        }
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc, DataSourceUtil.getBaseName(loc));
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(ploc);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
@@ -137,83 +164,94 @@ public class CgmesImport implements Importer {
     }
 
     private String tripleStore(Properties p) {
-        return ConversionParameters.readStringParameter(
+        return Parameter.readString(
                 getFormat(),
                 p,
                 POWSYBL_TRIPLESTORE_PARAMETER,
                 defaultValueConfig);
     }
 
-    private Conversion.Config config(Properties p) {
-        return new Conversion.Config()
+    private Conversion.Config config(ReadOnlyDataSource ds, Properties p) {
+        Conversion.Config config = new Conversion.Config()
                 .setAllowUnsupportedTapChangers(
-                        ConversionParameters.readBooleanParameter(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
                                 ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
                                 defaultValueConfig))
                 .setChangeSignForShuntReactivePowerFlowInitialState(
-                        ConversionParameters.readBooleanParameter(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
                                 CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
                                 defaultValueConfig))
                 .setConvertBoundary(
-                        ConversionParameters.readBooleanParameter(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
                                 CONVERT_BOUNDARY_PARAMETER,
                                 defaultValueConfig))
                 .setConvertSvInjections(
-                        ConversionParameters.readBooleanParameter(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
                                 CONVERT_SV_INJECTIONS_PARAMETER,
                                 defaultValueConfig))
                 .setCreateBusbarSectionForEveryConnectivityNode(
-                        ConversionParameters.readBooleanParameter(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
-                .setProfileUsedForInitialStateValues(
-                        ConversionParameters.readStringParameter(
+                .setCreateCgmesExportMapping(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
-                                PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER,
+                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
+                                defaultValueConfig))
+                .setEnsureIdAliasUnicity(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                ENSURE_ID_ALIAS_UNICITY_PARAMETER,
+                                defaultValueConfig))
+                .setImportControlAreas(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                IMPORT_CONTROL_AREAS_PARAMETER,
+                                defaultValueConfig))
+                .setProfileForInitialValuesShuntSectionsTapPositions(
+                        Parameter.readString(
+                                getFormat(),
+                                p,
+                                PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
                                 defaultValueConfig))
                 .setStoreCgmesModelAsNetworkExtension(
-                        ConversionParameters.readBooleanParameter(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
                                 STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
                                 defaultValueConfig))
                 .setStoreCgmesConversionContextAsNetworkExtension(
-                        ConversionParameters.readBooleanParameter(
+                        Parameter.readBoolean(
                                 getFormat(),
                                 p,
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
-                                defaultValueConfig))
-                .setEnsureIdAliasUnicity(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                ENSURE_ID_ALIAS_UNICITY_PARAMETER,
-                                defaultValueConfig
-                        ))
-                .setCreateCgmesExportMapping(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
-                                defaultValueConfig
-                        )
-                );
+                                defaultValueConfig));
+        String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+        String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
+        if (idMappingFilePath == null) {
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
+        } else {
+            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
+        }
+        return config;
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
-        return ConversionParameters
-                .readStringListParameter(getFormat(), p, POST_PROCESSORS_PARAMETER, defaultValueConfig)
+        return Parameter
+                .readStringList(getFormat(), p, postProcessorsParameter, defaultValueConfig)
                 .stream()
                 .filter(name -> {
                     boolean found = postProcessors.containsKey(name);
@@ -245,12 +283,18 @@ public class CgmesImport implements Importer {
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
     public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
+    public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
+    public static final String ID_MAPPING_FILE_NAMING_STRATEGY = "iidm.import.cgmes.id-mapping-file-naming-strategy";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    public static final String PROFILE_USED_FOR_INITIAL_STATE_VALUES = "iidm.import.cgmes.profile-used-for-initial-state-values";
+    public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
+    public static final String SOURCE_FOR_IIDM_ID = "iidm.import.cgmes.source-for-iidm-id";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
+
+    public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
+    public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
             ALLOW_UNSUPPORTED_TAP_CHANGERS,
@@ -290,27 +334,38 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Ensure IDs and aliases are unique",
             Boolean.FALSE);
+    private static final Parameter ID_MAPPING_FILE_PATH_PARAMETER = new Parameter(
+            ID_MAPPING_FILE_PATH,
+            ParameterType.STRING,
+            "Path of ID mapping file",
+            null,
+            null,
+            ParameterScope.TECHNICAL);
+    private static final Parameter ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER = new Parameter(
+            ID_MAPPING_FILE_NAMING_STRATEGY,
+            ParameterType.STRING,
+            "Configure what type of naming strategy you want to use for the provided ID mapping file",
+            NamingStrategyFactory.IDENTITY);
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
             "Import control areas",
             Boolean.TRUE);
-    private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
-            POST_PROCESSORS,
-            ParameterType.STRING_LIST,
-            "Post processors",
-            Collections.emptyList());
     private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(
             POWSYBL_TRIPLESTORE,
             ParameterType.STRING,
             "The triplestore used during the import",
-            TripleStoreFactory.defaultImplementation())
+            TripleStoreFactory.defaultImplementation(),
+            null,
+            ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter PROFILE_USED_FOR_INITIAL_STATE_VALUES_PARAMETER = new Parameter(
-            PROFILE_USED_FOR_INITIAL_STATE_VALUES,
-            ParameterType.STRING,
-            "Profile used for initial state values",
-            "SSH");
+    private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
+        PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
+        ParameterType.STRING,
+        "Profile used for initial state values",
+        "SSH",
+            List.of("SSH", "SV"))
+        .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -322,22 +377,32 @@ public class CgmesImport implements Importer {
             "Store the initial CGMES model as a network extension",
             Boolean.TRUE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
+    private static final Parameter SOURCE_FOR_IIDM_ID_PARAMETER = new Parameter(
+            SOURCE_FOR_IIDM_ID,
+            ParameterType.STRING,
+            "Source for IIDM identifiers",
+            SOURCE_FOR_IIDM_ID_MRID,
+            List.of(SOURCE_FOR_IIDM_ID_MRID, SOURCE_FOR_IIDM_ID_RDFID));
 
-    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
-            CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+            CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
+            ID_MAPPING_FILE_PATH_PARAMETER,
+            ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
-            POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
+            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
+            SOURCE_FOR_IIDM_ID_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
+    private final Parameter postProcessorsParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;
     private final ParameterDefaultValueConfig defaultValueConfig;
 

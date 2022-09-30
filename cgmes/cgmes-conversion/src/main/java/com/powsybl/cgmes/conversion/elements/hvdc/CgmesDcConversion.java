@@ -7,9 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.List;
-import java.util.Objects;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
@@ -19,12 +16,16 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -46,15 +47,17 @@ public class CgmesDcConversion {
     public void convert() {
 
         // Get hvdc configurations
-        Adjacency adjacency = new Adjacency(cgmesModel);
+        AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
+
+        Adjacency adjacency = new Adjacency(cgmesModel, acDcConverterNodes);
         if (adjacency.isEmpty()) {
             return;
         }
-        NodeEquipment nodeEquipment = new NodeEquipment(cgmesModel, adjacency);
+        NodeEquipment nodeEquipment = new NodeEquipment(cgmesModel, acDcConverterNodes, adjacency);
         Islands islands = new Islands(adjacency);
 
         IslandsEnds islandsEnds = new IslandsEnds();
-        islands.getIslandsNodes().forEach(listNodes -> islandsEnds.add(adjacency, listNodes));
+        islands.getIslandsNodes().forEach(listNodes -> islandsEnds.add(adjacency, nodeEquipment, listNodes));
 
         Hvdc hvdc = new Hvdc();
         islandsEnds.getIslandsEndsNodes().forEach(ien -> {
@@ -68,7 +71,7 @@ public class CgmesDcConversion {
         });
 
         // Convert to IIDM each converter - dcLineSegment configuration
-        hvdc.getHvdcData().forEach(h -> convert(nodeEquipment, h.converters, h.dcLineSegments));
+        hvdc.getHvdcData().forEach(h -> convert(acDcConverterNodes, adjacency, h.converters, h.dcLineSegments));
 
         // warnings
         context.dc().reportCgmesConvertersNotUsed();
@@ -81,16 +84,17 @@ public class CgmesDcConversion {
     // (2) Two AcDcConverter pairs One DcLineSegment
     // (3) One AcDcConverter pair Two DcLineSegments
     //
-    private void convert(NodeEquipment nodeEquipment, List<HvdcConverter> converters, List<String> dcLineSegments) {
+    private void convert(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency, List<HvdcConverter> converters,
+        List<String> dcLineSegments) {
         int converterNum = converters.size();
         int dcLineSegmentNum = dcLineSegments.size();
 
         if (converterNum == 1 && dcLineSegmentNum == 1) {
-            oneAcDcConverterPairOneDcLineSegment(nodeEquipment, converters, dcLineSegments);
+            oneAcDcConverterPairOneDcLineSegment(acDcConverterNodes, adjacency, converters, dcLineSegments);
         } else if (converterNum == 2 && dcLineSegmentNum == 1) {
-            twoAcDcConverterPairsOneDcLineSegment(nodeEquipment, converters, dcLineSegments);
+            twoAcDcConverterPairsOneDcLineSegment(acDcConverterNodes, adjacency, converters, dcLineSegments);
         } else if (converterNum == 1 && dcLineSegmentNum == 2) {
-            oneAcDcConverterPairTwoDcLineSegments(nodeEquipment, converters, dcLineSegments);
+            oneAcDcConverterPairTwoDcLineSegments(acDcConverterNodes, adjacency, converters, dcLineSegments);
         } else {
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Converters %d DcLineSegments %d",
                 converterNum, dcLineSegmentNum));
@@ -102,13 +106,9 @@ public class CgmesDcConversion {
     //
     //      AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2        AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2
     //
-    private void oneAcDcConverterPairOneDcLineSegment(NodeEquipment nodeEquipment, List<HvdcConverter> converters,
-        List<String> dcLineSegments) {
-        if (isHvdcWellOriented(nodeEquipment, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
-        } else {
-            convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0));
-        }
+    private void oneAcDcConverterPairOneDcLineSegment(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency,
+        List<HvdcConverter> converters, List<String> dcLineSegments) {
+        convert(acDcConverterNodes, adjacency, converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
     }
 
     // (2)
@@ -122,15 +122,10 @@ public class CgmesDcConversion {
     //
     //      where DcLineSegment is duplicated into DcLineSegment and DcLineSegment-1
     //
-    private void twoAcDcConverterPairsOneDcLineSegment(NodeEquipment nodeEquipment, List<HvdcConverter> converters,
-        List<String> dcLineSegments) {
-        if (isHvdcWellOriented(nodeEquipment, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
-            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
-        } else {
-            convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0), false);
-            convert(converters.get(1).acDcConvertersEnd2, converters.get(1).acDcConvertersEnd1, dcLineSegments.get(0), true);
-        }
+    private void twoAcDcConverterPairsOneDcLineSegment(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency,
+        List<HvdcConverter> converters, List<String> dcLineSegments) {
+        convert(acDcConverterNodes, adjacency, converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
+        convert(acDcConverterNodes, adjacency, converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
     }
 
     // (3)
@@ -144,59 +139,38 @@ public class CgmesDcConversion {
     //
     //      where DcLineSegment = DcLineSegment1 + DcLineSegment2
     //
-    private void oneAcDcConverterPairTwoDcLineSegments(NodeEquipment nodeEquipment, List<HvdcConverter> converters,
-        List<String> dcLineSegments) {
-        if (isHvdcWellOriented(nodeEquipment, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
-        } else {
-            convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0), dcLineSegments.get(1));
-        }
+    private void oneAcDcConverterPairTwoDcLineSegments(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency,
+        List<HvdcConverter> converters, List<String> dcLineSegments) {
+        convert(acDcConverterNodes, adjacency, converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
     }
 
-    // Determine if the converter is well orientated. It is well orientated if acDcConverterId is at end1
-    private boolean isHvdcWellOriented(NodeEquipment nodeEquipment, String acDcConverterId, String dcLineSegmentId) {
-        PropertyBag pb = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId);
-        CgmesDcTerminal t1 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 1));
-        String node = getDcNode(cgmesModel, t1);
-        return nodeEquipment.containsAcDcConverter(node, acDcConverterId);
-    }
-
-    private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
-        convert(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId, false);
-    }
-
-    private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId, boolean isDuplicated) {
-        if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
+    private void convert(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency, String acDcConverterIdEnd1,
+        String acDcConverterIdEnd2, String dcLineSegmentId) {
+        if (!convertCommonData(acDcConverterNodes, adjacency, acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
         this.r = computeR(this.dcLineSegment);
-
-        // After collecting all commomData the id can be modified to guarantee uniqueness
-        if (isDuplicated) {
-            defineACopyOfThePropertyBagWithUniqueId(dcLineSegment, dcLineSegmentId);
-        }
 
         if (createHvdc()) {
             setCommonDataUsed();
         }
     }
 
-    // We do not use "#n" to guarantee uniqueness since the getId() method does not support more than one '#' character
-    private void defineACopyOfThePropertyBagWithUniqueId(PropertyBag dcLineSegment, String dcLineSegmentId) {
+    private void convert(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency, String acDcConverterIdEnd1,
+        String acDcConverterIdEnd2, String dcLineSegmentId, boolean isDuplicated) {
+        if (!convertCommonData(acDcConverterNodes, adjacency, acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
+            return;
+        }
+        this.r = 2.0 * computeR(this.dcLineSegment);
 
-        // Create a copy of the property bag and change the id to guarantee uniqueness
-        PropertyBag dcLineSegmentCopy = dcLineSegment.copy();
-
-        String completeId = dcLineSegmentCopy.get("DCLineSegment");
-        String uniqueId = dcLineSegmentId + "-1";
-        dcLineSegmentCopy.put("DCLineSegment", completeId.replace(dcLineSegmentId, uniqueId));
-
-        this.dcLineSegmentId = uniqueId;
-        this.dcLineSegment = dcLineSegmentCopy;
+        if (createHvdc(isDuplicated)) {
+            setCommonDataUsed();
+        }
     }
 
-    private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId1, String dcLineSegmentId2) {
-        if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId1)) {
+    private void convert(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency, String acDcConverterIdEnd1,
+        String acDcConverterIdEnd2, String dcLineSegmentId1, String dcLineSegmentId2) {
+        if (!convertCommonData(acDcConverterNodes, adjacency, acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId1)) {
             return;
         }
         PropertyBag dcLineSegment2 = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId2);
@@ -217,14 +191,34 @@ public class CgmesDcConversion {
         context.dc().setCgmesDcLineSegmentUsed(dcLineSegmentId);
     }
 
-    private boolean convertCommonData(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
+    private boolean convertCommonData(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency,
+        String acDcConverterId1, String acDcConverterId2, String dcLineSegmentId) {
+
+        PropertyBag pbDcLineSegment = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId);
+        CgmesDcTerminal t1 = cgmesModel.dcTerminal(pbDcLineSegment.getId(CgmesNames.DC_TERMINAL + 1));
+        String dcNode1 = getDcNode(cgmesModel, t1);
+        CgmesDcTerminal t2 = cgmesModel.dcTerminal(pbDcLineSegment.getId(CgmesNames.DC_TERMINAL + 2));
+        String dcNode2 = getDcNode(cgmesModel, t2);
+
+        // Determine if the converter is well orientated. It is well orientated if acDcConverterId1 is at end1
+
+        String acDcConverterIdEnd1 = findAcDcConverterConnectedTo(acDcConverterNodes, adjacency, acDcConverterId1, acDcConverterId2, dcNode1);
+        String acDcConverterIdEnd2 = acDcConverterIdEnd1.equals(acDcConverterId1) ? acDcConverterId2 : acDcConverterId1;
+
+        // In some cases DcLineSegment DcNode1 and acDcConverterDcNode1 are different.
+        // Same happens with DcLineSegment DcNode2 and acDcConverterDcNode2
+        String acDcConverterDcNode1 = findAcDcConverterNode(acDcConverterNodes, adjacency, acDcConverterIdEnd1, dcNode1);
+        String acDcConverterDcNode2 = findAcDcConverterNode(acDcConverterNodes, adjacency, acDcConverterIdEnd2, dcNode2);
+
         this.converter1Id = acDcConverterIdEnd1;
         this.cconverter1 = context.dc().getCgmesConverterPropertyBag(acDcConverterIdEnd1);
+        this.acDcConverterDcTerminal1Id = findAcDcConverterDcTerminal(acDcConverterIdEnd1, acDcConverterDcNode1);
         this.converter2Id = acDcConverterIdEnd2;
         this.cconverter2 = context.dc().getCgmesConverterPropertyBag(acDcConverterIdEnd2);
+        this.acDcConverterDcTerminal2Id = findAcDcConverterDcTerminal(acDcConverterIdEnd2, acDcConverterDcNode2);
         this.dcLineSegmentId = dcLineSegmentId;
-        this.dcLineSegment = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId);
-        if (this.cconverter1 == null || this.cconverter2 == null || this.dcLineSegment == null) {
+        this.dcLineSegment = pbDcLineSegment;
+        if (this.cconverter1 == null || this.cconverter2 == null) {
             return false;
         }
         this.converterType = decodeType(this.cconverter1.getLocal(TYPE));
@@ -298,7 +292,29 @@ public class CgmesDcConversion {
         return ratedUdc2;
     }
 
+    private String findAcDcConverterDcTerminal(String acDcConverterId, String dcNodeId) {
+        String terminalNodeProperty = context.nodeBreaker() ? "DCNode" : "DCTopologicalNode";
+        return context.cgmes().dcTerminals().stream()
+                // A terminal of this converter
+                .filter(t -> acDcConverterId.equals(t.getId("DCConductingEquipment")))
+                // The equipment type of the terminal must be a converter (redundant, but safer)
+                .filter(t -> isAcDcConverter(t.getId("dcConductingEquipmentType")))
+                // The terminal is connectd to the node we are looking for
+                .filter(t -> dcNodeId.equals(t.getId(terminalNodeProperty)))
+                .findFirst()
+                .map(t -> t.getId("DCTerminal"))
+                .orElseThrow(() -> new PowsyblException(String.format("Missing terminal for converter %s at %s %s", acDcConverterId, terminalNodeProperty, dcNodeId)));
+    }
+
+    private static boolean isAcDcConverter(String type) {
+        return type != null && (type.equals("CsConverter") || type.equals("VsConverter"));
+    }
+
     private boolean createHvdc() {
+        return createHvdc(false);
+    }
+
+    private boolean createHvdc(boolean isDuplicated) {
 
         // poleLossP is the active power loss at a DC Pole
         // for lossless operation: P(DC) = P(AC) => lossFactor = 0
@@ -309,8 +325,8 @@ public class CgmesDcConversion {
         // In IIDM, for inverter operation P(AC) / P(DC) = 1 - lossFactor / 100
         // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor / 100
 
-        double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P);
-        double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P);
+        double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P, 0.0);
+        double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P, 0.0);
 
         // load sign convention is used i.e. positive sign means flow out from a node
         // i.e. pACx >= 0 if converterx is rectifier and pACx <= 0 if converterx is
@@ -322,11 +338,11 @@ public class CgmesDcConversion {
         LossFactor lossFactor = new LossFactor(context, operatingMode, pAC1, pAC2, poleLossP1, poleLossP2);
         lossFactor.compute();
 
-        AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), context);
-        AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), context);
+        AcDcConverterConversion acDcConverterConversion1 = new AcDcConverterConversion(cconverter1, converterType, lossFactor.getLossFactor1(), acDcConverterDcTerminal1Id, context);
+        AcDcConverterConversion acDcConverterConversion2 = new AcDcConverterConversion(cconverter2, converterType, lossFactor.getLossFactor2(), acDcConverterDcTerminal2Id, context);
         DcLineSegmentConverter converter1 = new DcLineSegmentConverter(converter1Id, poleLossP1, pAC1);
         DcLineSegmentConverter converter2 = new DcLineSegmentConverter(converter2Id, poleLossP2, pAC2);
-        DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1, converter2, context);
+        DcLineSegmentConversion dcLineSegmentConversion = new DcLineSegmentConversion(dcLineSegment, operatingMode, r, ratedUdc, converter1, converter2, isDuplicated, context);
 
         if (!acDcConverterConversion1.valid() || !acDcConverterConversion2.valid() || !dcLineSegmentConversion.valid()) {
             return false;
@@ -385,6 +401,41 @@ public class CgmesDcConversion {
         }
     }
 
+    private static String findAcDcConverterConnectedTo(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency,
+        String acDcConverterId1, String acDcConverterId2, String dcNode) {
+        List<String> dcNodes1 = acDcConverterNodes.getDcNodes(acDcConverterId1);
+        if (dcNodes1.stream().anyMatch(dcNode1 -> isConnectedByOneStep(adjacency, dcNode1, dcNode))) {
+            return acDcConverterId1;
+        }
+        List<String> dcNodes2 = acDcConverterNodes.getDcNodes(acDcConverterId2);
+        if (dcNodes2.stream().anyMatch(dcNode2 -> isConnectedByOneStep(adjacency, dcNode2, dcNode))) {
+            return acDcConverterId2;
+        }
+        throw new PowsyblException(String.format(
+            "Unexpected HVDC configuration: One of the two converters %s, %s must be connected to the dcNode %s",
+            acDcConverterId1, acDcConverterId2, dcNode));
+    }
+
+    private static String findAcDcConverterNode(AcDcConverterNodes acDcConverterNodes, Adjacency adjacency,
+        String acDcConverterId, String dcNode) {
+        List<String> dcNodes = acDcConverterNodes.getDcNodes(acDcConverterId);
+        Optional<String> optional = dcNodes.stream().filter(dcNodeConverter -> isConnectedByOneStep(adjacency, dcNodeConverter, dcNode)).findFirst();
+        if (optional.isPresent()) {
+            return optional.get();
+        }
+        throw new PowsyblException(
+            String.format("Unexpected HVDC configuration: AcDcConverter %s must be connected to the dcNode %s",
+                acDcConverterId, dcNode));
+    }
+
+    // Only one step is necessary for the supported configurations
+    private static boolean isConnectedByOneStep(Adjacency adjacency, String dcNode1, String dcNode2) {
+        if (dcNode1.equals(dcNode2)) {
+            return true;
+        }
+        return adjacency.areAdjacentsByAcDcConverter(dcNode1, dcNode2);
+    }
+
     private final CgmesModel cgmesModel;
     private final Context context;
 
@@ -392,8 +443,10 @@ public class CgmesDcConversion {
     private HvdcLine.ConvertersMode operatingMode;
     private String converter1Id;
     private PropertyBag cconverter1;
+    private String acDcConverterDcTerminal1Id;
     private String converter2Id;
     private PropertyBag cconverter2;
+    private String acDcConverterDcTerminal2Id;
     private String dcLineSegmentId;
     private PropertyBag dcLineSegment;
     private double r;

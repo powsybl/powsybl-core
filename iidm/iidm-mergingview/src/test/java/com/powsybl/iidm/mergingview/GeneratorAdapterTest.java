@@ -66,7 +66,7 @@ public class GeneratorAdapterTest {
         assertEquals(id, generator.getId());
         assertTrue(generator.isVoltageRegulatorOn());
         assertTrue(generator.getRegulatingTerminal() instanceof TerminalAdapter);
-        assertEquals(ConnectableType.GENERATOR, generator.getType());
+        assertEquals(IdentifiableType.GENERATOR, generator.getType());
 
         assertEquals(targetV, generator.getTargetV(), delta);
         assertTrue(generator.setTargetV(++targetV) instanceof GeneratorAdapter);

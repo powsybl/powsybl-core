@@ -6,13 +6,17 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.SV;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
@@ -58,6 +62,12 @@ public abstract class AbstractLineTest {
         assertEquals(4.0, acLine.getB1(), 0.0);
         assertEquals(4.5, acLine.getB2(), 0.0);
 
+        assertEquals(1, Iterables.size(voltageLevelA.getLines()));
+        assertEquals(1, voltageLevelA.getLineStream().count());
+        assertEquals(1, voltageLevelA.getLineCount());
+        assertSame(acLine, voltageLevelA.getLines().iterator().next());
+        assertSame(acLine, voltageLevelA.getLineStream().findFirst().get());
+
         Bus busA = voltageLevelA.getBusBreakerView().getBus("busA");
         Bus busB = voltageLevelB.getBusBreakerView().getBus("busB");
         assertSame(busA, acLine.getTerminal1().getBusBreakerView().getBus());
@@ -68,7 +78,7 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getConnectableBus());
 
         assertFalse(acLine.isTieLine());
-        assertEquals(ConnectableType.LINE, acLine.getType());
+        assertEquals(IdentifiableType.LINE, acLine.getType());
 
         // setter getter
         double r = 10.0;
@@ -107,10 +117,10 @@ public abstract class AbstractLineTest {
                 .setValue(1200)
                 .endTemporaryLimit()
                 .add();
-        assertSame(currentLimits1, acLine.getCurrentLimits1());
-        assertSame(currentLimits2, acLine.getCurrentLimits2());
-        assertSame(currentLimits1, acLine.getCurrentLimits(Branch.Side.ONE));
-        assertSame(currentLimits2, acLine.getCurrentLimits(Branch.Side.TWO));
+        assertSame(currentLimits1, acLine.getCurrentLimits1().orElse(null));
+        assertSame(currentLimits2, acLine.getCurrentLimits2().orElse(null));
+        assertSame(currentLimits1, acLine.getLimits(LimitType.CURRENT, Branch.Side.ONE).orElse(null));
+        assertSame(currentLimits2, acLine.getLimits(LimitType.CURRENT, Branch.Side.TWO).orElse(null));
 
         // add power on line
         Terminal terminal1 = acLine.getTerminal1();
@@ -173,6 +183,150 @@ public abstract class AbstractLineTest {
                 .setConnectableBus1("busA")
                 .setConnectableBus2("busB")
                 .add();
+    }
+
+    @Test
+    public void testMove1Bb() {
+        Line line = createLineBetweenVoltageAB("line", LINE_NAME, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        Bus busC = voltageLevelA.getBusBreakerView().newBus()
+                .setId("busC")
+                .add();
+
+        VoltageLevel vlNb = network.getSubstation("sub").newVoltageLevel()
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .setId("VL_NB")
+                .setNominalV(400.0)
+                .setLowVoltageLimit(380.0)
+                .setHighVoltageLimit(420.0)
+                .add();
+        line.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNb.getId());
+        assertEquals(0, line.getTerminal1().getNodeBreakerView().getNode());
+        assertSame(vlNb, line.getTerminal1().getVoltageLevel());
+        Terminal.NodeBreakerView tNbv = line.getTerminal1().getNodeBreakerView();
+        try {
+            tNbv.moveConnectable(0, "vl1");
+            fail();
+        } catch (RuntimeException e) {
+            assertEquals("Trying to move connectable line to node 0 of voltage level vl1, which is a bus breaker voltage level", e.getMessage());
+        }
+
+        line.getTerminal1().getBusBreakerView().moveConnectable(busC.getId(), true);
+        assertSame(busC, line.getTerminal1().getBusBreakerView().getConnectableBus());
+        assertSame(busC, line.getTerminal1().getBusBreakerView().getBus());
+
+        line.getTerminal1().getBusBreakerView().moveConnectable("busA", false);
+        assertSame(network.getBusBreakerView().getBus("busA"), line.getTerminal1().getBusBreakerView().getConnectableBus());
+        assertNull(line.getTerminal1().getBusBreakerView().getBus());
+    }
+
+    @Test
+    public void testMove1NbNetwork() {
+        Network fictitiousSwitchNetwork = FictitiousSwitchFactory.create();
+        Line line = fictitiousSwitchNetwork.getLine("CJ");
+
+        VoltageLevel vlBb = fictitiousSwitchNetwork.getSubstation("A")
+                .newVoltageLevel()
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setId("VL_BB")
+                .setNominalV(400.0)
+                .setLowVoltageLimit(380.0)
+                .setHighVoltageLimit(420.0)
+                .add();
+        Bus bus = vlBb.getBusBreakerView().newBus().setId("bus").add();
+        line.getTerminal1().getBusBreakerView().moveConnectable(bus.getId(), true);
+        assertSame(bus, line.getTerminal1().getBusBreakerView().getConnectableBus());
+        assertSame(bus, line.getTerminal1().getBusBreakerView().getBus());
+
+        String busCcId = fictitiousSwitchNetwork.getGenerator("CC").getTerminal().getBusBreakerView().getBus().getId();
+        Terminal.BusBreakerView tBbv = line.getTerminal1().getBusBreakerView();
+        try {
+            tBbv.moveConnectable(busCcId, true);
+            fail();
+        } catch (RuntimeException e) {
+            assertEquals("Trying to move connectable CJ to bus N_14 of voltage level N, which is a node breaker voltage level",
+                    e.getMessage());
+        }
+
+        line.getTerminal1().getNodeBreakerView().moveConnectable(6, "C");
+        assertEquals(6, line.getTerminal1().getNodeBreakerView().getNode());
+        assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
+
+        line.getTerminal1().getNodeBreakerView().moveConnectable(4, "C");
+        assertEquals(4, line.getTerminal1().getNodeBreakerView().getNode());
+        assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
+    }
+
+    @Test
+    public void testMove2Bb() {
+        Line line = createLineBetweenVoltageAB("line", LINE_NAME, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        Bus busC = voltageLevelB.getBusBreakerView().newBus()
+                .setId("busC")
+                .add();
+        VoltageLevel vlNb = network.getSubstation("sub").newVoltageLevel()
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .setId("VL_NB")
+                .setNominalV(400.0)
+                .setLowVoltageLimit(380.0)
+                .setHighVoltageLimit(420.0)
+                .add();
+        line.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNb.getId());
+        assertEquals(0, line.getTerminal2().getNodeBreakerView().getNode());
+        assertSame(vlNb, line.getTerminal2().getVoltageLevel());
+        Terminal.NodeBreakerView tNbv = line.getTerminal2().getNodeBreakerView();
+        try {
+            tNbv.moveConnectable(0, "vl2");
+            fail();
+        } catch (RuntimeException e) {
+            assertEquals("Trying to move connectable line to node 0 of voltage level vl2, which is a bus breaker voltage level", e.getMessage());
+        }
+        line.getTerminal2().getBusBreakerView().moveConnectable(busC.getId(), true);
+        assertSame(busC, line.getTerminal2().getBusBreakerView().getConnectableBus());
+        assertSame(busC, line.getTerminal2().getBusBreakerView().getBus());
+        line.getTerminal2().getBusBreakerView().moveConnectable("busB", false);
+        assertSame(network.getBusBreakerView().getBus("busB"), line.getTerminal2().getBusBreakerView().getConnectableBus());
+        assertNull(line.getTerminal2().getBusBreakerView().getBus());
+    }
+
+    @Test
+    public void testMove2Nb() {
+        Network fictitiousSwitchNetwork = FictitiousSwitchFactory.create();
+        Line line = fictitiousSwitchNetwork.getLine("CJ");
+        VoltageLevel vlBb = fictitiousSwitchNetwork.getSubstation("A")
+                .newVoltageLevel()
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setId("VL_BB")
+                .setNominalV(400.0)
+                .setLowVoltageLimit(380.0)
+                .setHighVoltageLimit(420.0)
+                .add();
+        Bus bus = vlBb.getBusBreakerView().newBus().setId("bus").add();
+        line.getTerminal2().getBusBreakerView().moveConnectable(bus.getId(), true);
+        assertSame(bus, line.getTerminal2().getBusBreakerView().getConnectableBus());
+        assertSame(bus, line.getTerminal2().getBusBreakerView().getBus());
+
+        String calculatedBusCHId = fictitiousSwitchNetwork.getLoad("CH").getTerminal().getBusBreakerView().getBus().getId();
+        Terminal.BusBreakerView tBbv0 = line.getTerminal2().getBusBreakerView();
+        try {
+            tBbv0.moveConnectable(calculatedBusCHId, true);
+            fail();
+        } catch (RuntimeException e) {
+            assertEquals("Trying to move connectable CJ to bus N_22 of voltage level N, which is a node breaker voltage level", e.getMessage());
+        }
+        line.getTerminal2().getNodeBreakerView().moveConnectable(6, "N");
+        assertEquals(6, line.getTerminal2().getNodeBreakerView().getNode());
+        assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
+        line.getTerminal2().getNodeBreakerView().moveConnectable(5, "N");
+        assertEquals(5, line.getTerminal2().getNodeBreakerView().getNode());
+        assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
+
+        String calculatedBusCId = fictitiousSwitchNetwork.getVoltageLevel("C").getNodeBreakerView().getTerminal(0).getBusBreakerView().getBus().getId();
+        Terminal.BusBreakerView tBbv1 = line.getTerminal2().getBusBreakerView();
+        try {
+            tBbv1.moveConnectable(calculatedBusCId, true);
+            fail();
+        } catch (RuntimeException e) {
+            assertEquals("Trying to move connectable CJ to bus C_0 of voltage level C, which is a node breaker voltage level", e.getMessage());
+        }
     }
 
     @Test
@@ -305,40 +459,126 @@ public abstract class AbstractLineTest {
         int count = network.getLineCount();
         line.remove();
         assertNotNull(line);
+        Terminal t1 = line.getTerminal1();
+        Terminal t2 = line.getTerminal2();
+        assertNotNull(t1);
+        assertNotNull(t2);
+        try {
+            t1.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusBreakerView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusBreakerView().getConnectableBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getBusView().getBus();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access bus of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t2.getVoltageLevel();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access voltage level of removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            t1.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
+        }
+        try {
+            t2.traverse(Mockito.mock(Terminal.TopologyTraverser.class));
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Associated equipment toRemove is removed", e.getMessage());
+        }
+        Terminal.BusBreakerView bbView1 = t1.getBusBreakerView();
+        try {
+            bbView1.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot modify removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        Terminal.BusBreakerView bbView2 = t2.getBusBreakerView();
+        try {
+            bbView2.moveConnectable("BUS", true);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot modify removed equipment " + TO_REMOVE, e.getMessage());
+        }
+        try {
+            line.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed equipment " + TO_REMOVE, e.getMessage());
+        }
         assertNull(network.getLine(TO_REMOVE));
         assertEquals(count - 1L, network.getLineCount());
     }
 
     @Test
     public void testTieLineAdder() {
+        double tol = 0.0000001;
+
         double r = 10.0;
         double r2 = 1.0;
         double x = 20.0;
         double x2 = 2.0;
-        double hl1g1 = 30.0;
-        double hl1g2 = 35.0;
-        double hl1b1 = 40.0;
-        double hl1b2 = 45.0;
-        double hl2g1 = 130.0;
-        double hl2g2 = 135.0;
-        double hl2b1 = 140.0;
-        double hl2b2 = 145.0;
+        double hl1g1 = 0.03;
+        double hl1g2 = 0.035;
+        double hl1b1 = 0.04;
+        double hl1b2 = 0.045;
+        double hl2g1 = 0.013;
+        double hl2g2 = 0.0135;
+        double hl2b1 = 0.014;
+        double hl2b2 = 0.0145;
 
         // adder
         TieLineAdder adder = createTieLineAdder();
         TieLine tieLine = adder.add();
         assertTrue(tieLine.isTieLine());
-        assertEquals(ConnectableType.LINE, tieLine.getType());
+        assertEquals(IdentifiableType.LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(r + r2, tieLine.getR(), 0.0);
-        assertEquals(x + x2, tieLine.getX(), 0.0);
-        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
-        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
-        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
-        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+        assertEquals(7.20, tieLine.getR(), tol);
+        assertEquals(22.15, tieLine.getX(), tol);
+        assertEquals(0.03539991244, tieLine.getG1(), tol);
+        assertEquals(0.06749912436, tieLine.getG2(), tol);
+        assertEquals(0.04491554716, tieLine.getB1(), tol);
+        assertEquals(0.06365547158, tieLine.getB2(), tol);
 
         // invalid set line characteristics on tieLine
         try {
@@ -427,6 +667,30 @@ public abstract class AbstractLineTest {
         TieLine tieLine2 = adder.setId("testTie2").add();
         assertNotSame(tieLine.getHalf1(), tieLine2.getHalf1());
         assertNotSame(tieLine.getHalf2(), tieLine2.getHalf2());
+
+        // Update power flows, voltages and angles
+        double p1 = -605.0;
+        double q1 = -302.5;
+        double p2 = 600.0;
+        double q2 = 300.0;
+        double v1 = 420.0;
+        double v2 = 380.0;
+        double angle1 = -1e-4;
+        double angle2 = -1.7e-3;
+        tieLine.getTerminal1().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
+        tieLine.getTerminal2().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
+
+        // test boundaries values
+        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.TWO);
+        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getAngle(), 0.0d);
     }
 
     @Test
@@ -657,7 +921,7 @@ public abstract class AbstractLineTest {
     @Test
     public void testRemove() {
         createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5,  TO_REMOVE);
+                3.0, 3.5, 4.0, 4.5, TO_REMOVE);
         Line line = network.getLine(TO_REMOVE);
         assertNotNull(line);
         assertTrue(line.isTieLine());
@@ -668,9 +932,9 @@ public abstract class AbstractLineTest {
         assertEquals(count - 1L, network.getLineCount());
     }
 
-    private void createLineBetweenVoltageAB(String id, String name, double r, double x,
+    private Line createLineBetweenVoltageAB(String id, String name, double r, double x,
                                             double g1, double g2, double b1, double b2) {
-        network.newLine()
+        return network.newLine()
                 .setId(id)
                 .setName(name)
                 .setR(r)

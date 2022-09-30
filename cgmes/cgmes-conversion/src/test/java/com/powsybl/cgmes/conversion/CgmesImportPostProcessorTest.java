@@ -8,10 +8,11 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.triplestore.api.TripleStore;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +21,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -69,15 +69,19 @@ public class CgmesImportPostProcessorTest {
 
     @Test
     public void testParameters() {
-        CgmesImport cgmesImport = new CgmesImport(Collections.emptyList());
-        assertTrue(cgmesImport.getParameters().stream().map(Parameter::getName).collect(Collectors.toSet()).contains("iidm.import.cgmes.post-processors"));
+        CgmesImport cgmesImport = new CgmesImport(List.of(new FakeCgmesImportPostProcessor("foo")));
+        Parameter parameter = cgmesImport.getParameters().stream()
+                .filter(p -> p.getName().equals("iidm.import.cgmes.post-processors"))
+                .findFirst()
+                .orElseThrow();
+        assertEquals(List.of("foo"), parameter.getPossibleValues());
     }
 
     @Test
     public void testEmpty() {
         CgmesImport cgmesImport = new CgmesImport(Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
         Properties properties = new Properties();
-        cgmesImport.importData(modelResources.dataSource(), properties);
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
         assertTrue(activatedPostProcessorNames.isEmpty());
     }
 
@@ -88,7 +92,7 @@ public class CgmesImportPostProcessorTest {
                                                                                 new FakeCgmesImportPostProcessor("baz")));
         Properties properties = new Properties();
         properties.put(CgmesImport.POST_PROCESSORS, Arrays.asList("foo", "baz"));
-        cgmesImport.importData(modelResources.dataSource(), properties);
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
         assertEquals(Arrays.asList("foo", "baz"), activatedPostProcessorNames);
     }
 }

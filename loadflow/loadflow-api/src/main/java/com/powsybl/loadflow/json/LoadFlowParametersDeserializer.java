@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static com.powsybl.loadflow.json.JsonLoadFlowParameters.*;
+
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
@@ -91,8 +93,15 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "simulShunt":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.3");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.6");
                     parser.nextToken();
-                    parameters.setSimulShunt(parser.readValueAs(Boolean.class));
+                    parameters.setShuntCompensatorVoltageControlOn(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "shuntCompensatorVoltageControlOn":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: shuntCompensatorVoltageControlOn", version, "1.6");
+                    parser.nextToken();
+                    parameters.setShuntCompensatorVoltageControlOn(parser.readValueAs(Boolean.class));
                     break;
 
                 case "readSlackBus":
@@ -144,16 +153,22 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setConnectedComponentMode(parser.readValueAs(LoadFlowParameters.ConnectedComponentMode.class));
                     break;
 
+                case "hvdcAcEmulation":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: hvdcAcEmulation" + parser.getCurrentName(), version, "1.7");
+                    parser.nextToken();
+                    parameters.setHvdcAcEmulation(parser.readValueAs(Boolean.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonLoadFlowParameters.getExtensionSerializers(), parameters);
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        JsonLoadFlowParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }
 }

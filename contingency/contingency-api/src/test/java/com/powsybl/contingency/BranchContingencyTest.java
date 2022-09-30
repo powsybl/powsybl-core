@@ -7,9 +7,9 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.BranchTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.modification.tripping.BranchTripping;
 import org.junit.Test;
 
 import java.util.List;
@@ -28,8 +28,8 @@ public class BranchContingencyTest {
         assertNull(contingency.getVoltageLevelId());
         assertEquals(ContingencyElementType.BRANCH, contingency.getType());
 
-        assertNotNull(contingency.toTask());
-        assertTrue(contingency.toTask() instanceof BranchTripping);
+        assertNotNull(contingency.toModification());
+        assertTrue(contingency.toModification() instanceof BranchTripping);
 
         contingency = new BranchContingency("id", "voltageLevelId");
         assertEquals("voltageLevelId", contingency.getVoltageLevelId());

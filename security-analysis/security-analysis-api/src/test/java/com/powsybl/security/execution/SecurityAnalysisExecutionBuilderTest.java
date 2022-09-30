@@ -7,16 +7,20 @@
 package com.powsybl.security.execution;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
+import com.powsybl.security.action.Action;
 import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.distributed.ForwardedSecurityAnalysisExecution;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -108,7 +112,7 @@ public class SecurityAnalysisExecutionBuilderTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
             actualProvider.set(contingenciesProvider);
             return null;
         }

@@ -6,12 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
+
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -45,11 +46,6 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.HVDC_CONVERTER_STATION;
-    }
-
-    @Override
     public float getLossFactor() {
         return lossFactor;
     }
@@ -64,11 +60,20 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     }
 
     @Override
-    public void remove() {
+    public Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
+        if (hvdcLine != null) {
+            return hvdcLine.getConverterStation1() == this ? Optional.ofNullable(hvdcLine.getConverterStation2()) : Optional.ofNullable(hvdcLine.getConverterStation1());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void remove(boolean removeDanglingSwitches) {
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
-        super.remove();
+        super.remove(removeDanglingSwitches);
     }
 
 }

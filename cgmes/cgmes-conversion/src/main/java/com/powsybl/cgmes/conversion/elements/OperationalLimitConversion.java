@@ -192,7 +192,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public void convert() {
-        double value = p.asDouble("value");
+        double normalValue = p.asDouble("normalValue");
+        double value = p.asDouble("value", normalValue);
         if (value <= 0) {
             context.ignored(OPERATIONAL_LIMIT, "value is <= 0");
             return;
@@ -235,7 +236,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private boolean isPatl() {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
-        return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType);
+        return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType) || "LimitKind.patl".equals(limitType);
     }
 
     private void addPatl(double value, LoadingLimitsAdder<?, ?> adder) {
@@ -269,7 +270,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private boolean isTatl() {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
-        return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType);
+        return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType) || "LimitKind.tatl".equals(limitType);
     }
 
     private void addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> adder) {
@@ -311,13 +312,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             if (loadingLimitsAdder != null) {
-                addTatl(context.namingStrategy().getId("TATL", id), value, acceptableDuration, loadingLimitsAdder);
+                addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder);
             } else {
                 if (loadingLimitsAdder1 != null) {
-                    addTatl(context.namingStrategy().getId("TATL", id), value, acceptableDuration, loadingLimitsAdder1);
+                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder1);
                 }
                 if (loadingLimitsAdder2 != null) {
-                    addTatl(context.namingStrategy().getId("TATL", id), value, acceptableDuration, loadingLimitsAdder2);
+                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder2);
                 }
             }
         } else if (direction.endsWith("low")) {

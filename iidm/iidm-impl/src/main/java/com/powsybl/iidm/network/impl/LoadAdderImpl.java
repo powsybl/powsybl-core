@@ -66,16 +66,17 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
     @Override
     public LoadImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkLoadType(this, loadType);
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
-        LoadImpl load = new LoadImpl(getNetwork().getRef(), id, getName(), isFictitious(), loadType, p0, q0);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));
+        LoadImpl load = new LoadImpl(network.getRef(), id, getName(), isFictitious(), loadType, p0, q0);
         load.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(load);
-        getNetwork().getListeners().notifyCreation(load);
+        network.getIndex().checkAndAdd(load);
+        network.getListeners().notifyCreation(load);
         return load;
     }
 

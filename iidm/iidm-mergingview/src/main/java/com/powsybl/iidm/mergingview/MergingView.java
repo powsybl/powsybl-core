@@ -10,6 +10,7 @@ import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -277,6 +278,11 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public boolean removeProperty(String key) {
+        return index.getNetworkStream().filter(n -> n.removeProperty(key)).count() > 0;
+    }
+
+    @Override
     public Set<String> getPropertyNames() {
         return index.getNetworkStream()
                 .map(Network::getPropertyNames)
@@ -359,6 +365,12 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public Stream<Connectable> getConnectableStream() {
         return index.getConnectables().stream();
+    }
+
+    @Override
+    public Connectable<?> getConnectable(String id) {
+        return Optional.ofNullable((Connectable) index.getMergedLine(id))
+                .orElse(index.get(n -> n.getConnectable(id), index::getConnectable));
     }
 
     @Override
@@ -872,5 +884,28 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public void removeListener(final NetworkListener listener) {
         throw createNotImplementedException();
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks() {
+        index.getNetworkStream().forEach(Network::runValidationChecks);
+        return getValidationLevel();
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException) {
+        index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException));
+        return getValidationLevel();
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException, reporter));
+        return getValidationLevel();
+    }
+
+    @Override
+    public ValidationLevel getValidationLevel() {
+        return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(AssertionError::new);
     }
 }

@@ -24,7 +24,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         private double maxP = Double.NaN;
         private double targetP = Double.NaN;
         private double targetQ = Double.NaN;
-        private boolean voltageRegulationOn;
+        private boolean voltageRegulationOn = false;
         private double targetV = Double.NaN;
 
         @Override
@@ -65,9 +65,11 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
         @Override
         public DanglingLineAdder add() {
+            NetworkImpl network = getNetwork();
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
+            network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, network.getMinValidationLevel()));
+            network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, network.getMinValidationLevel()));
+
             generationAdder = this;
             return DanglingLineAdderImpl.this;
         }
@@ -180,11 +182,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     @Override
     public DanglingLineImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
@@ -195,11 +198,11 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(danglingLine);
-        getNetwork().getListeners().notifyCreation(danglingLine);
+        network.getIndex().checkAndAdd(danglingLine);
+        network.getListeners().notifyCreation(danglingLine);
         return danglingLine;
     }
 

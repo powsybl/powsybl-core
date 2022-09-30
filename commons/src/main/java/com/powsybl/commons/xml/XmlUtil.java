@@ -8,19 +8,26 @@ package com.powsybl.commons.xml;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-
 import javanet.staxutils.IndentingXMLStreamWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.*;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class XmlUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XmlUtil.class);
 
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
@@ -145,6 +152,12 @@ public final class XmlUtil {
         }
     }
 
+    public static void writeOptionalBoolean(String name, Optional<Boolean> value, XMLStreamWriter writer) throws XMLStreamException {
+        if (value.isPresent()) {
+            writer.writeAttribute(name, Boolean.toString(value.get()));
+        }
+    }
+
     public static void writeDouble(String name, double value, XMLStreamWriter writer) throws XMLStreamException {
         if (!Double.isNaN(value)) {
             writer.writeAttribute(name, Double.toString(value));
@@ -182,6 +195,12 @@ public final class XmlUtil {
     public static void writeOptionalString(String name, String value, XMLStreamWriter writer) throws XMLStreamException {
         if (value != null) {
             writer.writeAttribute(name, value);
+        }
+    }
+
+    public static <E extends Enum<E>> void writeOptionalEnum(String name, E value, XMLStreamWriter writer) throws XMLStreamException {
+        if (value != null) {
+            writer.writeAttribute(name, value.name());
         }
     }
 
@@ -234,15 +253,67 @@ public final class XmlUtil {
         return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
     }
 
-    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
-        XMLStreamWriter writer;
-        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
-        if (indent) {
-            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
-            indentingWriter.setIndent(indentString);
-            writer = indentingWriter;
+    public static <E extends Enum<E>> E readOptionalEnum(XMLStreamReader reader, String attributeName, Class<E> enumClass) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        return attributeValue != null ? Enum.valueOf(enumClass, attributeValue) : null;
+    }
+
+    public static void consumeOptionalBoolAttribute(XMLStreamReader reader, String attributeName, Consumer<Boolean> consumer) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        if (attributeValue != null) {
+            consumer.accept(Boolean.parseBoolean(attributeValue));
         }
-        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
-        return writer;
+    }
+
+    public static void consumeOptionalIntAttribute(XMLStreamReader reader, String attributeName, IntConsumer consumer) {
+        String attributeValue = reader.getAttributeValue(null, attributeName);
+        if (attributeValue != null) {
+            consumer.accept(Integer.parseInt(attributeValue));
+        }
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
+        XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        return initializeWriter(indent, indentString, writer);
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os, Charset charset) throws XMLStreamException {
+        XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, charset.name());
+        return initializeWriter(indent, indentString, writer, charset);
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, Writer writer) throws XMLStreamException {
+        XMLStreamWriter xmlWriter = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(writer);
+        return initializeWriter(indent, indentString, xmlWriter);
+    }
+
+    private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter) throws XMLStreamException {
+        return initializeWriter(indent, indentString, initialXmlWriter, StandardCharsets.UTF_8);
+    }
+
+    private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter, Charset charset) throws XMLStreamException {
+        XMLStreamWriter xmlWriter;
+        if (indent) {
+            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(initialXmlWriter);
+            indentingWriter.setIndent(indentString);
+            xmlWriter = indentingWriter;
+        } else {
+            xmlWriter = initialXmlWriter;
+        }
+        xmlWriter.writeStartDocument(charset.name(), "1.0");
+        return xmlWriter;
+    }
+
+    public static void gcXmlInputFactory(XMLInputFactory xmlInputFactory) {
+        // Workaround: Manually force XMLInputFactory and XmlStreamReader to clear the reference to the last inputstream.
+        // jdk xerces XmlInputFactory keeps a ref to the last created XmlStreamReader (so that the factory
+        // can optionally reuse it. But the XmlStreamReader keeps a ref to it's inputstream. There is
+        // no public API in XmlStreamReader to clear the previous input stream, close doesn't do it).
+        try (InputStream is = new ByteArrayInputStream(new byte[] {})) {
+            XMLStreamReader xmlsr = xmlInputFactory.createXMLStreamReader(is);
+            xmlsr.close();
+        } catch (XMLStreamException | IOException e) {
+            LOGGER.error(e.toString(), e);
+        }
     }
 }

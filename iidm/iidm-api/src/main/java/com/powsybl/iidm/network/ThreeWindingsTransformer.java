@@ -8,6 +8,7 @@ package com.powsybl.iidm.network;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -297,10 +298,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      */
     Side getSide(Terminal terminal);
 
-    /**
-     * Get the substation to which the transformer belongs.
-     */
-    Substation getSubstation();
+    Optional<Substation> getSubstation();
+
+    default Substation getNullableSubstation() {
+        return getSubstation().orElse(null);
+    }
 
     /**
      * Get the leg at the primary side.
@@ -335,4 +337,9 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.THREE_WINDINGS_TRANSFORMER;
+    }
 }

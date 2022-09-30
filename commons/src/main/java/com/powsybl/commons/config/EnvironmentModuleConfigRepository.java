@@ -57,23 +57,14 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
     }
 
     @Override
-    public boolean moduleExists(String name) {
-        if (Strings.isNullOrEmpty(name)) {
-            return false;
-        }
-
-        return filteredEnvVarMap.keySet().stream().anyMatch(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name) + SEPARATOR));
-    }
-
-    @Override
     public Optional<ModuleConfig> getModuleConfig(String name) {
-        if (!moduleExists(name)) {
+        if (Strings.isNullOrEmpty(name)) {
             return Optional.empty();
         }
 
         Map<Object, Object> map = new HashMap<>();
-        filteredEnvVarMap.keySet().stream().filter(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name)))
+        filteredEnvVarMap.keySet().stream().filter(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name) + SEPARATOR))
                 .forEach(k -> map.put(k, filteredEnvVarMap.get(k)));
-        return Optional.of(new EnvironmentMapModuleConfig(map, fs, name));
+        return map.isEmpty() ? Optional.empty() : Optional.of(new EnvironmentMapModuleConfig(map, fs, name));
     }
 }

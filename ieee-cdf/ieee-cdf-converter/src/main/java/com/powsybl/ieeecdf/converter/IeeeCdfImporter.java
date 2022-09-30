@@ -8,17 +8,17 @@ package com.powsybl.ieeecdf.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.ieeecdf.model.*;
-import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -28,7 +28,9 @@ import java.io.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -327,7 +329,8 @@ public class IeeeCdfImporter implements Importer {
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
-        return voltageLevel2.getSubstation().newTwoWindingsTransformer()
+        return voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer)
+                .orElseGet(network::newTwoWindingsTransformer)
                 .setId(id)
                 .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)
@@ -479,36 +482,55 @@ public class IeeeCdfImporter implements Importer {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(networkFactory);
 
-        Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
-
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
             // parse file
             IeeeCdfModel ieeeCdfModel = new IeeeCdfReader().read(reader);
 
-            // set date and time
-            IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
-            if (ieeeCdfTitle.getDate() != null) {
-                ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
-                network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
-            }
+            boolean ignoreBaseVoltage = Parameter.readBoolean(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
+                ParameterDefaultValueConfig.INSTANCE);
 
-            // build container to fit IIDM requirements
-            ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
-                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, branch -> 0,  IeeeCdfBranch::getResistance,
-                IeeeCdfBranch::getReactance, IeeeCdfImporter::isTransformer, busNums -> "VL" + busNums.iterator().next(),
-                substationNum -> "S" + substationNum++);
-
-            boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
-                                                                                  ParameterDefaultValueConfig.INSTANCE);
-            PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
-
-            // create objects
-            createBuses(ieeeCdfModel, containerMapping, perUnitContext, network);
-            createBranches(ieeeCdfModel, containerMapping, perUnitContext, network);
+            return convert(ieeeCdfModel, networkFactory, dataSource.getBaseName(), ignoreBaseVoltage);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    Network convert(IeeeCdfModel ieeeCdfModel, NetworkFactory networkFactory, String networkId, boolean ignoreBaseVoltage) {
+        PerUnitContext perUnitContext = new PerUnitContext(ieeeCdfModel.getTitle().getMvaBase(), ignoreBaseVoltage);
+
+        Network network = networkFactory.createNetwork(networkId, FORMAT);
+
+        // set date and time
+        IeeeCdfTitle ieeeCdfTitle = ieeeCdfModel.getTitle();
+        if (ieeeCdfTitle.getDate() != null) {
+            ZonedDateTime caseDateTime = ieeeCdfTitle.getDate().atStartOfDay(ZoneOffset.UTC.normalized());
+            network.setCaseDate(new DateTime(caseDateTime.toInstant().toEpochMilli(), DateTimeZone.UTC));
+        }
+
+        // build container to fit IIDM requirements
+        Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus = ieeeCdfModel.getBuses().stream().collect(Collectors.toMap(IeeeCdfBus::getNumber, Function.identity()));
+
+        ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
+            IeeeCdfBus::getNumber,
+            IeeeCdfBranch::getTapBusNumber,
+            IeeeCdfBranch::getzBusNumber,
+            branch -> branch.getResistance() == 0.0 && branch.getReactance() == 0.0,
+            IeeeCdfImporter::isTransformer,
+            busNumber -> getNominalVFromBusNumber(busNumToIeeeCdfBus, busNumber, perUnitContext),
+            busNums -> "VL" + busNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty busNums")),
+            substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PowsyblException("Unexpected empty substationNums")));
+
+        // create objects
+        createBuses(ieeeCdfModel, containerMapping, perUnitContext, network);
+        createBranches(ieeeCdfModel, containerMapping, perUnitContext, network);
 
         return network;
+    }
+
+    private double getNominalVFromBusNumber(Map<Integer, IeeeCdfBus> busNumToIeeeCdfBus, int busNumber, PerUnitContext perUnitContext) {
+        if (!busNumToIeeeCdfBus.containsKey(busNumber)) { // never should happen
+            throw new PowsyblException("busId without IeeeCdfBus" + busNumber);
+        }
+        return getNominalV(busNumToIeeeCdfBus.get(busNumber), perUnitContext);
     }
 }

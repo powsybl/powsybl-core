@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="TwoBusesLineWithGandB" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S3">
+        <iidm:voltageLevel id="VL3" nominalV="220.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL3_Busbar-A" node="0"/>
+                <iidm:switch id="VL3_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S4">
+        <iidm:voltageLevel id="VL4" nominalV="220.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL4_Busbar-B" node="0"/>
+                <iidm:switch id="VL4_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="lne_A_B_1" r="3.561228036880493" x="11.731100082397461" g1="7.24637508392334E-6" b1="4.1272838592529294E-5" g2="7.24637508392334E-6" b2="4.1272838592529294E-5" node1="1" voltageLevelId1="VL3" node2="1" voltageLevelId2="VL4"/>
+</iidm:network>

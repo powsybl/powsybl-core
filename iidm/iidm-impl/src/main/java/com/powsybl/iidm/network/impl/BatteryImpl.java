@@ -19,35 +19,27 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private TDoubleArrayList p0;
+    private final TDoubleArrayList targetP;
 
-    private TDoubleArrayList q0;
+    private final TDoubleArrayList targetQ;
 
     private double minP;
 
     private double maxP;
 
-    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double p0, double q0, double minP, double maxP) {
+    BatteryImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, double targetP, double targetQ, double minP, double maxP) {
         super(ref, id, name, fictitious);
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.p0 = new TDoubleArrayList(variantArraySize);
-        this.q0 = new TDoubleArrayList(variantArraySize);
+        this.targetP = new TDoubleArrayList(variantArraySize);
+        this.targetQ = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.p0.add(p0);
-            this.q0.add(q0);
+            this.targetP.add(targetP);
+            this.targetQ.add(targetQ);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.BATTERY;
     }
 
     /**
@@ -62,20 +54,22 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      * {@inheritDoc}
      */
     @Override
-    public double getP0() {
-        return p0.get(getNetwork().getVariantIndex());
+    public double getTargetP() {
+        return targetP.get(getNetwork().getVariantIndex());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Battery setP0(double p0) {
-        ValidationUtil.checkP0(this, p0);
-        int variantIndex = getNetwork().getVariantIndex();
-        double oldValue = this.p0.set(variantIndex, p0);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("p0", variantId, oldValue, p0);
+    public Battery setTargetP(double targetP) {
+        NetworkImpl network = getNetwork();
+        ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel());
+        int variantIndex = network.getVariantIndex();
+        double oldValue = this.targetP.set(variantIndex, targetP);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
+        network.invalidateValidationLevel();
+        notifyUpdate("targetP", variantId, oldValue, targetP);
         return this;
     }
 
@@ -83,20 +77,22 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      * {@inheritDoc}
      */
     @Override
-    public double getQ0() {
-        return q0.get(getNetwork().getVariantIndex());
+    public double getTargetQ() {
+        return targetQ.get(getNetwork().getVariantIndex());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Battery setQ0(double q0) {
-        ValidationUtil.checkQ0(this, q0);
-        int variantIndex = getNetwork().getVariantIndex();
-        double oldValue = this.q0.set(variantIndex, q0);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("q0", variantId, oldValue, q0);
+    public Battery setTargetQ(double targetQ) {
+        NetworkImpl network = getNetwork();
+        ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel());
+        int variantIndex = network.getVariantIndex();
+        double oldValue = this.targetQ.set(variantIndex, targetQ);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
+        network.invalidateValidationLevel();
+        notifyUpdate("targetQ", variantId, oldValue, targetQ);
         return this;
     }
 
@@ -196,11 +192,11 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        p0.ensureCapacity(p0.size() + number);
-        q0.ensureCapacity(q0.size() + number);
+        targetP.ensureCapacity(targetP.size() + number);
+        targetQ.ensureCapacity(targetQ.size() + number);
         for (int i = 0; i < number; i++) {
-            p0.add(p0.get(sourceIndex));
-            q0.add(q0.get(sourceIndex));
+            targetP.add(targetP.get(sourceIndex));
+            targetQ.add(targetQ.get(sourceIndex));
         }
     }
 
@@ -210,8 +206,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        p0.remove(p0.size() - number, number);
-        q0.remove(q0.size() - number, number);
+        targetP.remove(targetP.size() - number, number);
+        targetQ.remove(targetQ.size() - number, number);
     }
 
     /**
@@ -221,8 +217,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            p0.set(index, p0.get(sourceIndex));
-            q0.set(index, q0.get(sourceIndex));
+            targetP.set(index, targetP.get(sourceIndex));
+            targetQ.set(index, targetQ.get(sourceIndex));
         }
     }
 }

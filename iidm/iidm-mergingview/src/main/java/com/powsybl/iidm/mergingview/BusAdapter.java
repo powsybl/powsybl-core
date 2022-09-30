@@ -201,6 +201,28 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
+    public double getFictitiousP0() {
+        return getDelegate().getFictitiousP0();
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        getDelegate().setFictitiousP0(p0);
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0() {
+        return getDelegate().getFictitiousQ0();
+    }
+
+    @Override
+    public Bus setFictitiousQ0(double q0) {
+        getDelegate().setFictitiousQ0(q0);
+        return this;
+    }
+
+    @Override
     public void visitConnectedEquipments(final TopologyVisitor visitor) {
         getDelegate().visitConnectedEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
     }

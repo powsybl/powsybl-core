@@ -13,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -30,6 +29,8 @@ public class TwoWindingsTransformerAdapterTest {
 
     @Test
     public void testSetterGetter() {
+        final Substation substation = mergingView.getSubstation("sub");
+
         // adder
         final TwoWindingsTransformer twt = createTwt();
         assertNotNull(twt);
@@ -37,8 +38,9 @@ public class TwoWindingsTransformerAdapterTest {
         assertTrue(twt instanceof TwoWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
 
-        assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twt.getType());
-        assertSame(mergingView.getSubstation("sub"), twt.getSubstation());
+        assertEquals(IdentifiableType.TWO_WINDINGS_TRANSFORMER, twt.getType());
+        assertSame(substation, twt.getSubstation().orElse(null));
+        assertSame(substation, twt.getNullableSubstation());
         assertEquals(7.0, twt.getRatedS(), 0.0);
 
         final RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
