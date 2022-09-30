@@ -245,7 +245,7 @@ public class Conversion {
 
     private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
-        return graph.contains("EQ") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
+        return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {
@@ -737,7 +737,7 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile  getProfileForInitialValuesShuntSectionsTapPositions() {
+        public StateProfile getProfileForInitialValuesShuntSectionsTapPositions() {
             return profileForInitialValuesShuntSectionsTapPositions;
         }
 

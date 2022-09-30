@@ -167,7 +167,7 @@ public class PsseValidation {
         checkDuplicates("Generator", "generators", getDuplicates(busesGenerators));
     }
 
-    private void validateGeneratorRegulatingBus(List<PsseBus> psseBuses,  Map<Integer, List<Integer>> buses, PsseGenerator generator) {
+    private void validateGeneratorRegulatingBus(List<PsseBus> psseBuses, Map<Integer, List<Integer>> buses, PsseGenerator generator) {
         PsseBus regulatingBus = getRegulatingBus(psseBuses, buses, generator.getIreg(), generator.getI());
         if (regulatingBus != null
             && (regulatingBus.getIde() == 2 || regulatingBus.getIde() == 3)
@@ -324,7 +324,7 @@ public class PsseValidation {
             warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingVmiVmaTag, windingVmi, windingVma));
             validCase = false;
         }
-        if ((Math.abs(cod) == 2 || Math.abs(cod) == 3 || Math.abs(cod) == 5) &&  windingVma < windingVmi) {
+        if ((Math.abs(cod) == 2 || Math.abs(cod) == 3 || Math.abs(cod) == 5) && windingVma < windingVmi) {
             warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingVmiVmaTag, windingVmi, windingVma));
             validCase = false;
         }
@@ -335,7 +335,7 @@ public class PsseValidation {
             warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingRmiRmaTag, windingRmi, windingRma));
             validCase = false;
         }
-        if ((Math.abs(cod) == 3 || Math.abs(cod) == 5) &&  windingRma < windingRmi) {
+        if ((Math.abs(cod) == 3 || Math.abs(cod) == 5) && windingRma < windingRmi) {
             warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingRmiRmaTag, windingRmi, windingRma));
             validCase = false;
         }
