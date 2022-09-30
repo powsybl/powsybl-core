@@ -51,7 +51,22 @@ public abstract class AbstractLineTest {
     @Test
     public void baseAcLineTests() {
         // adder
-        Line acLine = createLine();
+        Line acLine = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
         assertEquals("line", acLine.getId());
         assertEquals(LINE_NAME, acLine.getOptionalName().orElse(null));
         assertEquals(LINE_NAME, acLine.getNameOrId());
@@ -144,45 +159,6 @@ public abstract class AbstractLineTest {
         assertFalse(acLine.checkPermanentLimit2(LimitType.CURRENT));
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
-    }
-
-    @Test
-    public void testAdderFromExisting() {
-        createLine();
-        network.newLine(network.getLine("line"))
-                .setId("line2")
-                .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .add();
-        Line line = network.getLine("line2");
-        assertNotNull(line);
-        assertEquals(1.0, line.getR(), 0.0);
-        assertEquals(2.0, line.getX(), 0.0);
-        assertEquals(3.0, line.getG1(), 0.0);
-        assertEquals(3.5, line.getG2(), 0.0);
-        assertEquals(4.0, line.getB1(), 0.0);
-        assertEquals(4.5, line.getB2(), 0.0);
-    }
-
-    private Line createLine() {
-        return network.newLine()
-                .setId("line")
-                .setName(LINE_NAME)
-                .setR(1.0)
-                .setX(2.0)
-                .setG1(3.0)
-                .setG2(3.5)
-                .setB1(4.0)
-                .setB2(4.5)
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
-                .setBus1("busA")
-                .setBus2("busB")
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
-                .add();
     }
 
     @Test
@@ -552,9 +528,7 @@ public abstract class AbstractLineTest {
         double tol = 0.0000001;
 
         double r = 10.0;
-        double r2 = 1.0;
         double x = 20.0;
-        double x2 = 2.0;
         double hl1g1 = 0.03;
         double hl1g2 = 0.035;
         double hl1b1 = 0.04;
@@ -695,19 +669,22 @@ public abstract class AbstractLineTest {
 
     @Test
     public void testTieLineAdderFromExisting() {
+        double tol = 0.0000001;
+
         double r = 10.0;
         double r2 = 1.0;
         double x = 20.0;
         double x2 = 2.0;
-        double hl1g1 = 30.0;
-        double hl1g2 = 35.0;
-        double hl1b1 = 40.0;
-        double hl1b2 = 45.0;
-        double hl2g1 = 130.0;
-        double hl2g2 = 135.0;
-        double hl2b1 = 140.0;
-        double hl2b2 = 145.0;
+        double hl1g1 = 0.03;
+        double hl1g2 = 0.035;
+        double hl1b1 = 0.04;
+        double hl1b2 = 0.045;
+        double hl2g1 = 0.013;
+        double hl2g2 = 0.0135;
+        double hl2b1 = 0.014;
+        double hl2b2 = 0.0145;
 
+        // adder
         createTieLineAdder().add();
         network.newTieLine((TieLine) network.getLine("testTie"))
                 .newHalfLine1(((TieLine) network.getLine("testTie")).getHalf1()).setId("duplicate1").add()
@@ -720,14 +697,20 @@ public abstract class AbstractLineTest {
                 .add();
 
         TieLine tieLine = (TieLine) network.getLine("duplicate");
-        assertNotNull(tieLine);
+        assertTrue(tieLine.isTieLine());
+        assertEquals(IdentifiableType.LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
-        assertEquals(r + r2, tieLine.getR(), 0.0);
-        assertEquals(x + x2, tieLine.getX(), 0.0);
-        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
-        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
-        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
-        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+        assertEquals("duplicate1", tieLine.getHalf1().getId());
+        assertEquals("duplicate1", tieLine.getHalf1().getName());
+        assertEquals("duplicate2", tieLine.getHalf2().getId());
+        assertEquals("duplicate2", tieLine.getHalf2().getName());
+        assertEquals(7.20, tieLine.getR(), tol);
+        assertEquals(22.15, tieLine.getX(), tol);
+        assertEquals(0.03539991244, tieLine.getG1(), tol);
+        assertEquals(0.06749912436, tieLine.getG2(), tol);
+        assertEquals(0.04491554716, tieLine.getB1(), tol);
+        assertEquals(0.06365547158, tieLine.getB2(), tol);
+
         TieLine.HalfLine half1 = tieLine.getHalf1();
         assertNotNull(half1);
         assertEquals(r, half1.getR(), 0.0);
@@ -751,14 +734,14 @@ public abstract class AbstractLineTest {
         double r2 = 1.0;
         double x = 20.0;
         double x2 = 2.0;
-        double hl1g1 = 30.0;
-        double hl1g2 = 35.0;
-        double hl1b1 = 40.0;
-        double hl1b2 = 45.0;
-        double hl2g1 = 130.0;
-        double hl2g2 = 135.0;
-        double hl2b1 = 140.0;
-        double hl2b2 = 145.0;
+        double hl1g1 = 0.03;
+        double hl1g2 = 0.035;
+        double hl1b1 = 0.04;
+        double hl1b2 = 0.045;
+        double hl2g1 = 0.013;
+        double hl2g2 = 0.0135;
+        double hl2b1 = 0.014;
+        double hl2b2 = 0.0145;
 
         // adder
         return network.newTieLine().setId("testTie")
