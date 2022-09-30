@@ -16,7 +16,9 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -114,16 +116,20 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {
+    private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {
         boolean networkIsNodeBreaker = network.getVoltageLevelStream()
                 .map(VoltageLevel::getTopologyKind)
                 .anyMatch(tk -> tk == TopologyKind.NODE_BREAKER);
         if (networkIsNodeBreaker
                 && (profiles.contains("SSH") || profiles.contains("SV"))
                 && !profiles.contains("TP")) {
-            String message = "Network contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.";
-            context.getReporter().report("InconsistentProfilesTPRequired", message);
-            LOG.error(message);
+            context.getReporter().report(Report.builder()
+                    .withKey("InconsistentProfilesTPRequired")
+                    .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
+                    .withValue("networkId", network.getId())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
+            LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
 
