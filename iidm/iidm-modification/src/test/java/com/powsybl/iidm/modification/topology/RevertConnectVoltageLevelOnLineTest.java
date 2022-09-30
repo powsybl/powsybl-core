@@ -21,7 +21,6 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VOLTAGE_LEVEL_ID;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
@@ -37,7 +36,11 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
     @Test
     public void revertConnectVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine("VLTEST", BBS, network.getLine("CJ"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build();
+
         modification.apply(network);
 
         VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
@@ -82,7 +85,11 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
     @Test
     public void revertConnectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
+
         modification.apply(network);
 
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -98,7 +105,11 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
     @Test
     public void revertConnectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, "bus", network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId("bus")
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
+
         modification.apply(network);
 
         modification = new RevertConnectVoltageLevelOnLineBuilder()
