@@ -65,6 +65,6 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
         Map<Object, Object> map = new HashMap<>();
         filteredEnvVarMap.keySet().stream().filter(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name) + SEPARATOR))
                 .forEach(k -> map.put(k, filteredEnvVarMap.get(k)));
-        return map.isEmpty() ?  Optional.empty() : Optional.of(new EnvironmentMapModuleConfig(map, fs, name));
+        return map.isEmpty() ? Optional.empty() : Optional.of(new EnvironmentMapModuleConfig(map, fs, name));
     }
 }

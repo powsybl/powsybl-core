@@ -134,8 +134,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         readHalf(adder.newHalfLine1(), context, 1);
         readHalf(adder.newHalfLine2(), context, 2);
         readNodeOrBus(adder, context);
-        String ucteXnodeCode = context.getReader().readStringAttribute("ucteXnodeCode");
-        TieLine tl  = adder.setUcteXnodeCode(ucteXnodeCode)
+        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
+        TieLine tl = adder.setUcteXnodeCode(ucteXnodeCode)
                 .add();
         readPQ(1, tl.getTerminal1(), context.getReader());
         readPQ(2, tl.getTerminal2(), context.getReader());

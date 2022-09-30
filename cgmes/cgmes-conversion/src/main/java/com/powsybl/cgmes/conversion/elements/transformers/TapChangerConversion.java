@@ -239,7 +239,7 @@ public class TapChangerConversion {
     }
 
     // not used at the moment
-    protected static TapChanger  moveTapChangerFrom1To2(TapChanger tc) {
+    protected static TapChanger moveTapChangerFrom1To2(TapChanger tc) {
         return moveTapChangerFromOneEndToTheOther(tc);
     }
 
