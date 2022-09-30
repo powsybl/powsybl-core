@@ -125,7 +125,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             @Override
             public ShuntCompensatorNonLinearModelAdder endSection() {
                 ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, b);
-                if (Double.isNaN(g))  {
+                if (Double.isNaN(g)) {
                     if (sectionAdders.isEmpty()) {
                         g = 0;
                     } else {

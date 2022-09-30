@@ -88,7 +88,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         assert points.size() >= 2;
 
         Point pt = points.get(p);
-        if  (pt != null) {
+        if (pt != null) {
             return pt.getMinQ();
         } else {
             Map.Entry<Double, Point> e1 = points.floorEntry(p);
@@ -112,7 +112,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
         assert points.size() >= 2;
 
         Point pt = points.get(p);
-        if  (pt != null) {
+        if (pt != null) {
             return pt.getMaxQ();
         } else {
             Map.Entry<Double, Point> e1 = points.floorEntry(p);

@@ -106,7 +106,7 @@ public class TwtDataTest {
 
         ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
-        boolean ok = t3xCompareFlow(twtData,  0.0, -0.415739792683, 0.0, 0.0, 0.0, 0.0);
+        boolean ok = t3xCompareFlow(twtData, 0.0, -0.415739792683, 0.0, 0.0, 0.0, 0.0);
         assertTrue(ok);
 
         ok = t3xCompareStarBusVoltage(twtData, 412.9890009999999, -6.78071000000000);
@@ -121,7 +121,7 @@ public class TwtDataTest {
 
         ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
-        boolean ok = t3xCompareFlow(twtData,  0.0, 0.0, 0.000001946510, -0.405486077928, 0.0, 0.0);
+        boolean ok = t3xCompareFlow(twtData, 0.0, 0.0, 0.000001946510, -0.405486077928, 0.0, 0.0);
         assertTrue(ok);
 
         ok = t3xCompareStarBusVoltage(twtData, 407.8654944214268, -8.77026956158324);
@@ -136,7 +136,7 @@ public class TwtDataTest {
 
         ThreeWindingsTransformer twt = twtTestData.get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
-        boolean ok = t3xCompareFlow(twtData,  0.0, 0.0, 0.0, 0.0, 0.000005977974, -0.427562118410);
+        boolean ok = t3xCompareFlow(twtData, 0.0, 0.0, 0.0, 0.0, 0.000005977974, -0.427562118410);
         assertTrue(ok);
 
         ok = t3xCompareStarBusVoltage(twtData, 418.82221596280823, -6.65147559975559);

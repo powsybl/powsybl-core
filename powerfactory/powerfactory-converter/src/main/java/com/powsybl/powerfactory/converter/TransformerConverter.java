@@ -279,7 +279,7 @@ class TransformerConverter extends AbstractConverter {
             }
         }
 
-        private static Complex createImpedance(String uktrT, String pcutrT, DataObject typTr2,  double ratedApparentPower, double nominalVoltage) {
+        private static Complex createImpedance(String uktrT, String pcutrT, DataObject typTr2, double ratedApparentPower, double nominalVoltage) {
             float uktr = typTr2.getFloatAttributeValue(uktrT);
             float pcutr = typTr2.getFloatAttributeValue(pcutrT);
 

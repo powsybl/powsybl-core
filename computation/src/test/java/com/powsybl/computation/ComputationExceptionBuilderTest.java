@@ -141,7 +141,7 @@ public class ComputationExceptionBuilderTest {
     @Test
     public void addRawBytes() throws IOException {
         String key = "bytesKey";
-        ComputationException computationException =  new ComputationExceptionBuilder()
+        ComputationException computationException = new ComputationExceptionBuilder()
                 .addBytes(key, "someBytes".getBytes())
                .build();
         byte[] bytes1 = computationException.getFileBytes().get(key);
