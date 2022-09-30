@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
@@ -41,6 +42,7 @@ public class CgmesExportContext {
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
+    private Reporter reporter = Reporter.NO_OP;
 
     private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfile("EQ"));
     private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
@@ -607,4 +609,14 @@ public class CgmesExportContext {
     public String getSubRegionName(String subRegionId) {
         return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
+
+    public CgmesExportContext setReporter(Reporter reporter) {
+        this.reporter = reporter;
+        return this;
+    }
+
+    public Reporter getReporter() {
+        return this.reporter;
+    }
 }
+
