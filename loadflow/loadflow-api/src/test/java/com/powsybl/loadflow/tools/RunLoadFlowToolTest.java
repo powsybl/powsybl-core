@@ -18,6 +18,8 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Locale;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

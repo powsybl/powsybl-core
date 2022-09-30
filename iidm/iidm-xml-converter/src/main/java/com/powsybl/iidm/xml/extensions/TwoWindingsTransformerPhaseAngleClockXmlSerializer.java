@@ -39,7 +39,8 @@ public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
     @Override
     public TwoWindingsTransformerPhaseAngleClock read(TwoWindingsTransformer extendable, XmlReaderContext context) {
         int phaseAngleClock = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock", 0);
-        extendable.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(phaseAngleClock).add();
-        return extendable.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+        return extendable.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
+                .withPhaseAngleClock(phaseAngleClock)
+                .add();
     }
 }

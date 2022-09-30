@@ -45,10 +45,9 @@ public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSeriali
             double latitude = XmlUtil.readDoubleAttribute(context.getReader(), "latitude");
             coordinate[0] = new Coordinate(latitude, longitude);
         });
-        substation.newExtension(SubstationPositionAdder.class)
+        return substation.newExtension(SubstationPositionAdder.class)
                 .withCoordinate(coordinate[0])
                 .add();
-        return substation.getExtension(SubstationPosition.class);
     }
 
 }

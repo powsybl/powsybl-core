@@ -6,10 +6,15 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import org.jgrapht.alg.util.Triple;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -25,7 +30,7 @@ import java.util.*;
  * offers the possibility to calculate the sensitivities on a set of contingencies besides the pre-contingency state.
  * The full set of results consists of:
  *  - the list of factors
- *  - the list of contingencies
+ *  - the list of contingencies and their associated computation status
  *  - the list of sensitivity values in pre-contingency and post-contingency states
  *  - the list of function reference values in pre-contingency and post-contingency states.
  *  A sensitivity analysis result offers a set of methods to retrieve sensitivity values or function reference values.
@@ -39,7 +44,7 @@ public class SensitivityAnalysisResult {
 
     private final List<SensitivityFactor> factors;
 
-    private final List<Contingency> contingencies;
+    private final List<SensitivityContingencyStatus> contingencyStatuses;
 
     private final List<SensitivityValue> values;
 
@@ -49,24 +54,106 @@ public class SensitivityAnalysisResult {
 
     private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
+    private final Map<String, SensitivityContingencyStatus> statusByContingencyId = new HashMap<>();
+
+    public enum Status {
+        SUCCESS,
+        FAILURE,
+        NO_IMPACT
+    }
+
+    public static class SensitivityContingencyStatus {
+
+        private final String contingencyId;
+
+        private final Status status;
+
+        public String getContingencyId() {
+            return contingencyId;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public SensitivityContingencyStatus(String contingencyId, Status status) {
+            this.contingencyId = Objects.requireNonNull(contingencyId);
+            this.status = Objects.requireNonNull(status);
+        }
+
+        public static void writeJson(JsonGenerator jsonGenerator, SensitivityContingencyStatus contingencyStatus) {
+            try {
+                jsonGenerator.writeStartObject();
+                jsonGenerator.writeStringField("contingencyId", contingencyStatus.getContingencyId());
+                jsonGenerator.writeStringField("contingencyStatus", contingencyStatus.status.name());
+                jsonGenerator.writeEndObject();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        static final class ParsingContext {
+            private Contingency contingency;
+            private Status status;
+        }
+
+        public static SensitivityContingencyStatus parseJson(JsonParser parser) {
+            Objects.requireNonNull(parser);
+
+            var context = new SensitivityContingencyStatus.ParsingContext();
+            try {
+                JsonToken token;
+                while ((token = parser.nextToken()) != null) {
+                    if (token == JsonToken.FIELD_NAME) {
+                        parseJson(parser, context);
+                    } else if (token == JsonToken.END_OBJECT) {
+                        return new SensitivityContingencyStatus(context.contingency != null ? context.contingency.getId() : "", context.status);
+                    }
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            throw new PowsyblException("Parsing error");
+        }
+
+        private static void parseJson(JsonParser parser, SensitivityContingencyStatus.ParsingContext context) throws IOException {
+            String fieldName = parser.getCurrentName();
+            switch (fieldName) {
+                case "contingencyId":
+                    parser.nextToken();
+                    context.contingency = new Contingency(parser.getValueAsString());
+                    break;
+                case "contingencyStatus":
+                    parser.nextToken();
+                    context.status = Status.valueOf(parser.getValueAsString());
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected field: " + fieldName);
+            }
+        }
+    }
+
     /**
      * Sensitivity analysis result
      * @param factors the list of sensitivity factors that have been computed.
-     * @param contingencies the list of contingencies that have been simulated.
+     * @param contingencyStatuses the list of contingencies and their associated computation status.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<Contingency> contingencies, List<SensitivityValue> values) {
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<SensitivityContingencyStatus> contingencyStatuses, List<SensitivityValue> values) {
         this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
-        this.contingencies = Collections.unmodifiableList(Objects.requireNonNull(contingencies));
+        this.contingencyStatuses = Collections.unmodifiableList(Objects.requireNonNull(contingencyStatuses));
         this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
-            Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;
-            String contingencyId = contingency != null ? contingency.getId() : null;
+            String contingencyId = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingencyId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
             valuesByContingencyIdAndFunctionAndVariableId.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType()), value);
             functionReferenceByContingencyAndFunction.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
+        }
+
+        for (SensitivityContingencyStatus status : contingencyStatuses) {
+            this.statusByContingencyId.put(status.getContingencyId(), status);
         }
     }
 
@@ -80,12 +167,12 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get a list of all the contingencies.
+     * Get a list of all the contingency statuses.
      *
-     * @return a list of all the contingencies.
+     * @return a list of all the contingency statuses.
      */
-    public List<Contingency> getContingencies() {
-        return contingencies;
+    public List<SensitivityContingencyStatus> getContingencyStatuses() {
+        return contingencyStatuses;
     }
 
     /**
@@ -392,5 +479,15 @@ public class SensitivityAnalysisResult {
      */
     public double getBusVoltageFunctionReferenceValue(String functionId) {
         return getFunctionReferenceValue(null, functionId, SensitivityFunctionType.BUS_VOLTAGE);
+    }
+
+    /**
+     * Get the status associated to a contingency id
+     *
+     * @param contingencyId The contingency id
+     * @return The associated status.
+     */
+    public Status getContingencyStatus(String contingencyId) {
+        return statusByContingencyId.get(contingencyId).getStatus();
     }
 }

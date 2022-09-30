@@ -51,7 +51,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
         if (quality != null) {
             writer.writeEmptyElement(getNamespaceUri(), elementName);
             XmlUtil.writeDouble(STANDARD_DEVIATION, quality.getStandardDeviation(), writer);
-            XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), false, writer);
+            XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), writer);
         }
     }
 
@@ -91,7 +91,6 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
             }
         });
 
-        adder.add();
-        return identifiable.getExtension(InjectionObservability.class);
+        return adder.add();
     }
 }

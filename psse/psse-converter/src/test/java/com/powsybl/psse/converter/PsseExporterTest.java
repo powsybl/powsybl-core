@@ -23,6 +23,7 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;

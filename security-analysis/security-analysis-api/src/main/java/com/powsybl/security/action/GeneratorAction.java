@@ -7,25 +7,35 @@
 package com.powsybl.security.action;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * An action increasing or decreasing the active power generation of a generator.
+ * An action to:
+ * - increase or decrease the targetV of a generator.
+ * - change minP or maxP.
+ * - move to voltage control or remove from voltage control.
+ * - change targetQ of a generator that is not a voltage controller.
+ * - change targetV of a generator that is a voltage controller.
  *
  * @author Hadrien Godard <hadrien.godard@artelys.com>
+ * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
 public class GeneratorAction extends AbstractAction {
 
     public static final String NAME = "GENERATOR";
 
     private final String generatorId;
-    private final Boolean delta; // true if it is a relative variation, false if it is a new targetP
-    private final double value;
+    private Boolean activePowerRelativeValue; // true if it is a relative variation, false if it is a new targetP
+    private Double activePowerValue; // could be a new targetP if relativeVariation equals false or a relative variation of targetP.
+    private Double minP;
+    private Double maxP;
+    private Boolean voltageRegulatorOn;
+    private Double newTargetV; // absolute value only.
+    private Double newTargetQ; // absolute value only.
 
-    public GeneratorAction(String id, String generatorId, Boolean delta, double value) {
+    public GeneratorAction(String id, String generatorId) {
         super(id);
         this.generatorId = Objects.requireNonNull(generatorId);
-        this.delta = delta;
-        this.value = value;
     }
 
     @Override
@@ -37,11 +47,66 @@ public class GeneratorAction extends AbstractAction {
         return generatorId;
     }
 
-    public Boolean isRelativeVariation() {
-        return delta;
+    public Optional<Boolean> isActivePowerRelativeValue() {
+        return Optional.ofNullable(activePowerRelativeValue);
     }
 
-    public double getValue() {
-        return value;
+    public GeneratorAction setActivePowerRelativeValue(boolean activePowerRelativeValue) {
+        this.activePowerRelativeValue = activePowerRelativeValue;
+        return this;
+    }
+
+    public Optional<Double> getActivePowerValue() {
+        return Optional.ofNullable(activePowerValue);
+    }
+
+    public GeneratorAction setActivePowerValue(double activePowerValue) {
+        this.activePowerValue = activePowerValue;
+        return this;
+    }
+
+    public Optional<Double> getMinP() {
+        return Optional.ofNullable(minP);
+    }
+
+    public GeneratorAction setMinP(double minP) {
+        this.minP = minP;
+        return this;
+    }
+
+    public Optional<Double> getMaxP() {
+        return Optional.ofNullable(maxP);
+    }
+
+    public GeneratorAction setMaxP(double maxP) {
+        this.maxP = maxP;
+        return this;
+    }
+
+    public Optional<Boolean> isVoltageRegulatorOn() {
+        return Optional.ofNullable(voltageRegulatorOn);
+    }
+
+    public GeneratorAction setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    public Optional<Double> getNewTargetV() {
+        return Optional.ofNullable(newTargetV);
+    }
+
+    public GeneratorAction setNewTargetV(double newTargetV) {
+        this.newTargetV = newTargetV;
+        return this;
+    }
+
+    public Optional<Double> getNewTargetQ() {
+        return Optional.ofNullable(newTargetQ);
+    }
+
+    public GeneratorAction setNewTargetQ(double newTargetQ) {
+        this.newTargetQ = newTargetQ;
+        return this;
     }
 }

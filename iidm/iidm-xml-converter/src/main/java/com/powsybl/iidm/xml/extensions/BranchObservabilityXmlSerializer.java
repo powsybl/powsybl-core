@@ -63,7 +63,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
         context.getWriter().writeEmptyElement(getNamespaceUri(), type);
         context.getWriter().writeAttribute(SIDE, side.name());
         XmlUtil.writeDouble(STANDARD_DEVIATION, quality.getStandardDeviation(), context.getWriter());
-        XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), false, context.getWriter());
+        XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), context.getWriter());
     }
 
     @Override
@@ -95,8 +95,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
             }
         });
 
-        adder.add();
-        return identifiable.getExtension(BranchObservability.class);
+        return adder.add();
     }
 
     private void readQualityP(double standardDeviation, String redundant, Side side, BranchObservabilityAdder<T> adder) {

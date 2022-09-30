@@ -250,7 +250,7 @@ public class MergedXnodeTest {
     public void testDefaultImplAdder() {
         MergedXnodeAdder mergedXnodeAdder = new MergedXnodeAdder() {
             @Override
-            public Line add() {
+            public MergedXnode add() {
                 return null;
             }
 

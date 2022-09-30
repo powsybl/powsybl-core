@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

@@ -17,6 +17,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
@@ -148,6 +149,12 @@ public final class XmlUtil {
     public static void writeOptionalBoolean(String name, boolean value, boolean absentValue, XMLStreamWriter writer) throws XMLStreamException {
         if (value != absentValue) {
             writer.writeAttribute(name, Boolean.toString(value));
+        }
+    }
+
+    public static void writeOptionalBoolean(String name, Optional<Boolean> value, XMLStreamWriter writer) throws XMLStreamException {
+        if (value.isPresent()) {
+            writer.writeAttribute(name, Boolean.toString(value.get()));
         }
     }
 

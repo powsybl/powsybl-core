@@ -10,13 +10,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.LineConnectionAction;
-import com.powsybl.security.action.MultipleActionsAction;
-import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.action.GeneratorAction;
+import com.powsybl.security.action.*;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -43,11 +40,44 @@ public class ActionSerializer extends StdSerializer<Action> {
                 jsonGenerator.writeBooleanField("openSide1", ((LineConnectionAction) action).isOpenSide1());
                 jsonGenerator.writeBooleanField("openSide2", ((LineConnectionAction) action).isOpenSide2());
                 break;
+            case PhaseTapChangerTapPositionAction.NAME:
+                var tapPositionAction = (PhaseTapChangerTapPositionAction) action;
+                jsonGenerator.writeStringField("id", action.getId());
+                jsonGenerator.writeStringField("transformerId", tapPositionAction.getTransformerId());
+                jsonGenerator.writeNumberField("value", tapPositionAction.getValue());
+                jsonGenerator.writeBooleanField("relativeValue", tapPositionAction.isRelativeValue());
+                tapPositionAction.getSide().ifPresent(side -> {
+                    try {
+                        jsonGenerator.writeStringField("side", side.toString());
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+                break;
             case GeneratorAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());
                 jsonGenerator.writeStringField("generatorId", ((GeneratorAction) action).getGeneratorId());
-                jsonGenerator.writeBooleanField("delta", ((GeneratorAction) action).isRelativeVariation());
-                jsonGenerator.writeNumberField("value", ((GeneratorAction) action).getValue());
+                if (((GeneratorAction) action).isActivePowerRelativeValue().isPresent()) {
+                    jsonGenerator.writeBooleanField("activePowerRelativeValue", ((GeneratorAction) action).isActivePowerRelativeValue().get());
+                }
+                if (((GeneratorAction) action).getActivePowerValue().isPresent()) {
+                    jsonGenerator.writeNumberField("activePowerValue", ((GeneratorAction) action).getActivePowerValue().get());
+                }
+                if (((GeneratorAction) action).getMinP().isPresent()) {
+                    jsonGenerator.writeNumberField("minP", ((GeneratorAction) action).getMinP().get());
+                }
+                if (((GeneratorAction) action).getMaxP().isPresent()) {
+                    jsonGenerator.writeNumberField("maxP", ((GeneratorAction) action).getMaxP().get());
+                }
+                if (((GeneratorAction) action).isVoltageRegulatorOn().isPresent()) {
+                    jsonGenerator.writeBooleanField("voltageRegulatorOn", ((GeneratorAction) action).isVoltageRegulatorOn().get());
+                }
+                if (((GeneratorAction) action).getNewTargetV().isPresent()) {
+                    jsonGenerator.writeNumberField("newTargetV", ((GeneratorAction) action).getNewTargetV().get());
+                }
+                if (((GeneratorAction) action).getNewTargetQ().isPresent()) {
+                    jsonGenerator.writeNumberField("newTargetQ", ((GeneratorAction) action).getNewTargetQ().get());
+                }
                 break;
             case MultipleActionsAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());

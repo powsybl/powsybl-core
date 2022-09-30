@@ -1646,6 +1646,25 @@ public final class CgmesConformity1ModifiedCatalog {
 
     }
 
+    public static TestGridModel microGridBaseCaseAssembledBadIds() {
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_Assembled_v2_bad_ids/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-Assembled-bad-ids",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_TP_V2.xml"
+                        ),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     public static TestGridModel microGridBaseCaseNLMultipleSlacks() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_multiple_generators_with_reference_priority/";
@@ -1703,6 +1722,25 @@ public final class CgmesConformity1ModifiedCatalog {
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
 
+    }
+
+    public static TestGridModel microGridBaseBEStationSupply() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_station_supply/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources(
+                "MicroGrid-BaseCase-BE-station-supply",
+                null,
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet(baseOriginal, "MicroGridTestConfiguration_BC_BE_SV_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
     private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";

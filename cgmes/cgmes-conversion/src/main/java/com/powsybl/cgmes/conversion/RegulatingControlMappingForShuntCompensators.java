@@ -108,7 +108,7 @@ public class RegulatingControlMappingForShuntCompensators {
             // both the equipment participation in the control and
             // the regulating control itself should be enabled
             shuntCompensator.setVoltageRegulatorOn(rc.enabled && controlEnabled);
-        } else  {
+        } else {
             shuntCompensator.setVoltageRegulatorOn(false);
         }
         // Take default terminal if it has not been defined in CGMES files (it is never null)

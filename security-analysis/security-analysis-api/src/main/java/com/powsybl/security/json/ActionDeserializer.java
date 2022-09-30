@@ -12,11 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.LineConnectionAction;
-import com.powsybl.security.action.MultipleActionsAction;
-import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.action.GeneratorAction;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.security.action.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,12 +33,21 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         String id;
         String switchId;
         String lineId;
+        String transformerId;
         String generatorId;
         Boolean open;
         Boolean openSide1;
         Boolean openSide2;
-        Boolean delta;
-        Double value;
+        Boolean relativeValue;
+        int value;
+        ThreeWindingsTransformer.Side side = null;
+        Boolean activePowerRelativeValue;
+        Double activePowerValue;
+        Double minP;
+        Double maxP;
+        Boolean voltageRegulatorOn;
+        Double newTargetV;
+        Double newTargetQ;
         List<Action> actions;
     }
 
@@ -54,36 +60,71 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     context.type = parser.nextTextValue();
                     return true;
                 case "id":
-                    context.id =  parser.nextTextValue();
+                    context.id = parser.nextTextValue();
                     return true;
                 case "switchId":
-                    context.switchId =  parser.nextTextValue();
+                    context.switchId = parser.nextTextValue();
                     return true;
                 case "lineId":
-                    context.lineId =  parser.nextTextValue();
+                    context.lineId = parser.nextTextValue();
+                    return true;
+                case "transformerId":
+                    context.transformerId = parser.nextTextValue();
                     return true;
                 case "generatorId":
                     context.generatorId = parser.nextTextValue();
                     return true;
                 case "open":
                     parser.nextToken();
-                    context.open =  parser.getBooleanValue();
+                    context.open = parser.getBooleanValue();
                     return true;
                 case "openSide1":
                     parser.nextToken();
-                    context.openSide1 =  parser.getBooleanValue();
+                    context.openSide1 = parser.getBooleanValue();
                     return true;
                 case "openSide2":
                     parser.nextToken();
-                    context.openSide2 =  parser.getBooleanValue();
+                    context.openSide2 = parser.getBooleanValue();
                     return true;
-                case "delta":
+                case "relativeValue":
                     parser.nextToken();
-                    context.delta =  parser.getBooleanValue();
+                    context.relativeValue = parser.getBooleanValue();
                     return true;
                 case "value":
                     parser.nextToken();
-                    context.value =  parser.getValueAsDouble();
+                    context.value = parser.getIntValue();
+                    return true;
+                case "side":
+                    String sideStr = parser.nextTextValue();
+                    context.side = ThreeWindingsTransformer.Side.valueOf(sideStr);
+                    return true;
+                case "activePowerRelativeValue":
+                    parser.nextToken();
+                    context.activePowerRelativeValue = parser.getBooleanValue();
+                    return true;
+                case "activePowerValue":
+                    parser.nextToken();
+                    context.activePowerValue = parser.getDoubleValue();
+                    return true;
+                case "minP":
+                    parser.nextToken();
+                    context.minP = parser.getDoubleValue();
+                    return true;
+                case "maxP":
+                    parser.nextToken();
+                    context.maxP = parser.getDoubleValue();
+                    return true;
+                case "voltageRegulatorOn":
+                    parser.nextToken();
+                    context.voltageRegulatorOn = parser.getBooleanValue();
+                    return true;
+                case "newTargetV":
+                    parser.nextToken();
+                    context.newTargetV = parser.getDoubleValue();
+                    return true;
+                case "newTargetQ":
+                    parser.nextToken();
+                    context.newTargetQ = parser.getDoubleValue();
                     return true;
                 case "actions":
                     parser.nextToken();
@@ -104,15 +145,46 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 }
                 return new SwitchAction(context.id, context.switchId, context.open);
             case LineConnectionAction.NAME:
-                if (context.openSide1 == null && context.openSide2 == null) {
+                if (context.openSide1 == null || context.openSide2 == null) {
                     throw JsonMappingException.from(parser, "for line action openSide1 and openSide2 fields can't be null");
                 }
                 return new LineConnectionAction(context.id, context.lineId, context.openSide1, context.openSide2);
-            case GeneratorAction.NAME:
-                if (context.delta == null) {
-                    throw JsonMappingException.from(parser, "for generator action, delta field can't be null");
+            case PhaseTapChangerTapPositionAction.NAME:
+                if (context.relativeValue == null) {
+                    throw JsonMappingException.from(parser, "for phase tap changer tap position action relative value field can't be null");
                 }
-                return new GeneratorAction(context.id, context.generatorId, context.delta, context.value);
+                if (context.value == 0) {
+                    throw JsonMappingException.from(parser, "for phase tap changer tap position action value field can't equal zero");
+                }
+                if (context.side != null) {
+                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value, context.side);
+                } else {
+                    return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value);
+                }
+            case GeneratorAction.NAME:
+                GeneratorAction generatorAction = new GeneratorAction(context.id, context.generatorId);
+                if (context.activePowerRelativeValue != null) {
+                    generatorAction.setActivePowerRelativeValue(context.activePowerRelativeValue);
+                }
+                if (context.activePowerValue != null) {
+                    generatorAction.setActivePowerValue(context.activePowerValue);
+                }
+                if (context.minP != null) {
+                    generatorAction.setMinP(context.minP);
+                }
+                if (context.maxP != null) {
+                    generatorAction.setMaxP(context.maxP);
+                }
+                if (context.voltageRegulatorOn != null) {
+                    generatorAction.setVoltageRegulatorOn(context.voltageRegulatorOn);
+                }
+                if (context.newTargetV != null) {
+                    generatorAction.setActivePowerValue(context.newTargetV);
+                }
+                if (context.newTargetQ != null) {
+                    generatorAction.setActivePowerValue(context.newTargetQ);
+                }
+                return generatorAction;
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:
