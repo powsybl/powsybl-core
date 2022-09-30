@@ -21,8 +21,6 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -33,12 +31,6 @@ import static org.junit.Assert.assertTrue;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class ExportProfilesConsistencyTest extends AbstractConverterTest {
-
-    @Override
-    public void setUp() throws IOException {
-        super.setUp();
-        tmpDir = Paths.get("/Users/zamarrenolm/work/temp/cgmes/export-non-persistent-tp");
-    }
 
     @Test
     public void testSVSmallGridNodeBreaker() {
