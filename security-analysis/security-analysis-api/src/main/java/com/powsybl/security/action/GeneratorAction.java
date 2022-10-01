@@ -51,7 +51,7 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(activePowerRelativeValue);
     }
 
-    public GeneratorAction setActivePowerRelativeValue(boolean activePowerRelativeValue) {
+    public GeneratorAction setActivePowerRelativeValue(Boolean activePowerRelativeValue) {
         this.activePowerRelativeValue = activePowerRelativeValue;
         return this;
     }
@@ -60,7 +60,7 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(activePowerValue);
     }
 
-    public GeneratorAction setActivePowerValue(double activePowerValue) {
+    public GeneratorAction setActivePowerValue(Double activePowerValue) {
         this.activePowerValue = activePowerValue;
         return this;
     }
@@ -69,7 +69,7 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(minP);
     }
 
-    public GeneratorAction setMinP(double minP) {
+    public GeneratorAction setMinP(Double minP) {
         this.minP = minP;
         return this;
     }
@@ -78,7 +78,7 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(maxP);
     }
 
-    public GeneratorAction setMaxP(double maxP) {
+    public GeneratorAction setMaxP(Double maxP) {
         this.maxP = maxP;
         return this;
     }
@@ -87,7 +87,7 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(voltageRegulatorOn);
     }
 
-    public GeneratorAction setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+    public GeneratorAction setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
         return this;
     }
@@ -96,7 +96,7 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(targetV);
     }
 
-    public GeneratorAction setTargetV(double targetV) {
+    public GeneratorAction setTargetV(Double targetV) {
         this.targetV = targetV;
         return this;
     }
@@ -105,7 +105,7 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(targetQ);
     }
 
-    public GeneratorAction setTargetQ(double targetQ) {
+    public GeneratorAction setTargetQ(Double targetQ) {
         this.targetQ = targetQ;
         return this;
     }

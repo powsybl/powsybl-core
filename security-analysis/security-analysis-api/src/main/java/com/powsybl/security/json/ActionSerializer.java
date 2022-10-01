@@ -14,6 +14,7 @@ import com.powsybl.security.action.*;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -57,26 +58,33 @@ public class ActionSerializer extends StdSerializer<Action> {
             case GeneratorAction.NAME:
                 jsonGenerator.writeStringField("id", action.getId());
                 jsonGenerator.writeStringField("generatorId", ((GeneratorAction) action).getGeneratorId());
-                if (((GeneratorAction) action).isActivePowerRelativeValue().isPresent()) {
-                    jsonGenerator.writeBooleanField("activePowerRelativeValue", ((GeneratorAction) action).isActivePowerRelativeValue().get());
+                Optional<Boolean> activePowerRelativeValue = ((GeneratorAction) action).isActivePowerRelativeValue();
+                if (activePowerRelativeValue.isPresent()) {
+                    jsonGenerator.writeBooleanField("activePowerRelativeValue", activePowerRelativeValue.get());
                 }
-                if (((GeneratorAction) action).getActivePowerValue().isPresent()) {
-                    jsonGenerator.writeNumberField("activePowerValue", ((GeneratorAction) action).getActivePowerValue().get());
+                Optional<Double> activePowerValue = ((GeneratorAction) action).getActivePowerValue();
+                if (activePowerValue.isPresent()) {
+                    jsonGenerator.writeNumberField("activePowerValue", activePowerValue.get());
                 }
-                if (((GeneratorAction) action).getMinP().isPresent()) {
-                    jsonGenerator.writeNumberField("minP", ((GeneratorAction) action).getMinP().get());
+                Optional<Double> minP = ((GeneratorAction) action).getMinP();
+                if (minP.isPresent()) {
+                    jsonGenerator.writeNumberField("minP", minP.get());
                 }
-                if (((GeneratorAction) action).getMaxP().isPresent()) {
-                    jsonGenerator.writeNumberField("maxP", ((GeneratorAction) action).getMaxP().get());
+                Optional<Double> maxP = ((GeneratorAction) action).getMaxP();
+                if (maxP.isPresent()) {
+                    jsonGenerator.writeNumberField("maxP", maxP.get());
                 }
-                if (((GeneratorAction) action).isVoltageRegulatorOn().isPresent()) {
-                    jsonGenerator.writeBooleanField("voltageRegulatorOn", ((GeneratorAction) action).isVoltageRegulatorOn().get());
+                Optional<Boolean> voltageRegulatorOn = ((GeneratorAction) action).isVoltageRegulatorOn();
+                if (voltageRegulatorOn.isPresent()) {
+                    jsonGenerator.writeBooleanField("voltageRegulatorOn", voltageRegulatorOn.get());
                 }
-                if (((GeneratorAction) action).getTargetV().isPresent()) {
-                    jsonGenerator.writeNumberField("targetV", ((GeneratorAction) action).getTargetV().get());
+                Optional<Double> targetV = ((GeneratorAction) action).getTargetV();
+                if (targetV.isPresent()) {
+                    jsonGenerator.writeNumberField("targetV", targetV.get());
                 }
-                if (((GeneratorAction) action).getTargetQ().isPresent()) {
-                    jsonGenerator.writeNumberField("targetQ", ((GeneratorAction) action).getTargetQ().get());
+                Optional<Double> targetQ = ((GeneratorAction) action).getTargetQ();
+                if (targetQ.isPresent()) {
+                    jsonGenerator.writeNumberField("targetQ", targetQ.get());
                 }
                 break;
             case MultipleActionsAction.NAME:
