@@ -12,7 +12,6 @@ import java.util.Optional;
 /**
  * An action to:
  * - increase or decrease the targetV of a generator.
- * - change minP or maxP.
  * - move to voltage control or remove from voltage control.
  * - change targetQ of a generator that is not a voltage controller.
  * - change targetV of a generator that is a voltage controller.
@@ -27,8 +26,6 @@ public class GeneratorAction extends AbstractAction {
     private final String generatorId;
     private Boolean activePowerRelativeValue; // true if it is a relative variation, false if it is a new targetP
     private Double activePowerValue; // could be a new targetP if relativeVariation equals false or a relative variation of targetP.
-    private Double minP;
-    private Double maxP;
     private Boolean voltageRegulatorOn;
     private Double targetV; // absolute value only.
     private Double targetQ; // absolute value only.
@@ -62,24 +59,6 @@ public class GeneratorAction extends AbstractAction {
 
     public GeneratorAction setActivePowerValue(Double activePowerValue) {
         this.activePowerValue = activePowerValue;
-        return this;
-    }
-
-    public Optional<Double> getMinP() {
-        return Optional.ofNullable(minP);
-    }
-
-    public GeneratorAction setMinP(Double minP) {
-        this.minP = minP;
-        return this;
-    }
-
-    public Optional<Double> getMaxP() {
-        return Optional.ofNullable(maxP);
-    }
-
-    public GeneratorAction setMaxP(Double maxP) {
-        this.maxP = maxP;
         return this;
     }
 

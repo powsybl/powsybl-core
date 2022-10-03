@@ -66,14 +66,6 @@ public class ActionSerializer extends StdSerializer<Action> {
                 if (activePowerValue.isPresent()) {
                     jsonGenerator.writeNumberField("activePowerValue", activePowerValue.get());
                 }
-                Optional<Double> minP = ((GeneratorAction) action).getMinP();
-                if (minP.isPresent()) {
-                    jsonGenerator.writeNumberField("minP", minP.get());
-                }
-                Optional<Double> maxP = ((GeneratorAction) action).getMaxP();
-                if (maxP.isPresent()) {
-                    jsonGenerator.writeNumberField("maxP", maxP.get());
-                }
                 Optional<Boolean> voltageRegulatorOn = ((GeneratorAction) action).isVoltageRegulatorOn();
                 if (voltageRegulatorOn.isPresent()) {
                     jsonGenerator.writeBooleanField("voltageRegulatorOn", voltageRegulatorOn.get());

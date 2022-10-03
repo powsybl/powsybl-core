@@ -68,12 +68,6 @@
   }, {
     "type" : "GENERATOR",
     "id" : "id11",
-    "generatorId" : "generatorId1",
-    "minP" : 0.0,
-    "maxP" : 600.0
-  }, {
-    "type" : "GENERATOR",
-    "id" : "id12",
     "generatorId" : "generatorId2",
     "voltageRegulatorOn" : false,
     "targetQ" : 400.0

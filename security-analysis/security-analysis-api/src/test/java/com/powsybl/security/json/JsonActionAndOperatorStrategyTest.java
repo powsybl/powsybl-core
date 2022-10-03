@@ -40,8 +40,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new PhaseTapChangerTapPositionAction("id8", "transformerId3", false, 2, ThreeWindingsTransformer.Side.THREE));
         actions.add(new GeneratorAction("id9", "generatorId1").setActivePowerRelativeValue(true).setActivePowerValue(100.0));
         actions.add(new GeneratorAction("id10", "generatorId2").setVoltageRegulatorOn(true).setTargetV(225.0));
-        actions.add(new GeneratorAction("id11", "generatorId1").setMinP(0.0).setMaxP(600.0));
-        actions.add(new GeneratorAction("id12", "generatorId2").setVoltageRegulatorOn(false).setTargetQ(400.0));
+        actions.add(new GeneratorAction("id11", "generatorId2").setVoltageRegulatorOn(false).setTargetQ(400.0));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

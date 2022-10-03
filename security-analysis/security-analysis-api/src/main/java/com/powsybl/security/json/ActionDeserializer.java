@@ -43,8 +43,6 @@ public class ActionDeserializer extends StdDeserializer<Action> {
         ThreeWindingsTransformer.Side side = null;
         Boolean activePowerRelativeValue;
         Double activePowerValue;
-        Double minP;
-        Double maxP;
         Boolean voltageRegulatorOn;
         Double targetV;
         Double targetQ;
@@ -106,14 +104,6 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     parser.nextToken();
                     context.activePowerValue = parser.getDoubleValue();
                     return true;
-                case "minP":
-                    parser.nextToken();
-                    context.minP = parser.getDoubleValue();
-                    return true;
-                case "maxP":
-                    parser.nextToken();
-                    context.maxP = parser.getDoubleValue();
-                    return true;
                 case "voltageRegulatorOn":
                     parser.nextToken();
                     context.voltageRegulatorOn = parser.getBooleanValue();
@@ -168,12 +158,6 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                 }
                 if (context.activePowerValue != null) {
                     generatorAction.setActivePowerValue(context.activePowerValue);
-                }
-                if (context.minP != null) {
-                    generatorAction.setMinP(context.minP);
-                }
-                if (context.maxP != null) {
-                    generatorAction.setMaxP(context.maxP);
                 }
                 if (context.voltageRegulatorOn != null) {
                     generatorAction.setVoltageRegulatorOn(context.voltageRegulatorOn);
