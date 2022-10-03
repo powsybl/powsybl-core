@@ -68,7 +68,7 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
         if (verbose || status == RuleEvaluationStatus.TRUE) {
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
-        if (verbose &&  (variables.size() + actions.size() > 0)) {
+        if (verbose && (variables.size() + actions.size() > 0)) {
             Writer writer = new OutputStreamWriter(out);
             try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
                          new Column("Variable"),

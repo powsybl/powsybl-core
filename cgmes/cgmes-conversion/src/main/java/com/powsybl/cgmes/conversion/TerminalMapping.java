@@ -157,7 +157,7 @@ public class TerminalMapping {
     private final Map<String, Boundary> boundaries;
     // This is a somewhat dirty way of storing the side for the CGMES terminal
     // (only mapped when the terminal is connected to a branch)
-    private final Map<String, Integer>  terminalNumbers;
+    private final Map<String, Integer> terminalNumbers;
     private final Map<String, List<String>> topologicalNodesMapping;
     private final Map<String, String> cgmesTerminalsMapping;
 }

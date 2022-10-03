@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TopologyModificationUtilsTest extends AbstractXmlConverterTest  {
+public class TopologyModificationUtilsTest extends AbstractXmlConverterTest {
 
     @Test
     public void testFeederOrders() {
