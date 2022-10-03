@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
