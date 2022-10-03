@@ -396,7 +396,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected VoltageLevel voltageLevel() {
         if (terminals[0].iidmVoltageLevelId != null) {
-            return context.network().getVoltageLevel(terminals[0].iidmVoltageLevelId);
+            VoltageLevel vl = context.network().getVoltageLevel(terminals[0].iidmVoltageLevelId);
+            if (vl != null) {
+                return vl;
+            } else {
+                throw new CgmesModelException(type + " " + id + " voltage level " + terminals[0].iidmVoltageLevelId + " has not been created in IIDM");
+            }
         } else if (terminals[0].voltageLevel != null) {
             return terminals[0].voltageLevel;
         }

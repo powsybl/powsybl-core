@@ -338,48 +338,9 @@
     <cim:IdentifiedObject.name>Sub1</cim:IdentifiedObject.name>
     <cim:Substation.Region rdf:resource="#_8f28794f-6030-4ec6-b17c-91ecb4321673" />
   </cim:Substation>
-
-  <cim:ConnectivityNode rdf:ID="TEST">
-    <cim:IdentifiedObject.name>CONNECTIVITY_NODE_TEST</cim:IdentifiedObject.name>
-    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_af9a4ae3-ba2e-4c34-8e47-5af894ee20f4" />
-  </cim:ConnectivityNode>
-  <cim:Terminal rdf:ID="TEST_TERMINAL_0">
-    <cim:IdentifiedObject.name>TEST_TERMINAL_0</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#TEST" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#TEST_LOAD" />
-  </cim:Terminal>
-  <cim:EnergyConsumer rdf:ID="TEST_LOAD">
-    <cim:IdentifiedObject.name>TEST_LOAD</cim:IdentifiedObject.name>
-    <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_af9a4ae3-ba2e-4c34-8e47-5af894ee20f4" />
-  </cim:EnergyConsumer>
-  <cim:Breaker rdf:ID="TEST_BREAKER">
-    <cim:IdentifiedObject.name>TEST_BREAKER</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_af9a4ae3-ba2e-4c34-8e47-5af894ee20f4" />
-    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_b2a3e748-1772-409d-a61f-1d6da09564c9" />
-    <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-    <cim:Switch.retained>false</cim:Switch.retained>
-  </cim:Breaker>
-  <cim:Terminal rdf:ID="TEST_TERMINAL_1">
-    <cim:IdentifiedObject.name>TEST_TERMINAL_1</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#_9e981bec-a029-4692-a205-66aec553ed46" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#TEST_BREAKER" />
-  </cim:Terminal>
-  <cim:Terminal rdf:ID="TEST_TERMINAL_2">
-    <cim:IdentifiedObject.name>TEST_TERMINAL_2</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#TEST" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#TEST_BREAKER" />
-  </cim:Terminal>
-
   <cim:Substation rdf:ID="_3f64f4e2-adfe-4d12-b082-68e7fe4b11c9">
     <cim:IdentifiedObject.name>Sub2</cim:IdentifiedObject.name>
-    <cim:Substation.Region rdf:resource="#_8f28794f-6030-4ec6-b17c-91ecb4321673" />
+    <cim:Substation.Region rdf:resource="#_8f28794f-6030-4ec6-b17c-91ecb4321673_INVALID" />
   </cim:Substation>
   <cim:Substation rdf:ID="_974565b1-ac55-4901-9f48-afc7ef5486df">
     <cim:IdentifiedObject.name>Sub3</cim:IdentifiedObject.name>
@@ -579,7 +540,7 @@
   </cim:ExternalNetworkInjection>
   <cim:ExternalNetworkInjection rdf:ID="_3de9e1ad-4562-44df-b268-70ed0517e9e7">
     <cim:IdentifiedObject.name>Q2</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_1" />
+    <cim:Equipment.EquipmentContainer rdf:resource="#_a43d15db-44a6-4fda-a525-2402ff43226f" />
     <cim:ExternalNetworkInjection.governorSCD>0</cim:ExternalNetworkInjection.governorSCD>
     <cim:ExternalNetworkInjection.ikSecond>true</cim:ExternalNetworkInjection.ikSecond>
     <cim:ExternalNetworkInjection.maxInitialSymShCCurrent>16000</cim:ExternalNetworkInjection.maxInitialSymShCCurrent>

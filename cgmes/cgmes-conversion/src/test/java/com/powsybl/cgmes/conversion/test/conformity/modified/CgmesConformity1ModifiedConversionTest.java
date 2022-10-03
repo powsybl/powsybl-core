@@ -17,6 +17,7 @@ import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.PowsyblException;
@@ -128,7 +129,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEPhaseTapChangerLinearTest() throws IOException {
+    public void microBEPhaseTapChangerLinearTest() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microT4BePhaseTapChangerLinear(),
             config);
@@ -154,7 +155,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(-14.4, ptc.getStep(25).getAlpha(), 0.001);
     }
 
-    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
@@ -163,9 +164,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         config.setConvertSvInjections(true);
         Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        return n;
+        return c.convert();
     }
 
     @Test
@@ -686,7 +685,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniBusBranchExternalInjectionControl() throws IOException {
+    public void miniBusBranchExternalInjectionControl() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchExternalInjectionControl().dataSource(), NetworkFactory.findDefault(), null);
         // External network injections with shared control enabled
         // One external network injection has control enabled
@@ -762,7 +761,9 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(transformer);
 
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerInvalidT2w().dataSource();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> new CgmesImport(platformConfig).importData(ds, NetworkFactory.findDefault(), null));
+        CgmesImport importer = new CgmesImport(platformConfig);
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(ds, networkFactory, null));
         assertEquals("2 windings transformer 'ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51': the 2 windings of the transformer shall belong to the substation '183d126d-2522-4ff2-a8cd-c5016cf09c1b_S' ('183d126d-2522-4ff2-a8cd-c5016cf09c1b_S', 'd6056127-34f1-43a9-b029-23fddb913bd5')",
             e.getMessage());
     }
@@ -823,6 +824,22 @@ public class CgmesConformity1ModifiedConversionTest {
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSubstationNode().dataSource(),
                         NetworkFactory.findDefault(), null);
         assertNotNull(network); // Check it doesn't fail when a connectivity node is in substation
+        // Check that the test load is connected to a proper bus in the bus view
+        Load testLoad = network.getLoad("TEST_LOAD");
+        assertNotNull(testLoad);
+        Bus testBus = testLoad.getTerminal().getBusView().getBus();
+        assertNotNull(testBus);
+    }
+
+    @Test
+    public void miniNodeBreakerMissingSubstationRegion() {
+        // Check that we fail with a powsybl exception instead of a NPE
+        CgmesImport importer = new CgmesImport();
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.miniNodeBreakerMissingSubstationRegion().dataSource();
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        CgmesModelException exception = assertThrows(CgmesModelException.class, () -> importer.importData(dataSource, networkFactory, null));
+        assertEquals("BusbarSection 78f2ae0e-da25-483a-8a71-76f709389894 voltage level 347fb7af-642f-4c60-97d9-c03d440b6a82 has not been created in IIDM",
+                exception.getMessage());
     }
 
     @Test
