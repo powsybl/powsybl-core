@@ -15,7 +15,7 @@ import com.powsybl.security.results.PostContingencyResult;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class PostContingencyResultComparator  implements Comparator<PostContingencyResult> {
+public class PostContingencyResultComparator implements Comparator<PostContingencyResult> {
 
     @Override
     public int compare(PostContingencyResult result1, PostContingencyResult result2) {

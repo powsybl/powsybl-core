@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateFeederBayTest extends AbstractXmlConverterTest  {
+public class CreateFeederBayTest extends AbstractXmlConverterTest {
 
     @Test
     public void baseLoadTest() throws IOException {
@@ -316,5 +316,28 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest  {
 
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> getUnusedOrderPositionsAfter(bbs));
         assertEquals("busbarSection has no BusbarSectionPosition extension", exception2.getMessage());
+    }
+
+    @Test
+    public void testExtensionsAreCreatedIfNoOtherConnectables() {
+        Network network = Importers.loadNetwork("network_one_voltage_level.xiidm", getClass().getResourceAsStream("/network_one_voltage_level.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("VLTEST").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBbsId("VLTEST12")
+                .withInjectionPositionOrder(10)
+                .build()
+                .apply(network, true, Reporter.NO_OP);
+
+        Load load = network.getLoad("newLoad");
+        assertNotNull(load);
+        ConnectablePosition<Load> position = load.getExtension(ConnectablePosition.class);
+        assertNotNull(position);
+        assertEquals(BOTTOM, position.getFeeder().getDirection());
+        assertEquals(Optional.of(10), position.getFeeder().getOrder());
     }
 }

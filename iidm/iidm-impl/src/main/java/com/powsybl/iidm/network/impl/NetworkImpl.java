@@ -684,6 +684,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public Connectable<?> getConnectable(String id) {
+        return index.get(id, Connectable.class);
+    }
+
+    @Override
     public int getConnectableCount() {
         return Ints.checkedCast(getConnectableStream().count());
     }
