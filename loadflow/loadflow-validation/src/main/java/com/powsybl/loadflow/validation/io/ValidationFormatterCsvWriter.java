@@ -565,7 +565,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,  boolean mainComponent,
+                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
                          boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {

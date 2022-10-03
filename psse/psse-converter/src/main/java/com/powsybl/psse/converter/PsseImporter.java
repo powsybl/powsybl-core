@@ -229,8 +229,8 @@ public class PsseImporter implements Importer {
             if (t.getK() == 0) { // twoWindingsTransformers with zero impedance are not allowed
                 edges.add(new Edge(t.getI(), t.getJ(), true, false));
             } else { // threeWindingsTransformers with zero impedance are not allowed
-                edges.add(new Edge(t.getI(), t.getJ(), true,  false));
-                edges.add(new Edge(t.getI(), t.getK(), true,  false));
+                edges.add(new Edge(t.getI(), t.getJ(), true, false));
+                edges.add(new Edge(t.getI(), t.getK(), true, false));
             }
         });
 

@@ -26,7 +26,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
     private static final double DEFAULT_POWER_FACTOR = 0.8;
 
-    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, String acDcConverterDcTerminalId,  Context context) {
+    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, String acDcConverterDcTerminalId, Context context) {
         super("ACDCConverter", c, context);
 
         this.converterType = Objects.requireNonNull(converterType);

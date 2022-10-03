@@ -52,36 +52,36 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     context.type = parser.nextTextValue();
                     return true;
                 case "id":
-                    context.id =  parser.nextTextValue();
+                    context.id = parser.nextTextValue();
                     return true;
                 case "switchId":
-                    context.switchId =  parser.nextTextValue();
+                    context.switchId = parser.nextTextValue();
                     return true;
                 case "lineId":
-                    context.lineId =  parser.nextTextValue();
+                    context.lineId = parser.nextTextValue();
                     return true;
                 case "transformerId":
-                    context.transformerId =  parser.nextTextValue();
+                    context.transformerId = parser.nextTextValue();
                     return true;
                 case "open":
                     parser.nextToken();
-                    context.open =  parser.getBooleanValue();
+                    context.open = parser.getBooleanValue();
                     return true;
                 case "openSide1":
                     parser.nextToken();
-                    context.openSide1 =  parser.getBooleanValue();
+                    context.openSide1 = parser.getBooleanValue();
                     return true;
                 case "openSide2":
                     parser.nextToken();
-                    context.openSide2 =  parser.getBooleanValue();
+                    context.openSide2 = parser.getBooleanValue();
                     return true;
                 case "relativeValue":
                     parser.nextToken();
-                    context.relativeValue =  parser.getBooleanValue();
+                    context.relativeValue = parser.getBooleanValue();
                     return true;
                 case "value":
                     parser.nextToken();
-                    context.value =  parser.getIntValue();
+                    context.value = parser.getIntValue();
                     return true;
                 case "side":
                     String sideStr = parser.nextTextValue();

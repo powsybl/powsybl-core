@@ -11,7 +11,6 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -254,7 +253,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
-        addMappingForTopologicalNode(dl, modelSide, 1);
         // We do not have SSH values at the model side, it is a line flow. We take directly SV values
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlowSV(modelSide));
 
@@ -621,34 +619,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 break;
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
-            addMappingForTopologicalNode(identifiable, i);
             i++;
         }
         context.namingStrategy().readIdMapping(identifiable, type);
-    }
-
-    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
-        if (context.config().createCgmesExportMapping()) {
-            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-            String topologicalNode = terminals[cgmesTerminalNumber - 1].t.topologicalNode();
-            mapping.putTopologicalNode(identifiable.getId(), iidmTerminalNumber, topologicalNode);
-        }
-    }
-
-    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int terminalNumber) {
-        int cgmesTerminalNumber = terminalNumber;
-        int iidmTerminalNumber = cgmesTerminalNumber;
-        addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
-    }
-
-    protected static void addMappingForTopologicalNode(Context context, TieLine tl, int side, BoundaryLine boundaryLine) {
-        if (context.config().createCgmesExportMapping()) {
-            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-
-            String cgmesTerminalId = boundaryLine.getModelTerminalId();
-            CgmesTerminal t = context.cgmes().terminal(cgmesTerminalId);
-            mapping.putTopologicalNode(tl.getId(), side, t.topologicalNode());
-        }
     }
 
     protected BoundaryLine createBoundaryLine(String boundaryNode) {
