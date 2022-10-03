@@ -41,8 +41,8 @@ public class DanglingLineData {
         if (!isVoltageValid(networkU, networkTheta)) {
             boundaryBusU = Double.NaN;
             boundaryBusTheta = Double.NaN;
-            boundaryFlowP = isZ0(danglingLine) ? danglingLine.getTerminal().getP() : Double.NaN;
-            boundaryFlowQ = isZ0(danglingLine) ? danglingLine.getTerminal().getQ() : Double.NaN;
+            boundaryFlowP = isZ0(danglingLine) ? -danglingLine.getTerminal().getP() : Double.NaN;
+            boundaryFlowQ = isZ0(danglingLine) ? -danglingLine.getTerminal().getQ() : Double.NaN;
             networkFlowP = danglingLine.getTerminal().getP();
             networkFlowQ = danglingLine.getTerminal().getQ();
             return;
@@ -51,8 +51,8 @@ public class DanglingLineData {
         if (isZ0(danglingLine)) {
             boundaryBusU = networkU;
             boundaryBusTheta = networkTheta;
-            boundaryFlowP = danglingLine.getTerminal().getP();
-            boundaryFlowQ = danglingLine.getTerminal().getQ();
+            boundaryFlowP = -danglingLine.getTerminal().getP();
+            boundaryFlowQ = -danglingLine.getTerminal().getQ();
             networkFlowP = danglingLine.getTerminal().getP();
             networkFlowQ = danglingLine.getTerminal().getQ();
             return;

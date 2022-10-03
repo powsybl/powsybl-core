@@ -97,6 +97,22 @@ public class DanglingLineDataTest {
     }
 
     @Test
+    public void testZ0WithNetworkFlow() {
+        DanglingLineTestData dlTestData = new DanglingLineTestData();
+        dlTestData.setZ0();
+        dlTestData.setZ0NetworkFlow();
+        DanglingLine danglingLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(danglingLine);
+
+        boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.62, -8.6);
+        assertTrue(ok);
+        ok = dlCompareNetworkActiveAndReactivePower(dlData, -367.4, 63.73);
+        assertTrue(ok);
+        ok = dlCompareBoundaryActiveAndReactivePower(dlData, 367.4, -63.73);
+        assertTrue(ok);
+    }
+
+    @Test
     public void testNetworkFlow() {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         dlTestData.setNetworkFlow();

@@ -112,6 +112,11 @@ class DanglingLineTestData {
         Mockito.when(terminal.getQ()).thenReturn(63.73282249057797);
     }
 
+    public void setZ0NetworkFlow() {
+        Mockito.when(terminal.getP()).thenReturn(P0);
+        Mockito.when(terminal.getQ()).thenReturn(Q0);
+    }
+
     public void setGenerationControl() {
         Mockito.when(generation.isVoltageRegulationOn()).thenReturn(true);
         Mockito.when(generation.getTargetP()).thenReturn(-P0 * 0.5);
