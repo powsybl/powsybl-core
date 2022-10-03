@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
