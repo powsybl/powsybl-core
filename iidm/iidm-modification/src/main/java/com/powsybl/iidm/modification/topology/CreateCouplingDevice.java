@@ -103,7 +103,10 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
                         .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
                         .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position2.getSectionIndex())
                         .filter(b -> !b.getId().equals(bbsId2)).collect(Collectors.toList());
-                if (bbsList1.size() != 1 || position1.getSectionIndex() != position2.getSectionIndex()) { // if both busbar sections not in same section or in same section with other busbar sections
+
+                // if both busbar are in same section and there is only 2 busbars in this section, then we do not add more disconnectors
+                // otherwise the coupler is on each side attached to all busbars of the corresponding section
+                if (bbsList1.size() != 1 || position1.getSectionIndex() != position2.getSectionIndex()) {
                     nbOpenDisconnectors = bbsList1.size() * 2;
                     createTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, switchPrefixId, bbsList1);
                     createTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, switchPrefixId, bbsList2);
