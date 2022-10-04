@@ -303,6 +303,10 @@ public class NetworkStateComparator {
 
     private static final InjectionQColumnMapper<ShuntCompensator> SHUNT_Q = new InjectionQColumnMapper<>();
 
+    private static final InjectionVColumnMapper<StaticVarCompensator> SVC_V = new InjectionVColumnMapper<>();
+
+    private static final InjectionQColumnMapper<StaticVarCompensator> SVC_Q = new InjectionQColumnMapper<>();
+
     private static final class DiffColumnMapper<T extends Identifiable> implements ColumnMapper<T> {
 
         private final String title;
@@ -391,6 +395,8 @@ public class NetworkStateComparator {
     private static final List<ColumnMapper<Load>> LOAD_MAPPERS = List.of(LOAD_P, LOAD_Q);
 
     private static final List<ColumnMapper<ShuntCompensator>> SHUNT_MAPPERS = List.of(SHUNT_SECTIONS, SHUNT_P, SHUNT_Q);
+
+    private static final List<ColumnMapper<StaticVarCompensator>> SVC_MAPPERS = List.of(SVC_Q, SVC_V);
 
     private final Network network;
 
@@ -506,6 +512,7 @@ public class NetworkStateComparator {
         createSheet(Lists.newArrayList(network.getHvdcConverterStations()), wb, titleCellStyle, "HVDC converter stations", HVDC_MAPPERS);
         createSheet(Lists.newArrayList(network.getLoads()), wb, titleCellStyle, "Loads", LOAD_MAPPERS);
         createSheet(Lists.newArrayList(network.getShuntCompensators()), wb, titleCellStyle, "Shunts", SHUNT_MAPPERS);
+        createSheet(Lists.newArrayList(network.getStaticVarCompensators()), wb, titleCellStyle, "Static VAR Compensators", SVC_MAPPERS);
     }
 
     public void generateXls(Path xsl) {
