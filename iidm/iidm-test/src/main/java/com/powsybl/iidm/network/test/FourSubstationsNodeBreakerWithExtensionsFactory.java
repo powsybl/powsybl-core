@@ -180,7 +180,6 @@ public final class FourSubstationsNodeBreakerWithExtensionsFactory {
                 .add()
                 .add();
 
-
         network.getTwoWindingsTransformer("TWT").newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
                     .withName("TWT")
