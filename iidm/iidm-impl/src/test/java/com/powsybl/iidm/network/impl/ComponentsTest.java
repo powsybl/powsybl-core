@@ -53,8 +53,6 @@ public class ComponentsTest {
         final var connectedComponents = network.getBusView().getConnectedComponents();
         final var synchronousComponents = network.getBusView().getSynchronousComponents();
 
-        // FIXME we are getting 0 connectedComponents and 0 synchronousComponents (expecting 2 of size 1 bus)
-
         // two connected components of size 1
         assertEquals(2, connectedComponents.size());
         connectedComponents.forEach(cc -> assertEquals(1, cc.getSize()));
