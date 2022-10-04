@@ -18,7 +18,7 @@
         <version>4.11.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>cgmes-shortcircuit</artifactId>
+    <artifactId>powsybl-cgmes-shortcircuit</artifactId>
     <name>CGMES shortcircuit</name>
     <description>CGMES importer for shortcircuit extensions</description>
 
