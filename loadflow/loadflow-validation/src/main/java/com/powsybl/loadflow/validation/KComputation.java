@@ -30,7 +30,7 @@ public class KComputation {
      * @param value   Assumed coefficient for that generator (for example Pmax, targetP, ...)
      */
     public void addGeneratorValues(double p, double targetP, double value) {
-        sumP +=  p;
+        sumP += p;
         sumTargetP += targetP;
         sum += value;
         cumSumVarK += Math.pow(p - targetP, 2) / value;

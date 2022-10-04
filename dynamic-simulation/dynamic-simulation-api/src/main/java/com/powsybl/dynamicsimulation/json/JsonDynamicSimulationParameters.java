@@ -145,7 +145,7 @@ public final class JsonDynamicSimulationParameters {
     /**
      *  Low level serialization method, to be used for instance for writing load flow parameters nested in another object.
      */
-    public static void serialize(DynamicSimulationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
+    public static void serialize(DynamicSimulationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         new DynamicSimulationParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 }

@@ -29,7 +29,7 @@ public final class TestingResultFactory {
         Fault fault = new BranchFault("Fault_ID_3", "BranchId", 0.0, 0.0, 12.0);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
         busResults.add(new ShortCircuitBusResults("VLGEN", "busId", new FortescueValue(2004, 2005)));
-        FaultResult faultResult3 = new FaultResult(fault,  1.0, Collections.emptyList(),
+        FaultResult faultResult3 = new FaultResult(fault, 1.0, Collections.emptyList(),
                 Collections.emptyList(), new FortescueValue(2002, 2003), null, busResults, null);
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);

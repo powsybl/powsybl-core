@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.InjectionAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractInjectionAdderAdapter<I extends InjectionAdder<I>> extends AbstractIdentifiableAdderAdapter<I> implements InjectionAdder<I>  {
+abstract class AbstractInjectionAdderAdapter<I extends InjectionAdder<I>> extends AbstractIdentifiableAdderAdapter<I> implements InjectionAdder<I> {
 
     protected AbstractInjectionAdderAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);

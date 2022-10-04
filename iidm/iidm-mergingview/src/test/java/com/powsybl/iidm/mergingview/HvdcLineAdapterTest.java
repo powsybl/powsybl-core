@@ -44,10 +44,10 @@ public class HvdcLineAdapterTest {
 
         // getters / setters
         HvdcLine.ConvertersMode mode = expectedLine.getConvertersMode();
-        assertEquals(mode,  lineAdapted.getConvertersMode());
+        assertEquals(mode, lineAdapted.getConvertersMode());
         mode = HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
         lineAdapted.setConvertersMode(mode);
-        assertEquals(mode,  lineAdapted.getConvertersMode());
+        assertEquals(mode, lineAdapted.getConvertersMode());
 
         double r = expectedLine.getR();
         assertEquals(r, lineAdapted.getR(), 0.0d);

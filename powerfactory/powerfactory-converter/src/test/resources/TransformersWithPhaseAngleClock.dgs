@@ -34,7 +34,7 @@ $$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fl
 $$ElmLod;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);mode_inp(a:3);slini(r);plini(r);qlini(r);coslini(r);pf_recap(i);scale0(r);i_scale(i);outserv(i);classif(a:20)
   22;lod_4_1;;27;95;PQ;1403,567;1400;100;0,997458;0;1;0;0;
   23;lod_5_1;;27;95;PQ;2002,498;2000;100;0,998752;0;1;0;0;
-  24;lod_5_2;;27;95;PQ;50;0;50;0;0;1;0;1;
+  24;lod_5_2;;27;95;PQ;50;0;50;0;0;1;0;0;
   25;lod_6_1;;27;95;PQ;10198,04;10000;2000;0,980580;0;1;0;0;
   26;lod_7_1;;27;95;PQ;1,414214;1;1;0,707106;0;1;0;0;
 

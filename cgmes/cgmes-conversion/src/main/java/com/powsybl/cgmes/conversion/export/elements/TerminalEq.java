@@ -20,7 +20,9 @@ public final class TerminalEq {
     public static void write(String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartId(CgmesNames.TERMINAL, id, true, cimNamespace, writer);
         CgmesExportUtil.writeReference("Terminal.ConductingEquipment", conductingEquipmentId, cimNamespace, writer);
-        CgmesExportUtil.writeReference("Terminal.ConnectivityNode", connectivityNodeId, cimNamespace, writer);
+        if (connectivityNodeId != null) {
+            CgmesExportUtil.writeReference("Terminal.ConnectivityNode", connectivityNodeId, cimNamespace, writer);
+        }
         writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));
         writer.writeEndElement();

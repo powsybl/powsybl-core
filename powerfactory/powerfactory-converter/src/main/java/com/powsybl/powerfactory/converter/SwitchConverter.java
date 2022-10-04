@@ -50,6 +50,18 @@ class SwitchConverter extends AbstractConverter {
         createSwitch(vl, node1, node2, staSwitch);
     }
 
+    void createFictitiousSwitch(VoltageLevel vl, int node1, int node2, String dataObjectId) {
+        vl.getNodeBreakerView().newSwitch()
+            .setFictitious(true)
+            .setId(dataObjectId + "_sw_fict")
+            .setEnsureIdUnicity(true)
+            .setKind(SwitchKind.BREAKER)
+            .setNode1(node1)
+            .setNode2(node2)
+            .setOpen(true)
+            .add();
+    }
+
     private static void createSwitch(VoltageLevel vl, int node1, int node2, DataObject dataObject) {
         SwitchModel switchModel = SwitchModel.create(vl.getId(), dataObject);
 
