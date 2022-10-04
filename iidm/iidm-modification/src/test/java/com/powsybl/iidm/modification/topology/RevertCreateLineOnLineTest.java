@@ -22,7 +22,6 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VOLTAGE_LEVEL_ID;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
@@ -40,7 +39,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbNetwork();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine("VLTEST", BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
         VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
@@ -131,7 +130,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, BBS, line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
         modification = new RevertCreateLineOnLineBuilder()
@@ -150,7 +149,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
-        NetworkModification modification = new CreateLineOnLine(VOLTAGE_LEVEL_ID, "bus", line, adder);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
         modification = new RevertCreateLineOnLineBuilder()
