@@ -9,7 +9,7 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.ContingencyList;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 
 import java.io.IOException;
 
@@ -31,9 +31,21 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                     case "default":
                         DefaultContingencyListDeserializer defaultContingencyListDeserializer = new DefaultContingencyListDeserializer();
                         return defaultContingencyListDeserializer.deserialize(parser, deserializationContext);
-                    case "criterion":
-                        CriterionContingencyListDeserializer criterionContingencyListDeserializer = new CriterionContingencyListDeserializer();
-                        return criterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                    case "injectionCriterion":
+                        InjectionCriterionContingencyListDeserializer injectionCriterionContingencyListDeserializer = new InjectionCriterionContingencyListDeserializer();
+                        return injectionCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                    case "hvdcCriterion":
+                        HvdcLineCriterionContingencyListDeserializer hvdcLineCriterionContingencyListDeserializer = new HvdcLineCriterionContingencyListDeserializer();
+                        return hvdcLineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                    case "lineCriterion":
+                        LineCriterionContingencyListDeserializer lineCriterionContingencyListDeserializer = new LineCriterionContingencyListDeserializer();
+                        return lineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                    case "twoWindingsTransformerCriterion":
+                        TwoWindingsTransformerCriterionContingencyListDeserializer twoWindingsTransformerCriterionContingencyListDeserializer = new TwoWindingsTransformerCriterionContingencyListDeserializer();
+                        return twoWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                    case "threeWindingsTransformerCriterion":
+                        ThreeWindingsTransformerCriterionContingencyListDeserializer threeWindingsTransformerCriterionContingencyListDeserializer = new ThreeWindingsTransformerCriterionContingencyListDeserializer();
+                        return threeWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
                     case "list":
                         ContingencyListsListDeserializer contingencyListsListDeserializer = new ContingencyListsListDeserializer();
                         return contingencyListsListDeserializer.deserialize(parser, deserializationContext);

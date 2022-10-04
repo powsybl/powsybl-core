@@ -4,11 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency;
+package com.powsybl.contingency.contingency.list;
 
+import com.google.common.collect.ImmutableList;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -22,8 +25,8 @@ public class ContingencyListsList implements ContingencyList {
     private final List<ContingencyList> contingencyLists;
 
     public ContingencyListsList(String name, List<ContingencyList> contingencyLists) {
-        this.name = name;
-        this.contingencyLists = contingencyLists;
+        this.name = Objects.requireNonNull(name);
+        this.contingencyLists = ImmutableList.copyOf(contingencyLists);
     }
 
     @Override

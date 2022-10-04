@@ -9,12 +9,11 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.contingency.list.criterion.CountryCriterion;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
-import com.powsybl.contingency.contingency.list.criterion.NominalVoltageCriterion;
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -30,37 +29,46 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", criterion.getType().toString());
         switch (criterion.getType()) {
-            case COUNTRY:
-                CountryCriterion countryCriterion = (CountryCriterion) criterion;
-                if (countryCriterion.getCountry() != null) {
-                    jsonGenerator.writeStringField("country", countryCriterion.getCountry().toString());
+            case SINGLE_COUNTRY:
+                jsonGenerator.writeObjectField("countries", ((SingleCountryCriterion) criterion).getCountries().stream().map(Country::toString).collect(Collectors.toList()));
+                break;
+            case TWO_COUNTRY:
+                jsonGenerator.writeObjectField("countries1", ((TwoCountriesCriterion) criterion).getCountries1().stream().map(Country::toString).collect(Collectors.toList()));
+                jsonGenerator.writeObjectField("countries2", ((TwoCountriesCriterion) criterion).getCountries1().stream().map(Country::toString).collect(Collectors.toList()));
+                break;
+            case SINGLE_NOMINAL_VOLTAGE:
+                SingleNominalVoltageCriterion singleNominalVoltageCriterion = (SingleNominalVoltageCriterion) criterion;
+                if (!singleNominalVoltageCriterion.getVoltageInterval().isNull()) {
+                    jsonGenerator.writeObjectField("voltageInterval", singleNominalVoltageCriterion.getVoltageInterval());
                 }
-                if (countryCriterion.getCountry1() != null) {
-                    jsonGenerator.writeStringField("country1", countryCriterion.getCountry1().toString());
+                break;
+            case TWO_NOMINAL_VOLTAGE:
+                TwoNominalVoltageCriterion twoNominalVoltageCriterion = (TwoNominalVoltageCriterion) criterion;
+                if (!twoNominalVoltageCriterion.getVoltageInterval1().isNull()) {
+                    jsonGenerator.writeObjectField("voltageInterval1", ((TwoNominalVoltageCriterion) criterion).getVoltageInterval1());
                 }
-                if (countryCriterion.getCountry2() != null) {
-                    jsonGenerator.writeStringField("country2", countryCriterion.getCountry2().toString());
+                if (!twoNominalVoltageCriterion.getVoltageInterval2().isNull()) {
+                    jsonGenerator.writeObjectField("voltageInterval2", ((TwoNominalVoltageCriterion) criterion).getVoltageInterval2());
+                }
+                break;
+            case THREE_NOMINAL_VOLTAGE:
+                ThreeNominalVoltageCriterion threeNominalVoltageCriterion = (ThreeNominalVoltageCriterion) criterion;
+                if (!threeNominalVoltageCriterion.getVoltageInterval1().isNull()) {
+                    jsonGenerator.writeObjectField("voltageInterval1", threeNominalVoltageCriterion.getVoltageInterval1());
+                }
+                if (!threeNominalVoltageCriterion.getVoltageInterval2().isNull()) {
+                    jsonGenerator.writeObjectField("voltageInterval2", threeNominalVoltageCriterion.getVoltageInterval2());
+                }
+                if (!threeNominalVoltageCriterion.getVoltageInterval3().isNull()) {
+                    jsonGenerator.writeObjectField("voltageInterval3", threeNominalVoltageCriterion.getVoltageInterval3());
                 }
                 break;
             case PROPERTY:
                 jsonGenerator.writeStringField("propertyKey", ((PropertyCriterion) criterion).getPropertyKey());
-                jsonGenerator.writeStringField("propertyValue", ((PropertyCriterion) criterion).getPropertyValue());
+                jsonGenerator.writeObjectField("propertyValue", ((PropertyCriterion) criterion).getPropertyValues());
                 break;
-            case NOMINAL_VOLTAGE:
-                NominalVoltageCriterion nominalVoltageCriterion = (NominalVoltageCriterion) criterion;
-                if (!nominalVoltageCriterion.getVoltageInterval().isNull()) {
-                    jsonGenerator.writeObjectField("voltageInterval", ((NominalVoltageCriterion) criterion).getVoltageInterval());
-                }
-                if (!nominalVoltageCriterion.getVoltageInterval1().isNull()) {
-                    jsonGenerator.writeObjectField("voltageInterval1", ((NominalVoltageCriterion) criterion).getVoltageInterval1());
-                }
-                if (!nominalVoltageCriterion.getVoltageInterval2().isNull()) {
-                    jsonGenerator.writeObjectField("voltageInterval2", ((NominalVoltageCriterion) criterion).getVoltageInterval2());
-                }
-                if (!nominalVoltageCriterion.getVoltageInterval3().isNull()) {
-                    jsonGenerator.writeObjectField("voltageInterval3", ((NominalVoltageCriterion) criterion).getVoltageInterval3());
-                }
-                break;
+            default:
+                throw new IllegalArgumentException("type " + criterion.getType().toString() + " not known");
         }
         jsonGenerator.writeEndObject();
     }

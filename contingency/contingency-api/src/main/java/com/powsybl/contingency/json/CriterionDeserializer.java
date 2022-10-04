@@ -11,12 +11,14 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.contingency.list.criterion.CountryCriterion;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
-import com.powsybl.contingency.contingency.list.criterion.NominalVoltageCriterion;
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -30,65 +32,63 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
     @Override
     public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         Criterion.CriterionType type = null;
-        NominalVoltageCriterion.VoltageInterval voltageInterval = null;
-        NominalVoltageCriterion.VoltageInterval voltageInterval1 = null;
-        NominalVoltageCriterion.VoltageInterval voltageInterval2 = null;
-        NominalVoltageCriterion.VoltageInterval voltageInterval3 = null;
-        String country = null;
-        String country1 = null;
-        String country2 = null;
+        SingleNominalVoltageCriterion.VoltageInterval voltageInterval = null;
+        SingleNominalVoltageCriterion.VoltageInterval voltageInterval1 = null;
+        SingleNominalVoltageCriterion.VoltageInterval voltageInterval2 = null;
+        SingleNominalVoltageCriterion.VoltageInterval voltageInterval3 = null;
+        List<String> countries = Collections.emptyList();
+        List<String> countries1 = Collections.emptyList();
+        List<String> countries2 = Collections.emptyList();
         String propertyKey = null;
-        String propertyValue = null;
+        List<String> propertyValues = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "type":
                     type = Criterion.CriterionType.valueOf(parser.nextTextValue());
                     break;
-
                 case "voltageInterval":
                     parser.nextToken();
-                    voltageInterval = parser.readValueAs(new TypeReference<NominalVoltageCriterion.VoltageInterval>() {
+                    voltageInterval = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
                     });
                     break;
-
                 case "voltageInterval1":
                     parser.nextToken();
-                    voltageInterval1 = parser.readValueAs(new TypeReference<NominalVoltageCriterion.VoltageInterval>() {
+                    voltageInterval1 = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
                     });
                     break;
-
                 case "voltageInterval2":
                     parser.nextToken();
-                    voltageInterval2 = parser.readValueAs(new TypeReference<NominalVoltageCriterion.VoltageInterval>() {
+                    voltageInterval2 = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
                     });
                     break;
-
                 case "voltageInterval3":
                     parser.nextToken();
-                    voltageInterval3 = parser.readValueAs(new TypeReference<NominalVoltageCriterion.VoltageInterval>() {
+                    voltageInterval3 = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
                     });
                     break;
-
-                case "country":
-                    country = parser.nextTextValue();
+                case "countries":
+                    parser.nextToken();
+                    countries = parser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
                     break;
-
-                case "country1":
-                    country1 = parser.nextTextValue();
+                case "countries1":
+                    parser.nextToken();
+                    countries1 = parser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
                     break;
-
-                case "country2":
-                    country2 = parser.nextTextValue();
+                case "countries2":
+                    parser.nextToken();
+                    countries2 = parser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
                     break;
-
                 case "propertyKey":
                     propertyKey = parser.nextTextValue();
                     break;
-
                 case "propertyValue":
-                    propertyValue = parser.nextTextValue();
+                    parser.nextToken();
+                    propertyValues = parser.readValueAs(new TypeReference<ArrayList<String>>() {
+                    });
                     break;
-
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
@@ -98,11 +98,18 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         }
         switch (type) {
             case PROPERTY:
-                return new PropertyCriterion(propertyKey, propertyValue);
-            case COUNTRY:
-                return new CountryCriterion(country, country1, country2);
-            case NOMINAL_VOLTAGE:
-                return new NominalVoltageCriterion(voltageInterval, voltageInterval1, voltageInterval2, voltageInterval3);
+                return new PropertyCriterion(propertyKey, propertyValues);
+            case SINGLE_COUNTRY:
+                return new SingleCountryCriterion(countries);
+            case TWO_COUNTRY:
+                return new TwoCountriesCriterion(countries1.stream().map(Country::valueOf).collect(Collectors.toList()),
+                        countries2.stream().map(Country::valueOf).collect(Collectors.toList()));
+            case SINGLE_NOMINAL_VOLTAGE:
+                return new SingleNominalVoltageCriterion(voltageInterval);
+            case TWO_NOMINAL_VOLTAGE:
+                return new TwoNominalVoltageCriterion(voltageInterval1, voltageInterval2);
+            case THREE_NOMINAL_VOLTAGE:
+                return new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
             default:
                 throw new IllegalArgumentException("type is not correct");
         }

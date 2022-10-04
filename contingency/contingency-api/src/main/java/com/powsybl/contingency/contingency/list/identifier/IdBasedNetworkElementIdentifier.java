@@ -4,30 +4,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.contingency.list.identifiant;
+package com.powsybl.contingency.contingency.list.identifier;
 
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class SimpleIdentifier implements Identifier {
+public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier {
 
     private final String identifier;
 
-    public SimpleIdentifier(String identifier) {
-        this.identifier = identifier;
+    public IdBasedNetworkElementIdentifier(String identifier) {
+        this.identifier = Objects.requireNonNull(identifier);
     }
 
     @Override
-    public Contingency filterIdentifiable(Network network) {
-        Identifiable identifiable = network.getIdentifiable(identifier);
-        if (identifiable == null) {
-            return null;
-        }
-        return new Contingency(identifiable.getId(), Contingency.getContingencyElement(identifiable));
+    public Optional<Identifiable> filterIdentifiable(Network network) {
+        return Optional.ofNullable(network.getIdentifiable(identifier));
     }
 
     public String getIdentifier() {
@@ -36,6 +34,6 @@ public class SimpleIdentifier implements Identifier {
 
     @Override
     public IdentifierType getType() {
-        return IdentifierType.SIMPLE;
+        return IdentifierType.ID_BASED;
     }
 }

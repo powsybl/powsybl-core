@@ -11,10 +11,13 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
-import com.powsybl.contingency.contingency.list.criterion.CountryCriterion;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
-import com.powsybl.contingency.contingency.list.criterion.NominalVoltageCriterion;
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.contingency.list.ContingencyListsList;
+import com.powsybl.contingency.contingency.list.DefaultContingencyList;
+import com.powsybl.contingency.contingency.list.LineCriterionContingencyList;
+import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
+import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
+import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -24,6 +27,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,14 +38,12 @@ public class ContingencyListsListJsonTest extends AbstractConverterTest {
 
     private static ContingencyListsList create() {
         List<ContingencyList> contingencyLists = new ArrayList<>();
-        List<Criterion> criteria = new ArrayList<>();
-        criteria.add(new CountryCriterion(null, "FR", "BE"));
-        criteria.add(new NominalVoltageCriterion(null,
-                new NominalVoltageCriterion.VoltageInterval(200.0, 230.0, true, true),
-                new NominalVoltageCriterion.VoltageInterval(380.0, 420.0, true, true),
+        TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
+                Collections.singletonList(Country.BE));
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true));
+        contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion,
                 null));
-        criteria.add(new PropertyCriterion("property", "val1"));
-        contingencyLists.add(new CriterionContingencyList("list1", "LINE", criteria));
         contingencyLists.add(new DefaultContingencyList(new Contingency("contingency1", new GeneratorContingency("GEN"))));
         return new ContingencyListsList("listslist1", contingencyLists);
     }

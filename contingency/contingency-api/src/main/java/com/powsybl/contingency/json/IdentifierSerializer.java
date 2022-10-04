@@ -9,38 +9,37 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.contingency.list.identifiant.Identifier;
-import com.powsybl.contingency.contingency.list.identifiant.IdentifierList;
-import com.powsybl.contingency.contingency.list.identifiant.SimpleIdentifier;
-import com.powsybl.contingency.contingency.list.identifiant.UcteIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.*;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class IdentifierSerializer extends StdSerializer<Identifier> {
+public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier> {
 
     public IdentifierSerializer() {
-        super(Identifier.class);
+        super(NetworkElementIdentifier.class);
     }
 
     @Override
-    public void serialize(Identifier identifier, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(NetworkElementIdentifier networkElementIdentifier, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", identifier.getType().toString());
-        switch (identifier.getType()) {
-            case SIMPLE:
-                jsonGenerator.writeStringField("identifier", ((SimpleIdentifier) identifier).getIdentifier());
+        jsonGenerator.writeStringField("type", networkElementIdentifier.getType().toString());
+        switch (networkElementIdentifier.getType()) {
+            case ID_BASED:
+                jsonGenerator.writeStringField("identifier", ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifier());
                 break;
             case LIST:
-                jsonGenerator.writeObjectField("identifierList", ((IdentifierList) identifier).getIdentifiers());
+                jsonGenerator.writeObjectField("identifierList", ((NetworkElementIdentifierList) networkElementIdentifier).getIdentifiers());
                 break;
-            case UCTE:
-                UcteIdentifier ucteIdentifier = (UcteIdentifier) identifier;
+            case VOLTAGE_LEVELS_AND_ORDER:
+                VoltageLevelAndOrderNetworkElementIdentifier ucteIdentifier = (VoltageLevelAndOrderNetworkElementIdentifier) networkElementIdentifier;
                 jsonGenerator.writeStringField("voltageLevelId1", ucteIdentifier.getVoltageLevelId1());
                 jsonGenerator.writeStringField("voltageLevelId2", ucteIdentifier.getVoltageLevelId2());
-                jsonGenerator.writeNumberField("order", ucteIdentifier.getOrder());
+                jsonGenerator.writeStringField("order", Character.toString(ucteIdentifier.getOrder()));
                 break;
         }
         jsonGenerator.writeEndObject();

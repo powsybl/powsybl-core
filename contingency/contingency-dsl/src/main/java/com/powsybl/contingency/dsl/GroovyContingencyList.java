@@ -8,7 +8,7 @@
 package com.powsybl.contingency.dsl;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyList;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.dsl.GroovyScripts;
 import com.powsybl.iidm.network.Network;
 import groovy.lang.GroovyCodeSource;

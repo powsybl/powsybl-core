@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.ContingencyList;
-import com.powsybl.contingency.ContingencyListsList;
+import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.contingency.list.ContingencyListsList;
 
 import java.io.IOException;
 import java.util.ArrayList;

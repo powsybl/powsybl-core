@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.DefaultContingencyList;
+import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
 import java.util.ArrayList;

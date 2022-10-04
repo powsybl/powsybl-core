@@ -5,9 +5,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.contingency;
+package com.powsybl.contingency.contingency.list;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;

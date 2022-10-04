@@ -4,20 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.contingency.contingency.list.identifiant;
+package com.powsybl.contingency.contingency.list.identifier;
 
-import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public interface Identifier {
-    Contingency filterIdentifiable(Network network);
+public interface NetworkElementIdentifier {
+    Optional<Identifiable> filterIdentifiable(Network network);
 
     enum IdentifierType {
-        SIMPLE,
-        UCTE,
+        ID_BASED,
+        VOLTAGE_LEVELS_AND_ORDER,
         LIST
     }
 

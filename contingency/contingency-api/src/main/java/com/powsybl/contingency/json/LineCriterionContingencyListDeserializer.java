@@ -11,29 +11,26 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.CriterionContingencyList;
-import com.powsybl.contingency.DefaultContingencyList;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
+import com.powsybl.contingency.contingency.list.LineCriterionContingencyList;
+import com.powsybl.contingency.contingency.list.criterion.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class CriterionContingencyListDeserializer extends StdDeserializer<CriterionContingencyList> {
+public class LineCriterionContingencyListDeserializer extends StdDeserializer<LineCriterionContingencyList> {
 
-    public CriterionContingencyListDeserializer() {
-        super(DefaultContingencyList.class);
+    public LineCriterionContingencyListDeserializer() {
+        super(LineCriterionContingencyList.class);
     }
 
     @Override
-    public CriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LineCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
-        String identifiableType = null;
-        List<Criterion> criteria = Collections.emptyList();
+        TwoCountriesCriterion countryCriterion = null;
+        SingleNominalVoltageCriterion nominalVoltageCriterion = null;
+        PropertyCriterion propertyCriterion = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -49,13 +46,19 @@ public class CriterionContingencyListDeserializer extends StdDeserializer<Criter
                     parser.nextToken();
                     break;
 
-                case "identifiableType":
-                    identifiableType = parser.nextTextValue();
-                    break;
-
-                case "criteria":
+                case "countryCriterion":
                     parser.nextToken();
-                    criteria = parser.readValueAs(new TypeReference<ArrayList<Criterion>>() {
+                    countryCriterion = parser.readValueAs(new TypeReference<Criterion>() {
+                    });
+                    break;
+                case "nominalVoltageCriterion":
+                    parser.nextToken();
+                    nominalVoltageCriterion = parser.readValueAs(new TypeReference<Criterion>() {
+                    });
+                    break;
+                case "propertyCriterion":
+                    parser.nextToken();
+                    propertyCriterion = parser.readValueAs(new TypeReference<Criterion>() {
                     });
                     break;
 
@@ -63,6 +66,7 @@ public class CriterionContingencyListDeserializer extends StdDeserializer<Criter
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new CriterionContingencyList(name, identifiableType, criteria);
+        return new LineCriterionContingencyList(name, countryCriterion,
+                nominalVoltageCriterion, propertyCriterion);
     }
 }

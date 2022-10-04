@@ -6,9 +6,11 @@
  */
 package com.powsybl.contingency.contingency.list.criterion;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,11 +18,11 @@ import java.util.Objects;
  */
 public class PropertyCriterion implements Criterion {
     private final String propertyKey;
-    private final String propertyValue;
+    private final List<String> propertyValues;
 
-    public PropertyCriterion(String propertyKey, String propertyValue) {
+    public PropertyCriterion(String propertyKey, List<String> propertyValues) {
         this.propertyKey = Objects.requireNonNull(propertyKey);
-        this.propertyValue = Objects.requireNonNull(propertyValue);
+        this.propertyValues = ImmutableList.copyOf(propertyValues);
     }
 
     @Override
@@ -30,14 +32,14 @@ public class PropertyCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        return identifiable.hasProperty(propertyKey) && identifiable.getProperty(propertyKey).equals(propertyValue);
+        return identifiable.hasProperty(propertyKey) && propertyValues.contains(identifiable.getProperty(propertyKey));
     }
 
     public String getPropertyKey() {
         return propertyKey;
     }
 
-    public String getPropertyValue() {
-        return propertyValue;
+    public List<String> getPropertyValues() {
+        return propertyValues;
     }
 }

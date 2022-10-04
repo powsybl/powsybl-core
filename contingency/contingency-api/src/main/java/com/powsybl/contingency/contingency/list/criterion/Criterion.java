@@ -15,9 +15,12 @@ import com.powsybl.iidm.network.IdentifiableType;
 public interface Criterion {
 
     enum CriterionType {
-        COUNTRY,
-        NOMINAL_VOLTAGE,
-        PROPERTY
+        SINGLE_NOMINAL_VOLTAGE,
+        TWO_NOMINAL_VOLTAGE,
+        THREE_NOMINAL_VOLTAGE,
+        PROPERTY,
+        SINGLE_COUNTRY,
+        TWO_COUNTRY,
     }
 
     CriterionType getType();

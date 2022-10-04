@@ -9,27 +9,29 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.CriterionContingencyList;
+import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class CriterionContingencyListSerializer extends StdSerializer<CriterionContingencyList> {
+public class InjectionCriterionContingencyListSerializer extends StdSerializer<InjectionCriterionContingencyList> {
 
-    public CriterionContingencyListSerializer() {
-        super(CriterionContingencyList.class);
+    public InjectionCriterionContingencyListSerializer() {
+        super(InjectionCriterionContingencyList.class);
     }
 
     @Override
-    public void serialize(CriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(InjectionCriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", criterionContingencyList.getType());
-        jsonGenerator.writeStringField("version", CriterionContingencyList.getVersion());
+        jsonGenerator.writeStringField("version", InjectionCriterionContingencyList.getVersion());
         jsonGenerator.writeStringField("name", criterionContingencyList.getName());
         jsonGenerator.writeStringField("identifiableType", criterionContingencyList.getIdentifiableType().toString());
-        jsonGenerator.writeObjectField("criteria", criterionContingencyList.getCriteria());
+        jsonGenerator.writeObjectField("countryCriterion", criterionContingencyList.getCountryCriterion());
+        jsonGenerator.writeObjectField("nominalVoltageCriterion", criterionContingencyList.getNominalVoltageCriterion());
+        jsonGenerator.writeObjectField("propertyCriterion", criterionContingencyList.getPropertyCriterion());
         jsonGenerator.writeEndObject();
     }
 }

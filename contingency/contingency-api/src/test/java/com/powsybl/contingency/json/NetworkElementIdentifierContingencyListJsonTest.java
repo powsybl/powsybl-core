@@ -10,11 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.IdentifierContingencyList;
-import com.powsybl.contingency.contingency.list.identifiant.Identifier;
-import com.powsybl.contingency.contingency.list.identifiant.IdentifierList;
-import com.powsybl.contingency.contingency.list.identifiant.SimpleIdentifier;
-import com.powsybl.contingency.contingency.list.identifiant.UcteIdentifier;
+import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
+import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,19 +31,19 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class IdentifierContingencyListJsonTest extends AbstractConverterTest {
+public class NetworkElementIdentifierContingencyListJsonTest extends AbstractConverterTest {
 
     private static IdentifierContingencyList create() {
-        List<Identifier> identifiers = new ArrayList<>();
-        identifiers.add(new SimpleIdentifier("identifier"));
-        identifiers.add(new UcteIdentifier("vl1", "vl2", 1));
-        identifiers.add(new IdentifierList(Collections.singletonList(new SimpleIdentifier("identifier1"))));
-        return new IdentifierContingencyList("list1", "LINE", identifiers);
+        List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
+        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier"));
+        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1", "vl2", '1'));
+        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new IdBasedNetworkElementIdentifier("identifier1"))));
+        return new IdentifierContingencyList("list1", "LINE", networkElementIdentifiers);
     }
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripTest(create(), IdentifierContingencyListJsonTest::write, IdentifierContingencyListJsonTest::readContingencyList,
+        roundTripTest(create(), NetworkElementIdentifierContingencyListJsonTest::write, NetworkElementIdentifierContingencyListJsonTest::readContingencyList,
                 "/identifierContingencyList.json");
     }
 

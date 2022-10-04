@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.contingency.IdentifierContingencyList;
-import com.powsybl.contingency.contingency.list.identifiant.Identifier;
+import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
+import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
     public IdentifierContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
         String identifiableType = null;
-        List<Identifier> identifiers = Collections.emptyList();
+        List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -54,7 +54,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
 
                 case "identifiers":
                     parser.nextToken();
-                    identifiers = parser.readValueAs(new TypeReference<ArrayList<Identifier>>() {
+                    networkElementIdentifiers = parser.readValueAs(new TypeReference<ArrayList<NetworkElementIdentifier>>() {
                     });
                     break;
 
@@ -62,6 +62,6 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new IdentifierContingencyList(name, identifiableType, identifiers);
+        return new IdentifierContingencyList(name, identifiableType, networkElementIdentifiers);
     }
 }
