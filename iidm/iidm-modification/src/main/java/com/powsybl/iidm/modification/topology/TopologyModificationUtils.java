@@ -8,7 +8,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -43,6 +45,12 @@ public final class TopologyModificationUtils {
             currentLimits = currentLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
         }
 
+        LoadingLimitsBags(LoadingLimitsBag activePowerLimits, LoadingLimitsBag apparentPowerLimits, LoadingLimitsBag currentLimits) {
+            this.activePowerLimits = activePowerLimits;
+            this.apparentPowerLimits = apparentPowerLimits;
+            this.currentLimits = currentLimits;
+        }
+
         Optional<LoadingLimitsBag> getActivePowerLimits() {
             return Optional.ofNullable(activePowerLimits);
         }
@@ -66,6 +74,11 @@ public final class TopologyModificationUtils {
             for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 temporaryLimits.add(new TemporaryLimitsBag(tl));
             }
+        }
+
+        private LoadingLimitsBag(double permanentLimit, List<TemporaryLimitsBag> temporaryLimitsBags) {
+            this.permanentLimit = permanentLimit;
+            this.temporaryLimits = temporaryLimitsBags;
         }
 
         private double getPermanentLimit() {
@@ -106,50 +119,6 @@ public final class TopologyModificationUtils {
         private double getValue() {
             return value;
         }
-    }
-
-    static double checkPercent(double percent) {
-        if (Double.isNaN(percent)) {
-            throw new PowsyblException("Percent should not be undefined");
-        }
-        return percent;
-    }
-
-    static boolean checkVoltageLevelAndBusbarSectionOrBus(Network network, String voltageLevelId, String bbsOrBusId, boolean throwException, Reporter reporter, Logger logger) {
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (voltageLevel == null) {
-            logger.error("Voltage level {} not found", voltageLevelId);
-            notFoundVoltageLevelReport(reporter, voltageLevelId);
-            if (throwException) {
-                throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
-            }
-            return false;
-        }
-        TopologyKind topologyKind = voltageLevel.getTopologyKind();
-        if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
-            if (bbs == null) {
-                logger.error("Bus bar section {} not found", bbsOrBusId);
-                notFoundBusbarSectionReport(reporter, bbsOrBusId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Busbar section %s is not found", bbsOrBusId));
-                }
-                return false;
-            }
-        } else if (topologyKind == TopologyKind.BUS_BREAKER) {
-            Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
-            if (bus == null) {
-                logger.error("Bus {} not found in voltage level {}", bbsOrBusId, voltageLevelId);
-                notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevelId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Bus %s is not found", bbsOrBusId));
-                }
-                return false;
-            }
-        } else {
-            throw new AssertionError();
-        }
-        return true;
     }
 
     static LineAdder createLineAdder(double percent, String id, String name, String voltageLevelId1, String voltageLevelId2, Network network, Line line) {
@@ -564,5 +533,53 @@ public final class TopologyModificationUtils {
     }
 
     private TopologyModificationUtils() {
+    }
+
+    private static Optional<LoadingLimitsBag> mergeLimits(String lineId,
+                                                          Optional<LoadingLimitsBag> limits1,
+                                                          Optional<LoadingLimitsBag> limitsTeePointSide,
+                                                          Reporter reporter) {
+        Optional<LoadingLimitsBag> limits;
+
+        double permanentLimit = limits1.map(LoadingLimitsBag::getPermanentLimit).orElse(Double.NaN);
+        List<TemporaryLimitsBag> temporaryLimits1 = limits1.map(LoadingLimitsBag::getTemporaryLimits).orElse(new ArrayList<>());
+        List<TemporaryLimitsBag> temporaryLimitsTeePointSide = limitsTeePointSide.map(LoadingLimitsBag::getTemporaryLimits).orElse(new ArrayList<>());
+        List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
+
+        if (!limitsTeePointSide.isPresent()) {  // no limits on tee point side : we keep limits on other side
+            limits = limits1;
+        } else {
+            // permanent limit : we keep the minimum permanent limit from both sides
+            if (Double.isNaN(permanentLimit)) {
+                permanentLimit = limitsTeePointSide.get().getPermanentLimit();
+            } else if (!Double.isNaN(limitsTeePointSide.get().getPermanentLimit())) {
+                permanentLimit = Math.min(permanentLimit, limitsTeePointSide.get().getPermanentLimit());
+            }
+
+            // temporary limits on both sides : they are ignored, otherwise, we keep temporary limits on side where they are defined
+            if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
+                LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
+                reporter.report(Report.builder()
+                        .withKey("limitsLost")
+                        .withDefaultMessage("Temporary limits on both sides for line ${lineId} : They are ignored")
+                        .withValue("lineId", lineId)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+            } else {
+                temporaryLimits = !temporaryLimits1.isEmpty() ? temporaryLimits1 : temporaryLimitsTeePointSide;
+            }
+
+            limits = Optional.of(new LoadingLimitsBag(permanentLimit, temporaryLimits));
+        }
+
+        return limits;
+    }
+
+    public static LoadingLimitsBags mergeLimits(String lineId, LoadingLimitsBags limits, LoadingLimitsBags limitsTeePointSide, Reporter reporter) {
+        Optional<LoadingLimitsBag> activePowerLimits = mergeLimits(lineId, limits.getActivePowerLimits(), limitsTeePointSide.getActivePowerLimits(), reporter);
+        Optional<LoadingLimitsBag> apparentPowerLimits = mergeLimits(lineId, limits.getApparentPowerLimits(), limitsTeePointSide.getApparentPowerLimits(), reporter);
+        Optional<LoadingLimitsBag> currentLimits = mergeLimits(lineId, limits.getCurrentLimits(), limitsTeePointSide.getCurrentLimits(), reporter);
+
+        return new LoadingLimitsBags(activePowerLimits.orElse(null), apparentPowerLimits.orElse(null), currentLimits.orElse(null));
     }
 }

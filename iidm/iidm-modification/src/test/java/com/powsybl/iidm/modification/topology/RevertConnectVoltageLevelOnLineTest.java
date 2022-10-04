@@ -21,7 +21,6 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VOLTAGE_LEVEL_ID;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
@@ -37,7 +36,11 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
     @Test
     public void revertConnectVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine("VLTEST", BBS, network.getLine("CJ"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("CJ"))
+                .build();
+
         modification.apply(network);
 
         VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
@@ -69,6 +72,17 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
                 .build();
         assertThrows("Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities", PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP));
 
+        // create limits on tee point side
+        Line line1 = network.getLine("CJ_1");
+        Line line2 = network.getLine("CJ_2");
+        line1.newActivePowerLimits2().setPermanentLimit(100.).beginTemporaryLimit().setName("limit1").setValue(500).setAcceptableDuration(1200).endTemporaryLimit().add();
+        line1.newApparentPowerLimits2().setPermanentLimit(200.).add();
+        line1.newCurrentLimits2().setPermanentLimit(100.).beginTemporaryLimit().setName("limit3").setValue(900).setAcceptableDuration(60).endTemporaryLimit().add();
+
+        line2.newActivePowerLimits1().setPermanentLimit(600.).beginTemporaryLimit().setName("limit4").setValue(1000).setAcceptableDuration(300).endTemporaryLimit().add();
+        line2.newApparentPowerLimits1().setPermanentLimit(800.).add();
+        line2.newCurrentLimits1().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
+
         modification = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("CJ_2")
@@ -82,7 +96,11 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
     @Test
     public void revertConnectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, BBS, network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
+
         modification.apply(network);
 
         modification = new RevertConnectVoltageLevelOnLineBuilder()
@@ -98,7 +116,11 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
     @Test
     public void revertConnectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        NetworkModification modification = new ConnectVoltageLevelOnLine(VOLTAGE_LEVEL_ID, "bus", network.getLine("NHV1_NHV2_1"));
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+                .withBusbarSectionOrBusId("bus")
+                .withLine(network.getLine("NHV1_NHV2_1"))
+                .build();
+
         modification.apply(network);
 
         modification = new RevertConnectVoltageLevelOnLineBuilder()

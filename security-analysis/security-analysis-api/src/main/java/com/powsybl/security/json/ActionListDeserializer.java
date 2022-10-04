@@ -42,7 +42,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
                     return true;
                 case "actions":
                     parser.nextToken();
-                    context.actions =  parser.readValueAs(new TypeReference<List<Action>>() {
+                    context.actions = parser.readValueAs(new TypeReference<List<Action>>() {
                     });
                     return true;
                 default:

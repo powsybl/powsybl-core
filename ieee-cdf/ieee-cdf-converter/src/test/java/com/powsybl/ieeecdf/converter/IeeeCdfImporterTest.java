@@ -136,4 +136,13 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
         testNetwork(IeeeCdfNetworkFactory.create9zeroimpedance());
     }
 
+    @Test
+    public void testIeee33() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create33());
+    }
+
+    @Test
+    public void testIeee69() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create69());
+    }
 }

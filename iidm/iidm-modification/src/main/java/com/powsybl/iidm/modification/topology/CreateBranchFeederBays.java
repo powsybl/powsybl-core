@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This class allows to add a new branch's feeders on existing busbar sections. The voltage level containing the
@@ -27,17 +28,21 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     private final String bbsId2;
     private final int positionOrder1;
     private final int positionOrder2;
+    private final String feederName1;
+    private final String feederName2;
     private final ConnectablePosition.Direction direction1;
     private final ConnectablePosition.Direction direction2;
 
     CreateBranchFeederBays(BranchAdder<?> branchAdder, String bbsId1, String bbsId2, Integer positionOrder1, Integer positionOrder2,
-                           ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
+                           String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
         super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
         this.bbsId1 = Objects.requireNonNull(bbsId1);
         this.bbsId2 = Objects.requireNonNull(bbsId2);
         this.positionOrder1 = Objects.requireNonNull(positionOrder1);
         this.positionOrder2 = Objects.requireNonNull(positionOrder2);
+        this.feederName1 = feederName1;
+        this.feederName2 = feederName2;
         this.direction1 = Objects.requireNonNull(direction1);
         this.direction2 = Objects.requireNonNull(direction2);
     }
@@ -94,6 +99,17 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         }
         if (side == 2) {
             return positionOrder2;
+        }
+        throw createSideAssertionError(side);
+    }
+
+    @Override
+    protected Optional<String> getFeederName(int side) {
+        if (side == 1) {
+            return Optional.ofNullable(feederName1);
+        }
+        if (side == 2) {
+            return Optional.ofNullable(feederName2);
         }
         throw createSideAssertionError(side);
     }

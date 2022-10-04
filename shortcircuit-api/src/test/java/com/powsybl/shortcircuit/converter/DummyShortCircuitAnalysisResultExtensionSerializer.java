@@ -45,7 +45,7 @@ public class DummyShortCircuitAnalysisResultExtensionSerializer implements Exten
     }
 
     @Override
-    public ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension deserialize(JsonParser parser, DeserializationContext deserializationContext)  throws IOException {
+    public ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             continue;
         }

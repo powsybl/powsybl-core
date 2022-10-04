@@ -279,7 +279,7 @@ class TransformerConverter extends AbstractConverter {
             }
         }
 
-        private static Complex createImpedance(String uktrT, String pcutrT, DataObject typTr2,  double ratedApparentPower, double nominalVoltage) {
+        private static Complex createImpedance(String uktrT, String pcutrT, DataObject typTr2, double ratedApparentPower, double nominalVoltage) {
             float uktr = typTr2.getFloatAttributeValue(uktrT);
             float pcutr = typTr2.getFloatAttributeValue(pcutrT);
 
@@ -347,7 +347,7 @@ class TransformerConverter extends AbstractConverter {
             // calculate leakage impedance from short circuit measures
             double zpu = shortCircuitVoltage / 100;
             double rpu = copperLosses / (1000 * ratedApparentPower);
-            double xpu = Math.sqrt(zpu * zpu - rpu * rpu);
+            double xpu = Math.sqrt(zpu * zpu - rpu * rpu) * Math.signum(shortCircuitVoltage);
 
             double r = impedanceFromPerUnitToEngineeringUnits(rpu, nominalVoltage, ratedApparentPower);
             double x = impedanceFromPerUnitToEngineeringUnits(xpu, nominalVoltage, ratedApparentPower);

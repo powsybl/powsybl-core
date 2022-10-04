@@ -350,6 +350,10 @@ public class UcteImporter implements Importer {
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
         }
+        if (nodeCode1.equals(nodeCode2)) {
+            LOGGER.error("Coupler '{}' has same bus at both ends: ignored", ucteLine.getId());
+            return;
+        }
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
         Switch couplerSwitch = voltageLevel.getBusBreakerView().newSwitch()
                 .setEnsureIdUnicity(true)
@@ -562,7 +566,7 @@ public class UcteImporter implements Importer {
             if (currentTapPosition < 0) {
                 floor = currentTapPosition;
             } else {
-                floor  = -currentTapPosition;
+                floor = -currentTapPosition;
             }
             LOGGER.info("Number of Taps for transformer '{}' is extended from '{}', to '{}'", transformer.getId(), initialTapsNumber, Math.abs(floor));
         }

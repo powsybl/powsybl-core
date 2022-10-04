@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -143,5 +144,23 @@ public abstract class AbstractBranchObservabilityTest {
         branchObservability.getQualityQ2().setRedundant(true);
         assertTrue(branchObservability.getQualityQ2().isRedundant().isPresent());
         assertTrue(branchObservability.getQualityQ2().isRedundant().get());
+    }
+
+    @Test
+    public void testRedundancy() {
+        Network network = EurostagTutorialExample1Factory.create();
+        BranchObservabilityAdder adder = network.getLine("NHV1_NHV2_1").newExtension(BranchObservabilityAdder.class);
+        adder.withStandardDeviationP1(0.5)
+                .withRedundantP1(false)
+                .withStandardDeviationP2(0.2)
+                .withRedundantQ1(true)
+                .add();
+        BranchObservability injectionObservability = network.getLine("NHV1_NHV2_1").getExtension(BranchObservability.class);
+        assertNull(injectionObservability.getQualityQ2());
+        assertNull(injectionObservability.getQualityQ1());
+        assertFalse((Boolean) injectionObservability.getQualityP1().isRedundant().get());
+        assertEquals(0.5, injectionObservability.getQualityP1().getStandardDeviation(), 0.01);
+        assertFalse(injectionObservability.getQualityP2().isRedundant().isPresent());
+        assertEquals(0.2, injectionObservability.getQualityP2().getStandardDeviation(), 0.01);
     }
 }

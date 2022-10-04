@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BranchResultSerializer extends StdSerializer<BranchResult>  {
+public class BranchResultSerializer extends StdSerializer<BranchResult> {
 
     public BranchResultSerializer() {
         super(BranchResult.class);
