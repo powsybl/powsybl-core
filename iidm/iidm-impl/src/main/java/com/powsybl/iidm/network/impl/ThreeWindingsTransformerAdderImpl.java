@@ -205,7 +205,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, SubstationImpl substation) {
         this(substation);
         ratedU0 = twt.getRatedU0();
-        setFictitious(twt.isFictitious());
+        copyIdNameFictitious(twt, this);
+        newLeg1(twt.getLeg1()).add()
+                .newLeg2(twt.getLeg2()).add()
+                .newLeg3(twt.getLeg3()).add();
     }
 
     ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, Ref<NetworkImpl> networkRef) {

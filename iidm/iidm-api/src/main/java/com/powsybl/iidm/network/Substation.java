@@ -11,6 +11,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * A substation is a collection of equipments located at a the same geographical
  * site.
@@ -116,12 +119,11 @@ public interface Substation extends Container<Substation> {
      */
     default VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
         Objects.requireNonNull(voltageLevel);
-        return newVoltageLevel()
-                .setFictitious(voltageLevel.isFictitious())
+        return copyIdNameFictitious(voltageLevel, newVoltageLevel()
                 .setNominalV(voltageLevel.getNominalV())
                 .setLowVoltageLimit(voltageLevel.getLowVoltageLimit())
                 .setHighVoltageLimit(voltageLevel.getHighVoltageLimit())
-                .setTopologyKind(voltageLevel.getTopologyKind());
+                .setTopologyKind(voltageLevel.getTopologyKind()));
     }
 
     /**
@@ -146,8 +148,7 @@ public interface Substation extends Container<Substation> {
      */
     default TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
         Objects.requireNonNull(twt);
-        return newTwoWindingsTransformer()
-                .setFictitious(twt.isFictitious())
+        TwoWindingsTransformerAdder adder = newTwoWindingsTransformer()
                 .setR(twt.getR())
                 .setX(twt.getX())
                 .setG(twt.getG())
@@ -155,6 +156,7 @@ public interface Substation extends Container<Substation> {
                 .setRatedU1(twt.getRatedU1())
                 .setRatedU2(twt.getRatedU2())
                 .setRatedS(twt.getRatedS());
+        return copyIdNameFictitiousConnectivity(twt, adder);
     }
 
     /**
@@ -183,9 +185,12 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new 3 windings transformer in the substation. The builder is initialized with all the values of a the given 3 windings transformer.
      */
     default ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
-        return newThreeWindingsTransformer()
-                .setFictitious(twt.isFictitious())
-                .setRatedU0(twt.getRatedU0());
+        ThreeWindingsTransformerAdder adder = newThreeWindingsTransformer()
+                .setRatedU0(twt.getRatedU0())
+                .newLeg1(twt.getLeg1()).add()
+                .newLeg2(twt.getLeg2()).add()
+                .newLeg3(twt.getLeg3()).add();
+        return copyIdNameFictitious(twt, adder);
     }
 
     /**

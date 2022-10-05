@@ -55,7 +55,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ratedU1 = twt.getRatedU1();
         ratedU2 = twt.getRatedU2();
         ratedS = twt.getRatedS();
-        setFictitious(twt.isFictitious());
+        copyIdNameFictitiousConnectivity(twt, this);
     }
 
     TwoWindingsTransformerAdderImpl(TwoWindingsTransformer twt, Ref<NetworkImpl> networkRef) {
