@@ -67,10 +67,16 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         return count;
     }
 
-    private List<SwitchKind> checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount) {
+    private static List<SwitchKind> checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount) {
         Objects.requireNonNull(switchKinds, "Undefined switch kinds");
         if (switchKinds.size() != sectionCount - 1) {
             throw new PowsyblException("Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
+        }
+        if (switchKinds.contains(null)) {
+            throw new PowsyblException("All switch kinds must be defined");
+        }
+        if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
+            throw new PowsyblException("Switch kinds must be DISCONNECTOR or BREAKER");
         }
         return new ArrayList<>(switchKinds);
     }
@@ -125,7 +131,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         // Create busbar sections
         createBusBarSections(voltageLevel);
         // Create switches
-        createSwitches(voltageLevel, reporter);
+        createSwitches(voltageLevel);
         LOG.info("New symmetrical topology in voltage level {}: creation of {} busbar(s) with {} section(s) each.", voltageLevelId, busbarCount, sectionCount);
         createdNewSymmetricalTopology(reporter, voltageLevelId, busbarCount, sectionCount);
     }
@@ -147,7 +153,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
     }
 
-    private void createSwitches(VoltageLevel voltageLevel, Reporter reporter) {
+    private void createSwitches(VoltageLevel voltageLevel) {
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount - 1; sectionNum++) {
             SwitchKind switchKind = switchKinds.get(sectionNum - 1);
             for (int busBarNum = lowBusbarIndex; busBarNum < lowBusbarIndex + busbarCount; busBarNum++) {
@@ -163,13 +169,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                     int node1 = getNode(busBarNum, sectionNum, busbarSectionPrefixId, voltageLevel);
                     int node2 = getNode(busBarNum, sectionNum + 1, busbarSectionPrefixId, voltageLevel);
                     createNBDisconnector(node1, node2, SEPARATOR + busBarNum + SEPARATOR + sectionNum, switchPrefixId, voltageLevel.getNodeBreakerView(), false);
-                } else if (switchKind != null) {
-                    EnumSet<SwitchKind> expected = EnumSet.of(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR);
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Unsupported switch kinds {}. Should be {}. No switch created at this position.", switchKind.name(), expected);
-                    }
-                    unsupportedSwitchKind(reporter, expected, switchKind);
-                } // else switchKind null, do nothing
+                } // other cases cannot happen (has been checked in the constructor)
             }
         }
     }

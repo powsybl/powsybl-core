@@ -11,8 +11,6 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 
-import java.util.EnumSet;
-
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -245,16 +243,6 @@ final class ModificationReports {
                 .withValue("actualTopology", actual.name())
                 .withValue("expectedTopology", expected.name())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void unsupportedSwitchKind(Reporter reporter, EnumSet<SwitchKind> expected, SwitchKind actual) {
-        reporter.report(Report.builder()
-                .withKey("unsupportedSwitchKind")
-                .withDefaultMessage("Unsupported switch kinds ${actualSwitchKinds}. Should be ${expectedSwitchKinds}. No switch created at this position.")
-                .withValue("actualSwitchKinds", actual.name())
-                .withValue("expectedSwitchKinds", expected.toString())
-                .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
 

@@ -58,31 +58,25 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithNullSwitchKind() throws IOException {
-        Network network = createNbNetwork();
-        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
+    public void testWithNullSwitchKind() {
+        CreateVoltageLevelTopologyBuilder builder = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withBusbarCount(3)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER, null, SwitchKind.DISCONNECTOR)
-                .build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/create-vl-topo-test-with-null-switchKind.xiidm");
+                .withSwitchKinds(SwitchKind.BREAKER, null, SwitchKind.DISCONNECTOR);
+        PowsyblException e = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("All switch kinds must be defined", e.getMessage());
     }
 
     @Test
-    public void testWithUnsupportedSwitchKind() throws IOException {
-        Network network = createNbNetwork();
-        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
+    public void testWithUnsupportedSwitchKind() {
+        CreateVoltageLevelTopologyBuilder builder = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withBusbarCount(3)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR)
-                .build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/create-vl-topo-test-with-null-switchKind.xiidm");
+                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR);
+        PowsyblException e = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
     }
 
     @Test
