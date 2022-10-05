@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -59,7 +61,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                     .endSection());
             builder.add();
         }
-        setFictitious(shuntCompensator.isFictitious());
+        copyIdNameFictitiousConnectivity(shuntCompensator, this);
     }
 
     @Override

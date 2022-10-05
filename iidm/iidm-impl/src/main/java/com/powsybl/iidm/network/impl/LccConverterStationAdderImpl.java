@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -26,7 +28,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
         this(voltageLevel);
         powerFactor = converterStation.getPowerFactor();
         setLossFactor(converterStation.getLossFactor());
-        setFictitious(converterStation.isFictitious());
+        copyIdNameFictitiousConnectivity(converterStation, this);
     }
 
     @Override

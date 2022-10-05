@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -49,7 +51,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         targetQ = generator.getTargetQ();
         targetV = generator.getTargetV();
         ratedS = generator.getRatedS();
-        setFictitious(generator.isFictitious());
+        copyIdNameFictitiousConnectivity(generator, this);
     }
 
     @Override

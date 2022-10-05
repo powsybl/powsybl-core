@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -41,7 +43,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         reactivePowerSetpoint = staticVarCompensator.getReactivePowerSetpoint();
         regulationMode = staticVarCompensator.getRegulationMode();
         regulatingTerminal = (TerminalExt) staticVarCompensator.getRegulatingTerminal();
-        setFictitious(staticVarCompensator.isFictitious());
+        copyIdNameFictitiousConnectivity(staticVarCompensator, this);
     }
 
     @Override

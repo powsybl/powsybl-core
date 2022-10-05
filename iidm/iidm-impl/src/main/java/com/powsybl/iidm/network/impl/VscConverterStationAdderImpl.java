@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -36,7 +38,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         reactivePowerSetpoint = converterStation.getReactivePowerSetpoint();
         voltageSetpoint = converterStation.getVoltageSetpoint();
         setLossFactor(converterStation.getLossFactor());
-        setFictitious(converterStation.isFictitious());
+        copyIdNameFictitiousConnectivity(converterStation, this);
     }
 
     @Override

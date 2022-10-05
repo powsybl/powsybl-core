@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * A voltage level is a collection of equipments located in the same substation
  * and at the same base voltage.
@@ -998,8 +1000,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     default GeneratorAdder newGenerator(Generator generator) {
         Objects.requireNonNull(generator);
-        return newGenerator()
-                .setFictitious(generator.isFictitious())
+        GeneratorAdder adder = newGenerator()
                 .setEnergySource(generator.getEnergySource())
                 .setMinP(generator.getMinP())
                 .setMaxP(generator.getMaxP())
@@ -1009,6 +1010,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
                 .setTargetQ(generator.getTargetQ())
                 .setTargetV(generator.getTargetV())
                 .setRatedS(generator.getRatedS());
+        return copyIdNameFictitiousConnectivity(generator, adder);
     }
 
     /**
@@ -1036,12 +1038,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     default BatteryAdder newBattery(Battery battery) {
         Objects.requireNonNull(battery);
-        return newBattery()
-                .setFictitious(battery.isFictitious())
-                .setP0(battery.getP0())
-                .setQ0(battery.getQ0())
+        BatteryAdder adder = newBattery()
+                .setTargetP(battery.getTargetP())
+                .setTargetQ(battery.getTargetQ())
                 .setMinP(battery.getMinP())
                 .setMaxP(battery.getMaxP());
+        return copyIdNameFictitiousConnectivity(battery, adder);
     }
 
     /**
@@ -1069,11 +1071,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     default LoadAdder newLoad(Load load) {
         Objects.requireNonNull(load);
-        return newLoad()
-                .setFictitious(load.isFictitious())
+        LoadAdder adder = newLoad()
                 .setLoadType(load.getLoadType())
                 .setP0(load.getP0())
                 .setQ0(load.getQ0());
+        return copyIdNameFictitiousConnectivity(load, adder);
     }
 
     /**
@@ -1109,7 +1111,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     default ShuntCompensatorAdder newShuntCompensator(ShuntCompensator shuntCompensator) {
         Objects.requireNonNull(shuntCompensator);
         ShuntCompensatorAdder adder = newShuntCompensator()
-                .setFictitious(shuntCompensator.isFictitious())
                 .setSectionCount(shuntCompensator.getSectionCount())
                 .setTargetV(shuntCompensator.getTargetV())
                 .setTargetDeadband(shuntCompensator.getTargetDeadband())
@@ -1131,7 +1132,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
                     .endSection());
             builder.add();
         }
-        return adder;
+        return copyIdNameFictitiousConnectivity(shuntCompensator, adder);
     }
 
     /**
@@ -1160,7 +1161,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     default DanglingLineAdder newDanglingLine(DanglingLine danglingLine) {
         Objects.requireNonNull(danglingLine);
         DanglingLineAdder adder = newDanglingLine()
-                .setFictitious(danglingLine.isFictitious())
                 .setP0(danglingLine.getP0())
                 .setQ0(danglingLine.getQ0())
                 .setR(danglingLine.getR())
@@ -1179,7 +1179,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
                     .setVoltageRegulationOn(generation.isVoltageRegulationOn())
                     .add();
         }
-        return adder;
+        return copyIdNameFictitiousConnectivity(danglingLine, adder);
     }
 
     /**
@@ -1207,14 +1207,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     default StaticVarCompensatorAdder newStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
         Objects.requireNonNull(staticVarCompensator);
-        return newStaticVarCompensator()
-                .setFictitious(staticVarCompensator.isFictitious())
+        StaticVarCompensatorAdder adder = newStaticVarCompensator()
                 .setBmin(staticVarCompensator.getBmin())
                 .setBmax(staticVarCompensator.getBmax())
                 .setVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
                 .setReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint())
                 .setRegulationMode(staticVarCompensator.getRegulationMode())
                 .setRegulatingTerminal(staticVarCompensator.getRegulatingTerminal());
+        return copyIdNameFictitiousConnectivity(staticVarCompensator, adder);
     }
 
     /**
@@ -1244,12 +1244,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     default VscConverterStationAdder newVscConverterStation(VscConverterStation converterStation) {
         Objects.requireNonNull(converterStation);
-        return newVscConverterStation()
-                .setFictitious(converterStation.isFictitious())
+        VscConverterStationAdder adder = newVscConverterStation()
                 .setVoltageRegulatorOn(converterStation.isVoltageRegulatorOn())
                 .setVoltageSetpoint(converterStation.getVoltageSetpoint())
                 .setReactivePowerSetpoint(converterStation.getReactivePowerSetpoint())
                 .setLossFactor(converterStation.getLossFactor());
+        return copyIdNameFictitiousConnectivity(converterStation, adder);
     }
 
     /**
@@ -1285,10 +1285,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     default LccConverterStationAdder newLccConverterStation(LccConverterStation converterStation) {
         Objects.requireNonNull(converterStation);
-        return newLccConverterStation()
-                .setFictitious(converterStation.isFictitious())
+        LccConverterStationAdder adder = newLccConverterStation()
                 .setPowerFactor(converterStation.getPowerFactor())
                 .setLossFactor(converterStation.getLossFactor());
+        return copyIdNameFictitiousConnectivity(converterStation, adder);
     }
 
     /**

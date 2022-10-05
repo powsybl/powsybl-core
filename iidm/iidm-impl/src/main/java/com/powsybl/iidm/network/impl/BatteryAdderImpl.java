@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * {@inheritDoc}
  *
@@ -39,7 +41,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         targetQ = battery.getTargetQ();
         minP = battery.getMinP();
         maxP = battery.getMaxP();
-        setFictitious(battery.isFictitious());
+        copyIdNameFictitiousConnectivity(battery, this);
     }
 
     /**

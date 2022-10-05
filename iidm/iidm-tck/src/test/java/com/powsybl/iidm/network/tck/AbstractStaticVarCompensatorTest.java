@@ -47,6 +47,7 @@ public abstract class AbstractStaticVarCompensatorTest {
     public void testAdderFromExisting() {
         network.getVoltageLevel("VL1").newStaticVarCompensator(network.getStaticVarCompensator("SVC2"))
                 .setId("SVC3")
+                .setConnectableBus("B1")
                 .setBus("B1")
                 .add();
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC3");

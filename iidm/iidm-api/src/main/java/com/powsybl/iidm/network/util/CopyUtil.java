@@ -51,6 +51,20 @@ public final class CopyUtil {
     }
 
     /**
+     * Copy ID, name, fictitious status, ends' voltage levels' IDs and nodes or buses from an existing branch to a branch adder.
+     * @return The updated adder.
+     */
+    public static <I extends Injection<I>, A extends InjectionAdder<A>> A copyIdNameFictitiousConnectivity(I injection, A adder) {
+        copyIdNameFictitious(injection, adder);
+        copyConnectivity(injection.getTerminal().getVoltageLevel(), vl -> { /* does nothing */ }, () -> injection
+                        .getTerminal().getNodeBreakerView().getNode(), () -> injection
+                        .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> injection
+                        .getTerminal().getBusBreakerView().getBus(),
+                adder::setNode, adder::setConnectableBus, adder::setBus);
+        return adder;
+    }
+
+    /**
      * Copy voltage level and node or bus from an existing network component to a new one.
      *
      * @param voltageLevelSetter Set the voltage level to the new network component.

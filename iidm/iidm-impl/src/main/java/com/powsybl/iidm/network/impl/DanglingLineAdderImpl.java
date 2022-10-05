@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -120,7 +122,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
                     .setTargetV(generation.getTargetV())
                     .setVoltageRegulationOn(generation.isVoltageRegulationOn());
         }
-        setFictitious(danglingLine.isFictitious());
+        copyIdNameFictitiousConnectivity(danglingLine, this);
     }
 
     @Override
