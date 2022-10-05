@@ -228,6 +228,7 @@ public final class TopologyModificationUtils {
     static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_BREAKER" + suffix)
+                .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
                 .setRetained(true)
@@ -239,6 +240,7 @@ public final class TopologyModificationUtils {
     static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_DISCONNECTOR" + suffix)
+                .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
                 .setNode1(node1)
@@ -249,12 +251,14 @@ public final class TopologyModificationUtils {
     static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String lineId, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
                 .setId(lineId + "_SW_1")
+                .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
                 .setBus2(middleBusId)
                 .add();
         view.newSwitch()
                 .setId(lineId + "_SW_2")
+                .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(middleBusId)
                 .setBus2(busId2)
@@ -533,6 +537,16 @@ public final class TopologyModificationUtils {
             throw new PowsyblException(String.format("Voltage level %s has no busbar section.", voltageLevel.getId()));
         }
         return bbs;
+    }
+
+    /**
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
+        bbsList.forEach(b -> {
+            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
+            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
+        });
     }
 
     private TopologyModificationUtils() {
