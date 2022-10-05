@@ -108,6 +108,16 @@ final class ModificationReports {
                 .build());
     }
 
+    static void noVoltageLevelInCommonReport(Reporter reporter, String line1Id, String line2Id) {
+        reporter.report(Report.builder()
+                .withKey("noVoltageLevelInCommon")
+                .withDefaultMessage("Lines ${line1Id} and ${line2Id} should have one and only one voltage level in common at their extremities")
+                .withValue("line1Id", line1Id)
+                .withValue("line2Id", line2Id)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void removedLineReport(Reporter reporter, String lineId) {
         reporter.report(Report.builder()
                 .withKey("lineRemoved")
