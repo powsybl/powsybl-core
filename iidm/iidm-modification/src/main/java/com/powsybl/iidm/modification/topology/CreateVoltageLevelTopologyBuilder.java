@@ -19,7 +19,9 @@ public class CreateVoltageLevelTopologyBuilder {
 
     private String voltageLevelId = null;
 
+    private int lowBusbarIndex = 1;
     private Integer busbarCount = null;
+    private int lowSectionIndex = 1;
     private Integer sectionCount = null;
 
     private String busbarSectionPrefixId = null;
@@ -45,12 +47,32 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     /**
+     * Set the lowest index of busbar index that will be created (1 by default).
+     *
+     * @param lowBusbarIndex
+     */
+    public CreateVoltageLevelTopologyBuilder withLowBusbarIndex(int lowBusbarIndex) {
+        this.lowBusbarIndex = lowBusbarIndex;
+        return this;
+    }
+
+    /**
      * Set the number of busbar which will be created.
      *
      * @param busbarCount
      */
     public CreateVoltageLevelTopologyBuilder withBusbarCount(int busbarCount) {
         this.busbarCount = busbarCount;
+        return this;
+    }
+
+    /**
+     * Set the lowest index of section index that will be created (1 by default).
+     *
+     * @param lowSectionIndex
+     */
+    public CreateVoltageLevelTopologyBuilder withLowSectionIndex(int lowSectionIndex) {
+        this.lowSectionIndex = lowSectionIndex;
         return this;
     }
 
@@ -115,6 +137,6 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     public CreateVoltageLevelTopology build() {
-        return new CreateVoltageLevelTopology(voltageLevelId, busbarCount, sectionCount, busbarSectionPrefixId, switchPrefixId, switchKinds);
+        return new CreateVoltageLevelTopology(voltageLevelId, lowBusbarIndex, busbarCount, lowSectionIndex, sectionCount, busbarSectionPrefixId, switchPrefixId, switchKinds);
     }
 }

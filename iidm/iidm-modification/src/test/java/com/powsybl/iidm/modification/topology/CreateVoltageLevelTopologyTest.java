@@ -93,7 +93,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR);
         PowsyblException e = assertThrows(PowsyblException.class, modification::build);
-        assertEquals("busBar count must be > 0", e.getMessage());
+        assertEquals("busBar count must be >= 0", e.getMessage());
     }
 
     @Test

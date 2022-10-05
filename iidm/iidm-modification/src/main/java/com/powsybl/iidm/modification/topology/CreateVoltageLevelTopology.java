@@ -36,7 +36,9 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     private final String voltageLevelId;
 
+    private final int lowBusbarIndex;
     private final int busbarCount;
+    private final int lowSectionIndex;
     private final int sectionCount;
 
     private final String busbarSectionPrefixId;
@@ -44,20 +46,23 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     private final List<SwitchKind> switchKinds;
 
-    CreateVoltageLevelTopology(String voltageLevelId, Integer busbarCount, Integer sectionCount,
+    CreateVoltageLevelTopology(String voltageLevelId, int lowBusbarIndex, Integer busbarCount,
+                               int lowSectionIndex, Integer sectionCount,
                                String busbarSectionPrefixId, String switchPrefixId, List<SwitchKind> switchKinds) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "Undefined voltage level ID");
-        this.busbarCount = checkCount(busbarCount, "busBar");
-        this.sectionCount = checkCount(sectionCount, "section");
+        this.lowBusbarIndex = checkCount(lowBusbarIndex, "low busbar index");
+        this.busbarCount = checkCount(busbarCount, "busBar count");
+        this.lowSectionIndex = checkCount(lowSectionIndex, "low section index");
+        this.sectionCount = checkCount(sectionCount, "section count");
         this.busbarSectionPrefixId = Objects.requireNonNull(busbarSectionPrefixId, "Undefined busbar section prefix ID");
         this.switchPrefixId = Objects.requireNonNull(switchPrefixId, "Undefined switch prefix ID");
         this.switchKinds = checkSwitchKinds(switchKinds, sectionCount);
     }
 
     private static int checkCount(Integer count, String type) {
-        Objects.requireNonNull(count, "Undefined " + type + " count");
+        Objects.requireNonNull(count, "Undefined " + type);
         if (count < 0) {
-            throw new PowsyblException(type + " count must be > 0");
+            throw new PowsyblException(type + " must be >= 0");
         }
         return count;
     }
@@ -74,8 +79,16 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         return voltageLevelId;
     }
 
+    public int getLowBusbarIndex() {
+        return lowBusbarIndex;
+    }
+
     public int getBusbarCount() {
         return busbarCount;
+    }
+
+    public int getLowSectionIndex() {
+        return lowSectionIndex;
     }
 
     public int getSectionCount() {
@@ -119,8 +132,8 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     private void createBusBarSections(VoltageLevel voltageLevel) {
         int node = 0;
-        for (int sectionNum = 1; sectionNum <= sectionCount; sectionNum++) {
-            for (int busBarNum = 1; busBarNum <= busbarCount; busBarNum++) {
+        for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
+            for (int busBarNum = lowBusbarIndex; busBarNum < lowBusbarIndex + busbarCount; busBarNum++) {
                 BusbarSection bbs = voltageLevel.getNodeBreakerView().newBusbarSection()
                         .setId(busbarSectionPrefixId + SEPARATOR + busBarNum + SEPARATOR + sectionNum)
                         .setNode(node)
@@ -135,9 +148,9 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     private void createSwitches(VoltageLevel voltageLevel, Reporter reporter) {
-        for (int sectionNum = 1; sectionNum < sectionCount; sectionNum++) {
+        for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount - 1; sectionNum++) {
             SwitchKind switchKind = switchKinds.get(sectionNum - 1);
-            for (int busBarNum = 1; busBarNum <= busbarCount; busBarNum++) {
+            for (int busBarNum = lowBusbarIndex; busBarNum < lowBusbarIndex + busbarCount; busBarNum++) {
                 if (switchKind == SwitchKind.BREAKER) {
                     int node1 = getNode(busBarNum, sectionNum, busbarSectionPrefixId, voltageLevel);
                     int node2 = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
