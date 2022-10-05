@@ -196,15 +196,18 @@ public final class TopologyModificationUtils {
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
             voltageLevelRemovingEquipmentsLeftReport(reporter, vlId);
+            LOGGER.warn("Voltage level {} still contains equipments", vlId);
         }
         voltageLevel.remove();
         voltageLevelRemovedReport(reporter, vlId);
+        LOGGER.info("Voltage level {} removed", vlId);
 
         substation.ifPresent(s -> {
             if (s.getVoltageLevelStream().count() == 0) {
                 String substationId = s.getId();
                 s.remove();
                 substationRemovedReport(reporter, substationId);
+                LOGGER.info("Substation {} removed", substationId);
             }
         });
     }
