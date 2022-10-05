@@ -45,11 +45,6 @@
             <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-extensions</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

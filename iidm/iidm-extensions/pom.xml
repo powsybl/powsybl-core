@@ -54,6 +54,11 @@
             <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-test</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>

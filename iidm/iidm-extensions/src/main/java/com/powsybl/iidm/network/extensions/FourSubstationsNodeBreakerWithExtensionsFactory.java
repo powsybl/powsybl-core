@@ -4,13 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.test;
+package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
-import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 
 /**
  * This test network is constituted the same as the one in FourSubstationsNodeBreakerFactory.
