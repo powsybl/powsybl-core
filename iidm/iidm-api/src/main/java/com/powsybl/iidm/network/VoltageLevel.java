@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
 import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
 
 /**
@@ -473,6 +474,22 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         SwitchAdder newSwitch();
 
+        default SwitchAdder newSwitch(Switch sswitch) {
+            Objects.requireNonNull(sswitch);
+            VoltageLevel voltageLevel = sswitch.getVoltageLevel();
+            if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+                throw new AssertionError("Switch " + sswitch.getId() + " should be in a node-breaker voltage level");
+            }
+            SwitchAdder adder = newSwitch()
+                    .setKind(sswitch.getKind())
+                    .setOpen(sswitch.isOpen())
+                    .setRetained(sswitch.isRetained())
+                    .setNode1(voltageLevel.getNodeBreakerView().getNode1(sswitch.getId()))
+                    .setNode2(voltageLevel.getNodeBreakerView().getNode2(sswitch.getId()));
+            copyIdNameFictitious(sswitch, adder);
+            return adder;
+        }
+
         /**
          * Get a builder to create a new switch.
          */
@@ -833,6 +850,19 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
         SwitchAdder newSwitch();
+
+        default SwitchAdder newSwitch(Switch sswitch) {
+            Objects.requireNonNull(sswitch);
+            VoltageLevel voltageLevel = sswitch.getVoltageLevel();
+            if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
+                throw new AssertionError("Switch " + sswitch.getId() + " should be in a bus-breaker voltage level");
+            }
+            SwitchAdder adder = newSwitch()
+                    .setOpen(sswitch.isOpen())
+                    .setBus1(voltageLevel.getBusBreakerView().getBus1(sswitch.getId()).getId())
+                    .setBus2(voltageLevel.getBusBreakerView().getBus2(sswitch.getId()).getId());
+            return copyIdNameFictitious(sswitch, adder);
+        }
 
         interface TopologyTraverser {
             /**

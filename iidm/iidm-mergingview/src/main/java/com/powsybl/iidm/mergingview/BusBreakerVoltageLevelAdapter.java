@@ -157,6 +157,11 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
+        public SwitchAdder newSwitch(Switch sswitch) {
+            return new SwitchAdderAdapter(getDelegate().newSwitch(sswitch), getIndex());
+        }
+
+        @Override
         public Bus getBus(Bus bus) {
             return getIndex().getBus(bus);
         }

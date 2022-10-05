@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -54,6 +56,13 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         private boolean open = false;
 
         private SwitchAdderImpl() {
+        }
+
+        private SwitchAdderImpl(Switch sswitch) {
+            open = sswitch.isOpen();
+            busId1 = sswitch.getVoltageLevel().getBusBreakerView().getBus1(sswitch.getId()).getId();
+            busId2 = sswitch.getVoltageLevel().getBusBreakerView().getBus2(sswitch.getId()).getId();
+            copyIdNameFictitious(sswitch, this);
         }
 
         @Override
@@ -486,6 +495,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public SwitchAdder newSwitch(Switch sswitch) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public InternalConnectionAdder newInternalConnection() {
             throw createNotSupportedBusBreakerTopologyException();
         }
@@ -678,6 +692,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public BusBreakerView.SwitchAdder newSwitch() {
             return new SwitchAdderImpl();
+        }
+
+        @Override
+        public BusBreakerView.SwitchAdder newSwitch(Switch sswitch) {
+            return new SwitchAdderImpl(sswitch);
         }
 
         private com.powsybl.math.graph.Traverser adapt(TopologyTraverser t) {
