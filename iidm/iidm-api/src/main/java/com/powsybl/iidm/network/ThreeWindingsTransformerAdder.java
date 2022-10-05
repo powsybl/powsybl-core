@@ -7,7 +7,8 @@
 package com.powsybl.iidm.network;
 
 import java.util.Objects;
-import java.util.Optional;
+
+import static com.powsybl.iidm.network.util.CopyUtil.copyConnectivity;
 
 /**
  *
@@ -53,15 +54,11 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
                 .setB(leg.getB())
                 .setRatedS(leg.getRatedS())
                 .setRatedU(leg.getRatedU());
-        VoltageLevel vl = leg.getTerminal().getVoltageLevel();
-        adder.setVoltageLevel(vl.getId());
-        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode(leg.getTerminal().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus(leg.getTerminal().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(leg.getTerminal().getBusBreakerView().getBus())
-                    .ifPresent(bus -> adder.setBus(bus.getId()));
-        }
+        copyConnectivity(leg.getTerminal().getVoltageLevel(), adder::setVoltageLevel, () -> leg
+                        .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                        .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                        .getTerminal().getBusBreakerView().getBus(),
+                adder::setNode, adder::setConnectableBus, adder::setBus);
         return adder;
     }
 
@@ -76,15 +73,11 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
                 .setB(leg.getB())
                 .setRatedS(leg.getRatedS())
                 .setRatedU(leg.getRatedU());
-        VoltageLevel vl = leg.getTerminal().getVoltageLevel();
-        adder.setVoltageLevel(vl.getId());
-        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode(leg.getTerminal().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus(leg.getTerminal().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(leg.getTerminal().getBusBreakerView().getBus())
-                    .ifPresent(bus -> adder.setBus(bus.getId()));
-        }
+        copyConnectivity(leg.getTerminal().getVoltageLevel(), adder::setVoltageLevel, () -> leg
+                        .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                        .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                        .getTerminal().getBusBreakerView().getBus(),
+                adder::setNode, adder::setConnectableBus, adder::setBus);
         return adder;
     }
 
@@ -99,15 +92,11 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
                 .setB(leg.getB())
                 .setRatedS(leg.getRatedS())
                 .setRatedU(leg.getRatedU());
-        VoltageLevel vl = leg.getTerminal().getVoltageLevel();
-        adder.setVoltageLevel(vl.getId());
-        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode(leg.getTerminal().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus(leg.getTerminal().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(leg.getTerminal().getBusBreakerView().getBus())
-                    .ifPresent(bus -> adder.setBus(bus.getId()));
-        }
+        copyConnectivity(leg.getTerminal().getVoltageLevel(), adder::setVoltageLevel, () -> leg
+                        .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                        .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                        .getTerminal().getBusBreakerView().getBus(),
+                adder::setNode, adder::setConnectableBus, adder::setBus);
         return adder;
     }
 

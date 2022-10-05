@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.Optional;
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
 
 /**
  *
@@ -36,29 +36,13 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     LineAdderImpl(Line line, NetworkImpl network) {
         this(network);
+        copyIdNameFictitiousConnectivity(line, this);
         r = line.getR();
         x = line.getX();
         g1 = line.getG1();
         b1 = line.getB1();
         g2 = line.getG2();
         b2 = line.getB2();
-        setId(line.getId());
-        line.getOptionalName().ifPresent(this::setName);
-        setFictitious(line.isFictitious());
-        if (line.getTerminal1().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            setNode1(line.getTerminal1().getNodeBreakerView().getNode());
-        } else {
-            setConnectableBus1(line.getTerminal1().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(line.getTerminal1().getBusBreakerView().getBus())
-                    .ifPresent(b -> setBus1(b.getId()));
-        }
-        if (line.getTerminal2().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            setNode2(line.getTerminal2().getNodeBreakerView().getNode());
-        } else {
-            setConnectableBus2(line.getTerminal2().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(line.getTerminal2().getBusBreakerView().getBus())
-                    .ifPresent(b -> setBus2(b.getId()));
-        }
     }
 
     @Override

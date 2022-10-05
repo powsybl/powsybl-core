@@ -59,6 +59,8 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
     default TieLineAdder.HalfLineAdder newHalfLine1(TieLine.HalfLine halfLine) {
         Objects.requireNonNull(halfLine);
         return newHalfLine1()
+                .setId(halfLine.getId())
+                .setName(halfLine.getName())
                 .setFictitious(halfLine.isFictitious())
                 .setR(halfLine.getR())
                 .setX(halfLine.getX())
@@ -73,6 +75,8 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
     default HalfLineAdder newHalfLine2(TieLine.HalfLine halfLine) {
         Objects.requireNonNull(halfLine);
         return newHalfLine2()
+                .setId(halfLine.getId())
+                .setName(halfLine.getName())
                 .setFictitious(halfLine.isFictitious())
                 .setR(halfLine.getR())
                 .setX(halfLine.getX())

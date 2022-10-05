@@ -12,9 +12,11 @@ import org.joda.time.DateTime;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
 
 /**
  * A power network model.
@@ -264,13 +266,10 @@ public interface Network extends Container<Network> {
     default SubstationAdder newSubstation(Substation substation) {
         Objects.requireNonNull(substation);
         SubstationAdder adder = newSubstation()
-                .setId(substation.getId())
-                .setFictitious(substation.isFictitious())
                 .setCountry(substation.getNullableCountry())
                 .setTso(substation.getTso())
                 .setGeographicalTags(substation.getGeographicalTags().toArray(String[]::new));
-        substation.getOptionalName().ifPresent(adder::setName);
-        return adder;
+        return copyIdNameFictitious(substation, adder);
     }
 
     /**
@@ -342,14 +341,11 @@ public interface Network extends Container<Network> {
     default VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
         Objects.requireNonNull(voltageLevel);
         VoltageLevelAdder adder = newVoltageLevel()
-                .setId(voltageLevel.getId())
-                .setFictitious(voltageLevel.isFictitious())
                 .setTopologyKind(voltageLevel.getTopologyKind())
                 .setNominalV(voltageLevel.getNominalV())
                 .setHighVoltageLimit(voltageLevel.getHighVoltageLimit())
                 .setLowVoltageLimit(voltageLevel.getLowVoltageLimit());
-        voltageLevel.getOptionalName().ifPresent(adder::setName);
-        return adder;
+        return copyIdNameFictitious(voltageLevel, adder);
     }
 
     /**
@@ -386,35 +382,14 @@ public interface Network extends Container<Network> {
      */
     default LineAdder newLine(Line line) {
         Objects.requireNonNull(line);
-        VoltageLevel vl1 = line.getTerminal1().getVoltageLevel();
-        VoltageLevel vl2 = line.getTerminal2().getVoltageLevel();
         LineAdder adder = newLine()
-                .setId(line.getId())
-                .setFictitious(line.isFictitious())
                 .setR(line.getR())
                 .setX(line.getX())
                 .setG1(line.getG1())
                 .setB1(line.getB1())
                 .setG2(line.getG2())
-                .setB2(line.getB2())
-                .setVoltageLevel1(vl1.getId())
-                .setVoltageLevel2(vl2.getId());
-        line.getOptionalName().ifPresent(adder::setName);
-        if (vl1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode1(line.getTerminal1().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus1(line.getTerminal1().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(line.getTerminal1().getBusBreakerView().getBus())
-                    .ifPresent(b -> adder.setBus1(b.getId()));
-        }
-        if (vl2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode2(line.getTerminal2().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus2(line.getTerminal2().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(line.getTerminal2().getBusBreakerView().getBus())
-                    .ifPresent(b -> adder.setBus2(b.getId()));
-        }
-        return adder;
+                .setB2(line.getB2());
+        return copyIdNameFictitiousConnectivity(line, adder);
     }
 
     /**
@@ -472,30 +447,11 @@ public interface Network extends Container<Network> {
      */
     default TieLineAdder newTieLine(TieLine tieLine) {
         Objects.requireNonNull(tieLine);
-        VoltageLevel vl1 = tieLine.getTerminal1().getVoltageLevel();
-        VoltageLevel vl2 = tieLine.getTerminal2().getVoltageLevel();
         TieLineAdder adder = newTieLine()
-                .setId(tieLine.getId())
-                .setFictitious(tieLine.isFictitious())
                 .setUcteXnodeCode(tieLine.getUcteXnodeCode());
-        tieLine.getOptionalName().ifPresent(adder::setName);
-        if (vl1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode1(tieLine.getTerminal1().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus1(tieLine.getTerminal1().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(tieLine.getTerminal1().getBusBreakerView().getBus())
-                    .ifPresent(b -> adder.setBus1(b.getId()));
-        }
-        if (vl2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode2(tieLine.getTerminal2().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus2(tieLine.getTerminal2().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(tieLine.getTerminal2().getBusBreakerView().getBus())
-                    .ifPresent(b -> adder.setBus2(b.getId()));
-        }
-        adder.newHalfLine1(tieLine.getHalf1()).add()
+        copyIdNameFictitiousConnectivity(tieLine, adder);
+        return adder.newHalfLine1(tieLine.getHalf1()).add()
                 .newHalfLine2(tieLine.getHalf2()).add();
-        return adder;
     }
 
     /**
@@ -523,16 +479,12 @@ public interface Network extends Container<Network> {
      */
     default TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
         Objects.requireNonNull(twt);
-        VoltageLevel vl1 = twt.getTerminal1().getVoltageLevel();
-        VoltageLevel vl2 = twt.getTerminal2().getVoltageLevel();
         TwoWindingsTransformerAdder adder = newSubstation()
                 .setId("FICTITIOUS_SUBSTATION")
                 .setEnsureIdUnicity(true)
                 .setFictitious(true)
                 .add()
                 .newTwoWindingsTransformer()
-                .setId(twt.getId())
-                .setFictitious(twt.isFictitious())
                 .setR(twt.getR())
                 .setX(twt.getX())
                 .setG(twt.getG())
@@ -540,22 +492,7 @@ public interface Network extends Container<Network> {
                 .setRatedU1(twt.getRatedU1())
                 .setRatedU2(twt.getRatedU2())
                 .setRatedS(twt.getRatedS());
-        twt.getOptionalName().ifPresent(adder::setName);
-        if (vl1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode1(twt.getTerminal1().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus1(twt.getTerminal1().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(twt.getTerminal1().getBusBreakerView().getBus())
-                    .ifPresent(b -> adder.setBus1(b.getId()));
-        }
-        if (vl2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            adder.setNode2(twt.getTerminal2().getNodeBreakerView().getNode());
-        } else {
-            adder.setConnectableBus2(twt.getTerminal2().getBusBreakerView().getConnectableBus().getId());
-            Optional.ofNullable(twt.getTerminal2().getBusBreakerView().getBus())
-                    .ifPresent(b -> adder.setBus2(b.getId()));
-        }
-        return adder;
+        return copyIdNameFictitiousConnectivity(twt, adder);
     }
 
     /**
@@ -613,14 +550,11 @@ public interface Network extends Container<Network> {
                 .setFictitious(true)
                 .add()
                 .newThreeWindingsTransformer()
-                .setId(twt.getId())
-                .setFictitious(twt.isFictitious())
                 .setRatedU0(twt.getRatedU0());
-        twt.getOptionalName().ifPresent(adder::setName);
         adder.newLeg1(twt.getLeg1()).add()
                 .newLeg2(twt.getLeg2()).add()
                 .newLeg3(twt.getLeg3()).add();
-        return adder;
+        return copyIdNameFictitious(twt, adder);
     }
 
     /**
@@ -950,8 +884,6 @@ public interface Network extends Container<Network> {
     default HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
         Objects.requireNonNull(hvdcLine);
         HvdcLineAdder adder = newHvdcLine()
-                .setId(hvdcLine.getId())
-                .setFictitious(hvdcLine.isFictitious())
                 .setR(hvdcLine.getR())
                 .setConvertersMode(hvdcLine.getConvertersMode())
                 .setNominalV(hvdcLine.getNominalV())
@@ -959,8 +891,7 @@ public interface Network extends Container<Network> {
                 .setMaxP(hvdcLine.getMaxP())
                 .setConverterStationId1(hvdcLine.getConverterStation1().getId())
                 .setConverterStationId2(hvdcLine.getConverterStation2().getId());
-        hvdcLine.getOptionalName().ifPresent(adder::setName);
-        return adder;
+        return copyIdNameFictitious(hvdcLine, adder);
     }
 
     /**

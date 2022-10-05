@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.CopyUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -61,15 +63,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             b = leg.getB();
             ratedS = leg.getRatedS();
             ratedU = leg.getRatedU();
-            VoltageLevel vl = leg.getTerminal().getVoltageLevel();
-            voltageLevelId = vl.getId();
-            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                node = leg.getTerminal().getNodeBreakerView().getNode();
-            } else {
-                connectableBus = leg.getTerminal().getBusBreakerView().getConnectableBus().getId();
-                Optional.ofNullable(leg.getTerminal().getBusBreakerView().getBus())
-                        .ifPresent(bbus -> bus = bbus.getId());
-            }
+            copyConnectivity(leg.getTerminal().getVoltageLevel(), vlId -> this.voltageLevelId = vlId, () -> leg
+                            .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                            .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                            .getTerminal().getBusBreakerView().getBus(), n -> this.node = n, cb -> this.connectableBus = cb, bb -> this.bus = bb);
         }
 
         public LegAdder setVoltageLevel(String voltageLevelId) {
@@ -214,9 +211,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, Ref<NetworkImpl> networkRef) {
         this(networkRef);
         ratedU0 = twt.getRatedU0();
-        setId(twt.getId());
-        setFictitious(twt.isFictitious());
-        twt.getOptionalName().ifPresent(this::setName);
+        copyIdNameFictitious(twt, this);
         newLeg1(twt.getLeg1()).add()
                 .newLeg2(twt.getLeg2()).add()
                 .newLeg3(twt.getLeg3()).add();
