@@ -12,10 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.criterion.Criterion;
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleCountryCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
+import com.powsybl.contingency.contingency.list.criterion.*;
 
 import java.io.IOException;
 
@@ -35,6 +32,7 @@ public class InjectionCriterionContingencyListDeserializer extends StdDeserializ
         SingleCountryCriterion countryCriterion = null;
         SingleNominalVoltageCriterion nominalVoltageCriterion = null;
         PropertyCriterion propertyCriterion = null;
+        RegexCriterion regexCriterion = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -69,12 +67,17 @@ public class InjectionCriterionContingencyListDeserializer extends StdDeserializ
                     propertyCriterion = parser.readValueAs(new TypeReference<Criterion>() {
                     });
                     break;
+                case "regexCriterion":
+                    parser.nextToken();
+                    regexCriterion = parser.readValueAs(new TypeReference<Criterion>() {
+                    });
+                    break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new InjectionCriterionContingencyList(name, identifiableType, countryCriterion,
-                nominalVoltageCriterion, propertyCriterion);
+                nominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 }

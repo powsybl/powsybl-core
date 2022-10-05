@@ -40,6 +40,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         List<String> countries1 = Collections.emptyList();
         List<String> countries2 = Collections.emptyList();
         String propertyKey = null;
+        String regex = null;
         List<String> propertyValues = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -84,6 +85,9 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                 case "propertyKey":
                     propertyKey = parser.nextTextValue();
                     break;
+                case "regex":
+                    regex = parser.nextTextValue();
+                    break;
                 case "propertyValue":
                     parser.nextToken();
                     propertyValues = parser.readValueAs(new TypeReference<ArrayList<String>>() {
@@ -110,6 +114,8 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                 return new TwoNominalVoltageCriterion(voltageInterval1, voltageInterval2);
             case THREE_NOMINAL_VOLTAGE:
                 return new ThreeNominalVoltageCriterion(voltageInterval1, voltageInterval2, voltageInterval3);
+            case REGEX:
+                return new RegexCriterion(regex);
             default:
                 throw new IllegalArgumentException("type is not correct");
         }

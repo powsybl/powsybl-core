@@ -9,6 +9,7 @@ package com.powsybl.contingency.contingency.list;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 import com.powsybl.contingency.contingency.list.criterion.SingleCountryCriterion;
 import com.powsybl.contingency.contingency.list.criterion.ThreeNominalVoltageCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -31,15 +32,17 @@ public class ThreeWindingsTransformerCriterionContingencyList implements Conting
     private final SingleCountryCriterion countryCriterion;
     private final ThreeNominalVoltageCriterion nominalVoltageCriterion;
     private final PropertyCriterion propertyCriterion;
+    private final RegexCriterion regexCriterion;
 
     public ThreeWindingsTransformerCriterionContingencyList(String name,
                                                             SingleCountryCriterion countryCriterion,
                                                             ThreeNominalVoltageCriterion nominalVoltageCriterion,
-                                                            PropertyCriterion propertyCriterion) {
+                                                            PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
         this.name = Objects.requireNonNull(name);
         this.countryCriterion = countryCriterion;
         this.nominalVoltageCriterion = nominalVoltageCriterion;
         this.propertyCriterion = propertyCriterion;
+        this.regexCriterion = regexCriterion;
     }
 
     @Override
@@ -58,6 +61,7 @@ public class ThreeWindingsTransformerCriterionContingencyList implements Conting
                 .filter(identifiable -> countryCriterion == null || countryCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> nominalVoltageCriterion == null || nominalVoltageCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> propertyCriterion == null || propertyCriterion.filter(identifiable, identifiableType))
+                .filter(identifiable -> regexCriterion == null || regexCriterion.filter(identifiable, identifiableType))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());
     }
@@ -80,5 +84,9 @@ public class ThreeWindingsTransformerCriterionContingencyList implements Conting
 
     public PropertyCriterion getPropertyCriterion() {
         return propertyCriterion;
+    }
+
+    public RegexCriterion getRegexCriterion() {
+        return regexCriterion;
     }
 }

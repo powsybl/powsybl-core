@@ -29,14 +29,16 @@ public class HvdcLineCriterionContingencyList implements ContingencyList {
     private final TwoCountriesCriterion countryCriterion;
     private final TwoNominalVoltageCriterion nominalVoltageCriterion;
     private final PropertyCriterion propertyCriterion;
+    private final RegexCriterion regexCriterion;
 
     public HvdcLineCriterionContingencyList(String name,
                                             TwoCountriesCriterion countryCriterion,
-                                            TwoNominalVoltageCriterion nominalVoltageCriterion, PropertyCriterion propertyCriterion) {
+                                            TwoNominalVoltageCriterion nominalVoltageCriterion, PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
         this.name = Objects.requireNonNull(name);
         this.countryCriterion = countryCriterion;
         this.nominalVoltageCriterion = nominalVoltageCriterion;
         this.propertyCriterion = propertyCriterion;
+        this.regexCriterion = regexCriterion;
     }
 
     @Override
@@ -55,6 +57,7 @@ public class HvdcLineCriterionContingencyList implements ContingencyList {
                 .filter(identifiable -> countryCriterion == null || countryCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> nominalVoltageCriterion == null || nominalVoltageCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> propertyCriterion == null || propertyCriterion.filter(identifiable, identifiableType))
+                .filter(identifiable -> regexCriterion == null || regexCriterion.filter(identifiable, identifiableType))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());
     }
@@ -77,5 +80,9 @@ public class HvdcLineCriterionContingencyList implements ContingencyList {
 
     public PropertyCriterion getPropertyCriterion() {
         return propertyCriterion;
+    }
+
+    public RegexCriterion getRegexCriterion() {
+        return regexCriterion;
     }
 }

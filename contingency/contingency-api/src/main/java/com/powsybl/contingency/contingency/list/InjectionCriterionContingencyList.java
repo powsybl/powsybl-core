@@ -9,6 +9,7 @@ package com.powsybl.contingency.contingency.list;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 import com.powsybl.contingency.contingency.list.criterion.SingleCountryCriterion;
 import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -31,21 +32,23 @@ public class InjectionCriterionContingencyList implements ContingencyList {
     private final SingleCountryCriterion countryCriterion;
     private final SingleNominalVoltageCriterion nominalVoltageCriterion;
     private final PropertyCriterion propertyCriterion;
+    private final RegexCriterion regexCriterion;
 
     public InjectionCriterionContingencyList(String name, String identifiableType,
                                              SingleCountryCriterion countryCriterion,
-                                             SingleNominalVoltageCriterion nominalVoltageCriterion, PropertyCriterion propertyCriterion) {
-        this(name, IdentifiableType.valueOf(identifiableType), countryCriterion, nominalVoltageCriterion, propertyCriterion);
+                                             SingleNominalVoltageCriterion nominalVoltageCriterion, PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
+        this(name, IdentifiableType.valueOf(identifiableType), countryCriterion, nominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 
     public InjectionCriterionContingencyList(String name, IdentifiableType identifiableType,
                                              SingleCountryCriterion countryCriterion,
-                                             SingleNominalVoltageCriterion nominalVoltageCriterion, PropertyCriterion propertyCriterion) {
+                                             SingleNominalVoltageCriterion nominalVoltageCriterion, PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
         this.name = Objects.requireNonNull(name);
         this.identifiableType = Objects.requireNonNull(identifiableType);
         this.countryCriterion = countryCriterion;
         this.nominalVoltageCriterion = nominalVoltageCriterion;
         this.propertyCriterion = propertyCriterion;
+        this.regexCriterion = regexCriterion;
     }
 
     @Override
@@ -64,6 +67,7 @@ public class InjectionCriterionContingencyList implements ContingencyList {
                 .filter(identifiable -> countryCriterion == null || countryCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> nominalVoltageCriterion == null || nominalVoltageCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> propertyCriterion == null || propertyCriterion.filter(identifiable, identifiableType))
+                .filter(identifiable -> regexCriterion == null || regexCriterion.filter(identifiable, identifiableType))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());
     }
@@ -86,5 +90,9 @@ public class InjectionCriterionContingencyList implements ContingencyList {
 
     public PropertyCriterion getPropertyCriterion() {
         return propertyCriterion;
+    }
+
+    public RegexCriterion getRegexCriterion() {
+        return regexCriterion;
     }
 }

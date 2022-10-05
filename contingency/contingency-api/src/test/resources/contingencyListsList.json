@@ -20,7 +20,11 @@
         "highClosed" : true
       }
     },
-    "propertyCriterion" : null
+    "propertyCriterion" : null,
+    "regexCriterion" : {
+      "type" : "REGEX",
+      "regex" : "regex"
+    }
   }, {
     "type" : "default",
     "version" : "1.0",

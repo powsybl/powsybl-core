@@ -15,6 +15,7 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.ContingencyListsList;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.contingency.contingency.list.LineCriterionContingencyList;
+import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
 import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
 import com.powsybl.iidm.network.Country;
@@ -42,8 +43,9 @@ public class ContingencyListsListJsonTest extends AbstractConverterTest {
                 Collections.singletonList(Country.BE));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true));
+        RegexCriterion regexCriterion = new RegexCriterion("regex");
         contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion,
-                null));
+                null, regexCriterion));
         contingencyLists.add(new DefaultContingencyList(new Contingency("contingency1", new GeneratorContingency("GEN"))));
         return new ContingencyListsList("listslist1", contingencyLists);
     }

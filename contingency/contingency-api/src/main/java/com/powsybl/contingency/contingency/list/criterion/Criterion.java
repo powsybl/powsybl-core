@@ -21,6 +21,7 @@ public interface Criterion {
         PROPERTY,
         SINGLE_COUNTRY,
         TWO_COUNTRY,
+        REGEX
     }
 
     CriterionType getType();

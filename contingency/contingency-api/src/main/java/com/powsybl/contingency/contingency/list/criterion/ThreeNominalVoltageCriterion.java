@@ -6,10 +6,7 @@
  */
 package com.powsybl.contingency.contingency.list.criterion;
 
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -23,9 +20,15 @@ public class ThreeNominalVoltageCriterion implements Criterion {
     public ThreeNominalVoltageCriterion(SingleNominalVoltageCriterion.VoltageInterval voltageInterval1,
                                         SingleNominalVoltageCriterion.VoltageInterval voltageInterval2,
                                         SingleNominalVoltageCriterion.VoltageInterval voltageInterval3) {
-        this.voltageInterval1 = voltageInterval1;
-        this.voltageInterval2 = voltageInterval2;
-        this.voltageInterval3 = voltageInterval3;
+        this.voltageInterval1 = voltageInterval1 == null ?
+                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
+                        null, null) : voltageInterval1;
+        this.voltageInterval2 = voltageInterval2 == null ?
+                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
+                        null, null) : voltageInterval2;
+        this.voltageInterval3 = voltageInterval3 == null ?
+                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
+                        null, null) : voltageInterval3;
     }
 
     @Override
@@ -35,7 +38,14 @@ public class ThreeNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        return Criterion.super.filter(identifiable, type);
+        if (type == IdentifiableType.THREE_WINDINGS_TRANSFORMER) {
+            ThreeWindingsTransformer transformer = (ThreeWindingsTransformer) identifiable;
+            return filterThreeWindingsTransformer(transformer.getLeg1().getTerminal(),
+                    transformer.getLeg2().getTerminal(),
+                    transformer.getLeg3().getTerminal());
+        } else {
+            return false;
+        }
     }
 
     private boolean filterThreeWindingsTransformer(Terminal terminal1, Terminal terminal2, Terminal terminal3) {

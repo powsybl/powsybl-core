@@ -32,6 +32,7 @@ public class HvdcLineCriterionContingencyListDeserializer extends StdDeserialize
         TwoCountriesCriterion countryCriterion = null;
         TwoNominalVoltageCriterion nominalVoltageCriterion = null;
         PropertyCriterion propertyCriterion = null;
+        RegexCriterion regexCriterion = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -62,12 +63,17 @@ public class HvdcLineCriterionContingencyListDeserializer extends StdDeserialize
                     propertyCriterion = parser.readValueAs(new TypeReference<Criterion>() {
                     });
                     break;
+                case "regexCriterion":
+                    parser.nextToken();
+                    regexCriterion = parser.readValueAs(new TypeReference<Criterion>() {
+                    });
+                    break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new HvdcLineCriterionContingencyList(name, countryCriterion,
-                nominalVoltageCriterion, propertyCriterion);
+                nominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 }

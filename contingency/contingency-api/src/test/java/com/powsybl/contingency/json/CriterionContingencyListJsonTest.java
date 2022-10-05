@@ -38,7 +38,8 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
                 new SingleNominalVoltageCriterion
                         .VoltageInterval(380.0, 400.0, true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey1", Collections.singletonList("value2"));
-        return new HvdcLineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion, propertyCriterion);
+        RegexCriterion regexCriterion = new RegexCriterion("regex");
+        return new HvdcLineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 
     private static LineCriterionContingencyList createLineCriterionContingencyList() {
@@ -47,7 +48,8 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"));
-        return new LineCriterionContingencyList("list2", countriesCriterion, nominalVoltageCriterion, propertyCriterion);
+        RegexCriterion regexCriterion = new RegexCriterion("regex");
+        return new LineCriterionContingencyList("list2", countriesCriterion, nominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 
     private static InjectionCriterionContingencyList createInjectionCriterionContingencyList() {
@@ -55,8 +57,9 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"));
+        RegexCriterion regexCriterion = new RegexCriterion("regex");
         return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
-                countriesCriterion, nominalVoltageCriterion, propertyCriterion);
+                countriesCriterion, nominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 
     private static TwoWindingsTransformerCriterionContingencyList createTwoWindingsTransformerCriterionContingencyList() {
@@ -67,8 +70,9 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
                 new SingleNominalVoltageCriterion.VoltageInterval(380.0, 420.0,
                         true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"));
+        RegexCriterion regexCriterion = new RegexCriterion("regex");
         return new TwoWindingsTransformerCriterionContingencyList("list1", countryCriterion,
-                twoNominalVoltageCriterion, propertyCriterion);
+                twoNominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 
     private static ThreeWindingsTransformerCriterionContingencyList createThreeWindingsTransformerCriterionContingencyList() {
@@ -81,8 +85,9 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
                 new SingleNominalVoltageCriterion.VoltageInterval(380.0, 420.0,
                         true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"));
+        RegexCriterion regexCriterion = new RegexCriterion("regex");
         return new ThreeWindingsTransformerCriterionContingencyList("list1", countryCriterion,
-                threeNominalVoltageCriterion, propertyCriterion);
+                threeNominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 
     @Test

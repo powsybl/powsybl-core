@@ -9,6 +9,7 @@ package com.powsybl.contingency.contingency.list;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
 import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -31,15 +32,17 @@ public class LineCriterionContingencyList implements ContingencyList {
     private final TwoCountriesCriterion countryCriterion;
     private final SingleNominalVoltageCriterion nominalVoltageCriterion;
     private final PropertyCriterion propertyCriterion;
+    private final RegexCriterion regexCriterion;
 
     public LineCriterionContingencyList(String name,
                                         TwoCountriesCriterion countryCriterion,
                                         SingleNominalVoltageCriterion nominalVoltageCriterion,
-                                        PropertyCriterion propertyCriterion) {
+                                        PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
         this.name = Objects.requireNonNull(name);
         this.countryCriterion = countryCriterion;
         this.nominalVoltageCriterion = nominalVoltageCriterion;
         this.propertyCriterion = propertyCriterion;
+        this.regexCriterion = regexCriterion;
     }
 
     @Override
@@ -58,6 +61,7 @@ public class LineCriterionContingencyList implements ContingencyList {
                 .filter(identifiable -> countryCriterion == null || countryCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> nominalVoltageCriterion == null || nominalVoltageCriterion.filter(identifiable, identifiableType))
                 .filter(identifiable -> propertyCriterion == null || propertyCriterion.filter(identifiable, identifiableType))
+                .filter(identifiable -> regexCriterion == null || regexCriterion.filter(identifiable, identifiableType))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());
     }
@@ -80,5 +84,9 @@ public class LineCriterionContingencyList implements ContingencyList {
 
     public PropertyCriterion getPropertyCriterion() {
         return propertyCriterion;
+    }
+
+    public RegexCriterion getRegexCriterion() {
+        return regexCriterion;
     }
 }

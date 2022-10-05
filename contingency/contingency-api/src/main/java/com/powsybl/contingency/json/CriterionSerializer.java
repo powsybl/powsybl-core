@@ -67,6 +67,9 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
                 jsonGenerator.writeStringField("propertyKey", ((PropertyCriterion) criterion).getPropertyKey());
                 jsonGenerator.writeObjectField("propertyValue", ((PropertyCriterion) criterion).getPropertyValues());
                 break;
+            case REGEX:
+                jsonGenerator.writeStringField("regex", ((RegexCriterion) criterion).getRegex());
+                break;
             default:
                 throw new IllegalArgumentException("type " + criterion.getType().toString() + " not known");
         }

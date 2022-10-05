@@ -31,6 +31,7 @@ public class TwoWindingsTransformerCriterionContingencyListDeserializer extends 
         SingleCountryCriterion countryCriterion = null;
         TwoNominalVoltageCriterion nominalVoltageCriterion = null;
         PropertyCriterion propertyCriterion = null;
+        RegexCriterion regexCriterion = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -61,12 +62,17 @@ public class TwoWindingsTransformerCriterionContingencyListDeserializer extends 
                     propertyCriterion = parser.readValueAs(new TypeReference<Criterion>() {
                     });
                     break;
+                case "regexCriterion":
+                    parser.nextToken();
+                    regexCriterion = parser.readValueAs(new TypeReference<Criterion>() {
+                    });
+                    break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new TwoWindingsTransformerCriterionContingencyList(name, countryCriterion,
-                nominalVoltageCriterion, propertyCriterion);
+                nominalVoltageCriterion, propertyCriterion, regexCriterion);
     }
 }

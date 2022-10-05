@@ -25,5 +25,9 @@
     "type" : "PROPERTY",
     "propertyKey" : "propertyKey",
     "propertyValue" : [ "value" ]
+  },
+  "regexCriterion" : {
+    "type" : "REGEX",
+    "regex" : "regex"
   }
 }
