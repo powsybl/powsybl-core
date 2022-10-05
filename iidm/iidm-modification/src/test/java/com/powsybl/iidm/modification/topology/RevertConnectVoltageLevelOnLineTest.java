@@ -20,10 +20,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -35,7 +32,7 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
 
     @Test
     public void revertConnectVoltageLevelOnLineNbTest() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
