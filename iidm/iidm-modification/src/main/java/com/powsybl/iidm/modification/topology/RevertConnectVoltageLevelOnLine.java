@@ -86,7 +86,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         return this;
     }
 
-    private Line checkAndGetLine(Network network, String lineId, Reporter reporter, boolean throwException) {
+    private static Line checkAndGetLine(Network network, String lineId, Reporter reporter, boolean throwException) {
         Line line = network.getLine(lineId);
         if (line == null) {
             notFoundLineReport(reporter, lineId);
@@ -160,9 +160,11 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         // Remove the two existing lines
         line1.remove();
         removedLineReport(reporter, line1Id);
+        LOG.info("Line {} removed", line1Id);
 
         line2.remove();
         removedLineReport(reporter, line2Id);
+        LOG.info("Line {} removed", line2Id);
 
         // Create the new line
         Line line = lineAdder.add();
