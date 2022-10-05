@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -43,6 +44,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         HalfLineAdderImpl(int num, TieLine.HalfLine halfLine) {
             this(num);
+            id = halfLine.getId();
+            name = halfLine.getName();
             fictitious = halfLine.isFictitious();
             r = halfLine.getR();
             x = halfLine.getX();
@@ -164,7 +167,25 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     TieLineAdderImpl(TieLine tieLine, NetworkImpl network) {
         this(network);
         ucteXnodeCode = tieLine.getUcteXnodeCode();
+        setId(tieLine.getId());
+        tieLine.getOptionalName().ifPresent(this::setName);
         setFictitious(tieLine.isFictitious());
+        if (tieLine.getTerminal1().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            setNode1(tieLine.getTerminal1().getNodeBreakerView().getNode());
+        } else {
+            setConnectableBus1(tieLine.getTerminal1().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(tieLine.getTerminal1().getBusBreakerView().getBus())
+                    .ifPresent(b -> setBus1(b.getId()));
+        }
+        if (tieLine.getTerminal2().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            setNode2(tieLine.getTerminal2().getNodeBreakerView().getNode());
+        } else {
+            setConnectableBus2(tieLine.getTerminal2().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(tieLine.getTerminal2().getBusBreakerView().getBus())
+                    .ifPresent(b -> setBus2(b.getId()));
+        }
+        newHalfLine1(tieLine.getHalf1()).add();
+        newHalfLine2(tieLine.getHalf2()).add();
     }
 
     @Override

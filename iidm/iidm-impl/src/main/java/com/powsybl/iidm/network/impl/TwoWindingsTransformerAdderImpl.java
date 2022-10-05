@@ -56,6 +56,34 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         setFictitious(twt.isFictitious());
     }
 
+    TwoWindingsTransformerAdderImpl(TwoWindingsTransformer twt, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        r = twt.getR();
+        x = twt.getX();
+        g = twt.getG();
+        b = twt.getB();
+        ratedU1 = twt.getRatedU1();
+        ratedU2 = twt.getRatedU2();
+        ratedS = twt.getRatedS();
+        setId(twt.getId());
+        twt.getOptionalName().ifPresent(this::setName);
+        setFictitious(twt.isFictitious());
+        if (twt.getTerminal1().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            setNode1(twt.getTerminal1().getNodeBreakerView().getNode());
+        } else {
+            setConnectableBus1(twt.getTerminal1().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(twt.getTerminal1().getBusBreakerView().getBus())
+                    .ifPresent(bus -> setBus1(bus.getId()));
+        }
+        if (twt.getTerminal2().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            setNode2(twt.getTerminal2().getNodeBreakerView().getNode());
+        } else {
+            setConnectableBus2(twt.getTerminal2().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(twt.getTerminal2().getBusBreakerView().getBus())
+                    .ifPresent(bus -> setBus2(bus.getId()));
+        }
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return Optional.ofNullable(networkRef)

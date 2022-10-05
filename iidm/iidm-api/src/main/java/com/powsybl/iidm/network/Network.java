@@ -12,6 +12,7 @@ import org.joda.time.DateTime;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -258,14 +259,18 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new substation. The builder is initialized with all the values of the given substation.
+     * Please note that the ID needs to be changed.
      */
     default SubstationAdder newSubstation(Substation substation) {
         Objects.requireNonNull(substation);
-        return newSubstation()
+        SubstationAdder adder = newSubstation()
+                .setId(substation.getId())
                 .setFictitious(substation.isFictitious())
                 .setCountry(substation.getNullableCountry())
                 .setTso(substation.getTso())
                 .setGeographicalTags(substation.getGeographicalTags().toArray(String[]::new));
+        substation.getOptionalName().ifPresent(adder::setName);
+        return adder;
     }
 
     /**
@@ -329,6 +334,25 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Get a builder to create a new voltage level (without substation) from an existing voltage level.
+     * The builder is initialized with all the values of the given voltage level.
+     * Please note that the ID needs to be changed.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
+    default VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
+        Objects.requireNonNull(voltageLevel);
+        VoltageLevelAdder adder = newVoltageLevel()
+                .setId(voltageLevel.getId())
+                .setFictitious(voltageLevel.isFictitious())
+                .setTopologyKind(voltageLevel.getTopologyKind())
+                .setNominalV(voltageLevel.getNominalV())
+                .setHighVoltageLimit(voltageLevel.getHighVoltageLimit())
+                .setLowVoltageLimit(voltageLevel.getLowVoltageLimit());
+        voltageLevel.getOptionalName().ifPresent(adder::setName);
+        return adder;
+    }
+
+    /**
      * Get all substation voltage levels.
      */
     Iterable<VoltageLevel> getVoltageLevels();
@@ -357,17 +381,40 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC line. The builder is initialized with all the values of the given AC line.
+     * Please note that the ID needs to be changed. If one of the ends' voltage level is NODE-BREAKER, the node to which this line
+     * is attached to on this end should also be changed.
      */
     default LineAdder newLine(Line line) {
         Objects.requireNonNull(line);
-        return newLine()
+        VoltageLevel vl1 = line.getTerminal1().getVoltageLevel();
+        VoltageLevel vl2 = line.getTerminal2().getVoltageLevel();
+        LineAdder adder = newLine()
+                .setId(line.getId())
                 .setFictitious(line.isFictitious())
                 .setR(line.getR())
                 .setX(line.getX())
                 .setG1(line.getG1())
                 .setB1(line.getB1())
                 .setG2(line.getG2())
-                .setB2(line.getB2());
+                .setB2(line.getB2())
+                .setVoltageLevel1(vl1.getId())
+                .setVoltageLevel2(vl2.getId());
+        line.getOptionalName().ifPresent(adder::setName);
+        if (vl1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            adder.setNode1(line.getTerminal1().getNodeBreakerView().getNode());
+        } else {
+            adder.setConnectableBus1(line.getTerminal1().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(line.getTerminal1().getBusBreakerView().getBus())
+                    .ifPresent(b -> adder.setBus1(b.getId()));
+        }
+        if (vl2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            adder.setNode2(line.getTerminal2().getNodeBreakerView().getNode());
+        } else {
+            adder.setConnectableBus2(line.getTerminal2().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(line.getTerminal2().getBusBreakerView().getBus())
+                    .ifPresent(b -> adder.setBus2(b.getId()));
+        }
+        return adder;
     }
 
     /**
@@ -418,11 +465,37 @@ public interface Network extends Container<Network> {
      */
     TieLineAdder newTieLine();
 
+    /**
+     * Get a builder to create a new AC tie line. The builder is initialized with all the values of the given AC line.
+     * Please note that the ID needs to be changed. If one of the ends' voltage level is NODE-BREAKER, the node to which this line
+     * is attached to on this end should also be changed.
+     */
     default TieLineAdder newTieLine(TieLine tieLine) {
         Objects.requireNonNull(tieLine);
-        return newTieLine()
+        VoltageLevel vl1 = tieLine.getTerminal1().getVoltageLevel();
+        VoltageLevel vl2 = tieLine.getTerminal2().getVoltageLevel();
+        TieLineAdder adder = newTieLine()
+                .setId(tieLine.getId())
                 .setFictitious(tieLine.isFictitious())
                 .setUcteXnodeCode(tieLine.getUcteXnodeCode());
+        tieLine.getOptionalName().ifPresent(adder::setName);
+        if (vl1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            adder.setNode1(tieLine.getTerminal1().getNodeBreakerView().getNode());
+        } else {
+            adder.setConnectableBus1(tieLine.getTerminal1().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(tieLine.getTerminal1().getBusBreakerView().getBus())
+                    .ifPresent(b -> adder.setBus1(b.getId()));
+        }
+        if (vl2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            adder.setNode2(tieLine.getTerminal2().getNodeBreakerView().getNode());
+        } else {
+            adder.setConnectableBus2(tieLine.getTerminal2().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(tieLine.getTerminal2().getBusBreakerView().getBus())
+                    .ifPresent(b -> adder.setBus2(b.getId()));
+        }
+        adder.newHalfLine1(tieLine.getHalf1()).add()
+                .newHalfLine2(tieLine.getHalf2()).add();
+        return adder;
     }
 
     /**
@@ -438,6 +511,51 @@ public interface Network extends Container<Network> {
                 .setFictitious(true)
                 .add()
                 .newTwoWindingsTransformer();
+    }
+
+    /**
+     * Get a builder to create a two windings transformer from an existing two windings transformer.
+     * Only use if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newTwoWindingsTransformer()}.
+     * Please note that the ID needs to be changed. If one of the ends' voltage level is NODE-BREAKER, the node to which this line
+     * is attached to on this end should also be changed.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
+    default TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
+        Objects.requireNonNull(twt);
+        VoltageLevel vl1 = twt.getTerminal1().getVoltageLevel();
+        VoltageLevel vl2 = twt.getTerminal2().getVoltageLevel();
+        TwoWindingsTransformerAdder adder = newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newTwoWindingsTransformer()
+                .setId(twt.getId())
+                .setFictitious(twt.isFictitious())
+                .setR(twt.getR())
+                .setX(twt.getX())
+                .setG(twt.getG())
+                .setB(twt.getB())
+                .setRatedU1(twt.getRatedU1())
+                .setRatedU2(twt.getRatedU2())
+                .setRatedS(twt.getRatedS());
+        twt.getOptionalName().ifPresent(adder::setName);
+        if (vl1.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            adder.setNode1(twt.getTerminal1().getNodeBreakerView().getNode());
+        } else {
+            adder.setConnectableBus1(twt.getTerminal1().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(twt.getTerminal1().getBusBreakerView().getBus())
+                    .ifPresent(b -> adder.setBus1(b.getId()));
+        }
+        if (vl2.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            adder.setNode2(twt.getTerminal2().getNodeBreakerView().getNode());
+        } else {
+            adder.setConnectableBus2(twt.getTerminal2().getBusBreakerView().getConnectableBus().getId());
+            Optional.ofNullable(twt.getTerminal2().getBusBreakerView().getBus())
+                    .ifPresent(b -> adder.setBus2(b.getId()));
+        }
+        return adder;
     }
 
     /**
@@ -466,6 +584,8 @@ public interface Network extends Container<Network> {
      * Get a builder to create a three windings transformer.
      * Only use this builder if at least one of the transformer's ends does not belong to any substation.
      * Else use {@link Substation#newThreeWindingsTransformer()}.
+     * Please note that the ID needs to be changed. If one of the ends' voltage level is NODE-BREAKER, the node to which this line
+     * is attached to on this end should also be changed.
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
      */
     default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
@@ -475,6 +595,32 @@ public interface Network extends Container<Network> {
                 .setFictitious(true)
                 .add()
                 .newThreeWindingsTransformer();
+    }
+
+    /**
+     * Get a builder to create a three windings transformer from an existing three windings transformer.
+     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newThreeWindingsTransformer()}.
+     * Please note that the ID needs to be changed. If one of the ends' voltage level is NODE-BREAKER, the node to which this line
+     * is attached to on this end should also be changed.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
+    default ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
+        Objects.requireNonNull(twt);
+        ThreeWindingsTransformerAdder adder = newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newThreeWindingsTransformer()
+                .setId(twt.getId())
+                .setFictitious(twt.isFictitious())
+                .setRatedU0(twt.getRatedU0());
+        twt.getOptionalName().ifPresent(adder::setName);
+        adder.newLeg1(twt.getLeg1()).add()
+                .newLeg2(twt.getLeg2()).add()
+                .newLeg3(twt.getLeg3()).add();
+        return adder;
     }
 
     /**
@@ -799,16 +945,22 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new HVDC line. The builder is initialized with all the values of the given HVDC line.
+     * Please note that the ID needs to be changed.
      */
     default HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
         Objects.requireNonNull(hvdcLine);
-        return newHvdcLine()
+        HvdcLineAdder adder = newHvdcLine()
+                .setId(hvdcLine.getId())
                 .setFictitious(hvdcLine.isFictitious())
                 .setR(hvdcLine.getR())
                 .setConvertersMode(hvdcLine.getConvertersMode())
                 .setNominalV(hvdcLine.getNominalV())
                 .setActivePowerSetpoint(hvdcLine.getActivePowerSetpoint())
-                .setMaxP(hvdcLine.getMaxP());
+                .setMaxP(hvdcLine.getMaxP())
+                .setConverterStationId1(hvdcLine.getConverterStation1().getId())
+                .setConverterStationId2(hvdcLine.getConverterStation2().getId());
+        hvdcLine.getOptionalName().ifPresent(adder::setName);
+        return adder;
     }
 
     /**

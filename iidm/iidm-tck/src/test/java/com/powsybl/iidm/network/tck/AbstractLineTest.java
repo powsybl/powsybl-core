@@ -687,8 +687,8 @@ public abstract class AbstractLineTest {
         // adder
         createTieLineAdder().add();
         network.newTieLine((TieLine) network.getLine("testTie"))
-                .newHalfLine1(((TieLine) network.getLine("testTie")).getHalf1()).setId("duplicate1").add()
-                .newHalfLine2(((TieLine) network.getLine("testTie")).getHalf2()).setId("duplicate2").add()
+                .newHalfLine1(((TieLine) network.getLine("testTie")).getHalf1()).setId("duplicate1").setName("duplicate1").add()
+                .newHalfLine2(((TieLine) network.getLine("testTie")).getHalf2()).setId("duplicate2").setName("duplicate2").add()
                 .setId("duplicate")
                 .setVoltageLevel1("vl1")
                 .setBus1("busA")

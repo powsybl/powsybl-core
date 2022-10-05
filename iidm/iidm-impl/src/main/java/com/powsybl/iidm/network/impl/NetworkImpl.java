@@ -265,6 +265,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
+        return new VoltageLevelAdderImpl(voltageLevel, ref);
+    }
+
+    @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
                 index.getAll(NodeBreakerVoltageLevel.class));
@@ -362,6 +367,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
+        return new TwoWindingsTransformerAdderImpl(twt, ref);
+    }
+
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -384,6 +394,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
         return new ThreeWindingsTransformerAdderImpl(ref);
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
+        return new ThreeWindingsTransformerAdderImpl(twt, ref);
     }
 
     @Override

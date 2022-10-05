@@ -61,6 +61,15 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             b = leg.getB();
             ratedS = leg.getRatedS();
             ratedU = leg.getRatedU();
+            VoltageLevel vl = leg.getTerminal().getVoltageLevel();
+            voltageLevelId = vl.getId();
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                node = leg.getTerminal().getNodeBreakerView().getNode();
+            } else {
+                connectableBus = leg.getTerminal().getBusBreakerView().getConnectableBus().getId();
+                Optional.ofNullable(leg.getTerminal().getBusBreakerView().getBus())
+                        .ifPresent(bbus -> bus = bbus.getId());
+            }
         }
 
         public LegAdder setVoltageLevel(String voltageLevelId) {
@@ -200,6 +209,17 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         this(substation);
         ratedU0 = twt.getRatedU0();
         setFictitious(twt.isFictitious());
+    }
+
+    ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        ratedU0 = twt.getRatedU0();
+        setId(twt.getId());
+        setFictitious(twt.isFictitious());
+        twt.getOptionalName().ifPresent(this::setName);
+        newLeg1(twt.getLeg1()).add()
+                .newLeg2(twt.getLeg2()).add()
+                .newLeg3(twt.getLeg3()).add();
     }
 
     @Override

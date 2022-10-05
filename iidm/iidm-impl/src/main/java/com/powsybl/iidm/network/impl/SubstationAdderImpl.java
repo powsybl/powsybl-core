@@ -34,6 +34,8 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
         country = substation.getNullableCountry();
         tso = substation.getTso();
         tags = substation.getGeographicalTags().toArray(String[]::new);
+        setId(substation.getId());
+        substation.getOptionalName().ifPresent(this::setName);
         setFictitious(substation.isFictitious());
     }
 

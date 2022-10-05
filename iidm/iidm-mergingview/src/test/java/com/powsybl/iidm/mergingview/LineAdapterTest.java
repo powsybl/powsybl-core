@@ -204,8 +204,10 @@ public class LineAdapterTest {
         mergingView.newLine(mergingView.getLine("NHV1_NHV2_1"))
                 .setId("duplicate")
                 .setVoltageLevel1("VLBAT")
+                .setConnectableBus1("NBAT")
                 .setBus1("NBAT")
                 .setVoltageLevel2("VLGEN")
+                .setConnectableBus2("NGEN")
                 .setBus2("NGEN")
                 .add();
         Line line = mergingView.getLine("duplicate");
