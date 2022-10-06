@@ -7,6 +7,7 @@ package com.powsybl.cgmes.shortcircuit; /**
 
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -83,7 +84,7 @@ public class CgmesImporterTest {
 
     @Test
     public void testImportCgmesBranchModelBusbarSectionShortCircuitData() {
-        Network network = new CgmesImport().importData(ShortCircuitCgmesConformity1ModifiedCatalog.smallGridBusBranchWithBusbarSectionsAndIpMax().dataSource(),
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallGridBusBranchWithBusbarSectionsAndIpMax().dataSource(),
             NetworkFactory.findDefault(), new Properties());
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
