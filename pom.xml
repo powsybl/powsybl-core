@@ -252,6 +252,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-cgmes-shortcircuit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-cim-anonymiser</artifactId>
                 <version>${project.version}</version>
             </dependency>
