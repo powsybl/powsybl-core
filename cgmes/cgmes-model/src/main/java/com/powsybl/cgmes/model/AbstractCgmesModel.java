@@ -97,6 +97,17 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (cachedContainers == null) {
             cachedContainers = computeContainers();
         }
+        if (cachedContainers.get(containerId) == null) { // container ID is substation
+            String fixedContainerId = connectivityNodeContainers().stream()
+                    .filter(p -> p.containsKey(SUBSTATION))
+                    .filter(p -> p.getId(SUBSTATION).equals(containerId))
+                    .findFirst()
+                    .map(p -> p.getId("VoltageLevel"))
+                    .orElseThrow(() -> new CgmesModelException(containerId + " should be a connectivity node container containing at least one voltage level"));
+            LOG.warn("{} is a substation, not a voltage level, a line or a bay but contains nodes. " +
+                    "The first CGMES voltage level found in this substation ({}}) is used instead.", containerId, fixedContainerId);
+            cachedContainers.put(containerId, cachedContainers.get(fixedContainerId));
+        }
         return cachedContainers.get(containerId);
     }
 
@@ -209,7 +220,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         connectivityNodeContainers().forEach(c -> {
             String id = c.getId("ConnectivityNodeContainer");
             String voltageLevel = c.getId("VoltageLevel");
-            String substation = c.getId("Substation");
+            String substation = c.getId(SUBSTATION);
             cs.put(id, new CgmesContainer(voltageLevel, substation));
         });
         return cs;
@@ -269,4 +280,5 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
+    private static final String SUBSTATION = "Substation";
 }

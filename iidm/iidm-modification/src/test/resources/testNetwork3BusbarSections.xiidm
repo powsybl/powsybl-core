@@ -1,15 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:voltageLevel id="VL3" nominalV="380.0" topologyKind="NODE_BREAKER">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:voltageLevel id="VLTEST" nominalV="380.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology>
-            <iidm:busbarSection id="bbs3" node="0"/>
-            <iidm:switch id="breaker3" name="breaker3" kind="BREAKER" retained="false" open="true" node1="0" node2="1"/>
-        </iidm:nodeBreakerTopology>
-    </iidm:voltageLevel>
-    <iidm:voltageLevel id="VL4" nominalV="380.0" topologyKind="NODE_BREAKER">
-        <iidm:nodeBreakerTopology>
-            <iidm:busbarSection id="bbs4" node="0"/>
-            <iidm:switch id="breaker4" name="breaker4" kind="BREAKER" retained="false" open="true" node1="0" node2="1"/>
+            <iidm:busbarSection id="VLTEST11" node="0"/>
+            <iidm:busbarSection id="VLTEST21" node="1"/>
+            <iidm:busbarSection id="VLTEST31" node="2"/>
+            <iidm:busbarSection id="VLTEST12" node="3"/>
+            <iidm:busbarSection id="VLTEST22" node="4"/>
+            <iidm:busbarSection id="VLTEST32" node="5"/>
+            <iidm:busbarSection id="VLTEST13" node="6"/>
+            <iidm:busbarSection id="VLTEST23" node="7"/>
+            <iidm:busbarSection id="VLTEST33" node="8"/>
+            <iidm:busbarSection id="VLTEST14" node="9"/>
+            <iidm:busbarSection id="VLTEST24" node="10"/>
+            <iidm:busbarSection id="VLTEST34" node="11"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR11_1" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
+            <iidm:switch id="VLTEST_BREAKER11" kind="BREAKER" retained="true" open="false" node1="12" node2="13"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR11_2" kind="DISCONNECTOR" retained="false" open="false" node1="13" node2="3"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR21_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="14"/>
+            <iidm:switch id="VLTEST_BREAKER21" kind="BREAKER" retained="true" open="false" node1="14" node2="15"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR21_2" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="4"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR31_1" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="16"/>
+            <iidm:switch id="VLTEST_BREAKER31" kind="BREAKER" retained="true" open="false" node1="16" node2="17"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR31_2" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="5"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR12" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="6"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR22" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="7"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR32" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="8"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR13" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="9"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR23" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="10"/>
+            <iidm:switch id="VLTEST_DISCONNECTOR33" kind="DISCONNECTOR" retained="false" open="false" node1="8" node2="11"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="A" country="FR">
@@ -124,19 +143,47 @@
             <iidm:currentLimits2 permanentLimit="931.0"/>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:line id="LINE34" r="0.1" x="0.1" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="1" voltageLevelId1="VL3" node2="1" voltageLevelId2="VL4"/>
-    <iidm:line id="CJ" r="0.009999999" x="0.10000002400000002" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="4" voltageLevelId1="C" node2="5" voltageLevelId2="N">
-        <iidm:activePowerLimits1 permanentLimit="100.0">
-            <iidm:temporaryLimit name="limit1" acceptableDuration="1200" value="500.0"/>
-        </iidm:activePowerLimits1>
-        <iidm:apparentPowerLimits1 permanentLimit="200.0"/>
-        <iidm:currentLimits1 permanentLimit="100.0">
-            <iidm:temporaryLimit name="limit3" acceptableDuration="60" value="900.0"/>
-        </iidm:currentLimits1>
-        <iidm:activePowerLimits2 permanentLimit="600.0">
-            <iidm:temporaryLimit name="limit4" acceptableDuration="300" value="1000.0"/>
-        </iidm:activePowerLimits2>
-        <iidm:apparentPowerLimits2 permanentLimit="800.0"/>
-        <iidm:currentLimits2 permanentLimit="900.0"/>
+    <iidm:line id="CJ" r="0.009999999" x="0.100000024" g1="0.0" b1="0.0" g2="0.0" b2="0.0" node1="4" voltageLevelId1="C" node2="5" voltageLevelId2="N">
+        <iidm:currentLimits1 permanentLimit="931.0"/>
+        <iidm:currentLimits2 permanentLimit="931.0">
+            <iidm:temporaryLimit name="IST" value="1640.0" fictitious="true"/>
+            <iidm:temporaryLimit name="IT1" acceptableDuration="60"/>
+        </iidm:currentLimits2>
     </iidm:line>
+    <iidm:extension id="VLTEST12">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST11">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST14">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST13">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST23">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST22">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST24">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST21">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST34">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="4"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST33">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="3"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST32">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="2"/>
+    </iidm:extension>
+    <iidm:extension id="VLTEST31">
+        <bbsp:busbarSectionPosition busbarIndex="3" sectionIndex="1"/>
+    </iidm:extension>
 </iidm:network>
