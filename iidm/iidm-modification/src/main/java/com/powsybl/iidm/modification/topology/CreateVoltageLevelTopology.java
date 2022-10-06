@@ -50,19 +50,19 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                                int lowSectionIndex, Integer sectionCount,
                                String busbarSectionPrefixId, String switchPrefixId, List<SwitchKind> switchKinds) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "Undefined voltage level ID");
-        this.lowBusbarIndex = checkCount(lowBusbarIndex, "low busbar index");
-        this.busbarCount = checkCount(busbarCount, "busBar count");
-        this.lowSectionIndex = checkCount(lowSectionIndex, "low section index");
-        this.sectionCount = checkCount(sectionCount, "section count");
+        this.lowBusbarIndex = checkCount(lowBusbarIndex, "low busbar index", 0);
+        this.busbarCount = checkCount(busbarCount, "busBar count", 1);
+        this.lowSectionIndex = checkCount(lowSectionIndex, "low section index", 0);
+        this.sectionCount = checkCount(sectionCount, "section count", 1);
         this.busbarSectionPrefixId = Objects.requireNonNull(busbarSectionPrefixId, "Undefined busbar section prefix ID");
         this.switchPrefixId = Objects.requireNonNull(switchPrefixId, "Undefined switch prefix ID");
         this.switchKinds = checkSwitchKinds(switchKinds, sectionCount);
     }
 
-    private static int checkCount(Integer count, String type) {
+    private static int checkCount(Integer count, String type, int min) {
         Objects.requireNonNull(count, "Undefined " + type);
-        if (count < 0) {
-            throw new PowsyblException(type + " must be >= 0");
+        if (count < min) {
+            throw new PowsyblException(type + " must be >= " + min);
         }
         return count;
     }
