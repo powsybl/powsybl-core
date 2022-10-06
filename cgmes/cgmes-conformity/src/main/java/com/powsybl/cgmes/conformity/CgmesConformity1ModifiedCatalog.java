@@ -1226,6 +1226,44 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
+    public static TestGridModel miniNodeBreakerSubstationNode() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_substation_node/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
+        return new TestGridModelResources(
+                "MiniGrid-NodeBreaker-Substation-Node",
+                null,
+                new ResourceSet(base,
+                        "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseOriginal,
+                        "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModel miniNodeBreakerMissingSubstationRegion() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_missing_substation_region/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
+        return new TestGridModelResources(
+                "MiniGrid-NodeBreaker-MissingSubstationRegion",
+                null,
+                new ResourceSet(base,
+                        "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseOriginal,
+                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
     public static TestGridModelResources smallBusBranchTieFlowsWithoutControlArea() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/SmallGrid/TieFlow_missing_controlArea";
@@ -1741,6 +1779,26 @@ public final class CgmesConformity1ModifiedCatalog {
                 new ResourceSet(baseOriginal, "MicroGridTestConfiguration_BC_BE_SV_V2.xml"),
                 new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
                         "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModelResources smallGridBusBranchWithBusbarSectionsAndIpMax() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/SmallGrid/BusBranch_busbarSections_ipMax";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-BusBranch-With-BusbarSecions-And-ipMax",
+                null,
+                new ResourceSet(baseOriginal, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_SV_v3.0.0.xml"),
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
     private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
