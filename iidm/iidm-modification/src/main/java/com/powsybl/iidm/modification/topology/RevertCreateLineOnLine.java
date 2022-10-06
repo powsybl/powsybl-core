@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -47,6 +49,8 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  */
 public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RevertCreateLineOnLine.class);
+
     private String lineAZId;
     private String lineBZId;
     private String lineCZId;
@@ -55,15 +59,12 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
     private String lineName;
 
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
+    private static final String LINE_REMOVED_MESSAGE = "Line {} removed";
 
     /**
      * Constructor.
      *
-     * @param lineAZId     The non-null ID of the first line
-     * @param lineBZId     The non-null ID of the second line
-     * @param lineCZId     The non-null ID of the third line (connecting tee point to attached voltage level)
-     * @param lineId       The non-null ID of the new line to be created
-     * @param lineName     The optional name of the new line to be created
+     * NB: This constructor is package-private, Please use {@link RevertCreateLineOnLineBuilder} instead.
      */
     RevertCreateLineOnLine(String lineAZId, String lineBZId, String lineCZId, String lineId, String lineName) {
         this.lineAZId = Objects.requireNonNull(lineAZId);
@@ -98,37 +99,26 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         return this;
     }
 
+    private static Line checkAndGetLine(Network network, String lineId, Reporter reporter, boolean throwException) {
+        Line line = network.getLine(lineId);
+        if (line == null) {
+            notFoundLineReport(reporter, lineId);
+            LOG.error("Line {} is not found", lineId);
+            if (throwException) {
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
+            }
+        }
+        return line;
+    }
+
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        Line lineAZ = network.getLine(lineAZId);
-        if (lineAZ == null) {
-            notFoundLineReport(reporter, lineAZId);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineAZId));
-            } else {
-                return;
-            }
-        }
-
-        Line lineBZ = network.getLine(lineBZId);
-        if (lineBZ == null) {
-            notFoundLineReport(reporter, lineBZId);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineBZId));
-            } else {
-                return;
-            }
-        }
-
-        Line lineCZ = network.getLine(lineCZId);
-        if (lineCZ == null) {
-            notFoundLineReport(reporter, lineCZId);
-            if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineCZId));
-            } else {
-                return;
-            }
+        Line lineAZ = checkAndGetLine(network, lineAZId, reporter, throwException);
+        Line lineBZ = checkAndGetLine(network, lineBZId, reporter, throwException);
+        Line lineCZ = checkAndGetLine(network, lineCZId, reporter, throwException);
+        if (lineAZ == null || lineBZ == null || lineCZ == null) {
+            return;
         }
 
         // Check the configuration and find the tee point and the attached voltage level :
@@ -167,6 +157,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
         if (!configOk || teePoint == null || attachedVoltageLevel == null) {
             noTeePointAndOrAttachedVoltageLevelReport(reporter, lineAZId, lineBZId, lineCZId);
+            LOG.error("Unable to find the tee point and the attached voltage level from lines {}, {} and {}", lineAZId, lineBZId, lineCZId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineAZId, lineBZId, lineCZId));
             } else {
@@ -192,18 +183,22 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         // Remove the three existing lines
         lineAZ.remove();
         removedLineReport(reporter, lineAZId);
+        LOG.info(LINE_REMOVED_MESSAGE, lineAZId);
 
         lineBZ.remove();
         removedLineReport(reporter, lineBZId);
+        LOG.info(LINE_REMOVED_MESSAGE, lineBZId);
 
         lineCZ.remove();
         removedLineReport(reporter, lineCZId);
+        LOG.info(LINE_REMOVED_MESSAGE, lineCZId);
 
         // Create the new line
         Line line = lineAdder.add();
         addLoadingLimits(line, limitsLineAZ, Branch.Side.ONE);
         addLoadingLimits(line, limitsLineBZ, Branch.Side.TWO);
         createdLineReport(reporter, lineId);
+        LOG.info("New line {} created, replacing lines {}, {} and {}", lineId, lineAZId, lineBZId, lineCZId);
 
         // remove attachment point and attachment point substation, if necessary
         removeVoltageLevelAndSubstation(teePoint, reporter);

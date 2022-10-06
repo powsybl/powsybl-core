@@ -22,26 +22,41 @@ public class RevertCreateLineOnLineBuilder {
         return new RevertCreateLineOnLine(lineAZId, lineBZId, lineCZId, lineId, lineName);
     }
 
+    /**
+     * @param  lineAZId      The non-null ID of the first line
+     */
     public RevertCreateLineOnLineBuilder withLineAZId(String lineAZId) {
         this.lineAZId = lineAZId;
         return this;
     }
 
+    /**
+     * @param lineBZId     The non-null ID of the second line
+     */
     public RevertCreateLineOnLineBuilder withLineBZId(String lineBZId) {
         this.lineBZId = lineBZId;
         return this;
     }
 
+    /**
+     * @param lineCZId     The non-null ID of the third line (connecting tee point to attached voltage level)
+     */
     public RevertCreateLineOnLineBuilder withLineCZId(String lineCZId) {
         this.lineCZId = lineCZId;
         return this;
     }
 
+    /**
+     * @param lineId       The non-null ID of the new line to be created
+     */
     public RevertCreateLineOnLineBuilder withLineId(String lineId) {
         this.lineId = lineId;
         return this;
     }
 
+    /**
+     * @param lineName     The optional name of the new line to be created
+     */
     public RevertCreateLineOnLineBuilder withLineName(String lineName) {
         this.lineName = lineName;
         return this;
