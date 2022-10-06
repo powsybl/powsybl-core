@@ -234,9 +234,9 @@ public abstract class AbstractBusBreakerTest {
 
         assertTrue(l1t.disconnect());
         assertFalse(l1t.isConnected());
-        assertEquals(0, vl1.getBusView().getBusStream().count()); // Because no line in the VL
+        assertEquals(1, vl1.getBusView().getBusStream().count());
         assertNull(l1t.getBusView().getBus());
-        assertNull(l1t.getBusView().getConnectableBus()); // Because no buses
+        assertNotNull(l1t.getBusView().getConnectableBus());
         assertEquals(vl1.getBusView().getBus("VL1_0"), l1t.getBusView().getConnectableBus());
         assertTrue(l1t.connect());
         assertTrue(l1t.isConnected());

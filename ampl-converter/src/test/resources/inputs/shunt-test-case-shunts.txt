@@ -1,3 +1,3 @@
 #Shunts (shuntTestCase/InitialState)
 #"variant" "num" "bus" "con. bus" "substation" "minB (pu)" "maxB (pu)" "inter. points" "b (pu)" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)" "sections count"
-1 1 -1 -1 1 0.0144400 28.8800 0 28.8800 0 0 "SHUNT" "SHUNT" -99999.0 -99999.0 1
+1 1 1 1 1 0.0144400 28.8800 0 28.8800 0 0 "SHUNT" "SHUNT" -99999.0 -99999.0 1
