@@ -34,17 +34,17 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  * This method reverses the action done in the CreateLineOnLine class :
  * it replaces 3 existing lines (with the same voltage level at one of their side) with a new line,
  * and eventually removes the existing voltage levels (tee point and attached voltage level), if they contain no equipments
- * anymore, except bus or bus bar section
- *
+ * anymore, except bus or bus bar section <br/><br/>
+ * <pre>
  *  *    VL1 ---------- tee point ---------- VL2                            VL1 ----------------------------- VL2
  *  *         (lineAZ)       |     (lineBZ)                                                (line)
  *  *                        |
- *  *                        | (lineCZ)                       =========>
+ *  *                        | (lineCZ)                     =========>
  *  *                        |
  *  *                        |
  *  *               attached voltage level
  *  *
- *
+ * </pre>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class RevertCreateLineOnLine extends AbstractNetworkModification {
