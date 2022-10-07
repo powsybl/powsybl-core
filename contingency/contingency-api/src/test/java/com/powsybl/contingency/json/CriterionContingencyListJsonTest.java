@@ -53,7 +53,7 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
     }
 
     private static InjectionCriterionContingencyList createInjectionCriterionContingencyList() {
-        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList("FR"));
+        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"));
@@ -63,7 +63,7 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
     }
 
     private static TwoWindingsTransformerCriterionContingencyList createTwoWindingsTransformerCriterionContingencyList() {
-        SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList("FR"));
+        SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(
                 new SingleNominalVoltageCriterion.VoltageInterval(200.0, 230.0,
                         true, true),
@@ -76,7 +76,7 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
     }
 
     private static ThreeWindingsTransformerCriterionContingencyList createThreeWindingsTransformerCriterionContingencyList() {
-        SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList("FR"));
+        SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(
                 new SingleNominalVoltageCriterion.VoltageInterval(200.0, 230.0,
                         true, true),

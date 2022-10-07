@@ -10,6 +10,14 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 
 /**
+ * the purpose of these class is to filter contingencies in a criterion contingency list
+ *
+ * currently all criterion contingency lists have a criterion on countries, one on nominal voltage,
+ * one on properties and one on regex.
+ *
+ * there are criteria to select one and two countries and to select one two
+ * or three voltage levels (especially for three windings transformers)
+ *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public interface Criterion {

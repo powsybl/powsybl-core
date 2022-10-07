@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.contingency.list.ContingencyListsList;
+import com.powsybl.contingency.contingency.list.ListOfContingencyLists;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,14 +22,14 @@ import java.util.List;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class ContingencyListsListDeserializer extends StdDeserializer<ContingencyListsList> {
+public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfContingencyLists> {
 
-    public ContingencyListsListDeserializer() {
-        super(ContingencyListsList.class);
+    public ListOfContingencyListsDeserializer() {
+        super(ListOfContingencyLists.class);
     }
 
     @Override
-    public ContingencyListsList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public ListOfContingencyLists deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
         List<ContingencyList> contingencyLists = Collections.emptyList();
 
@@ -57,6 +57,6 @@ public class ContingencyListsListDeserializer extends StdDeserializer<Contingenc
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new ContingencyListsList(name, contingencyLists);
+        return new ListOfContingencyLists(name, contingencyLists);
     }
 }

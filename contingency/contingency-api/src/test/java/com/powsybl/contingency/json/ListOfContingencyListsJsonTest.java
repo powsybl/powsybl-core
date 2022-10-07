@@ -11,14 +11,10 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
-import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.contingency.list.ContingencyListsList;
-import com.powsybl.contingency.contingency.list.DefaultContingencyList;
-import com.powsybl.contingency.contingency.list.LineCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
-import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
+import com.powsybl.contingency.contingency.list.*;
+import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.IdentifiableType;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,29 +31,50 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class ContingencyListsListJsonTest extends AbstractConverterTest {
+public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
 
-    private static ContingencyListsList create() {
+    private static ListOfContingencyLists create() {
         List<ContingencyList> contingencyLists = new ArrayList<>();
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
                 Collections.singletonList(Country.BE));
+        SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.DE));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true),
+                new SingleNominalVoltageCriterion
+                .VoltageInterval(100.0, 120.0, true, true));
+
+        ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true), null,
+                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 430.0,
+                        true, true));
         RegexCriterion regexCriterion = new RegexCriterion("regex");
         contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion,
                 null, regexCriterion));
         contingencyLists.add(new DefaultContingencyList(new Contingency("contingency1", new GeneratorContingency("GEN"))));
-        return new ContingencyListsList("listslist1", contingencyLists);
+        contingencyLists.add(new InjectionCriterionContingencyList("list3", IdentifiableType.LOAD, countryCriterion,
+                nominalVoltageCriterion, null, null));
+        contingencyLists.add(new HvdcLineCriterionContingencyList("list4", countriesCriterion,
+                twoNominalVoltageCriterion, null, null));
+        contingencyLists.add(new TwoWindingsTransformerCriterionContingencyList("list5", countryCriterion,
+                twoNominalVoltageCriterion, null, null));
+        contingencyLists.add(new ThreeWindingsTransformerCriterionContingencyList("list6", countryCriterion,
+                threeNominalVoltageCriterion, null, null));
+        contingencyLists.add(new ListOfContingencyLists("listslist2",
+                Collections.singletonList(new DefaultContingencyList(new Contingency("contingency2",
+                        new HvdcLineContingency("HVDC1"))))));
+        return new ListOfContingencyLists("listslist1", contingencyLists);
     }
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripTest(create(), ContingencyListsListJsonTest::write, ContingencyListsListJsonTest::readContingencyList,
+        roundTripTest(create(), ListOfContingencyListsJsonTest::write, ListOfContingencyListsJsonTest::readContingencyList,
                 "/contingencyListsList.json");
     }
 
-    private static ContingencyListsList readContingencyList(Path jsonFile) {
-        return read(jsonFile, ContingencyListsList.class);
+    private static ListOfContingencyLists readContingencyList(Path jsonFile) {
+        return read(jsonFile, ListOfContingencyLists.class);
     }
 
     private static <T> T read(Path jsonFile, Class<T> clazz) {

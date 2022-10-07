@@ -31,7 +31,7 @@ public class ContingencyJsonModule extends SimpleModule {
         addSerializer(DefaultContingencyList.class, new DefaultContingencyListSerializer());
         addSerializer(Contingency.class, new ContingencySerializer());
         addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
-        addSerializer(ContingencyListsList.class, new ContingencyListsListSerializer());
+        addSerializer(ListOfContingencyLists.class, new ListOfContingencyListsSerializer());
         addSerializer(IdentifierContingencyList.class, new IdentifierContingencyListSerializer());
         addSerializer(NetworkElementIdentifier.class, new IdentifierSerializer());
 
@@ -47,7 +47,7 @@ public class ContingencyJsonModule extends SimpleModule {
         addDeserializer(DefaultContingencyList.class, new DefaultContingencyListDeserializer());
         addDeserializer(Contingency.class, new ContingencyDeserializer());
         addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
-        addDeserializer(ContingencyListsList.class, new ContingencyListsListDeserializer());
+        addDeserializer(ListOfContingencyLists.class, new ListOfContingencyListsDeserializer());
         addDeserializer(IdentifierContingencyList.class, new IdentifierContingencyListDeserializer());
         addDeserializer(NetworkElementIdentifier.class, new IdentifierDeserializer());
     }

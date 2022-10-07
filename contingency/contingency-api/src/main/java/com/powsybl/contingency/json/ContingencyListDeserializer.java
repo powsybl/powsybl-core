@@ -47,8 +47,8 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                         ThreeWindingsTransformerCriterionContingencyListDeserializer threeWindingsTransformerCriterionContingencyListDeserializer = new ThreeWindingsTransformerCriterionContingencyListDeserializer();
                         return threeWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
                     case "list":
-                        ContingencyListsListDeserializer contingencyListsListDeserializer = new ContingencyListsListDeserializer();
-                        return contingencyListsListDeserializer.deserialize(parser, deserializationContext);
+                        ListOfContingencyListsDeserializer listOfContingencyListsDeserializer = new ListOfContingencyListsDeserializer();
+                        return listOfContingencyListsDeserializer.deserialize(parser, deserializationContext);
                     default:
                         throw new AssertionError("Unexpected field: " + parser.getCurrentName());
                 }

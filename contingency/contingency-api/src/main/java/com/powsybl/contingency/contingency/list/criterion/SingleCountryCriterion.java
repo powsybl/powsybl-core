@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -19,8 +18,8 @@ public class SingleCountryCriterion implements Criterion {
 
     private final List<Country> countries;
 
-    public SingleCountryCriterion(List<String> countriesStr) {
-        this.countries = ImmutableList.copyOf(countriesStr.stream().map(Country::valueOf).collect(Collectors.toList()));
+    public SingleCountryCriterion(List<Country> countries) {
+        this.countries = ImmutableList.copyOf(countries);
     }
 
     @Override
@@ -33,12 +32,13 @@ public class SingleCountryCriterion implements Criterion {
         switch (type) {
             case DANGLING_LINE:
             case GENERATOR:
-            case SWITCH:
             case LOAD:
             case SHUNT_COMPENSATOR:
             case STATIC_VAR_COMPENSATOR:
             case BUSBAR_SECTION:
-                return filterInjection(((Injection) identifiable).getTerminal());
+                return filterInjection(((Injection) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH:
+                return filterInjection(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER:
                 return filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
             case THREE_WINDINGS_TRANSFORMER:
@@ -63,8 +63,8 @@ public class SingleCountryCriterion implements Criterion {
         return countries.contains(injectionCountry);
     }
 
-    private boolean filterInjection(Terminal terminal) {
-        Substation substation = terminal.getVoltageLevel().getSubstation().orElse(null);
+    private boolean filterInjection(VoltageLevel voltageLevel) {
+        Substation substation = voltageLevel.getSubstation().orElse(null);
         if (substation == null) {
             return false;
         }

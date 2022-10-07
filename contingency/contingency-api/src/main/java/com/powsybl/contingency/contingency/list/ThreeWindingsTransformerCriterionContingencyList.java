@@ -16,38 +16,23 @@ import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class ThreeWindingsTransformerCriterionContingencyList implements ContingencyList {
+public class ThreeWindingsTransformerCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
 
-    // VERSION = 1.0 : first version
-    public static final String VERSION = "1.0";
-
-    private final String name;
-    private final IdentifiableType identifiableType = IdentifiableType.THREE_WINDINGS_TRANSFORMER;
-    private final SingleCountryCriterion countryCriterion;
-    private final ThreeNominalVoltageCriterion nominalVoltageCriterion;
-    private final PropertyCriterion propertyCriterion;
-    private final RegexCriterion regexCriterion;
+    private final SingleCountryCriterion singleCountryCriterion;
+    private final ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
 
     public ThreeWindingsTransformerCriterionContingencyList(String name,
-                                                            SingleCountryCriterion countryCriterion,
-                                                            ThreeNominalVoltageCriterion nominalVoltageCriterion,
+                                                            SingleCountryCriterion singleCountryCriterion,
+                                                            ThreeNominalVoltageCriterion threeNominalVoltageCriterion,
                                                             PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
-        this.name = Objects.requireNonNull(name);
-        this.countryCriterion = countryCriterion;
-        this.nominalVoltageCriterion = nominalVoltageCriterion;
-        this.propertyCriterion = propertyCriterion;
-        this.regexCriterion = regexCriterion;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name, IdentifiableType.THREE_WINDINGS_TRANSFORMER, propertyCriterion, regexCriterion);
+        this.singleCountryCriterion = singleCountryCriterion;
+        this.threeNominalVoltageCriterion = threeNominalVoltageCriterion;
     }
 
     @Override
@@ -57,36 +42,22 @@ public class ThreeWindingsTransformerCriterionContingencyList implements Conting
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-        return network.getIdentifiableTypeStream(identifiableType)
-                .filter(identifiable -> countryCriterion == null || countryCriterion.filter(identifiable, identifiableType))
-                .filter(identifiable -> nominalVoltageCriterion == null || nominalVoltageCriterion.filter(identifiable, identifiableType))
-                .filter(identifiable -> propertyCriterion == null || propertyCriterion.filter(identifiable, identifiableType))
-                .filter(identifiable -> regexCriterion == null || regexCriterion.filter(identifiable, identifiableType))
+        return network.getIdentifiableStream(getIdentifiableType())
+                .filter(identifiable -> singleCountryCriterion == null || singleCountryCriterion.filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> threeNominalVoltageCriterion == null || threeNominalVoltageCriterion.filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getPropertyCriterion() == null || getPropertyCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());
     }
 
-    public static String getVersion() {
-        return VERSION;
-    }
-
-    public IdentifiableType getIdentifiableType() {
-        return identifiableType;
-    }
-
+    @Override
     public SingleCountryCriterion getCountryCriterion() {
-        return countryCriterion;
+        return singleCountryCriterion;
     }
 
+    @Override
     public ThreeNominalVoltageCriterion getNominalVoltageCriterion() {
-        return nominalVoltageCriterion;
-    }
-
-    public PropertyCriterion getPropertyCriterion() {
-        return propertyCriterion;
-    }
-
-    public RegexCriterion getRegexCriterion() {
-        return regexCriterion;
+        return threeNominalVoltageCriterion;
     }
 }

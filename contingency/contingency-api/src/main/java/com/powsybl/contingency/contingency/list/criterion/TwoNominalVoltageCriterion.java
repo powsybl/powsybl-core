@@ -6,10 +6,14 @@
  */
 package com.powsybl.contingency.contingency.list.criterion;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.powsybl.iidm.network.IdentifiableType.HVDC_LINE;
 import static com.powsybl.iidm.network.IdentifiableType.TWO_WINDINGS_TRANSFORMER;
 
 /**
@@ -19,11 +23,23 @@ public class TwoNominalVoltageCriterion implements Criterion {
 
     private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval1;
     private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval2;
+    @JsonIgnore
+    private final List<SingleNominalVoltageCriterion.VoltageInterval> voltageIntervals = new ArrayList<>();
 
     public TwoNominalVoltageCriterion(SingleNominalVoltageCriterion.VoltageInterval voltageInterval1,
                                       SingleNominalVoltageCriterion.VoltageInterval voltageInterval2) {
-        this.voltageInterval1 = Objects.requireNonNull(voltageInterval1);
-        this.voltageInterval2 = Objects.requireNonNull(voltageInterval2);
+        this.voltageInterval1 = voltageInterval1 == null ?
+                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
+                        null, null) : voltageInterval1;
+        this.voltageInterval2 = voltageInterval2 == null ?
+                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
+                        null, null) : voltageInterval2;
+        if (!this.voltageInterval1.isNull()) {
+            voltageIntervals.add(voltageInterval1);
+        }
+        if (!this.voltageInterval2.isNull()) {
+            voltageIntervals.add(voltageInterval2);
+        }
     }
 
     @Override
@@ -34,27 +50,24 @@ public class TwoNominalVoltageCriterion implements Criterion {
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
         if (type == TWO_WINDINGS_TRANSFORMER) {
-            return filterTwoWindingsTransformer(((TwoWindingsTransformer) identifiable).getTerminal1(), ((TwoWindingsTransformer) identifiable).getTerminal2());
+            return filter(((TwoWindingsTransformer) identifiable).getTerminal1(), ((TwoWindingsTransformer) identifiable).getTerminal2());
+        } else if (type == HVDC_LINE) {
+            return filter(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
+                    ((HvdcLine) identifiable).getConverterStation2().getTerminal());
         } else {
             return false;
         }
     }
 
-    private boolean filterTwoWindingsTransformer(Terminal terminal1, Terminal terminal2) {
-        VoltageLevel voltageLevel1 = terminal1.getVoltageLevel();
-        VoltageLevel voltageLevel2 = terminal2.getVoltageLevel();
-        double branchNominalVoltage1 = voltageLevel1.getNominalV();
-        double branchNominalVoltage2 = voltageLevel2.getNominalV();
-        if (voltageInterval1.isNull() && voltageInterval2.isNull()) {
-            return true;
-        } else if (voltageInterval1.isNull()) {
-            return voltageInterval2.checkIsBetweenBound(branchNominalVoltage1) || voltageInterval2.checkIsBetweenBound(branchNominalVoltage2);
-        } else if (voltageInterval2.isNull()) {
-            return voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) || voltageInterval1.checkIsBetweenBound(branchNominalVoltage2);
-        } else {
-            return (voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage1));
-        }
+    private boolean filter(Terminal terminal1, Terminal terminal2) {
+        AtomicBoolean filter = new AtomicBoolean(true);
+        voltageIntervals.forEach(voltageInterval -> {
+            if (!voltageInterval.checkIsBetweenBound(terminal1.getVoltageLevel().getNominalV()) &&
+                    !voltageInterval.checkIsBetweenBound(terminal2.getVoltageLevel().getNominalV())) {
+                filter.set(false);
+            }
+        });
+        return filter.get();
     }
 
     public SingleNominalVoltageCriterion.VoltageInterval getVoltageInterval1() {

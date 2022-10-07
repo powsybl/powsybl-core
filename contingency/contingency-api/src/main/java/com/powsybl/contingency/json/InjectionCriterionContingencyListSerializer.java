@@ -9,6 +9,7 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class InjectionCriterionContingencyListSerializer extends StdSerializer<I
     public void serialize(InjectionCriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", criterionContingencyList.getType());
-        jsonGenerator.writeStringField("version", InjectionCriterionContingencyList.getVersion());
+        jsonGenerator.writeStringField("version", ContingencyList.getVersion());
         jsonGenerator.writeStringField("name", criterionContingencyList.getName());
         jsonGenerator.writeStringField("identifiableType", criterionContingencyList.getIdentifiableType().toString());
         jsonGenerator.writeObjectField("countryCriterion", criterionContingencyList.getCountryCriterion());

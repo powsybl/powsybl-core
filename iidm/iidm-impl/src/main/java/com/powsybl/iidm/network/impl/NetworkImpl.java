@@ -1205,7 +1205,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public <I extends Identifiable<I>> Stream<I> getIdentifiableTypeStream(IdentifiableType identifiableType) {
+    public <I extends Identifiable<I>> Stream<I> getIdentifiableStream(IdentifiableType identifiableType) {
         switch (identifiableType) {
             case SWITCH:
                 return (Stream<I>) getSwitchStream();

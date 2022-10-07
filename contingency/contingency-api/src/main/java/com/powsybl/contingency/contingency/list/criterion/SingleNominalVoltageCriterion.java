@@ -18,10 +18,6 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
     private final VoltageInterval voltageInterval;
 
-    public SingleNominalVoltageCriterion() {
-        this(new VoltageInterval(null, null, null, null));
-    }
-
     public SingleNominalVoltageCriterion(VoltageInterval voltageInterval) {
         this.voltageInterval = Objects.requireNonNull(voltageInterval);
     }
@@ -36,23 +32,23 @@ public class SingleNominalVoltageCriterion implements Criterion {
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
         switch (type) {
             case LINE:
-                return filterInjection(((Line) identifiable).getTerminal1());
+                return filterInjection(((Line) identifiable).getTerminal1().getVoltageLevel());
             case DANGLING_LINE:
             case GENERATOR:
-            case SWITCH:
             case LOAD:
             case BATTERY:
             case SHUNT_COMPENSATOR:
             case STATIC_VAR_COMPENSATOR:
             case BUSBAR_SECTION:
-                return filterInjection(((Injection) identifiable).getTerminal());
+                return filterInjection(((Injection) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH:
+                return filterInjection(((Switch) identifiable).getVoltageLevel());
             default:
                 return false;
         }
     }
 
-    private boolean filterInjection(Terminal terminal) {
-        VoltageLevel voltageLevel = terminal.getVoltageLevel();
+    private boolean filterInjection(VoltageLevel voltageLevel) {
         if (voltageLevel == null) {
             return false;
         }

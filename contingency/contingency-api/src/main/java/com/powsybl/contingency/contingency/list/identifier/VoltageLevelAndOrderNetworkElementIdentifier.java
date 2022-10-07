@@ -43,14 +43,14 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
         } else {
             List<Connectable> connectablesVoltageLevel2 = voltageLevel2.getConnectableStream().collect(Collectors.toList());
             List<Connectable> foundConnectables = voltageLevel1.getConnectableStream()
-                    .filter(connectable -> connectable.getId().endsWith(String.valueOf(order)) &&
-                            connectablesVoltageLevel2.contains(connectable))
+                    .filter(connectable -> connectable.getId().endsWith(String.valueOf(order)))
+                    .filter(connectablesVoltageLevel2::contains)
                     .collect(Collectors.toList());
             if (foundConnectables.size() == 1) {
                 return Optional.ofNullable(foundConnectables.get(0));
             } else {
-                LOG.warn("found several connectables between voltage levels " + voltageLevel1.getId() +
-                        " and " + voltageLevel2.getId() + " with order " + order);
+                LOG.warn("found several connectables between voltage levels {} and {} with order {}",
+                        order, voltageLevel1.getId(), voltageLevel2.getId());
                 return Optional.empty();
             }
         }

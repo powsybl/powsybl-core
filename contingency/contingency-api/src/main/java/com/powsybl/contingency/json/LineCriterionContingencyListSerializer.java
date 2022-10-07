@@ -9,7 +9,7 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.LineCriterionContingencyList;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class LineCriterionContingencyListSerializer extends StdSerializer<LineCr
     public void serialize(LineCriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", criterionContingencyList.getType());
-        jsonGenerator.writeStringField("version", InjectionCriterionContingencyList.getVersion());
+        jsonGenerator.writeStringField("version", ContingencyList.getVersion());
         jsonGenerator.writeStringField("name", criterionContingencyList.getName());
         jsonGenerator.writeObjectField("countryCriterion", criterionContingencyList.getCountryCriterion());
         jsonGenerator.writeObjectField("nominalVoltageCriterion", criterionContingencyList.getNominalVoltageCriterion());

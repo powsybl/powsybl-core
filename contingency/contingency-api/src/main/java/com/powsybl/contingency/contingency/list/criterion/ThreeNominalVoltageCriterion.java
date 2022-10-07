@@ -6,7 +6,12 @@
  */
 package com.powsybl.contingency.contingency.list.criterion;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -16,6 +21,8 @@ public class ThreeNominalVoltageCriterion implements Criterion {
     private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval1;
     private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval2;
     private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval3;
+    @JsonIgnore
+    private final List<SingleNominalVoltageCriterion.VoltageInterval> voltageIntervals = new ArrayList<>();
 
     public ThreeNominalVoltageCriterion(SingleNominalVoltageCriterion.VoltageInterval voltageInterval1,
                                         SingleNominalVoltageCriterion.VoltageInterval voltageInterval2,
@@ -29,6 +36,15 @@ public class ThreeNominalVoltageCriterion implements Criterion {
         this.voltageInterval3 = voltageInterval3 == null ?
                 new SingleNominalVoltageCriterion.VoltageInterval(null, null,
                         null, null) : voltageInterval3;
+        if (!this.voltageInterval1.isNull()) {
+            voltageIntervals.add(voltageInterval1);
+        }
+        if (!this.voltageInterval2.isNull()) {
+            voltageIntervals.add(voltageInterval2);
+        }
+        if (!this.voltageInterval3.isNull()) {
+            voltageIntervals.add(voltageInterval3);
+        }
     }
 
     @Override
@@ -49,58 +65,15 @@ public class ThreeNominalVoltageCriterion implements Criterion {
     }
 
     private boolean filterThreeWindingsTransformer(Terminal terminal1, Terminal terminal2, Terminal terminal3) {
-        VoltageLevel voltageLevel1 = terminal1.getVoltageLevel();
-        VoltageLevel voltageLevel2 = terminal2.getVoltageLevel();
-        VoltageLevel voltageLevel3 = terminal3.getVoltageLevel();
-        double branchNominalVoltage1 = voltageLevel1.getNominalV();
-        double branchNominalVoltage2 = voltageLevel2.getNominalV();
-        double branchNominalVoltage3 = voltageLevel3.getNominalV();
-        if (voltageInterval1.isNull() && voltageInterval2.isNull() && voltageInterval3.isNull()) {
-            return true;
-        } else if (voltageInterval1.isNull() && voltageInterval2.isNull()) {
-            return voltageInterval3.checkIsBetweenBound(branchNominalVoltage1) || voltageInterval3.checkIsBetweenBound(branchNominalVoltage2) ||
-                    voltageInterval3.checkIsBetweenBound(branchNominalVoltage3);
-        } else if (voltageInterval1.isNull() && voltageInterval3.isNull()) {
-            return voltageInterval2.checkIsBetweenBound(branchNominalVoltage1) || voltageInterval2.checkIsBetweenBound(branchNominalVoltage2) ||
-                    voltageInterval2.checkIsBetweenBound(branchNominalVoltage3);
-        } else if (voltageInterval2.isNull() && voltageInterval3.isNull()) {
-            return voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) || voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) ||
-                    voltageInterval1.checkIsBetweenBound(branchNominalVoltage3);
-        } else if (voltageInterval1.isNull()) {
-            return (voltageInterval2.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval2.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval2.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval2.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage1)) ||
-                    (voltageInterval2.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval2.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage1));
-        } else if (voltageInterval2.isNull()) {
-            return (voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage1)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval3.checkIsBetweenBound(branchNominalVoltage1));
-        } else if (voltageInterval3.isNull()) {
-            return (voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage1)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage1)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage2));
-        } else {
-            return (voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage2)
-                    && voltageInterval3.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage1) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage3)
-                            && voltageInterval3.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage1)
-                            && voltageInterval3.checkIsBetweenBound(branchNominalVoltage3)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage2) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage3)
-                            && voltageInterval3.checkIsBetweenBound(branchNominalVoltage1)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage1)
-                            && voltageInterval3.checkIsBetweenBound(branchNominalVoltage2)) ||
-                    (voltageInterval1.checkIsBetweenBound(branchNominalVoltage3) && voltageInterval2.checkIsBetweenBound(branchNominalVoltage2)
-                            && voltageInterval3.checkIsBetweenBound(branchNominalVoltage1));
-        }
+        AtomicBoolean filter = new AtomicBoolean(true);
+        voltageIntervals.forEach(voltageInterval -> {
+            if (!voltageInterval.checkIsBetweenBound(terminal1.getVoltageLevel().getNominalV()) &&
+                    !voltageInterval.checkIsBetweenBound(terminal2.getVoltageLevel().getNominalV()) &&
+                    !voltageInterval.checkIsBetweenBound(terminal3.getVoltageLevel().getNominalV())) {
+                filter.set(false);
+            }
+        });
+        return filter.get();
     }
 
     public SingleNominalVoltageCriterion.VoltageInterval getVoltageInterval1() {

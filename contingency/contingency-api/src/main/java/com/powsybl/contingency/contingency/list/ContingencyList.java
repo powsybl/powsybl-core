@@ -28,6 +28,13 @@ import java.util.stream.Collectors;
  */
 public interface ContingencyList {
 
+    // VERSION = 1.0 : first version
+    String VERSION = "1.0";
+
+    static String getVersion() {
+        return VERSION;
+    }
+
     /**
      * Return the name of this contingency list
      */

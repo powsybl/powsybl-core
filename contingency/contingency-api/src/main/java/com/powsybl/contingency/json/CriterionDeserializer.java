@@ -104,7 +104,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
             case PROPERTY:
                 return new PropertyCriterion(propertyKey, propertyValues);
             case SINGLE_COUNTRY:
-                return new SingleCountryCriterion(countries);
+                return new SingleCountryCriterion(countries.stream().map(Country::valueOf).collect(Collectors.toList()));
             case TWO_COUNTRY:
                 return new TwoCountriesCriterion(countries1.stream().map(Country::valueOf).collect(Collectors.toList()),
                         countries2.stream().map(Country::valueOf).collect(Collectors.toList()));

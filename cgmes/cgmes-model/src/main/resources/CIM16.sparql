@@ -32,7 +32,7 @@ SELECT *
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
 { GRAPH ?graph {
-    # We will return all model networkElementIdentifiers for FullModel objects of profile EquipmentCore
+    # We will return all model identifiers for FullModel objects of profile EquipmentCore
     ?FullModel
         a md:FullModel ;
         md:Model.modelingAuthoritySet ?modelingAuthoritySet ;

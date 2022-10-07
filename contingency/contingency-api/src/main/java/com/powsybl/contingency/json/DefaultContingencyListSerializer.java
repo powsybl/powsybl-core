@@ -10,6 +10,7 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class DefaultContingencyListSerializer extends StdSerializer<DefaultConti
     public void serialize(DefaultContingencyList contingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", contingencyList.getType());
-        jsonGenerator.writeStringField("version", DefaultContingencyList.VERSION);
+        jsonGenerator.writeStringField("version", ContingencyList.getVersion());
         jsonGenerator.writeStringField("name", contingencyList.getName());
         jsonGenerator.writeObjectField("contingencies", contingencyList.getContingencies());
         jsonGenerator.writeEndObject();

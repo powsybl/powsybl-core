@@ -34,7 +34,7 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
                 break;
             case TWO_COUNTRY:
                 jsonGenerator.writeObjectField("countries1", ((TwoCountriesCriterion) criterion).getCountries1().stream().map(Country::toString).collect(Collectors.toList()));
-                jsonGenerator.writeObjectField("countries2", ((TwoCountriesCriterion) criterion).getCountries1().stream().map(Country::toString).collect(Collectors.toList()));
+                jsonGenerator.writeObjectField("countries2", ((TwoCountriesCriterion) criterion).getCountries2().stream().map(Country::toString).collect(Collectors.toList()));
                 break;
             case SINGLE_NOMINAL_VOLTAGE:
                 SingleNominalVoltageCriterion singleNominalVoltageCriterion = (SingleNominalVoltageCriterion) criterion;

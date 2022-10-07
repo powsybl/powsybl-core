@@ -5,7 +5,7 @@
   "countryCriterion" : {
     "type" : "TWO_COUNTRY",
     "countries1" : [ "ES" ],
-    "countries2" : [ "ES" ]
+    "countries2" : [ "FR" ]
   },
   "nominalVoltageCriterion" : {
     "type" : "TWO_NOMINAL_VOLTAGE",

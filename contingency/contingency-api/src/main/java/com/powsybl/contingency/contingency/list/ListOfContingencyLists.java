@@ -17,14 +17,11 @@ import java.util.stream.Collectors;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class ContingencyListsList implements ContingencyList {
-
-    // VERSION = 1.0 : first version
-    public static final String VERSION = "1.0";
+public class ListOfContingencyLists implements ContingencyList {
     private final String name;
     private final List<ContingencyList> contingencyLists;
 
-    public ContingencyListsList(String name, List<ContingencyList> contingencyLists) {
+    public ListOfContingencyLists(String name, List<ContingencyList> contingencyLists) {
         this.name = Objects.requireNonNull(name);
         this.contingencyLists = ImmutableList.copyOf(contingencyLists);
     }
@@ -46,11 +43,7 @@ public class ContingencyListsList implements ContingencyList {
                 .collect(Collectors.toList());
     }
 
-    public static String getVersion() {
-        return VERSION;
-    }
-
     public List<ContingencyList> getContingencyLists() {
-        return contingencyLists;
+        return ImmutableList.copyOf(contingencyLists);
     }
 }
