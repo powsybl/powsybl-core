@@ -1,5 +1,8 @@
 {
   "version" : "1.0",
+  "withLimitViolations" : false,
+  "withVoltageMap" : false,
+  "withFeederResult" : false,
   "studyType" : "TRANSIENT",
   "minVoltageDropProportionalThreshold" : 0.0
 }
