@@ -11,54 +11,54 @@ package com.powsybl.iidm.modification.topology;
  */
 public class RevertCreateLineOnLineBuilder {
 
-    private String lineAZId = null;
-    private String lineBZId = null;
-    private String lineCZId = null;
+    private String lineToBeMerged1Id = null;
+    private String lineToBeMerged2Id = null;
+    private String lineToBeDeletedId = null;
 
-    private String lineId = null;
-    private String lineName = null;
+    private String mergedLineId = null;
+    private String mergedLineName = null;
 
     public RevertCreateLineOnLine build() {
-        return new RevertCreateLineOnLine(lineAZId, lineBZId, lineCZId, lineId, lineName);
+        return new RevertCreateLineOnLine(lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId, mergedLineId, mergedLineName);
     }
 
     /**
-     * @param  lineAZId      The non-null ID of the first line
+     * @param  lineToBeMerged1Id      The non-null ID of the first line
      */
-    public RevertCreateLineOnLineBuilder withLineAZId(String lineAZId) {
-        this.lineAZId = lineAZId;
+    public RevertCreateLineOnLineBuilder withLineToBeMerged1Id(String lineToBeMerged1Id) {
+        this.lineToBeMerged1Id = lineToBeMerged1Id;
         return this;
     }
 
     /**
-     * @param lineBZId     The non-null ID of the second line
+     * @param lineToBeMerged2Id     The non-null ID of the second line
      */
-    public RevertCreateLineOnLineBuilder withLineBZId(String lineBZId) {
-        this.lineBZId = lineBZId;
+    public RevertCreateLineOnLineBuilder withLineToBeMerged2Id(String lineToBeMerged2Id) {
+        this.lineToBeMerged2Id = lineToBeMerged2Id;
         return this;
     }
 
     /**
-     * @param lineCZId     The non-null ID of the third line (connecting tee point to attached voltage level)
+     * @param lineToBeDeletedId     The non-null ID of the third line (connecting tee point to attached voltage level)
      */
-    public RevertCreateLineOnLineBuilder withLineCZId(String lineCZId) {
-        this.lineCZId = lineCZId;
+    public RevertCreateLineOnLineBuilder withLineToBeDeletedId(String lineToBeDeletedId) {
+        this.lineToBeDeletedId = lineToBeDeletedId;
         return this;
     }
 
     /**
-     * @param lineId       The non-null ID of the new line to be created
+     * @param mergedLineId       The non-null ID of the new line to be created
      */
-    public RevertCreateLineOnLineBuilder withLineId(String lineId) {
-        this.lineId = lineId;
+    public RevertCreateLineOnLineBuilder withMergedLineId(String mergedLineId) {
+        this.mergedLineId = mergedLineId;
         return this;
     }
 
     /**
-     * @param lineName     The optional name of the new line to be created
+     * @param mergedLineName     The optional name of the new line to be created
      */
-    public RevertCreateLineOnLineBuilder withLineName(String lineName) {
-        this.lineName = lineName;
+    public RevertCreateLineOnLineBuilder withMergedLineName(String mergedLineName) {
+        this.mergedLineName = mergedLineName;
         return this;
     }
 }

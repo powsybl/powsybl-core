@@ -36,13 +36,13 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  * and eventually removes the existing voltage levels (tee point and attached voltage level), if they contain no equipments
  * anymore, except bus or bus bar section <br/><br/>
  * <pre>
- *  *    VL1 ---------- tee point ---------- VL2                            VL1 ----------------------------- VL2
- *  *         (lineAZ)       |     (lineBZ)                                                (line)
- *  *                        |
- *  *                        | (lineCZ)                     =========>
- *  *                        |
- *  *                        |
- *  *               attached voltage level
+ *  *    VL1 --------------------- tee point -------------------- VL2                          VL1 ----------------------------- VL2
+ *  *         (lineToBeMerged1Id)     |     (lineToBeMerged2Id)                                            (mergedLineId)
+ *  *                                 |
+ *  *                                 | (lineToBeDeletedId)                   =========>
+ *  *                                 |
+ *  *                                 |
+ *  *                        attached voltage level
  *  *
  * </pre>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
@@ -51,12 +51,12 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(RevertCreateLineOnLine.class);
 
-    private String lineAZId;
-    private String lineBZId;
-    private String lineCZId;
+    private String lineToBeMerged1Id;
+    private String lineToBeMerged2Id;
+    private String lineToBeDeletedId;
 
-    private String lineId;
-    private String lineName;
+    private String mergedLineId;
+    private String mergedLineName;
 
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
     private static final String LINE_REMOVED_MESSAGE = "Line {} removed";
@@ -66,36 +66,36 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
      *
      * NB: This constructor is package-private, Please use {@link RevertCreateLineOnLineBuilder} instead.
      */
-    RevertCreateLineOnLine(String lineAZId, String lineBZId, String lineCZId, String lineId, String lineName) {
-        this.lineAZId = Objects.requireNonNull(lineAZId);
-        this.lineBZId = Objects.requireNonNull(lineBZId);
-        this.lineCZId = Objects.requireNonNull(lineCZId);
-        this.lineId = Objects.requireNonNull(lineId);
-        this.lineName = lineName;
+    RevertCreateLineOnLine(String lineToBeMerged1Id, String lineToBeMerged2Id, String lineToBeDeletedId, String mergedLineId, String mergedLineName) {
+        this.lineToBeMerged1Id = Objects.requireNonNull(lineToBeMerged1Id);
+        this.lineToBeMerged2Id = Objects.requireNonNull(lineToBeMerged2Id);
+        this.lineToBeDeletedId = Objects.requireNonNull(lineToBeDeletedId);
+        this.mergedLineId = Objects.requireNonNull(mergedLineId);
+        this.mergedLineName = mergedLineName;
     }
 
-    public RevertCreateLineOnLine setLineAZId(String lineAZId) {
-        this.lineAZId = Objects.requireNonNull(lineAZId);
+    public RevertCreateLineOnLine setLineToBeMerged1Id(String lineToBeMerged1Id) {
+        this.lineToBeMerged1Id = Objects.requireNonNull(lineToBeMerged1Id);
         return this;
     }
 
-    public RevertCreateLineOnLine setLineBZId(String lineBZId) {
-        this.lineBZId = Objects.requireNonNull(lineBZId);
+    public RevertCreateLineOnLine setLineToBeMerged2Id(String lineToBeMerged2Id) {
+        this.lineToBeMerged2Id = Objects.requireNonNull(lineToBeMerged2Id);
         return this;
     }
 
-    public RevertCreateLineOnLine setLineCZId(String lineCZId) {
-        this.lineCZId = Objects.requireNonNull(lineCZId);
+    public RevertCreateLineOnLine setLineToBeDeletedId(String lineToBeDeletedId) {
+        this.lineToBeDeletedId = Objects.requireNonNull(lineToBeDeletedId);
         return this;
     }
 
-    public RevertCreateLineOnLine setLineId(String lineId) {
-        this.lineId = Objects.requireNonNull(lineId);
+    public RevertCreateLineOnLine setMergedLineId(String mergedLineId) {
+        this.mergedLineId = Objects.requireNonNull(mergedLineId);
         return this;
     }
 
-    public RevertCreateLineOnLine setLineName(String lineName) {
-        this.lineName = lineName;
+    public RevertCreateLineOnLine setMergedLineName(String mergedLineName) {
+        this.mergedLineName = mergedLineName;
         return this;
     }
 
@@ -114,91 +114,91 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        Line lineAZ = checkAndGetLine(network, lineAZId, reporter, throwException);
-        Line lineBZ = checkAndGetLine(network, lineBZId, reporter, throwException);
-        Line lineCZ = checkAndGetLine(network, lineCZId, reporter, throwException);
-        if (lineAZ == null || lineBZ == null || lineCZ == null) {
+        Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reporter, throwException);
+        Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reporter, throwException);
+        Line lineToBeDeleted = checkAndGetLine(network, lineToBeDeletedId, reporter, throwException);
+        if (lineToBeMerged1 == null || lineToBeMerged2 == null || lineToBeDeleted == null) {
             return;
         }
 
         // Check the configuration and find the tee point and the attached voltage level :
-        // tee point is the voltage level in common with lineAZ and lineBZ
-        // attached voltage level is the voltage level of lineCZ, not in common with lineAZ or lineBZ
+        // tee point is the voltage level in common with lineToBeMerged1 and lineToBeMerged2
+        // attached voltage level is the voltage level of lineToBeDeleted, not in common with lineToBeMerged1 or lineToBeMerged2
         VoltageLevel teePoint = null;
         VoltageLevel attachedVoltageLevel = null;
         boolean configOk = false;
         Branch.Side newLineSide1 = null;
         Branch.Side newLineSide2 = null;
 
-        String lineAZVlId1 = lineAZ.getTerminal1().getVoltageLevel().getId();
-        String lineAZVlId2 = lineAZ.getTerminal2().getVoltageLevel().getId();
-        String lineBZVlId1 = lineBZ.getTerminal1().getVoltageLevel().getId();
-        String lineBZVlId2 = lineBZ.getTerminal2().getVoltageLevel().getId();
-        String lineCZVlId1 = lineCZ.getTerminal1().getVoltageLevel().getId();
-        String lineCZVlId2 = lineCZ.getTerminal2().getVoltageLevel().getId();
+        String lineToBeMerged1VlId1 = lineToBeMerged1.getTerminal1().getVoltageLevel().getId();
+        String lineToBeMerged1VlId2 = lineToBeMerged1.getTerminal2().getVoltageLevel().getId();
+        String lineToBeMerged2VlId1 = lineToBeMerged2.getTerminal1().getVoltageLevel().getId();
+        String lineToBeMerged2VlId2 = lineToBeMerged2.getTerminal2().getVoltageLevel().getId();
+        String lineToBeDeletedVlId1 = lineToBeDeleted.getTerminal1().getVoltageLevel().getId();
+        String lineToBeDeletedVlId2 = lineToBeDeleted.getTerminal2().getVoltageLevel().getId();
 
-        if ((lineAZVlId1.equals(lineBZVlId1) || lineAZVlId1.equals(lineBZVlId2) ||
-                lineAZVlId2.equals(lineBZVlId1) || lineAZVlId2.equals(lineBZVlId2)) &&
-                (lineBZVlId1.equals(lineCZVlId1) || lineBZVlId1.equals(lineCZVlId2) ||
-                        lineBZVlId2.equals(lineCZVlId1) || lineBZVlId2.equals(lineCZVlId2)) &&
-                (lineAZVlId1.equals(lineCZVlId1) || lineAZVlId1.equals(lineCZVlId2) ||
-                        lineAZVlId2.equals(lineCZVlId1) || lineAZVlId2.equals(lineCZVlId2))) {
+        if ((lineToBeMerged1VlId1.equals(lineToBeMerged2VlId1) || lineToBeMerged1VlId1.equals(lineToBeMerged2VlId2) ||
+                lineToBeMerged1VlId2.equals(lineToBeMerged2VlId1) || lineToBeMerged1VlId2.equals(lineToBeMerged2VlId2)) &&
+                (lineToBeMerged2VlId1.equals(lineToBeDeletedVlId1) || lineToBeMerged2VlId1.equals(lineToBeDeletedVlId2) ||
+                        lineToBeMerged2VlId2.equals(lineToBeDeletedVlId1) || lineToBeMerged2VlId2.equals(lineToBeDeletedVlId2)) &&
+                (lineToBeMerged1VlId1.equals(lineToBeDeletedVlId1) || lineToBeMerged1VlId1.equals(lineToBeDeletedVlId2) ||
+                        lineToBeMerged1VlId2.equals(lineToBeDeletedVlId1) || lineToBeMerged1VlId2.equals(lineToBeDeletedVlId2))) {
             configOk = true;
 
-            String teePointId = lineAZVlId1.equals(lineBZVlId1) || lineAZVlId1.equals(lineBZVlId2) ? lineAZVlId1 : lineAZVlId2;
+            String teePointId = lineToBeMerged1VlId1.equals(lineToBeMerged2VlId1) || lineToBeMerged1VlId1.equals(lineToBeMerged2VlId2) ? lineToBeMerged1VlId1 : lineToBeMerged1VlId2;
             teePoint = network.getVoltageLevel(teePointId);
 
-            newLineSide1 = lineAZVlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
-            newLineSide2 = lineBZVlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
+            newLineSide1 = lineToBeMerged1VlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
+            newLineSide2 = lineToBeMerged2VlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
 
-            String attachedVoltageLevelId = lineCZVlId1.equals(lineBZVlId1) || lineCZVlId1.equals(lineBZVlId2) ? lineCZVlId2 : lineCZVlId1;
+            String attachedVoltageLevelId = lineToBeDeletedVlId1.equals(lineToBeMerged2VlId1) || lineToBeDeletedVlId1.equals(lineToBeMerged2VlId2) ? lineToBeDeletedVlId2 : lineToBeDeletedVlId1;
             attachedVoltageLevel = network.getVoltageLevel(attachedVoltageLevelId);
         }
 
         if (!configOk || teePoint == null || attachedVoltageLevel == null) {
-            noTeePointAndOrAttachedVoltageLevelReport(reporter, lineAZId, lineBZId, lineCZId);
-            LOG.error("Unable to find the tee point and the attached voltage level from lines {}, {} and {}", lineAZId, lineBZId, lineCZId);
+            noTeePointAndOrAttachedVoltageLevelReport(reporter, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
+            LOG.error("Unable to find the tee point and the attached voltage level from lines {}, {} and {}", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
             if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineAZId, lineBZId, lineCZId));
+                throw new PowsyblException(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId));
             } else {
                 return;
             }
         }
 
         // Set parameters of the new line replacing the three existing lines
-        LineAdder lineAdder = createLineAdder(lineId, lineName, newLineSide1 == Branch.Side.TWO ? lineAZVlId2 : lineAZVlId1,
-                newLineSide2 == Branch.Side.TWO ? lineBZVlId2 : lineBZVlId1, network, lineAZ, lineBZ);
+        LineAdder lineAdder = createLineAdder(mergedLineId, mergedLineName, newLineSide1 == Branch.Side.TWO ? lineToBeMerged1VlId2 : lineToBeMerged1VlId1,
+                newLineSide2 == Branch.Side.TWO ? lineToBeMerged2VlId2 : lineToBeMerged2VlId1, network, lineToBeMerged1, lineToBeMerged2);
 
-        attachLine(lineAZ.getTerminal(newLineSide1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(lineBZ.getTerminal(newLineSide2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        attachLine(lineToBeMerged1.getTerminal(newLineSide1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
+        attachLine(lineToBeMerged2.getTerminal(newLineSide2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
-        // get lineAZ limits on newLineSide1
-        Branch.Side limitsLineAZSide = newLineSide1;
-        LoadingLimitsBags limitsLineAZ = new LoadingLimitsBags(() -> lineAZ.getActivePowerLimits(limitsLineAZSide), () -> lineAZ.getApparentPowerLimits(limitsLineAZSide), () -> lineAZ.getCurrentLimits(limitsLineAZSide));
+        // get lineToBeMerged1 limits on newLineSide1
+        Branch.Side limitsLineToBeMerged1Side = newLineSide1;
+        LoadingLimitsBags limitsLineToBeMerged1 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(limitsLineToBeMerged1Side), () -> lineToBeMerged1.getApparentPowerLimits(limitsLineToBeMerged1Side), () -> lineToBeMerged1.getCurrentLimits(limitsLineToBeMerged1Side));
 
-        // get lineBZ limits on newLineSide2
-        Branch.Side limitsLineBZSide = newLineSide2;
-        LoadingLimitsBags limitsLineBZ = new LoadingLimitsBags(() -> lineBZ.getActivePowerLimits(limitsLineBZSide), () -> lineBZ.getApparentPowerLimits(limitsLineBZSide), () -> lineBZ.getCurrentLimits(limitsLineBZSide));
+        // get lineToBeMerged2 limits on newLineSide2
+        Branch.Side limitsLineToBeMerged2Side = newLineSide2;
+        LoadingLimitsBags limitsLineToBeMerged2 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(limitsLineToBeMerged2Side), () -> lineToBeMerged2.getApparentPowerLimits(limitsLineToBeMerged2Side), () -> lineToBeMerged2.getCurrentLimits(limitsLineToBeMerged2Side));
 
         // Remove the three existing lines
-        lineAZ.remove();
-        removedLineReport(reporter, lineAZId);
-        LOG.info(LINE_REMOVED_MESSAGE, lineAZId);
+        lineToBeMerged1.remove();
+        removedLineReport(reporter, lineToBeMerged1Id);
+        LOG.info(LINE_REMOVED_MESSAGE, lineToBeMerged1Id);
 
-        lineBZ.remove();
-        removedLineReport(reporter, lineBZId);
-        LOG.info(LINE_REMOVED_MESSAGE, lineBZId);
+        lineToBeMerged2.remove();
+        removedLineReport(reporter, lineToBeMerged2Id);
+        LOG.info(LINE_REMOVED_MESSAGE, lineToBeMerged2Id);
 
-        lineCZ.remove();
-        removedLineReport(reporter, lineCZId);
-        LOG.info(LINE_REMOVED_MESSAGE, lineCZId);
+        lineToBeDeleted.remove();
+        removedLineReport(reporter, lineToBeDeletedId);
+        LOG.info(LINE_REMOVED_MESSAGE, lineToBeDeletedId);
 
         // Create the new line
         Line line = lineAdder.add();
-        addLoadingLimits(line, limitsLineAZ, Branch.Side.ONE);
-        addLoadingLimits(line, limitsLineBZ, Branch.Side.TWO);
-        createdLineReport(reporter, lineId);
-        LOG.info("New line {} created, replacing lines {}, {} and {}", lineId, lineAZId, lineBZId, lineCZId);
+        addLoadingLimits(line, limitsLineToBeMerged1, Branch.Side.ONE);
+        addLoadingLimits(line, limitsLineToBeMerged2, Branch.Side.TWO);
+        createdLineReport(reporter, mergedLineId);
+        LOG.info("New line {} created, replacing lines {}, {} and {}", mergedLineId, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
 
         // remove attachment point and attachment point substation, if necessary
         removeVoltageLevelAndSubstation(teePoint, reporter);
@@ -207,23 +207,23 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         removeVoltageLevelAndSubstation(attachedVoltageLevel, reporter);
     }
 
-    public String getLineAZId() {
-        return lineAZId;
+    public String getLineToBeMerged1Id() {
+        return lineToBeMerged1Id;
     }
 
-    public String getLineBZId() {
-        return lineBZId;
+    public String getLineToBeMerged2Id() {
+        return lineToBeMerged2Id;
     }
 
-    public String getLineCZId() {
-        return lineCZId;
+    public String getLineToBeDeletedId() {
+        return lineToBeDeletedId;
     }
 
-    public String getLineId() {
-        return lineId;
+    public String getMergedLineId() {
+        return mergedLineId;
     }
 
-    public String getLineName() {
-        return lineName;
+    public String getMergedLineName() {
+        return mergedLineName;
     }
 }
