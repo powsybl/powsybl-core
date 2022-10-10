@@ -63,7 +63,19 @@ public final class Importers {
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
         }
-        return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        // FIXME(Luma) If we agree on this way to configure importers,
+        //  extend this decorated network factory to other overloaded
+        //  methods for importing data
+        if (config != null && config.getValidationLevel() != null) {
+            final NetworkFactory networkFactory0 = networkFactory;
+            networkFactory = (id, sourceFormat) -> {
+                Network network = networkFactory0.createNetwork(id, sourceFormat);
+                network.setMinimumAcceptableValidationLevel(config.getValidationLevel());
+                return network;
+            };
+        }
+        return importer.importData(dataSource, networkFactory, parameters, reporter);
     }
 
     public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
