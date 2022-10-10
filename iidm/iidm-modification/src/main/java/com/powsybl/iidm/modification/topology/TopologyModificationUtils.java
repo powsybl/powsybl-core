@@ -8,7 +8,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -43,6 +45,12 @@ public final class TopologyModificationUtils {
             currentLimits = currentLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
         }
 
+        LoadingLimitsBags(LoadingLimitsBag activePowerLimits, LoadingLimitsBag apparentPowerLimits, LoadingLimitsBag currentLimits) {
+            this.activePowerLimits = activePowerLimits;
+            this.apparentPowerLimits = apparentPowerLimits;
+            this.currentLimits = currentLimits;
+        }
+
         Optional<LoadingLimitsBag> getActivePowerLimits() {
             return Optional.ofNullable(activePowerLimits);
         }
@@ -66,6 +74,11 @@ public final class TopologyModificationUtils {
             for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 temporaryLimits.add(new TemporaryLimitsBag(tl));
             }
+        }
+
+        private LoadingLimitsBag(double permanentLimit, List<TemporaryLimitsBag> temporaryLimitsBags) {
+            this.permanentLimit = permanentLimit;
+            this.temporaryLimits = temporaryLimitsBags;
         }
 
         private double getPermanentLimit() {
@@ -183,15 +196,18 @@ public final class TopologyModificationUtils {
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
             voltageLevelRemovingEquipmentsLeftReport(reporter, vlId);
+            LOGGER.warn("Voltage level {} still contains equipments", vlId);
         }
         voltageLevel.remove();
         voltageLevelRemovedReport(reporter, vlId);
+        LOGGER.info("Voltage level {} removed", vlId);
 
         substation.ifPresent(s -> {
             if (s.getVoltageLevelStream().count() == 0) {
                 String substationId = s.getId();
                 s.remove();
                 substationRemovedReport(reporter, substationId);
+                LOGGER.info("Substation {} removed", substationId);
             }
         });
     }
@@ -212,6 +228,7 @@ public final class TopologyModificationUtils {
     static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_BREAKER" + suffix)
+                .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
                 .setRetained(true)
@@ -223,6 +240,7 @@ public final class TopologyModificationUtils {
     static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_DISCONNECTOR" + suffix)
+                .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
                 .setNode1(node1)
@@ -233,12 +251,14 @@ public final class TopologyModificationUtils {
     static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String lineId, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
                 .setId(lineId + "_SW_1")
+                .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
                 .setBus2(middleBusId)
                 .add();
         view.newSwitch()
                 .setId(lineId + "_SW_2")
+                .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(middleBusId)
                 .setBus2(busId2)
@@ -519,6 +539,64 @@ public final class TopologyModificationUtils {
         return bbs;
     }
 
+    /**
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
+        bbsList.forEach(b -> {
+            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
+            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
+        });
+    }
+
     private TopologyModificationUtils() {
+    }
+
+    private static Optional<LoadingLimitsBag> mergeLimits(String lineId,
+                                                          Optional<LoadingLimitsBag> limits1,
+                                                          Optional<LoadingLimitsBag> limitsTeePointSide,
+                                                          Reporter reporter) {
+        Optional<LoadingLimitsBag> limits;
+
+        double permanentLimit = limits1.map(LoadingLimitsBag::getPermanentLimit).orElse(Double.NaN);
+        List<TemporaryLimitsBag> temporaryLimits1 = limits1.map(LoadingLimitsBag::getTemporaryLimits).orElse(new ArrayList<>());
+        List<TemporaryLimitsBag> temporaryLimitsTeePointSide = limitsTeePointSide.map(LoadingLimitsBag::getTemporaryLimits).orElse(new ArrayList<>());
+        List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
+
+        if (!limitsTeePointSide.isPresent()) {  // no limits on tee point side : we keep limits on other side
+            limits = limits1;
+        } else {
+            // permanent limit : we keep the minimum permanent limit from both sides
+            if (Double.isNaN(permanentLimit)) {
+                permanentLimit = limitsTeePointSide.get().getPermanentLimit();
+            } else if (!Double.isNaN(limitsTeePointSide.get().getPermanentLimit())) {
+                permanentLimit = Math.min(permanentLimit, limitsTeePointSide.get().getPermanentLimit());
+            }
+
+            // temporary limits on both sides : they are ignored, otherwise, we keep temporary limits on side where they are defined
+            if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
+                LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
+                reporter.report(Report.builder()
+                        .withKey("limitsLost")
+                        .withDefaultMessage("Temporary limits on both sides for line ${lineId} : They are ignored")
+                        .withValue("lineId", lineId)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+            } else {
+                temporaryLimits = !temporaryLimits1.isEmpty() ? temporaryLimits1 : temporaryLimitsTeePointSide;
+            }
+
+            limits = Optional.of(new LoadingLimitsBag(permanentLimit, temporaryLimits));
+        }
+
+        return limits;
+    }
+
+    public static LoadingLimitsBags mergeLimits(String lineId, LoadingLimitsBags limits, LoadingLimitsBags limitsTeePointSide, Reporter reporter) {
+        Optional<LoadingLimitsBag> activePowerLimits = mergeLimits(lineId, limits.getActivePowerLimits(), limitsTeePointSide.getActivePowerLimits(), reporter);
+        Optional<LoadingLimitsBag> apparentPowerLimits = mergeLimits(lineId, limits.getApparentPowerLimits(), limitsTeePointSide.getApparentPowerLimits(), reporter);
+        Optional<LoadingLimitsBag> currentLimits = mergeLimits(lineId, limits.getCurrentLimits(), limitsTeePointSide.getCurrentLimits(), reporter);
+
+        return new LoadingLimitsBags(activePowerLimits.orElse(null), apparentPowerLimits.orElse(null), currentLimits.orElse(null));
     }
 }

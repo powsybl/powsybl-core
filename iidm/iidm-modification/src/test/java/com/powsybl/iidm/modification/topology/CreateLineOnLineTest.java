@@ -30,7 +30,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void createLineOnLineNbTest() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
@@ -91,7 +91,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testCompleteBuilder() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder()
@@ -116,7 +116,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testIncompleteBuilder() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder()
@@ -132,7 +132,7 @@ public class CreateLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void testExceptions() {
-        Network network1 = createNbNetwork();
+        Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
 
