@@ -623,4 +623,13 @@ public abstract class AbstractNetworkTest {
             // Ignore
         }
     }
+
+    @Test
+    public void testBadTargetDeadbandNetwork() {
+        Network network = EurostagTutorialExample1Factory.create();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setTargetDeadband(-10.0);
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
 }

@@ -8,6 +8,7 @@ package com.powsybl.iidm.import_;
 
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.network.ValidationLevel;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,8 +28,10 @@ public class ImportConfig {
     public static final Supplier<ImportConfig> CACHE = Suppliers.memoize(ImportConfig::load);
 
     private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
+    private static final ValidationLevel DEFAULT_VALIDATION_LEVEL = ValidationLevel.STEADY_STATE_HYPOTHESIS;
 
     private final List<String> postProcessors;
+    private final ValidationLevel validationLevel;
 
     public static ImportConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -39,19 +42,23 @@ public class ImportConfig {
         List<String> postProcessors = platformConfig.getOptionalModuleConfig("import")
                 .flatMap(config -> config.getOptionalStringListProperty("postProcessors"))
                 .orElse(DEFAULT_POST_PROCESSORS);
-        return new ImportConfig(postProcessors);
+        ValidationLevel validationLevel = platformConfig.getOptionalModuleConfig("import")
+                .map(config -> ValidationLevel.valueOf(config.getStringProperty("validationLevel")))
+                .orElse(DEFAULT_VALIDATION_LEVEL);
+        return new ImportConfig(postProcessors, validationLevel);
     }
 
     public ImportConfig() {
-        this(Collections.emptyList());
+        this(Collections.emptyList(), DEFAULT_VALIDATION_LEVEL);
     }
 
     public ImportConfig(String... postProcessors) {
-        this(Arrays.asList(postProcessors));
+        this(Arrays.asList(postProcessors), DEFAULT_VALIDATION_LEVEL);
     }
 
-    public ImportConfig(List<String> postProcessors) {
+    public ImportConfig(List<String> postProcessors, ValidationLevel validationLevel) {
         this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.validationLevel = Objects.requireNonNull(validationLevel);
     }
 
     /**
@@ -62,9 +69,18 @@ public class ImportConfig {
         return postProcessors;
     }
 
+    /**
+     * The minimum validation level for the network being imported
+     * @return the minimum validation level for the network to be imported.
+     */
+    public ValidationLevel getValidationLevel() {
+        return validationLevel;
+    }
+
     @Override
     public String toString() {
-        return "{postProcessors=" + postProcessors
+        return "{postProcessors=" + postProcessors + ", "
+                + "validationLevel=" + validationLevel
                 + "}";
     }
 }

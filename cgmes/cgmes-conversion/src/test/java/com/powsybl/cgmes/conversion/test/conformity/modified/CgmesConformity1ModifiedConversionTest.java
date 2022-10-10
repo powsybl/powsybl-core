@@ -22,7 +22,9 @@ import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
@@ -965,6 +967,18 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(6.5, l.getP0(), 1e-3);
         assertEquals(0.001, l.getQ0(), 1e-3);
         assertEquals(LoadType.AUXILIARY, l.getLoadType());
+    }
+
+    @Test
+    public void microGridBaseBETargetDedadbandNegative() {
+        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("import");
+        moduleConfig.setStringProperty("validationLevel", "EQUIPMENT");
+
+        ImportConfig importConfig = ImportConfig.load(platformConfig);
+        assertEquals(ValidationLevel.EQUIPMENT, importConfig.getValidationLevel());
+        // FIXME(Luma) load a network that has an invalid target deadband using this import config and check we have a network
+        //Network network = Importers.loadNetwork(CgmesConformity1ModifiedCatalog.microGridBaseBEStationSupply().dataSource(), importConfig);
     }
 
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {

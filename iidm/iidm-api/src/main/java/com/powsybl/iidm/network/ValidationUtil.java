@@ -159,7 +159,8 @@ public final class ValidationUtil {
             return ValidationLevel.EQUIPMENT;
         }
         if (targetDeadband < 0) {
-            throw new ValidationException(validable, "Unexpected value for target deadband of " + validableType + ": " + targetDeadband + " < 0");
+            throwExceptionOrLogError(validable, "Unexpected value for target deadband of " + validableType + ": " + targetDeadband + " < 0", throwsException, reporter);
+            return ValidationLevel.EQUIPMENT;
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
