@@ -24,7 +24,7 @@ import java.io.IOException;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetworkWithBusbarSection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -36,7 +36,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
 
     @Test
     public void revertCreateLineOnLineNbTest() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
