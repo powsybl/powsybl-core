@@ -43,7 +43,8 @@ public class ImportConfig {
                 .flatMap(config -> config.getOptionalStringListProperty("postProcessors"))
                 .orElse(DEFAULT_POST_PROCESSORS);
         ValidationLevel validationLevel = platformConfig.getOptionalModuleConfig("import")
-                .map(config -> ValidationLevel.valueOf(config.getStringProperty("validationLevel")))
+                .flatMap(config -> config.getOptionalStringProperty("validationLevel"))
+                .map(ValidationLevel::valueOf)
                 .orElse(DEFAULT_VALIDATION_LEVEL);
         return new ImportConfig(postProcessors, validationLevel);
     }
