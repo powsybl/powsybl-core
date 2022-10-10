@@ -968,13 +968,11 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microGridBaseBETargetDeadbandNegative() {
-        Network network0 = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), null);
-        assertEquals(35, network0.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().getTargetDeadband(), 0.001);
-        assertTrue(network0.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().isRegulating());
-
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative().dataSource(), null);
-        assertTrue(Double.isNaN(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().getTargetDeadband()));
-        assertFalse(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().isRegulating());
+        String transformerId = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer(transformerId).getPhaseTapChanger();
+        assertTrue(Double.isNaN(ptc.getTargetDeadband()));
+        assertFalse(ptc.isRegulating());
     }
 
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {
