@@ -197,11 +197,17 @@ public class RegulatingControlMappingForTransformers {
                 "Regulating control has a bad target voltage " + control.targetValue);
         }
 
+        boolean validTargetDeadband = control.targetDeadband > 0;
+        if (!validTargetDeadband) {
+            context.invalid(rtcId,
+                    "Regulating control has a bad target deadband " + control.targetDeadband);
+        }
+
         // Order is important
         rtc.setRegulationTerminal(regulatingTerminal.get())
                 .setTargetV(control.targetValue)
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulating(regulating && validTargetValue);
+                .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
+                .setRegulating(regulating && validTargetValue && validTargetDeadband);
 
         return true;
     }
@@ -254,12 +260,17 @@ public class RegulatingControlMappingForTransformers {
             fixedRegulating = false;
         }
 
+        boolean validTargetDeadband = control.targetDeadband > 0;
+        if (!validTargetDeadband) {
+            context.invalid("Target deadband", "Regulating control has a bad target deadband " + control.targetDeadband);
+        }
+
         // Order is important
         ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
                 .setRegulationValue(control.targetValue * mappedRegulatingTerminal.getSign())
-                .setTargetDeadband(control.targetDeadband)
+                .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
                 .setRegulationMode(regulationMode)
-                .setRegulating(fixedRegulating);
+                .setRegulating(fixedRegulating && validTargetDeadband);
 
         return true;
     }

@@ -676,7 +676,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(rtc2);
         Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
         assertNotNull(regulatingTerminal2);
-        assertTrue(rtc2.isRegulating());
+        assertFalse(rtc2.isRegulating());
 
         RatioTapChanger rtc3 = twt3.getLeg3().getRatioTapChanger();
         assertNotNull(rtc3);
