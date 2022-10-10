@@ -246,6 +246,28 @@ final class ModificationReports {
                 .build());
     }
 
+    static void unsupportedVoltageLevelTopologyKind(Reporter reporter, String voltageLevelId, TopologyKind expected, TopologyKind actual) {
+        reporter.report(Report.builder()
+                .withKey("unsupportedVoltageLevelTopologyKind")
+                .withDefaultMessage("Voltage Level ${voltageLevelId} has an unsupported topology ${actualTopology}. Should be ${expectedTopology}")
+                .withValue("voltageLevelId", voltageLevelId)
+                .withValue("actualTopology", actual.name())
+                .withValue("expectedTopology", expected.name())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void createdNewSymmetricalTopology(Reporter reporter, String voltageLevelId, int busbarCount, int sectionCount) {
+        reporter.report(Report.builder()
+                .withKey("SymmetricalTopologyCreated")
+                .withDefaultMessage("New symmetrical topology in voltage level ${voltageLevelId}: creation of ${busbarCount} busbar(s) with ${sectionCount} section(s) each.")
+                .withValue("voltageLevelId", voltageLevelId)
+                .withValue("busbarCount", busbarCount)
+                .withValue("sectionCount", sectionCount)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
     private ModificationReports() {
     }
 }
