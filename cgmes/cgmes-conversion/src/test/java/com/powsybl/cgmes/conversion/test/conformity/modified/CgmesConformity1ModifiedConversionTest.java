@@ -676,7 +676,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(rtc2);
         Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
         assertNotNull(regulatingTerminal2);
-        assertFalse(rtc2.isRegulating());
+        assertTrue(rtc2.isRegulating());
 
         RatioTapChanger rtc3 = twt3.getLeg3().getRatioTapChanger();
         assertNotNull(rtc3);
@@ -935,11 +935,21 @@ public class CgmesConformity1ModifiedConversionTest {
     public void microGridBaseBEStationSupply() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBEStationSupply().dataSource(), null);
         Load l = network.getLoad("b1480a00-b427-4001-a26c-51954d2bb7e9_station_supply");
-        System.err.println(network.getExtension(CgmesModelExtension.class).getCgmesModel().energyConsumers().tabulateLocals());
         assertNotNull(l);
         assertEquals(6.5, l.getP0(), 1e-3);
         assertEquals(0.001, l.getQ0(), 1e-3);
         assertEquals(LoadType.AUXILIARY, l.getLoadType());
+    }
+
+    @Test
+    public void microGridBaseBETargetDeadbandNegative() {
+        Network network0 = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), null);
+        assertEquals(35, network0.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().getTargetDeadband(), 0.001);
+        assertTrue(network0.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().isRegulating());
+
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative().dataSource(), null);
+        assertTrue(Double.isNaN(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().getTargetDeadband()));
+        assertFalse(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger().isRegulating());
     }
 
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {

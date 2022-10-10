@@ -197,7 +197,7 @@ public class RegulatingControlMappingForTransformers {
                 "Regulating control has a bad target voltage " + control.targetValue);
         }
 
-        boolean validTargetDeadband = control.targetDeadband > 0;
+        boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid(rtcId,
                     "Regulating control has a bad target deadband " + control.targetDeadband);
@@ -260,7 +260,7 @@ public class RegulatingControlMappingForTransformers {
             fixedRegulating = false;
         }
 
-        boolean validTargetDeadband = control.targetDeadband > 0;
+        boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid("Target deadband", "Regulating control has a bad target deadband " + control.targetDeadband);
         }
