@@ -1798,6 +1798,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
                 new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
                         "MicroGridTestConfiguration_TP_BD.xml"));
+    }
 
     public static TestGridModelResources smallGridBusBranchWithBusbarSectionsAndIpMax() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
