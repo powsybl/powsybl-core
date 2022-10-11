@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -87,18 +89,26 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         private Integer node2;
 
-        private SwitchKind kind;
+        private SwitchKind kind = null;
 
         private boolean open = false;
 
         private boolean retained = false;
 
         private SwitchAdderImpl() {
-            this(null);
         }
 
         private SwitchAdderImpl(SwitchKind kind) {
             this.kind = kind;
+        }
+
+        private SwitchAdderImpl(Switch sswitch) {
+            this(sswitch.getKind());
+            open = sswitch.isOpen();
+            retained = sswitch.isRetained();
+            node1 = sswitch.getVoltageLevel().getNodeBreakerView().getNode1(sswitch.getId());
+            node2 = sswitch.getVoltageLevel().getNodeBreakerView().getNode2(sswitch.getId());
+            copyIdNameFictitious(sswitch, this);
         }
 
         @Override
@@ -792,6 +802,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public SwitchAdder newSwitch(Switch sswitch) {
+            return new SwitchAdderImpl(sswitch);
+        }
+
+        @Override
         public InternalConnectionAdder newInternalConnection() {
             return new InternalConnectionAdderImpl();
         }
@@ -1068,6 +1083,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public BusBreakerView.SwitchAdder newSwitch() {
+            throw createNotSupportedNodeBreakerTopologyException();
+        }
+
+        @Override
+        public BusBreakerView.SwitchAdder newSwitch(Switch sswitch) {
             throw createNotSupportedNodeBreakerTopologyException();
         }
 

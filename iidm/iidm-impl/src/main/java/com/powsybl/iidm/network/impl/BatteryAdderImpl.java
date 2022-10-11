@@ -6,10 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
 
 /**
  * {@inheritDoc}
@@ -30,6 +33,15 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
+    }
+
+    BatteryAdderImpl(Battery battery, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        targetP = battery.getTargetP();
+        targetQ = battery.getTargetQ();
+        minP = battery.getMinP();
+        maxP = battery.getMaxP();
+        copyIdNameFictitiousConnectivity(battery, this);
     }
 
     /**

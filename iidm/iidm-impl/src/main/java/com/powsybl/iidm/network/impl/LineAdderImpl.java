@@ -6,8 +6,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
+
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
 
 /**
  *
@@ -31,6 +32,17 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     LineAdderImpl(NetworkImpl network) {
         this.network = network;
+    }
+
+    LineAdderImpl(Line line, NetworkImpl network) {
+        this(network);
+        copyIdNameFictitiousConnectivity(line, this);
+        r = line.getR();
+        x = line.getX();
+        g1 = line.getG1();
+        b1 = line.getB1();
+        g2 = line.getG2();
+        b2 = line.getB2();
     }
 
     @Override

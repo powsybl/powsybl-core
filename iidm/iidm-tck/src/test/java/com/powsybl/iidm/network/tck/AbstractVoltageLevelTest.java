@@ -113,6 +113,26 @@ public abstract class AbstractVoltageLevelTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        substation.newVoltageLevel()
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setId("bbVL")
+                .setName("bbVL_name")
+                .setNominalV(200.0)
+                .setLowVoltageLimit(100.0)
+                .setHighVoltageLimit(200.0)
+                .add();
+        substation.newVoltageLevel(network.getVoltageLevel("bbVL"))
+                .setId("bbVL2")
+                .add();
+        VoltageLevel voltageLevel = network.getVoltageLevel("bbVL2");
+        assertNotNull(voltageLevel);
+        assertEquals(200.0, voltageLevel.getNominalV(), 0.0);
+        assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
+        assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
+    }
+
+    @Test
     public void invalidNominalV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("nominal voltage is invalid");

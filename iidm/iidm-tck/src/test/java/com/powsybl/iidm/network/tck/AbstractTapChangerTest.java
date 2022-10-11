@@ -173,6 +173,38 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
+    public void testAdderFromExistingPtc() {
+        createPhaseTapChangerWith2Steps(1, 0, false,
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal);
+        TwoWindingsTransformer duplicate = substation.newTwoWindingsTransformer(twt)
+                .setId("duplicate")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+        duplicate.newPhaseTapChanger(twt.getPhaseTapChanger()).add();
+        PhaseTapChanger ptc = duplicate.getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(1, ptc.getTapPosition());
+        assertEquals(0, ptc.getLowTapPosition());
+        assertFalse(ptc.isRegulating());
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+        assertEquals(1.0, ptc.getRegulationValue(), 0.0);
+        assertEquals(1.0, ptc.getTargetDeadband(), 0.0);
+        assertSame(terminal, ptc.getRegulationTerminal());
+        assertEquals(2, ptc.getAllSteps().size());
+        ptc.getAllSteps().forEach((i, step) -> {
+            assertEquals(1.0, step.getR(), 0.0);
+            assertEquals(2.0, step.getX(), 0.0);
+            assertEquals(3.0, step.getG(), 0.0);
+            assertEquals(4.0, step.getB(), 0.0);
+            assertEquals(5.0, step.getAlpha(), 0.0);
+            assertEquals(6.0, step.getRho(), 0.0);
+        });
+    }
+
+    @Test
     public void invalidTapPositionPhase() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("incorrect tap position");
@@ -459,6 +491,42 @@ public abstract class AbstractTapChangerTest {
         // remove
         ratioTapChanger.remove();
         assertNull(twt.getRatioTapChanger());
+    }
+
+    @Test
+    public void testAdderFromExistingRtc() {
+        createRatioTapChangerWith3Steps(0, 2, true, false, 10.0, 1.0, terminal);
+        TwoWindingsTransformer duplicate = substation.newTwoWindingsTransformer(twt)
+                .setId("duplicate")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+        duplicate.newRatioTapChanger(twt.getRatioTapChanger()).add();
+        RatioTapChanger rtc = duplicate.getRatioTapChanger();
+        assertNotNull(rtc);
+        assertEquals(0, rtc.getLowTapPosition());
+        assertEquals(2, rtc.getTapPosition());
+        assertTrue(rtc.hasLoadTapChangingCapabilities());
+        assertFalse(rtc.isRegulating());
+        assertEquals(10.0, rtc.getTargetV(), 0.0);
+        assertEquals(1.0, rtc.getTargetDeadband(), 0.0);
+        assertSame(terminal, rtc.getRegulationTerminal());
+        assertEquals(3, rtc.getAllSteps().size());
+        double[] r = new double[1];
+        r[0] = 39.78473;
+        double[] x = new double[1];
+        x[0] = 39.784725;
+        rtc.getAllSteps().forEach((i, step) -> {
+            assertEquals(r[0], step.getR(), 1e-7);
+            assertEquals(x[0], step.getX(), 1e-8);
+            assertEquals(0.0, step.getG(), 0.0);
+            assertEquals(0.0, step.getB(), 0.0);
+            assertEquals(1.0, step.getRho(), 0.0);
+            r[0] += 1e-5;
+            x[0] += 1e-6;
+        });
     }
 
     @Test

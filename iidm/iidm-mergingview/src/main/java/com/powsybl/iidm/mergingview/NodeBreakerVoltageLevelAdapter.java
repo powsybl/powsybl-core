@@ -127,6 +127,11 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
+        public SwitchAdder newSwitch(Switch sswitch) {
+            return new SwitchAdderAdapter(getDelegate().newSwitch(sswitch), getIndex());
+        }
+
+        @Override
         public InternalConnectionAdder newInternalConnection() {
             return new InternalConnectionAdderAdapter(getDelegate().newInternalConnection());
         }
@@ -375,6 +380,11 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
 
         @Override
         public SwitchAdder newSwitch() {
+            throw createNotSupportedNodeBreakerTopologyException();
+        }
+
+        @Override
+        public SwitchAdder newSwitch(Switch sswitch) {
             throw createNotSupportedNodeBreakerTopologyException();
         }
 

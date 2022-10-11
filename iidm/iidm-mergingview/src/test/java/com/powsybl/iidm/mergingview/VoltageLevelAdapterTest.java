@@ -362,6 +362,19 @@ public class VoltageLevelAdapterTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        mergingView.getSubstation("sub").newVoltageLevel(mergingView.getVoltageLevel("vl1"))
+                .setId("DUPLICATE")
+                .add();
+
+        VoltageLevel vl = mergingView.getVoltageLevel("DUPLICATE");
+        assertNotNull(vl);
+        assertEquals(440.0, vl.getNominalV(), 0.0);
+        assertEquals(400.0, vl.getHighVoltageLimit(), 0.0);
+        assertEquals(200.0, vl.getLowVoltageLimit(), 0.0);
+    }
+
+    @Test
     public void busViewTests() {
         MergingView cgm = MergingViewFactory.createCGM(null);
 

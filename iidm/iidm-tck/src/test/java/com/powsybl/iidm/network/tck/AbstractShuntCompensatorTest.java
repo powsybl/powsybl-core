@@ -183,6 +183,71 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+                .setBPerSection(5.0)
+                .setGPerSection(4.0)
+                .setMaximumSectionCount(10)
+                .add();
+        adder.add();
+        voltageLevel.newShuntCompensator(network.getShuntCompensator(SHUNT))
+                .setId("DUPLICATE")
+                .setBus("busA")
+                .add();
+        ShuntCompensator linear = network.getShuntCompensator("DUPLICATE");
+        assertNotNull(linear);
+        assertEquals(6, linear.getSectionCount());
+        assertSame(terminal, linear.getRegulatingTerminal());
+        assertTrue(linear.isVoltageRegulatorOn());
+        assertEquals(200, linear.getTargetV(), 0.0);
+        assertEquals(10, linear.getTargetDeadband(), 0.0);
+        assertEquals(10, linear.getMaximumSectionCount());
+        assertEquals(ShuntCompensatorModelType.LINEAR, linear.getModelType());
+        ShuntCompensatorLinearModel model = linear.getModel(ShuntCompensatorLinearModel.class);
+        assertNotNull(model);
+        assertEquals(5.0, model.getBPerSection(), 0.0);
+        assertEquals(4.0, model.getGPerSection(), 0.0);
+
+        ShuntCompensatorAdder adder2 = createShuntAdder("SHUNT2", "shuntName", 1, terminal, true, 200, 10);
+        adder2.newNonLinearModel()
+                .beginSection()
+                .setB(5.0)
+                .setG(2.0)
+                .endSection()
+                .beginSection()
+                .setB(6.0)
+                .setG(2.0)
+                .endSection()
+                .add();
+        adder2.add();
+        voltageLevel.newShuntCompensator(network.getShuntCompensator("SHUNT2"))
+                .setId("DUPLICATE2")
+                .setBus("busA")
+                .add();
+        ShuntCompensator nonLinear = network.getShuntCompensator("DUPLICATE2");
+        assertNotNull(nonLinear);
+        assertEquals(1, nonLinear.getSectionCount());
+        assertSame(terminal, nonLinear.getRegulatingTerminal());
+        assertTrue(nonLinear.isVoltageRegulatorOn());
+        assertEquals(200, nonLinear.getTargetV(), 0.0);
+        assertEquals(10, nonLinear.getTargetDeadband(), 0.0);
+        assertEquals(2, nonLinear.getMaximumSectionCount());
+        assertEquals(ShuntCompensatorModelType.NON_LINEAR, nonLinear.getModelType());
+        ShuntCompensatorNonLinearModel nonLinearModel = nonLinear.getModel(ShuntCompensatorNonLinearModel.class);
+        int[] index = new int[1];
+        nonLinearModel.getAllSections().forEach(section -> {
+            if (index[0] == 0) {
+                assertEquals(5.0, section.getB(), 0.0);
+            } else {
+                assertEquals(6.0, section.getB(), 0.0);
+            }
+            assertEquals(2.0, section.getG(), 0.0);
+            index[0]++;
+        });
+    }
+
+    @Test
     public void invalidbPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("section susceptance is invalid");

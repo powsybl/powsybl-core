@@ -91,6 +91,27 @@ public abstract class AbstractSubstationTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        network.newSubstation()
+                .setId("sub")
+                .setName(SUB_NAME)
+                .setCountry(Country.AD)
+                .setTso("TSO")
+                .setGeographicalTags("geoTag1", "geoTag2")
+                .add();
+        network.newSubstation(network.getSubstation("sub"))
+                .setId("sub2")
+                .add();
+        Substation substation = network.getSubstation("sub2");
+        assertNotNull(substation);
+        assertEquals(Country.AD, substation.getNullableCountry());
+        assertEquals("TSO", substation.getTso());
+        assertEquals(2, substation.getGeographicalTags().size());
+        assertTrue(substation.getGeographicalTags().contains("geoTag1"));
+        assertTrue(substation.getGeographicalTags().contains("geoTag2"));
+    }
+
+    @Test
     public void emptyCountry() {
         Substation s = network.newSubstation()
                 .setId("undefined_country")

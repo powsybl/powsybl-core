@@ -112,6 +112,21 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         this.parent = parent;
     }
 
+    RatioTapChangerAdderImpl(RatioTapChanger rtc, RatioTapChangerParent parent) {
+        this(parent);
+        lowTapPosition = rtc.getLowTapPosition();
+        tapPosition = rtc.getTapPosition();
+        loadTapChangingCapabilities = rtc.hasLoadTapChangingCapabilities();
+        regulating = rtc.isRegulating();
+        targetV = rtc.getTargetV();
+        targetDeadband = rtc.getTargetDeadband();
+        regulationTerminal = (TerminalExt) rtc.getRegulationTerminal();
+        rtc.getAllSteps().forEach((position, step) -> {
+            RatioTapChangerStepImpl tmp = new RatioTapChangerStepImpl(steps.size(), step.getRho(), step.getR(), step.getX(), step.getG(), step.getB());
+            steps.add(tmp);
+        });
+    }
+
     NetworkImpl getNetwork() {
         return parent.getNetwork();
     }

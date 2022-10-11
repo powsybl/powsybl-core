@@ -147,4 +147,52 @@ public class ThreeWindingsTransformerAdapterTest {
         // Not implemented yet !
         TestUtil.notImplemented(twt::remove);
     }
+
+    @Test
+    public void testAdderFromExisting() {
+        mergingView.getSubstation("SUBSTATION").newThreeWindingsTransformer(mergingView.getThreeWindingsTransformer("3WT"))
+                .newLeg1(mergingView.getThreeWindingsTransformer("3WT").getLeg1())
+                .setBus("BUS_132")
+                .setVoltageLevel("VL_132")
+                .add()
+                .newLeg2(mergingView.getThreeWindingsTransformer("3WT").getLeg2())
+                .setBus("BUS_33")
+                .setVoltageLevel("VL_33")
+                .add()
+                .newLeg3(mergingView.getThreeWindingsTransformer("3WT").getLeg3())
+                .setBus("BUS_11")
+                .setVoltageLevel("VL_11")
+                .add()
+                .setId("DUPLICATE")
+                .add();
+
+        ThreeWindingsTransformer twt = mergingView.getThreeWindingsTransformer("DUPLICATE");
+        assertNotNull(twt);
+        assertEquals(132.0, twt.getRatedU0(), 0.0);
+
+        ThreeWindingsTransformer.Leg leg1 = twt.getLeg1();
+        assertNotNull(leg1);
+        assertEquals(17.424, leg1.getR(), 0.0);
+        assertEquals(1.7424, leg1.getX(), 0.0);
+        assertEquals(0.00573921028466483, leg1.getG(), 0.0);
+        assertEquals(0.000573921028466483, leg1.getB(), 0.0);
+        assertEquals(132.0, leg1.getRatedU(), 0.0);
+        assertTrue(Double.isNaN(leg1.getRatedS()));
+
+        ThreeWindingsTransformer.Leg leg2 = twt.getLeg2();
+        assertEquals(1.089, leg2.getR(), 0.0);
+        assertEquals(0.1089, leg2.getX(), 0.0);
+        assertEquals(0.0, leg2.getG(), 0.0);
+        assertEquals(0.0, leg2.getB(), 0.0);
+        assertEquals(33.0, leg2.getRatedU(), 0.0);
+        assertTrue(Double.isNaN(leg2.getRatedS()));
+
+        ThreeWindingsTransformer.Leg leg3 = twt.getLeg3();
+        assertEquals(0.121, leg3.getR(), 0.0);
+        assertEquals(0.0121, leg3.getX(), 0.0);
+        assertEquals(0.0, leg3.getG(), 0.0);
+        assertEquals(0.0, leg3.getB(), 0.0);
+        assertEquals(11.0, leg3.getRatedU(), 0.0);
+        assertTrue(Double.isNaN(leg3.getRatedS()));
+    }
 }

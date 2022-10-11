@@ -123,6 +123,21 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         this.parent = parent;
     }
 
+    PhaseTapChangerAdderImpl(PhaseTapChanger ptc, PhaseTapChangerParent parent) {
+        this(parent);
+        lowTapPosition = ptc.getLowTapPosition();
+        tapPosition = ptc.getTapPosition();
+        regulationMode = ptc.getRegulationMode();
+        regulationValue = ptc.getRegulationValue();
+        regulating = ptc.isRegulating();
+        targetDeadband = ptc.getTargetDeadband();
+        regulationTerminal = (TerminalExt) ptc.getRegulationTerminal();
+        ptc.getAllSteps().forEach((position, step) -> {
+            PhaseTapChangerStepImpl tmp = new PhaseTapChangerStepImpl(steps.size(), step.getAlpha(), step.getRho(), step.getR(), step.getX(), step.getG(), step.getB());
+            steps.add(tmp);
+        });
+    }
+
     NetworkImpl getNetwork() {
         return parent.getNetwork();
     }

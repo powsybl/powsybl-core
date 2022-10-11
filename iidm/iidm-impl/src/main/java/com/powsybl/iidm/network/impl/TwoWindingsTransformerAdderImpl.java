@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -42,6 +44,30 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
         substation = null;
+    }
+
+    TwoWindingsTransformerAdderImpl(TwoWindingsTransformer twt, SubstationImpl substation) {
+        this(substation);
+        r = twt.getR();
+        x = twt.getX();
+        g = twt.getG();
+        b = twt.getB();
+        ratedU1 = twt.getRatedU1();
+        ratedU2 = twt.getRatedU2();
+        ratedS = twt.getRatedS();
+        copyIdNameFictitiousConnectivity(twt, this);
+    }
+
+    TwoWindingsTransformerAdderImpl(TwoWindingsTransformer twt, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        r = twt.getR();
+        x = twt.getX();
+        g = twt.getG();
+        b = twt.getB();
+        ratedU1 = twt.getRatedU1();
+        ratedU2 = twt.getRatedU2();
+        ratedS = twt.getRatedS();
+        copyIdNameFictitiousConnectivity(twt, this);
     }
 
     @Override

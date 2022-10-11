@@ -88,6 +88,18 @@ public abstract class AbstractLccTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        network.getVoltageLevel("VL1").newLccConverterStation(network.getLccConverterStation("C1"))
+                .setId("C3")
+                .setBus("B1")
+                .add();
+        LccConverterStation converterStation = network.getLccConverterStation("C3");
+        assertNotNull(converterStation);
+        assertEquals(1.1f, converterStation.getLossFactor(), 0.0);
+        assertEquals(0.5f, converterStation.getPowerFactor(), 0.0);
+    }
+
+    @Test
     public void testHvdcLineRemove() {
         try {
             cs1.remove();

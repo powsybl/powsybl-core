@@ -225,6 +225,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public SubstationAdder newSubstation(Substation substation) {
+        return new SubstationAdderImpl(Objects.requireNonNull(substation), ref);
+    }
+
+    @Override
     public Iterable<Substation> getSubstations() {
         return Collections.unmodifiableCollection(index.getAll(SubstationImpl.class));
     }
@@ -260,6 +265,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
+        return new VoltageLevelAdderImpl(voltageLevel, ref);
+    }
+
+    @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
                 index.getAll(NodeBreakerVoltageLevel.class));
@@ -285,6 +295,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public LineAdderImpl newLine() {
         return new LineAdderImpl(this);
+    }
+
+    @Override
+    public LineAdderImpl newLine(Line line) {
+        return new LineAdderImpl(Objects.requireNonNull(line), this);
     }
 
     @Override
@@ -342,8 +357,18 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public TieLineAdderImpl newTieLine(TieLine tieLine) {
+        return new TieLineAdderImpl(Objects.requireNonNull(tieLine), this);
+    }
+
+    @Override
     public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
         return new TwoWindingsTransformerAdderImpl(ref);
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
+        return new TwoWindingsTransformerAdderImpl(twt, ref);
     }
 
     @Override
@@ -369,6 +394,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
         return new ThreeWindingsTransformerAdderImpl(ref);
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
+        return new ThreeWindingsTransformerAdderImpl(twt, ref);
     }
 
     @Override
@@ -646,6 +676,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public HvdcLineAdder newHvdcLine() {
         return new HvdcLineAdderImpl(ref);
+    }
+
+    @Override
+    public HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
+        return new HvdcLineAdderImpl(Objects.requireNonNull(hvdcLine), ref);
     }
 
     @Override

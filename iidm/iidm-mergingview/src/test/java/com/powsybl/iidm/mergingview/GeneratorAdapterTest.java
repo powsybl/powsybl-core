@@ -19,41 +19,40 @@ import static org.junit.Assert.*;
 public class GeneratorAdapterTest {
     private MergingView mergingView;
 
+    private double delta;
+    private String id;
+    private String name;
+    private double maxP;
+    private double minP;
+    private double targetV;
+    private double targetP;
+    private double targetQ;
+    private double ratedS;
+    private EnergySource energySource = EnergySource.NUCLEAR;
+
     @Before
     public void setup() {
         mergingView = MergingView.create("GeneratorAdapterTest", "iidm");
         mergingView.merge(FictitiousSwitchFactory.create());
+        delta = 0.0;
+        id = "GENTEST";
+        name = "generator";
+        maxP = 9999.99;
+        minP = -9999.99;
+        targetV = 25.5;
+        targetP = 600.05;
+        targetQ = 300.5;
+        ratedS = 10.5;
+        energySource = EnergySource.NUCLEAR;
     }
 
     @Test
     public void testSetterGetter() {
-        double delta = 0.0;
-        String id = "GENTEST";
-        String name = "generator";
-        double maxP = 9999.99;
-        double minP = -9999.99;
-        double targetV = 25.5;
-        double targetP = 600.05;
-        double targetQ = 300.5;
-        double ratedS = 10.5;
-        EnergySource energySource = EnergySource.NUCLEAR;
         final VoltageLevel vlNode = mergingView.getVoltageLevel("C");
         final GeneratorAdder generatorAdder = vlNode.newGenerator();
         assertNotNull(generatorAdder);
         assertTrue(generatorAdder instanceof GeneratorAdderAdapter);
-        final Generator generator = generatorAdder.setId(id)
-                                                  .setVoltageRegulatorOn(true)
-                                                  .setName(name)
-                                                  .setNode(1)
-                                                  .setMaxP(maxP)
-                                                  .setMinP(minP)
-                                                  .setTargetV(targetV)
-                                                  .setTargetP(targetP)
-                                                  .setTargetQ(targetQ)
-                                                  .setRatedS(ratedS)
-                                                  .setEnergySource(energySource)
-                                                  .setEnsureIdUnicity(true)
-                                              .add();
+        final Generator generator = createGenerator(generatorAdder);
         assertNotNull(generator);
         assertTrue(generator instanceof GeneratorAdapter);
         assertSame(mergingView, generator.getNetwork());
@@ -129,5 +128,40 @@ public class GeneratorAdapterTest {
 
         // Not implemented yet !
         TestUtil.notImplemented(generator::remove);
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        createGenerator(mergingView.getVoltageLevel("C").newGenerator());
+        mergingView.getVoltageLevel("C").newGenerator(mergingView.getGenerator(id))
+                .setId("duplicate")
+                .setNode(3)
+                .add();
+        Generator generator = mergingView.getGenerator("duplicate");
+        assertNotNull(generator);
+        assertTrue(generator.isVoltageRegulatorOn());
+        assertEquals(targetV, generator.getTargetV(), delta);
+        assertEquals(targetP, generator.getTargetP(), delta);
+        assertEquals(targetQ, generator.getTargetQ(), delta);
+        assertEquals(minP, generator.getMinP(), delta);
+        assertEquals(maxP, generator.getMaxP(), delta);
+        assertEquals(energySource, generator.getEnergySource());
+        assertEquals(ratedS, generator.getRatedS(), delta);
+    }
+
+    private Generator createGenerator(GeneratorAdder generatorAdder) {
+        return generatorAdder.setId(id)
+                .setVoltageRegulatorOn(true)
+                .setName(name)
+                .setNode(1)
+                .setMaxP(maxP)
+                .setMinP(minP)
+                .setTargetV(targetV)
+                .setTargetP(targetP)
+                .setTargetQ(targetQ)
+                .setRatedS(ratedS)
+                .setEnergySource(energySource)
+                .setEnsureIdUnicity(true)
+                .add();
     }
 }

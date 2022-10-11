@@ -138,6 +138,32 @@ public abstract class AbstractDanglingLineTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        createDanglingLine("DL", "DL", 1.0, 2.0, 3.0, 4.0, 50.0, 60.0, "code", true);
+        voltageLevel.newDanglingLine(network.getDanglingLine("DL"))
+                .setId(DUPLICATE)
+                .setBus(BUS_VL_ID)
+                .add();
+        DanglingLine danglingLine = network.getDanglingLine(DUPLICATE);
+        assertNotNull(danglingLine);
+        assertEquals(1.0, danglingLine.getR(), 0.0);
+        assertEquals(2.0, danglingLine.getX(), 0.0);
+        assertEquals(3.0, danglingLine.getG(), 0.0);
+        assertEquals(4.0, danglingLine.getB(), 0.0);
+        assertEquals(50.0, danglingLine.getP0(), 0.0);
+        assertEquals(60.0, danglingLine.getQ0(), 0.0);
+        assertEquals("code", danglingLine.getUcteXnodeCode());
+        DanglingLine.Generation generation = danglingLine.getGeneration();
+        assertNotNull(generation);
+        assertEquals(-200, generation.getMinP(), 0.0);
+        assertEquals(200, generation.getMaxP(), 0.0);
+        assertTrue(generation.isVoltageRegulationOn());
+        assertEquals(49.0, generation.getTargetP(), 0.0);
+        assertEquals(55.0, generation.getTargetQ(), 0.0);
+        assertEquals(400, generation.getTargetV(), 0.0);
+    }
+
+    @Test
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
@@ -292,7 +318,12 @@ public abstract class AbstractDanglingLineTest {
 
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,
                                     double p0, double q0, String ucteCode) {
-        voltageLevel.newDanglingLine()
+        createDanglingLine(id, name, r, x, g, b, p0, q0, ucteCode, false);
+    }
+
+    private void createDanglingLine(String id, String name, double r, double x, double g, double b,
+                                    double p0, double q0, String ucteCode, boolean withGen) {
+        DanglingLineAdder adder = voltageLevel.newDanglingLine()
                         .setId(id)
                         .setName(name)
                         .setR(r)
@@ -303,8 +334,18 @@ public abstract class AbstractDanglingLineTest {
                         .setQ0(q0)
                         .setUcteXnodeCode(ucteCode)
                         .setBus(BUS_VL_ID)
-                        .setConnectableBus(BUS_VL_ID)
+                        .setConnectableBus(BUS_VL_ID);
+        if (withGen) {
+            adder.newGeneration()
+                    .setMinP(-200)
+                    .setMaxP(200)
+                    .setVoltageRegulationOn(true)
+                    .setTargetP(49.0)
+                    .setTargetQ(55.0)
+                    .setTargetV(400.0)
                     .add();
+        }
+        adder.add();
     }
 
 }

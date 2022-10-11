@@ -93,17 +93,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     @Test
-    public void invalidSubstationContainer() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'");
-        network.newVoltageLevel()
-                .setId("no_substation")
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .setNominalV(200.0)
-                .setLowVoltageLimit(180.0)
-                .setHighVoltageLimit(220.0)
-                .add()
-                .getBusBreakerView().newBus().setId("no_substation_bus").add();
+    public void testAdderFromExisting() {
         substation.newTwoWindingsTransformer()
                 .setId("twt")
                 .setName(TWT_NAME)
@@ -114,11 +104,27 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setRatedU1(5.0)
                 .setRatedU2(6.0)
                 .setRatedS(7.0)
-                .setVoltageLevel1("no_substation")
+                .setVoltageLevel1("vl1")
                 .setVoltageLevel2("vl2")
-                .setConnectableBus1("no_substation_bus")
+                .setConnectableBus1("busA")
                 .setConnectableBus2("busB")
                 .add();
+        substation.newTwoWindingsTransformer(network.getTwoWindingsTransformer("twt"))
+                .setId("twt2")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("twt2");
+        assertNotNull(twt);
+        assertEquals(1.0, twt.getR(), 0.0);
+        assertEquals(2.0, twt.getX(), 0.0);
+        assertEquals(3.0, twt.getG(), 0.0);
+        assertEquals(4.0, twt.getB(), 0.0);
+        assertEquals(5.0, twt.getRatedU1(), 0.0);
+        assertEquals(6.0, twt.getRatedU2(), 0.0);
+        assertEquals(7.0, twt.getRatedS(), 0.0);
     }
 
     @Test

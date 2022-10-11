@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -39,6 +41,16 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     public HvdcLineAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = Objects.requireNonNull(networkRef);
+    }
+
+    HvdcLineAdderImpl(HvdcLine hvdcLine, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        r = hvdcLine.getR();
+        convertersMode = hvdcLine.getConvertersMode();
+        nominalV = hvdcLine.getNominalV();
+        activePowerSetpoint = hvdcLine.getActivePowerSetpoint();
+        maxP = hvdcLine.getMaxP();
+        copyIdNameFictitious(hvdcLine, this);
     }
 
     @Override

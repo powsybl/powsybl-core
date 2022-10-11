@@ -14,14 +14,16 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 
+import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.CopyUtil.*;
+
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
-    implements ThreeWindingsTransformerAdder {
+        implements ThreeWindingsTransformerAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreeWindingsTransformerAdderImpl.class);
 
@@ -51,6 +53,20 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         LegAdderImpl(int legNumber) {
             this.legNumber = legNumber;
+        }
+
+        LegAdderImpl(ThreeWindingsTransformer.Leg leg, int legNumber) {
+            this(legNumber);
+            r = leg.getR();
+            x = leg.getX();
+            g = leg.getG();
+            b = leg.getB();
+            ratedS = leg.getRatedS();
+            ratedU = leg.getRatedU();
+            copyConnectivity(leg.getTerminal().getVoltageLevel(), vlId -> this.voltageLevelId = vlId, () -> leg
+                            .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                            .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                            .getTerminal().getBusBreakerView().getBus(), n -> this.node = n, cb -> this.connectableBus = cb, bb -> this.bus = bb);
         }
 
         public LegAdder setVoltageLevel(String voltageLevelId) {
@@ -123,10 +139,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             return new TerminalBuilder(getNetwork().getRef(), this)
-                .setNode(node)
-                .setBus(bus)
-                .setConnectableBus(connectableBus)
-                .build();
+                    .setNode(node)
+                    .setBus(bus)
+                    .setConnectableBus(connectableBus)
+                    .build();
         }
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
@@ -136,7 +152,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
-                    + "' not found");
+                        + "' not found");
             }
             return voltageLevel;
         }
@@ -186,6 +202,24 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         substation = null;
     }
 
+    ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, SubstationImpl substation) {
+        this(substation);
+        ratedU0 = twt.getRatedU0();
+        copyIdNameFictitious(twt, this);
+        newLeg1(twt.getLeg1()).add()
+                .newLeg2(twt.getLeg2()).add()
+                .newLeg3(twt.getLeg3()).add();
+    }
+
+    ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        ratedU0 = twt.getRatedU0();
+        copyIdNameFictitious(twt, this);
+        newLeg1(twt.getLeg1()).add()
+                .newLeg2(twt.getLeg2()).add()
+                .newLeg3(twt.getLeg3()).add();
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return Optional.ofNullable(networkRef)
@@ -206,6 +240,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     }
 
     @Override
+    public LegAdder newLeg1(ThreeWindingsTransformer.Leg leg) {
+        return new LegAdderImpl(Objects.requireNonNull(leg), 1);
+    }
+
+    @Override
     public LegAdder newLeg2() {
         LegAdderImpl legAdder = new LegAdderImpl(2);
         legAdder.g = 0.0;
@@ -214,11 +253,21 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     }
 
     @Override
+    public LegAdder newLeg2(ThreeWindingsTransformer.Leg leg) {
+        return new LegAdderImpl(Objects.requireNonNull(leg), 2);
+    }
+
+    @Override
     public LegAdder newLeg3() {
         LegAdderImpl legAdder = new LegAdderImpl(3);
         legAdder.g = 0.0;
         legAdder.b = 0.0;
         return legAdder;
+    }
+
+    @Override
+    public LegAdder newLeg3(ThreeWindingsTransformer.Leg leg) {
+        return new LegAdderImpl(Objects.requireNonNull(leg), 3);
     }
 
     @Override

@@ -79,6 +79,31 @@ public abstract class AbstractGeneratorTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        voltageLevel.newGenerator(network.getGenerator("CB"))
+                .setId("CB_bis")
+                .setNode(13)
+                .add();
+        Generator generator = network.getGenerator("CB_bis");
+        assertNotNull(generator);
+        assertEquals(EnergySource.HYDRO, generator.getEnergySource());
+        assertEquals(0.0, generator.getMinP(), 0.0);
+        assertEquals(70.0, generator.getMaxP(), 0.0);
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertEquals(0.0, generator.getTargetP(), 0.0);
+        assertEquals(0.0, generator.getTargetQ(), 0.0);
+        assertEquals(0.0, generator.getTargetV(), 0.0);
+    }
+
+    @Test
+    public void invalidSource() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("energy source is not set");
+        createGenerator(INVALID, null, 20.0, 10.0, 20.0,
+                30.0, 40.0, false, 20.0);
+    }
+
+    @Test
     public void undefinedVoltageRegulatorOn() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Generator 'GEN': voltage regulator status is not set");

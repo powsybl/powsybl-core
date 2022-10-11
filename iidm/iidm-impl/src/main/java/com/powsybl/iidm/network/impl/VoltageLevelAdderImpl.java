@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -40,6 +42,24 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
         substation = null;
+    }
+
+    VoltageLevelAdderImpl(VoltageLevel voltageLevel, SubstationImpl substation) {
+        this(substation);
+        copyIdNameFictitious(voltageLevel, this);
+        nominalV = voltageLevel.getNominalV();
+        lowVoltageLimit = voltageLevel.getLowVoltageLimit();
+        highVoltageLimit = voltageLevel.getHighVoltageLimit();
+        topologyKind = voltageLevel.getTopologyKind();
+    }
+
+    VoltageLevelAdderImpl(VoltageLevel voltageLevel, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        copyIdNameFictitious(voltageLevel, this);
+        nominalV = voltageLevel.getNominalV();
+        lowVoltageLimit = voltageLevel.getLowVoltageLimit();
+        highVoltageLimit = voltageLevel.getHighVoltageLimit();
+        topologyKind = voltageLevel.getTopologyKind();
     }
 
     @Override

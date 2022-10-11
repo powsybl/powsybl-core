@@ -6,13 +6,17 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Objects;
+
+import static com.powsybl.iidm.network.util.CopyUtil.copyConnectivity;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWindingsTransformerAdder> {
 
-    public interface LegAdder {
+    interface LegAdder {
 
         LegAdder setVoltageLevel(String voltageLevelId);
 
@@ -41,9 +45,60 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
     LegAdder newLeg1();
 
+    default LegAdder newLeg1(ThreeWindingsTransformer.Leg leg) {
+        Objects.requireNonNull(leg);
+        LegAdder adder = newLeg1()
+                .setR(leg.getR())
+                .setX(leg.getX())
+                .setG(leg.getG())
+                .setB(leg.getB())
+                .setRatedS(leg.getRatedS())
+                .setRatedU(leg.getRatedU());
+        copyConnectivity(leg.getTerminal().getVoltageLevel(), adder::setVoltageLevel, () -> leg
+                        .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                        .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                        .getTerminal().getBusBreakerView().getBus(),
+                adder::setNode, adder::setConnectableBus, adder::setBus);
+        return adder;
+    }
+
     LegAdder newLeg2();
 
+    default LegAdder newLeg2(ThreeWindingsTransformer.Leg leg) {
+        Objects.requireNonNull(leg);
+        LegAdder adder = newLeg2()
+                .setR(leg.getR())
+                .setX(leg.getX())
+                .setG(leg.getG())
+                .setB(leg.getB())
+                .setRatedS(leg.getRatedS())
+                .setRatedU(leg.getRatedU());
+        copyConnectivity(leg.getTerminal().getVoltageLevel(), adder::setVoltageLevel, () -> leg
+                        .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                        .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                        .getTerminal().getBusBreakerView().getBus(),
+                adder::setNode, adder::setConnectableBus, adder::setBus);
+        return adder;
+    }
+
     LegAdder newLeg3();
+
+    default LegAdder newLeg3(ThreeWindingsTransformer.Leg leg) {
+        Objects.requireNonNull(leg);
+        LegAdder adder = newLeg3()
+                .setR(leg.getR())
+                .setX(leg.getX())
+                .setG(leg.getG())
+                .setB(leg.getB())
+                .setRatedS(leg.getRatedS())
+                .setRatedU(leg.getRatedU());
+        copyConnectivity(leg.getTerminal().getVoltageLevel(), adder::setVoltageLevel, () -> leg
+                        .getTerminal().getNodeBreakerView().getNode(), () -> leg
+                        .getTerminal().getBusBreakerView().getConnectableBus().getId(), () -> leg
+                        .getTerminal().getBusBreakerView().getBus(),
+                adder::setNode, adder::setConnectableBus, adder::setBus);
+        return adder;
+    }
 
     ThreeWindingsTransformerAdder setRatedU0(double ratedU0);
 

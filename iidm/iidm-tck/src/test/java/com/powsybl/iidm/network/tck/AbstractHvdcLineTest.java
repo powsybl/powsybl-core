@@ -37,6 +37,7 @@ public abstract class AbstractHvdcLineTest {
     public ExpectedException thrown = ExpectedException.none();
 
     Network network;
+    private HvdcLine hvdcLine;
 
     @Before
     public void initNetwork() {
@@ -86,6 +87,22 @@ public abstract class AbstractHvdcLineTest {
         assertEquals(20.0, hvdcLine.getActivePowerSetpoint(), 0.0);
         assertSame(network.getHvdcConverterStation("C1"), hvdcLine.getConverterStation1());
         assertSame(network.getHvdcConverterStation("C2"), hvdcLine.getConverterStation2());
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        network.newHvdcLine(network.getHvdcLine("L"))
+                .setId("L2")
+                .setConverterStationId1("C1")
+                .setConverterStationId2("C2")
+                .add();
+        hvdcLine = network.getHvdcLine("L2");
+        assertNotNull(hvdcLine);
+        assertEquals(1, hvdcLine.getR(), 0.0);
+        assertEquals(400, hvdcLine.getNominalV(), 0.0);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+        assertEquals(300.0, hvdcLine.getMaxP(), 0.0);
+        assertEquals(280, hvdcLine.getActivePowerSetpoint(), 0.0);
     }
 
     @Test

@@ -96,6 +96,20 @@ public abstract class AbstractVscTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        network.getVoltageLevel("VL1").newVscConverterStation(cs1)
+                .setId("DUPLICATE")
+                .setBus("B1")
+                .add();
+        VscConverterStation converterStation = network.getVscConverterStation("DUPLICATE");
+        assertNotNull(converterStation);
+        assertEquals(1.1f, cs1.getLossFactor(), 0.0f);
+        assertTrue(cs1.isVoltageRegulatorOn());
+        assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
+        assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
+    }
+
+    @Test
     public void testRemove() {
         try {
             cs1.remove();

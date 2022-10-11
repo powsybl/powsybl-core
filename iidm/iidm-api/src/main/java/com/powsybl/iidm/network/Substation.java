@@ -6,9 +6,13 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
 
 /**
  * A substation is a collection of equipments located at a the same geographical
@@ -111,6 +115,18 @@ public interface Substation extends Container<Substation> {
     VoltageLevelAdder newVoltageLevel();
 
     /**
+     * Get a builder to create a new voltage level in the substation. The builder is initialized with all the values of the given voltage level.
+     */
+    default VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
+        Objects.requireNonNull(voltageLevel);
+        return copyIdNameFictitious(voltageLevel, newVoltageLevel()
+                .setNominalV(voltageLevel.getNominalV())
+                .setLowVoltageLimit(voltageLevel.getLowVoltageLimit())
+                .setHighVoltageLimit(voltageLevel.getHighVoltageLimit())
+                .setTopologyKind(voltageLevel.getTopologyKind()));
+    }
+
+    /**
      * Get the voltage levels of the substation.
      */
     Iterable<VoltageLevel> getVoltageLevels();
@@ -126,6 +142,22 @@ public interface Substation extends Container<Substation> {
      * Else use {@link Network#newTwoWindingsTransformer()}.
      */
     TwoWindingsTransformerAdder newTwoWindingsTransformer();
+
+    /**
+     * Get a builder to create a new two windings transformer in the substation. The builder is initialized with all the values of the given two windings transformer.
+     */
+    default TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
+        Objects.requireNonNull(twt);
+        TwoWindingsTransformerAdder adder = newTwoWindingsTransformer()
+                .setR(twt.getR())
+                .setX(twt.getX())
+                .setG(twt.getG())
+                .setB(twt.getB())
+                .setRatedU1(twt.getRatedU1())
+                .setRatedU2(twt.getRatedU2())
+                .setRatedS(twt.getRatedS());
+        return copyIdNameFictitiousConnectivity(twt, adder);
+    }
 
     /**
      * Get the two windings transformers connected to the substation.
@@ -148,6 +180,18 @@ public interface Substation extends Container<Substation> {
      * Else use {@link Network#newThreeWindingsTransformer()}.
      */
     ThreeWindingsTransformerAdder newThreeWindingsTransformer();
+
+    /**
+     * Get a builder to create a new 3 windings transformer in the substation. The builder is initialized with all the values of a the given 3 windings transformer.
+     */
+    default ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
+        ThreeWindingsTransformerAdder adder = newThreeWindingsTransformer()
+                .setRatedU0(twt.getRatedU0())
+                .newLeg1(twt.getLeg1()).add()
+                .newLeg2(twt.getLeg2()).add()
+                .newLeg3(twt.getLeg3()).add();
+        return copyIdNameFictitious(twt, adder);
+    }
 
     /**
      * Get the 3 windings transformers connected to the substation.

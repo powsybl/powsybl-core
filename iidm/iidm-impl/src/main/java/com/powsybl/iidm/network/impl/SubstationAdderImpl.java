@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.SubstationAdder;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,6 +29,14 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
 
     SubstationAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
+    }
+
+    SubstationAdderImpl(Substation substation, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        copyIdNameFictitious(substation, this);
+        country = substation.getNullableCountry();
+        tso = substation.getTso();
+        tags = substation.getGeographicalTags().toArray(String[]::new);
     }
 
     @Override

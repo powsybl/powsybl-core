@@ -52,6 +52,19 @@ public abstract class AbstractLoadTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        voltageLevel.newLoad(network.getLoad("CE"))
+                .setId("DUPLICATE")
+                .setNode(5)
+                .add();
+        Load load = network.getLoad("DUPLICATE");
+        assertNotNull(load);
+        assertEquals(LoadType.UNDEFINED, load.getLoadType());
+        assertEquals(-72.18689, load.getP0(), 0.0);
+        assertEquals(50.168945, load.getQ0(), 0.0);
+    }
+
+    @Test
     public void invalidP0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("p0 is invalid");

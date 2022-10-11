@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -54,7 +56,35 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     TieLineAdder.HalfLineAdder newHalfLine1();
 
+    default TieLineAdder.HalfLineAdder newHalfLine1(TieLine.HalfLine halfLine) {
+        Objects.requireNonNull(halfLine);
+        return newHalfLine1()
+                .setId(halfLine.getId())
+                .setName(halfLine.getName())
+                .setFictitious(halfLine.isFictitious())
+                .setR(halfLine.getR())
+                .setX(halfLine.getX())
+                .setG1(halfLine.getG1())
+                .setB1(halfLine.getB1())
+                .setG2(halfLine.getG2())
+                .setB2(halfLine.getB2());
+    }
+
     TieLineAdder.HalfLineAdder newHalfLine2();
+
+    default HalfLineAdder newHalfLine2(TieLine.HalfLine halfLine) {
+        Objects.requireNonNull(halfLine);
+        return newHalfLine2()
+                .setId(halfLine.getId())
+                .setName(halfLine.getName())
+                .setFictitious(halfLine.isFictitious())
+                .setR(halfLine.getR())
+                .setX(halfLine.getX())
+                .setG1(halfLine.getG1())
+                .setB1(halfLine.getB1())
+                .setG2(halfLine.getG2())
+                .setB2(halfLine.getB2());
+    }
 
     TieLine add();
 

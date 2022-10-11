@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitious;
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * A voltage level is a collection of equipments located in the same substation
  * and at the same base voltage.
@@ -28,123 +31,123 @@ import java.util.stream.Stream;
  * A voltage level may have two kinds of topology model depending on what level
  * of detail we want to have ({@link #getTopologyKind}):
  * <ul>
- *   <li>node/breaker model: this is the most detailed way to describe a topology.
- *       All elements are physical ones: busbar sections, breakers and disconnectors.
- *       A node in a node/breaker context means "connection node" and not topological
- *       node or bus.</li>
- *   <li>bus/breaker model: this is an aggregated form of the topology made of buses
- *       and breakers. A bus is the aggregation of busbar sections and closed switches.</li>
+ * <li>node/breaker model: this is the most detailed way to describe a topology.
+ * All elements are physical ones: busbar sections, breakers and disconnectors.
+ * A node in a node/breaker context means "connection node" and not topological
+ * node or bus.</li>
+ * <li>bus/breaker model: this is an aggregated form of the topology made of buses
+ * and breakers. A bus is the aggregation of busbar sections and closed switches.</li>
  * </ul>
  * <h3>Topology view:</h3>
  * A topology model can be managed through the 3 following views ordered from the
  * most detailed to the less detailed:
  * <ul>
- *   <li>node/breaker view</li>
- *   <li>bus/breaker view</li>
- *   <li>bus only view</li>
+ * <li>node/breaker view</li>
+ * <li>bus/breaker view</li>
+ * <li>bus only view</li>
  * </ul>
  * <p>Depending on the topology model kind of the voltage level a view can have
  * the status:
  * <ul>
- *   <li>N/A, it doesn't make sense to take view that is more detailed than the
- *       model. An exception is thrown when a method is called on an N/A view</li>
- *   <li>modifiable, when the view has the same level of detail than the model</li>
- *   <li>readable only, because the view is a result of a computation on the
- *       topology model</li>
+ * <li>N/A, it doesn't make sense to take view that is more detailed than the
+ * model. An exception is thrown when a method is called on an N/A view</li>
+ * <li>modifiable, when the view has the same level of detail than the model</li>
+ * <li>readable only, because the view is a result of a computation on the
+ * topology model</li>
  * </ul>
  * <p>The view status is summarized in the following table:
  * <table border="1">
- *   <tr>
- *     <th colspan="2" rowspan="2"></th>
- *     <th colspan="2">Topology model</th>
- *   </tr>
- *   <tr>
- *     <th>node/breaker</th>
- *     <th>bus/breaker</th>
- *   </tr>
- *   <tr>
- *     <th rowspan="3">Topology view</th>
- *     <th>node/breaker</th>
- *     <td>modifiable</td>
- *     <td>N/A</td>
- *   </tr>
- *   <tr>
- *     <th>bus/breaker</th>
- *     <td>readable</td>
- *     <td>modifiable</td>
- *   </tr>
- *   <tr>
- *     <th>bus</th>
- *     <td>readable</td>
- *     <td>readable</td>
- *   </tr>
+ * <tr>
+ * <th colspan="2" rowspan="2"></th>
+ * <th colspan="2">Topology model</th>
+ * </tr>
+ * <tr>
+ * <th>node/breaker</th>
+ * <th>bus/breaker</th>
+ * </tr>
+ * <tr>
+ * <th rowspan="3">Topology view</th>
+ * <th>node/breaker</th>
+ * <td>modifiable</td>
+ * <td>N/A</td>
+ * </tr>
+ * <tr>
+ * <th>bus/breaker</th>
+ * <td>readable</td>
+ * <td>modifiable</td>
+ * </tr>
+ * <tr>
+ * <th>bus</th>
+ * <td>readable</td>
+ * <td>readable</td>
+ * </tr>
  * </table>
  *
  * <p>
- *  Characteristics
+ * Characteristics
  * </p>
  *
  * <table style="border: 1px solid black; border-collapse: collapse">
- *     <thead>
- *         <tr>
- *             <th style="border: 1px solid black">Attribute</th>
- *             <th style="border: 1px solid black">Type</th>
- *             <th style="border: 1px solid black">Unit</th>
- *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
- *             <th style="border: 1px solid black">Description</th>
- *         </tr>
- *     </thead>
- *     <tbody>
- *         <tr>
- *             <td style="border: 1px solid black">Id</td>
- *             <td style="border: 1px solid black">String</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">Unique identifier of the voltage level</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">Name</td>
- *             <td style="border: 1px solid black">String</td>
- *             <td style="border: 1px solid black">-</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">Human-readable name of the voltage level</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">NominalV</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">kV</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The nominal voltage</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">LowVoltageLimit</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">kV</td>
- *             <td style="border: 1px solid black">no</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The low voltage limit</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">HighVoltageLimit</td>
- *             <td style="border: 1px solid black">double</td>
- *             <td style="border: 1px solid black">kV</td>
- *             <td style="border: 1px solid black">no</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The high voltage limit</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">TopologyKind</td>
- *             <td style="border: 1px solid black">TopologyKind</td>
- *             <td style="border: 1px solid black">-</td>
- *             <td style="border: 1px solid black">yes</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The kind of topology</td>
- *         </tr>
- *     </tbody>
+ * <thead>
+ * <tr>
+ * <th style="border: 1px solid black">Attribute</th>
+ * <th style="border: 1px solid black">Type</th>
+ * <th style="border: 1px solid black">Unit</th>
+ * <th style="border: 1px solid black">Required</th>
+ * <th style="border: 1px solid black">Defaut value</th>
+ * <th style="border: 1px solid black">Description</th>
+ * </tr>
+ * </thead>
+ * <tbody>
+ * <tr>
+ * <td style="border: 1px solid black">Id</td>
+ * <td style="border: 1px solid black">String</td>
+ * <td style="border: 1px solid black"> - </td>
+ * <td style="border: 1px solid black">yes</td>
+ * <td style="border: 1px solid black"> - </td>
+ * <td style="border: 1px solid black">Unique identifier of the voltage level</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid black">Name</td>
+ * <td style="border: 1px solid black">String</td>
+ * <td style="border: 1px solid black">-</td>
+ * <td style="border: 1px solid black">yes</td>
+ * <td style="border: 1px solid black"> - </td>
+ * <td style="border: 1px solid black">Human-readable name of the voltage level</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid black">NominalV</td>
+ * <td style="border: 1px solid black">double</td>
+ * <td style="border: 1px solid black">kV</td>
+ * <td style="border: 1px solid black">yes</td>
+ * <td style="border: 1px solid black"> - </td>
+ * <td style="border: 1px solid black">The nominal voltage</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid black">LowVoltageLimit</td>
+ * <td style="border: 1px solid black">double</td>
+ * <td style="border: 1px solid black">kV</td>
+ * <td style="border: 1px solid black">no</td>
+ * <td style="border: 1px solid black"> - </td>
+ * <td style="border: 1px solid black">The low voltage limit</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid black">HighVoltageLimit</td>
+ * <td style="border: 1px solid black">double</td>
+ * <td style="border: 1px solid black">kV</td>
+ * <td style="border: 1px solid black">no</td>
+ * <td style="border: 1px solid black"> - </td>
+ * <td style="border: 1px solid black">The high voltage limit</td>
+ * </tr>
+ * <tr>
+ * <td style="border: 1px solid black">TopologyKind</td>
+ * <td style="border: 1px solid black">TopologyKind</td>
+ * <td style="border: 1px solid black">-</td>
+ * <td style="border: 1px solid black">yes</td>
+ * <td style="border: 1px solid black"> - </td>
+ * <td style="border: 1px solid black">The kind of topology</td>
+ * </tr>
+ * </tbody>
  * </table>
  *
  * <h3>Creating a substation with a node/breaker topology model:</h3>
@@ -156,13 +159,13 @@ import java.util.stream.Stream;
  * transformer TR.
  * <p>Here is a diagram of the substation:
  * <div>
- *    <object data="doc-files/nodeBreakerTopology.svg" type="image/svg+xml"></object>
+ * <object data="doc-files/nodeBreakerTopology.svg" type="image/svg+xml"></object>
  * </div>
  * The node/breaker topology model is stored inside the voltage level as a graph
  * where connection nodes are the vertices and switches are the edges.
  * <p>The next diagram shows how to map the subtation topology to a graph.
  * <div>
- *    <object data="doc-files/nodeBreakerTopologyGraph.svg" type="image/svg+xml"></object>
+ * <object data="doc-files/nodeBreakerTopologyGraph.svg" type="image/svg+xml"></object>
  * </div>
  * Each voltage level has its own topology graph. Voltage level VL1 has 8
  * connection nodes. Generator GN is connected to node 1, load LD to node 5,
@@ -175,7 +178,7 @@ import java.util.stream.Stream;
  * whereas pink edges (like in this case 3<->4) will be retained whatever their
  * position are (see {@link Switch#isRetained()}).
  * <p>The following code shows how to create the substation with a node/breaker
- *   topology model.
+ * topology model.
  * <pre>
  *    Network n = ...
  *    Substation s = ...
@@ -268,7 +271,7 @@ import java.util.stream.Stream;
  * flagged as retained (BR3). Equipments are now connected through buses
  * (B1 and B2).
  * <div>
- *    <object data="doc-files/busBreakerTopology.svg" type="image/svg+xml"></object>
+ * <object data="doc-files/busBreakerTopology.svg" type="image/svg+xml"></object>
  * </div>
  * <p>To get a bus/breaker view on the substation voltage level VL1 use
  * {@link VoltageLevel#getBusBreakerView}.
@@ -300,7 +303,7 @@ import java.util.stream.Stream;
  * topology, there is no switches anymore. Only remains equipements (GN, LD, TR, LN)
  * connected through buses.
  * <div>
- *    <object data="doc-files/busTopology.svg" type="image/svg+xml"></object>
+ * <object data="doc-files/busTopology.svg" type="image/svg+xml"></object>
  * </div>
  * <p>To get a bus view one the substation voltage level VL1 use
  * {@link VoltageLevel#getBusView}.
@@ -470,6 +473,22 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get a builder to create a new switch.
          */
         SwitchAdder newSwitch();
+
+        default SwitchAdder newSwitch(Switch sswitch) {
+            Objects.requireNonNull(sswitch);
+            VoltageLevel voltageLevel = sswitch.getVoltageLevel();
+            if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+                throw new AssertionError("Switch " + sswitch.getId() + " should be in a node-breaker voltage level");
+            }
+            SwitchAdder adder = newSwitch()
+                    .setKind(sswitch.getKind())
+                    .setOpen(sswitch.isOpen())
+                    .setRetained(sswitch.isRetained())
+                    .setNode1(voltageLevel.getNodeBreakerView().getNode1(sswitch.getId()))
+                    .setNode2(voltageLevel.getNodeBreakerView().getNode2(sswitch.getId()));
+            copyIdNameFictitious(sswitch, adder);
+            return adder;
+        }
 
         /**
          * Get a builder to create a new switch.
@@ -832,6 +851,19 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         SwitchAdder newSwitch();
 
+        default SwitchAdder newSwitch(Switch sswitch) {
+            Objects.requireNonNull(sswitch);
+            VoltageLevel voltageLevel = sswitch.getVoltageLevel();
+            if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
+                throw new AssertionError("Switch " + sswitch.getId() + " should be in a bus-breaker voltage level");
+            }
+            SwitchAdder adder = newSwitch()
+                    .setOpen(sswitch.isOpen())
+                    .setBus1(voltageLevel.getBusBreakerView().getBus1(sswitch.getId()).getId())
+                    .setBus2(voltageLevel.getBusBreakerView().getBus2(sswitch.getId()).getId());
+            return copyIdNameFictitious(sswitch, adder);
+        }
+
         interface TopologyTraverser {
             /**
              * Called for each traversal step
@@ -994,6 +1026,24 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     GeneratorAdder newGenerator();
 
     /**
+     * Get a builder to create a new generator. The builder is initialized with all the values of the given generator.
+     */
+    default GeneratorAdder newGenerator(Generator generator) {
+        Objects.requireNonNull(generator);
+        GeneratorAdder adder = newGenerator()
+                .setEnergySource(generator.getEnergySource())
+                .setMinP(generator.getMinP())
+                .setMaxP(generator.getMaxP())
+                .setRegulatingTerminal(generator.getRegulatingTerminal())
+                .setVoltageRegulatorOn(generator.isVoltageRegulatorOn())
+                .setTargetP(generator.getTargetP())
+                .setTargetQ(generator.getTargetQ())
+                .setTargetV(generator.getTargetV())
+                .setRatedS(generator.getRatedS());
+        return copyIdNameFictitiousConnectivity(generator, adder);
+    }
+
+    /**
      * Get generators.
      */
     Iterable<Generator> getGenerators();
@@ -1014,6 +1064,19 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     BatteryAdder newBattery();
 
     /**
+     * Get a builder to create a new battery. The builder is initialized with all the values of the given battery.
+     */
+    default BatteryAdder newBattery(Battery battery) {
+        Objects.requireNonNull(battery);
+        BatteryAdder adder = newBattery()
+                .setTargetP(battery.getTargetP())
+                .setTargetQ(battery.getTargetQ())
+                .setMinP(battery.getMinP())
+                .setMaxP(battery.getMaxP());
+        return copyIdNameFictitiousConnectivity(battery, adder);
+    }
+
+    /**
      * Get batteries.
      */
     Iterable<Battery> getBatteries();
@@ -1032,6 +1095,18 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new load.
      */
     LoadAdder newLoad();
+
+    /**
+     * Get a builder to create a new load. The builder is initialized with all the values of the given load.
+     */
+    default LoadAdder newLoad(Load load) {
+        Objects.requireNonNull(load);
+        LoadAdder adder = newLoad()
+                .setLoadType(load.getLoadType())
+                .setP0(load.getP0())
+                .setQ0(load.getQ0());
+        return copyIdNameFictitiousConnectivity(load, adder);
+    }
 
     /**
      * Get loads.
@@ -1061,6 +1136,36 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     ShuntCompensatorAdder newShuntCompensator();
 
     /**
+     * Get a builder for a new shunt compensator. The builder is initialized with all the values of the given shunt compensator.
+     */
+    default ShuntCompensatorAdder newShuntCompensator(ShuntCompensator shuntCompensator) {
+        Objects.requireNonNull(shuntCompensator);
+        ShuntCompensatorAdder adder = newShuntCompensator()
+                .setSectionCount(shuntCompensator.getSectionCount())
+                .setTargetV(shuntCompensator.getTargetV())
+                .setTargetDeadband(shuntCompensator.getTargetDeadband())
+                .setRegulatingTerminal(shuntCompensator.getRegulatingTerminal())
+                .setVoltageRegulatorOn(shuntCompensator.isVoltageRegulatorOn());
+        if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
+            ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+            adder.newLinearModel()
+                    .setBPerSection(model.getBPerSection())
+                    .setGPerSection(model.getGPerSection())
+                    .setMaximumSectionCount(shuntCompensator.getMaximumSectionCount())
+                    .add();
+        } else if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+            ShuntCompensatorNonLinearModel model = shuntCompensator.getModel(ShuntCompensatorNonLinearModel.class);
+            ShuntCompensatorNonLinearModelAdder builder = adder.newNonLinearModel();
+            model.getAllSections().forEach(section -> builder.beginSection()
+                    .setB(section.getB())
+                    .setG(section.getG())
+                    .endSection());
+            builder.add();
+        }
+        return copyIdNameFictitiousConnectivity(shuntCompensator, adder);
+    }
+
+    /**
      * Get compensator shunts.
      */
     Iterable<ShuntCompensator> getShuntCompensators();
@@ -1079,6 +1184,33 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new dangling line.
      */
     DanglingLineAdder newDanglingLine();
+
+    /**
+     * Get a builder to create a new dangling line. The builder is initialized with all the values of the given dangling line.
+     */
+    default DanglingLineAdder newDanglingLine(DanglingLine danglingLine) {
+        Objects.requireNonNull(danglingLine);
+        DanglingLineAdder adder = newDanglingLine()
+                .setP0(danglingLine.getP0())
+                .setQ0(danglingLine.getQ0())
+                .setR(danglingLine.getR())
+                .setX(danglingLine.getX())
+                .setG(danglingLine.getG())
+                .setB(danglingLine.getB())
+                .setUcteXnodeCode(danglingLine.getUcteXnodeCode());
+        if (danglingLine.getGeneration() != null) {
+            DanglingLine.Generation generation = danglingLine.getGeneration();
+            adder.newGeneration()
+                    .setMaxP(generation.getMaxP())
+                    .setMinP(generation.getMinP())
+                    .setTargetP(generation.getTargetP())
+                    .setTargetQ(generation.getTargetQ())
+                    .setTargetV(generation.getTargetV())
+                    .setVoltageRegulationOn(generation.isVoltageRegulationOn())
+                    .add();
+        }
+        return copyIdNameFictitiousConnectivity(danglingLine, adder);
+    }
 
     /**
      * Get dangling lines.
@@ -1101,6 +1233,21 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     StaticVarCompensatorAdder newStaticVarCompensator();
 
     /**
+     * Get a builder to create a new static var compensator. The builder is initialized with all the values of the given static var compensator.
+     */
+    default StaticVarCompensatorAdder newStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+        Objects.requireNonNull(staticVarCompensator);
+        StaticVarCompensatorAdder adder = newStaticVarCompensator()
+                .setBmin(staticVarCompensator.getBmin())
+                .setBmax(staticVarCompensator.getBmax())
+                .setVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
+                .setReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint())
+                .setRegulationMode(staticVarCompensator.getRegulationMode())
+                .setRegulatingTerminal(staticVarCompensator.getRegulatingTerminal());
+        return copyIdNameFictitiousConnectivity(staticVarCompensator, adder);
+    }
+
+    /**
      * Get static var compensators.
      */
     Iterable<StaticVarCompensator> getStaticVarCompensators();
@@ -1121,6 +1268,19 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return a builder to create a new VSC converter
      */
     VscConverterStationAdder newVscConverterStation();
+
+    /**
+     * Get a builder to create a new VSC converter station connected to this voltage level. The builder is initialized with all the values of the given VSC converter station.
+     */
+    default VscConverterStationAdder newVscConverterStation(VscConverterStation converterStation) {
+        Objects.requireNonNull(converterStation);
+        VscConverterStationAdder adder = newVscConverterStation()
+                .setVoltageRegulatorOn(converterStation.isVoltageRegulatorOn())
+                .setVoltageSetpoint(converterStation.getVoltageSetpoint())
+                .setReactivePowerSetpoint(converterStation.getReactivePowerSetpoint())
+                .setLossFactor(converterStation.getLossFactor());
+        return copyIdNameFictitiousConnectivity(converterStation, adder);
+    }
 
     /**
      * Get all VSC converter stations connected to this voltage level.
@@ -1149,6 +1309,17 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return a builder to create a new LCC converter
      */
     LccConverterStationAdder newLccConverterStation();
+
+    /**
+     * Get a builder to create a new LCC converter station connected to this voltage level. The builder is initialized with all the values of the given LCC converter station.
+     */
+    default LccConverterStationAdder newLccConverterStation(LccConverterStation converterStation) {
+        Objects.requireNonNull(converterStation);
+        LccConverterStationAdder adder = newLccConverterStation()
+                .setPowerFactor(converterStation.getPowerFactor())
+                .setLossFactor(converterStation.getLossFactor());
+        return copyIdNameFictitiousConnectivity(converterStation, adder);
+    }
 
     /**
      * Get all LCC converter stations connected to this voltage level.

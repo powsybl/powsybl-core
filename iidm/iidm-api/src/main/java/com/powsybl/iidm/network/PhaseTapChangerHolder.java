@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -19,6 +20,31 @@ public interface PhaseTapChangerHolder {
      * transformer.
      */
     PhaseTapChangerAdder newPhaseTapChanger();
+
+    /**
+     * Get a builder to create and associate a phase tap changer to the
+     * transformer. The builder is initialized with all the values of the given phase tap changer.
+     */
+    default PhaseTapChangerAdder newPhaseTapChanger(PhaseTapChanger ptc) {
+        Objects.requireNonNull(ptc);
+        PhaseTapChangerAdder adder = newPhaseTapChanger()
+                .setLowTapPosition(ptc.getLowTapPosition())
+                .setRegulating(ptc.isRegulating())
+                .setRegulationMode(ptc.getRegulationMode())
+                .setTapPosition(ptc.getTapPosition())
+                .setRegulationTerminal(ptc.getRegulationTerminal())
+                .setRegulationValue(ptc.getRegulationValue())
+                .setTargetDeadband(ptc.getTargetDeadband());
+        ptc.getAllSteps().forEach((i, step) -> adder.beginStep()
+                .setAlpha(step.getAlpha())
+                .setRho(step.getRho())
+                .setR(step.getR())
+                .setX(step.getX())
+                .setG(step.getG())
+                .setB(step.getB())
+                .endStep());
+        return adder;
+    }
 
     /**
      * Get the phase tap changer.

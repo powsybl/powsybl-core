@@ -8,6 +8,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
+import static com.powsybl.iidm.network.util.CopyUtil.copyIdNameFictitiousConnectivity;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -37,6 +41,19 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         HalfLineAdderImpl(int num) {
             this.num = num;
+        }
+
+        HalfLineAdderImpl(int num, TieLine.HalfLine halfLine) {
+            this(num);
+            id = halfLine.getId();
+            name = halfLine.getName();
+            fictitious = halfLine.isFictitious();
+            r = halfLine.getR();
+            x = halfLine.getX();
+            g1 = halfLine.getG1();
+            g2 = halfLine.getG2();
+            b1 = halfLine.getB1();
+            b2 = halfLine.getB2();
         }
 
         @Override
@@ -148,6 +165,14 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         this.network = network;
     }
 
+    TieLineAdderImpl(TieLine tieLine, NetworkImpl network) {
+        this(network);
+        ucteXnodeCode = tieLine.getUcteXnodeCode();
+        copyIdNameFictitiousConnectivity(tieLine, this);
+        newHalfLine1(tieLine.getHalf1()).add();
+        newHalfLine2(tieLine.getHalf2()).add();
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return network;
@@ -170,8 +195,18 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     @Override
+    public HalfLineAdderImpl newHalfLine1(TieLine.HalfLine halfLine) {
+        return new HalfLineAdderImpl(1, Objects.requireNonNull(halfLine));
+    }
+
+    @Override
     public HalfLineAdderImpl newHalfLine2() {
         return new HalfLineAdderImpl(2);
+    }
+
+    @Override
+    public HalfLineAdderImpl newHalfLine2(TieLine.HalfLine halfLine) {
+        return new HalfLineAdderImpl(2, Objects.requireNonNull(halfLine));
     }
 
     @Override

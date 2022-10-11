@@ -126,12 +126,22 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return new RatioTapChangerAdderImpl(this);
         }
 
+        @Override
+        public RatioTapChangerAdderImpl newRatioTapChanger(RatioTapChanger rtc) {
+            return new RatioTapChangerAdderImpl(Objects.requireNonNull(rtc), this);
+        }
+
         public RatioTapChangerImpl getRatioTapChanger() {
             return ratioTapChanger;
         }
 
         public PhaseTapChangerAdderImpl newPhaseTapChanger() {
             return new PhaseTapChangerAdderImpl(this);
+        }
+
+        @Override
+        public PhaseTapChangerAdderImpl newPhaseTapChanger(PhaseTapChanger ptc) {
+            return new PhaseTapChangerAdderImpl(Objects.requireNonNull(ptc), this);
         }
 
         public PhaseTapChangerImpl getPhaseTapChanger() {

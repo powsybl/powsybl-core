@@ -136,6 +136,20 @@ public abstract class AbstractBatteryTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        voltageLevel.newBattery(network.getBattery("BAT2"))
+                .setId(BAT_ID)
+                .setBus("NBAT")
+                .add();
+        Battery battery = network.getBattery(BAT_ID);
+        assertNotNull(battery);
+        assertEquals(100, battery.getP0(), 0.0);
+        assertEquals(200, battery.getQ0(), 0.0);
+        assertEquals(-200, battery.getMinP(), 0.0);
+        assertEquals(200, battery.getMaxP(), 0.0);
+    }
+
+    @Test
     public void testRemove() {
         String unmodifiableRemovedEqMessage = "Cannot modify removed equipment " + TO_REMOVE;
         createBattery(TO_REMOVE, 11.0, 12, 10, 20.0);
