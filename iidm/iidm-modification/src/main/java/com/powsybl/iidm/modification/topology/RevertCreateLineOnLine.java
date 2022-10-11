@@ -28,6 +28,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.L
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.mergeLimits;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
 
 /**
@@ -172,13 +173,17 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         attachLine(lineToBeMerged1.getTerminal(newLineSide1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(lineToBeMerged2.getTerminal(newLineSide2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
-        // get lineToBeMerged1 limits on newLineSide1
-        Branch.Side limitsLineToBeMerged1Side = newLineSide1;
-        LoadingLimitsBags limitsLineToBeMerged1 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(limitsLineToBeMerged1Side), () -> lineToBeMerged1.getApparentPowerLimits(limitsLineToBeMerged1Side), () -> lineToBeMerged1.getCurrentLimits(limitsLineToBeMerged1Side));
+        // get lineToBeMerged1 limits
+        Branch.Side lineToBeMerged1Side1 = newLineSide1;
+        Branch.Side lineToBeMerged1Side2 = newLineSide1 == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+        LoadingLimitsBags limitsLineToBeMerged1Side1 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(lineToBeMerged1Side1), () -> lineToBeMerged1.getApparentPowerLimits(lineToBeMerged1Side1), () -> lineToBeMerged1.getCurrentLimits(lineToBeMerged1Side1));
+        LoadingLimitsBags limitsLineToBeMerged1Side2 = new LoadingLimitsBags(() -> lineToBeMerged1.getActivePowerLimits(lineToBeMerged1Side2), () -> lineToBeMerged1.getApparentPowerLimits(lineToBeMerged1Side2), () -> lineToBeMerged1.getCurrentLimits(lineToBeMerged1Side2));
 
-        // get lineToBeMerged2 limits on newLineSide2
-        Branch.Side limitsLineToBeMerged2Side = newLineSide2;
-        LoadingLimitsBags limitsLineToBeMerged2 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(limitsLineToBeMerged2Side), () -> lineToBeMerged2.getApparentPowerLimits(limitsLineToBeMerged2Side), () -> lineToBeMerged2.getCurrentLimits(limitsLineToBeMerged2Side));
+        // get lineToBeMerged2 limits
+        Branch.Side lineToBeMerged2Side2 = newLineSide2;
+        Branch.Side lineToBeMerged2Side1 = newLineSide2 == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+        LoadingLimitsBags limitsLineToBeMerged2Side1 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(lineToBeMerged2Side1), () -> lineToBeMerged2.getApparentPowerLimits(lineToBeMerged2Side1), () -> lineToBeMerged2.getCurrentLimits(lineToBeMerged2Side1));
+        LoadingLimitsBags limitsLineToBeMerged2Side2 = new LoadingLimitsBags(() -> lineToBeMerged2.getActivePowerLimits(lineToBeMerged2Side2), () -> lineToBeMerged2.getApparentPowerLimits(lineToBeMerged2Side2), () -> lineToBeMerged2.getCurrentLimits(lineToBeMerged2Side2));
 
         // Remove the three existing lines
         lineToBeMerged1.remove();
@@ -189,14 +194,16 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         removedLineReport(reporter, lineToBeMerged2Id);
         LOG.info(LINE_REMOVED_MESSAGE, lineToBeMerged2Id);
 
-        lineToBeDeleted.remove();
+        lineToBeDeleted.remove(true);
         removedLineReport(reporter, lineToBeDeletedId);
         LOG.info(LINE_REMOVED_MESSAGE, lineToBeDeletedId);
 
         // Create the new line
         Line line = lineAdder.add();
-        addLoadingLimits(line, limitsLineToBeMerged1, Branch.Side.ONE);
-        addLoadingLimits(line, limitsLineToBeMerged2, Branch.Side.TWO);
+        LoadingLimitsBags limitsSide1 = mergeLimits(lineToBeMerged1Id, limitsLineToBeMerged1Side1, limitsLineToBeMerged1Side2, reporter);
+        LoadingLimitsBags limitsSide2 = mergeLimits(lineToBeMerged2Id, limitsLineToBeMerged2Side2, limitsLineToBeMerged2Side1, reporter);
+        addLoadingLimits(line, limitsSide1, Branch.Side.ONE);
+        addLoadingLimits(line, limitsSide2, Branch.Side.TWO);
         createdLineReport(reporter, mergedLineId);
         LOG.info("New line {} created, replacing lines {}, {} and {}", mergedLineId, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
 
