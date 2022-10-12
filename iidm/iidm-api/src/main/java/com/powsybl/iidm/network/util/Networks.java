@@ -33,8 +33,8 @@ public final class Networks {
     private Networks() {
     }
 
-    public static boolean isBusValid(int branchCount) {
-        return branchCount >= 1;
+    public static boolean isBusValid(int feederCount) {
+        return feederCount >= 1;
     }
 
     public static Map<String, String> getExecutionTags(Network network) {

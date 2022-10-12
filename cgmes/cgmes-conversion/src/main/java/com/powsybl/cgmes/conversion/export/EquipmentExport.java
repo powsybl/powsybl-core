@@ -42,6 +42,8 @@ public final class EquipmentExport {
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         context.setExportEquipment(true);
         try {
+            boolean writeConnectivityNodes = context.isWriteConnectivityNodes();
+
             String cimNamespace = context.getCim().getNamespace();
             String euNamespace = context.getCim().getEuNamespace();
             String limitValueAttributeName = context.getCim().getLimitValueAttributeName();
@@ -61,7 +63,9 @@ public final class EquipmentExport {
             Set<String> regulatingControlsWritten = new HashSet<>();
             Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
 
-            writeConnectivity(network, mapNodeKey2NodeId, cimNamespace, writer, context);
+            if (writeConnectivityNodes) {
+                writeConnectivityNodes(network, mapNodeKey2NodeId, cimNamespace, writer, context);
+            }
             writeTerminals(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
             writeSwitches(network, cimNamespace, writer, context);
 
@@ -87,7 +91,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeConnectivity(Network network, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeConnectivityNodes(Network network, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
                 writeNodes(vl, new VoltageLevelAdjacency(vl, context), mapNodeKey2NodeId, cimNamespace, writer, context);
@@ -603,9 +607,12 @@ public final class EquipmentExport {
 
     private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId, String cimNamespace, XMLStreamWriter writer,
                                                         CgmesExportContext context) throws XMLStreamException {
-        // New ConnectivityNode
-        String connectivityNodeId = CgmesExportUtil.getUniqueId();
-        ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
+        String connectivityNodeId = null;
+        if (danglingLine.getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+            // New ConnectivityNode
+            connectivityNodeId = CgmesExportUtil.getUniqueId();
+            ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
+        }
         // New Terminal
         String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, writer);

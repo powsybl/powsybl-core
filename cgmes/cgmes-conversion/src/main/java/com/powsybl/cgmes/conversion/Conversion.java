@@ -143,11 +143,6 @@ public class Conversion {
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
         addCimCharacteristics(network);
-        if (context.config().createCgmesExportMapping) {
-            CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
-            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
-            mappingAdder.add();
-        }
         BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
@@ -245,15 +240,7 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        if (config.createCgmesExportMapping) {
-            network.getExtension(CgmesIidmMapping.class).addTopologyListener();
-        }
         return network;
-    }
-
-    private Source isBoundaryTopologicalNode(String graph) {
-        //There are unit tests where the boundary file contains the sequence "TPBD" and others "TP_BD"
-        return graph.contains("TP") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
     }
 
     private Source isBoundaryBaseVoltage(String graph) {
