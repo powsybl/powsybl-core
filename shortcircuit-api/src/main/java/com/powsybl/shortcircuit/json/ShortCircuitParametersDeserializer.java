@@ -36,22 +36,27 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
     @Override
     public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, ShortCircuitParameters parameters) throws IOException {
         List<Extension<ShortCircuitParameters>> extensions = Collections.emptyList();
+        String version = null;
+        Boolean withLimitViolations = null;
+        Boolean withVoltageMap = null;
+        Boolean withFeederResult = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
-                    parser.nextToken(); // skip
+                    parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
                 case "withLimitViolations":
                     parser.nextToken();
-                    parameters.setWithLimitViolations(parser.readValueAs(Boolean.class));
+                    withLimitViolations = parser.readValueAs(Boolean.class);
                     break;
                 case "withVoltageMap":
                     parser.nextToken();
-                    parameters.setWithVoltageMap(parser.readValueAs(Boolean.class));
+                    withVoltageMap = parser.readValueAs(Boolean.class);
                     break;
                 case "withFeederResult":
                     parser.nextToken();
-                    parameters.setWithFeederResult(parser.readValueAs(Boolean.class));
+                    withFeederResult = parser.readValueAs(Boolean.class);
                     break;
                 case "studyType":
                     parser.nextToken();
@@ -69,8 +74,18 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
+        parameters.setWithLimitViolations(checkBool(withLimitViolations, "Undefined withLimitViolations", version))
+                .setWithVoltageMap(checkBool(withVoltageMap, "Undefined withVoltageMap", version))
+                .setWithFeederResult(checkBool(withFeederResult, "Undefined withFeederResult", version));
         JsonShortCircuitParameters.getExtensionSerializers().addExtensions(parameters, extensions);
         return parameters;
     }
 
+    private static boolean checkBool(Boolean bool, String tag, String version) {
+        if (bool != null) {
+            return bool;
+        }
+        JsonUtil.assertLessThanOrEqualToReferenceVersion("ShortCircuitParameters", tag, version, "1.0");
+        return false; // in 1.0, boolean parameters were not serialized when they were false
+    }
 }
