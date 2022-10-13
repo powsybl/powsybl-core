@@ -204,6 +204,18 @@ public final class FourSubstationsNodeBreakerFactory {
                 .beginStep().setR(31.720245).setX(31.720242).setG(0.0).setB(0.0).setRho(1.0).setAlpha(40.18).endStep()
                 .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(42.8).endStep()
                 .add();
+        twt.newRatioTapChanger()
+                .beginStep().setR(0.0).setX(0.0).setB(0.0).setG(0.0).setRho(0.85).endStep()
+                .beginStep().setR(0.0).setX(0.0).setB(0.0).setG(0.0).setRho(1).endStep()
+                .beginStep().setR(0.0).setX(0.0).setB(0.0).setG(0.0).setRho(1.15).endStep()
+                .setLowTapPosition(0)
+                .setTapPosition(1)
+                .setLoadTapChangingCapabilities(true)
+                .setRegulating(true)
+                .setTargetV(225.0)
+                .setTargetDeadband(0)
+                .setRegulationTerminal(twt.getTerminal(Branch.Side.ONE))
+                .add();
         twt.getTerminal1().setP(-80.0).setQ(-10.0);
         twt.getTerminal2().setP(80.0809).setQ(5.4857);
 
