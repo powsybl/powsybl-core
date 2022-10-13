@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
+import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -58,5 +59,6 @@ public class DiscreteMeasurementsXmlTest extends AbstractXmlConverterTest {
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
                 getVersionDir(IidmXmlConstants.CURRENT_IIDM_XML_VERSION) + "disMeasRef.xiidm");
+        roundTripVersionedXmlFromMinToCurrentVersionTest("disMeasRef.xiidm", IidmXmlVersion.V_1_5);
     }
 }
