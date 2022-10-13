@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -24,7 +23,6 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -49,15 +47,12 @@ public final class StateVariablesExport {
 
             if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getSvModelDescription(), context);
-                writeTopologicalIslands(network, cimNamespace, writer, context);
+                writeTopologicalIslands(network, cimNamespace, writer);
                 // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
             }
 
-            writeVoltagesForTopologicalNodes(network, cimNamespace, writer, context);
+            writeVoltagesForTopologicalNodes(network, cimNamespace, writer);
             writeVoltagesForBoundaryNodes(network, cimNamespace, writer);
-            for (CgmesIidmMapping.CgmesTopologicalNode tn : context.getUnmappedTopologicalNodes()) {
-                writeVoltage(tn.getCgmesId(), 0.0, 0.0, cimNamespace, writer);
-            }
             writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer, context);
             writeTapSteps(network, cimNamespace, writer, context);
@@ -70,9 +65,9 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeTopologicalIslands(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        Map<String, String> angleRefs = buildAngleRefs(network, context);
-        Map<String, List<String>> islands = buildIslands(network, context);
+    private static void writeTopologicalIslands(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        Map<String, String> angleRefs = buildAngleRefs(network);
+        Map<String, List<String>> islands = buildIslands(network);
         for (Map.Entry<String, List<String>> island : islands.entrySet()) {
             if (!angleRefs.containsKey(island.getKey())) {
                 Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.getKey());
@@ -92,22 +87,22 @@ public final class StateVariablesExport {
         }
     }
 
-    private static Map<String, String> buildAngleRefs(Network network, CgmesExportContext context) {
+    private static Map<String, String> buildAngleRefs(Network network) {
         Map<String, String> angleRefs = new HashMap<>();
         for (VoltageLevel vl : network.getVoltageLevels()) {
             SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-            buildAngleRefs(slackTerminal, angleRefs, context);
+            buildAngleRefs(slackTerminal, angleRefs);
         }
         return angleRefs;
     }
 
-    private static void buildAngleRefs(SlackTerminal slackTerminal, Map<String, String> angleRefs, CgmesExportContext context) {
+    private static void buildAngleRefs(SlackTerminal slackTerminal, Map<String, String> angleRefs) {
         if (slackTerminal != null && slackTerminal.getTerminal() != null) {
-            Bus bus = slackTerminal.getTerminal().getBusView().getBus();
+            Bus bus = slackTerminal.getTerminal().getBusBreakerView().getBus();
             if (bus != null && bus.getSynchronousComponent() != null) {
-                buildAngleRefs(bus.getSynchronousComponent().getNum(), bus.getId(), angleRefs, context);
+                buildAngleRefs(bus.getSynchronousComponent().getNum(), bus.getId(), angleRefs);
             } else if (bus != null) {
-                buildAngleRefs(bus.getId(), angleRefs, context);
+                buildAngleRefs(bus.getId(), angleRefs);
             } else {
                 Supplier<String> message = () -> String.format("Slack terminal at equipment %s is not connected and is not exported as slack terminal", slackTerminal.getTerminal().getConnectable().getId());
                 LOG.info(message.get());
@@ -115,7 +110,7 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void buildAngleRefs(int synchronousComponentNum, String busId, Map<String, String> angleRefs, CgmesExportContext context) {
+    private static void buildAngleRefs(int synchronousComponentNum, String topologicalNodeId, Map<String, String> angleRefs) {
         String componentNum = String.valueOf(synchronousComponentNum);
         if (angleRefs.containsKey(componentNum)) {
             Supplier<String> log = () -> String.format("Several slack buses are defined for synchronous component %s: only first slack bus (%s) is taken into account",
@@ -123,23 +118,20 @@ public final class StateVariablesExport {
             LOG.info(log.get());
             return;
         }
-        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(busId).iterator().next();
-        angleRefs.put(componentNum, topologicalNode.getCgmesId());
+        angleRefs.put(componentNum, topologicalNodeId);
     }
 
-    private static void buildAngleRefs(String busId, Map<String, String> angleRefs, CgmesExportContext context) {
-        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(busId).iterator().next();
-        angleRefs.put(topologicalNode.getCgmesId(),
-                topologicalNode.getCgmesId());
+    private static void buildAngleRefs(String topologicalNodeId, Map<String, String> angleRefs) {
+        angleRefs.put(topologicalNodeId, topologicalNodeId);
     }
 
-    private static Map<String, List<String>> buildIslands(Network network, CgmesExportContext context) {
+    private static Map<String, List<String>> buildIslands(Network network) {
         Map<String, List<String>> islands = new HashMap<>();
-        for (Bus b : network.getBusView().getBuses()) {
+        for (Bus b : network.getBusBreakerView().getBuses()) {
             if (b.getSynchronousComponent() != null) {
                 int num = b.getSynchronousComponent().getNum();
                 islands.computeIfAbsent(String.valueOf(num), i -> new ArrayList<>());
-                islands.get(String.valueOf(num)).addAll(context.getTopologicalNodesByBusViewBus(b.getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()));
+                islands.get(String.valueOf(num)).add(b.getId());
             } else {
                 islands.put(b.getId(), Collections.singletonList(b.getId()));
             }
@@ -147,11 +139,9 @@ public final class StateVariablesExport {
         return islands;
     }
 
-    private static void writeVoltagesForTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (Bus b : network.getBusView().getBuses()) {
-            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
-                writeVoltage(topologicalNode.getCgmesId(), b.getV(), b.getAngle(), cimNamespace, writer);
-            }
+    private static void writeVoltagesForTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (Bus b : network.getBusBreakerView().getBuses()) {
+            writeVoltage(b.getId(), b.getV(), b.getAngle(), cimNamespace, writer);
         }
     }
 
@@ -298,13 +288,12 @@ public final class StateVariablesExport {
         // These loads have been taken into account as inputs for potential power flow analysis
         // They will be written back as SvInjection objects in the SV profile
         // We do not want to export them back as new objects in the EQ profile
-        Bus bus = load.getTerminal().getBusView().getBus();
+        Bus bus = load.getTerminal().getBusBreakerView().getBus();
         if (bus == null) {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
-            CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(bus.getId()).iterator().next();
-            writeSvInjection(load, topologicalNode.getCgmesId(), cimNamespace, writer, context);
+            writeSvInjection(load, bus.getId(), cimNamespace, writer, context);
         }
     }
 
