@@ -9,7 +9,6 @@ package com.powsybl.security.json;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
-import com.powsybl.security.action.GeneratorAction;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -38,9 +37,9 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new PhaseTapChangerTapPositionAction("id6", "transformerId2", false, 12));
         actions.add(new PhaseTapChangerTapPositionAction("id7", "transformerId3", true, -5, ThreeWindingsTransformer.Side.ONE));
         actions.add(new PhaseTapChangerTapPositionAction("id8", "transformerId3", false, 2, ThreeWindingsTransformer.Side.THREE));
-        actions.add(new GeneratorAction("id9", "generatorId1").setActivePowerRelativeValue(true).setActivePowerValue(100.0));
-        actions.add(new GeneratorAction("id10", "generatorId2").setVoltageRegulatorOn(true).setTargetV(225.0));
-        actions.add(new GeneratorAction("id11", "generatorId2").setVoltageRegulatorOn(false).setTargetQ(400.0));
+        actions.add(new GeneratorActionBuilder().withId("id9").withGeneratorId("generatorId1").withActivePowerRelativeValue(true).withActivePowerValue(100.0).build());
+        actions.add(new GeneratorActionBuilder().withId("id10").withGeneratorId("generatorId2").withVoltageRegulatorOn(true).withTargetV(225.0).build());
+        actions.add(new GeneratorActionBuilder().withId("id11").withGeneratorId("generatorId2").withVoltageRegulatorOn(false).withTargetQ(400.0).build());
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

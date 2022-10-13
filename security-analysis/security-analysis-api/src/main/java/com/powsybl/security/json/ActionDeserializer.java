@@ -152,23 +152,26 @@ public class ActionDeserializer extends StdDeserializer<Action> {
                     return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value);
                 }
             case GeneratorAction.NAME:
-                GeneratorAction generatorAction = new GeneratorAction(context.id, context.generatorId);
+                GeneratorActionBuilder generatorActionBuilder = new GeneratorActionBuilder();
+                generatorActionBuilder
+                        .withId(context.id)
+                        .withGeneratorId(context.generatorId);
                 if (context.activePowerRelativeValue != null) {
-                    generatorAction.setActivePowerRelativeValue(context.activePowerRelativeValue);
+                    generatorActionBuilder.withActivePowerRelativeValue(context.activePowerRelativeValue);
                 }
                 if (context.activePowerValue != null) {
-                    generatorAction.setActivePowerValue(context.activePowerValue);
+                    generatorActionBuilder.withActivePowerValue(context.activePowerValue);
                 }
                 if (context.voltageRegulatorOn != null) {
-                    generatorAction.setVoltageRegulatorOn(context.voltageRegulatorOn);
+                    generatorActionBuilder.withVoltageRegulatorOn(context.voltageRegulatorOn);
                 }
                 if (context.targetV != null) {
-                    generatorAction.setTargetV(context.targetV);
+                    generatorActionBuilder.withTargetV(context.targetV);
                 }
                 if (context.targetQ != null) {
-                    generatorAction.setTargetQ(context.targetQ);
+                    generatorActionBuilder.withTargetQ(context.targetQ);
                 }
-                return generatorAction;
+                return generatorActionBuilder.build();
             case MultipleActionsAction.NAME:
                 return new MultipleActionsAction(context.id, context.actions);
             default:

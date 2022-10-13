@@ -11,10 +11,10 @@ import java.util.Optional;
 
 /**
  * An action to:
- * - increase or decrease the targetV of a generator.
- * - move to voltage control or remove from voltage control.
- * - change targetQ of a generator that is not a voltage controller.
- * - change targetV of a generator that is a voltage controller.
+ * - change the targetP of a generator, either by specifying a new absolute value (MW) or a relative change (MW).
+ * - enable or disable the generator voltage control.
+ * - change targetQ of a generator (MVar).
+ * - change targetV of a generator (kV).
  *
  * @author Hadrien Godard <hadrien.godard@artelys.com>
  * @author Anne Tilloy <anne.tilloy@rte-france.com>
@@ -24,15 +24,30 @@ public class GeneratorAction extends AbstractAction {
     public static final String NAME = "GENERATOR";
 
     private final String generatorId;
-    private Boolean activePowerRelativeValue; // true if it is a relative variation, false if it is a new targetP
-    private Double activePowerValue; // could be a new targetP if relativeVariation equals false or a relative variation of targetP.
-    private Boolean voltageRegulatorOn;
-    private Double targetV; // absolute value only.
-    private Double targetQ; // absolute value only.
+    private final Boolean activePowerRelativeValue; // true if it is a relative variation of targetP, false if it is a new targetP
+    private final Double activePowerValue; // could be a new targetP if relativeVariation equals false or a relative variation of targetP.
+    private final Boolean voltageRegulatorOn; // to change voltage control.
+    private final Double targetV; // absolute value only.
+    private final Double targetQ; // absolute value only.
 
-    public GeneratorAction(String id, String generatorId) {
+    /**
+     * @param id the id of the action.
+     * @param generatorId the id of the generator on which the action would be applied.
+     * @param activePowerRelativeValue True if the generator targetP variation is relative, False if absolute.
+     * @param activePowerValue The new generator targetP (MW) if activePowerRelativeValue equals False, otherwise the relative variation of generator targetP (MW).
+     * @param voltageRegulatorOn The new generator voltage regulator status.
+     * @param targetV The new generator targetV (kV).
+     * @param targetQ The new generator targetQ (MVar).
+     */
+    public GeneratorAction(String id, String generatorId, Boolean activePowerRelativeValue, Double activePowerValue,
+                           Boolean voltageRegulatorOn, Double targetV, Double targetQ) {
         super(id);
         this.generatorId = Objects.requireNonNull(generatorId);
+        this.activePowerRelativeValue = activePowerRelativeValue;
+        this.activePowerValue = activePowerValue;
+        this.voltageRegulatorOn = voltageRegulatorOn;
+        this.targetV = targetV;
+        this.targetQ = targetQ;
     }
 
     @Override
@@ -48,44 +63,20 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(activePowerRelativeValue);
     }
 
-    public GeneratorAction setActivePowerRelativeValue(Boolean activePowerRelativeValue) {
-        this.activePowerRelativeValue = activePowerRelativeValue;
-        return this;
-    }
-
     public Optional<Double> getActivePowerValue() {
         return Optional.ofNullable(activePowerValue);
-    }
-
-    public GeneratorAction setActivePowerValue(Double activePowerValue) {
-        this.activePowerValue = activePowerValue;
-        return this;
     }
 
     public Optional<Boolean> isVoltageRegulatorOn() {
         return Optional.ofNullable(voltageRegulatorOn);
     }
 
-    public GeneratorAction setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
-        this.voltageRegulatorOn = voltageRegulatorOn;
-        return this;
-    }
-
     public Optional<Double> getTargetV() {
         return Optional.ofNullable(targetV);
-    }
-
-    public GeneratorAction setTargetV(Double targetV) {
-        this.targetV = targetV;
-        return this;
     }
 
     public Optional<Double> getTargetQ() {
         return Optional.ofNullable(targetQ);
     }
 
-    public GeneratorAction setTargetQ(Double targetQ) {
-        this.targetQ = targetQ;
-        return this;
-    }
 }
