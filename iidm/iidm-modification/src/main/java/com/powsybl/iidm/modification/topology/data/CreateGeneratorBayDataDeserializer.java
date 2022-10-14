@@ -38,11 +38,6 @@ public class CreateGeneratorBayDataDeserializer extends StdDeserializer<CreateGe
                         parser.nextToken();
                         break;
 
-                    case "voltageLevelId":
-                        parser.nextToken();
-                        data.setVoltageLevelId(parser.readValueAs(String.class));
-                        break;
-
                     case "generator":
                         parser.nextToken();
                         readGenerator(data, parser);

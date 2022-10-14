@@ -32,8 +32,6 @@ public class CreateGeneratorBayDataSerializer extends StdSerializer<CreateGenera
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("version", VERSION);
 
-            jsonGenerator.writeStringField("voltageLevelId", data.getVoltageLevelId());
-
             jsonGenerator.writeFieldName("generator");
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("id", data.getGeneratorId());

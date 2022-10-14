@@ -23,7 +23,6 @@ public class CreateGeneratorBayDataTest extends AbstractConverterTest {
     @Test
     public void test() throws IOException {
         CreateGeneratorBayData data = new CreateGeneratorBayData()
-                .setVoltageLevelId("testVL")
                 .setGeneratorId("testG")
                 .setGeneratorName("testGN")
                 .setGeneratorFictitious(true)

@@ -1,6 +1,5 @@
 {
   "version" : "1.0",
-  "voltageLevelId" : "testVL",
   "generator" : {
     "id" : "testG",
     "name" : "testGN",

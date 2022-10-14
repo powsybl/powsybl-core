@@ -32,8 +32,6 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
     public static final String VERSION = "1.0";
     public static final String NAME = "createGeneratorBay";
 
-    private String voltageLevelId = null;
-
     private String generatorId = null;
     private String generatorName = null;
     private boolean fictitious = false;
@@ -53,11 +51,6 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
     private Integer positionOrder = null;
     private String feederName = null;
     private ConnectablePosition.Direction direction = ConnectablePosition.Direction.BOTTOM;
-
-    public CreateGeneratorBayData setVoltageLevelId(String voltageLevelId) {
-        this.voltageLevelId = voltageLevelId;
-        return this;
-    }
 
     public CreateGeneratorBayData setGeneratorId(String generatorId) {
         this.generatorId = generatorId;
@@ -142,10 +135,6 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
     public CreateGeneratorBayData setDirection(ConnectablePosition.Direction direction) {
         this.direction = direction;
         return this;
-    }
-
-    public String getVoltageLevelId() {
-        return voltageLevelId;
     }
 
     public String getGeneratorId() {
@@ -269,8 +258,7 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
 
     @Override
     public void copy(CreateGeneratorBayData data) {
-        setVoltageLevelId(data.getVoltageLevelId())
-                .setGeneratorId(data.generatorId)
+        setGeneratorId(data.generatorId)
                 .setGeneratorName(data.generatorName)
                 .setGeneratorFictitious(data.fictitious)
                 .setGeneratorEnergySource(data.energySource)
@@ -296,10 +284,11 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
     @Override
     public CreateFeederBay toModification(Network network) {
         checks();
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (voltageLevel == null) {
-            throw new PowsyblException("Unable to create generatorAdder for CreateGeneratorBay as voltage level " + voltageLevelId + " does not exist");
+        BusbarSection bbs = network.getBusbarSection(bbsId);
+        if (bbs == null) {
+            throw new PowsyblException("Busbar section " + bbsId + " does not exist in network " + network.getId());
         }
+        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
         GeneratorAdder adder = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setName(generatorName)
@@ -323,7 +312,6 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
     }
 
     public void checks() {
-        Objects.requireNonNull(voltageLevelId, "Undefined voltage level ID");
         Objects.requireNonNull(generatorId, "Undefined generator ID");
         Objects.requireNonNull(energySource, "Undefined energy source");
         Objects.requireNonNull(voltageRegulatorOn, "Undefined voltage regulation status");
