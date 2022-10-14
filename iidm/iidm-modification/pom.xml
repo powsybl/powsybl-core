@@ -38,8 +38,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

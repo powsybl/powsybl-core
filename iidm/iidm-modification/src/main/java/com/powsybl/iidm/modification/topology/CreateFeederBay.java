@@ -42,7 +42,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.bbsId = Objects.requireNonNull(bbsId);
-        this.injectionPositionOrder = injectionPositionOrder;
+        this.injectionPositionOrder = Objects.requireNonNull(injectionPositionOrder);
         this.injectionFeederName = injectionFeederName;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
     }

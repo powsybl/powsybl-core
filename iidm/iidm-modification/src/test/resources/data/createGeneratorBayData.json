@@ -1,0 +1,18 @@
+{
+  "version" : "1.0",
+  "voltageLevelId" : "testVL",
+  "generator" : {
+    "id" : "testG",
+    "name" : "testGN",
+    "fictitious" : true,
+    "energySource" : "OTHER",
+    "minP" : 0.0,
+    "maxP" : 100.0,
+    "voltageRegulatorOn" : false,
+    "targetP" : 0.0,
+    "targetQ" : 0.0
+  },
+  "busbarSectionId" : "testBBS",
+  "positionOrder" : 10,
+  "direction" : "BOTTOM"
+}
