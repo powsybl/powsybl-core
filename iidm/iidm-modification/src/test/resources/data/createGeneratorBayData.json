@@ -7,9 +7,11 @@
     "energySource" : "OTHER",
     "minP" : 0.0,
     "maxP" : 100.0,
-    "voltageRegulatorOn" : false,
+    "regulatingTerminal" : [ "twt", "TWO" ],
+    "voltageRegulatorOn" : true,
     "targetP" : 0.0,
-    "targetQ" : 0.0
+    "targetQ" : 0.0,
+    "targetV" : 225.0
   },
   "busbarSectionId" : "testBBS",
   "positionOrder" : 10,
