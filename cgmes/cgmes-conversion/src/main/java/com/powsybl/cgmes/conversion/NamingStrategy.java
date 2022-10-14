@@ -7,18 +7,55 @@
 
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.network.Identifiable;
+
+import java.nio.file.Path;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public interface NamingStrategy {
 
+    String getName();
+
     String getGeographicalTag(String geo);
 
-    String getId(String type, String id);
+    String getIidmId(String type, String id);
+
+    String getCgmesId(Identifiable<?> identifiable);
+
+    default String getCgmesId(Identifiable<?> identifiable, String subObject) {
+        return identifiable.getId() + "_" + subObject;
+    }
+
+    default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
+        return identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+    }
+
+    default String getCgmesIdFromProperty(Identifiable<?> identifiable, String propertyName) {
+        return identifiable.getProperty(propertyName);
+    }
+
+    default String getCgmesId(String identifier) {
+        return identifier;
+    }
 
     String getName(String type, String name);
 
+    void readIdMapping(Identifiable<?> identifiable, String type);
+
+    void writeIdMapping(Path path);
+
+    void writeIdMapping(String mappingFileName, DataSource ds);
+
     final class Identity implements NamingStrategy {
+
+        @Override
+        public String getName() {
+            return NamingStrategyFactory.IDENTITY;
+        }
 
         @Override
         public String getGeographicalTag(String geo) {
@@ -26,13 +63,33 @@ public interface NamingStrategy {
         }
 
         @Override
-        public String getId(String type, String id) {
+        public String getIidmId(String type, String id) {
             return id;
+        }
+
+        @Override
+        public String getCgmesId(Identifiable<?> identifiable) {
+            return identifiable.getId();
         }
 
         @Override
         public String getName(String type, String name) {
             return name;
+        }
+
+        @Override
+        public void readIdMapping(Identifiable<?> identifiable, String type) {
+            // do nothing
+        }
+
+        @Override
+        public void writeIdMapping(Path path) {
+            // do nothing
+        }
+
+        @Override
+        public void writeIdMapping(String mappingFileName, DataSource ds) {
+            // do nothing
         }
     }
 }

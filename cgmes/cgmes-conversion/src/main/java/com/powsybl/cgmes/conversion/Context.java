@@ -53,7 +53,7 @@ public class Context {
         // based on existing node-breaker info
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
-        namingStrategy = new NamingStrategy.Identity();
+        namingStrategy = config.getNamingStrategy();
         cgmesBoundary = new CgmesBoundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();

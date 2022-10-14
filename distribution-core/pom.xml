@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>4.9.0-SNAPSHOT</version>
+        <version>4.11.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -86,6 +86,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-gl</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-measurements</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
@@ -103,6 +110,12 @@
             <artifactId>powsybl-cgmes-model-alternatives</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-shortcircuit</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -403,13 +416,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-jena</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>

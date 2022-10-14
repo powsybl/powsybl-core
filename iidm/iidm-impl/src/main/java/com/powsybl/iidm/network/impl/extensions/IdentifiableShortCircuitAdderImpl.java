@@ -33,19 +33,19 @@ public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extend
     }
 
     @Override
-    public IdentifiableShortCircuitAdder withIpMin(double ipMin) {
+    public IdentifiableShortCircuitAdder<I> withIpMin(double ipMin) {
         this.ipMin = ipMin;
         return this;
     }
 
     @Override
-    public IdentifiableShortCircuitAdder withIpMax(double ipMax) {
+    public IdentifiableShortCircuitAdder<I> withIpMax(double ipMax) {
         this.ipMax = ipMax;
         return this;
     }
 
     @Override
-    public I add() {
+    public IdentifiableShortCircuit<I> add() {
         if (Double.isNaN(ipMax)) {
             throw new PowsyblException("Undefined ipMax");
         }

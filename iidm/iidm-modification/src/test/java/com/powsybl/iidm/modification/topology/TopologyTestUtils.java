@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.joda.time.DateTime;
 
 /**
@@ -17,8 +18,22 @@ final class TopologyTestUtils {
 
     static final String VOLTAGE_LEVEL_ID = "NHV1_NHV2_1_VL#0";
     static final String BBS = "bbs";
+    static final String VLTEST = "VLTEST";
+
+    static Network createNbNetworkWithBusbarSection() {
+        VoltageLevel vl = createNbNetwork().getVoltageLevel(VLTEST);
+        vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        return vl.getNetwork();
+    }
 
     static Network createNbNetwork() {
+        Network network = FictitiousSwitchFactory.create();
+        network.setCaseDate(DateTime.parse("2021-08-27T14:44:56.567+02:00"));
+        network.newVoltageLevel().setId(VLTEST).setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        return network;
+    }
+
+    static Network createNbBbNetwork() {
         Network network = createNetwork();
         VoltageLevel vl = network.newVoltageLevel().setId("NHV1_NHV2_1_VL#0").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();

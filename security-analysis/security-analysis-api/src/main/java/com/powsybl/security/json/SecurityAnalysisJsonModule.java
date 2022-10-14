@@ -8,8 +8,16 @@ package com.powsybl.security.json;
 
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
-import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.results.PreContingencyResult;
+import com.powsybl.security.action.Action;
+import com.powsybl.security.action.ActionList;
+import com.powsybl.security.condition.Condition;
+import com.powsybl.security.json.action.ActionDeserializer;
+import com.powsybl.security.json.action.ActionListDeserializer;
+import com.powsybl.security.json.action.ActionListSerializer;
+import com.powsybl.security.json.action.ActionSerializer;
+import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.OperatorStrategyList;
+import com.powsybl.security.results.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,6 +31,16 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         addSerializer(LimitViolation.class, new LimitViolationSerializer());
         addSerializer(PreContingencyResult.class, new PreContingencyResultSerializer());
+        addSerializer(BusResult.class, new BusResultSerializer());
+        addSerializer(BranchResult.class, new BranchResultSerializer());
+        addSerializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultSerializer());
+        addSerializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersSerializer());
+        addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
+        addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
+        addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
+        addSerializer(Action.class, new ActionSerializer());
+        addSerializer(ActionList.class, new ActionListSerializer());
+        addSerializer(Condition.class, new ConditionSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
@@ -30,5 +48,16 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(LimitViolationsResult.class, new LimitViolationResultDeserializer());
         addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
         addDeserializer(PreContingencyResult.class, new PreContingencyResultDeserializer());
+        addDeserializer(BusResult.class, new BusResultDeserializer());
+        addDeserializer(BranchResult.class, new BranchResultDeserializer());
+        addDeserializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultDeserializer());
+        addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
+        addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
+        addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
+        addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
+        addDeserializer(Action.class, new ActionDeserializer());
+        addDeserializer(ActionList.class, new ActionListDeserializer());
+        addDeserializer(Condition.class, new ConditionDeserializer());
+        addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
     }
 }

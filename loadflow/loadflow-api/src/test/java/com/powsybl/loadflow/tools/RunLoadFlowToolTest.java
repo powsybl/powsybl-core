@@ -18,6 +18,8 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Locale;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,7 +29,7 @@ public class RunLoadFlowToolTest extends AbstractConverterTest {
     @Test
     public void printLoadFlowResultTest() throws IOException {
         LoadFlowResult result = new LoadFlowResultImpl(true, Collections.emptyMap(), "",
-                Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 8, "mySlack", 0.01)));
+                Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 8, "mySlack", 0.01, 300.45)));
         try (StringWriter writer = new StringWriter()) {
             RunLoadFlowTool.printLoadFlowResult(result, writer, new AsciiTableFormatterFactory(), new TableFormatterConfig(Locale.US, "inv"));
             writer.flush();

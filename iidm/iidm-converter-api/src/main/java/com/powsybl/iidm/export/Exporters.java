@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.export;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceObserver;
@@ -21,8 +19,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * A utility class to work with IIDM exporters.
@@ -31,43 +29,7 @@ import java.util.stream.Collectors;
  */
 public final class Exporters {
 
-    private static final Supplier<ExportersLoader> LOADER = Suppliers.memoize(ExportersServiceLoader::new);
-
     private Exporters() {
-    }
-
-    /**
-     * Get all supported export formats.
-     */
-    public static Collection<String> getFormats(ExportersLoader loader) {
-        Objects.requireNonNull(loader);
-        return loader.loadExporters().stream().map(Exporter::getFormat).collect(Collectors.toSet());
-    }
-
-    public static Collection<String> getFormats() {
-        return getFormats(LOADER.get());
-    }
-
-    /**
-     * Get an exporter.
-     *
-     * @param format the export format
-     * @return the exporter if one exists for the given format or
-     * <code>null</code> otherwise
-     */
-    public static Exporter getExporter(ExportersLoader loader, String format) {
-        Objects.requireNonNull(format);
-        Objects.requireNonNull(loader);
-        for (Exporter e : loader.loadExporters()) {
-            if (format.equals(e.getFormat())) {
-                return e;
-            }
-        }
-        return null;
-    }
-
-    public static Exporter getExporter(String format) {
-        return getExporter(LOADER.get(), format);
     }
 
     public static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
@@ -97,7 +59,7 @@ public final class Exporters {
      * @param reporter the reporter used for functional logs
      */
     public static void export(ExportersLoader loader, String format, Network network, Properties parameters, DataSource dataSource, Reporter reporter) {
-        Exporter exporter = getExporter(loader, format);
+        Exporter exporter = Exporter.find(loader, format);
         if (exporter == null) {
             throw new PowsyblException("Export format " + format + " not supported");
         }
@@ -109,7 +71,7 @@ public final class Exporters {
     }
 
     public static void export(String format, Network network, Properties parameters, DataSource dataSource) {
-        export(LOADER.get(), format, network, parameters, dataSource);
+        export(new ExportersServiceLoader(), format, network, parameters, dataSource);
     }
 
     /**
@@ -131,7 +93,7 @@ public final class Exporters {
     }
 
     public static void export(String format, Network network, Properties parameters, Path file) {
-        export(LOADER.get(), format, network, parameters, file);
+        export(new ExportersServiceLoader(), format, network, parameters, file);
     }
 
     /**
@@ -153,7 +115,7 @@ public final class Exporters {
     }
 
     public static void export(String format, Network network, Properties parameters, String directory, String baseName) {
-        export(LOADER.get(), format, network, parameters, directory, baseName);
+        export(new ExportersServiceLoader(), format, network, parameters, directory, baseName);
     }
 
 }

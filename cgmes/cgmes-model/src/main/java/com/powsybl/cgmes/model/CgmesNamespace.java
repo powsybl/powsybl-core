@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -58,6 +59,8 @@ public final class CgmesNamespace {
     public static final Cim CIM_16 = new Cim16();
     public static final Cim CIM_100 = new Cim100();
 
+    public static final List<Cim> CIM_LIST = List.of(CIM_14, CIM_16, CIM_100);
+
     public static boolean isValid(String ns) {
         // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
         // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
@@ -86,6 +89,8 @@ public final class CgmesNamespace {
         boolean writeLimitInfiniteDuration();
 
         boolean writeGeneratingUnitInitialP();
+
+        boolean isWriteConnectivityNodes();
     }
 
     private abstract static class AbstractCim implements Cim {
@@ -152,6 +157,11 @@ public final class CgmesNamespace {
 
         @Override
         public boolean writeGeneratingUnitInitialP() {
+            return false;
+        }
+
+        @Override
+        public boolean isWriteConnectivityNodes() {
             return false;
         }
 
@@ -229,6 +239,11 @@ public final class CgmesNamespace {
             return true;
         }
 
+        @Override
+        public boolean isWriteConnectivityNodes() {
+            return false;
+        }
+
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE, "value",
                     "OperationalLimitType.limitType", "LimitTypeKind",
@@ -248,6 +263,11 @@ public final class CgmesNamespace {
         @Override
         public boolean writeGeneratingUnitInitialP() {
             return false;
+        }
+
+        @Override
+        public boolean isWriteConnectivityNodes() {
+            return true;
         }
 
         private Cim100() {
@@ -274,4 +294,5 @@ public final class CgmesNamespace {
                 throw new PowsyblException("Unsupported CIM version " + cimVersion);
         }
     }
+
 }

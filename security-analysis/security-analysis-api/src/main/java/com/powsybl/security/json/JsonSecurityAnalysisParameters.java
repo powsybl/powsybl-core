@@ -12,13 +12,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.SecurityAnalysisProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +25,10 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Provides methods to read and write SecurityAnalysisParameters from and to JSON.
@@ -35,27 +37,15 @@ import java.util.Objects;
  */
 public final class JsonSecurityAnalysisParameters {
 
-    /**
-     * A configuration loader interface for the LoadFlowParameters extensions loaded from the platform configuration
-     * @param <E> The extension class
-     */
-    public interface ExtensionSerializer<E extends Extension<SecurityAnalysisParameters>> extends ExtensionJsonSerializer<SecurityAnalysisParameters, E> {
-    }
-
-    /**
-     *  Lazily initialized list of extension serializers.
-     */
-    private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "security-analysis-parameters"));
-
-    /**
-     *  Gets the known extension serializers.
-     */
-    public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
-        return SUPPLIER.get();
-    }
-
     private JsonSecurityAnalysisParameters() {
+    }
+
+    public static Map<String, ExtensionJsonSerializer> getExtensionSerializers() {
+        List<SecurityAnalysisProvider> providers = new ServiceLoaderCache<>(SecurityAnalysisProvider.class).getServices();
+        return providers.stream()
+                .flatMap(securityAnalysisProvider -> securityAnalysisProvider.getSpecificParametersSerializer().stream())
+                .collect(Collectors.toMap(ExtensionProvider::getExtensionName,
+                    securityAnalysisProvider -> securityAnalysisProvider));
     }
 
     /**
@@ -123,28 +113,28 @@ public final class JsonSecurityAnalysisParameters {
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for reading security analysis parameters nested in another object.
+     * Low level deserialization method, to be used for instance for reading security analysis parameters nested in another object.
      */
     public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context, SecurityAnalysisParameters parameters) throws IOException {
         return new SecurityAnalysisParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for updating lsecurity analysis parameters nested in another object.
+     * Low level deserialization method, to be used for instance for updating lsecurity analysis parameters nested in another object.
      */
     public static SecurityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         return new SecurityAnalysisParametersDeserializer().deserialize(parser, context);
     }
 
     /**
-     *  Low level serialization method, to be used for instance for writing security analysis parameters nested in another object.
+     * Low level serialization method, to be used for instance for writing security analysis parameters nested in another object.
      */
-    public static void serialize(SecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
+    public static void serialize(SecurityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         new SecurityAnalysisParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisParametersJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule());
     }
 }

@@ -18,7 +18,7 @@ import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -163,7 +163,7 @@ public class ActionSimulatorTool implements Tool {
     }
 
     protected Collection<String> getFormats() {
-        return Exporters.getFormats();
+        return Exporter.getFormats();
     }
 
     private static LoadFlowActionSimulatorObserver createLogPrinter(ToolRunningContext context, boolean verbose) {

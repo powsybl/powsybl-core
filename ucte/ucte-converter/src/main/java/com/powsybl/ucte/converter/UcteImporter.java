@@ -350,6 +350,10 @@ public class UcteImporter implements Importer {
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
         }
+        if (nodeCode1.equals(nodeCode2)) {
+            LOGGER.error("Coupler '{}' has same bus at both ends: ignored", ucteLine.getId());
+            return;
+        }
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel1.getName());
         Switch couplerSwitch = voltageLevel.getBusBreakerView().newSwitch()
                 .setEnsureIdUnicity(true)
@@ -562,7 +566,7 @@ public class UcteImporter implements Importer {
             if (currentTapPosition < 0) {
                 floor = currentTapPosition;
             } else {
-                floor  = -currentTapPosition;
+                floor = -currentTapPosition;
             }
             LOGGER.info("Number of Taps for transformer '{}' is extended from '{}', to '{}'", transformer.getId(), initialTapsNumber, Math.abs(floor));
         }
@@ -794,7 +798,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {
-        if (ucteElement.getElementName() != null) {
+        if (ucteElement.getElementName() != null && !ucteElement.getElementName().isEmpty()) {
             identifiable.setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
         }
     }
@@ -971,14 +975,10 @@ public class UcteImporter implements Importer {
         addGeographicalNameProperty(ucteNetwork, mergeLine, dlAtSideOne, dlAtSideTwo);
         addXnodeStatusProperty(mergeLine, dlAtSideOne);
 
-        if (dlAtSideOne.getCurrentLimits() != null) {
-            mergeLine.newCurrentLimits1()
-                    .setPermanentLimit(dlAtSideOne.getCurrentLimits().getPermanentLimit()).add();
-        }
-        if (dlAtSideTwo.getCurrentLimits() != null) {
-            mergeLine.newCurrentLimits2()
-                    .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
-        }
+        dlAtSideOne.getCurrentLimits()
+                .ifPresent(currentLimits -> mergeLine.newCurrentLimits1().setPermanentLimit(currentLimits.getPermanentLimit()).add());
+        dlAtSideTwo.getCurrentLimits()
+                .ifPresent(currentLimits -> mergeLine.newCurrentLimits2().setPermanentLimit(currentLimits.getPermanentLimit()).add());
         double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
         double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
         double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;

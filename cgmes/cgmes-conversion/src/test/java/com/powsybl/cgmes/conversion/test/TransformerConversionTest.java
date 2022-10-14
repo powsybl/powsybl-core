@@ -7,44 +7,31 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.Conversion.Xfmr2RatioPhaseInterpretationAlternative;
-import com.powsybl.cgmes.conversion.Conversion.Xfmr2ShuntInterpretationAlternative;
-import com.powsybl.cgmes.conversion.Conversion.Xfmr2StructuralRatioInterpretationAlternative;
-import com.powsybl.cgmes.conversion.Conversion.Xfmr3RatioPhaseInterpretationAlternative;
-import com.powsybl.cgmes.conversion.Conversion.Xfmr3ShuntInterpretationAlternative;
-import com.powsybl.cgmes.conversion.Conversion.Xfmr3StructuralRatioInterpretationAlternative;
+import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

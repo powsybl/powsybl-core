@@ -15,10 +15,10 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NBAT"/>
             </iidm:busBreakerTopology>
-            <iidm:battery id="BAT" p0="9999.99" q0="9999.99" minP="-9999.99" maxP="9999.99" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
+            <iidm:battery id="BAT" targetP="9999.99" targetQ="9999.99" minP="-9999.99" maxP="9999.99" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
             </iidm:battery>
-            <iidm:battery id="BAT2" p0="100.0" q0="200.0" minP="-200.0" maxP="200.0" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
+            <iidm:battery id="BAT2" targetP="100.0" targetQ="200.0" minP="-200.0" maxP="200.0" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>
                     <iidm:point p="70.0" minQ="-54.55" maxQ="46.25"/>
@@ -38,8 +38,8 @@
     </iidm:extension>
     <iidm:extension id="BAT">
         <io:injectionObservability observable="true">
-            <io:qualityP standardDeviation="0.03"/>
-            <io:qualityQ standardDeviation="0.6"/>
+            <io:qualityP standardDeviation="0.03" redundant="false"/>
+            <io:qualityQ standardDeviation="0.6" redundant="false"/>
         </io:injectionObservability>
     </iidm:extension>
 </iidm:network>

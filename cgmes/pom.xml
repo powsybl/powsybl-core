@@ -13,7 +13,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>4.9.0-SNAPSHOT</version>
+        <version>4.11.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes</artifactId>
@@ -25,9 +25,11 @@
         <module>cgmes-conformity</module>
         <module>cgmes-conversion</module>
         <module>cgmes-extensions</module>
+        <module>cgmes-gl</module>
         <module>cgmes-measurements</module>
         <module>cgmes-model</module>
         <module>cgmes-model-alternatives</module>
+        <module>cgmes-shortcircuit</module>
     </modules>
 
 </project>

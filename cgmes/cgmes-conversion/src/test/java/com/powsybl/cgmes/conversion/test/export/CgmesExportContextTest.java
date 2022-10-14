@@ -6,16 +6,12 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
@@ -24,7 +20,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -129,84 +124,5 @@ public class CgmesExportContextTest {
 
         context.getSvModelDescription().clearDependencies();
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
-    }
-
-    @Test
-    public void testBuildIidmMappingAndChangingSwitchStatus() {
-        Network n = buildIidmMapping();
-
-        // Change switch status
-        n.getSwitch("9550e743-98fd-4be7-848f-b6a600d6c67b").setOpen(true);
-
-        // Check that topology mapping has been invalidated
-        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
-    }
-
-    @Test
-    public void testBuildIidmMappingAndCreatingSwitch() {
-        Network n = buildIidmMapping();
-
-        // Create switch
-        n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newSwitch().setId("test").setNode1(0).setNode2(2).setOpen(false).setKind(SwitchKind.BREAKER).add();
-
-        // Check that topology mapping has been invalidated
-        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
-    }
-
-    @Test
-    public void testBuildIidmMappingAndCreatingInternalConnection() {
-        Network n = buildIidmMapping();
-
-        // Create internal connection
-        n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
-
-        // Check that topology mapping has been invalidated
-        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
-    }
-
-    @Test
-    public void testBuildIidmMappingAndDeletingSwitch() {
-        Network n = buildIidmMapping();
-
-        // Delete switch
-        n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008").getNodeBreakerView().removeSwitch("9550e743-98fd-4be7-848f-b6a600d6c67b");
-
-        // Check that topology mapping has been invalidated
-        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
-    }
-
-    @Test
-    public void testBuildIidmMappingAndDeletingSwitches() {
-        Network n = buildIidmMapping();
-
-        // Delete voltage level (containing switches)
-        VoltageLevel vl = n.getVoltageLevel("04636548-c766-11e1-8775-005056c00008");
-        vl.getLines().forEach(Connectable::remove);
-        vl.remove();
-
-        // Check that topology mapping has been invalidated
-        assertTrue(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
-    }
-
-    private static Network buildIidmMapping() {
-        ReadOnlyDataSource ds = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
-
-        // Import without creating mappings
-        Properties ip = new Properties();
-        ip.put("iidm.import.cgmes.create-cgmes-export-mapping", "false");
-        Network n = new CgmesImport().importData(ds, NetworkFactory.findDefault(), ip);
-        CgmesExportContext context = new CgmesExportContext(n, true);
-        assertNotNull(n.getExtension(CgmesIidmMapping.class));
-
-        for (Bus bus : n.getBusView().getBuses()) {
-            assertNotNull(context.getTopologicalNodesByBusViewBus(bus.getId()));
-        }
-
-        for (VoltageLevel voltageLevel : n.getVoltageLevels()) {
-            assertNotNull(context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()));
-        }
-
-        assertFalse(n.getExtension(CgmesIidmMapping.class).isTopologicalNodeEmpty());
-        return n;
     }
 }

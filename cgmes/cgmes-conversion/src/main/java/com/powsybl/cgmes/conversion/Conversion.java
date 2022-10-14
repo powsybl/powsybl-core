@@ -148,11 +148,6 @@ public class Conversion {
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
         addCimCharacteristics(network);
-        if (context.config().createCgmesExportMapping) {
-            CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
-            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode"), tn.getId("name"), isBoundaryTopologicalNode(tn.getLocal("graphTP"))));
-            mappingAdder.add();
-        }
         BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
@@ -250,20 +245,12 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        if (config.createCgmesExportMapping) {
-            network.getExtension(CgmesIidmMapping.class).addTopologyListener();
-        }
         return network;
-    }
-
-    private Source isBoundaryTopologicalNode(String graph) {
-        //There are unit tests where the boundary file contains the sequence "TPBD" and others "TP_BD"
-        return graph.contains("TP") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
     }
 
     private Source isBoundaryBaseVoltage(String graph) {
         //There are unit tests where the boundary file contains the sequence "EQBD" and others "EQ_BD"
-        return graph.contains("EQ") && graph.contains("BD")  ? Source.BOUNDARY : Source.IGM;
+        return graph.contains("EQ") && graph.contains("BD") ? Source.BOUNDARY : Source.IGM;
     }
 
     private static void completeVoltagesAndAngles(Network network) {
@@ -404,9 +391,9 @@ public class Conversion {
                                                               Supplier<String> terminalId2,
                                                               Map<String, VoltageLevel> nominalVoltageByLineContainerId,
                                                               Context context) {
-        String vlId = Optional.ofNullable(context.namingStrategy().getId("VoltageLevel",
+        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId("VoltageLevel",
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
-                .orElseGet(() -> context.namingStrategy().getId("VoltageLevel",
+                .orElseGet(() -> context.namingStrategy().getIidmId("VoltageLevel",
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId2.get()), context.nodeBreaker())));
         if (vlId != null) {
             VoltageLevel vl = context.network().getVoltageLevel(vlId);
@@ -466,7 +453,7 @@ public class Conversion {
         vldata.lineName = lineSegment.get("lineName");
         CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
         vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-        String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+        String vlId = context.namingStrategy().getIidmId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
         if (vlId != null) {
             vldata.vl = context.network().getVoltageLevel(vlId);
         } else {
@@ -753,7 +740,7 @@ public class Conversion {
             return this;
         }
 
-        public StateProfile  getProfileForInitialValuesShuntSectionsTapPositions() {
+        public StateProfile getProfileForInitialValuesShuntSectionsTapPositions() {
             return profileForInitialValuesShuntSectionsTapPositions;
         }
 
@@ -802,6 +789,15 @@ public class Conversion {
 
         public Config setImportControlAreas(boolean importControlAreas) {
             this.importControlAreas = importControlAreas;
+            return this;
+        }
+
+        public NamingStrategy getNamingStrategy() {
+            return namingStrategy;
+        }
+
+        public Config setNamingStrategy(NamingStrategy namingStrategy) {
+            this.namingStrategy = Objects.requireNonNull(namingStrategy);
             return this;
         }
 
@@ -870,6 +866,8 @@ public class Conversion {
 
         private boolean createCgmesExportMapping = false;
 
+        private NamingStrategy namingStrategy = new NamingStrategy.Identity();
+
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
         private Xfmr2ShuntInterpretationAlternative xfmr2Shunt = Xfmr2ShuntInterpretationAlternative.END1_END2;
@@ -894,4 +892,5 @@ public class Conversion {
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 
     public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
+    public static final String PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL = CGMES_PREFIX_ALIAS_PROPERTIES + "isCreatedForDisconnectedTerminal";
 }

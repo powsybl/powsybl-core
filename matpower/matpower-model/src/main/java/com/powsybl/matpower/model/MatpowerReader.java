@@ -8,10 +8,7 @@ package com.powsybl.matpower.model;
 
 import com.google.common.collect.Sets;
 import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.types.MatFile;
-import us.hebi.matlab.mat.types.Matrix;
-import us.hebi.matlab.mat.types.Sources;
-import us.hebi.matlab.mat.types.Struct;
+import us.hebi.matlab.mat.types.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +56,10 @@ public final class MatpowerReader {
             Matrix buses = mpcStruct.getMatrix("bus");
             Matrix generators = mpcStruct.getMatrix("gen");
             Matrix branches = mpcStruct.getMatrix("branch");
+            Cell busesNames = null;
+            if (mpcStruct.getFieldNames().contains("bus_name")) {
+                busesNames = mpcStruct.getCell("bus_name");
+            }
             model = new MatpowerModel(caseName);
             model.setVersion(version);
             model.setBaseMva(baseMVA);
@@ -67,6 +68,10 @@ public final class MatpowerReader {
                 MBus bus = new MBus();
                 for (int col = 0; col < buses.getDimensions()[1]; col++) {
                     bus.setNumber(buses.getInt(row, 0));
+                    if (busesNames != null) {
+                        String name = busesNames.getChar(row).getString();
+                        bus.setName(name);
+                    }
                     bus.setType(MBus.Type.fromInt(buses.getInt(row, 1)));
                     bus.setRealPowerDemand(buses.getDouble(row, 2));
                     bus.setReactivePowerDemand(buses.getDouble(row, 3));

@@ -17,12 +17,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.AbstractOptions;
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.export.BusFilter;
-import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.import_.ImportOptions;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
+import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -132,10 +128,10 @@ public final class NetworkXml {
         // Get the list of the serializers needed to export the current network
         IidmXmlVersion networkVersion = getNetworkVersion(options);
         Set<ExtensionXmlSerializer<?, ?>> serializers = n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
-                .stream()
-                .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
-                .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
-                .collect(Collectors.toSet());
+                        .stream()
+                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
+                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         // Export the prefix and namespace of each serializer and ensure that there is no conflict
         for (ExtensionXmlSerializer<?, ?> extensionXmlSerializer : serializers) {
             String namespaceUri = getNamespaceUri(extensionXmlSerializer, options, networkVersion);
@@ -257,7 +253,7 @@ public final class NetworkXml {
 
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os);
+        XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
         String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
         writer.setPrefix(IIDM_PREFIX, namespaceUri);
         IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
@@ -354,6 +350,7 @@ public final class NetworkXml {
             writeExtensions(n, context, options);
             context.getWriter().writeEndElement();
             context.getWriter().writeEndDocument();
+            context.getWriter().close();
             return context.getAnonymizer();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -504,6 +501,8 @@ public final class NetworkXml {
             checkExtensionsNotFound(context, extensionNamesNotFound);
 
             context.getEndTasks().forEach(Runnable::run);
+            reader.close();
+            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

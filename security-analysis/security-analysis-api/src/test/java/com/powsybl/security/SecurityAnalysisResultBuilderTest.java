@@ -4,20 +4,17 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.interceptors.*;
-import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResults;
-import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.results.ThreeWindingsTransformerResult;
+import com.powsybl.security.results.*;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -92,7 +89,7 @@ public class SecurityAnalysisResultBuilderTest {
 
         builder.contingency(new Contingency("contingency1")).setComputationOk(true)
                 .addBranchResult(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0))
-                .addBusResult(new BusResults("voltageLevelId", "busId", 400, 3.14))
+                .addBusResult(new BusResult("voltageLevelId", "busId", 400, 3.14))
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
@@ -111,10 +108,10 @@ public class SecurityAnalysisResultBuilderTest {
 
         PostContingencyResult res1 = res.getPostContingencyResults().get(0);
         assertEquals("contingency1", res1.getContingency().getId());
-        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), res1.getBranchResult("branchId"));
-        assertEquals(new BusResults("voltageLevelId", "busId", 400, 3.14), res1.getBusResult("busId"));
+        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getBranchResult("branchId"));
+        assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), res1.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
-            0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getThreeWindingsTransformerResult("threeWindingsTransformerId"));
+            0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();
@@ -211,4 +208,38 @@ public class SecurityAnalysisResultBuilderTest {
         }
     }
 
+    @Test
+    public void operatorStrategyResultCreation() {
+        //Build result with 1 operator strategy
+        OperatorStrategy operatorStrategy = new OperatorStrategy("strat1", "cont1", new TrueCondition(),
+                List.of("action1", "action2"));
+
+        SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
+                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
+
+        LimitViolation violation = LimitViolations.highVoltage().subject("VLHV1").value(425).limit(420).build();
+        BusResult busResult = new BusResult("VLHV2", "VLHV2_0", 426.2, 0.12);
+        builder.operatorStrategy(operatorStrategy)
+                .setComputationOk(true)
+                .addViolation(violation)
+                .addBusResult(busResult)
+                .endOperatorStrategy();
+
+        SecurityAnalysisResult result = builder.build();
+
+        //Check content
+        assertEquals(1, result.getOperatorStrategyResults().size());
+
+        OperatorStrategyResult strategyResult = result.getOperatorStrategyResults().get(0);
+        assertSame(operatorStrategy, strategyResult.getOperatorStrategy());
+        LimitViolationsResult violationsResult = strategyResult.getLimitViolationsResult();
+        assertTrue(violationsResult.isComputationOk());
+        assertEquals(1, violationsResult.getLimitViolations().size());
+        assertSame(violation, violationsResult.getLimitViolations().get(0));
+        NetworkResult networkResult = strategyResult.getNetworkResult();
+        assertEquals(1, networkResult.getBusResults().size());
+        assertEquals(busResult, networkResult.getBusResults().get(0));
+        assertTrue(networkResult.getBranchResults().isEmpty());
+        assertTrue(networkResult.getThreeWindingsTransformerResults().isEmpty());
+    }
 }

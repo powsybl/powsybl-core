@@ -8,9 +8,9 @@ package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,30 +28,57 @@ class LineConverter extends AbstractConverter {
 
     void create(DataObject elmLne) {
         List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
-        Optional<LineModel> lineModel = LineModel.createFromTypLne(elmLne);
+        Optional<LineModel> lineModel = LineModel.createFromElmLne(elmLne);
         if (lineModel.isEmpty()) {
             return;
         }
         NodeRef end1 = nodeRefs.get(0);
         NodeRef end2 = nodeRefs.get(1);
 
+        createLine(end1, end2, elmLne.getLocName(), lineModel.get());
+    }
+
+    void createTower(DataObject elmTow) {
+        Optional<List<DataObjectRef>> plines = elmTow.findObjectVectorAttributeValue("plines");
+        if (plines.isEmpty() || plines.get().isEmpty()) {
+            throw new PowerFactoryException("ElmTow without plines '" + elmTow.getLocName() + "'");
+        }
+
+        plines.get().forEach(pline -> {
+            DataObject elmLne = pline.resolve()
+                .orElseThrow(() -> new PowerFactoryException("pline dataObject not found, ElmTow Id: " + elmTow.getId()));
+            createFromElmLneFromElmTow(elmTow, elmLne);
+        });
+    }
+
+    private void createLine(NodeRef end1, NodeRef end2, String id, LineModel lineModel) {
         getNetwork().newLine()
-            .setId(elmLne.getLocName())
+            .setId(id)
             .setEnsureIdUnicity(true)
             .setVoltageLevel1(end1.voltageLevelId)
             .setVoltageLevel2(end2.voltageLevelId)
             .setNode1(end1.node)
             .setNode2(end2.node)
-            .setR(lineModel.get().r)
-            .setX(lineModel.get().x)
-            .setG1(lineModel.get().g1)
-            .setB1(lineModel.get().b1)
-            .setG2(lineModel.get().g2)
-            .setB2(lineModel.get().b2)
+            .setR(lineModel.r)
+            .setX(lineModel.x)
+            .setG1(lineModel.g1)
+            .setB1(lineModel.b1)
+            .setG2(lineModel.g2)
+            .setB2(lineModel.b2)
             .add();
     }
 
-    static class LineModel {
+    private void createFromElmLneFromElmTow(DataObject elmTow, DataObject elmLne) {
+        List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
+        Optional<LineModel> lineModel = LineModel.createFromElmTow(elmTow, elmLne);
+
+        NodeRef end1 = nodeRefs.get(0);
+        NodeRef end2 = nodeRefs.get(1);
+
+        createLine(end1, end2, elmLne.getLocName(), lineModel.get());
+    }
+
+    private static final class LineModel {
         private final double r;
         private final double x;
         private final double g1;
@@ -59,7 +86,7 @@ class LineConverter extends AbstractConverter {
         private final double g2;
         private final double b2;
 
-        LineModel(double r, double x, double g1, double b1, double g2, double b2) {
+        private LineModel(double r, double x, double g1, double b1, double g2, double b2) {
             this.r = r;
             this.x = x;
             this.g1 = g1;
@@ -68,7 +95,7 @@ class LineConverter extends AbstractConverter {
             this.b2 = b2;
         }
 
-        static Optional<LineModel> createFromTypLne(DataObject elmLne) {
+        private static Optional<LineModel> createFromElmLne(DataObject elmLne) {
             return elmLne.findObjectAttributeValue(DataAttributeNames.TYP_ID).flatMap(DataObjectRef::resolve).map(typLne -> typeLneModel(elmLne, typLne));
         }
 
@@ -81,6 +108,14 @@ class LineConverter extends AbstractConverter {
 
             double g = typeLneModelShuntConductance(typLne) * dline;
             double b = typeLneModelShuntSusceptance(typLne) * dline;
+
+            int numberOfParallelLines = elmLne.findIntAttributeValue("nlnum").orElse(1);
+            if (numberOfParallelLines > 1) {
+                r /= numberOfParallelLines;
+                x /= numberOfParallelLines;
+                g *= numberOfParallelLines;
+                b *= numberOfParallelLines;
+            }
 
             return new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5);
         }
@@ -109,6 +144,24 @@ class LineConverter extends AbstractConverter {
                 return microFaradToSiemens(frnom.get(), cline.get());
             }
             return 0.0;
+        }
+
+        private static Optional<LineModel> createFromElmTow(DataObject elmTow, DataObject elmLne) {
+            Float dline = elmLne.getFloatAttributeValue("dline");
+            DataObject typTow = getTypeTow(elmTow);
+
+            double r = typTow.getDoubleMatrixAttributeValue("R_c1").getEntry(0, 0) * dline;
+            double x = typTow.getDoubleMatrixAttributeValue("X_c1").getEntry(0, 0) * dline;
+            double g = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("G_c1").getEntry(0, 0) * dline);
+            double b = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("B_c1").getEntry(0, 0) * dline);
+
+            return Optional.of(new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5));
+        }
+
+        private static DataObject getTypeTow(DataObject elmTow) {
+            return elmTow.findObjectVectorAttributeValue("pGeo")
+                .flatMap(listDataObjectRef -> listDataObjectRef.stream().findFirst()).flatMap(DataObjectRef::resolve)
+                .orElseThrow(() -> new PowerFactoryException("Unexpected elmTow configuration '" + elmTow.getLocName() + "'"));
         }
     }
 }

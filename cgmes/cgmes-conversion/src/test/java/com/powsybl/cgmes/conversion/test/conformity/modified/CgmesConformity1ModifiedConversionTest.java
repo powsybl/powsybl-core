@@ -11,11 +11,13 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.PowsyblException;
@@ -26,6 +28,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -35,7 +39,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
@@ -54,6 +60,13 @@ public class CgmesConformity1ModifiedConversionTest {
     @After
     public void tearDown() throws IOException {
         fileSystem.close();
+    }
+
+    @Test
+    public void microBEExplicitBase() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEExplicitBase().dataSource(), NetworkFactory.findDefault(), null);
+        assertNotNull(network);
     }
 
     @Test
@@ -116,7 +129,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEPhaseTapChangerLinearTest() throws IOException {
+    public void microBEPhaseTapChangerLinearTest() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microT4BePhaseTapChangerLinear(),
             config);
@@ -142,7 +155,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(-14.4, ptc.getStep(25).getAlpha(), 0.001);
     }
 
-    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
@@ -151,9 +164,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         config.setConvertSvInjections(true);
         Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        return n;
+        return c.convert();
     }
 
     @Test
@@ -343,7 +354,7 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUndefinedPatl().dataSource(),
                 NetworkFactory.findDefault(), null);
         Line line = network.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
-        CurrentLimits limits = line.getCurrentLimits1();
+        CurrentLimits limits = line.getCurrentLimits1().orElse(null);
         assertNotNull(limits);
         assertEquals(2, limits.getTemporaryLimits().size());
         assertEquals(1312.0, limits.getPermanentLimit(), 0.0);
@@ -438,11 +449,11 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
         assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
-        assertNull(twt3.getLeg1().getApparentPowerLimits());
-        assertNull(twt3.getLeg2().getApparentPowerLimits());
-        assertNull(twt3.getLeg3().getApparentPowerLimits());
+        assertTrue(twt3.getLeg1().getApparentPowerLimits().isEmpty());
+        assertTrue(twt3.getLeg2().getApparentPowerLimits().isEmpty());
+        assertTrue(twt3.getLeg3().getApparentPowerLimits().isEmpty());
         TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
-        ApparentPowerLimits apparentPowerLimits = twt2.getApparentPowerLimits1();
+        ApparentPowerLimits apparentPowerLimits = twt2.getApparentPowerLimits1().orElse(null);
         assertNotNull(apparentPowerLimits);
         assertEquals(22863.1, apparentPowerLimits.getPermanentLimit(), 0.0);
         assertTrue(apparentPowerLimits.getTemporaryLimits().isEmpty());
@@ -473,7 +484,9 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingLimitValue().dataSource(),
                 NetworkFactory.findDefault(), null);
         DanglingLine line = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
-        assertNull(line.getCurrentLimits().getTemporaryLimit(10));
+        CurrentLimits limits = line.getCurrentLimits().orElse(null);
+        assertNotNull(limits);
+        assertNull(limits.getTemporaryLimit(10));
     }
 
     @Test
@@ -672,7 +685,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniBusBranchExternalInjectionControl() throws IOException {
+    public void miniBusBranchExternalInjectionControl() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchExternalInjectionControl().dataSource(), NetworkFactory.findDefault(), null);
         // External network injections with shared control enabled
         // One external network injection has control enabled
@@ -700,10 +713,10 @@ public class CgmesConformity1ModifiedConversionTest {
         // In the modified case both ends have to see the same value
         Line l0 = network0.getLine("1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
         Line l1 = network1.getLine("1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
-        assertEquals(525, l0.getCurrentLimits1().getPermanentLimit(), tol);
-        assertNull(l0.getCurrentLimits2());
-        assertEquals(525, l1.getCurrentLimits1().getPermanentLimit(), tol);
-        assertEquals(525, l1.getCurrentLimits2().getPermanentLimit(), tol);
+        assertEquals(525, l0.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertTrue(l0.getCurrentLimits2().isEmpty());
+        assertEquals(525, l1.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(525, l1.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 2 - PATL Current defined for an ACTransmissionLine
         // that will be mapped to a DanglingLine in IIDM
@@ -712,16 +725,16 @@ public class CgmesConformity1ModifiedConversionTest {
         // In network0 limit is defined for the Terminal
         // In network1 limit is defined for the Equipment
         // In both cases the limit should be mapped to IIDM
-        assertEquals(1000, dl0.getCurrentLimits().getPermanentLimit(), tol);
-        assertEquals(1000, dl1.getCurrentLimits().getPermanentLimit(), tol);
+        assertEquals(1000, dl0.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(1000, dl1.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 3 - PATL Current defined for a PowerTransformer, should be rejected
         TwoWindingsTransformer tx0 = network0.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
         TwoWindingsTransformer tx1 = network1.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
-        assertEquals(158, tx0.getCurrentLimits1().getPermanentLimit(), tol);
-        assertEquals(1732, tx0.getCurrentLimits2().getPermanentLimit(), tol);
-        assertNull(tx1.getCurrentLimits1());
-        assertEquals(1732, tx1.getCurrentLimits2().getPermanentLimit(), tol);
+        assertEquals(158, tx0.getCurrentLimits1().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(1732, tx0.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertTrue(tx1.getCurrentLimits1().isEmpty());
+        assertEquals(1732, tx1.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 4 - PATL Current defined for Switch, will be ignored
         // The transformer that had the original limit will lose it
@@ -730,8 +743,8 @@ public class CgmesConformity1ModifiedConversionTest {
         TwoWindingsTransformer tx1s = network1.getTwoWindingsTransformer("6c89588b-3df5-4120-88e5-26164afb43e9");
         Switch sw0 = network0.getSwitch("d0119330-220f-4ed3-ad3c-f893ad0534fb");
         Switch sw1 = network0.getSwitch("d0119330-220f-4ed3-ad3c-f893ad0534fb");
-        assertEquals(1732, tx0s.getCurrentLimits2().getPermanentLimit(), tol);
-        assertNull(tx1s.getCurrentLimits2());
+        assertEquals(1732, tx0s.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertTrue(tx1s.getCurrentLimits2().isEmpty());
         assertNotNull(sw0);
         assertNotNull(sw1);
     }
@@ -748,7 +761,9 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(transformer);
 
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerInvalidT2w().dataSource();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> new CgmesImport(platformConfig).importData(ds, NetworkFactory.findDefault(), null));
+        CgmesImport importer = new CgmesImport(platformConfig);
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(ds, networkFactory, null));
         assertEquals("2 windings transformer 'ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51': the 2 windings of the transformer shall belong to the substation '183d126d-2522-4ff2-a8cd-c5016cf09c1b_S' ('183d126d-2522-4ff2-a8cd-c5016cf09c1b_S', 'd6056127-34f1-43a9-b029-23fddb913bd5')",
             e.getMessage());
     }
@@ -801,6 +816,30 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(sw);
         // By default, a switch not specifically assigned to a given kid should be considered BREAKER
         assertEquals(SwitchKind.BREAKER, sw.getKind());
+    }
+
+    @Test
+    public void miniNodeBreakerSubstationNode() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSubstationNode().dataSource(),
+                        NetworkFactory.findDefault(), null);
+        assertNotNull(network); // Check it doesn't fail when a connectivity node is in substation
+        // Check that the test load is connected to a proper bus in the bus view
+        Load testLoad = network.getLoad("TEST_LOAD");
+        assertNotNull(testLoad);
+        Bus testBus = testLoad.getTerminal().getBusView().getBus();
+        assertNotNull(testBus);
+    }
+
+    @Test
+    public void miniNodeBreakerMissingSubstationRegion() {
+        // Check that we fail with a powsybl exception instead of a NPE
+        CgmesImport importer = new CgmesImport();
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.miniNodeBreakerMissingSubstationRegion().dataSource();
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        CgmesModelException exception = assertThrows(CgmesModelException.class, () -> importer.importData(dataSource, networkFactory, null));
+        assertEquals("BusbarSection 78f2ae0e-da25-483a-8a71-76f709389894 voltage level 347fb7af-642f-4c60-97d9-c03d440b6a82 has not been created in IIDM",
+                exception.getMessage());
     }
 
     @Test
@@ -874,6 +913,94 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0").getExtension(GeneratorEntsoeCategory.class));
         assertNull(network.getGenerator("1dc9afba-23b5-41a0-8540-b479ed8baf4b").getExtension(GeneratorEntsoeCategory.class));
         assertNull(network.getGenerator("2844585c-0d35-488d-a449-685bcd57afbf").getExtension(GeneratorEntsoeCategory.class));
+    }
+
+    @Test
+    public void microGridBaseCaseNLMultipleSlacks() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLMultipleSlacks().dataSource(), null);
+        Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e-bis");
+        SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
+        assertNotNull(st);
+        assertEquals(g.getTerminal().getConnectable().getId(), st.getTerminal().getConnectable().getId());
+    }
+
+    @Test
+    public void microGridBaseCaseNLShuntCompensatorGP() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLShuntCompensatorGP().dataSource(), null);
+        assertEquals(0.0000123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getG(), 0.0);
+        assertEquals(0.123, network.getShuntCompensator("fbfed7e3-3dec-4829-a286-029e73535685").getTerminal().getP(), 0.0);
+    }
+
+    @Test
+    public void microGridBaseCaseBESingleFile() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
+        assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
+        assertEquals(5, network.getDanglingLineCount());
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcNoSequenceNumbers() {
+        Network networkSeq = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
+        Network networkNoSeq = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNoSequenceNumbers().dataSource(), null);
+        // Make sure we have not lost any line, switch
+        assertEquals(networkSeq.getLineCount(), networkNoSeq.getLineCount());
+        assertEquals(networkSeq.getSwitchCount(), networkNoSeq.getSwitchCount());
+        assertEquals(networkSeq.getHvdcLineCount(), networkNoSeq.getHvdcLineCount());
+
+        // Check terminal ids have been sorted properly
+        CgmesModel cgmesSeq = networkSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
+        CgmesModel cgmesNoSeq = networkNoSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
+        checkTerminals(cgmesSeq.acLineSegments(), cgmesNoSeq.acLineSegments(), "ACLineSegment", "Terminal1", "Terminal2");
+        checkTerminals(cgmesSeq.switches(), cgmesNoSeq.switches(), "Switch", "Terminal1", "Terminal2");
+        checkTerminals(cgmesSeq.seriesCompensators(), cgmesNoSeq.seriesCompensators(), "SeriesCompensator", "Terminal1", "Terminal2");
+        checkTerminals(cgmesSeq.dcLineSegments(), cgmesNoSeq.dcLineSegments(), "DCLineSegment", "DCTerminal1", "DCTerminal2");
+    }
+
+    @Test
+    public void microGridBaseBEStationSupply() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBEStationSupply().dataSource(), null);
+        Load l = network.getLoad("b1480a00-b427-4001-a26c-51954d2bb7e9_station_supply");
+        assertNotNull(l);
+        assertEquals(6.5, l.getP0(), 1e-3);
+        assertEquals(0.001, l.getQ0(), 1e-3);
+        assertEquals(LoadType.AUXILIARY, l.getLoadType());
+    }
+
+    @Test
+    public void microGridBaseBETargetDeadbandNegative() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative().dataSource(), null);
+        String transformerId = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer(transformerId).getPhaseTapChanger();
+        assertTrue(Double.isNaN(ptc.getTargetDeadband()));
+        assertFalse(ptc.isRegulating());
+    }
+
+    private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {
+        Map<String, String> eqsSeqTerminal1 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal1PropertyName)));
+        Map<String, String> eqsSeqTerminal2 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal2PropertyName)));
+        eqSeq.forEach(eq -> {
+            assertEquals("1", eq.getLocal("seq1"));
+            assertEquals("2", eq.getLocal("seq2"));
+        });
+        eqNoSeq.forEach(eq -> {
+            assertNull(eq.getLocal("seq1"));
+            assertNull(eq.getLocal("seq2"));
+            String eqNoSeqTerminal1 = eq.getId(terminal1PropertyName);
+            String eqNoSeqTerminal2 = eq.getId(terminal2PropertyName);
+
+            String id = eq.getId(idPropertyName);
+            String eqSeqTerminal1 = eqsSeqTerminal1.get(id);
+            String eqSeqTerminal2 = eqsSeqTerminal2.get(id);
+
+            if (eqSeqTerminal1.equals(eqNoSeqTerminal1)) {
+                assertEquals(eqSeqTerminal2, eqNoSeqTerminal2);
+                assertTrue(eqNoSeqTerminal1.compareTo(eqNoSeqTerminal2) < 0);
+            } else {
+                assertEquals(eqSeqTerminal1, eqNoSeqTerminal2);
+                assertEquals(eqSeqTerminal2, eqNoSeqTerminal1);
+                assertTrue(eqSeqTerminal1.compareTo(eqSeqTerminal2) > 0);
+            }
+        });
     }
 
     private FileSystem fileSystem;

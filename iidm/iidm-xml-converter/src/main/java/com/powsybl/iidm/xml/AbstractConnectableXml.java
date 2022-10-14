@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -41,17 +40,17 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     protected static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
-        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) > 0) {
+        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
         }
-        return branch.getCurrentLimits1() != null || branch.getCurrentLimits2() != null;
+        return branch.getCurrentLimits1().isPresent() || branch.getCurrentLimits2().isPresent();
     }
 
     protected static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkXmlWriterContext context) {
-        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) > 0) {
+        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !limitsHolder.getOperationalLimits().isEmpty();
         }
-        return limitsHolder.getCurrentLimits() != null;
+        return limitsHolder.getCurrentLimits().isPresent();
     }
 
     protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {

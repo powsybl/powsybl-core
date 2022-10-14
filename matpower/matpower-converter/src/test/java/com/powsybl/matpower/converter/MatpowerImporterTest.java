@@ -35,6 +35,7 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**
@@ -115,6 +116,11 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     @Test
     public void testCase300() throws IOException {
         testCase(MatpowerModelFactory.create300());
+    }
+
+    @Test
+    public void testCase9zeroimpedance() throws IOException {
+        testCase(MatpowerModelFactory.create9zeroimpedance());
     }
 
     @Test(expected = UncheckedIOException.class)

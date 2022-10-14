@@ -11,26 +11,41 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.shortcircuit.interceptors.ShortCircuitAnalysisInterceptor;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ *
+ *  <p>Computation results are provided asynchronously as a {@link ShortCircuitAnalysisResult}.
+ *
+ *  <p>Implementations of that interface may typically rely on an external tool.
+ *
+ * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
 public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
 
-    void addInterceptor(ShortCircuitAnalysisInterceptor interceptor);
-
-    boolean removeInterceptor(ShortCircuitAnalysisInterceptor interceptor);
-
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters,
-                                                              ComputationManager computationManager) {
-        return ShortCircuitAnalysis.runAsync(network, parameters, computationManager);
+    /**
+     * Run an asynchronous single short circuit analysis job.
+     *
+     * @param faultParameters parameters that define the fault about which information will be written after short circuit analysis
+     */
+    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network,
+                                                              List<Fault> faults,
+                                                              ShortCircuitParameters parameters,
+                                                              ComputationManager computationManager,
+                                                              List<FaultParameters> faultParameters) {
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, faultParameters);
     }
 
-    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, ShortCircuitParameters parameters,
-                                                              ComputationManager computationManager, Reporter reporter) {
-        return ShortCircuitAnalysis.runAsync(network, parameters, computationManager, reporter);
+    /**
+     * Run an asynchronous single short circuit analysis job.
+     */
+    default CompletableFuture<ShortCircuitAnalysisResult> run(Network network, List<Fault> faults,
+                                                              ShortCircuitParameters parameters,
+                                                              ComputationManager computationManager,
+                                                              List<FaultParameters> faultParameters,
+                                                              Reporter reporter) {
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, faultParameters, reporter);
     }
 }

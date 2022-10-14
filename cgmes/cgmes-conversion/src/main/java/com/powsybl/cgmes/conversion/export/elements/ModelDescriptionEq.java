@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -48,7 +49,7 @@ public final class ModelDescriptionEq {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
-        if (context.getCimVersion() < 100) {
+        if (context.getTopologyKind().equals(CgmesTopologyKind.NODE_BREAKER) && context.getCimVersion() < 100) {
             // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
             writer.writeCharacters(context.getCim().getProfile("EQ_OP"));

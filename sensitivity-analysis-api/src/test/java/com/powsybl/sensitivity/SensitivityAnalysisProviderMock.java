@@ -7,12 +7,18 @@
 package com.powsybl.sensitivity;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
@@ -23,17 +29,17 @@ import java.util.stream.IntStream;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             switch (contingencyContext.getContextType()) {
                 case NONE:
-                    valueWriter.write(factorIndex[0]++, -1, 0.0, 0.0);
+                    resultWriter.writeSensitivityValue(factorIndex[0]++, -1, 0.0, 0.0);
                     break;
 
                 case ALL:
                     for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
-                        valueWriter.write(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                        resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
                     }
                     break;
 
@@ -42,10 +48,13 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
                             .filter(i -> contingencies.get(i).getId().equals(contingencyContext.getContingencyId()))
                             .findFirst()
                             .orElseThrow();
-                    valueWriter.write(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                    resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
                     break;
             }
         });
+        for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
+            resultWriter.writeContingencyStatus(contingencyIndex, SensitivityAnalysisResult.Status.SUCCESS);
+        }
         return CompletableFuture.completedFuture(null);
     }
 
@@ -57,5 +66,25 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
     @Override
     public String getVersion() {
         return "1.0";
+    }
+
+    @Override
+    public Optional<Extension<SensitivityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
+        return Optional.of(new SensitivityAnalysisParametersTest.DummyExtension());
+    }
+
+    @Override
+    public List<String> getSpecificParametersNames() {
+        return Collections.singletonList("dummy-extension");
+    }
+
+    @Override
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.of(new SensitivityAnalysisParametersTest.DummySerializer());
+    }
+
+    @Override
+    public Optional<Extension<SensitivityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.of(new SensitivityAnalysisParametersTest.DummyExtension());
     }
 }

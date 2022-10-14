@@ -9,7 +9,7 @@ package com.powsybl.triplestore.impl.rdf4j;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.*;
-import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.common.transaction.IsolationLevels;
 import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.URIUtil;
@@ -46,8 +46,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     static final String NAME = "rdf4j";
 
     public TripleStoreRDF4J() {
+        this(new TripleStoreOptions());
+    }
+
+    public TripleStoreRDF4J(TripleStoreOptions options) {
+        this.options = options;
         repo = new SailRepository(new MemoryStore());
         repo.init();
+    }
+
+    @Override
+    public TripleStoreOptions getOptions() {
+        return options;
     }
 
     @Override
@@ -70,7 +80,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
             // Report invalid identifiers but do not fail
             // (sometimes RDF identifiers contain spaces or begin with #)
-            // This is the default behavior for other triple store engines (Jena)
+            // This is the default behavior for other triple store engines (e.g. Jena)
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_INVALID_NCNAME);
             conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_URI_SYNTAX);
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_DUPLICATE_RDF_ID);
@@ -183,7 +193,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 List<String> names = r.getBindingNames();
                 while (r.hasNext()) {
                     BindingSet s = r.next();
-                    PropertyBag result = new PropertyBag(names);
+                    PropertyBag result = new PropertyBag(names, options.isRemoveInitialUnderscoreForIdentifiers());
 
                     names.forEach(name -> {
                         if (s.hasBinding(name)) {
@@ -277,7 +287,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
         cnx.add(parentSt, context);
         // add rest of statements for subject
-        createStatements(cnx, objNs, objType, statement, context,  resource);
+        createStatements(cnx, objNs, objType, statement, context, resource);
         return resource.getLocalName();
     }
 
@@ -417,6 +427,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     private final Repository repo;
     private boolean writeBySubject = true;
+    private final TripleStoreOptions options;
 
     private static final boolean EXPLAIN_QUERIES = false;
 

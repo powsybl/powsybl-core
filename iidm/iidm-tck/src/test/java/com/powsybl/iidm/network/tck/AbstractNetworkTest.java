@@ -323,8 +323,8 @@ public abstract class AbstractNetworkTest {
         Battery battery1 = network.getBattery("BAT");
         assertNotNull(battery1);
         assertEquals("BAT", battery1.getId());
-        assertEquals(9999.99, battery1.getP0(), 0.0);
-        assertEquals(9999.99, battery1.getQ0(), 0.0);
+        assertEquals(9999.99, battery1.getTargetP(), 0.0);
+        assertEquals(9999.99, battery1.getTargetQ(), 0.0);
         assertEquals(-9999.99, battery1.getMinP(), 0.0);
         assertEquals(9999.99, battery1.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery1.getTerminal().getBusBreakerView().getBus().getId());
@@ -332,8 +332,8 @@ public abstract class AbstractNetworkTest {
         Battery battery2 = network.getBattery("BAT2");
         assertNotNull(battery2);
         assertEquals("BAT2", battery2.getId());
-        assertEquals(100, battery2.getP0(), 0.0);
-        assertEquals(200, battery2.getQ0(), 0.0);
+        assertEquals(100, battery2.getTargetP(), 0.0);
+        assertEquals(200, battery2.getTargetQ(), 0.0);
         assertEquals(-200, battery2.getMinP(), 0.0);
         assertEquals(200, battery2.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery2.getTerminal().getBusBreakerView().getBus().getId());
@@ -362,6 +362,15 @@ public abstract class AbstractNetworkTest {
         assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable(NHV2_NLOAD, Branch.class));
         assertNull(n.getVoltageLevel(VLGEN).getConnectable("LOAD", Load.class));
         assertNull(n.getVoltageLevel(VLGEN).getConnectable(NHV2_NLOAD, Branch.class));
+    }
+
+    @Test
+    public void testGetConnectable() {
+        Network n = EurostagTutorialExample1Factory.create();
+        assertEquals(6, n.getConnectableCount());
+        assertNotNull(n.getConnectable("GEN"));
+        assertTrue(n.getConnectable("GEN") instanceof Generator);
+        assertEquals("GEN", n.getConnectable("GEN").getId());
     }
 
     @Test

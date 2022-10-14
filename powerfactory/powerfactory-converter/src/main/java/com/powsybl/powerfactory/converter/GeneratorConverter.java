@@ -6,15 +6,16 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
-import com.powsybl.powerfactory.converter.PowerFactoryImporter.NodeRef;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.DataObjectRef;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -45,14 +46,25 @@ class GeneratorConverter extends AbstractConverter {
                 .setMinP(generatorModel.minP)
                 .setMaxP(generatorModel.maxP)
                 .add();
-        ReactiveLimits.create(elmSym).ifPresent(reactiveLimits ->
-                g.newMinMaxReactiveLimits()
-                        .setMinQ(reactiveLimits.minQ)
-                        .setMaxQ(reactiveLimits.maxQ)
-                        .add());
+
+        Optional<List<CapabilityCurvePoint>> capabitlityCurve = CapabilityCurvePoint.create(elmSym);
+        if (capabitlityCurve.isPresent()) {
+            ReactiveCapabilityCurveAdder adder = g.newReactiveCapabilityCurve();
+            capabitlityCurve.get().forEach(capabitlityCurvePoint -> adder.beginPoint()
+                .setP(capabitlityCurvePoint.p)
+                .setMinQ(capabitlityCurvePoint.qMin)
+                .setMaxQ(capabitlityCurvePoint.qMax)
+                .endPoint());
+            adder.add();
+        } else {
+            ReactiveLimits.create(elmSym).ifPresent(reactiveLimits -> g.newMinMaxReactiveLimits()
+                .setMinQ(reactiveLimits.minQ)
+                .setMaxQ(reactiveLimits.maxQ)
+                .add());
+        }
     }
 
-    static class GeneratorModel {
+    private static final class GeneratorModel {
         private final double targetP;
         private final double targetQ;
         private final double targetVpu;
@@ -60,7 +72,7 @@ class GeneratorConverter extends AbstractConverter {
         private final double minP;
         private final double maxP;
 
-        GeneratorModel(double targetP, double targetQ, double targetVpu, boolean voltageRegulatorOn, double minP, double maxP) {
+        private GeneratorModel(double targetP, double targetQ, double targetVpu, boolean voltageRegulatorOn, double minP, double maxP) {
             this.targetP = targetP;
             this.targetQ = targetQ;
             this.targetVpu = targetVpu;
@@ -69,7 +81,7 @@ class GeneratorConverter extends AbstractConverter {
             this.maxP = maxP;
         }
 
-        static GeneratorModel create(DataObject elmSym) {
+        private static GeneratorModel create(DataObject elmSym) {
             boolean voltageRegulatorOn = voltageRegulatorOn(elmSym);
 
             float pgini = elmSym.getFloatAttributeValue("pgini");
@@ -106,19 +118,19 @@ class GeneratorConverter extends AbstractConverter {
         }
     }
 
-    static class ReactiveLimits {
+    private static final class ReactiveLimits {
         private final double minQ;
         private final double maxQ;
 
-        ReactiveLimits(double minQ, double maxQ) {
+        private ReactiveLimits(double minQ, double maxQ) {
             this.minQ = minQ;
             this.maxQ = maxQ;
         }
 
-        static Optional<ReactiveLimits> create(DataObject elmSym) {
+        private static Optional<ReactiveLimits> create(DataObject elmSym) {
             Optional<DataObject> pQlimType = elmSym.findObjectAttributeValue("pQlimType").flatMap(DataObjectRef::resolve);
             if (pQlimType.isPresent()) {
-                throw new PowsyblException("Reactive capability curve not supported: '" + elmSym + "'");
+                return Optional.empty();
             }
             return elmSym
                     .findObjectAttributeValue(DataAttributeNames.TYP_ID)
@@ -166,6 +178,38 @@ class GeneratorConverter extends AbstractConverter {
             }
             if (!Double.isNaN(qMinTyp) && !Double.isNaN(qMaxTyp)) {
                 return Optional.of(new ReactiveLimits(qMinTyp, qMaxTyp));
+            }
+            return Optional.empty();
+        }
+    }
+
+    private static final class CapabilityCurvePoint {
+        private final double p;
+        private final double qMin;
+        private final double qMax;
+
+        private CapabilityCurvePoint(double p, double qMin, double qMax) {
+            this.p = p;
+            this.qMin = qMin;
+            this.qMax = qMax;
+        }
+
+        private static Optional<List<CapabilityCurvePoint>> create(DataObject elmSym) {
+            Optional<DataObject> pQlimType = elmSym.findObjectAttributeValue("pQlimType")
+                    .flatMap(DataObjectRef::resolve);
+            if (pQlimType.isPresent()) {
+                Optional<List<Double>> capP = pQlimType.get().findDoubleVectorAttributeValue("cap_P");
+                Optional<List<Double>> capQmn = pQlimType.get().findDoubleVectorAttributeValue("cap_Qmn");
+                Optional<List<Double>> capQmx = pQlimType.get().findDoubleVectorAttributeValue("cap_Qmx");
+                if (capP.isPresent() && capQmn.isPresent() && capQmx.isPresent()
+                        && !capP.get().isEmpty()
+                        && capP.get().size() == capQmn.get().size() && capP.get().size() == capQmx.get().size()) {
+                    List<CapabilityCurvePoint> capabilityCurve = new ArrayList<>();
+                    for (int i = 0; i < capP.get().size(); i++) {
+                        capabilityCurve.add(new CapabilityCurvePoint(capP.get().get(i), capQmn.get().get(i), capQmx.get().get(i)));
+                    }
+                    return Optional.of(capabilityCurve);
+                }
             }
             return Optional.empty();
         }

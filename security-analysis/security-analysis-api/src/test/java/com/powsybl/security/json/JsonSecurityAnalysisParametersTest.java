@@ -7,10 +7,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.SecurityAnalysisParameters;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonSecurityAnalysisParameters::write, AbstractConverterTest::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
+        writeTest(parameters, JsonSecurityAnalysisParameters::write, ComparisonUtils::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
     }
 
     @Test
@@ -98,16 +99,16 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
                 PowsyblException.class, () -> JsonSecurityAnalysisParameters.read(inputStream));
     }
 
-    static class DummyExtension extends AbstractExtension<SecurityAnalysisParameters> {
+    public static class DummyExtension extends AbstractExtension<SecurityAnalysisParameters> {
         public double parameterDouble;
         public boolean parameterBoolean;
         public String parameterString;
 
-        DummyExtension() {
+        public DummyExtension() {
             super();
         }
 
-        DummyExtension(DummyExtension another) {
+        public DummyExtension(DummyExtension another) {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;
@@ -143,8 +144,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
         }
     }
 
-    @AutoService(JsonSecurityAnalysisParameters.ExtensionSerializer.class)
-    public static class DummySerializer implements JsonSecurityAnalysisParameters.ExtensionSerializer<DummyExtension> {
+    public static class DummySerializer implements ExtensionJsonSerializer<SecurityAnalysisParameters, DummyExtension> {
         private interface SerializationSpec {
 
             @JsonIgnore

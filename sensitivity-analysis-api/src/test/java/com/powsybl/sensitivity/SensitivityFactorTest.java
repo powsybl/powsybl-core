@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.sensitivity.json.SensitivityJson;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -30,13 +30,26 @@ public class SensitivityFactorTest extends AbstractConverterTest {
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
         assertEquals(ContingencyContext.all(), factor.getContingencyContext());
-        assertEquals("l", factor.getFunctionId());
         assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, factor.getFunctionType());
         assertEquals("l", factor.getFunctionId());
         assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, factor.getVariableType());
         assertEquals("g", factor.getVariableId());
         assertFalse(factor.isVariableSet());
         assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
+    }
+
+    @Test
+    public void test2() {
+        SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
+                SensitivityVariableType.TRANSFORMER_PHASE_1, "ptc1",
+                false, ContingencyContext.all());
+        assertEquals(ContingencyContext.all(), factor1.getContingencyContext());
+        assertEquals("l", factor1.getFunctionId());
+        assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, factor1.getFunctionType());
+        assertEquals(SensitivityVariableType.TRANSFORMER_PHASE_1, factor1.getVariableType());
+        assertEquals("ptc1", factor1.getVariableId());
+        assertFalse(factor1.isVariableSet());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=TRANSFORMER_PHASE_1, variableId='ptc1', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor1.toString());
     }
 
     @Test
@@ -52,7 +65,7 @@ public class SensitivityFactorTest extends AbstractConverterTest {
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "l",
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
-        ObjectMapper objectMapper = SensitivityJson.createObjectMapper();
+        ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
         roundTripTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityFactor.class, objectMapper), "/factorRef.json");
     }

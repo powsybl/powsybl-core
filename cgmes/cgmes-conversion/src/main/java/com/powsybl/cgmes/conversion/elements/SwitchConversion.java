@@ -38,9 +38,9 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         }
         if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {
             LOG.warn("Switch {} has at least one end in the boundary", id);
-            LOG.warn("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1));
+            LOG.warn("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
             LOG.warn("    side 1 is boundary    : {}", isBoundary(1));
-            LOG.warn("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2));
+            LOG.warn("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
             LOG.warn("    side 2 is boundary    : {}", isBoundary(2));
         }
         return true;

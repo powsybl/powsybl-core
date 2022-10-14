@@ -90,7 +90,7 @@ SELECT *
 }}
 
 # query: boundaryNodes
-# All pairs (Connectiviy Node, Topological Node) from a graph that has a modelProfile EquipmentBoundaryOperation
+# All pairs (Connectiviy Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
 # We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
@@ -101,7 +101,8 @@ GRAPH ?graphBDEQ {
     ?ConnectivityNode
         a cim:ConnectivityNode ;
         cim:IdentifiedObject.name ?name ;
-        cim:ConnectivityNode.ConnectivityNodeContainer ?container .
+        cim:ConnectivityNode.ConnectivityNodeContainer ?container ;
+        entsoe:ConnectivityNode.boundaryPoint "true" .
     OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
     OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
     OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
@@ -342,12 +343,14 @@ WHERE {
     }
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?Switch cim:Switch.open ?open
@@ -369,12 +372,14 @@ WHERE {
     }
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?ACLineSegment .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?ACLineSegment .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
     OPTIONAL {
         ?ACLineSegment cim:Equipment.EquipmentContainer ?Line .
         ?Line
@@ -421,12 +426,14 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
 }
 
@@ -649,7 +656,7 @@ WHERE {
     ?EnergyConsumer
         a ?type ;
         cim:IdentifiedObject.name ?name .
-    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad }
+    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
@@ -988,12 +995,14 @@ WHERE {
     OPTIONAL { ?DCLineSegment cim:DCLineSegment.length ?length }
     ?DCTerminal1
         a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
+    OPTIONAL { ?DCTerminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?DCTerminal2
         a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
+    OPTIONAL { ?DCTerminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
 }}
 }
 

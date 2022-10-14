@@ -132,10 +132,10 @@ public abstract class AbstractLineTest {
                 .setValue(1200)
                 .endTemporaryLimit()
                 .add();
-        assertSame(currentLimits1, acLine.getCurrentLimits1());
-        assertSame(currentLimits2, acLine.getCurrentLimits2());
-        assertSame(currentLimits1, acLine.getCurrentLimits(Branch.Side.ONE));
-        assertSame(currentLimits2, acLine.getCurrentLimits(Branch.Side.TWO));
+        assertSame(currentLimits1, acLine.getCurrentLimits1().orElse(null));
+        assertSame(currentLimits2, acLine.getCurrentLimits2().orElse(null));
+        assertSame(currentLimits1, acLine.getLimits(LimitType.CURRENT, Branch.Side.ONE).orElse(null));
+        assertSame(currentLimits2, acLine.getLimits(LimitType.CURRENT, Branch.Side.TWO).orElse(null));
 
         // add power on line
         Terminal terminal1 = acLine.getTerminal1();
@@ -826,7 +826,7 @@ public abstract class AbstractLineTest {
     @Test
     public void testRemove() {
         createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5,  TO_REMOVE);
+                3.0, 3.5, 4.0, 4.5, TO_REMOVE);
         Line line = network.getLine(TO_REMOVE);
         assertNotNull(line);
         assertTrue(line.isTieLine());

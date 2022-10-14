@@ -11,65 +11,51 @@ import org.apache.commons.math3.complex.ComplexUtils;
 
 import com.powsybl.iidm.network.DanglingLine;
 
+import java.util.Objects;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class DanglingLineData {
 
-    private final String id;
+    private final DanglingLine danglingLine;
 
-    private final double r;
-    private final double x;
-    private final double g1;
-    private final double g2;
-    private final double b1;
-    private final double b2;
-
-    private final double u1;
-    private final double theta1;
-    private final double p0;
-    private final double q0;
-
-    double boundaryBusU;
-    double boundaryBusTheta;
+    private final double boundaryBusU;
+    private final double boundaryBusTheta;
 
     public DanglingLineData(DanglingLine danglingLine) {
         this(danglingLine, true);
     }
 
     public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
+        this.danglingLine = Objects.requireNonNull(danglingLine);
 
-        id = danglingLine.getId();
-        r = danglingLine.getR();
-        x = danglingLine.getX();
-        g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
-        b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
-        g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
-        b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
-        p0 = danglingLine.getP0();
-        q0 = danglingLine.getQ0();
+        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
+        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
+        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
+        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
 
-        u1 = getV(danglingLine);
-        theta1 = getTheta(danglingLine);
+        double u1 = getV(danglingLine);
+        double theta1 = getTheta(danglingLine);
 
-        boundaryBusU = Double.NaN;
-        boundaryBusTheta = Double.NaN;
         if (!valid(u1, theta1)) {
+            boundaryBusU = Double.NaN;
+            boundaryBusTheta = Double.NaN;
             return;
         }
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
-        if (p0 == 0.0 && q0 == 0.0) {
-            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
+        if (danglingLine.getP0() == 0.0 && danglingLine.getQ0() == 0.0) {
+            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(danglingLine.getR(), danglingLine.getX(), 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
             vBoundaryBus = adm.y21().multiply(v1).negate().divide(adm.y22());
         } else {
 
             // Two buses Loadflow
-            Complex sBoundary = new Complex(-p0, -q0);
-            Complex ytr = new Complex(r, x).reciprocal();
+            Complex sBoundary = new Complex(-danglingLine.getP0(), -danglingLine.getQ0());
+            Complex ytr = new Complex(danglingLine.getR(), danglingLine.getX()).reciprocal();
             Complex ysh2 = new Complex(g2, b2);
             Complex zt = ytr.add(ysh2).reciprocal();
             Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
@@ -106,7 +92,7 @@ public class DanglingLineData {
     }
 
     public String getId() {
-        return id;
+        return danglingLine.getId();
     }
 
     public double getBoundaryBusU() {
