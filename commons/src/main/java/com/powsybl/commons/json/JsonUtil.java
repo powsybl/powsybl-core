@@ -445,7 +445,7 @@ public final class JsonUtil {
         try {
             JsonToken token = parser.currentToken();
             if (token != JsonToken.START_OBJECT) {
-                throw new PowsyblException("Start object token was expected: " + token);
+                throw new PowsyblException("Start object token was expected instead got: " + token);
             }
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
