@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
@@ -26,6 +27,16 @@ import static org.junit.Assert.assertEquals;
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
+
+    @Test
+    public void readActions() throws IOException {
+        ObjectMapper mapper = new ObjectMapper().registerModule(new SecurityAnalysisJsonModule());
+        try (InputStream is = getClass().getResourceAsStream("/ActionFileTest.json")) {
+            mapper.readerFor(ActionList.class)
+                    .readValue(is);
+        }
+    }
+
     @Test
     public void actionRoundTrip() throws IOException {
         List<Action> actions = new ArrayList<>();

@@ -6,15 +6,13 @@
  */
 package com.powsybl.security.json;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.ActionList;
+import com.powsybl.security.action.*;
 import com.powsybl.security.condition.Condition;
-import com.powsybl.security.json.action.ActionDeserializer;
-import com.powsybl.security.json.action.ActionListDeserializer;
-import com.powsybl.security.json.action.ActionListSerializer;
-import com.powsybl.security.json.action.ActionSerializer;
+import com.powsybl.security.json.action.*;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.results.*;
@@ -23,6 +21,10 @@ import com.powsybl.security.results.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true)
+    interface ActionMixIn {
+    }
 
     public SecurityAnalysisJsonModule() {
         addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
@@ -38,7 +40,6 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
         addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
-        addSerializer(Action.class, new ActionSerializer());
         addSerializer(ActionList.class, new ActionListSerializer());
         addSerializer(Condition.class, new ConditionSerializer());
 
@@ -55,9 +56,22 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
         addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
         addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
-        addDeserializer(Action.class, new ActionDeserializer());
         addDeserializer(ActionList.class, new ActionListDeserializer());
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
+
+        setMixInAnnotation(Action.class, ActionMixIn.class);
+        registerSubtypes(new NamedType(SwitchAction.class, SwitchAction.NAME));
+        registerSubtypes(new NamedType(LineConnectionAction.class, LineConnectionAction.NAME));
+        registerSubtypes(new NamedType(MultipleActionsAction.class, MultipleActionsAction.NAME));
+        registerSubtypes(new NamedType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME));
+        addDeserializer(SwitchAction.class, new SwitchActionDeserializer());
+        addDeserializer(LineConnectionAction.class, new LineConnectionActionDeserializer());
+        addDeserializer(MultipleActionsAction.class, new MultipleActionsActionDeserializer());
+        addDeserializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionDeserializer());
+        addSerializer(SwitchAction.class, new SwitchActionSerializer());
+        addSerializer(LineConnectionAction.class, new LineConnectionActionSerializer());
+        addSerializer(MultipleActionsAction.class, new MultipleActionsActionSerializer());
+        addSerializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionSerializer());
     }
 }
