@@ -7,6 +7,8 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
@@ -22,6 +24,9 @@ import com.powsybl.security.results.*;
  */
 public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
 
+    /**
+     * Deserializer for actions will be chosen based on the "type" property.
+     */
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true)
     interface ActionMixIn {
     }
@@ -60,18 +65,24 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
 
+        configureActionsSerialization();
+    }
+
+    private void configureActionsSerialization() {
         setMixInAnnotation(Action.class, ActionMixIn.class);
-        registerSubtypes(new NamedType(SwitchAction.class, SwitchAction.NAME));
-        registerSubtypes(new NamedType(LineConnectionAction.class, LineConnectionAction.NAME));
-        registerSubtypes(new NamedType(MultipleActionsAction.class, MultipleActionsAction.NAME));
-        registerSubtypes(new NamedType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME));
-        addDeserializer(SwitchAction.class, new SwitchActionDeserializer());
-        addDeserializer(LineConnectionAction.class, new LineConnectionActionDeserializer());
-        addDeserializer(MultipleActionsAction.class, new MultipleActionsActionDeserializer());
-        addDeserializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionDeserializer());
-        addSerializer(SwitchAction.class, new SwitchActionSerializer());
-        addSerializer(LineConnectionAction.class, new LineConnectionActionSerializer());
-        addSerializer(MultipleActionsAction.class, new MultipleActionsActionSerializer());
-        addSerializer(PhaseTapChangerTapPositionAction.class, new PhaseTapChangerTapPositionActionSerializer());
+        registerActionType(SwitchAction.class, SwitchAction.NAME,
+                new SwitchActionSerializer(), new SwitchActionDeserializer());
+        registerActionType(LineConnectionAction.class, LineConnectionAction.NAME,
+                new LineConnectionActionSerializer(), new LineConnectionActionDeserializer());
+        registerActionType(MultipleActionsAction.class, MultipleActionsAction.NAME,
+                new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
+        registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,
+                new PhaseTapChangerTapPositionActionSerializer(), new PhaseTapChangerTapPositionActionDeserializer());
+    }
+
+    private <T> void registerActionType(Class<T> actionClass, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {
+        registerSubtypes(new NamedType(actionClass, typeName));
+        addDeserializer(actionClass, deserializer);
+        addSerializer(actionClass, serializer);
     }
 }
