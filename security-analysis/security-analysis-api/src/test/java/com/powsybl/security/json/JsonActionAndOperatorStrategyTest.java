@@ -7,12 +7,11 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -25,10 +24,12 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -72,9 +73,10 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 ActionList.readJsonInputStream(inputStream2)).getMessage());
     }
 
+    @JsonTypeName(DummyAction.NAME)
     static class DummyAction extends AbstractAction {
 
-        static String NAME = "dummy-action";
+        static final String NAME = "dummy-action";
 
         @JsonCreator
         protected DummyAction(@JsonProperty("id") String id) {
@@ -92,7 +94,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     public void testJsonPlugins() throws JsonProcessingException {
 
         Module jsonModule = new SimpleModule()
-                .registerSubtypes(new NamedType(DummyAction.class, DummyAction.NAME));
+                .registerSubtypes(DummyAction.class);
         SecurityAnalysisJsonPlugin plugin = () -> List.of(jsonModule);
         ObjectMapper mapper = new ObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule(List.of(plugin)));
