@@ -616,7 +616,7 @@ public class UcteImporter implements Importer {
             switch (ucteAngleRegulation.getType()) {
                 case ASYM:
                     rho = 1d / Math.hypot(dyEq, 1d + dxEq) / rhoInit; // the formula = 1d / Math.hypot(dyEq, 1d + dxEq) already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
-                    alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
+                    alpha = Math.toDegrees(Math.atan2(dyEq, 1 + dxEq));
                     break;
 
                 case SYMM:
