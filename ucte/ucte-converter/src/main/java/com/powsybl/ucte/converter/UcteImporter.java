@@ -549,6 +549,96 @@ public class UcteImporter implements Importer {
         ptca.add();
     }
 
+    private static void createRatioAndPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
+
+        LOGGER.trace("Create phase tap changer combining both ratio and phase tap '{}'", transformer.getId());
+
+        // When there is both Ratio and Phase tap changers the combined action of the two can be described with the formula as follows:
+        // neq(nr,np).dUeq.sin(ThetaEq) = np.dUp.(nr.dUr + 1).sin(Theta)
+        // neq(nr,np).dUeq.cos(ThetaEq) = nr.dUr + np.dUp.(nr.dUr + 1).cos(Theta)
+        // where np is the tap number of phase changer and nr is the tap number of the ratio changer
+        // this should lead to a double entry table where the equivalent neq tap number depends both of nr and np
+        // We propose the following approximation : we compute dUeq and ThetaEq at fixed current ratio tap nr = nro, we compute rho(nro)
+        // and build both equivalent phase tap changer and ratio tap changer such that it will be exact at ratio = nro
+
+        int lowerRatioTap = getLowTapPosition(uctePhaseRegulation, transformer);
+        RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
+                .setLowTapPosition(lowerRatioTap)
+                .setTapPosition(uctePhaseRegulation.getNp())
+                .setLoadTapChangingCapabilities(!Double.isNaN(uctePhaseRegulation.getU()));
+        if (!Double.isNaN(uctePhaseRegulation.getU())) {
+            rtca.setLoadTapChangingCapabilities(true)
+                    .setRegulating(true)
+                    .setTargetV(uctePhaseRegulation.getU())
+                    .setTargetDeadband(0.0)
+                    .setRegulationTerminal(transformer.getTerminal1());
+        }
+        double rhoInit = 1.;
+        double nrduInit = 0.;
+        for (int i = lowerRatioTap; i <= Math.abs(lowerRatioTap); i++) {
+            double rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100);
+            rtca.beginStep()
+                    .setRho(rho)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
+                    .endStep();
+            if (i == uctePhaseRegulation.getNp()) {
+                rhoInit = rho;
+                nrduInit = i * uctePhaseRegulation.getDu() / 100;
+            }
+        }
+        rtca.add();
+
+        int lowerPhaseTap = getLowTapPosition(ucteAngleRegulation, transformer);
+        PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
+                .setLowTapPosition(lowerPhaseTap)
+                .setTapPosition(ucteAngleRegulation.getNp())
+                .setRegulationValue(ucteAngleRegulation.getP())
+                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulating(false);
+
+        if (!Double.isNaN(ucteAngleRegulation.getP())) {
+            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                    .setTargetDeadband(0.0)
+                    .setRegulationTerminal(transformer.getTerminal1())
+                    .setRegulating(false); // should be set to true but many divergence on files are observed.
+        }
+
+        for (int i = lowerPhaseTap; i <= Math.abs(lowerPhaseTap); i++) {
+            double rho;
+            double alpha;
+            double dx = i * ucteAngleRegulation.getDu() / 100 * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
+            double dy = i * ucteAngleRegulation.getDu() / 100 * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
+            double dyEq = dy * (1. + nrduInit);
+            double dxEq = dx * (1. + nrduInit) + nrduInit;
+            switch (ucteAngleRegulation.getType()) {
+                case ASYM:
+                    rho = 1d / Math.hypot(dyEq, 1d + dxEq) / rhoInit; // the formula = 1d / Math.hypot(dyEq, 1d + dxEq) already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
+                    alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
+                    break;
+
+                case SYMM:
+                    rho = 1d;
+                    alpha = Math.toDegrees(2 * Math.atan2(dy, 2 * (1d + dx)));
+                    break;
+
+                default:
+                    throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
+            }
+            ptca.beginStep()
+                    .setRho(rho)
+                    .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
+                    .endStep();
+        }
+        ptca.add();
+    }
+
     private static int getLowTapPosition(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
         return getLowTapPosition(transformer, uctePhaseRegulation.getN(), uctePhaseRegulation.getNp());
     }
