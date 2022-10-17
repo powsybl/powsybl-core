@@ -9,20 +9,36 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.json.action.*;
+import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
-import com.powsybl.security.results.*;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
+
+    private final List<SecurityAnalysisJsonPlugin> plugins;
+
+    public SecurityAnalysisJsonModule() {
+        this(getServices());
+    }
+
+    private static List<SecurityAnalysisJsonPlugin> getServices() {
+        return new ServiceLoaderCache<>(SecurityAnalysisJsonPlugin.class).getServices();
+    }
 
     /**
      * Deserializer for actions will be chosen based on the "type" property.
@@ -31,7 +47,9 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
     interface ActionMixIn {
     }
 
-    public SecurityAnalysisJsonModule() {
+    public SecurityAnalysisJsonModule(Collection<SecurityAnalysisJsonPlugin> plugins) {
+        Objects.requireNonNull(plugins);
+        this.plugins = List.copyOf(plugins);
         addSerializer(SecurityAnalysisResult.class, new SecurityAnalysisResultSerializer());
         addSerializer(NetworkMetadata.class, new NetworkMetadataSerializer());
         addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
@@ -84,5 +102,12 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         registerSubtypes(new NamedType(actionClass, typeName));
         addDeserializer(actionClass, deserializer);
         addSerializer(actionClass, serializer);
+    }
+
+    @Override
+    public Iterable<? extends Module> getDependencies() {
+        return () -> plugins.stream()
+                .flatMap(plugin -> plugin.getJsonModules().stream())
+                .iterator();
     }
 }
