@@ -163,6 +163,17 @@ final class ModificationReports {
                 .build());
     }
 
+    static void noTeePointPointAndOrAttachedVoltageLevelReport(Reporter reporter, String lineAZId, String lineBZId, String lineCZId) {
+        reporter.report(Report.builder()
+                .withKey("noTeePointAndOrAttachedVoltageLevel")
+                .withDefaultMessage("Unable to find the tee point and/or the attached voltage level from lines ${lineAZId}, ${lineBZId} and ${lineCZId}")
+                .withValue("lineAZId", lineAZId)
+                .withValue("lineBZId", lineBZId)
+                .withValue("lineCZId", lineCZId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void notFoundVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("voltageLevelNotFound")
