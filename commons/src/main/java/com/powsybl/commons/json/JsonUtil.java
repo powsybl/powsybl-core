@@ -433,21 +433,49 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Called by variants of {@link #parseObject} on each encountered field.
+     * Should return false if an unexpected field was encountered.
+     */
     @FunctionalInterface
     public interface FieldHandler {
-
         boolean onField(String name) throws IOException;
     }
 
+    /**
+     * Parses an object from the current parser position, using the provided field handler.
+     * The parsing will expect the starting position to be START_OBJECT.
+     */
     public static void parseObject(JsonParser parser, FieldHandler fieldHandler) {
+        parseObject(parser, false, fieldHandler);
+    }
+
+    /**
+     * Parses an object from the current parser position, using the provided field handler.
+     * The parsing will accept the starting position to be either a START_OBJECT or a FIELD_NAME,
+     * see contract for {@link JsonDeserializer#deserialize(JsonParser, DeserializationContext)}.
+     */
+    public static void parsePolymorphicObject(JsonParser parser, FieldHandler fieldHandler) {
+        parseObject(parser, true, fieldHandler);
+    }
+
+    /**
+     * Parses an object from the current parser position, using the provided field handler.
+     * If {@code polymorphic} is {@code true}, the parsing will accept the starting position
+     * to be either a START_OBJECT or a FIELD_NAME, see contract for {@link JsonDeserializer#deserialize(JsonParser, DeserializationContext)}.
+     */
+    public static void parseObject(JsonParser parser, boolean polymorphic, FieldHandler fieldHandler) {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(fieldHandler);
         try {
             JsonToken token = parser.currentToken();
-            if (token != JsonToken.START_OBJECT) {
+            if (!polymorphic && token != JsonToken.START_OBJECT) {
                 throw new PowsyblException("Start object token was expected instead got: " + token);
             }
-            while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.START_OBJECT) {
+                token = parser.nextToken();
+            }
+            while (token != null) {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     boolean found = fieldHandler.onField(fieldName);
@@ -459,6 +487,7 @@ public final class JsonUtil {
                 } else {
                     throw new PowsyblException("Unexpected token " + token);
                 }
+                token = parser.nextToken();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

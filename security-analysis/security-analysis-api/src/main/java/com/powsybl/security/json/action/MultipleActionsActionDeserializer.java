@@ -7,10 +7,11 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.MultipleActionsAction;
 
@@ -35,20 +36,25 @@ public class MultipleActionsActionDeserializer extends StdDeserializer<MultipleA
     @Override
     public MultipleActionsAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
+            switch (name) {
+                case "type":
+                    if (!MultipleActionsAction.NAME.equals(jsonParser.nextTextValue())) {
+                        throw JsonMappingException.from(jsonParser, "Expected type " + MultipleActionsAction.NAME);
+                    }
+                    return true;
                 case "id":
                     context.id = jsonParser.nextTextValue();
-                    break;
+                    return true;
                 case "actions":
                     jsonParser.nextToken();
                     context.actions = jsonParser.readValueAs(new TypeReference<ArrayList<Action>>() {
                     });
-                    break;
+                    return true;
                 default:
-                    throw new IllegalArgumentException("");
+                    return false;
             }
-        }
+        });
         return new MultipleActionsAction(context.id, context.actions);
     }
 }

@@ -6,6 +6,13 @@
  */
 package com.powsybl.security.json;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
@@ -17,15 +24,18 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
+
     @Test
     public void actionRoundTrip() throws IOException {
         List<Action> actions = new ArrayList<>();
@@ -64,5 +74,42 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action value field can't equal zero\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream2)).getMessage());
+    }
+
+    @JsonTypeName(DummyAction.NAME)
+    static class DummyAction extends AbstractAction {
+
+        static final String NAME = "dummy-action";
+
+        @JsonCreator
+        protected DummyAction(@JsonProperty("id") String id) {
+            super(id);
+        }
+
+        @JsonProperty(value = "type", access = JsonProperty.Access.READ_ONLY)
+        @Override
+        public String getType() {
+            return NAME;
+        }
+    }
+
+    @Test
+    public void testJsonPlugins() throws JsonProcessingException {
+
+        Module jsonModule = new SimpleModule()
+                .registerSubtypes(DummyAction.class);
+        SecurityAnalysisJsonPlugin plugin = () -> List.of(jsonModule);
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new SecurityAnalysisJsonModule(List.of(plugin)));
+
+        DummyAction action = new DummyAction("hello");
+        ActionList actions = new ActionList(List.of(action));
+        String serialized = mapper.writeValueAsString(actions);
+        ActionList parsed = mapper.readValue(serialized, ActionList.class);
+
+        assertEquals(1, parsed.getActions().size());
+        Action parsedAction = parsed.getActions().get(0);
+        assertTrue(parsedAction instanceof DummyAction);
+        assertEquals("hello", parsedAction.getId());
     }
 }

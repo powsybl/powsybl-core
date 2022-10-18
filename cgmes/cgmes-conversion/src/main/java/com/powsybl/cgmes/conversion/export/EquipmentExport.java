@@ -845,14 +845,16 @@ public final class EquipmentExport {
 
         String[] switchNodesKeys = new String[2];
         for (Switch sw : network.getSwitches()) {
-            VoltageLevel vl = sw.getVoltageLevel();
-            fillSwitchNodeKeys(vl, sw, switchNodesKeys);
-            String nodeId1 = mapNodeKey2NodeId.get(switchNodesKeys[0]);
-            String terminalId1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
-            TerminalEq.write(terminalId1, context.getNamingStrategy().getCgmesId(sw), nodeId1, 1, cimNamespace, writer);
-            String nodeId2 = mapNodeKey2NodeId.get(switchNodesKeys[1]);
-            String terminalId2 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-            TerminalEq.write(terminalId2, context.getNamingStrategy().getCgmesId(sw), nodeId2, 2, cimNamespace, writer);
+            if (context.isExportedEquipment(sw)) {
+                VoltageLevel vl = sw.getVoltageLevel();
+                fillSwitchNodeKeys(vl, sw, switchNodesKeys);
+                String nodeId1 = mapNodeKey2NodeId.get(switchNodesKeys[0]);
+                String terminalId1 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
+                TerminalEq.write(terminalId1, context.getNamingStrategy().getCgmesId(sw), nodeId1, 1, cimNamespace, writer);
+                String nodeId2 = mapNodeKey2NodeId.get(switchNodesKeys[1]);
+                String terminalId2 = context.getNamingStrategy().getCgmesIdFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
+                TerminalEq.write(terminalId2, context.getNamingStrategy().getCgmesId(sw), nodeId2, 2, cimNamespace, writer);
+            }
         }
     }
 
