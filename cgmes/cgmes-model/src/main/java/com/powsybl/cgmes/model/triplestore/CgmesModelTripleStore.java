@@ -35,6 +35,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore) {
+        super(tripleStore.getOptions().getReporter());
         this.cimNamespace = cimNamespace;
         this.cimVersion = cimVersionFromCimNamespace(cimNamespace);
         this.tripleStore = tripleStore;

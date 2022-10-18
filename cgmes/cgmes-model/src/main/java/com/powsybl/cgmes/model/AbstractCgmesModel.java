@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -23,8 +24,10 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCgmesModel implements CgmesModel {
 
-    protected AbstractCgmesModel() {
+    protected AbstractCgmesModel(Reporter reporter) {
+        // FIXME(Luma) we must remove properties from here. They are not used!
         this.properties = new Properties();
+        this.reporter = reporter;
     }
 
     @Override
@@ -252,6 +255,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
+            reporter.report("reading", name);
             try (InputStream is = cds.dataSource().newInputStream(name)) {
                 read(is, baseName, name);
             } catch (IOException e) {
@@ -263,6 +267,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     private final Properties properties;
+    private final Reporter reporter;
     private String baseName;
 
     // Caches

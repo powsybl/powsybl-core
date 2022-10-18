@@ -6,12 +6,15 @@
  */
 package com.powsybl.triplestore.api;
 
+import com.powsybl.commons.reporter.Reporter;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class TripleStoreOptions {
 
     private boolean removeInitialUnderscoreForIdentifiers = true;
+    private Reporter reporter;
 
     public TripleStoreOptions() {
     }
@@ -20,12 +23,26 @@ public class TripleStoreOptions {
         this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
     }
 
+    public TripleStoreOptions(boolean removeInitialUnderscoreForIdentifiers, Reporter reporter) {
+        this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
+        this.reporter = reporter;
+    }
+
     public TripleStoreOptions setRemoveInitialUnderscoreForIdentifiers(boolean removeInitialUnderscoreForIdentifiers) {
         this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
         return this;
     }
 
+    public TripleStoreOptions setReporter(Reporter reporter) {
+        this.reporter = reporter;
+        return this;
+    }
+
     public boolean isRemoveInitialUnderscoreForIdentifiers() {
         return removeInitialUnderscoreForIdentifiers;
+    }
+
+    public Reporter getReporter() {
+        return this.reporter;
     }
 }
