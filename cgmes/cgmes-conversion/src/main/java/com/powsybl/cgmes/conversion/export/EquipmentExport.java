@@ -289,7 +289,8 @@ public final class EquipmentExport {
                 // We have not preserved the names of generating units
                 // We name generating units based on the first machine found
                 String generatingUnitName = "GU_" + generator.getNameOrId();
-                GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writeInitialP, writer);
+                GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writeInitialP,
+                        generator.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer);
                 generatingUnitsWritten.add(generatingUnit);
             }
         }
