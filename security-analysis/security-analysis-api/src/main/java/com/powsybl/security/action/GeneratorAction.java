@@ -39,8 +39,8 @@ public class GeneratorAction extends AbstractAction {
      * @param targetV The new generator targetV (kV).
      * @param targetQ The new generator targetQ (MVar).
      */
-    public GeneratorAction(String id, String generatorId, Boolean activePowerRelativeValue, Double activePowerValue,
-                           Boolean voltageRegulatorOn, Double targetV, Double targetQ) {
+    GeneratorAction(String id, String generatorId, Boolean activePowerRelativeValue, Double activePowerValue,
+                    Boolean voltageRegulatorOn, Double targetV, Double targetQ) {
         super(id);
         this.generatorId = Objects.requireNonNull(generatorId);
         this.activePowerRelativeValue = activePowerRelativeValue;
