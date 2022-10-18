@@ -33,7 +33,6 @@ public class GeneratorActionDeserializer extends StdDeserializer<GeneratorAction
         Boolean voltageRegulatorOn;
         Double targetV;
         Double targetQ;
-
     }
 
     @Override
