@@ -9,6 +9,7 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class OperatorStrategySerializer extends StdSerializer<OperatorStrategy> 
         jsonGenerator.writeStringField("contingencyId", operatorStrategy.getContingencyId());
         jsonGenerator.writeObjectField("condition", operatorStrategy.getCondition());
         jsonGenerator.writeObjectField("actionIds", operatorStrategy.getActionIds());
+        JsonUtil.writeExtensions(operatorStrategy, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
 }
