@@ -7,9 +7,10 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.GeneratorAction;
 import com.powsybl.security.action.GeneratorActionBuilder;
 
@@ -36,40 +37,45 @@ public class GeneratorActionDeserializer extends StdDeserializer<GeneratorAction
     }
 
     @Override
-    public GeneratorAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public GeneratorAction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+        JsonUtil.parsePolymorphicObject(parser, name -> {
+            switch (name) {
+                case "type":
+                    if (!GeneratorAction.NAME.equals(parser.nextTextValue())) {
+                        throw JsonMappingException.from(parser, "Expected type " + GeneratorAction.NAME);
+                    }
+                    return true;
                 case "id":
-                    context.id = jsonParser.nextTextValue();
-                    break;
+                    context.id = parser.nextTextValue();
+                    return true;
                 case "generatorId":
-                    context.generatorId = jsonParser.nextTextValue();
-                    break;
+                    context.generatorId = parser.nextTextValue();
+                    return true;
                 case "activePowerRelativeValue":
-                    jsonParser.nextToken();
-                    context.activePowerRelativeValue = jsonParser.getValueAsBoolean();
-                    break;
+                    parser.nextToken();
+                    context.activePowerRelativeValue = parser.getValueAsBoolean();
+                    return true;
                 case "activePowerValue":
-                    jsonParser.nextToken();
-                    context.activePowerValue = jsonParser.getValueAsDouble();
-                    break;
+                    parser.nextToken();
+                    context.activePowerValue = parser.getValueAsDouble();
+                    return true;
                 case "voltageRegulatorOn":
-                    jsonParser.nextToken();
-                    context.voltageRegulatorOn = jsonParser.getValueAsBoolean();
-                    break;
+                    parser.nextToken();
+                    context.voltageRegulatorOn = parser.getValueAsBoolean();
+                    return true;
                 case "targetV":
-                    jsonParser.nextToken();
-                    context.targetV = jsonParser.getValueAsDouble();
-                    break;
+                    parser.nextToken();
+                    context.targetV = parser.getValueAsDouble();
+                    return true;
                 case "targetQ":
-                    jsonParser.nextToken();
-                    context.targetQ = jsonParser.getValueAsDouble();
-                    break;
+                    parser.nextToken();
+                    context.targetQ = parser.getValueAsDouble();
+                    return true;
                 default:
-                    throw new IllegalArgumentException("");
+                    return false;
             }
-        }
+        });
         GeneratorActionBuilder generatorActionBuilder = new GeneratorActionBuilder();
         generatorActionBuilder
                 .withId(context.id)

@@ -26,39 +26,40 @@ public class GeneratorActionSerializer extends StdSerializer<GeneratorAction> {
     @Override
     public void serialize(GeneratorAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("generatorId", ((GeneratorAction) action).getGeneratorId());
+        jsonGenerator.writeStringField("generatorId", action.getGeneratorId());
         action.isActivePowerRelativeValue().ifPresent(activePowerRelativeValue -> {
             try {
-                jsonGenerator.writeStringField("activePowerRelativeValue", activePowerRelativeValue.toString());
+                jsonGenerator.writeBooleanField("activePowerRelativeValue", activePowerRelativeValue);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         });
         action.getActivePowerValue().ifPresent(activePowerValue -> {
             try {
-                jsonGenerator.writeStringField("activePowerValue", activePowerValue.toString());
+                jsonGenerator.writeNumberField("activePowerValue", activePowerValue);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         });
         action.isVoltageRegulatorOn().ifPresent(voltageControlOn -> {
             try {
-                jsonGenerator.writeStringField("voltageRegulatorOn", voltageControlOn.toString());
+                jsonGenerator.writeBooleanField("voltageRegulatorOn", voltageControlOn);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         });
         action.getTargetV().ifPresent(targetV -> {
             try {
-                jsonGenerator.writeStringField("targetV", targetV.toString());
+                jsonGenerator.writeNumberField("targetV", targetV);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         });
         action.getTargetQ().ifPresent(targetQ -> {
             try {
-                jsonGenerator.writeStringField("targetQ", targetQ.toString());
+                jsonGenerator.writeNumberField("targetQ", targetQ);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
