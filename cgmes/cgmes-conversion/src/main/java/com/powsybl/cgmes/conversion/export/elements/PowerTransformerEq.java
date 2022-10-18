@@ -28,8 +28,11 @@ public final class PowerTransformerEq {
     private static final String EQ_POWERTRANSFORMEREND_RATEDS = "PowerTransformerEnd.ratedS";
     private static final String EQ_POWERTRANSFORMEREND_RATEDU = "PowerTransformerEnd.ratedU";
 
-    public static void write(String id, String transformerName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String transformerName, String equipmentContainer, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, cimNamespace, writer);
+        if (equipmentContainer != null) {
+            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
+        }
         writer.writeEndElement();
     }
 
