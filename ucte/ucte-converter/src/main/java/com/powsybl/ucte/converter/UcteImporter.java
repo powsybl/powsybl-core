@@ -773,10 +773,11 @@ public class UcteImporter implements Importer {
     private static void addTapChangers(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, TwoWindingsTransformer transformer) {
         UcteRegulation ucteRegulation = ucteNetwork.getRegulation(ucteTransfo.getId());
         if (ucteRegulation != null) {
-            if (ucteRegulation.getPhaseRegulation() != null) {
+            if (ucteRegulation.getPhaseRegulation() != null && ucteRegulation.getAngleRegulation() != null) {
+                createRatioAndPhaseTapChanger(ucteRegulation.getAngleRegulation(), ucteRegulation.getPhaseRegulation(), transformer);
+            } else if (ucteRegulation.getPhaseRegulation() != null) {
                 createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
-            }
-            if (ucteRegulation.getAngleRegulation() != null) {
+            } else if (ucteRegulation.getAngleRegulation() != null) {
                 createPhaseTapChanger(ucteRegulation.getAngleRegulation(), transformer);
             }
         }
