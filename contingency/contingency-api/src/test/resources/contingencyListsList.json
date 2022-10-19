@@ -20,7 +20,7 @@
         "highClosed" : true
       }
     },
-    "propertyCriterion" : null,
+    "propertyCriteria" : [ ],
     "regexCriterion" : {
       "type" : "REGEX",
       "regex" : "regex"
@@ -54,7 +54,7 @@
         "highClosed" : true
       }
     },
-    "propertyCriterion" : null,
+    "propertyCriteria" : [ ],
     "regexCriterion" : null
   }, {
     "type" : "hvdcCriterion",
@@ -80,7 +80,7 @@
         "highClosed" : true
       }
     },
-    "propertyCriterion" : null,
+    "propertyCriteria" : [ ],
     "regexCriterion" : null
   }, {
     "type" : "twoWindingsTransformerCriterion",
@@ -105,7 +105,7 @@
         "highClosed" : true
       }
     },
-    "propertyCriterion" : null,
+    "propertyCriteria" : [ ],
     "regexCriterion" : null
   }, {
     "type" : "threeWindingsTransformerCriterion",
@@ -130,7 +130,7 @@
         "highClosed" : true
       }
     },
-    "propertyCriterion" : null,
+    "propertyCriteria" : [ ],
     "regexCriterion" : null
   }, {
     "type" : "list",

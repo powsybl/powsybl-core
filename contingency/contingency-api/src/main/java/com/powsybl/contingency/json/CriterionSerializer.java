@@ -66,6 +66,10 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
             case PROPERTY:
                 jsonGenerator.writeStringField("propertyKey", ((PropertyCriterion) criterion).getPropertyKey());
                 jsonGenerator.writeObjectField("propertyValue", ((PropertyCriterion) criterion).getPropertyValues());
+                jsonGenerator.writeStringField("equipmentToCheck", ((PropertyCriterion) criterion).getEquipmentToCheck().toString());
+                if (((PropertyCriterion) criterion).getSideToCheck() != null) {
+                    jsonGenerator.writeStringField("sideToCheck", ((PropertyCriterion) criterion).getSideToCheck().toString());
+                }
                 break;
             case REGEX:
                 jsonGenerator.writeStringField("regex", ((RegexCriterion) criterion).getRegex());

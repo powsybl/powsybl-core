@@ -16,11 +16,12 @@
       "highClosed" : true
     }
   },
-  "propertyCriterion" : {
+  "propertyCriteria" : [ {
     "type" : "PROPERTY",
     "propertyKey" : "propertyKey",
-    "propertyValue" : [ "value" ]
-  },
+    "propertyValue" : [ "value" ],
+    "equipmentToCheck" : "VOLTAGE_LEVEL"
+  } ],
   "regexCriterion" : {
     "type" : "REGEX",
     "regex" : "regex"

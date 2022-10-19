@@ -22,11 +22,12 @@
       "highClosed" : true
     }
   },
-  "propertyCriterion" : {
+  "propertyCriteria" : [ {
     "type" : "PROPERTY",
     "propertyKey" : "propertyKey1",
-    "propertyValue" : [ "value2" ]
-  },
+    "propertyValue" : [ "value2" ],
+    "equipmentToCheck" : "SELF"
+  } ],
   "regexCriterion" : {
     "type" : "REGEX",
     "regex" : "regex"

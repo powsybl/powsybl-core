@@ -15,6 +15,8 @@ import com.powsybl.contingency.contingency.list.ThreeWindingsTransformerCriterio
 import com.powsybl.contingency.contingency.list.criterion.*;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -30,7 +32,7 @@ public class ThreeWindingsTransformerCriterionContingencyListDeserializer extend
         String name = null;
         SingleCountryCriterion countryCriterion = null;
         ThreeNominalVoltageCriterion nominalVoltageCriterion = null;
-        PropertyCriterion propertyCriterion = null;
+        List<PropertyCriterion> propertyCriteria = Collections.emptyList();
         RegexCriterion regexCriterion = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -57,9 +59,9 @@ public class ThreeWindingsTransformerCriterionContingencyListDeserializer extend
                     nominalVoltageCriterion = parser.readValueAs(new TypeReference<Criterion>() {
                     });
                     break;
-                case "propertyCriterion":
+                case "propertyCriteria":
                     parser.nextToken();
-                    propertyCriterion = parser.readValueAs(new TypeReference<Criterion>() {
+                    propertyCriteria = parser.readValueAs(new TypeReference<List<Criterion>>() {
                     });
                     break;
                 case "regexCriterion":
@@ -73,6 +75,6 @@ public class ThreeWindingsTransformerCriterionContingencyListDeserializer extend
             }
         }
         return new ThreeWindingsTransformerCriterionContingencyList(name, countryCriterion,
-                nominalVoltageCriterion, propertyCriterion, regexCriterion);
+                nominalVoltageCriterion, propertyCriteria, regexCriterion);
     }
 }

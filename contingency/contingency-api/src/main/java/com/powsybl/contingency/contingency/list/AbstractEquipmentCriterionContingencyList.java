@@ -6,9 +6,11 @@
  */
 package com.powsybl.contingency.contingency.list;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.IdentifiableType;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -17,13 +19,13 @@ import java.util.Objects;
 public abstract class AbstractEquipmentCriterionContingencyList implements ContingencyList {
     private final String name;
     private final IdentifiableType identifiableType;
-    private final PropertyCriterion propertyCriterion;
+    private final List<PropertyCriterion> propertyCriteria;
     private final RegexCriterion regexCriterion;
 
-    protected AbstractEquipmentCriterionContingencyList(String name, IdentifiableType identifiableType, PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
+    protected AbstractEquipmentCriterionContingencyList(String name, IdentifiableType identifiableType, List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
         this.name = Objects.requireNonNull(name);
         this.identifiableType = identifiableType;
-        this.propertyCriterion = propertyCriterion;
+        this.propertyCriteria = ImmutableList.copyOf(Objects.requireNonNull(propertyCriteria));
         this.regexCriterion = regexCriterion;
     }
 
@@ -36,8 +38,8 @@ public abstract class AbstractEquipmentCriterionContingencyList implements Conti
         return identifiableType;
     }
 
-    public PropertyCriterion getPropertyCriterion() {
-        return propertyCriterion;
+    public List<PropertyCriterion> getPropertyCriteria() {
+        return propertyCriteria;
     }
 
     public RegexCriterion getRegexCriterion() {

@@ -27,11 +27,13 @@
       "highClosed" : true
     }
   },
-  "propertyCriterion" : {
+  "propertyCriteria" : [ {
     "type" : "PROPERTY",
     "propertyKey" : "propertyKey",
-    "propertyValue" : [ "value" ]
-  },
+    "propertyValue" : [ "value" ],
+    "equipmentToCheck" : "VOLTAGE_LEVEL",
+    "sideToCheck" : "ALL_THREE"
+  } ],
   "regexCriterion" : {
     "type" : "REGEX",
     "regex" : "regex"

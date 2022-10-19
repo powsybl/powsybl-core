@@ -29,8 +29,8 @@ public class ThreeWindingsTransformerCriterionContingencyList extends AbstractEq
     public ThreeWindingsTransformerCriterionContingencyList(String name,
                                                             SingleCountryCriterion singleCountryCriterion,
                                                             ThreeNominalVoltageCriterion threeNominalVoltageCriterion,
-                                                            PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.THREE_WINDINGS_TRANSFORMER, propertyCriterion, regexCriterion);
+                                                            List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+        super(name, IdentifiableType.THREE_WINDINGS_TRANSFORMER, propertyCriteria, regexCriterion);
         this.singleCountryCriterion = singleCountryCriterion;
         this.threeNominalVoltageCriterion = threeNominalVoltageCriterion;
     }
@@ -45,7 +45,7 @@ public class ThreeWindingsTransformerCriterionContingencyList extends AbstractEq
         return network.getIdentifiableStream(getIdentifiableType())
                 .filter(identifiable -> singleCountryCriterion == null || singleCountryCriterion.filter(identifiable, getIdentifiableType()))
                 .filter(identifiable -> threeNominalVoltageCriterion == null || threeNominalVoltageCriterion.filter(identifiable, getIdentifiableType()))
-                .filter(identifiable -> getPropertyCriterion() == null || getPropertyCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
                 .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());

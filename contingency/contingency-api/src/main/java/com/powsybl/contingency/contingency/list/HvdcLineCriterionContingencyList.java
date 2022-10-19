@@ -25,8 +25,8 @@ public class HvdcLineCriterionContingencyList extends AbstractEquipmentCriterion
 
     public HvdcLineCriterionContingencyList(String name, TwoCountriesCriterion twoCountriesCriterion,
                                             TwoNominalVoltageCriterion twoNominalVoltageCriterion,
-                                            PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.HVDC_LINE, propertyCriterion, regexCriterion);
+                                            List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+        super(name, IdentifiableType.HVDC_LINE, propertyCriteria, regexCriterion);
         this.twoCountriesCriterion = twoCountriesCriterion;
         this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
     }
@@ -41,7 +41,7 @@ public class HvdcLineCriterionContingencyList extends AbstractEquipmentCriterion
         return network.getIdentifiableStream(getIdentifiableType())
                 .filter(identifiable -> twoCountriesCriterion == null || twoCountriesCriterion.filter(identifiable, getIdentifiableType()))
                 .filter(identifiable -> twoNominalVoltageCriterion == null || twoNominalVoltageCriterion.filter(identifiable, getIdentifiableType()))
-                .filter(identifiable -> getPropertyCriterion() == null || getPropertyCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
                 .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());

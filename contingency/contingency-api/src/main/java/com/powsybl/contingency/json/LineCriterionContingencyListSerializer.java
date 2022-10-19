@@ -31,7 +31,7 @@ public class LineCriterionContingencyListSerializer extends StdSerializer<LineCr
         jsonGenerator.writeStringField("name", criterionContingencyList.getName());
         jsonGenerator.writeObjectField("countryCriterion", criterionContingencyList.getCountryCriterion());
         jsonGenerator.writeObjectField("nominalVoltageCriterion", criterionContingencyList.getNominalVoltageCriterion());
-        jsonGenerator.writeObjectField("propertyCriterion", criterionContingencyList.getPropertyCriterion());
+        jsonGenerator.writeObjectField("propertyCriteria", criterionContingencyList.getPropertyCriteria());
         jsonGenerator.writeObjectField("regexCriterion", criterionContingencyList.getRegexCriterion());
         jsonGenerator.writeEndObject();
     }

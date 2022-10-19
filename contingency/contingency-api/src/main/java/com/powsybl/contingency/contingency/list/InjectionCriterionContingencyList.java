@@ -28,14 +28,14 @@ public class InjectionCriterionContingencyList extends AbstractEquipmentCriterio
 
     public InjectionCriterionContingencyList(String name, String identifiableType,
                                              SingleCountryCriterion singleCountryCriterion,
-                                             SingleNominalVoltageCriterion singleNominalVoltageCriterion, PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
-        this(name, IdentifiableType.valueOf(identifiableType), singleCountryCriterion, singleNominalVoltageCriterion, propertyCriterion, regexCriterion);
+                                             SingleNominalVoltageCriterion singleNominalVoltageCriterion, List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+        this(name, IdentifiableType.valueOf(identifiableType), singleCountryCriterion, singleNominalVoltageCriterion, propertyCriteria, regexCriterion);
     }
 
     public InjectionCriterionContingencyList(String name, IdentifiableType identifiableType,
                                              SingleCountryCriterion singleCountryCriterion,
-                                             SingleNominalVoltageCriterion singleNominalVoltageCriterion, PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
-        super(name, identifiableType, propertyCriterion, regexCriterion);
+                                             SingleNominalVoltageCriterion singleNominalVoltageCriterion, List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+        super(name, identifiableType, propertyCriteria, regexCriterion);
         this.singleCountryCriterion = singleCountryCriterion;
         this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
     }
@@ -50,7 +50,7 @@ public class InjectionCriterionContingencyList extends AbstractEquipmentCriterio
         return network.getIdentifiableStream(getIdentifiableType())
                 .filter(identifiable -> singleCountryCriterion == null || singleCountryCriterion.filter(identifiable, getIdentifiableType()))
                 .filter(identifiable -> singleNominalVoltageCriterion == null || singleNominalVoltageCriterion.filter(identifiable, getIdentifiableType()))
-                .filter(identifiable -> getPropertyCriterion() == null || getPropertyCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
                 .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());

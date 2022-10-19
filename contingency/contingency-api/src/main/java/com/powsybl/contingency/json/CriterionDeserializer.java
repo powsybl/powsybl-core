@@ -42,6 +42,8 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         String propertyKey = null;
         String regex = null;
         List<String> propertyValues = Collections.emptyList();
+        PropertyCriterion.EquipmentToCheck equipmentToCheck = null;
+        PropertyCriterion.SideToCheck sideToCheck = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "type":
@@ -93,6 +95,12 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     propertyValues = parser.readValueAs(new TypeReference<ArrayList<String>>() {
                     });
                     break;
+                case "equipmentToCheck":
+                    equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
+                    break;
+                case "sideToCheck":
+                    sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
+                    break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
@@ -102,7 +110,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         }
         switch (type) {
             case PROPERTY:
-                return new PropertyCriterion(propertyKey, propertyValues);
+                return new PropertyCriterion(propertyKey, propertyValues, equipmentToCheck, sideToCheck);
             case SINGLE_COUNTRY:
                 return new SingleCountryCriterion(countries.stream().map(Country::valueOf).collect(Collectors.toList()));
             case TWO_COUNTRY:

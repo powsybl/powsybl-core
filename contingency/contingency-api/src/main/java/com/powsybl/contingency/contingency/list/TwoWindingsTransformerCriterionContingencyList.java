@@ -28,8 +28,8 @@ public class TwoWindingsTransformerCriterionContingencyList extends AbstractEqui
     public TwoWindingsTransformerCriterionContingencyList(String name,
                                                           SingleCountryCriterion singleCountryCriterion,
                                                           TwoNominalVoltageCriterion twoNominalVoltageCriterion,
-                                                          PropertyCriterion propertyCriterion, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.TWO_WINDINGS_TRANSFORMER, propertyCriterion, regexCriterion);
+                                                          List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+        super(name, IdentifiableType.TWO_WINDINGS_TRANSFORMER, propertyCriteria, regexCriterion);
         this.singleCountryCriterion = singleCountryCriterion;
         this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
     }
@@ -44,7 +44,7 @@ public class TwoWindingsTransformerCriterionContingencyList extends AbstractEqui
         return network.getIdentifiableStream(getIdentifiableType())
                 .filter(identifiable -> singleCountryCriterion == null || singleCountryCriterion.filter(identifiable, getIdentifiableType()))
                 .filter(identifiable -> twoNominalVoltageCriterion == null || twoNominalVoltageCriterion.filter(identifiable, getIdentifiableType()))
-                .filter(identifiable -> getPropertyCriterion() == null || getPropertyCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
                 .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
                 .collect(Collectors.toList());

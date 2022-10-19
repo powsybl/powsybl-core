@@ -51,16 +51,16 @@ public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
                         true, true));
         RegexCriterion regexCriterion = new RegexCriterion("regex");
         contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion,
-                null, regexCriterion));
+                Collections.emptyList(), regexCriterion));
         contingencyLists.add(new DefaultContingencyList(new Contingency("contingency1", new GeneratorContingency("GEN"))));
         contingencyLists.add(new InjectionCriterionContingencyList("list3", IdentifiableType.LOAD, countryCriterion,
-                nominalVoltageCriterion, null, null));
+                nominalVoltageCriterion, Collections.emptyList(), null));
         contingencyLists.add(new HvdcLineCriterionContingencyList("list4", countriesCriterion,
-                twoNominalVoltageCriterion, null, null));
+                twoNominalVoltageCriterion, Collections.emptyList(), null));
         contingencyLists.add(new TwoWindingsTransformerCriterionContingencyList("list5", countryCriterion,
-                twoNominalVoltageCriterion, null, null));
+                twoNominalVoltageCriterion, Collections.emptyList(), null));
         contingencyLists.add(new ThreeWindingsTransformerCriterionContingencyList("list6", countryCriterion,
-                threeNominalVoltageCriterion, null, null));
+                threeNominalVoltageCriterion, Collections.emptyList(), null));
         contingencyLists.add(new ListOfContingencyLists("listslist2",
                 Collections.singletonList(new DefaultContingencyList(new Contingency("contingency2",
                         new HvdcLineContingency("HVDC1"))))));
