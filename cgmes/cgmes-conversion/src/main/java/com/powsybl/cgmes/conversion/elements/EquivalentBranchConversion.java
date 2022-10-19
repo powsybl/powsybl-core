@@ -108,7 +108,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         } else {
             DanglingLine dl = context.network().getDanglingLine(iidmId());
             if (dl != null) {
-                // TODO(Luma) Consider also updates for dangling lines
+                // Modeled as a Line. We only have the nominal voltage at the network side
                 reportIgnoredUpdateDifferentNominalVoltagesDanglingLine();
             } else {
                 Identifiable<?> i = context.network().getIdentifiable(iidmId());
@@ -172,7 +172,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     private void reportIgnoredUpdateDifferentNominalVoltagesDanglingLine() {
         context.ignored(
                 IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT + iidmId(),
-                "EquivalentBranch has been converted to a DanglingLine, but potential parameter update is not yet handled");
+                "EquivalentBranch with different nominal voltages has been converted to a DanglingLine. It is modeled as a Line.");
     }
 
     private void reportIgnoredUpdateDifferentNominalVoltages(IdentifiableType idType) {
