@@ -7,10 +7,10 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.LineConnectionAction;
 
 import java.io.IOException;
@@ -34,26 +34,31 @@ public class LineConnectionActionDeserializer extends StdDeserializer<LineConnec
     @Override
     public LineConnectionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
+            switch (name) {
+                case "type":
+                    if (!LineConnectionAction.NAME.equals(jsonParser.nextTextValue())) {
+                        throw JsonMappingException.from(jsonParser, "Expected type " + LineConnectionAction.NAME);
+                    }
+                    return true;
                 case "id":
                     context.id = jsonParser.nextTextValue();
-                    break;
+                    return true;
                 case "lineId":
                     context.lineId = jsonParser.nextTextValue();
-                    break;
+                    return true;
                 case "openSide1":
                     jsonParser.nextToken();
                     context.openSide1 = jsonParser.getValueAsBoolean();
-                    break;
+                    return true;
                 case "openSide2":
                     jsonParser.nextToken();
                     context.openSide2 = jsonParser.getValueAsBoolean();
-                    break;
+                    return true;
                 default:
-                    throw new IllegalArgumentException("");
+                    return false;
             }
-        }
+        });
         if (context.openSide1 == null || context.openSide2 == null) {
             throw JsonMappingException.from(jsonParser, "for line action openSide1 and openSide2 fields can't be null");
         }
