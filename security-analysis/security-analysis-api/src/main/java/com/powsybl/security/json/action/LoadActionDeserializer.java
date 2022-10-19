@@ -28,7 +28,7 @@ public class LoadActionDeserializer extends StdDeserializer<LoadAction> {
     private static class ParsingContext {
         String id;
         String loadId;
-        boolean relativeValue;
+        Boolean relativeValue;
         Double activePowerValue;
         Double reactivePowerValue;
     }

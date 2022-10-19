@@ -34,7 +34,7 @@ public class LoadAction extends AbstractAction {
      * @param activePowerValue The new load P0 (MW) if relativeValue equals False, otherwise the relative variation of load P0 (MW).
      * @param reactivePowerValue The new load Q0 (MVar) if relativeValue equals False, otherwise the relative variation of load Q0 (MVar).
      */
-    LoadAction(String id, String loadId, Boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
+    LoadAction(String id, String loadId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
         super(id);
         this.loadId = Objects.requireNonNull(loadId);
         this.relativeValue = relativeValue;
