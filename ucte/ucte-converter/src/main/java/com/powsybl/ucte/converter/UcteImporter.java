@@ -13,8 +13,12 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
@@ -46,6 +50,23 @@ public class UcteImporter implements Importer {
     private static final double LINE_MIN_Z = 0.05;
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
+
+    public static final String COMBINE_PHASE_ANGLE_REGULATION = "ucte.import.combine-phase-angle-regulation";
+
+    private static final Parameter COMBINE_PHASE_ANGLE_REGULATION_PARAMETER
+            = new Parameter(COMBINE_PHASE_ANGLE_REGULATION, ParameterType.BOOLEAN, "Combine phase and angle regulation", false);
+
+    private static final List<Parameter> PARAMETERS = List.of(COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public UcteImporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public UcteImporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
 
     private static double getConductance(UcteTransformer ucteTransfo) {
         double g = 0;
@@ -770,10 +791,11 @@ public class UcteImporter implements Importer {
         return connected;
     }
 
-    private static void addTapChangers(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, TwoWindingsTransformer transformer) {
+    private static void addTapChangers(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, TwoWindingsTransformer transformer,
+                                       boolean combinePhaseAngleRegulation) {
         UcteRegulation ucteRegulation = ucteNetwork.getRegulation(ucteTransfo.getId());
         if (ucteRegulation != null) {
-            if (ucteRegulation.getPhaseRegulation() != null && ucteRegulation.getAngleRegulation() != null) {
+            if (combinePhaseAngleRegulation && ucteRegulation.getPhaseRegulation() != null && ucteRegulation.getAngleRegulation() != null) {
                 createRatioAndPhaseTapChanger(ucteRegulation.getAngleRegulation(), ucteRegulation.getPhaseRegulation(), transformer);
             } else if (ucteRegulation.getPhaseRegulation() != null) {
                 createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
@@ -783,7 +805,8 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
+    private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName,
+                                           boolean combinePhaseAngleRegulation) {
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteTransfo.getId().getNodeCode2();
@@ -838,7 +861,7 @@ public class UcteImporter implements Importer {
             }
 
             addElementNameProperty(ucteTransfo, transformer);
-            addTapChangers(ucteNetwork, ucteTransfo, transformer);
+            addTapChangers(ucteNetwork, ucteTransfo, transformer, combinePhaseAngleRegulation);
             addNominalPowerProperty(ucteTransfo, transformer);
         }
     }
@@ -959,6 +982,11 @@ public class UcteImporter implements Importer {
     @Override
     public String getComment() {
         return "UCTE-DEF";
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return PARAMETERS;
     }
 
     private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
@@ -1111,6 +1139,8 @@ public class UcteImporter implements Importer {
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
+                boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
+
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, reporter), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
@@ -1122,7 +1152,7 @@ public class UcteImporter implements Importer {
 
                 createBuses(ucteNetwork, network);
                 createLines(ucteNetwork, network);
-                createTransformers(ucteNetwork, network, ucteFileName);
+                createTransformers(ucteNetwork, network, ucteFileName, combinePhaseAngleRegulation);
 
                 mergeXnodeDanglingLines(ucteNetwork, network);
 
