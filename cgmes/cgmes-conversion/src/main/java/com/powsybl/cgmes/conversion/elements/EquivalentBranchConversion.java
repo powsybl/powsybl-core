@@ -132,7 +132,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         // So we can obtain directly its nominal voltage through a SPARQL Query
         double baseVoltage = p.asDouble("baseVoltageNominalVoltage");
         Complex ztr = new Complex(line.getR(), line.getX());
-        Complex ytr = Complex.ONE.divide(ztr);
+        Complex ytr = ztr.reciprocal();
         Complex y1 = new Complex(line.getG1(), line.getB1());
         Complex y2 = new Complex(line.getG2(), line.getB2());
         Complex ytrl;
@@ -160,7 +160,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
                     "EquivalentBranch has been converted to a Line, but base voltage is different of nominal voltages of ends 1 and 2");
             return;
         }
-        Complex ztrl = Complex.ONE.divide(ytrl);
+        Complex ztrl = ytrl.reciprocal();
         line.setR(ztrl.getReal());
         line.setX(ztrl.getImaginary());
         line.setG1(y1l.getReal());
