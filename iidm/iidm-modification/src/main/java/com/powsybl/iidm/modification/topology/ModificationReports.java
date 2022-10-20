@@ -108,6 +108,15 @@ final class ModificationReports {
                 .build());
     }
 
+    static void notFoundConnectableReport(Reporter reporter, String connectableId) {
+        reporter.report(Report.builder()
+                .withKey("connectableNotFound")
+                .withDefaultMessage("Line ${connectableId} is not found")
+                .withValue("connectableId", connectableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void noVoltageLevelInCommonReport(Reporter reporter, String line1Id, String line2Id) {
         reporter.report(Report.builder()
                 .withKey("noVoltageLevelInCommon")
