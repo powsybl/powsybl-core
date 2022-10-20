@@ -1,0 +1,46 @@
+package com.powsybl.iidm.network.extensions;
+
+import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.iidm.network.StaticVarCompensator;
+
+/**
+ * @author Jérémy Labous <jlabous at silicom.fr>
+ */
+public interface StandbyAutomatonAdder extends ExtensionAdder<StaticVarCompensator, StandbyAutomaton> {
+
+    @Override
+    default Class<StandbyAutomaton> getExtensionClass() {
+        return StandbyAutomaton.class;
+    }
+
+    /**
+     * Define the status of the automaton. Use true if in service, false otherwise.
+     */
+    StandbyAutomatonAdder withStandbyStatus(boolean standby);
+
+    /**
+     * Define the fix part of the susceptance (in S) used when the static var compensator is in stand by. Should be between the mininal
+     * and the maximal susceptance of the static var compensator.
+     */
+    StandbyAutomatonAdder withB0(double b0);
+
+    /**
+     * Define the voltage setpoint (in kV) used when the high voltage threshold is reached.
+     */
+    StandbyAutomatonAdder withHighVoltageSetpoint(double highVoltageSetpoint);
+
+    /**
+     * Define the high voltage threshold (in kV). Above this value, the static var compensator controls voltage at high voltage setpoint.
+     */
+    StandbyAutomatonAdder withHighVoltageThreshold(double highVoltageThreshold);
+
+    /**
+     * Define the voltage setpoint (in kV) used when the low voltage threshold is reached.
+     */
+    StandbyAutomatonAdder withLowVoltageSetpoint(double lowVoltageSetpoint);
+
+    /**
+     * Define the low voltage threshold (in kV). Under this value, the static var compensator controls voltage at low voltage setpoint.
+     */
+    StandbyAutomatonAdder withLowVoltageThreshold(double lowVoltageThreshold);
+}
