@@ -15,9 +15,9 @@ public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarC
 
     private boolean standby;
 
-    private double lowVoltageSetPoint;
+    private double lowVoltageSetpoint;
 
-    private double highVoltageSetPoint;
+    private double highVoltageSetpoint;
 
     private double lowVoltageThreshold;
 
@@ -30,7 +30,7 @@ public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarC
     @Override
     protected StandbyAutomaton createExtension(StaticVarCompensator staticVarCompensator) {
         return new StandbyAutomatonImpl(staticVarCompensator, b0, standby,
-                lowVoltageSetPoint, highVoltageSetPoint, lowVoltageThreshold, highVoltageThreshold);
+                lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
     }
 
     @Override
@@ -46,8 +46,8 @@ public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarC
     }
 
     @Override
-    public StandbyAutomatonAdderImpl withHighVoltageSetpoint(double highVoltageSetPoint) {
-        this.highVoltageSetPoint = highVoltageSetPoint;
+    public StandbyAutomatonAdderImpl withHighVoltageSetpoint(double highVoltageSetpoint) {
+        this.highVoltageSetpoint = highVoltageSetpoint;
         return this;
     }
 
@@ -58,8 +58,8 @@ public class StandbyAutomatonAdderImpl extends AbstractExtensionAdder<StaticVarC
     }
 
     @Override
-    public StandbyAutomatonAdderImpl withLowVoltageSetpoint(double lowVoltageSetPoint) {
-        this.lowVoltageSetPoint = lowVoltageSetPoint;
+    public StandbyAutomatonAdderImpl withLowVoltageSetpoint(double lowVoltageSetpoint) {
+        this.lowVoltageSetpoint = lowVoltageSetpoint;
         return this;
     }
 

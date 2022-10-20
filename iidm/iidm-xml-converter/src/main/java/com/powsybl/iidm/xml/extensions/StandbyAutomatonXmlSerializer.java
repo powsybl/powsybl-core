@@ -67,15 +67,15 @@ public class StandbyAutomatonXmlSerializer implements ExtensionXmlSerializer<Sta
     public StandbyAutomaton read(StaticVarCompensator svc, XmlReaderContext context) {
         double b0 = XmlUtil.readDoubleAttribute(context.getReader(), "b0");
         boolean standby = XmlUtil.readBoolAttribute(context.getReader(), "standby");
-        double lowVoltageSetPoint = XmlUtil.readDoubleAttribute(context.getReader(), "lowVoltageSetPoint");
-        double highVoltageSetPoint = XmlUtil.readDoubleAttribute(context.getReader(), "highVoltageSetPoint");
+        double lowVoltageSetpoint = XmlUtil.readDoubleAttribute(context.getReader(), "lowVoltageSetPoint");
+        double highVoltageSetpoint = XmlUtil.readDoubleAttribute(context.getReader(), "highVoltageSetPoint");
         double lowVoltageThreshold = XmlUtil.readDoubleAttribute(context.getReader(), "lowVoltageThreshold");
         double highVoltageThreshold = XmlUtil.readDoubleAttribute(context.getReader(), "highVoltageThreshold");
         svc.newExtension(StandbyAutomatonAdder.class)
                 .withB0(b0)
                 .withStandbyStatus(standby)
-                .withLowVoltageSetpoint(lowVoltageSetPoint)
-                .withHighVoltageSetpoint(highVoltageSetPoint)
+                .withLowVoltageSetpoint(lowVoltageSetpoint)
+                .withHighVoltageSetpoint(highVoltageSetpoint)
                 .withLowVoltageThreshold(lowVoltageThreshold)
                 .withHighVoltageThreshold(highVoltageThreshold)
                 .add();

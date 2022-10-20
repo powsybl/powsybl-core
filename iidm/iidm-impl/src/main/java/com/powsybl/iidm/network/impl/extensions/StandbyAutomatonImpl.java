@@ -32,10 +32,10 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     private static void checkVoltageConfig(double lowVoltageSetpoint, double highVoltageSetpoint,
                                            double lowVoltageThreshold, double highVoltageThreshold) {
         if (Double.isNaN(lowVoltageSetpoint)) {
-            throw new IllegalArgumentException("lowVoltageSetPoint is invalid");
+            throw new IllegalArgumentException("lowVoltageSetpoint is invalid");
         }
         if (Double.isNaN(highVoltageSetpoint)) {
-            throw new IllegalArgumentException("highVoltageSetPoint is invalid");
+            throw new IllegalArgumentException("highVoltageSetpoint is invalid");
         }
         if (Double.isNaN(lowVoltageThreshold)) {
             throw new IllegalArgumentException("lowVoltageThreshold is invalid");
@@ -54,11 +54,11 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
         }
     }
 
-    public StandbyAutomatonImpl(StaticVarCompensator svc, double b0, boolean standby, double lowVoltageSetPoint, double highVoltageSetPoint,
+    public StandbyAutomatonImpl(StaticVarCompensator svc, double b0, boolean standby, double lowVoltageSetpoint, double highVoltageSetpoint,
                                 double lowVoltageThreshold, double highVoltageThreshold) {
         super(svc);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
-        checkVoltageConfig(lowVoltageSetPoint, highVoltageSetPoint, lowVoltageThreshold, highVoltageThreshold);
+        checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint, lowVoltageThreshold, highVoltageThreshold);
         this.b0 = checkB0(b0);
         this.standby = new TBooleanArrayList(variantArraySize);
         this.lowVoltageSetpoint = new TDoubleArrayList(variantArraySize);
@@ -67,8 +67,8 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
         this.highVoltageThreshold = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.standby.add(standby);
-            this.lowVoltageSetpoint.add(lowVoltageSetPoint);
-            this.highVoltageSetpoint.add(highVoltageSetPoint);
+            this.lowVoltageSetpoint.add(lowVoltageSetpoint);
+            this.highVoltageSetpoint.add(highVoltageSetpoint);
             this.lowVoltageThreshold.add(lowVoltageThreshold);
             this.highVoltageThreshold.add(highVoltageThreshold);
         }
@@ -102,10 +102,10 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     }
 
     @Override
-    public StandbyAutomatonImpl setHighVoltageSetpoint(double highVoltageSetPoint) {
-        checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetPoint,
+    public StandbyAutomatonImpl setHighVoltageSetpoint(double highVoltageSetpoint) {
+        checkVoltageConfig(lowVoltageSetpoint.get(getVariantIndex()), highVoltageSetpoint,
                 lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()));
-        this.highVoltageSetpoint.set(getVariantIndex(), highVoltageSetPoint);
+        this.highVoltageSetpoint.set(getVariantIndex(), highVoltageSetpoint);
         return this;
     }
 
@@ -128,10 +128,10 @@ public class StandbyAutomatonImpl extends AbstractMultiVariantIdentifiableExtens
     }
 
     @Override
-    public StandbyAutomatonImpl setLowVoltageSetpoint(double lowVoltageSetPoint) {
-        checkVoltageConfig(lowVoltageSetPoint, highVoltageSetpoint.get(getVariantIndex()),
+    public StandbyAutomatonImpl setLowVoltageSetpoint(double lowVoltageSetpoint) {
+        checkVoltageConfig(lowVoltageSetpoint, highVoltageSetpoint.get(getVariantIndex()),
                 lowVoltageThreshold.get(getVariantIndex()), highVoltageThreshold.get(getVariantIndex()));
-        this.lowVoltageSetpoint.set(getVariantIndex(), lowVoltageSetPoint);
+        this.lowVoltageSetpoint.set(getVariantIndex(), lowVoltageSetpoint);
         return this;
     }
 
