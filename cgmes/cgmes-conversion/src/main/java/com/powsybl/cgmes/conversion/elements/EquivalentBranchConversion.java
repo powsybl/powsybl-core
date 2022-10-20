@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
@@ -84,8 +83,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         // If we have created buses and substations for boundary nodes,
         // convert as a regular line
         if (context.config().convertBoundary()) {
-            convertBranch(r, x, bch, gch);
-            updateParametersForEquivalentBranchWithDifferentNominalVoltages();
+            throw new ConversionException("Unexpected configuration. A DanglingLine never can be created with convertBoundary true");
         } else {
             convertToDanglingLine(boundarySide, r, x, gch, bch);
         }
@@ -106,17 +104,11 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         if (line != null) {
             updateParametersForEquivalentBranchWithDifferentNominalVoltages(line);
         } else {
-            DanglingLine dl = context.network().getDanglingLine(iidmId());
-            if (dl != null) {
-                // Modeled as a Line. We only have the nominal voltage at the network side
-                reportIgnoredUpdateDifferentNominalVoltagesDanglingLine();
-            } else {
-                Identifiable<?> i = context.network().getIdentifiable(iidmId());
-                if (i != null) {
-                    // Should happen only for equivalent branches converted to switches,
-                    // we add info to the conversion context
-                    reportIgnoredUpdateDifferentNominalVoltages(i.getType());
-                }
+            Identifiable<?> i = context.network().getIdentifiable(iidmId());
+            if (i != null) {
+                // Should happen only for equivalent branches converted to switches,
+                // we add info to the conversion context
+                reportIgnoredUpdateDifferentNominalVoltages(i.getType());
             }
         }
     }
@@ -167,12 +159,6 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         line.setB1(y1l.getImaginary());
         line.setG2(y2l.getReal());
         line.setB2(y2l.getImaginary());
-    }
-
-    private void reportIgnoredUpdateDifferentNominalVoltagesDanglingLine() {
-        context.ignored(
-                IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT + iidmId(),
-                "EquivalentBranch with different nominal voltages has been converted to a DanglingLine. It is modeled as a Line.");
     }
 
     private void reportIgnoredUpdateDifferentNominalVoltages(IdentifiableType idType) {

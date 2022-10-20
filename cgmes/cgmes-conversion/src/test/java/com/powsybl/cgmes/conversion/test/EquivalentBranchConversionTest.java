@@ -51,6 +51,12 @@ public class EquivalentBranchConversionTest {
         assertEquals(0.000633305865, lineBaseVoltage2.getB1(), 1.0e-6);
         assertEquals(0.000036646138, lineBaseVoltage2.getG2(), 1.0e-6);
         assertEquals(-0.000647699180, lineBaseVoltage2.getB2(), 1.0e-6);
+
+        DanglingLine dl = n.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertEquals(4.6, dl.getR(), 1.0e-6);
+        assertEquals(69.0, dl.getX(), 1.0e-6);
+        assertEquals(0.0, dl.getG(), 1.0e-6);
+        assertEquals(0.0, dl.getB(), 1.0e-6);
     }
 
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
@@ -60,7 +66,6 @@ public class EquivalentBranchConversionTest {
 
         CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
 
-        config.setConvertSvInjections(true);
         Conversion c = new Conversion(cgmes, config);
         Network n = c.convert();
 

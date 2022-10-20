@@ -106,25 +106,16 @@
 		<cim:EquivalentBranch.x>71.000000</cim:EquivalentBranch.x>
 		<cim:ConductingEquipment.BaseVoltage rdf:resource="#_63893f24-5b4e-407c-9a1e-4ff71121f33c"/>
 	</cim:EquivalentBranch>
-	<cim:ACLineSegment rdf:ID="_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4">
+	<cim:EquivalentBranch rdf:ID="_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4">
 		<cim:IdentifiedObject.name>BE-Line_7</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>BE-L_7</entsoe:IdentifiedObject.shortName>
 		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-AT-DE-000061</entsoe:IdentifiedObject.energyIdentCodeEic>
 		<cim:IdentifiedObject.description>10T-AT-DE-000061</cim:IdentifiedObject.description>
 		<cim:Equipment.EquipmentContainer rdf:resource="#_a8aa134c-be99-4e28-8e51-2d01a3b3e078"/>
-		<cim:ACLineSegment.r>4.600000</cim:ACLineSegment.r>
-		<cim:ACLineSegment.x>69.000000</cim:ACLineSegment.x>
-		<cim:ACLineSegment.bch>0.0000216770</cim:ACLineSegment.bch>
-		<cim:Conductor.length>23.000000</cim:Conductor.length>
-		<cim:ACLineSegment.gch>0.0000575000</cim:ACLineSegment.gch>
-		<cim:Equipment.aggregate>false</cim:Equipment.aggregate>
+		<cim:EquivalentBranch.r>4.600000</cim:EquivalentBranch.r>
+		<cim:EquivalentBranch.x>69.000000</cim:EquivalentBranch.x>
 		<cim:ConductingEquipment.BaseVoltage rdf:resource="#_7891a026ba2c42098556665efd13ba94"/>
-		<cim:ACLineSegment.r0>13.800000</cim:ACLineSegment.r0>
-		<cim:ACLineSegment.x0>207.000000</cim:ACLineSegment.x0>
-		<cim:ACLineSegment.b0ch>0.0000289027</cim:ACLineSegment.b0ch>
-		<cim:ACLineSegment.g0ch>0.0000575000</cim:ACLineSegment.g0ch>
-		<cim:ACLineSegment.shortCircuitEndTemperature>160.0000000000</cim:ACLineSegment.shortCircuitEndTemperature>
-	</cim:ACLineSegment>
+	</cim:EquivalentBranch>
 	<cim:BaseVoltage rdf:ID="_862a4658-6b03-4550-9de2-b5c413912b75">
 		<cim:BaseVoltage.nominalVoltage>10.50</cim:BaseVoltage.nominalVoltage>
 		<cim:IdentifiedObject.description>Base Voltage Level</cim:IdentifiedObject.description>
