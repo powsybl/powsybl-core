@@ -98,7 +98,11 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         }
 
         if (status == null) {
-            status = limitViolationsResult.isComputationOk() ? SecurityContingencyStatus.CONVERGED : SecurityContingencyStatus.FAILED;
+            if (limitViolationsResult != null) {
+                status = limitViolationsResult.isComputationOk() ? SecurityContingencyStatus.CONVERGED : SecurityContingencyStatus.FAILED;
+            } else {
+                status = SecurityContingencyStatus.CONVERGED;
+            }
         }
         if (networkResult != null) {
             return new PostContingencyResult(contingency, limitViolationsResult, networkResult, status);
