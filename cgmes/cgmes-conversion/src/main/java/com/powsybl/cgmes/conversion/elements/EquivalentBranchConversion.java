@@ -9,10 +9,11 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.Objects;
+
 import org.apache.commons.math3.complex.Complex;
 
 /**
@@ -98,22 +99,10 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         // Also, flows computed for this equipment as a Line will be correct in engineering units,
         // so no additional change is required in the utils inside IIDM
 
-        // The equivalent branch should have been converted to a Line or to a DanglingLine
-        // For the moment we are considering only equivalent branches converted to Lines
+        // The equivalent branch should have been converted to a Line
         Line line = context.network().getLine(iidmId());
-        if (line != null) {
-            updateParametersForEquivalentBranchWithDifferentNominalVoltages(line);
-        } else {
-            Identifiable<?> i = context.network().getIdentifiable(iidmId());
-            if (i != null) {
-                // Should happen only for equivalent branches converted to switches,
-                // we add info to the conversion context
-                reportIgnoredUpdateDifferentNominalVoltages(i.getType());
-            }
-        }
-    }
+        Objects.requireNonNull(line);
 
-    private void updateParametersForEquivalentBranchWithDifferentNominalVoltages(Line line) {
         double vnom1 = line.getTerminal1().getVoltageLevel().getNominalV();
         double vnom2 = line.getTerminal2().getVoltageLevel().getNominalV();
         if (vnom1 == vnom2) {
@@ -159,12 +148,6 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         line.setB1(y1l.getImaginary());
         line.setG2(y2l.getReal());
         line.setB2(y2l.getImaginary());
-    }
-
-    private void reportIgnoredUpdateDifferentNominalVoltages(IdentifiableType idType) {
-        context.ignored(
-                IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT + iidmId(),
-                String.format("EquivalentBranch has been converted to a %s. No parameter update will be considered.", idType));
     }
 
     private static final String IGNORED_UPDATE_PARAMS_DIFFERENT_NOMINALV_WHAT =
