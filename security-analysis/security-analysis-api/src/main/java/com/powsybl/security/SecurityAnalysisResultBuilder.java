@@ -135,6 +135,8 @@ public class SecurityAnalysisResultBuilder {
 
         protected boolean computationOk;
 
+        protected SecurityContingencyStatus status;
+
         protected final List<BranchResult> branchResults = new ArrayList<>();
 
         protected final List<BusResult> busResults = new ArrayList<>();
@@ -147,6 +149,11 @@ public class SecurityAnalysisResultBuilder {
 
         public B setComputationOk(boolean computationOk) {
             this.computationOk = computationOk;
+            return (B) this;
+        }
+
+        public B setContingencyStatus(SecurityContingencyStatus status) {
+            this.status = status;
             return (B) this;
         }
 
@@ -258,7 +265,7 @@ public class SecurityAnalysisResultBuilder {
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations,
-                    branchResults, busResults, threeWindingsTransformerResults);
+                    branchResults, busResults, threeWindingsTransformerResults, status);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
 

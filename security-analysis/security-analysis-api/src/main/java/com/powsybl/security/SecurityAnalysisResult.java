@@ -80,4 +80,5 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     public List<OperatorStrategyResult> getOperatorStrategyResults() {
         return operatorStrategyResults;
     }
+
 }

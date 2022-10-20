@@ -42,11 +42,11 @@ public class SecurityAnalysisResultMergerTest {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
         LimitViolation line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900f, 0.95f, 950, Branch.Side.ONE);
-        postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
+        postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"), SecurityContingencyStatus.CONVERGED);
 
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency2");
-        postContingencyResult2 = new PostContingencyResult(contingency2, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action3"));
+        postContingencyResult2 = new PostContingencyResult(contingency2, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action3"), SecurityContingencyStatus.CONVERGED);
 
         result1 = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
         result2 = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult2));

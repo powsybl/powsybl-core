@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.powsybl.security.SecurityContingencyStatus;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -28,13 +29,13 @@ public class PostContingencyResultComparatorTest {
     public void compare() {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        PostContingencyResult result1 = new PostContingencyResult(contingency1, true, Collections.emptyList());
+        PostContingencyResult result1 = new PostContingencyResult(contingency1, true, Collections.emptyList(), SecurityContingencyStatus.CONVERGED);
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency2.getId()).thenReturn("contingency2");
-        PostContingencyResult result2 = new PostContingencyResult(contingency2, true, Collections.emptyList());
+        PostContingencyResult result2 = new PostContingencyResult(contingency2, true, Collections.emptyList(), SecurityContingencyStatus.CONVERGED);
         Contingency contingency3 = Mockito.mock(Contingency.class);
         Mockito.when(contingency3.getId()).thenReturn("contingency3");
-        PostContingencyResult result3 = new PostContingencyResult(contingency3, true, Collections.emptyList());
+        PostContingencyResult result3 = new PostContingencyResult(contingency3, true, Collections.emptyList(), SecurityContingencyStatus.CONVERGED);
 
         List<PostContingencyResult> results = Arrays.asList(result3, result1, result2);
         Collections.sort(results, new PostContingencyResultComparator());

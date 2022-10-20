@@ -222,7 +222,10 @@ public class DefaultSecurityAnalysis {
     private void setContingencyOkAndCheckViolations(String postContVariantId, SecurityAnalysisResultBuilder resultBuilder,
                                                     Contingency contingency, LoadFlowResult lfResult) {
         network.getVariantManager().setWorkingVariant(postContVariantId);
-        SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder = resultBuilder.contingency(contingency).setComputationOk(lfResult.isOk());
+        SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder =
+                resultBuilder.contingency(contingency)
+                        .setComputationOk(lfResult.isOk())
+                        .setContingencyStatus(lfResult.isOk() ? SecurityContingencyStatus.CONVERGED : SecurityContingencyStatus.FAILED);
         if (lfResult.isOk()) {
             violationDetector.checkAll(contingency, network, builder::addViolation);
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);

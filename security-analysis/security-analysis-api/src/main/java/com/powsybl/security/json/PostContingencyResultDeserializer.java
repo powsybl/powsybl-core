@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.SecurityContingencyStatus;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
         NetworkResult networkResult = null;
+        SecurityContingencyStatus status = null;
 
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
@@ -84,14 +86,24 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                             version, "1.2");
                     networkResult = parser.readValueAs(NetworkResult.class);
                     break;
+                case "contingencyStatus":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                            version, "1.3");
+                    status = parser.readValueAs(SecurityContingencyStatus.class);
+                    break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
+
+        if (status == null) {
+            status = limitViolationsResult.isComputationOk() ? SecurityContingencyStatus.CONVERGED : SecurityContingencyStatus.FAILED;
+        }
         if (networkResult != null) {
-            return new PostContingencyResult(contingency, limitViolationsResult, networkResult);
+            return new PostContingencyResult(contingency, limitViolationsResult, networkResult, status);
         } else {
-            return new PostContingencyResult(contingency, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
+            return new PostContingencyResult(contingency, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults, status);
         }
     }
 }

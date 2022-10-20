@@ -62,6 +62,7 @@ public class SecurityAnalysisResultBuilderTest {
         CustomContext postViolationContext = new CustomContext(network, "post-vio");
         builder.contingency(new Contingency("contingency1"), postResultContext)
                 .setComputationOk(true)
+                .setContingencyStatus(SecurityContingencyStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network), postViolationContext)
                 .endContingency();
         assertEquals(Security.checkLimits(network).size(), postViolationContext.getCalledCount());
@@ -93,11 +94,13 @@ public class SecurityAnalysisResultBuilderTest {
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
+                .setContingencyStatus(SecurityContingencyStatus.CONVERGED)
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
         builder.contingency(new Contingency("contingency2")).setComputationOk(true)
                 .addViolations(Security.checkLimits(network))
+                .setContingencyStatus(SecurityContingencyStatus.CONVERGED)
                 .endContingency();
 
         SecurityAnalysisResult res = builder.build();

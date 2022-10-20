@@ -43,5 +43,6 @@
       "q3" : 0.0,
       "i3" : 0.0
     } ]
-  }
+  },
+  "contingencyStatus" : "CONVERGED"
 }
