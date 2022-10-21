@@ -70,12 +70,23 @@ public class TopologyModificationUtilsTest extends AbstractXmlConverterTest  {
 
         Optional<Range<Integer>> unusedOrderPositionsAfter = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
         assertTrue(unusedOrderPositionsAfter.isPresent());
-        assertEquals(Integer.MIN_VALUE, (int) unusedOrderPositionsAfter.get().getMinimum());
+        assertEquals(0, (int) unusedOrderPositionsAfter.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.get().getMaximum());
 
         Optional<Range<Integer>> unusedOrderPositionsBefore = TopologyModificationUtils.getUnusedOrderPositionsAfter(bbs);
         assertTrue(unusedOrderPositionsBefore.isPresent());
-        assertEquals(Integer.MIN_VALUE, (int) unusedOrderPositionsBefore.get().getMinimum());
+        assertEquals(0, (int) unusedOrderPositionsBefore.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsBefore.get().getMaximum());
+    }
+
+    @Test
+    public void testNoConnectablePositionExt() {
+        Network network = Importers.loadNetwork("network-nb-no-connectable-position.xiidm", getClass().getResourceAsStream("/network-nb-no-connectable-position.xiidm"));
+        Optional<Range<Integer>> unusedOrderPositionsBefore = TopologyModificationUtils.getUnusedOrderPositionsBefore(network.getBusbarSection("vl_test_1_1"));
+        Optional<Range<Integer>> unusedOrderPositionsAfter = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("vl_test_1_1"));
+        assertEquals(0, (int) unusedOrderPositionsBefore.map(Range::getMinimum).orElse(-1));
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsBefore.map(Range::getMaximum).orElse(-1));
+        assertEquals(0, (int) unusedOrderPositionsAfter.map(Range::getMinimum).orElse(-1));
+        assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.map(Range::getMaximum).orElse(-1));
     }
 }
