@@ -115,6 +115,9 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
+        Objects.requireNonNull(ds);
+        Objects.requireNonNull(networkFactory);
+        Objects.requireNonNull(reporter);
         TripleStoreOptions options = new TripleStoreOptions();
         String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
         if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
@@ -122,7 +125,7 @@ public class CgmesImport implements Importer {
         } else if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_RDFID)) {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
-        options.setReporter(reporter);
+        options.setReporter(reporter.createSubReporter("Read", "Read"));
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), options);
         return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory, reporter).convert();
     }

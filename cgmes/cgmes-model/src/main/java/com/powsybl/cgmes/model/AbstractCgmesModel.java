@@ -256,7 +256,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
             if (reporter != null) {
-                reporter.report("reading", name);
+                reporter.report("Read", name);
             }
             try (InputStream is = cds.dataSource().newInputStream(name)) {
                 read(is, baseName, name);
