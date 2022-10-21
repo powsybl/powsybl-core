@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" id="test" caseDate="2018-11-08T00:00:00.000Z" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="sub_test" country="FR">
+        <iidm:voltageLevel id="vl_test" nominalV="225.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="vl_test_1_1" name="1.1" node="1"/>
+                <iidm:busbarSection id="vl_test_1_2" name="1.2" node="2"/>
+                <iidm:switch id="disconnector_vl_test_vl_test_1_1_vl_test_1_2_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="2"/>
+                <iidm:switch id="disconnector_gen1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="3"/>
+                <iidm:switch id="breaker_gen1" kind="BREAKER" retained="false" open="false" node1="3" node2="4"/>
+                <iidm:switch id="disconnector_gen2" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="5"/>
+                <iidm:switch id="breaker_gen2" kind="BREAKER" retained="false" open="false" node1="5" node2="6"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="gen1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="10.0" targetQ="0.0" node="4">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:generator id="gen2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="20.0" targetQ="0.0" node="6">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="vl_test_1_1">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="vl_test_1_2">
+        <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="2"/>
+    </iidm:extension>
+</iidm:network>

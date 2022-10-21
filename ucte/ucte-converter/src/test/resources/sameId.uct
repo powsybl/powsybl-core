@@ -1,6 +1,6 @@
 ##C 2007.05.01
 Test case to check the import of a file with a line and a transformer with identical
-node-node-order "networkElementIdentifier".
+node-node-order "identifier".
 ##N
 ##ZFR
 ISSUE 21              0 0 217.41       0       0       0       0       0       0       0       0
