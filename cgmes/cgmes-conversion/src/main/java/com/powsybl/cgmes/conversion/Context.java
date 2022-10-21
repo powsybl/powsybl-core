@@ -21,6 +21,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -30,11 +31,6 @@ import java.util.function.Supplier;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Context {
-
-    // Log messages
-    private static final String FIXED_REASON = "Fixed {}. Reason: {}";
-    private static final String INVALID_REASON = "Invalid {}. Reason: {}";
-    private static final String IGNORED_REASON = "Ignored {}. Reason: {}";
 
     public Context(CgmesModel cgmes, Config config, Network network) {
         this(cgmes, config, network, null);
@@ -208,18 +204,100 @@ public class Context {
         return phaseTapChangerTables.get(tableId);
     }
 
-    // XXX(Luma) first approach to functional logs, report invalid data grouped by "what" or by "reason"
-    // This is just to evaluate how to proceed ...
-    // If we have an identifier inside "what", we don't use it for grouping messages
+    // Handling issues found during conversion
 
-    boolean isValidForGrouping(String what) {
+    private enum ConversionIssueCategory {
+        INVALID("Invalid"),
+        IGNORED("Ignored"),
+        MISSING("Missing"),
+        FIXED("Fixed"),
+        PENDING("Pending");
+
+        ConversionIssueCategory(String description) {
+            this.description = description;
+        }
+
+        @Override
+        public String toString() {
+            return description;
+        }
+
+        private final String description;
+    }
+
+    public void invalid(String what, String reason) {
+        handleIssue(ConversionIssueCategory.INVALID, what, reason);
+    }
+
+    public void invalid(String what, Supplier<String> reason) {
+        handleIssue(ConversionIssueCategory.INVALID, what, reason);
+    }
+
+    public void ignored(String what, String reason) {
+        handleIssue(ConversionIssueCategory.IGNORED, what, reason);
+    }
+
+    public void ignored(String what, Supplier<String> reason) {
+        handleIssue(ConversionIssueCategory.IGNORED, what, reason);
+    }
+
+    public void pending(String what, Supplier<String> reason) {
+        handleIssue(ConversionIssueCategory.PENDING, what, reason);
+    }
+
+    public void fixed(String what, String reason) {
+        handleIssue(ConversionIssueCategory.FIXED, what, reason);
+    }
+
+    public void fixed(String what, Supplier<String> reason) {
+        handleIssue(ConversionIssueCategory.FIXED, what, reason);
+    }
+
+    public void fixed(String what, String reason, double wrong, double fixed) {
+        Supplier<String> reason1 = () -> String.format("%s. Wrong %.4f, was fixed to %.4f", reason, wrong, fixed);
+        handleIssue(ConversionIssueCategory.FIXED, what, reason1);
+    }
+
+    public void missing(String what) {
+        String reason1 = "";
+        handleIssue(ConversionIssueCategory.MISSING, what, reason1);
+    }
+
+    public void missing(String what, double defaultValue) {
+        Supplier<String> reason1 = () -> String.format("Using default value %.4f", defaultValue);
+        handleIssue(ConversionIssueCategory.MISSING, what, reason1);
+    }
+
+    private void handleIssue(ConversionIssueCategory category, String what, String reason) {
+        if (reporter != null) {
+            reportIssue(category, what, reason);
+        }
+        logIssue(category, what, reason);
+    }
+
+    private void handleIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
+        if (LOG.isWarnEnabled() || reporter != null) {
+            String reason1 = reason.get();
+            if (reporter != null) {
+                reportIssue(category, what, reason1);
+            }
+            logIssue(category, what, reason1);
+        }
+    }
+
+    private void logIssue(ConversionIssueCategory category, String what, String reason) {
+        LOG.warn("{}: {}. Reason: {}", category, what, reason);
+    }
+
+    private boolean isValidForGrouping(String what) {
         return what.equals("SvVoltage") || what.equals("Regulating Terminal");
     }
 
-    private void reportInvalid(String what, String reason) {
-        if (reporterInvalid == null) {
-            reporterInvalid = reporter.createSubReporter("Invalid", "Invalid data");
-        }
+    private void reportIssue(ConversionIssueCategory category, String what, String reason) {
+        Reporter categoryReporter = issueReporters.computeIfAbsent(category, cat -> reporter.createSubReporter(cat.name(), cat.toString()));
+        // FIXME(Luma) A first approach to functional logs, report issues grouped by "what" or by "reason"
+        // This is just to evaluate how to proceed ...
+        // If we have an identifier inside "what", we don't use it for grouping messages
         String group;
         String item;
         if (isValidForGrouping(what)) {
@@ -229,83 +307,25 @@ public class Context {
             group = reason;
             item = what;
         }
-        Reporter reporterInvalidGroup = reportersInvalidByGroup.computeIfAbsent(group, g -> reporterInvalid.createSubReporter(g, g));
-        reporterInvalidGroup.report(item, item);
-    }
-
-    public void invalid(String what, String reason) {
-        if (reporter != null) {
-            reportInvalid(what, reason);
+        // FIXME(Luma) simple compound key
+        String categoryGroup = category.toString();
+        String description = "Identified issues not yet organized";
+        if (!group.isEmpty() && !group.isBlank()) {
+            categoryGroup += "_" + group;
+            description = group;
         }
-        LOG.warn(INVALID_REASON, what, reason);
-    }
-
-    public void invalid(String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled() || reporter != null) {
-            String reason1 = reason.get();
-            if (reporter != null) {
-                reportInvalid(what, reason1);
-            }
-            LOG.warn(INVALID_REASON, what, reason1);
-        }
-    }
-
-    public void invalid(Supplier<String> what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(INVALID_REASON, what.get(), reason.get());
-        }
-    }
-
-    public void ignored(String what, String reason) {
-        LOG.warn(IGNORED_REASON, what, reason);
-    }
-
-    public void ignored(String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(IGNORED_REASON, what, reason.get());
-        }
-    }
-
-    public void pending(String what, Supplier<String> reason) {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("PENDING {}. Reason: {}", what, reason.get());
-        }
-    }
-
-    public void fixed(String what, String reason) {
-        LOG.warn(FIXED_REASON, what, reason);
-    }
-
-    public void fixed(Supplier<String> what, String reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(FIXED_REASON, what.get(), reason);
-        }
-    }
-
-    public void fixed(String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(FIXED_REASON, what, reason.get());
-        }
-    }
-
-    public void fixed(String what, String reason, double wrong, double fixed) {
-        LOG.warn("Fixed {}. Reason: {}. Wrong {}, fixed {}", what, reason, wrong, fixed);
-    }
-
-    public void missing(String what) {
-        LOG.warn("Missing {}", what);
-    }
-
-    public void missing(String what, double defaultValue) {
-        LOG.warn("Missing {}. Used default value {}", what, defaultValue);
+        final String description1 = description;
+        reportersByCategoryAndGroup.computeIfAbsent(categoryGroup, cg -> categoryReporter.createSubReporter(cg, description1))
+            .report(item, item);
     }
 
     private final CgmesModel cgmes;
     private final Network network;
     private final Config config;
+
     private final Reporter reporter;
-    private Reporter reporterInvalid;
-    private final Map<String, Reporter> reportersInvalidByGroup = new HashMap<>();
+    private final Map<ConversionIssueCategory, Reporter> issueReporters = new EnumMap<>(ConversionIssueCategory.class);
+    private final Map<String, Reporter> reportersByCategoryAndGroup = new HashMap<>();
 
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
