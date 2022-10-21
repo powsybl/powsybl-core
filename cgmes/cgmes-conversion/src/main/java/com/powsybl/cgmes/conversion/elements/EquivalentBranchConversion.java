@@ -11,10 +11,9 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.apache.commons.math3.complex.Complex;
 
 import java.util.Objects;
-
-import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -81,13 +80,12 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         double x = p.asDouble("x");
         double bch = 0;
         double gch = 0;
-        // If we have created buses and substations for boundary nodes,
-        // convert as a regular line
-        if (context.config().convertBoundary()) {
-            throw new ConversionException("Unexpected configuration. A DanglingLine never can be created with convertBoundary true");
-        } else {
-            convertToDanglingLine(boundarySide, r, x, gch, bch);
-        }
+        // When the parameter convertBoundary is active:
+        // The boundary nodes are processed and included in the Network with a fictitious substation.
+        // The branches that lie on boundaries can be mapped to the Network directly in the ::convert method.
+        // So, this method should never be invoked when convertBoundary is active.
+        assert !context.config().convertBoundary();
+        convertToDanglingLine(boundarySide, r, x, gch, bch);
     }
 
     private void updateParametersForEquivalentBranchWithDifferentNominalVoltages() {
