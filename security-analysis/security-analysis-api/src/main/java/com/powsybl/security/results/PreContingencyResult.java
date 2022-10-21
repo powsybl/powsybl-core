@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.util.*;
@@ -17,19 +18,24 @@ public class PreContingencyResult {
     private final LimitViolationsResult limitViolationsResult;
     private final NetworkResult networkResult;
 
+    private final LoadFlowResult.ComponentResult.Status mainComponentStatus;
+
     public PreContingencyResult() {
-        this(null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        this(null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), LoadFlowResult.ComponentResult.Status.CONVERGED);
     }
 
     public PreContingencyResult(LimitViolationsResult limitViolationsResult, Collection<BranchResult> branchResults,
                                 Collection<BusResult> busResults,
-                                Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this(limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
+                                Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
+                                LoadFlowResult.ComponentResult.Status status) {
+        this(limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), status);
     }
 
-    public PreContingencyResult(LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+    public PreContingencyResult(LimitViolationsResult limitViolationsResult, NetworkResult networkResult,
+                                LoadFlowResult.ComponentResult.Status status) {
         this.limitViolationsResult = limitViolationsResult;
         this.networkResult = Objects.requireNonNull(networkResult);
+        this.mainComponentStatus = Objects.requireNonNull(status);
     }
 
     public LimitViolationsResult getLimitViolationsResult() {
@@ -38,5 +44,9 @@ public class PreContingencyResult {
 
     public NetworkResult getNetworkResult() {
         return networkResult;
+    }
+
+    public LoadFlowResult.ComponentResult.Status getMainComponentStatus() {
+        return mainComponentStatus;
     }
 }

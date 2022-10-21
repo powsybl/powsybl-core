@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import com.powsybl.security.results.*;
@@ -222,8 +223,15 @@ public class SecurityAnalysisResultBuilder {
      */
     public class PreContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PreContingencyResultBuilder> {
 
+        private LoadFlowResult.ComponentResult.Status mainComponentStatus = LoadFlowResult.ComponentResult.Status.CONVERGED;
+
         PreContingencyResultBuilder(SecurityAnalysisResultContext resultContext) {
             super(resultContext);
+        }
+
+        public PreContingencyResultBuilder setLoadFlowStatus(LoadFlowResult.ComponentResult.Status status) {
+            this.mainComponentStatus = status;
+            return this;
         }
 
         /**
@@ -235,7 +243,7 @@ public class SecurityAnalysisResultBuilder {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
             interceptors.forEach(i -> i.onPreContingencyResult(res, resultContext));
-            preContingencyResult = new PreContingencyResult(res, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
+            preContingencyResult = new PreContingencyResult(res, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), mainComponentStatus);
             return SecurityAnalysisResultBuilder.this;
         }
     }

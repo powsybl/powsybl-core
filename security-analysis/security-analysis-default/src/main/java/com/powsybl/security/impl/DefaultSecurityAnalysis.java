@@ -147,7 +147,10 @@ public class DefaultSecurityAnalysis {
     }
 
     private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
-        SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder = resultBuilder.preContingency().setComputationOk(true);
+        SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder =
+                resultBuilder.preContingency()
+                        .setComputationOk(true)
+                        .setLoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED);
         violationDetector.checkAll(network, builder::addViolation);
         addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         addMonitorInfos(network, monitorIndex.getNoneStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.*;
 
@@ -39,6 +40,7 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
         NetworkResult networkResult = null;
+        LoadFlowResult.ComponentResult.Status status = null;
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
             version = SecurityAnalysisResultSerializer.VERSION;
@@ -76,17 +78,30 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
                     threeWindingsTransformerResults = parser.readValueAs(new TypeReference<List<ThreeWindingsTransformerResult>>() {
                     });
                     break;
+                case "mainComponentStatus":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: mainComponentStatus",
+                            version, "1.3");
+                    status = parser.readValueAs(LoadFlowResult.ComponentResult.Status.class);
+                    break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
+        if (status == null) {
+            if (preContingencyResult != null) {
+                status = preContingencyResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
+            } else {
+                status = LoadFlowResult.ComponentResult.Status.CONVERGED;
+            }
+        }
         if (networkResult != null) {
-            return new PreContingencyResult(preContingencyResult, networkResult);
+            return new PreContingencyResult(preContingencyResult, networkResult, status);
         } else {
             return new PreContingencyResult(preContingencyResult,
                     branchResults,
                     busResults,
-                    threeWindingsTransformerResults);
+                    threeWindingsTransformerResults, status);
         }
     }
 }

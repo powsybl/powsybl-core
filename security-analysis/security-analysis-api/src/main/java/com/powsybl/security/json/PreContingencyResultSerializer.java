@@ -27,6 +27,7 @@ class PreContingencyResultSerializer extends StdSerializer<PreContingencyResult>
         jsonGenerator.writeStartObject();
         jsonGenerator.writeObjectField("limitViolationsResult", preContingencyResult.getLimitViolationsResult());
         jsonGenerator.writeObjectField("networkResult", preContingencyResult.getNetworkResult());
+        jsonGenerator.writeObjectField("mainComponentStatus", preContingencyResult.getMainComponentStatus());
         jsonGenerator.writeEndObject();
     }
 }

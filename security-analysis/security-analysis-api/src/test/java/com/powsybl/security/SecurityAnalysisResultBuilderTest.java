@@ -4,6 +4,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.interceptors.*;
 import com.powsybl.security.results.*;
@@ -51,6 +52,7 @@ public class SecurityAnalysisResultBuilderTest {
 
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder preContingencyResultBuilder = builder.preContingency(preResultContext);
         preContingencyResultBuilder
+                .setLoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED)
                 .addViolations(Security.checkLimits(network), preVioContext)
                 .endPreContingency();
         assertEquals(Security.checkLimits(network).size(), preVioContext.getCalledCount());

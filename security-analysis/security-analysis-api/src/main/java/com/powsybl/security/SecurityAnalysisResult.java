@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.*;
 import com.powsybl.security.results.OperatorStrategyResult;
 
@@ -32,7 +33,9 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+                        preContingencyResult.isComputationOk() ?
+                                LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED),
                 postContingencyResults, Collections.emptyList());
     }
 
@@ -44,7 +47,8 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<OperatorStrategyResult> operatorStrategyResults) {
         this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults,
                         preContingencyBusResults,
-                        preContingencyThreeWindingsTransformerResults),
+                        preContingencyThreeWindingsTransformerResults, preContingencyResult.isComputationOk() ?
+                        LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED),
                 postContingencyResults, operatorStrategyResults);
     }
 

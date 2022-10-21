@@ -61,7 +61,8 @@
         "q3" : 2.2,
         "i3" : 3.2
       } ]
-    }
+    },
+    "mainComponentStatus" : "CONVERGED"
   },
   "postContingencyResults" : [ {
     "contingency" : {
