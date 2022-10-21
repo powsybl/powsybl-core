@@ -355,9 +355,8 @@ public final class TopologyModificationUtils {
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> previousSliceMax = getMaxOrderUsedBefore(allOrders, sectionIndex);
         Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
-        int min = previousSliceMax.map(o -> o + 1).orElse(Integer.MIN_VALUE);
-        int max = sliceMin.map(o -> o - 1).orElse(
-                getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE));
+        int min = previousSliceMax.map(o -> o + 1).orElse(0);
+        int max = sliceMin.or(() -> getMinOrderUsedAfter(allOrders, sectionIndex)).map(o -> o - 1).orElse(Integer.MAX_VALUE);
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
@@ -379,8 +378,7 @@ public final class TopologyModificationUtils {
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> nextSliceMin = getMinOrderUsedAfter(allOrders, sectionIndex);
         Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
-        int min = sliceMax.map(o -> o + 1).orElse(
-                getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(Integer.MIN_VALUE));
+        int min = sliceMax.or(() -> getMaxOrderUsedBefore(allOrders, sectionIndex)).map(o -> o + 1).orElse(0);
         int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
@@ -391,10 +389,15 @@ public final class TopologyModificationUtils {
      * applied to BBS2 will return 3.
      */
     private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        int s = section;
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
-            lowerEntry = allOrders.lowerEntry(section);
-        } while (lowerEntry != null && lowerEntry.getValue().isEmpty());
+            lowerEntry = allOrders.lowerEntry(s);
+            if (lowerEntry == null) {
+                break;
+            }
+            s = lowerEntry.getKey();
+        } while (lowerEntry.getValue().isEmpty());
 
         return Optional.ofNullable(lowerEntry)
                 .flatMap(entry -> entry.getValue().stream().max(Comparator.naturalOrder()));
@@ -406,10 +409,15 @@ public final class TopologyModificationUtils {
      * applied to BBS1 will return 7.
      */
     private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        int s = section;
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {
-            higherEntry = allOrders.higherEntry(section);
-        } while (higherEntry != null && higherEntry.getValue().isEmpty());
+            higherEntry = allOrders.higherEntry(s);
+            if (higherEntry == null) {
+                break;
+            }
+            s = higherEntry.getKey();
+        } while (higherEntry.getValue().isEmpty());
 
         return Optional.ofNullable(higherEntry)
                 .flatMap(entry -> entry.getValue().stream().min(Comparator.naturalOrder()));
