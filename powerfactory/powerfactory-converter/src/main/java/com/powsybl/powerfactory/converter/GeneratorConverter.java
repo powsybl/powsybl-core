@@ -85,7 +85,7 @@ class GeneratorConverter extends AbstractConverter {
             boolean voltageRegulatorOn = voltageRegulatorOn(elmSym);
 
             float pgini = elmSym.findFloatAttributeValue("pgini_a").orElse(elmSym.getFloatAttributeValue("pgini"));
-            float qgini = elmSym.getFloatAttributeValue("qgini");
+            float qgini = elmSym.findFloatAttributeValue("qgini_a").orElse(elmSym.getFloatAttributeValue("qgini"));
             double usetp = elmSym.getFloatAttributeValue("usetp");
             double pMinUc = minP(elmSym, pgini);
             double pMaxUc = maxP(elmSym, pgini);
