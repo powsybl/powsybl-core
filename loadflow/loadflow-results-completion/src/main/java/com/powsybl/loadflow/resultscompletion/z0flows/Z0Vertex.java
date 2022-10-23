@@ -172,7 +172,7 @@ public class Z0Vertex {
     }
 
     void addDescendentZ0Flow(double pflow, double qflow) {
-        descendentZ0Flow.add(pflow,  qflow);
+        descendentZ0Flow.add(pflow, qflow);
     }
 
     public double getBalanceP() {

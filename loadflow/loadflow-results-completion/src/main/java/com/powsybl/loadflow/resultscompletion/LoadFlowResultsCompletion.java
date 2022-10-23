@@ -252,7 +252,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         Complex vstar = Z0Tools.getVstarFromZ0Leg(t3wt, z0Legs, parameters, lfParameters);
         if (Z0Tools.isValidVoltage(vstar)) {
             for (Leg leg : legsWithImpedance) {
-                Complex flow = Z0Tools.getLegFlow(t3wt, leg, vstar,  parameters, lfParameters);
+                Complex flow = Z0Tools.getLegFlow(t3wt, leg, vstar, parameters, lfParameters);
                 completeTerminalData(leg.getTerminal(), flow);
             }
         }
