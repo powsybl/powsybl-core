@@ -113,7 +113,7 @@ public class SecurityTest {
     }
 
     @Test
-    public void printLimitsViolations() throws Exception {
+    public void printLimitsViolations() {
         assertEquals("+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
                      "| Equipment (2) | End   | Country | Base voltage | Violation type | Violation name  | Value     | Limit    | abs(value-limit) | Loading rate % |\n" +
                      "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
@@ -136,7 +136,7 @@ public class SecurityTest {
 
     private static void assertViolations(List<LimitViolation> violations) {
         assertEquals(5, violations.size());
-        violations.forEach(violation ->  {
+        violations.forEach(violation -> {
             assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
             if ("VLHV1".equals(violation.getSubjectId())) {
                 assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType());

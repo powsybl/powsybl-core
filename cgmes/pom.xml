@@ -29,6 +29,7 @@
         <module>cgmes-measurements</module>
         <module>cgmes-model</module>
         <module>cgmes-model-alternatives</module>
+        <module>cgmes-shortcircuit</module>
     </modules>
 
 </project>

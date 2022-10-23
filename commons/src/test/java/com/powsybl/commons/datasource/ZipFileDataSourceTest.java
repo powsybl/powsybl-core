@@ -23,7 +23,7 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
     private static final String WORK_DIR = "/work/";
     private static final String MAIN_EXT = "xml";
     private static final String BASENAME = "network";
-    private static final String MAIN_FILE =  BASENAME + "." + MAIN_EXT;
+    private static final String MAIN_FILE = BASENAME + "." + MAIN_EXT;
     private static final String ZIP_FILENAME = MAIN_FILE + ".zip";
     private static final String ZIP_PATH = WORK_DIR + ZIP_FILENAME;
     private static final String ADDITIONAL_SUFFIX = "_mapping";

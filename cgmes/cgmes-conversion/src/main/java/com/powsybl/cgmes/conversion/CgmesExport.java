@@ -13,12 +13,19 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.export.Exporter;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -56,7 +63,7 @@ public class CgmesExport implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties params, DataSource ds) {
+    public void export(Network network, Properties params, DataSource ds, Reporter reporter) {
         Objects.requireNonNull(network);
         String baseName = baseName(params, ds, network);
         String filenameEq = baseName + "_EQ.xml";
@@ -65,17 +72,18 @@ public class CgmesExport implements Exporter {
         String filenameSv = baseName + "_SV.xml";
         CgmesExportContext context = new CgmesExportContext(
                 network,
-                Parameter.readBoolean(getFormat(), params, WITH_TOPOLOGICAL_MAPPING_PARAMETER, defaultValueConfig),
                 NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig))
         )
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
-                .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig));
+                .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setReporter(reporter);
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
         try {
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
+            checkConsistency(profiles, network, context);
             if (profiles.contains("EQ")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameEq, false))) {
                     XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
@@ -105,6 +113,23 @@ public class CgmesExport implements Exporter {
             throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {
+        boolean networkIsNodeBreaker = network.getVoltageLevelStream()
+                .map(VoltageLevel::getTopologyKind)
+                .anyMatch(tk -> tk == TopologyKind.NODE_BREAKER);
+        if (networkIsNodeBreaker
+                && (profiles.contains("SSH") || profiles.contains("SV"))
+                && !profiles.contains("TP")) {
+            context.getReporter().report(Report.builder()
+                    .withKey("InconsistentProfilesTPRequired")
+                    .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
+                    .withValue("networkId", network.getId())
+                    .withSeverity(TypedValue.ERROR_SEVERITY)
+                    .build());
+            LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
 
@@ -169,11 +194,6 @@ public class CgmesExport implements Exporter {
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
-    private static final Parameter WITH_TOPOLOGICAL_MAPPING_PARAMETER = new Parameter(
-            WITH_TOPOLOGICAL_MAPPING,
-            ParameterType.BOOLEAN,
-            "Take topological mapping (CGMES-IIDM) of CgmesIidmMapping extension into account or create one for CGMES export",
-            Boolean.FALSE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
@@ -181,6 +201,7 @@ public class CgmesExport implements Exporter {
             EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
             EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER,
             NAMING_STRATEGY_PARAMETER,
-            PROFILES_PARAMETER,
-            WITH_TOPOLOGICAL_MAPPING_PARAMETER);
+            PROFILES_PARAMETER);
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

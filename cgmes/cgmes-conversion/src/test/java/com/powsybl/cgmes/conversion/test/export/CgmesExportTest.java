@@ -148,7 +148,7 @@ public class CgmesExportTest {
             String baseNameNoRc = baseName + "-no-rc";
             Exporters.export("CGMES", n, null, tmpDir.resolve(baseNameNoRc));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));
-            assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc,  "SSH"));
+            assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "SSH"));
         }
     }
 

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.util.Identifiables;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> extends AbstractAdapter<I> implements IdentifiableAdder<I>  {
+abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> extends AbstractAdapter<I> implements IdentifiableAdder<I> {
 
     private String id;
 

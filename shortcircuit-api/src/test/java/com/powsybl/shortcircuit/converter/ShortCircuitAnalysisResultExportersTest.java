@@ -47,7 +47,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null);
         faultResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension());
         faultResults.add(faultResult);
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult =  new ShortCircuitAnalysisResult(faultResults);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
         shortCircuitAnalysisResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
     }

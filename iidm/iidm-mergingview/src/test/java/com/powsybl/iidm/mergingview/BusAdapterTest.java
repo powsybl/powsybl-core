@@ -370,7 +370,7 @@ public class BusAdapterTest {
 
     private DanglingLine createDanglingLine(VoltageLevel vl, String id, String name,
                                             double r, double x, double g, double b, double p0, double q0,
-                                            String ucteXnodeCode, String busId)  {
+                                            String ucteXnodeCode, String busId) {
         return vl.newDanglingLine()
                 .setId(id)
                 .setName(name)

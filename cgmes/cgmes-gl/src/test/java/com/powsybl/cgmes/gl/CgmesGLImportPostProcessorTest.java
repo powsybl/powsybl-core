@@ -13,7 +13,7 @@ import org.junit.Test;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class CgmesGLImportPostProcessorTest extends CgmesGLModelTest  {
+public class CgmesGLImportPostProcessorTest extends CgmesGLModelTest {
 
     @Test
     public void process() {

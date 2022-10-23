@@ -566,7 +566,7 @@ public class UcteImporter implements Importer {
             if (currentTapPosition < 0) {
                 floor = currentTapPosition;
             } else {
-                floor  = -currentTapPosition;
+                floor = -currentTapPosition;
             }
             LOGGER.info("Number of Taps for transformer '{}' is extended from '{}', to '{}'", transformer.getId(), initialTapsNumber, Math.abs(floor));
         }
@@ -798,7 +798,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {
-        if (ucteElement.getElementName() != null) {
+        if (ucteElement.getElementName() != null && !ucteElement.getElementName().isEmpty()) {
             identifiable.setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
         }
     }

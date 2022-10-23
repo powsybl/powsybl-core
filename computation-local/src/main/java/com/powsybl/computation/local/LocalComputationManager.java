@@ -97,7 +97,7 @@ public class LocalComputationManager implements ComputationManager {
         this(LocalComputationConfig.load(platformConfig));
     }
 
-    public LocalComputationManager(Path localDir)  throws IOException {
+    public LocalComputationManager(Path localDir) throws IOException {
         this(new LocalComputationConfig(localDir));
     }
 

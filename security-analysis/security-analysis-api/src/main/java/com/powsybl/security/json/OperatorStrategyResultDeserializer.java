@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class OperatorStrategyResultDeserializer  extends StdDeserializer<OperatorStrategyResult> {
+public class OperatorStrategyResultDeserializer extends StdDeserializer<OperatorStrategyResult> {
 
     public OperatorStrategyResultDeserializer() {
         super(OperatorStrategyResult.class);

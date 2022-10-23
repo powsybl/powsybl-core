@@ -27,7 +27,7 @@ public abstract class AbstractOptions<T> {
         return extensions != null && extensions.isEmpty();
     }
 
-    public  boolean withAllExtensions() {
+    public boolean withAllExtensions() {
         return extensions == null;
     }
 
@@ -43,7 +43,7 @@ public abstract class AbstractOptions<T> {
         return false;
     }
 
-    public  boolean withExtension(String extensionName) {
+    public boolean withExtension(String extensionName) {
         return withAllExtensions() || extensions.contains(extensionName);
     }
 

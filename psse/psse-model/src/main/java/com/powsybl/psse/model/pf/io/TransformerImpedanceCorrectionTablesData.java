@@ -776,7 +776,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             if (outputStream != null) {
                 throw new PsseException("Unexpected outputStream. Should be null");
             }
-            List<IOLegacyText35.ZCorr35X> parserList =  convertToParserList(impedanceCorrectionList);
+            List<IOLegacyText35.ZCorr35X> parserList = convertToParserList(impedanceCorrectionList);
             new PsseTransformerImpedanceCorrection35xParserRecordData().write(parserList, context, null);
         }
 

@@ -165,7 +165,7 @@ public class SensitivityAnalysisTool implements Tool {
             }
             boolean contingencyCsv = isCsv(outputFileStatus);
             if (!contingencyCsv) {
-                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION  + " files must have the same format (csv).");
+                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " files must have the same format (csv).");
             }
 
             if (line.hasOption(SINGLE_OUTPUT)) {

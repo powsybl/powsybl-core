@@ -136,7 +136,7 @@ public final class CgmesExportUtil {
         return id.startsWith("_") ? id.substring(1) : id;
     }
 
-    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
@@ -149,7 +149,7 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writeStartId(className, id, true, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(name);
@@ -161,7 +161,7 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
     }
 
-    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id));
     }

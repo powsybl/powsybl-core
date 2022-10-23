@@ -21,11 +21,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VOLTAGE_LEVEL_ID;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -49,7 +45,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
 
     @Test
     public void replaceTeePointByVoltageLevelOnLineNbTest() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
@@ -68,7 +64,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withLine1ZId("line1NotFound")
                 .withLineZ2Id("CJ_2")
                 .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withVoltageLevelId(VLTEST)
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
@@ -78,7 +74,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withLine1ZId("CJ_1")
                 .withLineZ2Id("line2NotFound")
                 .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withVoltageLevelId(VLTEST)
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
@@ -88,7 +84,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withLine1ZId("CJ_1")
                 .withLineZ2Id("CJ_2")
                 .withLineZPId("line3NotFound")
-                .withVoltageLevelId("VLTEST")
+                .withVoltageLevelId(VLTEST)
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
@@ -108,7 +104,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withLine1ZId("CJ_1")
                 .withLineZ2Id("CJ_2")
                 .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withVoltageLevelId(VLTEST)
                 .withBbsOrBusId("notFoundBusbarSection")
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
@@ -118,7 +114,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withLine1ZId("CJ_1")
                 .withLineZ2Id("CJ_2")
                 .withLineZPId("LINE34")
-                .withVoltageLevelId("VLTEST")
+                .withVoltageLevelId(VLTEST)
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();
@@ -128,7 +124,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withLine1ZId("CJ_1")
                 .withLineZ2Id("CJ_2")
                 .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withVoltageLevelId(VLTEST)
                 .withBbsOrBusId(BBS)
                 .withLine1CId("NEW LINE1")
                 .withLineC2Id("NEW LINE2").build();

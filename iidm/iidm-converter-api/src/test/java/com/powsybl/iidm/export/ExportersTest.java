@@ -103,7 +103,7 @@ public class ExportersTest extends AbstractConvertersTest {
     @Test
     public void export3() throws IOException {
         Path dir = Files.createTempDirectory("tmp-export");
-        Exporters.export(loader, TEST_FORMAT, null, null,  dir.toString(), "tmp");
+        Exporters.export(loader, TEST_FORMAT, null, null, dir.toString(), "tmp");
         try (InputStream is = Files.newInputStream(dir.resolve("tmp.tst"))) {
             assertEquals(Byte.BYTES, is.read());
         }

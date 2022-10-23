@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.json;
+package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,7 +42,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
                     return true;
                 case "actions":
                     parser.nextToken();
-                    context.actions =  parser.readValueAs(new TypeReference<List<Action>>() {
+                    context.actions = parser.readValueAs(new TypeReference<List<Action>>() {
                     });
                     return true;
                 default:

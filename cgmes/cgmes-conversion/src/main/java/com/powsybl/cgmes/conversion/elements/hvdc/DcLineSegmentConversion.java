@@ -75,7 +75,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     }
 
     // We do not use "#n" to guarantee uniqueness since the getId() method does not support more than one '#' character
-    private static void addHvdcAliasesAndProperties(PropertyBag pb, String duplicatedTag,  CgmesModel cgmesModel,  HvdcLine hvdcLine, Context context) {
+    private static void addHvdcAliasesAndProperties(PropertyBag pb, String duplicatedTag, CgmesModel cgmesModel, HvdcLine hvdcLine, Context context) {
         CgmesDcTerminal t1 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 1));
         String dcNode1 = CgmesDcConversion.getDcNode(cgmesModel, t1);
         CgmesDcTerminal t2 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 2));

@@ -18,12 +18,18 @@ final class TopologyTestUtils {
 
     static final String VOLTAGE_LEVEL_ID = "NHV1_NHV2_1_VL#0";
     static final String BBS = "bbs";
+    static final String VLTEST = "VLTEST";
+
+    static Network createNbNetworkWithBusbarSection() {
+        VoltageLevel vl = createNbNetwork().getVoltageLevel(VLTEST);
+        vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        return vl.getNetwork();
+    }
 
     static Network createNbNetwork() {
         Network network = FictitiousSwitchFactory.create();
         network.setCaseDate(DateTime.parse("2021-08-27T14:44:56.567+02:00"));
-        VoltageLevel vl = network.newVoltageLevel().setId("VLTEST").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
+        network.newVoltageLevel().setId(VLTEST).setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         return network;
     }
 

@@ -92,7 +92,7 @@ public class LocalComputationConfigTest {
     }
 
     @Test
-    public void testTmpDirAlternatives() throws IOException  {
+    public void testTmpDirAlternatives() throws IOException {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringListProperty("tmp-dir", Arrays.asList("/first", "/second"));
         Files.createDirectories(fileSystem.getPath("/second"));

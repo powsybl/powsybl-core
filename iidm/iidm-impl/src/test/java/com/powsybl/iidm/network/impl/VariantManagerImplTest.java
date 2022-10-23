@@ -408,8 +408,8 @@ public class VariantManagerImplTest {
     public void testVariantIndexSwitch() throws Exception {
         NetworkImpl network = (NetworkImpl) Network.create("testVariantIndexSwitch", "no-format");
         VariantManager variantManager = new VariantManagerImpl(network);
-        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID,  variantManager.getWorkingVariantId());
-        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID,  "ClonedVariant1");
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant1");
         variantManager.setWorkingVariant("ClonedVariant1");
         assertEquals("ClonedVariant1", variantManager.getWorkingVariantId());
         variantManager.allowVariantMultiThreadAccess(false);
@@ -427,7 +427,7 @@ public class VariantManagerImplTest {
         assertTrue(variantManager.isVariantMultiThreadAccessAllowed());
         variantManager.allowVariantMultiThreadAccess(false);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
-        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID,  "ClonedVariant2");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant2");
         variantManager.allowVariantMultiThreadAccess(true);
         assertTrue(variantManager.isVariantMultiThreadAccessAllowed());
         variantManager.removeVariant("ClonedVariant2");

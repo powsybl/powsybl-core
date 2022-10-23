@@ -196,7 +196,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         protected boolean isBusValid(Set<ConfiguredBus> busSet) {
             int feederCount = 0;
-            int branchCount = 0;
             for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
@@ -205,10 +204,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case THREE_WINDINGS_TRANSFORMER:
                     case HVDC_CONVERTER_STATION:
                     case DANGLING_LINE:
-                        branchCount++;
-                        feederCount++;
-                        break;
-
                     case LOAD:
                     case GENERATOR:
                     case BATTERY:
@@ -222,7 +217,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         throw new AssertionError();
                 }
             }
-            return Networks.isBusValid(branchCount);
+            return Networks.isBusValid(feederCount);
         }
 
         private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {

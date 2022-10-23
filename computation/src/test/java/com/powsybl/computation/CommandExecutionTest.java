@@ -51,7 +51,7 @@ public class CommandExecutionTest {
         // variables and overloadedVariables merge
         Map<String, String> executionVariables = CommandExecution.getExecutionVariables(ImmutableMap.of("a", "1", "b", "2"),
                                                                                         new CommandExecution(command, 1, 0, null, ImmutableMap.of("c", "3")));
-        assertEquals(ImmutableMap.of("a", "1", "b", "2",  "c", "3"), executionVariables);
+        assertEquals(ImmutableMap.of("a", "1", "b", "2", "c", "3"), executionVariables);
     }
 
 }
