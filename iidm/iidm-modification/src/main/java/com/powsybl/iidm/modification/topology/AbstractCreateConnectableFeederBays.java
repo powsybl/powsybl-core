@@ -22,8 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.ModificationReports.noConnectablePositionExtension;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNBDisconnector;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createNodeBreakerSwitches;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -145,12 +144,5 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         }
         LOGGER.info("New connectable {} was added to voltage level {} on busbar section {}", connectable.getId(), voltageLevel.getId(), bbs.getId());
         newConnectableAddedReport(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
-    }
-
-    private static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
-        bbsList.forEach(b -> {
-            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, String.valueOf(bbsNode), baseId, voltageLevel.getNodeBreakerView(), true);
-        });
     }
 }

@@ -240,7 +240,7 @@ public final class StateVariablesExport {
             network.getVoltageLevelStream().forEach(vl -> {
                 SwitchesFlow swflows = new SwitchesFlow(vl);
                 vl.getSwitches().forEach(sw -> {
-                    if (swflows.hasFlow(sw.getId())) {
+                    if (context.isExportedEquipment(sw) && swflows.hasFlow(sw.getId())) {
                         writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer, context);
                         writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()), cimNamespace, writer, context);
                     }

@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -134,7 +135,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 missing(nodeIdPropertyName() + k);
                 return false;
             }
-            if (voltageLevel(k) == null) {
+            if (voltageLevel(k).isEmpty()) {
                 missing(String.format("VoltageLevel of terminal %d %s (iidm %s)",
                     k,
                     cgmesVoltageLevelId(k),
@@ -184,7 +185,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected boolean isBoundary(int n) {
-        return voltageLevel(n) == null || context.boundary().containsNode(nodeId(n));
+        return voltageLevel(n).isEmpty() || context.boundary().containsNode(nodeId(n));
     }
 
     public void convertToDanglingLine(int boundarySide) {
@@ -219,13 +220,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             missing("Equipment for modeling consumption/injection at boundary node");
         }
 
-        DanglingLineAdder dlAdder = voltageLevel(modelSide).newDanglingLine()
-            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-            .setR(r)
-            .setX(x)
-            .setG(gch)
-            .setB(bch)
-            .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+        DanglingLineAdder dlAdder = voltageLevel(modelSide).map(vl -> vl.newDanglingLine()
+                        .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                        .setR(r)
+                        .setX(x)
+                        .setG(gch)
+                        .setB(bch)
+                        .setUcteXnodeCode(findUcteXnodeCode(boundaryNode)))
+                .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);
         EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(
@@ -394,18 +396,25 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     protected VoltageLevel voltageLevel() {
         if (terminals[0].iidmVoltageLevelId != null) {
-            return context.network().getVoltageLevel(terminals[0].iidmVoltageLevelId);
-        } else {
+            VoltageLevel vl = context.network().getVoltageLevel(terminals[0].iidmVoltageLevelId);
+            if (vl != null) {
+                return vl;
+            } else {
+                throw new CgmesModelException(type + " " + id + " voltage level " + terminals[0].iidmVoltageLevelId + " has not been created in IIDM");
+            }
+        } else if (terminals[0].voltageLevel != null) {
             return terminals[0].voltageLevel;
         }
+        throw new CgmesModelException(type + " " + id + " has no container");
     }
 
-    VoltageLevel voltageLevel(int n) {
+    Optional<VoltageLevel> voltageLevel(int n) {
         if (terminals[n - 1].iidmVoltageLevelId != null) {
-            return context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId);
-        } else {
-            return terminals[n - 1].voltageLevel;
+            return Optional.ofNullable(context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId));
+        } else if (terminals[n - 1].voltageLevel != null) {
+            return Optional.of(terminals[n - 1].voltageLevel);
         }
+        return Optional.empty();
     }
 
     protected Optional<Substation> substation() {

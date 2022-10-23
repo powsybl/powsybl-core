@@ -10,11 +10,17 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,11 +32,15 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
         super(OperatorStrategy.class);
     }
 
+    private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+
     private static class ParsingContext {
         String id;
         String contingencyId;
         Condition condition;
         List<String> actionIds;
+        List<Extension<OperatorStrategy>> extensions = Collections.emptyList();
     }
 
     @Override
@@ -55,10 +65,16 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     context.actionIds = parser.readValueAs(new TypeReference<List<String>>() {
                     });
                     return true;
+                case "extensions":
+                    parser.nextToken();
+                    context.extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
+                    return true;
                 default:
                     return false;
             }
         });
-        return new OperatorStrategy(context.id, context.contingencyId, context.condition, context.actionIds);
+        OperatorStrategy operatorStrategy = new OperatorStrategy(context.id, context.contingencyId, context.condition, context.actionIds);
+        SUPPLIER.get().addExtensions(operatorStrategy, context.extensions);
+        return operatorStrategy;
     }
 }

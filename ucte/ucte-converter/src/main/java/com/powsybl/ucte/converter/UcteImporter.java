@@ -798,7 +798,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {
-        if (ucteElement.getElementName() != null) {
+        if (ucteElement.getElementName() != null && !ucteElement.getElementName().isEmpty()) {
             identifiable.setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
         }
     }

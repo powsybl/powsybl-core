@@ -285,7 +285,7 @@ public class CreateFeederBayTest extends AbstractXmlConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         addVscConverterStationModification.apply(network);
-        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-equipments-bbs1.xml");
     }
 

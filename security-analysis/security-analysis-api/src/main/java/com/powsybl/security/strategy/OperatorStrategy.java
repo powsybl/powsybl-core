@@ -7,6 +7,7 @@
 package com.powsybl.security.strategy;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.condition.Condition;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Objects;
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class OperatorStrategy {
+public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     private final String id;
     private final String contingencyId;
     private final Condition condition;  // under which circumstances do I want to trigger my action
