@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 
@@ -22,10 +23,14 @@ public class OperatorStrategyResult {
 
     private final NetworkResult networkResult;
 
-    public OperatorStrategyResult(OperatorStrategy operatorStrategy, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+    private final LoadFlowResult.ComponentResult.Status mainComponentStatus;
+
+    public OperatorStrategyResult(OperatorStrategy operatorStrategy, LimitViolationsResult limitViolationsResult, LoadFlowResult.ComponentResult.Status status,
+                                  NetworkResult networkResult) {
         this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
+        this.mainComponentStatus = Objects.requireNonNull(status);
     }
 
     public OperatorStrategy getOperatorStrategy() {
@@ -38,5 +43,9 @@ public class OperatorStrategyResult {
 
     public NetworkResult getNetworkResult() {
         return networkResult;
+    }
+
+    public LoadFlowResult.ComponentResult.Status getMainComponentStatus() {
+        return mainComponentStatus;
     }
 }

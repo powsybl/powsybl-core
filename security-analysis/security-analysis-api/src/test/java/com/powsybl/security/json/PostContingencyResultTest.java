@@ -34,7 +34,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
     public void testGetters() {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
-        LimitViolationsResult result = new LimitViolationsResult(true, Collections.singletonList(violation));
+        LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
         threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));
@@ -54,7 +54,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
-        LimitViolationsResult result = new LimitViolationsResult(true, Collections.singletonList(violation));
+        LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
         threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));

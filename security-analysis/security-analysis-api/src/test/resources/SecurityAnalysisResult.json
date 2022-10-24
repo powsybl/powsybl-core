@@ -8,7 +8,6 @@
   },
   "preContingencyResult" : {
     "limitViolationsResult" : {
-      "computationOk" : true,
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
         "limitType" : "CURRENT",
@@ -83,7 +82,6 @@
       } ]
     },
     "limitViolationsResult" : {
-      "computationOk" : true,
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",
         "limitType" : "CURRENT",
@@ -158,7 +156,6 @@
       "actionIds" : [ "actionId1" ]
     },
     "limitViolationsResult" : {
-      "computationOk" : true,
       "limitViolations" : [ ],
       "actionsTaken" : [ ]
     },
@@ -166,6 +163,7 @@
       "branchResults" : [ ],
       "busResults" : [ ],
       "threeWindingsTransformerResults" : [ ]
-    }
+    },
+    "mainComponentStatus" : "CONVERGED"
   } ]
 }

@@ -28,6 +28,7 @@ public class OperatorStrategyResultSerializer extends StdSerializer<OperatorStra
         jsonGenerator.writeObjectField("operatorStrategy", result.getOperatorStrategy());
         jsonGenerator.writeObjectField("limitViolationsResult", result.getLimitViolationsResult());
         jsonGenerator.writeObjectField("networkResult", result.getNetworkResult());
+        jsonGenerator.writeObjectField("mainComponentStatus", result.getMainComponentStatus());
         jsonGenerator.writeEndObject();
     }
 }

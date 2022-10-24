@@ -15,6 +15,7 @@ import java.util.Objects;
  */
 public class LimitViolationsResult {
 
+    @Deprecated(forRemoval = true)
     private final boolean computationOk;
 
     private final List<LimitViolation> limitViolations;
@@ -22,15 +23,22 @@ public class LimitViolationsResult {
     private final List<String> actionsTaken;
 
     public static LimitViolationsResult empty() {
-        return new LimitViolationsResult(true, Collections.emptyList());
+        return new LimitViolationsResult(Collections.emptyList());
     }
 
-    public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations) {
-        this(computationOk, limitViolations, Collections.emptyList());
+    public LimitViolationsResult(List<LimitViolation> limitViolations) {
+        this(true, limitViolations, Collections.emptyList());
     }
 
+    @Deprecated(forRemoval = true)
     public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
         this.computationOk = computationOk;
+        this.limitViolations = Objects.requireNonNull(limitViolations);
+        this.actionsTaken = Objects.requireNonNull(actionsTaken);
+    }
+
+    public LimitViolationsResult(List<LimitViolation> limitViolations, List<String> actionsTaken) {
+        this.computationOk = true;
         this.limitViolations = Objects.requireNonNull(limitViolations);
         this.actionsTaken = Objects.requireNonNull(actionsTaken);
     }

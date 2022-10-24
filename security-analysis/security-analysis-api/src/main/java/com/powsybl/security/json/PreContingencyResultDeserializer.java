@@ -88,7 +88,7 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        if (status == null) {
+        if (version.compareTo("1.3") < 0) {
             if (preContingencyResult != null) {
                 status = preContingencyResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
             } else {

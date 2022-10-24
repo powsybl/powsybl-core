@@ -28,18 +28,18 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final List<OperatorStrategyResult> operatorStrategyResults;
 
     public static SecurityAnalysisResult empty() {
-        return new SecurityAnalysisResult(LimitViolationsResult.empty(), Collections.emptyList());
+        return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
+                                  LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-                        preContingencyResult.isComputationOk() ?
-                                LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED),
+        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), preContingencyStatus),
                 postContingencyResults, Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
+                                  LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults,
                                   List<BranchResult> preContingencyBranchResults,
                                   List<BusResult> preContingencyBusResults,
@@ -47,8 +47,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<OperatorStrategyResult> operatorStrategyResults) {
         this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults,
                         preContingencyBusResults,
-                        preContingencyThreeWindingsTransformerResults, preContingencyResult.isComputationOk() ?
-                        LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED),
+                        preContingencyThreeWindingsTransformerResults, preContingencyStatus),
                 postContingencyResults, operatorStrategyResults);
     }
 

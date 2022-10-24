@@ -4,7 +4,6 @@
     "elements" : [ ]
   },
   "limitViolationsResult" : {
-    "computationOk" : true,
     "limitViolations" : [ {
       "subjectId" : "violation",
       "limitType" : "HIGH_VOLTAGE",

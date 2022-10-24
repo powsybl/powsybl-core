@@ -15,6 +15,7 @@ import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
@@ -104,7 +105,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertTrue(result.getPostContingencyResults().isEmpty());
     }
@@ -225,7 +226,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     }
 
     private static SecurityAnalysisResult resultForContingency(String id) {
-        return new SecurityAnalysisResult(LimitViolationsResult.empty(),
+        return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
                 Collections.singletonList(new PostContingencyResult(new Contingency(id),
                         LimitViolationsResult.empty(), SecurityContingencyStatus.CONVERGED)));
     }
@@ -256,7 +257,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(2, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
@@ -325,7 +326,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(2, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
@@ -372,7 +373,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(1, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());

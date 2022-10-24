@@ -11,16 +11,22 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
 
+import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
+
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class OperatorStrategyResultDeserializer extends StdDeserializer<OperatorStrategyResult> {
+
+    private static final String CONTEXT_NAME = "OperatorStrategyResult";
 
     public OperatorStrategyResultDeserializer() {
         super(OperatorStrategyResult.class);
@@ -31,6 +37,11 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
         OperatorStrategy operatorStrategy = null;
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
+        LoadFlowResult.ComponentResult.Status status = null;
+        String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
+        if (version == null) {  // assuming current version...
+            version = SecurityAnalysisResultSerializer.VERSION;
+        }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "operatorStrategy":
@@ -48,10 +59,27 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                     networkResult = parser.readValueAs(NetworkResult.class);
                     break;
 
+                case "mainComponentStatus":
+                    parser.nextToken();
+                    status = parser.readValueAs(LoadFlowResult.ComponentResult.Status.class);
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                            version, "1.3");
+                    break;
+
                 default:
                     throw new JsonMappingException(parser, "Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new OperatorStrategyResult(operatorStrategy, limitViolationsResult, networkResult);
+        if (version.compareTo("1.3") < 0) {
+            if (limitViolationsResult != null) {
+                return new OperatorStrategyResult(operatorStrategy, limitViolationsResult,
+                        limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED,
+                        networkResult);
+            } else {
+                return new OperatorStrategyResult(operatorStrategy, limitViolationsResult, LoadFlowResult.ComponentResult.Status.CONVERGED, networkResult);
+            }
+        } else {
+            return new OperatorStrategyResult(operatorStrategy, limitViolationsResult, status, networkResult);
+        }
     }
 }

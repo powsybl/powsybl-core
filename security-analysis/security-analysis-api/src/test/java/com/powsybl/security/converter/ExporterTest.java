@@ -12,6 +12,7 @@ import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.condition.AtLeastOneViolationCondition;
 import com.powsybl.security.extensions.ActivePowerExtension;
@@ -62,7 +63,7 @@ public class ExporterTest extends AbstractConverterTest {
                 .addBusbarSection("BBS1")
                 .build();
 
-        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"), SecurityContingencyStatus.CONVERGED);
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
@@ -70,9 +71,10 @@ public class ExporterTest extends AbstractConverterTest {
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
         List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
         operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", "contingency1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
-                Collections.singletonList("actionId1")), new LimitViolationsResult(true, Collections.emptyList()),
+                Collections.singletonList("actionId1")), new LimitViolationsResult(Collections.emptyList()), LoadFlowResult.ComponentResult.Status.CONVERGED,
                 new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
-        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult),
+        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
+                Collections.singletonList(postContingencyResult),
                 preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults, operatorStrategyResults);
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;

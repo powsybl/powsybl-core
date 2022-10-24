@@ -13,6 +13,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class SecurityTest {
 
         // create pre-contingency results, just one violation on line1
         line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
-        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(line1Violation), Collections.singletonList("action1"));
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
@@ -58,7 +59,7 @@ public class SecurityTest {
         line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, Branch.Side.ONE);
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"), SecurityContingencyStatus.CONVERGED);
 
-        result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+        result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
 
     @Test

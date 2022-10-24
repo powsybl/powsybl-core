@@ -9,6 +9,7 @@ package com.powsybl.action.simulator.tools;
 import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.Test;
@@ -38,7 +39,6 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     private void testLimitViolation(LimitViolationsResult result, boolean convergent, List<String> equipmentsId, List<String> actionsId) {
-        assertEquals(convergent, result.isComputationOk());
         assertEquals(actionsId, result.getActionsTaken());
         if (convergent) {
             assertEquals(1, result.getLimitViolations().size());
@@ -51,6 +51,8 @@ public class SecurityAnalysisResultBuilderTest {
             @Override
             public void onFinalStateResult(SecurityAnalysisResult result) {
 
+                assertEquals(convergent ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED,
+                        result.getPreContingencyResult().getMainComponentStatus());
                 testLimitViolation(result.getPreContingencyLimitViolationsResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
 
                 List<PostContingencyResult> postContingencyResults = result.getPostContingencyResults();
@@ -60,6 +62,8 @@ public class SecurityAnalysisResultBuilderTest {
                 assertEquals("contingency", postContingencyResult.getContingency().getId());
                 assertEquals(0, postContingencyResult.getContingency().getElements().size());
 
+                assertEquals(convergent ? SecurityContingencyStatus.CONVERGED : SecurityContingencyStatus.FAILED,
+                        postContingencyResult.getContingencyStatus());
                 LimitViolationsResult postContingencyLimitViolationsResult = postContingencyResult.getLimitViolationsResult();
                 testLimitViolation(postContingencyLimitViolationsResult, convergent, Collections.singletonList("line2"), Arrays.asList("post-action1", "post-action2"));
             }

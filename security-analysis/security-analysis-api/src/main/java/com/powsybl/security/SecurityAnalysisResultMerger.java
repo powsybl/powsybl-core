@@ -6,6 +6,8 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.loadflow.LoadFlowResult;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -14,18 +16,19 @@ import java.util.stream.Collectors;
  */
 public final class SecurityAnalysisResultMerger {
 
-    private static final LimitViolationsResult FAILED_N_STATE_RESULT = new LimitViolationsResult(false, Collections.emptyList());
-    public static final SecurityAnalysisResult FAILED_SECURITY_ANALYSIS_RESULT = new SecurityAnalysisResult(FAILED_N_STATE_RESULT, Collections.emptyList());
+    private static final LimitViolationsResult FAILED_N_STATE_RESULT = new LimitViolationsResult(Collections.emptyList());
+    public static final SecurityAnalysisResult FAILED_SECURITY_ANALYSIS_RESULT = new SecurityAnalysisResult(FAILED_N_STATE_RESULT,
+            LoadFlowResult.ComponentResult.Status.FAILED, Collections.emptyList());
 
     public static SecurityAnalysisResult merge(SecurityAnalysisResult[] results) {
         //If one of the subtasks has failed, return a failed result
         Objects.requireNonNull(results);
         for (SecurityAnalysisResult subResult : results) {
-            if (!subResult.getPreContingencyLimitViolationsResult().isComputationOk()) {
+            if (subResult.getPreContingencyResult().getMainComponentStatus() != LoadFlowResult.ComponentResult.Status.CONVERGED) {
                 return FAILED_SECURITY_ANALYSIS_RESULT;
             }
         }
-        return new SecurityAnalysisResult(results[0].getPreContingencyLimitViolationsResult(),
+        return new SecurityAnalysisResult(results[0].getPreContingencyLimitViolationsResult(), results[0].getPreContingencyResult().getMainComponentStatus(),
                 Arrays.stream(results).flatMap(result -> result.getPostContingencyResults().stream()).collect(Collectors.toList()))
                 .setNetworkMetadata(results[0].getNetworkMetadata());
 
