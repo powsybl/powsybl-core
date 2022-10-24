@@ -49,8 +49,8 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
      * @deprecated Use {@link #getHighVoltageSetpoint()} instead.
      */
     @Deprecated(since = "4.11.0")
-    default double getHighVoltageSetPoint() {
-        return getHighVoltageSetpoint();
+    default float getHighVoltageSetPoint() {
+        return (float) getHighVoltageSetpoint();
     }
 
     /**
@@ -62,7 +62,7 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
      * @deprecated Use {@link #setHighVoltageSetpoint(double)} instead.
      */
     @Deprecated(since = "4.11.0")
-    default StandbyAutomaton setHighVoltageSetPoint(double highVoltageSetpoint) {
+    default StandbyAutomaton setHighVoltageSetPoint(float highVoltageSetpoint) {
         return setHighVoltageSetpoint(highVoltageSetpoint);
     }
 
@@ -85,8 +85,8 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
      * @deprecated Use {@link #getLowVoltageSetpoint()} instead.
      */
     @Deprecated(since = "4.11.0")
-    default double getLowVoltageSetPoint() {
-        return getLowVoltageSetpoint();
+    default float getLowVoltageSetPoint() {
+        return (float) getLowVoltageSetpoint();
     }
 
     /**
@@ -98,7 +98,7 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
      * @deprecated Use {@link #setLowVoltageSetpoint(double)} instead.
      */
     @Deprecated(since = "4.11.0")
-    default StandbyAutomaton setLowVoltageSetPoint(double lowVoltageSetpoint) {
+    default StandbyAutomaton setLowVoltageSetPoint(float lowVoltageSetpoint) {
         return setLowVoltageSetpoint(lowVoltageSetpoint);
     }
 

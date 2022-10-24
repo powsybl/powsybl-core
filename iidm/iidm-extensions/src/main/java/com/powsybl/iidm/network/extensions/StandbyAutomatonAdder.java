@@ -39,7 +39,7 @@ public interface StandbyAutomatonAdder extends ExtensionAdder<StaticVarCompensat
      * @deprecated Use {@link #withHighVoltageSetpoint(double)} instead.
      */
     @Deprecated(since = "4.11.0")
-    default StandbyAutomatonAdder withHighVoltageSetPoint(double highVoltageSetpoint) {
+    default StandbyAutomatonAdder withHighVoltageSetPoint(float highVoltageSetpoint) {
         return withHighVoltageSetpoint(highVoltageSetpoint);
     }
 
@@ -57,7 +57,7 @@ public interface StandbyAutomatonAdder extends ExtensionAdder<StaticVarCompensat
      * @deprecated Use {@link #withLowVoltageSetpoint(double)} instead.
      */
     @Deprecated(since = "4.11.0")
-    default StandbyAutomatonAdder withLowVoltageSetPoint(double lowVoltageSetpoint) {
+    default StandbyAutomatonAdder withLowVoltageSetPoint(float lowVoltageSetpoint) {
         return withHighVoltageSetpoint(lowVoltageSetpoint);
     }
 
