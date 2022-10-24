@@ -751,10 +751,13 @@ public class UcteImporter implements Importer {
         if (ucteRegulation != null) {
             if (combinePhaseAngleRegulation && ucteRegulation.getPhaseRegulation() != null && ucteRegulation.getAngleRegulation() != null) {
                 createRatioAndPhaseTapChanger(ucteRegulation.getAngleRegulation(), ucteRegulation.getPhaseRegulation(), transformer);
-            } else if (ucteRegulation.getPhaseRegulation() != null) {
-                createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
-            } else if (ucteRegulation.getAngleRegulation() != null) {
-                createPhaseTapChanger(ucteRegulation.getAngleRegulation(), transformer);
+            } else {
+                if (ucteRegulation.getPhaseRegulation() != null) {
+                    createRatioTapChanger(ucteRegulation.getPhaseRegulation(), transformer);
+                }
+                if (ucteRegulation.getAngleRegulation() != null) {
+                    createPhaseTapChanger(ucteRegulation.getAngleRegulation(), transformer);
+                }
             }
         }
     }
