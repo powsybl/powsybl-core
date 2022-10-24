@@ -397,7 +397,8 @@ WHERE {
         a cim:EquivalentBranch ;
         cim:IdentifiedObject.name ?name ;
         cim:EquivalentBranch.r ?r ;
-        cim:EquivalentBranch.x ?x .
+        cim:EquivalentBranch.x ?x ;
+        cim:ConductingEquipment.BaseVoltage ?BaseVoltage .
     OPTIONAL {
         ?EquivalentBranch
             cim:EquivalentBranch.r21 ?r21 ;
@@ -412,8 +413,12 @@ WHERE {
         cim:Terminal.ConductingEquipment ?EquivalentBranch ;
         cim:ACDCTerminal.sequenceNumber "2" .
 }}
+{ GRAPH ?graph2 {
+    ?BaseVoltage
+        a cim:BaseVoltage ;
+        cim:BaseVoltage.nominalVoltage ?baseVoltageNominalVoltage .
+}}
 }
-
 
 # query: seriesCompensators
 SELECT *
