@@ -564,6 +564,9 @@ public class UcteImporter implements Importer {
 
     private static Pair<Double, Double> getRhoAndAlpha(UcteAngleRegulation ucteAngleRegulation, double dx, double dy,
                                                        Double currentRatioTapChangerRho) {
+        if (currentRatioTapChangerRho != null && currentRatioTapChangerRho.equals(0.0)) {
+            throw new AssertionError("Unexpected non zero value for current ratio tap changer rho: " + currentRatioTapChangerRho);
+        }
         double rho;
         double alpha;
         switch (ucteAngleRegulation.getType()) {
@@ -571,7 +574,7 @@ public class UcteImporter implements Importer {
                 if (currentRatioTapChangerRho == null) {
                     rho = 1d / Math.hypot(dy, 1d + dx);
                     alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
-                } else { // currentRatioTapChangerRho should be non zero.
+                } else {
                     double dyEq = dy / currentRatioTapChangerRho;
                     double dxEq = (dx + 1) / currentRatioTapChangerRho - 1;
                     rho = 1d / Math.hypot(dyEq, 1d + dxEq) / currentRatioTapChangerRho; // the formula = 1d / Math.hypot(dyEq, 1d + dxEq) already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
