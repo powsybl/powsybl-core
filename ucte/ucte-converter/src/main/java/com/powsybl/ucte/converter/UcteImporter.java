@@ -29,6 +29,7 @@ import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
 import com.powsybl.ucte.network.ext.UcteVoltageLevel;
 import com.powsybl.ucte.network.io.UcteReader;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -493,9 +494,12 @@ public class UcteImporter implements Importer {
     }
 
     private static void createRatioTapChanger(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
-
         LOGGER.trace("Create ratio tap changer '{}'", transformer.getId());
+        RatioTapChangerAdder rtca = createRatioTapChangerAdder(uctePhaseRegulation, transformer);
+        rtca.add();
+    }
 
+    private static RatioTapChangerAdder createRatioTapChangerAdder(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
         int lowerTap = getLowTapPosition(uctePhaseRegulation, transformer);
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
                 .setLowTapPosition(lowerTap)
@@ -518,12 +522,10 @@ public class UcteImporter implements Importer {
                     .setB(0)
                     .endStep();
         }
-        rtca.add();
+        return rtca;
     }
 
-    private static void createPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
-
-        LOGGER.trace("Create phase tap changer '{}'", transformer.getId());
+    private static PhaseTapChangerAdder createPhaseTapChangerAdder(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
         int lowerTap = getLowTapPosition(ucteAngleRegulation, transformer);
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
                 .setLowTapPosition(lowerTap)
@@ -538,29 +540,22 @@ public class UcteImporter implements Importer {
                     .setRegulationTerminal(transformer.getTerminal1())
                     .setRegulating(false); // should be set to true but many divergence on files are observed.
         }
+        return ptca;
+    }
+
+    private static void createPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
+
+        LOGGER.trace("Create phase tap changer '{}'", transformer.getId());
+        PhaseTapChangerAdder ptca = createPhaseTapChangerAdder(ucteAngleRegulation, transformer);
+        int lowerTap = getLowTapPosition(ucteAngleRegulation, transformer);
 
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
-            double rho;
-            double alpha;
             double dx = i * ucteAngleRegulation.getDu() / 100 * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
             double dy = i * ucteAngleRegulation.getDu() / 100 * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
-            switch (ucteAngleRegulation.getType()) {
-                case ASYM:
-                    rho = 1d / Math.hypot(dy, 1d + dx);
-                    alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
-                    break;
-
-                case SYMM:
-                    rho = 1d;
-                    alpha = Math.toDegrees(2 * Math.atan2(dy, 2 * (1d + dx)));
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
-            }
+            Pair<Double, Double> rhoAndAlpha = getRhoAndAlpha(ucteAngleRegulation, dx, dy, null);
             ptca.beginStep()
-                    .setRho(rho)
-                    .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
+                    .setRho(rhoAndAlpha.getLeft())
+                    .setAlpha(-rhoAndAlpha.getRight()) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
                     .setR(0)
                     .setX(0)
                     .setG(0)
@@ -568,6 +563,34 @@ public class UcteImporter implements Importer {
                     .endStep();
         }
         ptca.add();
+    }
+
+    private static Pair<Double, Double> getRhoAndAlpha(UcteAngleRegulation ucteAngleRegulation, double dx, double dy,
+                                                       Double currentRatioTapChangerRho) {
+        double rho;
+        double alpha;
+        switch (ucteAngleRegulation.getType()) {
+            case ASYM:
+                if (currentRatioTapChangerRho == null) {
+                    rho = 1d / Math.hypot(dy, 1d + dx);
+                    alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
+                } else { // currentRatioTapChangerRho should be non zero.
+                    double dyEq = dy / currentRatioTapChangerRho;
+                    double dxEq = (dx + 1) / currentRatioTapChangerRho - 1;
+                    rho = 1d / Math.hypot(dyEq, 1d + dxEq) / currentRatioTapChangerRho; // the formula = 1d / Math.hypot(dyEq, 1d + dxEq) already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
+                    alpha = Math.toDegrees(Math.atan2(dyEq, 1 + dxEq));
+                }
+                break;
+
+            case SYMM:
+                rho = 1d;
+                alpha = Math.toDegrees(2 * Math.atan2(dy, 2 * (1d + dx)));
+                break;
+
+            default:
+                throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
+        }
+        return Pair.of(rho, alpha);
     }
 
     private static void createRatioAndPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
@@ -582,75 +605,19 @@ public class UcteImporter implements Importer {
         // We propose the following approximation : we compute dUeq and ThetaEq at fixed current ratio tap nr = nro, we compute rho(nro)
         // and build both equivalent phase tap changer and ratio tap changer such that it will be exact at ratio = nro
 
-        int lowerRatioTap = getLowTapPosition(uctePhaseRegulation, transformer);
-        RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
-                .setLowTapPosition(lowerRatioTap)
-                .setTapPosition(uctePhaseRegulation.getNp())
-                .setLoadTapChangingCapabilities(!Double.isNaN(uctePhaseRegulation.getU()));
-        if (!Double.isNaN(uctePhaseRegulation.getU())) {
-            rtca.setLoadTapChangingCapabilities(true)
-                    .setRegulating(true)
-                    .setTargetV(uctePhaseRegulation.getU())
-                    .setTargetDeadband(0.0)
-                    .setRegulationTerminal(transformer.getTerminal1());
-        }
-        double rhoInit = 1.;
-        double nrduInit = 0.;
-        for (int i = lowerRatioTap; i <= Math.abs(lowerRatioTap); i++) {
-            double rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100);
-            rtca.beginStep()
-                    .setRho(rho)
-                    .setR(0)
-                    .setX(0)
-                    .setG(0)
-                    .setB(0)
-                    .endStep();
-            if (i == uctePhaseRegulation.getNp()) {
-                rhoInit = rho;
-                nrduInit = i * uctePhaseRegulation.getDu() / 100;
-            }
-        }
+        RatioTapChangerAdder rtca = createRatioTapChangerAdder(uctePhaseRegulation, transformer);
         rtca.add();
+        double initialRho = transformer.getRatioTapChanger().getCurrentStep().getRho();
 
+        PhaseTapChangerAdder ptca = createPhaseTapChangerAdder(ucteAngleRegulation, transformer);
         int lowerPhaseTap = getLowTapPosition(ucteAngleRegulation, transformer);
-        PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
-                .setLowTapPosition(lowerPhaseTap)
-                .setTapPosition(ucteAngleRegulation.getNp())
-                .setRegulationValue(ucteAngleRegulation.getP())
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
-                .setRegulating(false);
-
-        if (!Double.isNaN(ucteAngleRegulation.getP())) {
-            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                    .setTargetDeadband(0.0)
-                    .setRegulationTerminal(transformer.getTerminal1())
-                    .setRegulating(false); // should be set to true but many divergence on files are observed.
-        }
-
         for (int i = lowerPhaseTap; i <= Math.abs(lowerPhaseTap); i++) {
-            double rho;
-            double alpha;
             double dx = i * ucteAngleRegulation.getDu() / 100 * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
             double dy = i * ucteAngleRegulation.getDu() / 100 * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
-            double dyEq = dy * (1. + nrduInit);
-            double dxEq = dx * (1. + nrduInit) + nrduInit;
-            switch (ucteAngleRegulation.getType()) {
-                case ASYM:
-                    rho = 1d / Math.hypot(dyEq, 1d + dxEq) / rhoInit; // the formula = 1d / Math.hypot(dyEq, 1d + dxEq) already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
-                    alpha = Math.toDegrees(Math.atan2(dyEq, 1 + dxEq));
-                    break;
-
-                case SYMM:
-                    rho = 1d;
-                    alpha = Math.toDegrees(2 * Math.atan2(dy, 2 * (1d + dx)));
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
-            }
+            Pair<Double, Double> rhoAndAlpha = getRhoAndAlpha(ucteAngleRegulation, dx, dy, initialRho);
             ptca.beginStep()
-                    .setRho(rho)
-                    .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
+                    .setRho(rhoAndAlpha.getLeft())
+                    .setAlpha(-rhoAndAlpha.getRight()) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
                     .setR(0)
                     .setX(0)
                     .setG(0)
