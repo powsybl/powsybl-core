@@ -46,9 +46,25 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
     double getHighVoltageSetpoint();
 
     /**
+     * @deprecated Use {@link #getHighVoltageSetpoint()} instead.
+     */
+    @Deprecated(since = "4.11.0")
+    default double getHighVoltageSetPoint() {
+        return getHighVoltageSetpoint();
+    }
+
+    /**
      * Set the voltage setpoint (in kV) used when the high voltage threshold is reached.
      */
     StandbyAutomaton setHighVoltageSetpoint(double highVoltageSetpoint);
+
+    /**
+     * @deprecated Use {@link #setHighVoltageSetpoint(double)} instead.
+     */
+    @Deprecated(since = "4.11.0")
+    default StandbyAutomaton setHighVoltageSetPoint(double highVoltageSetpoint) {
+        return setHighVoltageSetpoint(highVoltageSetpoint);
+    }
 
     /**
      * Get the high voltage threshold (in kV). Above this value, the static var compensator controls voltage at high voltage setpoint.
@@ -66,9 +82,25 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
     double getLowVoltageSetpoint();
 
     /**
+     * @deprecated Use {@link #getLowVoltageSetpoint()} instead.
+     */
+    @Deprecated(since = "4.11.0")
+    default double getLowVoltageSetPoint() {
+        return getLowVoltageSetpoint();
+    }
+
+    /**
      * Set the voltage setpoint (in kV) used when the low voltage threshold is reached.
      */
     StandbyAutomaton setLowVoltageSetpoint(double lowVoltageSetpoint);
+
+    /**
+     * @deprecated Use {@link #setLowVoltageSetpoint(double)} instead.
+     */
+    @Deprecated(since = "4.11.0")
+    default StandbyAutomaton setLowVoltageSetPoint(double lowVoltageSetpoint) {
+        return setLowVoltageSetpoint(lowVoltageSetpoint);
+    }
 
     /**
      * Get the low voltage threshold (in kV). Under this value, the static var compensator controls voltage at low voltage setpoint.
