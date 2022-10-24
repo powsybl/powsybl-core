@@ -98,6 +98,8 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
                 new PhaseTapChangerTapPositionActionSerializer(), new PhaseTapChangerTapPositionActionDeserializer());
         registerActionType(GeneratorAction.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionDeserializer());
+        registerActionType(LoadAction.class, LoadAction.NAME,
+                new LoadActionSerializer(), new LoadActionDeserializer());
     }
 
     private <T> void registerActionType(Class<T> actionClass, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {
