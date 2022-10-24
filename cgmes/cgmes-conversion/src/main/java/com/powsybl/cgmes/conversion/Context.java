@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
@@ -290,7 +291,7 @@ public class Context {
     }
 
     private boolean isValidForGrouping(String what) {
-        return what.equals("SvVoltage") || what.equals("Regulating Terminal");
+        return what.equals("SvVoltage") || what.equals("Regulating Terminal") || what.equals("EmptyVscRegulation");
     }
 
     private void reportIssue(ConversionIssueCategory category, String what, String reason) {
@@ -306,6 +307,9 @@ public class Context {
         } else {
             group = reason;
             item = what;
+        }
+        if (item == null) {
+            throw new PowsyblException("Nothing to report, category = [" + category + "], what = [" + what + "], reason = [" + reason + "]");
         }
         // FIXME(Luma) simple compound key
         String categoryGroup = category.toString();

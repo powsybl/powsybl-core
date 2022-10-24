@@ -127,7 +127,8 @@ public class CgmesImport implements Importer {
         }
         options.setReporter(reporter.createSubReporter("Read", "Read"));
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), options);
-        return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory, reporter).convert();
+        Reporter conversionReporter = reporter.createSubReporter("Conversion", "Conversion");
+        return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory, conversionReporter).convert();
     }
 
     @Override
