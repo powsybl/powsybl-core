@@ -604,6 +604,7 @@ public class UcteImporter implements Importer {
 
         RatioTapChangerAdder rtca = createRatioTapChangerAdder(uctePhaseRegulation, transformer);
         rtca.add();
+        transformer.getRatioTapChanger().setRegulating(false);
         double currentRatioTapChangerRho = transformer.getRatioTapChanger().getCurrentStep().getRho();
 
         PhaseTapChangerAdder ptca = createPhaseTapChangerAdder(ucteAngleRegulation, transformer, currentRatioTapChangerRho);
