@@ -48,6 +48,10 @@ public class MatpowerModel {
         return caseName;
     }
 
+    public void setCaseName(String caseName) {
+        this.caseName = Objects.requireNonNull(caseName);
+    }
+
     public double getBaseMva() {
         return baseMva;
     }
