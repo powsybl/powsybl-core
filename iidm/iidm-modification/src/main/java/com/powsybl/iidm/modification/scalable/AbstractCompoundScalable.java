@@ -6,19 +6,49 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractCompoundScalable extends AbstractScalable {
 
+    protected Map<Scalable, Boolean> scalableActivityMap;
+
     abstract Collection<Scalable> getScalables();
+
+    public Collection<Scalable> getActiveScalables() {
+        return scalableActivityMap.keySet().stream().filter(scalableActivityMap::get).collect(Collectors.toSet());
+    }
+
+    public void deactivateScalables(Set<Scalable> scalablesToDeactivate) {
+        for (Scalable scalable : scalablesToDeactivate) {
+            if (!scalableActivityMap.containsKey(scalable)) {
+                throw new PowsyblException("Error while trying to deactivate a scalable which is not contained in the compound scalable.");
+            }
+            scalableActivityMap.put(scalable, false);
+        }
+    }
+
+    public void activateAllScalables() {
+        scalableActivityMap.keySet().forEach(scalable -> scalableActivityMap.put(scalable, true));
+    }
+
+    public void activateScalables(Set<Scalable> scalablesToActivate) {
+        for (Scalable scalable : scalablesToActivate) {
+            if (!scalableActivityMap.containsKey(scalable)) {
+                throw new PowsyblException("Error while trying to activate a scalable which is not contained in the compound scalable.");
+            }
+            scalableActivityMap.put(scalable, true);
+        }
+    }
+
+    public abstract AbstractCompoundScalable shallowCopy();
 
     @Override
     public double initialValue(Network n) {

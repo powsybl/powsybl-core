@@ -11,10 +11,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
@@ -176,6 +173,29 @@ public class ScalableTest {
     }
 
     @Test
+    public void testScalableActivityMap() {
+        ProportionalScalable proportionalScalable = Scalable.proportional(Arrays.asList(50.f, 20.f, 30.f), Arrays.asList(g1, g2, l1));
+        Collection<Scalable> activeScalables = proportionalScalable.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        proportionalScalable.deactivateScalables(Set.of(g1, l1));
+        activeScalables = proportionalScalable.getActiveScalables();
+        assertEquals(1, activeScalables.size());
+        assertTrue(activeScalables.contains(g2));
+
+        proportionalScalable.activateScalables(Set.of(l1));
+        activeScalables = proportionalScalable.getActiveScalables();
+        assertEquals(2, activeScalables.size());
+        assertTrue(activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        proportionalScalable.activateAllScalables();
+        activeScalables = proportionalScalable.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+    }
+
+    @Test
     public void testProportionalScalableGenerator() {
         double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, g2)).scale(network, 100.0);
         assertEquals(100.0, done, 0.0);
@@ -281,7 +301,74 @@ public class ScalableTest {
         done = Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(l1, l2)).scale(network, 100.0, convention);
         assertEquals(80.0, done, 0.0);
         assertEquals(80.0, network.getLoad("l1").getP0(), 1e-5);
+    }
 
+    @Test
+    public void testProportionalScalableWithDeactivatedScalables() {
+        network.getLoad("l1").setP0(100.);
+
+        ProportionalScalable proportionalScalable = Scalable.proportional(Arrays.asList(50.f, 30.f, 20.f), Arrays.asList(g1, g2, l1));
+        double done = proportionalScalable.scale(network, 100.0, GENERATOR);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(50.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(30.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(80.0, network.getLoad("l1").getP0(), 1e-5);
+
+        reset();
+        network.getLoad("l1").setP0(100.);
+
+        proportionalScalable = Scalable.proportional(Arrays.asList(50.f, 30.f, 20.f), Arrays.asList(g1, g2, l1));
+        proportionalScalable.deactivateScalables(Set.of(g1));
+        done = proportionalScalable.scale(network, 100.0, GENERATOR);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(0.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(60.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(60.0, network.getLoad("l1").getP0(), 1e-5);
+
+        reset();
+        network.getLoad("l1").setP0(100.);
+
+        //g2 gets saturated
+        proportionalScalable = Scalable.proportional(Arrays.asList(50.f, 30.f, 20.f), Arrays.asList(g1, g2, l1));
+        proportionalScalable.deactivateScalables(Set.of(g1));
+        done = proportionalScalable.scale(network, 180.0, GENERATOR);
+        assertEquals(172.0, done, 0.0);
+        assertEquals(0.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(28.0, network.getLoad("l1").getP0(), 1e-5);
+
+        reset();
+        network.getLoad("l1").setP0(100.);
+
+        //g2 gets saturated and the remaining power change is transferred to l1
+        proportionalScalable = Scalable.proportional(Arrays.asList(50.f, 30.f, 20.f), Arrays.asList(g1, g2, l1), true);
+        proportionalScalable.deactivateScalables(Set.of(g1));
+        done = proportionalScalable.scale(network, 180.0, GENERATOR);
+        assertEquals(180.0, done, 0.0);
+        assertEquals(0.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(20.0, network.getLoad("l1").getP0(), 1e-5);
+    }
+
+    @Test
+    public void testProportionalShallowCopy() {
+        ProportionalScalable proportionalScalable = Scalable.proportional(Arrays.asList(50.f, 20.f, 30.f), Arrays.asList(g1, g2, l1));
+
+        ProportionalScalable shallowCopyInitial = (ProportionalScalable) proportionalScalable.shallowCopy();
+        Collection<Scalable> activeScalables = shallowCopyInitial.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        proportionalScalable.deactivateScalables(Set.of(g1, l1));
+
+        activeScalables = shallowCopyInitial.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        ProportionalScalable shallowCopyDeactivated = (ProportionalScalable) proportionalScalable.shallowCopy();
+        activeScalables = shallowCopyDeactivated.getActiveScalables();
+        assertEquals(1, activeScalables.size());
+        assertTrue(activeScalables.contains(g2));
     }
 
     @Test
@@ -382,6 +469,63 @@ public class ScalableTest {
         assertEquals(100.0, done, 0.0);
         assertEquals(100, network.getLoad("l1").getP0(), 1e-5);
 
+    }
+
+    @Test
+    public void testStackScalableWithDeactivatedScalables() {
+        network.getLoad("l1").setP0(100.);
+
+        StackScalable stackScalable = Scalable.stack(g1, g2, l1);
+        double done = stackScalable.scale(network, 170, GENERATOR);
+        assertEquals(170.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(70.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(100.0, network.getLoad("l1").getP0(), 1e-5);
+
+        reset();
+        network.getLoad("l1").setP0(100.);
+
+        stackScalable = Scalable.stack(g1, g2, l1);
+        stackScalable.deactivateScalables(Set.of(g1));
+        done = stackScalable.scale(network, 170.0, GENERATOR);
+        assertEquals(170.0, done, 0.0);
+        assertEquals(0.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(30.0, network.getLoad("l1").getP0(), 1e-5);
+
+        reset();
+        network.getLoad("l1").setP0(100.);
+
+        //g2 and l1 are not sufficient
+        stackScalable = Scalable.stack(g1, g2, l1);
+        stackScalable.deactivateScalables(Set.of(g1));
+        done = stackScalable.scale(network, 220.0, GENERATOR);
+        assertEquals(200, done, 0.0);
+        assertEquals(0.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(0.0, network.getLoad("l1").getP0(), 1e-5);
+
+    }
+
+    @Test
+    public void testStackScalableShallowCopy() {
+        StackScalable stackScalable = Scalable.stack(g1, g2, l1);
+
+        StackScalable shallowCopyInitial = (StackScalable) stackScalable.shallowCopy();
+        Collection<Scalable> activeScalables = shallowCopyInitial.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        stackScalable.deactivateScalables(Set.of(g1, l1));
+
+        activeScalables = shallowCopyInitial.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        StackScalable shallowCopyDeactivated = (StackScalable) stackScalable.shallowCopy();
+        activeScalables = shallowCopyDeactivated.getActiveScalables();
+        assertEquals(1, activeScalables.size());
+        assertTrue(activeScalables.contains(g2));
     }
 
     @Test
