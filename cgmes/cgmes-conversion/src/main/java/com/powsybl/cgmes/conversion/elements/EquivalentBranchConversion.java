@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.math3.complex.Complex;
@@ -84,7 +85,11 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         // The boundary nodes are processed and included in the Network with a fictitious substation.
         // The branches that lie on boundaries can be mapped to the Network directly in the ::convert method.
         // So, this method should never be invoked when convertBoundary is active.
-        assert !context.config().convertBoundary();
+        if (context.config().convertBoundary()) {
+            String message = "When convertBoundary is active, boundaries have been mapped to fictitious substations inside the Network." +
+                    "This method should not be called, the mapping has already been performed in ::convert";
+            throw new PowsyblException(message);
+        }
         convertToDanglingLine(boundarySide, r, x, gch, bch);
     }
 
