@@ -601,7 +601,7 @@ public class UcteImporter implements Importer {
 
         // When there is both Ratio and Phase tap changers the combined action of the two can be described with the formula as follows:
         // 1/rhoEq.cos(alphaEq) = 1 + nr.dUr + np.dUp.cos(Theta)        given that by definition :      nr.dUr = 1/rho_r -1
-        // 1/rhoEq.cos(alphaEq) = np.dUp.sin(Theta)
+        // 1/rhoEq.sin(alphaEq) = np.dUp.sin(Theta)
         // where np is the tap number of phase changer and nr is the tap number of the ratio changer
         // this should lead to a double entry table where the equivalent neq tap number depends both of nr and np
         // We propose the following approximation : we compute 1/rhoEq and alphaEq at fixed current ratio tap nr = nro, we compute rho(nro)
