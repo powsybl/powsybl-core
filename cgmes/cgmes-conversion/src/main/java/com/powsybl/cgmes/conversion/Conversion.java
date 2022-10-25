@@ -118,7 +118,7 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors, NetworkFactory networkFactory) {
-        this(cgmes, config, postProcessors, networkFactory, null);
+        this(cgmes, config, postProcessors, networkFactory, Reporter.NO_OP);
     }
 
     public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory, Reporter reporter) {
@@ -126,7 +126,7 @@ public class Conversion {
         this.config = Objects.requireNonNull(config);
         this.postProcessors = Objects.requireNonNull(activatedPostProcessors);
         this.networkFactory = Objects.requireNonNull(networkFactory);
-        this.reporter = reporter;
+        this.reporter = Objects.requireNonNull(reporter);
     }
 
     public void report(Consumer<String> out) {

@@ -34,14 +34,14 @@ import java.util.function.Supplier;
 public class Context {
 
     public Context(CgmesModel cgmes, Config config, Network network) {
-        this(cgmes, config, network, null);
+        this(cgmes, config, network, Reporter.NO_OP);
     }
 
     public Context(CgmesModel cgmes, Config config, Network network, Reporter reporter) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
-        this.reporter = reporter;
+        this.reporter = Objects.requireNonNull(reporter);
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -277,9 +277,9 @@ public class Context {
     }
 
     private void handleIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled() || reporter != null) {
+        if (LOG.isWarnEnabled() || reporter != Reporter.NO_OP) {
             String reason1 = reason.get();
-            if (reporter != null) {
+            if (reporter != Reporter.NO_OP) {
                 reportIssue(category, what, reason1);
             }
             logIssue(category, what, reason1);
