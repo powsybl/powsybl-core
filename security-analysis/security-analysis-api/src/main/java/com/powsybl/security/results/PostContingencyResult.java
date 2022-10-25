@@ -51,11 +51,11 @@ public class PostContingencyResult {
         this(contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults, status);
     }
 
-    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations, PostContingencyComputationStatus status) {
+    public PostContingencyResult(Contingency contingency, List<LimitViolation> limitViolations, PostContingencyComputationStatus status) {
         this(contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()), status);
     }
 
-    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken, PostContingencyComputationStatus status) {
+    public PostContingencyResult(Contingency contingency, List<LimitViolation> limitViolations, List<String> actionsTaken, PostContingencyComputationStatus status) {
         this(contingency, new LimitViolationsResult(limitViolations, actionsTaken), status);
     }
 

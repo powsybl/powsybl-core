@@ -53,7 +53,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
             preContingencyStatus = LoadFlowResult.ComponentResult.Status.FAILED;
         } else {
             Objects.requireNonNull(runningContext.getContingency());
-            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), false,
+            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(),
                     Collections.emptyList(), getPostContingencyActions(runningContext.getContingency()), PostContingencyComputationStatus.FAILED));
         }
     }
@@ -66,7 +66,6 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
         } else {
             Objects.requireNonNull(runningContext.getContingency());
             postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(),
-                    true,
                     violations,
                     getPostContingencyActions(runningContext.getContingency()),
                     PostContingencyComputationStatus.CONVERGED));

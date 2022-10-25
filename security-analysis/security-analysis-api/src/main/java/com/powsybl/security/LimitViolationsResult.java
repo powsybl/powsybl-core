@@ -27,7 +27,7 @@ public class LimitViolationsResult {
     }
 
     public LimitViolationsResult(List<LimitViolation> limitViolations) {
-        this(true, limitViolations, Collections.emptyList());
+        this(limitViolations, Collections.emptyList());
     }
 
     @Deprecated(forRemoval = true)
