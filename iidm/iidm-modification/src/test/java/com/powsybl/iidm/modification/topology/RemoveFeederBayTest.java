@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
@@ -13,8 +15,7 @@ import org.junit.Test;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -174,5 +175,13 @@ public class RemoveFeederBayTest {
         modification3.apply(network);
 
         return network;
+    }
+
+    @Test
+    public void testRemoveBbs() {
+        Network network = createNetwork2Feeders();
+        RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, Reporter.NO_OP));
+        assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
     }
 }

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundConnectableReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.removeFeederBayBusbarSectionReport;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -38,14 +39,7 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Connectable<?> connectable = network.getConnectable(connectableId);
-        // TODO: do not accept busbarSection ids
-        // Note: if the connectable exists, topology of the associated voltage level is node/breaker
-        if (connectable == null) {
-            LOGGER.error("Connectable {} not found.", connectableId);
-            notFoundConnectableReport(reporter, connectableId);
-            if (throwException) {
-                throw new PowsyblException("Connectable not found: " + connectableId);
-            }
+        if (!checkConnectable(throwException, reporter, connectable)) {
             return;
         }
 
@@ -178,5 +172,25 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     private static Integer getOppositeNode(Graph<Integer, Object> graph, int node, Object e) {
         Integer edgeSource = graph.getEdgeSource(e);
         return edgeSource == node ? graph.getEdgeTarget(e) : edgeSource;
+    }
+
+    private boolean checkConnectable(boolean throwException, Reporter reporter, Connectable<?> connectable) {
+        if (connectable instanceof BusbarSection) {
+            LOGGER.error("BusbarSection connectables are not allowed as RemoveFeederBay input: {}", connectableId);
+            removeFeederBayBusbarSectionReport(reporter, connectableId);
+            if (throwException) {
+                throw new PowsyblException("BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
+            }
+            return false;
+        }
+        if (connectable == null) {
+            LOGGER.error("Connectable {} not found", connectableId);
+            notFoundConnectableReport(reporter, connectableId);
+            if (throwException) {
+                throw new PowsyblException("Connectable not found: " + connectableId);
+            }
+            return false;
+        }
+        return true;
     }
 }

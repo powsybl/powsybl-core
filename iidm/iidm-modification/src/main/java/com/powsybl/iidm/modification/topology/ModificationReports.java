@@ -111,8 +111,17 @@ final class ModificationReports {
     static void notFoundConnectableReport(Reporter reporter, String connectableId) {
         reporter.report(Report.builder()
                 .withKey("connectableNotFound")
-                .withDefaultMessage("Line ${connectableId} is not found")
+                .withDefaultMessage("Connectable ${connectableId} is not found")
                 .withValue("connectableId", connectableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removeFeederBayBusbarSectionReport(Reporter reporter, String busbarSectionConnectableId) {
+        reporter.report(Report.builder()
+                .withKey("removeBayBusbarSectionConnectable")
+                .withDefaultMessage("Cannot remove feeder bay for connectable ${busbarSectionConnectableId}, as it is a busbarSection")
+                .withValue("connectableId", busbarSectionConnectableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
