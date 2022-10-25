@@ -604,7 +604,7 @@ public class UcteImporter implements Importer {
         // 1/rhoEq.cos(alphaEq) = np.dUp.sin(Theta)
         // where np is the tap number of phase changer and nr is the tap number of the ratio changer
         // this should lead to a double entry table where the equivalent neq tap number depends both of nr and np
-        // We propose the following approximation : we compute dUeq and ThetaEq at fixed current ratio tap nr = nro, we compute rho(nro)
+        // We propose the following approximation : we compute 1/rhoEq and alphaEq at fixed current ratio tap nr = nro, we compute rho(nro)
         // and build both equivalent phase tap changer and ratio tap changer such that it will be exact at ratio = nro
 
         RatioTapChangerAdder rtca = createRatioTapChangerAdder(uctePhaseRegulation, transformer);
