@@ -24,6 +24,7 @@ import javax.xml.stream.XMLStreamException;
 @AutoService(ExtensionXmlSerializer.class)
 public class StandbyAutomatonXmlSerializer extends AbstractExtensionXmlSerializer<StaticVarCompensator, StandbyAutomaton> {
 
+    // TODO make this serializer versionable to fix lowVoltageSetpoint/highVoltageSetpoint
     public StandbyAutomatonXmlSerializer() {
         super("standbyAutomaton", "network", StandbyAutomaton.class, false, "standbyAutomaton.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/standby_automaton/1_0", "sa");
