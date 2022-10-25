@@ -23,14 +23,14 @@ public class OperatorStrategyResult {
 
     private final NetworkResult networkResult;
 
-    private final LoadFlowResult.ComponentResult.Status mainComponentStatus;
+    private final LoadFlowResult.ComponentResult.Status status;
 
     public OperatorStrategyResult(OperatorStrategy operatorStrategy, LimitViolationsResult limitViolationsResult, LoadFlowResult.ComponentResult.Status status,
                                   NetworkResult networkResult) {
         this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
-        this.mainComponentStatus = Objects.requireNonNull(status);
+        this.status = Objects.requireNonNull(status);
     }
 
     public OperatorStrategy getOperatorStrategy() {
@@ -45,7 +45,7 @@ public class OperatorStrategyResult {
         return networkResult;
     }
 
-    public LoadFlowResult.ComponentResult.Status getMainComponentStatus() {
-        return mainComponentStatus;
+    public LoadFlowResult.ComponentResult.Status getStatus() {
+        return status;
     }
 }

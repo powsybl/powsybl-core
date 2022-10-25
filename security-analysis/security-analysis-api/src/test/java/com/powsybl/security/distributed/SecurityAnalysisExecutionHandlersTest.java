@@ -105,7 +105,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertTrue(result.getPostContingencyResults().isEmpty());
     }
@@ -228,7 +228,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     private static SecurityAnalysisResult resultForContingency(String id) {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
                 Collections.singletonList(new PostContingencyResult(new Contingency(id),
-                        LimitViolationsResult.empty(), SecurityContingencyStatus.CONVERGED)));
+                        LimitViolationsResult.empty(), PostContingencyComputationStatus.CONVERGED)));
     }
 
     @Test
@@ -257,7 +257,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(2, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
@@ -326,7 +326,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(2, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
@@ -373,7 +373,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(1, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());

@@ -78,9 +78,9 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
                     threeWindingsTransformerResults = parser.readValueAs(new TypeReference<List<ThreeWindingsTransformerResult>>() {
                     });
                     break;
-                case "mainComponentStatus":
+                case "status":
                     parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: mainComponentStatus",
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
                             version, "1.3");
                     status = parser.readValueAs(LoadFlowResult.ComponentResult.Status.class);
                     break;

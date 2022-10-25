@@ -59,7 +59,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                     networkResult = parser.readValueAs(NetworkResult.class);
                     break;
 
-                case "mainComponentStatus":
+                case "status":
                     parser.nextToken();
                     status = parser.readValueAs(LoadFlowResult.ComponentResult.Status.class);
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",

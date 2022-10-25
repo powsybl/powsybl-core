@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import com.google.common.base.Equivalence;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.SecurityContingencyStatus;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
 
@@ -87,8 +87,8 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
                                                   .reduce(Boolean::logicalAnd)
                                                   .orElse(false);
         comparisonWriter = missingResult1 ?
-                           comparisonWriter.write(null, postContingencyResult.getContingencyStatus() == SecurityContingencyStatus.CONVERGED, equivalent) :
-                           comparisonWriter.write(postContingencyResult.getContingencyStatus() == SecurityContingencyStatus.CONVERGED, null, equivalent);
+                           comparisonWriter.write(null, postContingencyResult.getContingencyStatus() == PostContingencyComputationStatus.CONVERGED, equivalent) :
+                           comparisonWriter.write(postContingencyResult.getContingencyStatus() == PostContingencyComputationStatus.CONVERGED, null, equivalent);
         comparisonWriter = missingResult1 ?
                            comparisonWriter.write(null, postContingencyResult.getLimitViolationsResult().getActionsTaken(), equivalent) :
                            comparisonWriter.write(postContingencyResult.getLimitViolationsResult().getActionsTaken(), null, equivalent);

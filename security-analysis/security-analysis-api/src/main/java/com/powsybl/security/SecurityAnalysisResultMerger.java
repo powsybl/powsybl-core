@@ -24,11 +24,11 @@ public final class SecurityAnalysisResultMerger {
         //If one of the subtasks has failed, return a failed result
         Objects.requireNonNull(results);
         for (SecurityAnalysisResult subResult : results) {
-            if (subResult.getPreContingencyResult().getMainComponentStatus() != LoadFlowResult.ComponentResult.Status.CONVERGED) {
+            if (subResult.getPreContingencyResult().getStatus() != LoadFlowResult.ComponentResult.Status.CONVERGED) {
                 return FAILED_SECURITY_ANALYSIS_RESULT;
             }
         }
-        return new SecurityAnalysisResult(results[0].getPreContingencyLimitViolationsResult(), results[0].getPreContingencyResult().getMainComponentStatus(),
+        return new SecurityAnalysisResult(results[0].getPreContingencyLimitViolationsResult(), results[0].getPreContingencyResult().getStatus(),
                 Arrays.stream(results).flatMap(result -> result.getPostContingencyResults().stream()).collect(Collectors.toList()))
                 .setNetworkMetadata(results[0].getNetworkMetadata());
 

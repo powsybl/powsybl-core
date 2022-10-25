@@ -9,7 +9,7 @@ package com.powsybl.security;
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
-public enum SecurityContingencyStatus {
+public enum PostContingencyComputationStatus {
     CONVERGED,
     MAX_ITERATION_REACHED,
     SOLVER_FAILED,

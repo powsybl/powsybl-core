@@ -9,7 +9,7 @@ package com.powsybl.security.results;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
-import com.powsybl.security.SecurityContingencyStatus;
+import com.powsybl.security.PostContingencyComputationStatus;
 
 import java.util.*;
 
@@ -25,19 +25,19 @@ public class PostContingencyResult {
 
     private final NetworkResult networkResult;
 
-    private final SecurityContingencyStatus status;
+    private final PostContingencyComputationStatus status;
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, SecurityContingencyStatus status) {
+    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, PostContingencyComputationStatus status) {
         this(contingency, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), status);
     }
 
     public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults,
                                  List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
-                                 SecurityContingencyStatus status) {
+                                 PostContingencyComputationStatus status) {
         this(contingency, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), status);
     }
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, SecurityContingencyStatus status) {
+    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, PostContingencyComputationStatus status) {
         this.contingency = Objects.requireNonNull(contingency);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
@@ -47,15 +47,15 @@ public class PostContingencyResult {
     public PostContingencyResult(Contingency contingency, List<LimitViolation> limitViolations,
                                  List<BranchResult> branchResults, List<BusResult> busResults,
                                  List<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
-                                 SecurityContingencyStatus status) {
+                                 PostContingencyComputationStatus status) {
         this(contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults, status);
     }
 
-    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations, SecurityContingencyStatus status) {
+    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations, PostContingencyComputationStatus status) {
         this(contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()), status);
     }
 
-    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken, SecurityContingencyStatus status) {
+    public PostContingencyResult(Contingency contingency, boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken, PostContingencyComputationStatus status) {
         this(contingency, new LimitViolationsResult(limitViolations, actionsTaken), status);
     }
 
@@ -71,7 +71,7 @@ public class PostContingencyResult {
         return networkResult;
     }
 
-    public SecurityContingencyStatus getContingencyStatus() {
+    public PostContingencyComputationStatus getContingencyStatus() {
         return status;
     }
 }

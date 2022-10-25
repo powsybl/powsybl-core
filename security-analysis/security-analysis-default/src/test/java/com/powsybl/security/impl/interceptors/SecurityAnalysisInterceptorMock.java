@@ -76,13 +76,13 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
     private static void assertPreContingencyResult(PreContingencyResult preContingencyResult) {
         assertNotNull(preContingencyResult);
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult.getMainComponentStatus());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult.getStatus());
         assertEquals(0, preContingencyResult.getLimitViolationsResult().getLimitViolations().size());
     }
 
     private static void assertPostContingencyResult(PostContingencyResult postContingencyResult) {
         assertNotNull(postContingencyResult);
-        assertSame(SecurityContingencyStatus.CONVERGED, postContingencyResult.getContingencyStatus());
+        assertSame(PostContingencyComputationStatus.CONVERGED, postContingencyResult.getContingencyStatus());
         assertEquals(1, postContingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postContingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());

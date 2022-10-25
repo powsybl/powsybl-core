@@ -129,10 +129,10 @@ public class SecurityAnalysisTest {
 
         SecurityAnalysisResult result = report.getResult();
 
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0);
-        assertSame(SecurityContingencyStatus.CONVERGED, postcontingencyResult.getContingencyStatus());
+        assertSame(PostContingencyComputationStatus.CONVERGED, postcontingencyResult.getContingencyStatus());
         assertEquals(1, postcontingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
@@ -176,7 +176,7 @@ public class SecurityAnalysisTest {
                 interceptors, operatorStrategies, actions);
         SecurityAnalysisResult result = report.getResult();
 
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getMainComponentStatus());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(0, result.getPostContingencyResults().size());
 

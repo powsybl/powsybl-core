@@ -52,7 +52,7 @@ public class SecurityAnalysisResultBuilderTest {
             public void onFinalStateResult(SecurityAnalysisResult result) {
 
                 assertEquals(convergent ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED,
-                        result.getPreContingencyResult().getMainComponentStatus());
+                        result.getPreContingencyResult().getStatus());
                 testLimitViolation(result.getPreContingencyLimitViolationsResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
 
                 List<PostContingencyResult> postContingencyResults = result.getPostContingencyResults();
@@ -62,7 +62,7 @@ public class SecurityAnalysisResultBuilderTest {
                 assertEquals("contingency", postContingencyResult.getContingency().getId());
                 assertEquals(0, postContingencyResult.getContingency().getElements().size());
 
-                assertEquals(convergent ? SecurityContingencyStatus.CONVERGED : SecurityContingencyStatus.FAILED,
+                assertEquals(convergent ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED,
                         postContingencyResult.getContingencyStatus());
                 LimitViolationsResult postContingencyLimitViolationsResult = postContingencyResult.getLimitViolationsResult();
                 testLimitViolation(postContingencyLimitViolationsResult, convergent, Collections.singletonList("line2"), Arrays.asList("post-action1", "post-action2"));

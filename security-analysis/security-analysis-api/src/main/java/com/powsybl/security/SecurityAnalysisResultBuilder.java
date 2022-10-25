@@ -134,7 +134,7 @@ public class SecurityAnalysisResultBuilder {
      */
     public abstract class AbstractLimitViolationsResultBuilder<B extends AbstractLimitViolationsResultBuilder<B>> {
 
-        protected SecurityContingencyStatus status;
+        protected PostContingencyComputationStatus status;
 
         protected final List<BranchResult> branchResults = new ArrayList<>();
 
@@ -146,7 +146,7 @@ public class SecurityAnalysisResultBuilder {
 
         protected final SecurityAnalysisResultContext resultContext;
 
-        public B setContingencyStatus(SecurityContingencyStatus status) {
+        public B setContingencyStatus(PostContingencyComputationStatus status) {
             this.status = status;
             return (B) this;
         }

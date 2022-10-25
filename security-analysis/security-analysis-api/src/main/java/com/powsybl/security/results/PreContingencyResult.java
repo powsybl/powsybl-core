@@ -18,7 +18,7 @@ public class PreContingencyResult {
     private final LimitViolationsResult limitViolationsResult;
     private final NetworkResult networkResult;
 
-    private final LoadFlowResult.ComponentResult.Status mainComponentStatus;
+    private final LoadFlowResult.ComponentResult.Status status;
 
     public PreContingencyResult() {
         this(null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), LoadFlowResult.ComponentResult.Status.CONVERGED);
@@ -35,7 +35,7 @@ public class PreContingencyResult {
                                 LoadFlowResult.ComponentResult.Status status) {
         this.limitViolationsResult = limitViolationsResult;
         this.networkResult = Objects.requireNonNull(networkResult);
-        this.mainComponentStatus = Objects.requireNonNull(status);
+        this.status = Objects.requireNonNull(status);
     }
 
     public LimitViolationsResult getLimitViolationsResult() {
@@ -46,7 +46,7 @@ public class PreContingencyResult {
         return networkResult;
     }
 
-    public LoadFlowResult.ComponentResult.Status getMainComponentStatus() {
-        return mainComponentStatus;
+    public LoadFlowResult.ComponentResult.Status getStatus() {
+        return status;
     }
 }

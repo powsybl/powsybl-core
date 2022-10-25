@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
-import com.powsybl.security.SecurityContingencyStatus;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
         NetworkResult networkResult = null;
-        SecurityContingencyStatus status = null;
+        PostContingencyComputationStatus status = null;
 
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
@@ -90,7 +90,7 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             version, "1.3");
-                    status = parser.readValueAs(SecurityContingencyStatus.class);
+                    status = parser.readValueAs(PostContingencyComputationStatus.class);
                     break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
@@ -99,9 +99,9 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
 
         if (version.compareTo("1.3") < 0) {
             if (limitViolationsResult != null) {
-                status = limitViolationsResult.isComputationOk() ? SecurityContingencyStatus.CONVERGED : SecurityContingencyStatus.FAILED;
+                status = limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
             } else {
-                status = SecurityContingencyStatus.CONVERGED;
+                status = PostContingencyComputationStatus.CONVERGED;
             }
         }
         if (networkResult != null) {

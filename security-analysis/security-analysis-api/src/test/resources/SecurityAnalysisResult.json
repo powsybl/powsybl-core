@@ -61,7 +61,7 @@
         "i3" : 3.2
       } ]
     },
-    "mainComponentStatus" : "CONVERGED"
+    "status" : "CONVERGED"
   },
   "postContingencyResults" : [ {
     "contingency" : {
@@ -164,6 +164,6 @@
       "busResults" : [ ],
       "threeWindingsTransformerResults" : [ ]
     },
-    "mainComponentStatus" : "CONVERGED"
+    "status" : "CONVERGED"
   } ]
 }
