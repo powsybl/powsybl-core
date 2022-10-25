@@ -575,9 +575,11 @@ public class UcteImporter implements Importer {
                     rho = 1d / Math.hypot(dy, 1d + dx);
                     alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
                 } else {
-                    double dyEq = dy / currentRatioTapChangerRho;
-                    double dxEq = (dx + 1) / currentRatioTapChangerRho - 1;
-                    rho = 1d / Math.hypot(dyEq, 1d + dxEq) / currentRatioTapChangerRho; // the formula = 1d / Math.hypot(dyEq, 1d + dxEq) already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
+                    //double dyEq = dy / currentRatioTapChangerRho;
+                    //double dxEq = (dx + 1) / currentRatioTapChangerRho - 1;
+                    double dyEq = dy;
+                    double dxEq = dx + 1 / currentRatioTapChangerRho - 1.;
+                    rho = 1d / Math.hypot(dyEq, 1d + dxEq) / currentRatioTapChangerRho; // the formula already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
                     alpha = Math.toDegrees(Math.atan2(dyEq, 1 + dxEq));
                 }
                 break;
