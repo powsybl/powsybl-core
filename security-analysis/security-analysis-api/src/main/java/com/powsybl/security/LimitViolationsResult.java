@@ -19,7 +19,7 @@ public class LimitViolationsResult {
      * @deprecated Replaced by status directly in PreContingencyResult
      * PostContingencyResult and OperatorStrategyResult
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = false)
     private final boolean computationOk;
 
     private final List<LimitViolation> limitViolations;
@@ -38,7 +38,7 @@ public class LimitViolationsResult {
      * @deprecated Version with computation ok deprecated and used for backward compatibility
      * (see computationOk attribute)
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = false)
     public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
         this.computationOk = computationOk;
         this.limitViolations = Objects.requireNonNull(limitViolations);
@@ -51,6 +51,11 @@ public class LimitViolationsResult {
         this.actionsTaken = Objects.requireNonNull(actionsTaken);
     }
 
+    /**
+     * @deprecated computationOk is deprecated
+     * (see computationOk attribute)
+     */
+    @Deprecated(forRemoval = false)
     public boolean isComputationOk() {
         return computationOk;
     }
