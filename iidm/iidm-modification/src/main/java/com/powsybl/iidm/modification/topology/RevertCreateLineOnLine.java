@@ -194,7 +194,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         removedLineReport(reporter, lineToBeMerged2Id);
         LOG.info(LINE_REMOVED_MESSAGE, lineToBeMerged2Id);
 
-        lineToBeDeleted.remove(true);
+        lineToBeDeleted.remove();
         removedLineReport(reporter, lineToBeDeletedId);
         LOG.info(LINE_REMOVED_MESSAGE, lineToBeDeletedId);
 
