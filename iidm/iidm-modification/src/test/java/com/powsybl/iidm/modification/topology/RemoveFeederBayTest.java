@@ -10,7 +10,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import org.junit.After;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
@@ -22,93 +27,109 @@ import static org.junit.Assert.*;
  */
 public class RemoveFeederBayTest {
 
+    private final Set<String> removedObjects = new HashSet<>();
+    private final Set<String> beforeRemovalObjects = new HashSet<>();
+
+    @After
+    public void tearDown() {
+        removedObjects.clear();
+    }
+
+    private void addListener(Network network) {
+        network.addListener(new DefaultNetworkListener() {
+            @Override
+            public void beforeRemoval(Identifiable id) {
+                beforeRemovalObjects.add(id.getId());
+            }
+
+            @Override
+            public void afterRemoval(String id) {
+                removedObjects.add(id);
+            }
+        });
+    }
+
     @Test
-    public void test2Feeders() {
+    public void testSimpleRemove() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        addListener(network);
+
+        new RemoveFeederBay("LD1").apply(network);
+
+        assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), beforeRemovalObjects);
+        assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), removedObjects);
+    }
+
+    @Test
+    public void testRemoveWithForkFeeder() {
+        Network network = createNetworkWithForkFeeder();
+        addListener(network);
+
+        new RemoveFeederBay("LD").apply(network);
+
+        assertEquals(Set.of("B1", "LD"), beforeRemovalObjects);
+        assertEquals(Set.of("B1", "LD"), removedObjects);
+        assertNull(network.getLoad("LD"));
+        assertNull(network.getSwitch("B1"));
+        assertNotNull(network.getGenerator("G"));
+        assertNotNull(network.getBusbarSection("BBS"));
+        assertNotNull(network.getSwitch("B2"));
+        assertNotNull(network.getSwitch("D"));
+    }
+
+    @Test
+    public void testRemoveWithShunt() {
         Network network = createNetwork2Feeders();
+        addListener(network);
 
         VoltageLevel voltageLevel = network.getVoltageLevel(VLTEST);
         voltageLevel.getNodeBreakerView().newSwitch().setNode1(4).setNode2(6).setKind(SwitchKind.BREAKER).setId("SW1").add();
 
-        assertNotNull(network.getSwitch("SW1"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNotNull(network.getSwitch("load2_BREAKER"));
-        assertNotNull(network.getLoad("load2"));
-
         new RemoveFeederBay("load2").apply(network);
-        assertNull(network.getSwitch("SW1"));
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNull(network.getSwitch("load2_BREAKER"));
-        assertNull(network.getLoad("load2"));
+
+        Set<String> removedIdentifiables = Set.of("SW1", "load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        assertEquals(removedIdentifiables, beforeRemovalObjects);
+        assertEquals(removedIdentifiables, removedObjects);
     }
 
     @Test
-    public void test2FeedersInternalConnection() {
+    public void testRemoveWithInternalConnectionShunt() {
         Network network = createNetwork2Feeders();
+        addListener(network);
 
         VoltageLevel voltageLevel = network.getVoltageLevel(VLTEST);
         voltageLevel.getNodeBreakerView().newInternalConnection().setNode1(4).setNode2(6).add();
 
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNotNull(network.getSwitch("load2_BREAKER"));
-        assertNotNull(network.getLoad("load2"));
-
         new RemoveFeederBay("load2").apply(network);
 
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNull(network.getSwitch("load2_BREAKER"));
-        assertNull(network.getLoad("load2"));
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        assertEquals(removedIdentifiables, beforeRemovalObjects);
+        assertEquals(removedIdentifiables, removedObjects);
     }
 
     @Test
-    public void test3Feeders() {
+    public void testRemoveWithDoubleShunt() {
         Network network = createNetwork3Feeders();
+        addListener(network);
 
         VoltageLevel voltageLevel = network.getVoltageLevel(VLTEST);
         voltageLevel.getNodeBreakerView().newSwitch().setNode1(4).setNode2(6).setKind(SwitchKind.BREAKER).setId("SW1").add();
         voltageLevel.getNodeBreakerView().newSwitch().setNode1(6).setNode2(8).setKind(SwitchKind.BREAKER).setId("SW2").add();
 
-        assertNotNull(network.getSwitch("SW1"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNotNull(network.getSwitch("load2_BREAKER"));
-        assertNotNull(network.getLoad("load2"));
-
         new RemoveFeederBay("load2").apply(network);
 
+        Set<String> removedIdentifiables = Set.of("load2", "load2_DISCONNECTOR", "load2_DISCONNECTOR_6_1", "load2_DISCONNECTOR_6_2", "load2_BREAKER");
+        assertEquals(removedIdentifiables, beforeRemovalObjects);
+        assertEquals(removedIdentifiables, removedObjects);
         assertNotNull(network.getSwitch("SW1")); // Not removed as connect load1 with load3
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6"));
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNull(network.getSwitch("load2_BREAKER"));
-        assertNull(network.getLoad("load2"));
     }
 
     @Test
-    public void test3FeedersInternalConnection() {
-        Network network = createNetwork3Feeders();
-
-        VoltageLevel voltageLevel = network.getVoltageLevel(VLTEST);
-        voltageLevel.getNodeBreakerView().newInternalConnection().setNode1(4).setNode2(6).add();
-        voltageLevel.getNodeBreakerView().newInternalConnection().setNode1(6).setNode2(8).add();
-
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNotNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNotNull(network.getSwitch("load2_BREAKER"));
-        assertNotNull(network.getLoad("load2"));
-
-        new RemoveFeederBay("load2").apply(network);
-
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6"));
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_1"));
-        assertNull(network.getSwitch("load2_DISCONNECTOR_6_2"));
-        assertNull(network.getSwitch("load2_BREAKER"));
-        assertNull(network.getLoad("load2"));
+    public void testRemoveBbs() {
+        Network network = createNetwork2Feeders();
+        RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, Reporter.NO_OP));
+        assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
     }
 
     private Network createNetwork2Feeders() {
@@ -177,11 +198,58 @@ public class RemoveFeederBayTest {
         return network;
     }
 
-    @Test
-    public void testRemoveBbs() {
-        Network network = createNetwork2Feeders();
-        RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, Reporter.NO_OP));
-        assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
+    /**
+     *   L(1)   G(2)
+     *   |       |
+     *   B1      B2
+     *   |       |
+     *   ----3----
+     *       |
+     *       D
+     *       |
+     *       BBS(0)
+     */
+    private static Network createNetworkWithForkFeeder() {
+        Network network = Network.create("test", "test");
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("VL")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newBusbarSection()
+                .setId("BBS")
+                .setNode(0)
+                .add();
+        vl.newLoad()
+                .setId("LD")
+                .setNode(1)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        vl.newGenerator()
+                .setId("G")
+                .setNode(2)
+                .setTargetP(0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(400)
+                .setMinP(0)
+                .setMaxP(10)
+                .add();
+        vl.getNodeBreakerView().newDisconnector()
+                .setId("D")
+                .setNode1(0)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B1")
+                .setNode1(1)
+                .setNode2(3)
+                .add();
+        vl.getNodeBreakerView().newBreaker()
+                .setId("B2")
+                .setNode1(2)
+                .setNode2(3)
+                .add();
+        return network;
     }
 }
