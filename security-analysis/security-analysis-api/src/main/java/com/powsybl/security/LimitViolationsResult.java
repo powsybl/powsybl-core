@@ -15,6 +15,10 @@ import java.util.Objects;
  */
 public class LimitViolationsResult {
 
+    /**
+     * @deprecated Replaced by status directly in PreContingencyResult
+     * PostContingencyResult and OperatorStrategyResult
+     */
     @Deprecated(forRemoval = true)
     private final boolean computationOk;
 
@@ -30,6 +34,10 @@ public class LimitViolationsResult {
         this(limitViolations, Collections.emptyList());
     }
 
+    /**
+     * @deprecated Version with computation ok deprecated and used for backward compatibility
+     * (see computationOk attribute)
+     */
     @Deprecated(forRemoval = true)
     public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
         this.computationOk = computationOk;
