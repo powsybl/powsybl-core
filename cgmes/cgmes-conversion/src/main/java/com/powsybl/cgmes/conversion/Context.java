@@ -256,7 +256,7 @@ public class Context {
     }
 
     public void missing(String what) {
-        LOG.warn("Missing {}", what);
+        LOG.info("Missing {}", what);
     }
 
     public void missing(String what, double defaultValue) {

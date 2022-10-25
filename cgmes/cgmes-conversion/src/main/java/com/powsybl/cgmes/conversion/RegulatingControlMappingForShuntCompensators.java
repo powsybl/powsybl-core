@@ -75,7 +75,7 @@ public class RegulatingControlMappingForShuntCompensators {
         // But no regulating control information has been found
         // We create default regulation data
         if (rcId == null) {
-            context.missing("Regulating Control ID not defined");
+            context.missing("Regulating Control id not defined");
             setDefaultRegulatingControl(shuntCompensator);
             return;
         }

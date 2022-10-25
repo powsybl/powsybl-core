@@ -72,7 +72,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing("Regulating control Id not defined");
+            context.missing("Regulating control id not defined");
             setDefaultRegulatingControl(rc, svc, false);
             return;
         }

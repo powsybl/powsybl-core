@@ -319,7 +319,7 @@ public class RegulatingControlMappingForTransformers {
 
         String controlId = rc.regulatingControlId;
         if (controlId == null) {
-            context.missing("Regulating control ID not defined");
+            context.missing("Regulating control id not defined");
             return null;
         }
 
