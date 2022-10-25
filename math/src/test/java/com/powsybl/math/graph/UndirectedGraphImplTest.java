@@ -496,30 +496,38 @@ class UndirectedGraphImplTest {
         Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE_PATH);
         Mockito.when(traverser.traverse(4, 4, 2)).thenReturn(TraverseResult.TERMINATE_PATH);
         Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE_PATH);
-        boolean[] encountered = new boolean[graph.getVertexCount()];
-        Arrays.fill(encountered, false);
-        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser, encountered);
+        boolean[] vEncountered = new boolean[graph.getVertexCount()];
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser, vEncountered);
         // Only vertex 4 and 5 encountered
-        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
+        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, vEncountered);
 
-        Arrays.fill(encountered, false);
+        Arrays.fill(vEncountered, false);
         Traverser traverser2 = (v1, e, v2) -> {
-            encountered[v1] = true;
+            vEncountered[v1] = true;
             return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
         };
 
         graph.traverse(4, TraversalType.DEPTH_FIRST, traverser2);
         // Only vertex 4 and 5 encountered
-        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
+        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, vEncountered);
 
-        Arrays.fill(encountered, false);
-        Traverser traverser3 = (v1, e, v2) -> {
-            return v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
-        };
+        Arrays.fill(vEncountered, false);
+        Traverser traverser3 = (v1, e, v2) -> v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
 
-        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser3, encountered);
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser3, vEncountered);
         // Only vertices on first path encountering 0 are encountered
-        assertArrayEquals(new boolean[] {false, true, false, false, true, true}, encountered);
+        assertArrayEquals(new boolean[] {false, true, false, false, true, true}, vEncountered);
+
+        Arrays.fill(vEncountered, false);
+        boolean[] eEncountered = new boolean[graph.getEdgeCount()];
+        Traverser traverser4 = (v1, e, v2) -> {
+            eEncountered[e] = true;
+            return TraverseResult.CONTINUE;
+        };
+        graph.traverse(5, TraversalType.DEPTH_FIRST, traverser4, vEncountered);
+        // All vertices and edges are encountered
+        assertArrayEquals(new boolean[] {true, true, true, true, true, true}, vEncountered);
+        assertArrayEquals(new boolean[] {true, true, true, true, true, true, true}, eEncountered);
     }
 
     @Test
