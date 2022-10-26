@@ -335,7 +335,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         removedLineReport(reporter, line1ZId);
         lineZ2.remove();
         removedLineReport(reporter, lineZ2Id);
-        lineZP.remove();
+        lineZP.remove(true);
         removedLineReport(reporter, lineZPId);
 
         // Create the two new lines
