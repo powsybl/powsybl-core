@@ -270,31 +270,25 @@ public class Context {
     }
 
     private void handleIssue(ConversionIssueCategory category, String what, String reason) {
-        if (reporter != null) {
-            reportIssue(category, what, reason);
-        }
-        logIssue(category, what, reason);
+        handleIssue(category, what, () -> reason);
     }
 
     private void handleIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled() || reporter != Reporter.NO_OP) {
-            String reason1 = reason.get();
-            if (reporter != Reporter.NO_OP) {
-                reportIssue(category, what, reason1);
-            }
-            logIssue(category, what, reason1);
+        reportIssue(category, what, reason);
+        logIssue(category, what, reason);
+    }
+
+    private static void logIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("{}: {}. Reason: {}", category, what, reason.get());
         }
     }
 
-    private void logIssue(ConversionIssueCategory category, String what, String reason) {
-        LOG.warn("{}: {}. Reason: {}", category, what, reason);
-    }
-
-    private boolean isValidForGrouping(String what) {
+    private static boolean isValidForGrouping(String what) {
         return what.equals("SvVoltage") || what.equals("Regulating Terminal") || what.equals("EmptyVscRegulation");
     }
 
-    private void reportIssue(ConversionIssueCategory category, String what, String reason) {
+    private void reportIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
         Reporter categoryReporter = issueReporters.computeIfAbsent(category, cat -> reporter.createSubReporter(cat.name(), cat.toString()));
         // FIXME(Luma) A first approach to functional logs, report issues grouped by "what" or by "reason"
         // This is just to evaluate how to proceed ...
@@ -303,9 +297,9 @@ public class Context {
         String item;
         if (isValidForGrouping(what)) {
             group = what;
-            item = reason;
+            item = reason.get();
         } else {
-            group = reason;
+            group = reason.get();
             item = what;
         }
         if (item == null) {
