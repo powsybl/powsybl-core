@@ -29,7 +29,7 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    Collection<Scalable> getScalables() {
+    public Collection<Scalable> getScalables() {
         return scalables;
     }
 

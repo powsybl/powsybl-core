@@ -78,7 +78,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         scalableActivityMap = scalables.stream().collect(Collectors.toMap(scalable -> scalable, scalable -> true, (first, second) -> first));
     }
 
-    Collection<Scalable> getScalables() {
+    public Collection<Scalable> getScalables() {
         return scalablePercentageList.stream().map(ScalablePercentage::getScalable).collect(Collectors.toList());
     }
 

@@ -16,16 +16,16 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractCompoundScalable extends AbstractScalable {
+abstract class AbstractCompoundScalable extends AbstractScalable implements CompoundScalable {
 
     protected Map<Scalable, Boolean> scalableActivityMap;
 
-    abstract Collection<Scalable> getScalables();
-
+    @Override
     public Collection<Scalable> getActiveScalables() {
         return scalableActivityMap.keySet().stream().filter(scalableActivityMap::get).collect(Collectors.toSet());
     }
 
+    @Override
     public void deactivateScalables(Set<Scalable> scalablesToDeactivate) {
         for (Scalable scalable : scalablesToDeactivate) {
             if (!scalableActivityMap.containsKey(scalable)) {
@@ -35,10 +35,12 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         }
     }
 
+    @Override
     public void activateAllScalables() {
         scalableActivityMap.keySet().forEach(scalable -> scalableActivityMap.put(scalable, true));
     }
 
+    @Override
     public void activateScalables(Set<Scalable> scalablesToActivate) {
         for (Scalable scalable : scalablesToActivate) {
             if (!scalableActivityMap.containsKey(scalable)) {
@@ -47,8 +49,6 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
             scalableActivityMap.put(scalable, true);
         }
     }
-
-    public abstract AbstractCompoundScalable shallowCopy();
 
     @Override
     public double initialValue(Network n) {
