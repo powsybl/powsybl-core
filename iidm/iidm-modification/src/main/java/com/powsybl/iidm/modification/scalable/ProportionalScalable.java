@@ -132,7 +132,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
             .filter(scalablePercentage -> scalablePercentage.notSaturated() && scalableActivityMap.get(scalablePercentage.getScalable()))
             .mapToDouble(ScalablePercentage::getIterationPercentage).sum();
         scalablePercentageList.forEach(scalablePercentage -> {
-            if (!scalablePercentage.isSaturated() && scalableActivityMap.get(scalablePercentage.getScalable())) {
+            if (!scalablePercentage.isSaturated() && Boolean.TRUE.equals(scalableActivityMap.get(scalablePercentage.getScalable()))) {
                 scalablePercentage.setIterationPercentage(scalablePercentage.getIterationPercentage() / unsaturatedPercentagesSum * 100);
             }
         });
