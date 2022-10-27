@@ -7,10 +7,10 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.PhaseTapChangerTapPositionAction;
 
@@ -36,29 +36,34 @@ public class PhaseTapChangerTapPositionActionDeserializer extends StdDeserialize
     @Override
     public PhaseTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
+            switch (name) {
+                case "type":
+                    if (!PhaseTapChangerTapPositionAction.NAME.equals(jsonParser.nextTextValue())) {
+                        throw JsonMappingException.from(jsonParser, "Expected type " + PhaseTapChangerTapPositionAction.NAME);
+                    }
+                    return true;
                 case "id":
                     context.id = jsonParser.nextTextValue();
-                    break;
+                    return true;
                 case "transformerId":
                     context.transformerId = jsonParser.nextTextValue();
-                    break;
+                    return true;
                 case "value":
                     jsonParser.nextToken();
                     context.value = jsonParser.getValueAsInt();
-                    break;
+                    return true;
                 case "relativeValue":
                     jsonParser.nextToken();
                     context.relativeValue = jsonParser.getValueAsBoolean();
-                    break;
+                    return true;
                 case "side":
                     context.side = ThreeWindingsTransformer.Side.valueOf(jsonParser.nextTextValue());
-                    break;
+                    return true;
                 default:
-                    throw new IllegalArgumentException("");
+                    return false;
             }
-        }
+        });
         if (context.relativeValue == null) {
             throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action relative value field can't be null");
         }

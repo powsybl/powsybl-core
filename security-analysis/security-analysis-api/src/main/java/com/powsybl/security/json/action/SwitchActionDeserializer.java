@@ -7,10 +7,10 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.action.SwitchAction;
 
 import java.io.IOException;
@@ -31,26 +31,31 @@ public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
     }
 
     @Override
-    public SwitchAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public SwitchAction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
-        while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-            switch (jsonParser.getCurrentName()) {
+        JsonUtil.parsePolymorphicObject(parser, name -> {
+            switch (name) {
+                case "type":
+                    if (!SwitchAction.NAME.equals(parser.nextTextValue())) {
+                        throw JsonMappingException.from(parser, "Expected type " + SwitchAction.NAME);
+                    }
+                    return true;
                 case "id":
-                    context.id = jsonParser.nextTextValue();
-                    break;
+                    context.id = parser.nextTextValue();
+                    return true;
                 case "switchId":
-                    context.switchId = jsonParser.nextTextValue();
-                    break;
+                    context.switchId = parser.nextTextValue();
+                    return true;
                 case "open":
-                    jsonParser.nextToken();
-                    context.open = jsonParser.getValueAsBoolean();
-                    break;
+                    parser.nextToken();
+                    context.open = parser.getValueAsBoolean();
+                    return true;
                 default:
-                    throw new IllegalArgumentException("");
+                    return false;
             }
-        }
+        });
         if (context.open == null) {
-            throw JsonMappingException.from(jsonParser, "for switch action open field can't be null");
+            throw JsonMappingException.from(parser, "for switch action open field can't be null");
         }
         return new SwitchAction(context.id, context.switchId, context.open);
     }
