@@ -243,47 +243,6 @@ public final class EquipmentExport {
         }
     }
 
-    static class LoadGroup {
-        final String className;
-        final String id;
-        final String name;
-
-        LoadGroup(String className, String id, String name) {
-            this.className = className;
-            this.id = id;
-            this.name = name;
-        }
-    }
-
-    static class LoadGroups {
-        Map<String, LoadGroup> uniqueGroupByClass = new HashMap<>();
-
-        Collection<LoadGroup> found() {
-            return uniqueGroupByClass.values();
-        }
-
-        String groupFor(String loadClassName) {
-            if (loadClassName.equals(CgmesNames.ENERGY_CONSUMER)) {
-                return null;
-            }
-            return uniqueGroupByClass.computeIfAbsent(loadClassName, this::createGroupFor).id;
-        }
-
-        LoadGroup createGroupFor(String loadClassName) {
-            String id = CgmesExportUtil.getUniqueId();
-            String className = GROUP_CLASS_NAMES.get(loadClassName);
-            String groupName = GROUP_NAMES.get(loadClassName);
-            return new LoadGroup(className, id, groupName);
-        }
-
-        static final Map<String, String> GROUP_CLASS_NAMES = Map.of(
-                CgmesNames.CONFORM_LOAD, CgmesNames.CONFORM_LOAD_GROUP,
-                CgmesNames.NONCONFORM_LOAD, CgmesNames.NONCONFORM_LOAD_GROUP);
-        static final Map<String, String> GROUP_NAMES = Map.of(
-                CgmesNames.CONFORM_LOAD, "Conform loads",
-                CgmesNames.NONCONFORM_LOAD, "NonConform loads");
-    }
-
     // We may receive a warning if we define an empty load group,
     // So we will output only the load groups that have been found during export of loads
     private static void writeLoadGroups(Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
