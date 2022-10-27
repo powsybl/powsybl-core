@@ -363,7 +363,7 @@ public final class EquipmentExport {
             // We are exporting the tap changer as it is modelled in IIDM, always at end 1
             int endNumber = 1;
             // IIDM model always has tap changers (ratio and/or phase) at end 1, and only at end 1.
-            // We have to adjust the aliases for (potential) original tap changers coming from end 1, end 2.
+            // We have to adjust the aliases for potential original tap changers coming from end 1 or end 2.
             // Potential tc2 is always converted to a tc at end 1.
             // If both tc1 and tc2 were present, tc2 was combined during import (fixed at current step) with tc1. Steps from tc1 were kept.
             // If we only had tc2, it mas moved to end 1.
@@ -544,15 +544,11 @@ public final class EquipmentExport {
                                            String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
 
-            String substationId = writeDanglingLineSubstation(danglingLine, cimNamespace, writer);
+            // We do not need to create fictitious containers for boundary side of dangling lines,
+            // The boundary instance files contain the definition of dangling line boundary node container
+            // We just consider the situation where the base voltage of a line lying at a boundary may have a baseVoltage defined in the IGM
             String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
-            String voltageLevelId = writeDanglingLineVoltageLevel(danglingLine, substationId, baseVoltageId, cimNamespace, writer);
-            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId, cimNamespace, writer, context);
-
-            // New Load
-            String loadId = CgmesExportUtil.getUniqueId();
-            EnergyConsumerEq.write(loadId, danglingLine.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), loadId, connectivityNodeId, 1, cimNamespace, writer);
+            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, cimNamespace, writer, context);
 
             // New Equivalent Injection
             double minP = 0.0;
@@ -582,20 +578,6 @@ public final class EquipmentExport {
         }
     }
 
-    private static String writeDanglingLineSubstation(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        // New Substation
-        // We avoid using the name of the dangling lines for the names of fictitious region and subregion
-        // Because regions and subregions with the same name are merged
-        String geographicalRegionId = CgmesExportUtil.getUniqueId();
-        GeographicalRegionEq.write(geographicalRegionId, danglingLine.getId() + "_GR", cimNamespace, writer);
-        String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-        SubGeographicalRegionEq.write(subGeographicalRegionId, danglingLine.getId() + "_SGR", geographicalRegionId, cimNamespace, writer);
-        String substationId = CgmesExportUtil.getUniqueId();
-        SubstationEq.write(substationId, danglingLine.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer);
-
-        return substationId;
-    }
-
     private static String writeDanglingLineBaseVoltage(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         double nominalV = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
@@ -607,21 +589,20 @@ public final class EquipmentExport {
         return baseVoltage.getId();
     }
 
-    private static String writeDanglingLineVoltageLevel(DanglingLine danglingLine, String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        // New VoltageLevel
-        String voltageLevelId = CgmesExportUtil.getUniqueId();
-        VoltageLevelEq.write(voltageLevelId, danglingLine.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer);
-
-        return voltageLevelId;
-    }
-
-    private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId, String cimNamespace, XMLStreamWriter writer,
+    private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer,
                                                         CgmesExportContext context) throws XMLStreamException {
         String connectivityNodeId = null;
         if (danglingLine.getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            // New ConnectivityNode
-            connectivityNodeId = CgmesExportUtil.getUniqueId();
-            ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
+            // We keep the connectivity node from the boundary definition as an alias in the dangling line
+            if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE).isPresent()) {
+                connectivityNodeId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE);
+            } else {
+                // If no information about original boundary has been preserved in the IIDM model,
+                // we will create a new ConnectivityNode inside the voltage level of the dangling line network side
+                connectivityNodeId = CgmesExportUtil.getUniqueId();
+                String connectivityNodeContainerId = context.getNamingStrategy().getCgmesId(danglingLine.getTerminal().getVoltageLevel());
+                ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer);
+            }
         }
         // New Terminal
         String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");

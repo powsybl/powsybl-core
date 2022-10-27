@@ -184,6 +184,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].t.topologicalNode();
     }
 
+    protected String connectivityNodeId(int n) {
+        return terminals[n - 1].t.connectivityNode();
+    }
+
     protected boolean isBoundary(int n) {
         return voltageLevel(n).isEmpty() || context.boundary().containsNode(nodeId(n));
     }
@@ -251,6 +255,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE, tn); // TODO: delete when aliases are correctly handled by mergedlines
         });
+        Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
+            dl.addAlias(cn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE)
+        );
         context.namingStrategy().readIdMapping(dl, type);
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
