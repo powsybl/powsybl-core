@@ -35,8 +35,22 @@ class StackScalable extends AbstractCompoundScalable {
 
     @Override
     public AbstractCompoundScalable shallowCopy() {
-        StackScalable stackScalable = new StackScalable(new ArrayList<>(scalables));
-        stackScalable.deactivateScalables(scalableActivityMap.keySet().stream().filter(scalable -> !scalableActivityMap.get(scalable)).collect(Collectors.toSet()));
+        List<Scalable> scalableCopies = new ArrayList<>();
+        Set<Scalable> deactivatedScalables = new HashSet<>();
+        for (Scalable scalable : scalables) {
+            if (scalable instanceof CompoundScalable) {
+                Scalable scalableCopy = ((CompoundScalable) scalable).shallowCopy();
+                scalableCopies.add(scalableCopy);
+            } else {
+                scalableCopies.add(scalable);
+            }
+            if (Boolean.FALSE.equals(scalableActivityMap.get(scalable))) {
+                deactivatedScalables.add(scalable);
+            }
+        }
+        StackScalable stackScalable = new StackScalable(scalableCopies);
+        stackScalable.deactivateScalables(deactivatedScalables);
+
         return stackScalable;
     }
 

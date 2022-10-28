@@ -9,19 +9,19 @@ package com.powsybl.iidm.modification.scalable;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class UpDownScalable extends AbstractScalable {
+class UpDownScalable extends AbstractCompoundScalable {
     private final Scalable upScalable;
     private final Scalable downScalable;
 
     public UpDownScalable(Scalable upScalable, Scalable downScalable) {
         this.upScalable = Objects.requireNonNull(upScalable);
         this.downScalable = Objects.requireNonNull(downScalable);
+        scalableActivityMap = Map.of(upScalable, true, downScalable, true);
     }
 
     @Override
@@ -62,5 +62,24 @@ class UpDownScalable extends AbstractScalable {
     @Override
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         return asked > 0 ? upScalable.scale(n, asked, scalingConvention) : downScalable.scale(n, asked, scalingConvention);
+    }
+
+    @Override
+    public CompoundScalable shallowCopy() {
+        Scalable upScalableCopy;
+        if (upScalable instanceof CompoundScalable) {
+            upScalableCopy = ((CompoundScalable) upScalable).shallowCopy();
+        } else {
+            upScalableCopy = upScalable;
+        }
+
+        Scalable downScalableCopy;
+        if (downScalable instanceof CompoundScalable) {
+            downScalableCopy = ((CompoundScalable) downScalable).shallowCopy();
+        } else {
+            downScalableCopy = downScalable;
+        }
+
+        return new UpDownScalable(upScalableCopy, downScalableCopy);
     }
 }

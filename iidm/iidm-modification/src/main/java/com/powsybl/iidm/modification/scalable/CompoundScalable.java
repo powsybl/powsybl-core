@@ -29,23 +29,22 @@ public interface CompoundScalable extends Scalable {
     Collection<Scalable> getActiveScalables();
 
     /**
-     * Deactivates a given set of scalables from the compound scalable.
-     * If the compound scalable does not contain one of the elements of the set,
-     * this will throw a {@link com.powsybl.commons.PowsyblException}.
+     * Deactivates a given set of scalables from the compound scalable and
+     * from the compound scalables it  may contain.
      *
      * @param scalablesToDeactivate a set of scalables to be deactivated
      */
     void deactivateScalables(Set<Scalable> scalablesToDeactivate);
 
     /**
-     * Reactivates all the scalables from the compound scalable.
+     * Reactivates all the scalables from the compound scalable and from
+     * the compound scalables it may contain.
      */
     void activateAllScalables();
 
     /**
-     * Reactivates a given set of scalables from the compound scalable.
-     * If the compound scalable does not contain one of the elements of the set,
-     * this will throw a {@link com.powsybl.commons.PowsyblException}.
+     * Reactivates a given set of scalables from the compound scalable and from
+     * the compound scalables it may contain.
      *
      * @param scalablesToActivate a set of scalables to be reactivated
      */
@@ -53,7 +52,8 @@ public interface CompoundScalable extends Scalable {
 
     /**
      * Creates a shallow copy of the compound scalable.
-     * The scalables themselves are not duplicated but the container containing them is. The scalables deactivated in
+     * The elementary scalables themselves are not duplicated but the container containing them is,
+     * and shallow copies of compound scalables are also created. The scalables deactivated in
      * the original compound scalable start deactivated.
      *
      * @return a scalable of the same type as the original with the same scalables (and the same ones are deactivated).

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
 import com.powsybl.iidm.network.*;
 import org.junit.Before;
@@ -194,10 +193,6 @@ public class ScalableTest {
         activeScalables = proportionalScalable.getActiveScalables();
         assertEquals(3, activeScalables.size());
         assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
-
-        assertThrows(PowsyblException.class, () -> proportionalScalable.deactivateScalables(Set.of(l2)));
-
-        assertThrows(PowsyblException.class, () -> proportionalScalable.activateScalables(Set.of(l2)));
     }
 
     @Test

@@ -86,12 +86,21 @@ class ProportionalScalable extends AbstractCompoundScalable {
     public AbstractCompoundScalable shallowCopy() {
         List<Float> percentages = new ArrayList<>();
         List<Scalable> scalables = new ArrayList<>();
+        Set<Scalable> deactivatedScalables = new HashSet<>();
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             percentages.add(scalablePercentage.getPercentage());
-            scalables.add(scalablePercentage.getScalable());
+            Scalable scalable = scalablePercentage.getScalable();
+            if (scalable instanceof CompoundScalable) {
+                scalables.add(((CompoundScalable) scalable).shallowCopy());
+            } else {
+                scalables.add(scalable);
+            }
+            if (Boolean.FALSE.equals(scalableActivityMap.get(scalable))) {
+                deactivatedScalables.add(scalable);
+            }
         }
         ProportionalScalable proportionalScalable = new ProportionalScalable(percentages, scalables, iterative);
-        proportionalScalable.deactivateScalables(scalableActivityMap.keySet().stream().filter(scalable -> !scalableActivityMap.get(scalable)).collect(Collectors.toSet()));
+        proportionalScalable.deactivateScalables(deactivatedScalables);
         return proportionalScalable;
     }
 
