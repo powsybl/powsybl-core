@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.contingency.*;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.After;
