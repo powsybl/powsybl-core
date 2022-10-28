@@ -71,5 +71,17 @@
     "generatorId" : "generatorId2",
     "voltageRegulatorOn" : false,
     "targetQ" : 400.0
+  }, {
+    "type" : "LOAD",
+    "id" : "id12",
+    "loadId" : "loadId1",
+    "relativeValue" : false,
+    "activePowerValue" : 50.0
+  }, {
+    "type" : "LOAD",
+    "id" : "id13",
+    "loadId" : "loadId1",
+    "relativeValue" : true,
+    "reactivePowerValue" : 5.0
   } ]
 }

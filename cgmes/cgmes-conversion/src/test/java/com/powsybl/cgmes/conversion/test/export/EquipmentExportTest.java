@@ -23,10 +23,10 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.junit.Test;
@@ -247,6 +247,16 @@ public class EquipmentExportTest extends AbstractConverterTest {
                     expected.getAliasFromType(aliasType).get(),
                     actual2.getAliasFromType(aliasType).get());
         }
+    }
+
+    @Test
+    public void testLoadGroups() throws XMLStreamException, IOException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network actual = exportImportBusBranch(expected, dataSource);
+        compareNetworksEQdata(expected, actual);
     }
 
     private Network exportImportNodeBreaker(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {

@@ -17,9 +17,12 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class SwitchEq {
 
-    public static void write(String id, String switchName, SwitchKind switchKind, String equipmentContainer, boolean retained, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String switchName, SwitchKind switchKind, String equipmentContainer, boolean open, boolean retained, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(switchClassname(switchKind), id, switchName, cimNamespace, writer);
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
+        writer.writeStartElement(cimNamespace, "Switch.normalOpen");
+        writer.writeCharacters(CgmesExportUtil.format(open));
+        writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "Switch.retained");
         writer.writeCharacters(CgmesExportUtil.format(retained));
         writer.writeEndElement();
