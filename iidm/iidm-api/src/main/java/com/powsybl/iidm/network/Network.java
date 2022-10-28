@@ -917,4 +917,41 @@ public interface Network extends Container<Network> {
         }
         return this;
     }
+
+    default <I extends Identifiable<I>> Stream<I> getIdentifiableStream(IdentifiableType identifiableType) {
+        switch (identifiableType) {
+            case SWITCH:
+                return (Stream<I>) getSwitchStream();
+            case TWO_WINDINGS_TRANSFORMER:
+                return (Stream<I>) getTwoWindingsTransformerStream();
+            case THREE_WINDINGS_TRANSFORMER:
+                return (Stream<I>) getThreeWindingsTransformerStream();
+            case DANGLING_LINE:
+                return (Stream<I>) getDanglingLineStream();
+            case LINE:
+                return (Stream<I>) getLineStream();
+            case LOAD:
+                return (Stream<I>) getLoadStream();
+            case BATTERY:
+                return (Stream<I>) getBatteries();
+            case GENERATOR:
+                return (Stream<I>) getGeneratorStream();
+            case HVDC_LINE:
+                return (Stream<I>) getHvdcLineStream();
+            case SUBSTATION:
+                return (Stream<I>) getSubstationStream();
+            case VOLTAGE_LEVEL:
+                return (Stream<I>) getVoltageLevelStream();
+            case BUSBAR_SECTION:
+                return (Stream<I>) getBusbarSectionStream();
+            case SHUNT_COMPENSATOR:
+                return (Stream<I>) getShuntCompensatorStream();
+            case HVDC_CONVERTER_STATION:
+                return (Stream<I>) getHvdcConverterStationStream();
+            case STATIC_VAR_COMPENSATOR:
+                return (Stream<I>) getStaticVarCompensatorStream();
+            default:
+                throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
+        }
+    }
 }

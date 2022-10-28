@@ -7,6 +7,8 @@
 
 package com.powsybl.contingency;
 
+import com.powsybl.contingency.contingency.list.ContingencyList;
+
 import java.io.IOException;
 import java.io.InputStream;
 
