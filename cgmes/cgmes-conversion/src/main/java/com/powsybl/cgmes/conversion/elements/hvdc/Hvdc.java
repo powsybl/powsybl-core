@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
-import com.powsybl.commons.PowsyblException;
 
 /**
  *
@@ -126,22 +125,20 @@ class Hvdc {
             used.add(dcLineSegment1.get());
 
             HvdcConverter hvdcConverter = computeConverter(nodeEquipment, dcLineSegment1.get(), hvdc1, hvdc2);
-            if (hvdcConverter == null || used.contains(hvdcConverter.acDcConvertersEnd1) || used.contains(hvdcConverter.acDcConvertersEnd2)) {
-                String exception = hvdcConverter == null ? "Unexpected null Hvdc Converter"
-                    : String.format("Unexpected used HVDC converter: %s %s", hvdcConverter.acDcConvertersEnd1, hvdcConverter.acDcConvertersEnd2);
-                throw new PowsyblException(exception);
+            if (hvdcConverter != null && !used.contains(hvdcConverter.acDcConvertersEnd1) && !used.contains(hvdcConverter.acDcConvertersEnd2)) {
+                used.add(hvdcConverter.acDcConvertersEnd1);
+                used.add(hvdcConverter.acDcConvertersEnd2);
+
+                String dcLineSegment2 = computeOtherDcLineSegment(nodeEquipment, dcLineSegment1.get(), hvdcConverter,
+                    hvdc1, hvdc2).orElseThrow();
+                used.add(dcLineSegment2);
+
+                HvdcEquipment hvdcEq = new HvdcEquipment();
+                hvdcEq.add(hvdcConverter);
+                hvdcEq.add(dcLineSegment1.get());
+                hvdcEq.add(dcLineSegment2);
+                this.hvdcData.add(hvdcEq);
             }
-            used.add(hvdcConverter.acDcConvertersEnd1);
-            used.add(hvdcConverter.acDcConvertersEnd2);
-
-            String dcLineSegment2 = computeOtherDcLineSegment(nodeEquipment, dcLineSegment1.get(), hvdcConverter, hvdc1, hvdc2).orElseThrow();
-            used.add(dcLineSegment2);
-
-            HvdcEquipment hvdcEq = new HvdcEquipment();
-            hvdcEq.add(hvdcConverter);
-            hvdcEq.add(dcLineSegment1.get());
-            hvdcEq.add(dcLineSegment2);
-            this.hvdcData.add(hvdcEq);
 
             dcLineSegment1 = nextDcLineSegment(hvdc1, used);
         }
