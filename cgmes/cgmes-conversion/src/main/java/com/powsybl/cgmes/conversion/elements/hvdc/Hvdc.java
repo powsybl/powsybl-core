@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
+import com.powsybl.commons.PowsyblException;
 
 /**
  *
@@ -62,7 +64,6 @@ class Hvdc {
         HvdcEndType type = hvdc1.computeType();
         switch (type) {
             case HVDC_TN_C1_LS1:
-            case HVDC_TN_C1_LS2:
                 addC1LSn(hvdc1, hvdc2);
                 break;
             case HVDC_TN_C2_LS1:
@@ -70,6 +71,9 @@ class Hvdc {
                 break;
             case HVDC_TN_CN_LSN:
                 addCnLSn(nodeEquipment, hvdc1, hvdc2);
+                break;
+            case HVDC_TN_CN_LS2N:
+                addCnLS2n(nodeEquipment, hvdc1, hvdc2);
                 break;
         }
     }
@@ -113,6 +117,40 @@ class Hvdc {
         });
     }
 
+    private void addCnLS2n(NodeEquipment nodeEquipment, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+
+        Set<String> used = new HashSet<>();
+        Optional<String> dcLineSegment1 = nextDcLineSegment(hvdc1, used);
+
+        while (dcLineSegment1.isPresent()) {
+            used.add(dcLineSegment1.get());
+
+            HvdcConverter hvdcConverter = computeConverter(nodeEquipment, dcLineSegment1.get(), hvdc1, hvdc2);
+            if (hvdcConverter == null || used.contains(hvdcConverter.acDcConvertersEnd1) || used.contains(hvdcConverter.acDcConvertersEnd2)) {
+                String exception = hvdcConverter == null ? "Unexpected null Hvdc Converter"
+                    : String.format("Unexpected used HVDC converter: %s %s", hvdcConverter.acDcConvertersEnd1, hvdcConverter.acDcConvertersEnd2);
+                throw new PowsyblException(exception);
+            }
+            used.add(hvdcConverter.acDcConvertersEnd1);
+            used.add(hvdcConverter.acDcConvertersEnd2);
+
+            String dcLineSegment2 = computeOtherDcLineSegment(nodeEquipment, dcLineSegment1.get(), hvdcConverter, hvdc1, hvdc2).orElseThrow();
+            used.add(dcLineSegment2);
+
+            HvdcEquipment hvdcEq = new HvdcEquipment();
+            hvdcEq.add(hvdcConverter);
+            hvdcEq.add(dcLineSegment1.get());
+            hvdcEq.add(dcLineSegment2);
+            this.hvdcData.add(hvdcEq);
+
+            dcLineSegment1 = nextDcLineSegment(hvdc1, used);
+        }
+    }
+
+    private static Optional<String> nextDcLineSegment(HvdcEnd hvdc1, Set<String> used) {
+        return hvdc1.dcLineSegmentsEnd.stream().filter(adConverterEnd -> !used.contains(adConverterEnd)).findAny();
+    }
+
     private static HvdcConverter computeConverter(NodeEquipment nodeEquipment, String dcLineSegment, HvdcEnd hvdc1,
         HvdcEnd hvdc2) {
         String acDcConverter1 = computeEquipmentConnectedToEquipment(nodeEquipment, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.nodesEnd);
@@ -136,6 +174,27 @@ class Hvdc {
             return null;
         }
         return new HvdcConverter(acDcConverter1, acDcConverter2);
+    }
+
+    private static Optional<String> computeOtherDcLineSegment(NodeEquipment nodeEquipment, String dcLineSegment,
+        HvdcConverter converter, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+        return hvdc1.dcLineSegmentsEnd.stream()
+            .filter(otherDcLineSegment -> isOtherDcLineSegment(nodeEquipment, otherDcLineSegment, dcLineSegment,
+                converter, hvdc1, hvdc2))
+            .findAny();
+    }
+
+    private static boolean isOtherDcLineSegment(NodeEquipment nodeEquipment, String otherDcLineSegment,
+        String dcLineSegment, HvdcConverter converter, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+        if (otherDcLineSegment.equals(dcLineSegment)) {
+            return false;
+        }
+        HvdcConverter sameConverter = computeConverter(nodeEquipment, otherDcLineSegment, hvdc1, hvdc2);
+        if (sameConverter == null) {
+            return false;
+        }
+        return converter.acDcConvertersEnd1.equals(sameConverter.acDcConvertersEnd1)
+            && converter.acDcConvertersEnd2.equals(sameConverter.acDcConvertersEnd2);
     }
 
     private static String computeEquipmentConnectedToEquipment(NodeEquipment nodeEquipment, String equipment,
