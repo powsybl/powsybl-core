@@ -117,16 +117,11 @@ public class Conversion {
         this(cgmes, config, postProcessors, NetworkFactory.findDefault());
     }
 
-    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors, NetworkFactory networkFactory) {
-        this(cgmes, config, postProcessors, networkFactory, Reporter.NO_OP);
-    }
-
-    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory, Reporter reporter) {
+    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.postProcessors = Objects.requireNonNull(activatedPostProcessors);
         this.networkFactory = Objects.requireNonNull(networkFactory);
-        this.reporter = Objects.requireNonNull(reporter);
     }
 
     public void report(Consumer<String> out) {
@@ -134,6 +129,11 @@ public class Conversion {
     }
 
     public Network convert() {
+        return convert(Reporter.NO_OP);
+    }
+
+    public Network convert(Reporter reporter) {
+        Objects.requireNonNull(reporter);
 
         if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
             LOG.trace("{}{}{}", "BaseVoltages", System.lineSeparator(), cgmes.baseVoltages().tabulate());
@@ -883,7 +883,6 @@ public class Conversion {
     private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
     private final NetworkFactory networkFactory;
-    private final Reporter reporter;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 
