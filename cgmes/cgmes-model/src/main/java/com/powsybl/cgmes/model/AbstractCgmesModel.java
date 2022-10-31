@@ -8,7 +8,9 @@
 package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -256,7 +258,12 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
             if (reporter != null) {
-                reporter.report("Read", name);
+                reporter.report(Report.builder()
+                        .withKey("Read")
+                        .withDefaultMessage("Instance file ${instanceFile}")
+                        .withTypedValue("instanceFile", name, TypedValue.FILENAME)
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .build());
             }
             try (InputStream is = cds.dataSource().newInputStream(name)) {
                 read(is, baseName, name);
