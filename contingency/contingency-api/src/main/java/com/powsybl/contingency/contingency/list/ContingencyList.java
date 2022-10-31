@@ -5,8 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.contingency;
+package com.powsybl.contingency.contingency.list;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyListLoader;
+import com.powsybl.contingency.ContingencyListLoaderProvider;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.io.FilenameUtils;
 
@@ -25,10 +28,22 @@ import java.util.stream.Collectors;
  */
 public interface ContingencyList {
 
+    // VERSION = 1.0 : first version
+    String VERSION = "1.0";
+
+    static String getVersion() {
+        return VERSION;
+    }
+
     /**
      * Return the name of this contingency list
      */
     String getName();
+
+    /**
+     * Return the type of this contingency list
+     */
+    String getType();
 
     /**
      * Return a list of contingency for the given network.

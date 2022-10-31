@@ -12,6 +12,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.matpower.model.MBus;
 import com.powsybl.matpower.model.MatpowerModelFactory;
 import com.powsybl.matpower.model.MatpowerWriter;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -96,6 +97,16 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     @Test
     public void testCase14WithPhaseShifterSolved() throws IOException {
         testCaseSolved(MatpowerModelFactory.create14WithPhaseShifter());
+    }
+
+    @Test
+    public void testCase14WithInvertedVoltageLimits() throws IOException {
+        MatpowerModel model14 = MatpowerModelFactory.create14();
+        model14.setCaseName("ieee14-inverted-voltage-limits");
+        MBus bus1 = model14.getBusByNum(1);
+        bus1.setMinimumVoltageMagnitude(1.1);
+        bus1.setMaximumVoltageMagnitude(0.9);
+        testCase(model14);
     }
 
     @Test

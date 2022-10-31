@@ -180,16 +180,16 @@ public final class CgmesExportUtil {
             // Conform load if fixed part is zero and variable part is non-zero
             if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
                     && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
-                return "ConformLoad";
+                return CgmesNames.CONFORM_LOAD;
             }
             // NonConform load if fixed part is non-zero and variable part is all zero
             if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
                     && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
-                return "NonConformLoad";
+                return CgmesNames.NONCONFORM_LOAD;
             }
         }
         LOG.warn("It is not possible to determine the type of load");
-        return "EnergyConsumer";
+        return CgmesNames.ENERGY_CONSUMER;
     }
 
     /**
