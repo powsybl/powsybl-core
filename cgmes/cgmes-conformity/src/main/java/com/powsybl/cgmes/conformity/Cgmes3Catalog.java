@@ -20,7 +20,6 @@ public final class Cgmes3Catalog {
 
     public static TestGridModelResources microGrid() {
         String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
-        String baseBoundary = base;
         return new TestGridModelResources(
                 "MicroGrid",
                 null,
@@ -34,12 +33,11 @@ public final class Cgmes3Catalog {
                     "20210209T1930Z_1D_NL_GL_9.xml",
                     "20210209T1930Z_1D_NL_SSH_9.xml",
                     "20210209T2323Z_1D_ASSEMBLED_TP_9.xml"),
-                new ResourceSet(baseBoundary, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
+                microGridBaseCaseBoundaries());
     }
 
     public static TestGridModelResources microGridWithoutTpSv() {
         String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
-        String baseBoundary = base;
         return new TestGridModelResources(
                 "MicroGrid",
                 null,
@@ -51,7 +49,7 @@ public final class Cgmes3Catalog {
                     "20210209T1930Z_1D_NL_EQ_9.xml",
                     "20210209T1930Z_1D_NL_GL_9.xml",
                     "20210209T1930Z_1D_NL_SSH_9.xml"),
-                new ResourceSet(baseBoundary, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
+                microGridBaseCaseBoundaries());
     }
 
     public static TestGridModelResources miniGrid() {
