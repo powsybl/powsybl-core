@@ -14,8 +14,6 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.math3.complex.Complex;
 
-import java.util.Objects;
-
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -102,9 +100,13 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         // Also, flows computed for this equipment as a Line will be correct in engineering units,
         // so no additional change is required in the utils inside IIDM
 
-        // The equivalent branch should have been converted to a Line
+        // equivalent branches inside a voltage level with zero impedance are converted to switches
+        // equivalent branches with impedance are converted to lines
+        // equivalent branches with zero impedance between voltage levels are also converted to lines
         Line line = context.network().getLine(iidmId());
-        Objects.requireNonNull(line);
+        if (line == null) {
+            return;
+        }
 
         double vnom1 = line.getTerminal1().getVoltageLevel().getNominalV();
         double vnom2 = line.getTerminal2().getVoltageLevel().getNominalV();
