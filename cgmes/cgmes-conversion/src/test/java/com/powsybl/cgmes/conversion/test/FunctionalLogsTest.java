@@ -7,6 +7,8 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.TypedValue;
@@ -16,9 +18,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -26,34 +28,46 @@ import static org.junit.Assert.assertTrue;
 public class FunctionalLogsTest {
 
     @Test
-    public void testImport() throws IOException {
-        TestGridModel testCase = CgmesConformity1Catalog.microGridBaseCaseBE();
-        ReporterModel reporter = new ReporterModel("testFunctionalLogs",
-                "Test importing ${name}", Map.of("name", new TypedValue(testCase.name(), TypedValue.UNTYPED)));
-        Importers.importData("CGMES", testCase.dataSource(), null, reporter);
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-        String expected = new String(getClass().getResourceAsStream("/microGridBaseCaseBE-functional-logs.txt").readAllBytes());
-        assertEquals(expected, sw.toString());
+    public void testImportMicroGridBaseCaseBE() throws IOException {
+        checkResult("/functional-logs/microGridBaseCaseBE.txt",
+                importReport(CgmesConformity1Catalog.microGridBaseCaseBE()));
     }
 
     @Test
-    public void testImportSmallNodeBreakerHvdcOnlyEq() {
-        TestGridModel testCase = CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ();
+    public void testImportMicroGridBaseCaseBETargetDeadbandNegative() throws IOException {
+        checkResult("/functional-logs/microGridBaseCaseBE-target-deadband.txt",
+                importReport(CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative()));
+    }
+
+    @Test
+    public void testImportMicroGridBaseCaseBEInvalidVoltageBus() throws IOException {
+        checkResult("/functional-logs/microGridBaseCaseBE-invalid-voltage-bus.txt",
+                importReport(CgmesConformity1ModifiedCatalog.microGridBaseBEInvalidVoltageBus()));
+    }
+
+    @Test
+    public void testImportMiniGridNodeBreaker() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        checkResult("/functional-logs/miniGridNodeBreaker.txt",
+                importReport(CgmesConformity1Catalog.miniNodeBreaker(), importParams));
+    }
+
+    private ReporterModel importReport(TestGridModel testCase) {
+        return importReport(testCase, null);
+    }
+
+    private ReporterModel importReport(TestGridModel testCase, Properties importParams) {
         ReporterModel reporter = new ReporterModel("testFunctionalLogs",
                 "Test importing ${name}", Map.of("name", new TypedValue(testCase.name(), TypedValue.UNTYPED)));
-        Importers.importData("CGMES", testCase.dataSource(), null, reporter);
+        Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
+        return reporter;
+    }
+
+    private void checkResult(String resourceName, ReporterModel reporter) throws IOException {
         StringWriter sw = new StringWriter();
         reporter.export(sw);
-        String reported = sw.toString();
-        // Check the instance files that have been read
-        String readExpected = "  + Read" + System.lineSeparator() +
-                              "     Instance file SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml" + System.lineSeparator() +
-                              "     Instance file SmallGridTestConfiguration_EQ_BD_v3.0.0.xml" + System.lineSeparator() +
-                              "  +";
-        assertTrue(reported.contains(readExpected));
-        // Check that the issue of empty vsc regulation has been considered for grouping
-        assertTrue(reported.contains("+ EmptyVscRegulation"));
+        String expected = new String(getClass().getResourceAsStream(resourceName).readAllBytes());
+        assertEquals(expected, sw.toString());
     }
 }

@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
@@ -22,7 +21,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -207,6 +205,10 @@ public class Context {
 
     // Handling issues found during conversion
 
+    public Reporter getReporter() {
+        return reporter;
+    }
+
     private enum ConversionIssueCategory {
         INVALID("Invalid"),
         IGNORED("Ignored"),
@@ -264,6 +266,10 @@ public class Context {
         handleIssue(ConversionIssueCategory.MISSING, what, reason1);
     }
 
+    public void missing(String what, Supplier<String> reason) {
+        handleIssue(ConversionIssueCategory.MISSING, what, reason);
+    }
+
     public void missing(String what, double defaultValue) {
         Supplier<String> reason1 = () -> String.format("Using default value %.4f", defaultValue);
         handleIssue(ConversionIssueCategory.MISSING, what, reason1);
@@ -274,7 +280,6 @@ public class Context {
     }
 
     private void handleIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
-        reportIssue(category, what, reason);
         logIssue(category, what, reason);
     }
 
@@ -284,46 +289,11 @@ public class Context {
         }
     }
 
-    private static boolean isValidForGrouping(String what) {
-        return what.equals("SvVoltage") || what.equals("Regulating Terminal") || what.equals("EmptyVscRegulation");
-    }
-
-    private void reportIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
-        Reporter categoryReporter = issueReporters.computeIfAbsent(category, cat -> reporter.createSubReporter(cat.name(), cat.toString()));
-        // FIXME(Luma) A first approach to functional logs, report issues grouped by "what" or by "reason"
-        // This is just to evaluate how to proceed ...
-        // If we have an identifier inside "what", we don't use it for grouping messages
-        String group;
-        String item;
-        if (isValidForGrouping(what)) {
-            group = what;
-            item = reason.get();
-        } else {
-            group = reason.get();
-            item = what;
-        }
-        if (item == null) {
-            throw new PowsyblException("Nothing to report, category = [" + category + "], what = [" + what + "], reason = [" + reason + "]");
-        }
-        // FIXME(Luma) simple compound key
-        String categoryGroup = category.toString();
-        String description = "Identified issues not yet organized";
-        if (!group.isEmpty() && !group.isBlank()) {
-            categoryGroup += "_" + group;
-            description = group;
-        }
-        final String description1 = description;
-        reportersByCategoryAndGroup.computeIfAbsent(categoryGroup, cg -> categoryReporter.createSubReporter(cg, description1))
-            .report(item, item);
-    }
-
     private final CgmesModel cgmes;
     private final Network network;
     private final Config config;
 
     private final Reporter reporter;
-    private final Map<ConversionIssueCategory, Reporter> issueReporters = new EnumMap<>(ConversionIssueCategory.class);
-    private final Map<String, Reporter> reportersByCategoryAndGroup = new HashMap<>();
 
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;

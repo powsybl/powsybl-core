@@ -125,7 +125,7 @@ public final class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-BusBranch",
                 null,
-                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                new ResourceSet(base,
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
@@ -140,7 +140,7 @@ public final class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-NodeBreaker",
                 expectedMiniNodeBreaker(),
-                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                new ResourceSet(base,
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
