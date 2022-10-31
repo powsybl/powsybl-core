@@ -49,8 +49,8 @@ public class FunctionalLogsTest {
         String reported = sw.toString();
         // Check the instance files that have been read
         String readExpected = "  + Read" + System.lineSeparator() +
-                              "     SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml" + System.lineSeparator() +
-                              "     SmallGridTestConfiguration_EQ_BD_v3.0.0.xml" + System.lineSeparator() +
+                              "     Instance file SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml" + System.lineSeparator() +
+                              "     Instance file SmallGridTestConfiguration_EQ_BD_v3.0.0.xml" + System.lineSeparator() +
                               "  +";
         assertTrue(reported.contains(readExpected));
         // Check that the issue of empty vsc regulation has been considered for grouping
