@@ -1008,8 +1008,7 @@ public final class CgmesConformity1Catalog {
                         "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239scbd7-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239tcbd4-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:6fddfd60-de0d-11e2-8f45-b8f6b1180b6d");
+                        "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66");
     }
 
     public static CgmesModel expectedMicroGridType4BE() {
