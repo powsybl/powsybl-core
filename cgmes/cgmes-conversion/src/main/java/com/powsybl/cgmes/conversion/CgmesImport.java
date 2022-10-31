@@ -125,8 +125,8 @@ public class CgmesImport implements Importer {
         } else if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_RDFID)) {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
-        options.setReporter(reporter.createSubReporter("CGMESTriplestore", "Read"));
-        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), options);
+        Reporter tripleStoreReporter = reporter.createSubReporter("CGMESTriplestore", "Read");
+        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
         Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Conversion");
         return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory, conversionReporter).convert();
     }

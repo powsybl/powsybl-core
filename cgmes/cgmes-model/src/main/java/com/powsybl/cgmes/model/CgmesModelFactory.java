@@ -10,6 +10,7 @@ package com.powsybl.cgmes.model;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.*;
 
 import java.util.Objects;
@@ -23,55 +24,55 @@ public final class CgmesModelFactory {
     }
 
     public static CgmesModel create(ReadOnlyDataSource dataSource) {
-        return create(dataSource, TripleStoreFactory.DEFAULT_IMPLEMENTATION);
+        return create(dataSource, TripleStoreFactory.DEFAULT_IMPLEMENTATION, Reporter.NO_OP);
     }
 
     public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation) {
-        Objects.requireNonNull(dataSource);
-        Objects.requireNonNull(implementation);
-
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
-        return create(dataSource, alternativeDataSourceForBoundary, implementation);
+        return create(dataSource, alternativeDataSourceForBoundary, implementation, Reporter.NO_OP);
+    }
+
+    public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation, Reporter reporter) {
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        return create(dataSource, alternativeDataSourceForBoundary, implementation, reporter);
     }
 
     public static CgmesModel create(
         ReadOnlyDataSource mainDataSource,
         ReadOnlyDataSource alternativeDataSourceForBoundary,
-        String implementation) {
-        Objects.requireNonNull(mainDataSource);
-        Objects.requireNonNull(implementation);
-
-        CgmesModel cgmes = createImplementation(implementation, new TripleStoreOptions(), mainDataSource);
-        cgmes.read(mainDataSource, alternativeDataSourceForBoundary);
-        return cgmes;
+        String implementation,
+        Reporter reporter) {
+        return create(mainDataSource, alternativeDataSourceForBoundary, implementation, reporter, new TripleStoreOptions());
     }
 
     public static CgmesModel create(
             ReadOnlyDataSource mainDataSource,
             ReadOnlyDataSource alternativeDataSourceForBoundary,
             String implementation,
+            Reporter reporter,
             TripleStoreOptions tripleStoreOptions) {
         Objects.requireNonNull(mainDataSource);
         Objects.requireNonNull(implementation);
+        Objects.requireNonNull(reporter);
         Objects.requireNonNull(tripleStoreOptions);
 
-        CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource);
+        CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource, reporter);
         cgmes.read(mainDataSource, alternativeDataSourceForBoundary);
         return cgmes;
     }
 
-    private static CgmesModel createImplementation(String implementation, TripleStoreOptions tripleStoreOptions, ReadOnlyDataSource ds) {
+    private static CgmesModel createImplementation(String implementation, TripleStoreOptions tripleStoreOptions, ReadOnlyDataSource ds, Reporter reporter) {
         // Only triple store implementations are available
         TripleStore tripleStore = TripleStoreFactory.create(implementation, tripleStoreOptions);
         String cimNamespace = new CgmesOnDataSource(ds).cimNamespace();
-        return new CgmesModelTripleStore(cimNamespace, tripleStore);
+        return new CgmesModelTripleStore(cimNamespace, tripleStore, reporter);
     }
 
     public static CgmesModel copy(CgmesModel cgmes) {
         if (cgmes instanceof CgmesModelTripleStore) {
             CgmesModelTripleStore cgmests = (CgmesModelTripleStore) cgmes;
             TripleStore tripleStore = TripleStoreFactory.copy(cgmests.tripleStore());
-            CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
+            CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore, Reporter.NO_OP);
             cgmesCopy.setBasename(cgmes.getBasename());
             buildCaches(cgmesCopy);
             return cgmesCopy;
