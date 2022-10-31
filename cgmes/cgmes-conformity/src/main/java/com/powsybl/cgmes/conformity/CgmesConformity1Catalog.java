@@ -25,6 +25,13 @@ public final class CgmesConformity1Catalog {
     private CgmesConformity1Catalog() {
     }
 
+    public static ResourceSet microGridBaseCaseBoundaries() {
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                "MicroGridTestConfiguration_TP_BD.xml");
+    }
+
     public static TestGridModelResources microGridBaseCaseBE() {
         String base = ENTSOE_CONFORMITY_1 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
         String baseBoundary = ENTSOE_CONFORMITY_1

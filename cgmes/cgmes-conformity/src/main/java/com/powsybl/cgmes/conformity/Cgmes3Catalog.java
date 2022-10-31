@@ -136,5 +136,10 @@ public final class Cgmes3Catalog {
                     "20201202T1843Z_1D_Svedala Area_SSH_001.xml"));
     }
 
+    public static ResourceSet microGridBaseCaseBoundaries() {
+        String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
+        return new ResourceSet(base, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml");
+    }
+
     private static final String CGMES_3_TEST_MODELS = "/cgmes3-test-models";
 }
