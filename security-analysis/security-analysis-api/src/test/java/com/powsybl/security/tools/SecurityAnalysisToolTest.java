@@ -28,6 +28,7 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
+import com.powsybl.security.results.PreContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
@@ -268,6 +269,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
             SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
             when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
+            when(report.getResult().getPreContingencyResult()).thenReturn(mock(PreContingencyResult.class));
             when(report.getResult().getPreContingencyLimitViolationsResult()).thenReturn(mock(LimitViolationsResult.class));
             when(report.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
             when(cfSar.join()).thenReturn(report);

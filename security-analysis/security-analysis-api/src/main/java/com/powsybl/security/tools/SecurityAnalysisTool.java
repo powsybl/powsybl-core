@@ -318,8 +318,7 @@ public class SecurityAnalysisTool implements Tool {
 
         SecurityAnalysisResult result = report.getResult();
 
-        if (result.getPreContingencyResult() == null ||
-                result.getPreContingencyResult().getStatus() != LoadFlowResult.ComponentResult.Status.CONVERGED) {
+        if (result.getPreContingencyResult().getStatus() != LoadFlowResult.ComponentResult.Status.CONVERGED) {
             context.getErrorStream().println("Pre-contingency state divergence");
         }
 
