@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**

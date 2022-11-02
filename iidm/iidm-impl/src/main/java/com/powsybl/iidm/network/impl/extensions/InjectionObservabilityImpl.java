@@ -31,9 +31,9 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     public InjectionObservabilityImpl(T component, boolean observable,
-                                      double standardDeviationP, boolean redundantP,
-                                      double standardDeviationQ, boolean redundantQ,
-                                      double standardDeviationV, boolean redundantV) {
+                                      double standardDeviationP, Boolean redundantP,
+                                      double standardDeviationQ, Boolean redundantQ,
+                                      double standardDeviationV, Boolean redundantV) {
         this(component, observable);
         this.qualityP = new ObservabilityQualityImpl<>(standardDeviationP, redundantP);
         this.qualityQ = new ObservabilityQualityImpl<>(standardDeviationQ, redundantQ);
@@ -56,7 +56,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public InjectionObservability<T> setQualityP(double standardDeviation, boolean redundant) {
+    public InjectionObservability<T> setQualityP(double standardDeviation, Boolean redundant) {
         if (qualityP == null) {
             qualityP = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         } else {
@@ -82,7 +82,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public InjectionObservability<T> setQualityQ(double standardDeviation, boolean redundant) {
+    public InjectionObservability<T> setQualityQ(double standardDeviation, Boolean redundant) {
         if (qualityQ == null) {
             qualityQ = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         } else {
@@ -108,7 +108,7 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public InjectionObservability<T> setQualityV(double standardDeviation, boolean redundant) {
+    public InjectionObservability<T> setQualityV(double standardDeviation, Boolean redundant) {
         if (qualityV == null) {
             qualityV = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         } else {

@@ -26,7 +26,7 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 public class AlternativeQueriesForGeneratorsTest {
 
     @BeforeClass
-    public static void setUp()  {
+    public static void setUp() {
         TestGridModel model = CgmesConformity1Catalog.smallBusBranch();
         Expected expected = new Expected()
                 .resultSize(19)

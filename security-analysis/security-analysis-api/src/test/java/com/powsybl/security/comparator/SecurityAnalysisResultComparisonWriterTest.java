@@ -73,7 +73,7 @@ public class SecurityAnalysisResultComparisonWriterTest {
                                      String.join(";", "contingency", "", "", "NHV1_NHV2_1", Branch.Side.ONE.name(), LimitViolationType.CURRENT.name(),
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.0), String.format(Locale.getDefault(), "%g", 1000.0),
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.09), String.format(Locale.getDefault(), "%g", 1000.0),
-                                                 "", "",  "equivalent"),
+                                                 "", "", "equivalent"),
                                      String.join(";", "contingency", "", "", "", "", "", "", "", "", "", "", "", actions.toString(), actions.toString(), "equivalent"));
 
         // precontingency violations results
@@ -136,11 +136,11 @@ public class SecurityAnalysisResultComparisonWriterTest {
                                      String.join(";", "Contingency", "StatusResult1", "StatusResult2", "Equipment", "End", "ViolationType",
                                                  "ViolationNameResult1", "ValueResult1", "LimitResult1", "ViolationNameResult2", "ValueResult2",
                                                  "LimitResult2", "ActionsResult1", "ActionsResult2", "Comparison"),
-                                     String.join(";", "", "converge", "converge", "", "", "", "", "", "", "", "", "", "", "",  "equivalent"),
+                                     String.join(";", "", "converge", "converge", "", "", "", "", "", "", "", "", "", "", "", "equivalent"),
                                      String.join(";", "", "", "", "VL1", "", LimitViolationType.HIGH_VOLTAGE.name(),
                                                  "", String.format(Locale.getDefault(), "%g", 250.0), String.format(Locale.getDefault(), "%g", 200.0),
                                                  "", String.format(Locale.getDefault(), "%g", 250.0), String.format(Locale.getDefault(), "%g", 200.0),
-                                                 "", "",  "equivalent"),
+                                                 "", "", "equivalent"),
                                      String.join(";", "contingency", "converge", "", "", "", "", "", "", "", "", "", "", "", "", "different"),
                                      String.join(";", "contingency", "", "", "VL1", "", LimitViolationType.HIGH_VOLTAGE.name(),
                                                  "", String.format(Locale.getDefault(), "%g", 250.0), String.format(Locale.getDefault(), "%g", 200.0),

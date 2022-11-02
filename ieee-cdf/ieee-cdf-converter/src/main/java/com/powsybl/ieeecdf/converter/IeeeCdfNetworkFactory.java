@@ -9,10 +9,16 @@ package com.powsybl.ieeecdf.converter;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.ieeecdf.model.IeeeCdfBranch;
 import com.powsybl.ieeecdf.model.IeeeCdfBus;
+import com.powsybl.ieeecdf.model.IeeeCdfModel;
+import com.powsybl.ieeecdf.model.IeeeCdfTitle;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 
+import java.time.LocalDate;
 import java.util.Properties;
 import java.util.function.ToDoubleFunction;
 
@@ -127,5 +133,87 @@ public final class IeeeCdfNetworkFactory {
 
     public static Network create9zeroimpedance() {
         return create9zeroimpedance(NetworkFactory.findDefault());
+    }
+
+    private static void parseBuses(IeeeCdfModel model, CsvParserSettings settings, String fileName, double baseKv) {
+        CsvParser csvParser = new CsvParser(settings);
+        for (String[] nextLine : csvParser.iterate(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName))) {
+            int busNo = Integer.parseInt(nextLine[0]);
+            int busCode = Integer.parseInt(nextLine[1]);
+            double loadP = Double.parseDouble(nextLine[2]);
+            double loadQ = Double.parseDouble(nextLine[3]);
+            IeeeCdfBus bus = new IeeeCdfBus();
+            bus.setNumber(busNo);
+            bus.setName("bus-" + busNo);
+            bus.setBaseVoltage(baseKv);
+            bus.setActiveLoad(loadP / 1000);
+            bus.setReactiveLoad(loadQ / 1000);
+            if (busCode == 1) {
+                bus.setType(IeeeCdfBus.Type.HOLD_VOLTAGE_AND_ANGLE);
+                bus.setDesiredVoltage(1);
+            } else {
+                bus.setType(IeeeCdfBus.Type.UNREGULATED);
+            }
+            model.getBuses().add(bus);
+        }
+    }
+
+    private static void parseLines(IeeeCdfModel model, CsvParserSettings settings, String fileName) {
+        CsvParser csvParser = new CsvParser(settings);
+        for (String[] nextLine : csvParser.iterate(IeeeCdfNetworkFactory.class.getResourceAsStream("/" + fileName))) {
+            int sendingBus = Integer.parseInt(nextLine[0]);
+            int receivingBus = Integer.parseInt(nextLine[1]);
+            double r = Double.parseDouble(nextLine[2]);
+            double x = Double.parseDouble(nextLine[3]);
+            IeeeCdfBranch branch = new IeeeCdfBranch();
+            branch.setTapBusNumber(sendingBus);
+            branch.setzBusNumber(receivingBus);
+            branch.setResistance(r);
+            branch.setReactance(x);
+            model.getBranches().add(branch);
+        }
+    }
+
+    /**
+     * Distribution networks created from https://core.ac.uk/download/pdf/53189751.pdf
+     */
+    private static Network createFromCsv(String name, NetworkFactory networkFactory, boolean meshed, double baseKv) {
+        IeeeCdfTitle title = new IeeeCdfTitle();
+        title.setMvaBase(100);
+        title.setDate(LocalDate.parse("2022-09-23"));
+        IeeeCdfModel model = new IeeeCdfModel(title);
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.getFormat().setLineSeparator(System.lineSeparator());
+        settings.getFormat().setDelimiter(" ");
+        parseBuses(model, settings, name + "-bus.csv", baseKv);
+        parseLines(model, settings, name + "-line.csv");
+        if (meshed) {
+            parseLines(model, settings, name + "-mesh.csv");
+        }
+        return new IeeeCdfImporter().convert(model, networkFactory, name, false);
+    }
+
+    public static Network create33(NetworkFactory networkFactory, boolean meshed) {
+        return createFromCsv("ieee33", networkFactory, meshed, 12.66);
+    }
+
+    public static Network create33(boolean meshed) {
+        return create33(NetworkFactory.findDefault(), meshed);
+    }
+
+    public static Network create33() {
+        return create33(false);
+    }
+
+    public static Network create69(NetworkFactory networkFactory, boolean meshed) {
+        return createFromCsv("ieee69", networkFactory, meshed, 12.66);
+    }
+
+    public static Network create69(boolean meshed) {
+        return create69(NetworkFactory.findDefault(), meshed);
+    }
+
+    public static Network create69() {
+        return create69(false);
     }
 }

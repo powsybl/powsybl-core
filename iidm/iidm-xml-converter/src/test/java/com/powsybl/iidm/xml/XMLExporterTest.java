@@ -25,6 +25,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static com.powsybl.commons.ComparisonUtils.compareXml;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;

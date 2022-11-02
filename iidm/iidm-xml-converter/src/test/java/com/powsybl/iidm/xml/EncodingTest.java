@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class EncodingTest {
         options.setCharset(StandardCharsets.ISO_8859_1);
         NetworkXml.write(network, options, baos);
         InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        AbstractConverterTest.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+        ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
     }
 
     @Test
@@ -40,6 +40,6 @@ public class EncodingTest {
         options.setCharset(StandardCharsets.UTF_8);
         NetworkXml.write(network, options, baos);
         InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        AbstractConverterTest.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+        ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
     }
 }

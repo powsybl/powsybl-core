@@ -141,7 +141,7 @@ public class CimAnonymizer {
                 return xmlStaxContext.eventFactory.createAttribute(attribute.getName(), dictionary.anonymize(attribute.getValue()));
             } else if (attribute.getName().equals(RDF_RESOURCE) || attribute.getName().equals(RDF_ABOUT)) {
                 // skip outside graph rdf:ID references
-                AttributeValue value  = AttributeValue.parseValue(attribute);
+                AttributeValue value = AttributeValue.parseValue(attribute);
                 if ((value.getNsUri() == null || !value.getNsUri().matches(CIM_URI_PATTERN)) &&
                         (rdfIdValues == null || rdfIdValues.contains(value.get()))) {
                     return xmlStaxContext.eventFactory.createAttribute(attribute.getName(), value.toString(dictionary));

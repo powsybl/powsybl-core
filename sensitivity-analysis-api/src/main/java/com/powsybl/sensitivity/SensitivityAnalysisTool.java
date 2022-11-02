@@ -19,7 +19,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyList;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Importers;
@@ -165,7 +165,7 @@ public class SensitivityAnalysisTool implements Tool {
             }
             boolean contingencyCsv = isCsv(outputFileStatus);
             if (!contingencyCsv) {
-                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION  + " files must have the same format (csv).");
+                throw new PowsyblException(OUTPUT_FILE_OPTION + " and " + OUTPUT_CONTINGENCY_STATUS_FILE_OPTION + " files must have the same format (csv).");
             }
 
             if (line.hasOption(SINGLE_OUTPUT)) {
@@ -241,7 +241,7 @@ public class SensitivityAnalysisTool implements Tool {
                     JsonFactory factory = JsonUtil.createJsonFactory();
                     try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
                          JsonGenerator generator = factory.createGenerator(writer);
-                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator)) {
+                         SensitivityResultJsonWriter valuesWriter = new SensitivityResultJsonWriter(generator, contingencies)) {
                         generator.useDefaultPrettyPrinter();
                         SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                                 factorsReader, valuesWriter, contingencies, variableSets, params,

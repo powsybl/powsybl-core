@@ -13,5 +13,5 @@ public interface SensitivityResultWriter {
 
     void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference);
 
-    void writeContingencyStatus(SensitivityAnalysisResult.SensitivityContingencyStatus status);
+    void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status);
 }

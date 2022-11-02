@@ -10,6 +10,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.TestUtil;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.StudyCase;
 import org.junit.Test;
 
@@ -19,6 +20,7 @@ import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -64,6 +66,12 @@ public class DgsDataTest extends AbstractConverterTest {
     @Test
     public void twoBusesCommaAsDecimalSeparatorTest() throws IOException {
         assertTrue(test("/TwoBusesCommaAsDecimalSeparator.dgs", "/TwoBusesCommaAsDecimalSeparator.json"));
+    }
+
+    @Test
+    public void emptyMatrixTest() throws IOException {
+        PowerFactoryException e = assertThrows(PowerFactoryException.class, () -> loadCase("/EmptyMatrix.dgs"));
+        assertEquals("RealMatrix: Unexpected number of cols: 'GPScoords' rows: 1 cols: 1 expected cols: 2", e.getMessage());
     }
 
     private boolean test(String dgs, String json) throws IOException {

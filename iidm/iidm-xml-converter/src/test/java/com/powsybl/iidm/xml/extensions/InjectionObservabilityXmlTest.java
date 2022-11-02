@@ -47,7 +47,6 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
 
         Generator generator = network.getGenerator("GEN");
         generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02d, true, 0.5d, true, 0.0d, true));
-
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,

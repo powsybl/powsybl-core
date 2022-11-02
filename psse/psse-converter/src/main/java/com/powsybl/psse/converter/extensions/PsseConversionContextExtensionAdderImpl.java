@@ -14,7 +14,7 @@ import com.powsybl.psse.model.io.Context;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PsseConversionContextExtensionAdderImpl  extends AbstractExtensionAdder<Network, PsseConversionContextExtension>
+public class PsseConversionContextExtensionAdderImpl extends AbstractExtensionAdder<Network, PsseConversionContextExtension>
         implements PsseConversionContextExtensionAdder {
 
     private Context context;

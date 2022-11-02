@@ -8,7 +8,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -21,27 +23,32 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotInVoltageLevel;
-import static com.powsybl.iidm.modification.topology.ModificationReports.connectableNotSupported;
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-final class TopologyModificationUtils {
+public final class TopologyModificationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopologyModificationUtils.class);
 
     static final class LoadingLimitsBags {
 
-        private final LoadingLimitsBag activePowerLimits;
-        private final LoadingLimitsBag apparentPowerLimits;
-        private final LoadingLimitsBag currentLimits;
+        private LoadingLimitsBag activePowerLimits;
+        private LoadingLimitsBag apparentPowerLimits;
+        private LoadingLimitsBag currentLimits;
 
         LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
             activePowerLimits = activePowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
             apparentPowerLimits = apparentPowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
             currentLimits = currentLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
+        }
+
+        LoadingLimitsBags(LoadingLimitsBag activePowerLimits, LoadingLimitsBag apparentPowerLimits, LoadingLimitsBag currentLimits) {
+            this.activePowerLimits = activePowerLimits;
+            this.apparentPowerLimits = apparentPowerLimits;
+            this.currentLimits = currentLimits;
         }
 
         Optional<LoadingLimitsBag> getActivePowerLimits() {
@@ -59,14 +66,19 @@ final class TopologyModificationUtils {
 
     private static final class LoadingLimitsBag {
 
-        private final double permanentLimit;
-        private final List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
+        private double permanentLimit;
+        private List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
 
         private LoadingLimitsBag(LoadingLimits limits) {
             this.permanentLimit = limits.getPermanentLimit();
             for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) {
                 temporaryLimits.add(new TemporaryLimitsBag(tl));
             }
+        }
+
+        private LoadingLimitsBag(double permanentLimit, List<TemporaryLimitsBag> temporaryLimitsBags) {
+            this.permanentLimit = permanentLimit;
+            this.temporaryLimits = temporaryLimitsBags;
         }
 
         private double getPermanentLimit() {
@@ -85,7 +97,7 @@ final class TopologyModificationUtils {
         private final boolean fictitious;
         private final double value;
 
-        private TemporaryLimitsBag(LoadingLimits.TemporaryLimit temporaryLimit) {
+        TemporaryLimitsBag(LoadingLimits.TemporaryLimit temporaryLimit) {
             this.name = temporaryLimit.getName();
             this.acceptableDuration = temporaryLimit.getAcceptableDuration();
             this.fictitious = temporaryLimit.isFictitious();
@@ -109,13 +121,6 @@ final class TopologyModificationUtils {
         }
     }
 
-    static double checkPercent(double percent) {
-        if (Double.isNaN(percent)) {
-            throw new PowsyblException("Percent should not be undefined");
-        }
-        return percent;
-    }
-
     static LineAdder createLineAdder(double percent, String id, String name, String voltageLevelId1, String voltageLevelId2, Network network, Line line) {
         return network.newLine()
                 .setId(id)
@@ -128,6 +133,20 @@ final class TopologyModificationUtils {
                 .setB1(line.getB1() * percent / 100)
                 .setG2(line.getG2() * percent / 100)
                 .setB2(line.getB2() * percent / 100);
+    }
+
+    static LineAdder createLineAdder(String id, String name, String voltageLevelId1, String voltageLevelId2, Network network, Line line1, Line line2) {
+        return network.newLine()
+                .setId(id)
+                .setName(name)
+                .setVoltageLevel1(voltageLevelId1)
+                .setVoltageLevel2(voltageLevelId2)
+                .setR(line1.getR() + line2.getR())
+                .setX(line1.getX() + line2.getX())
+                .setG1(line1.getG1() + line2.getG1())
+                .setB1(line1.getB1() + line2.getB1())
+                .setG2(line1.getG2() + line2.getG2())
+                .setB2(line1.getB2() + line2.getB2());
     }
 
     static void attachLine(Terminal terminal, LineAdder adder, BiConsumer<Bus, LineAdder> connectableBusSetter,
@@ -171,6 +190,28 @@ final class TopologyModificationUtils {
         adder.add();
     }
 
+    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
+        Optional<Substation> substation = voltageLevel.getSubstation();
+        String vlId = voltageLevel.getId();
+        boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
+        if (!noMoreEquipments) {
+            voltageLevelRemovingEquipmentsLeftReport(reporter, vlId);
+            LOGGER.warn("Voltage level {} still contains equipments", vlId);
+        }
+        voltageLevel.remove();
+        voltageLevelRemovedReport(reporter, vlId);
+        LOGGER.info("Voltage level {} removed", vlId);
+
+        substation.ifPresent(s -> {
+            if (s.getVoltageLevelStream().count() == 0) {
+                String substationId = s.getId();
+                s.remove();
+                substationRemovedReport(reporter, substationId);
+                LOGGER.info("Substation {} removed", substationId);
+            }
+        });
+    }
+
     static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {
         createNodeBreakerSwitches(node1, middleNode, node2, "", prefix, view);
     }
@@ -187,6 +228,7 @@ final class TopologyModificationUtils {
     static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_BREAKER" + suffix)
+                .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
                 .setRetained(true)
@@ -198,6 +240,7 @@ final class TopologyModificationUtils {
     static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_DISCONNECTOR" + suffix)
+                .setEnsureIdUnicity(true)
                 .setKind(SwitchKind.DISCONNECTOR)
                 .setOpen(open)
                 .setNode1(node1)
@@ -208,12 +251,14 @@ final class TopologyModificationUtils {
     static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String lineId, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
                 .setId(lineId + "_SW_1")
+                .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
                 .setBus2(middleBusId)
                 .add();
         view.newSwitch()
                 .setId(lineId + "_SW_2")
+                .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(middleBusId)
                 .setBus2(busId2)
@@ -246,7 +291,7 @@ final class TopologyModificationUtils {
         TreeMap<Integer, List<Integer>> ordersBySectionIndex = new TreeMap<>();
         connectablesBySectionIndex.forEach((sectionIndex, connectables) -> {
             List<Integer> orders = new ArrayList<>();
-            connectables.forEach(connectable -> addOrder(connectable, voltageLevel, orders));
+            connectables.forEach(connectable -> addOrderPositions(connectable, voltageLevel, orders));
             ordersBySectionIndex.put(sectionIndex, orders);
         });
 
@@ -299,19 +344,19 @@ final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS2 will return a range from 4 to 6.
      */
-    public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(VoltageLevel voltageLevel, BusbarSection bbs) {
+    public static Optional<Range<Integer>> getUnusedOrderPositionsBefore(BusbarSection bbs) {
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
 
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> previousSliceMax = getMaxOrderUsedBefore(allOrders, sectionIndex);
         Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
-        int min = previousSliceMax.map(o -> o + 1).orElse(Integer.MIN_VALUE);
-        int max = sliceMin.map(o -> o - 1).orElse(
-                getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE));
+        int min = previousSliceMax.map(o -> o + 1).orElse(0);
+        int max = sliceMin.or(() -> getMinOrderUsedAfter(allOrders, sectionIndex)).map(o -> o - 1).orElse(Integer.MAX_VALUE);
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
@@ -322,18 +367,18 @@ final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS1 will return a range from 4 to 6.
      */
-    public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(VoltageLevel voltageLevel, BusbarSection bbs) {
+    public static Optional<Range<Integer>> getUnusedOrderPositionsAfter(BusbarSection bbs) {
         BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
         if (busbarSectionPosition == null) {
             throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
         }
+        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
         NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
 
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> nextSliceMin = getMinOrderUsedAfter(allOrders, sectionIndex);
         Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
-        int min = sliceMax.map(o -> o + 1).orElse(
-                getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(Integer.MAX_VALUE));
+        int min = sliceMax.or(() -> getMaxOrderUsedBefore(allOrders, sectionIndex)).map(o -> o + 1).orElse(0);
         int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
@@ -344,10 +389,15 @@ final class TopologyModificationUtils {
      * applied to BBS2 will return 3.
      */
     private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        int s = section;
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
-            lowerEntry = allOrders.lowerEntry(section);
-        } while (lowerEntry != null && lowerEntry.getValue().isEmpty());
+            lowerEntry = allOrders.lowerEntry(s);
+            if (lowerEntry == null) {
+                break;
+            }
+            s = lowerEntry.getKey();
+        } while (lowerEntry.getValue().isEmpty());
 
         return Optional.ofNullable(lowerEntry)
                 .flatMap(entry -> entry.getValue().stream().max(Comparator.naturalOrder()));
@@ -359,10 +409,15 @@ final class TopologyModificationUtils {
      * applied to BBS1 will return 7.
      */
     private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        int s = section;
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {
-            higherEntry = allOrders.higherEntry(section);
-        } while (higherEntry != null && higherEntry.getValue().isEmpty());
+            higherEntry = allOrders.higherEntry(s);
+            if (higherEntry == null) {
+                break;
+            }
+            s = higherEntry.getKey();
+        } while (higherEntry.getValue().isEmpty());
 
         return Optional.ofNullable(higherEntry)
                 .flatMap(entry -> entry.getValue().stream().min(Comparator.naturalOrder()));
@@ -373,62 +428,98 @@ final class TopologyModificationUtils {
      */
     public static Set<Integer> getFeederPositions(VoltageLevel voltageLevel) {
         Set<Integer> feederPositionsOrders = new HashSet<>();
-        voltageLevel.getConnectables().forEach(connectable -> addOrder(connectable, voltageLevel, feederPositionsOrders));
+        voltageLevel.getConnectables().forEach(connectable -> addOrderPositions(connectable, voltageLevel, feederPositionsOrders));
         return feederPositionsOrders;
     }
 
-    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
-        addOrder(connectable, voltageLevel, feederPositionsOrders, false, Reporter.NO_OP);
+    /**
+     * Utility method to get all the taken feeder positions on a voltage level by connectable.
+     */
+    public static Map<String, List<Integer>> getFeederPositionsByConnectable(VoltageLevel voltageLevel) {
+        Map<String, List<Integer>> feederPositionsOrders = new HashMap<>();
+        voltageLevel.getConnectables().forEach(connectable -> {
+            ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
+            if (position != null) {
+                List<Integer> orders = getOrderPositions(position, voltageLevel, connectable, false, Reporter.NO_OP);
+                feederPositionsOrders.put(connectable.getId(), orders);
+            }
+        });
+        return feederPositionsOrders;
+    }
+
+    private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
+        addOrderPositions(connectable, voltageLevel, feederPositionsOrders, false, Reporter.NO_OP);
     }
 
     /**
-     * Method getting order of a connectable on a given voltage level.
+     * Method adding order position(s) of a connectable on a given voltage level to the given collection.
      */
-    private static void addOrder(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, Reporter reporter) {
+    private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, Reporter reporter) {
         ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
         if (position != null) {
-            if (connectable instanceof Injection) {
-                Optional<Integer> order = position.getFeeder().getOrder();
-                order.ifPresent(feederPositionsOrders::add);
-            } else if (connectable instanceof Branch) {
-                Branch<?> branch = (Branch<?>) connectable;
-                if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-                    Optional<Integer> order = position.getFeeder1().getOrder();
-                    order.ifPresent(feederPositionsOrders::add);
-                } else if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
-                    Optional<Integer> order = position.getFeeder2().getOrder();
-                    order.ifPresent(feederPositionsOrders::add);
-                } else {
-                    LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
-                    connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
-                    if (throwException) {
-                        throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
-                    }
-                }
-            } else if (connectable instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
-                if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
-                    Optional<Integer> order = position.getFeeder1().getOrder();
-                    order.ifPresent(feederPositionsOrders::add);
-                } else if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
-                    Optional<Integer> order = position.getFeeder2().getOrder();
-                    order.ifPresent(feederPositionsOrders::add);
-                } else if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
-                    Optional<Integer> order = position.getFeeder3().getOrder();
-                    order.ifPresent(feederPositionsOrders::add);
-                } else {
-                    LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
-                    connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
-                    if (throwException) {
-                        throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
-                    }
-                }
-            } else {
-                LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
-                connectableNotSupported(reporter, connectable);
-                if (throwException) {
-                    throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
-                }
+            List<Integer> orders = getOrderPositions(position, voltageLevel, connectable, throwException, reporter);
+            feederPositionsOrders.addAll(orders);
+        }
+    }
+
+    private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
+        if (connectable instanceof Injection) {
+            return getInjectionOrder(position, voltageLevel, (Injection<?>) connectable, throwException, reporter);
+        } else if (connectable instanceof Branch) {
+            return getBranchOrders(position, voltageLevel, (Branch<?>) connectable, throwException, reporter);
+        } else if (connectable instanceof ThreeWindingsTransformer) {
+            return get3wtOrders(position, voltageLevel, (ThreeWindingsTransformer) connectable, throwException, reporter);
+        } else {
+            LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
+            connectableNotSupported(reporter, connectable);
+            if (throwException) {
+                throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private static List<Integer> getInjectionOrder(ConnectablePosition<?> position, VoltageLevel voltageLevel, Injection<?> injection, boolean throwException, Reporter reporter) {
+        List<Integer> singleOrder = position.getFeeder().getOrder().map(List::of).orElse(Collections.emptyList());
+        checkConnectableInVoltageLevel(singleOrder, voltageLevel, injection, throwException, reporter);
+        return singleOrder;
+    }
+
+    private static List<Integer> getBranchOrders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Branch<?> branch, boolean throwException, Reporter reporter) {
+        List<Integer> orders = new ArrayList<>();
+        if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
+            position.getFeeder1().getOrder().ifPresent(orders::add);
+        }
+        if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
+            position.getFeeder2().getOrder().ifPresent(orders::add);
+        }
+        checkConnectableInVoltageLevel(orders, voltageLevel, branch, throwException, reporter);
+        Collections.sort(orders);
+        return orders;
+    }
+
+    private static List<Integer> get3wtOrders(ConnectablePosition<?> position, VoltageLevel voltageLevel, ThreeWindingsTransformer twt, boolean throwException, Reporter reporter) {
+        List<Integer> orders = new ArrayList<>();
+        if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
+            position.getFeeder1().getOrder().ifPresent(orders::add);
+        }
+        if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
+            position.getFeeder2().getOrder().ifPresent(orders::add);
+        }
+        if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
+            position.getFeeder3().getOrder().ifPresent(orders::add);
+        }
+        checkConnectableInVoltageLevel(orders, voltageLevel, twt, throwException, reporter);
+        Collections.sort(orders);
+        return orders;
+    }
+
+    private static void checkConnectableInVoltageLevel(List<Integer> orders, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
+        if (orders.isEmpty()) {
+            LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
+            connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
+            if (throwException) {
+                throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
             }
         }
     }
@@ -456,6 +547,64 @@ final class TopologyModificationUtils {
         return bbs;
     }
 
+    /**
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
+        bbsList.forEach(b -> {
+            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
+            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
+        });
+    }
+
     private TopologyModificationUtils() {
+    }
+
+    private static Optional<LoadingLimitsBag> mergeLimits(String lineId,
+                                                          Optional<LoadingLimitsBag> limits1,
+                                                          Optional<LoadingLimitsBag> limitsTeePointSide,
+                                                          Reporter reporter) {
+        Optional<LoadingLimitsBag> limits;
+
+        double permanentLimit = limits1.map(LoadingLimitsBag::getPermanentLimit).orElse(Double.NaN);
+        List<TemporaryLimitsBag> temporaryLimits1 = limits1.map(LoadingLimitsBag::getTemporaryLimits).orElse(new ArrayList<>());
+        List<TemporaryLimitsBag> temporaryLimitsTeePointSide = limitsTeePointSide.map(LoadingLimitsBag::getTemporaryLimits).orElse(new ArrayList<>());
+        List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
+
+        if (!limitsTeePointSide.isPresent()) {  // no limits on tee point side : we keep limits on other side
+            limits = limits1;
+        } else {
+            // permanent limit : we keep the minimum permanent limit from both sides
+            if (Double.isNaN(permanentLimit)) {
+                permanentLimit = limitsTeePointSide.get().getPermanentLimit();
+            } else if (!Double.isNaN(limitsTeePointSide.get().getPermanentLimit())) {
+                permanentLimit = Math.min(permanentLimit, limitsTeePointSide.get().getPermanentLimit());
+            }
+
+            // temporary limits on both sides : they are ignored, otherwise, we keep temporary limits on side where they are defined
+            if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
+                LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
+                reporter.report(Report.builder()
+                        .withKey("limitsLost")
+                        .withDefaultMessage("Temporary limits on both sides for line ${lineId} : They are ignored")
+                        .withValue("lineId", lineId)
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .build());
+            } else {
+                temporaryLimits = !temporaryLimits1.isEmpty() ? temporaryLimits1 : temporaryLimitsTeePointSide;
+            }
+
+            limits = Optional.of(new LoadingLimitsBag(permanentLimit, temporaryLimits));
+        }
+
+        return limits;
+    }
+
+    public static LoadingLimitsBags mergeLimits(String lineId, LoadingLimitsBags limits, LoadingLimitsBags limitsTeePointSide, Reporter reporter) {
+        Optional<LoadingLimitsBag> activePowerLimits = mergeLimits(lineId, limits.getActivePowerLimits(), limitsTeePointSide.getActivePowerLimits(), reporter);
+        Optional<LoadingLimitsBag> apparentPowerLimits = mergeLimits(lineId, limits.getApparentPowerLimits(), limitsTeePointSide.getApparentPowerLimits(), reporter);
+        Optional<LoadingLimitsBag> currentLimits = mergeLimits(lineId, limits.getCurrentLimits(), limitsTeePointSide.getCurrentLimits(), reporter);
+
+        return new LoadingLimitsBags(activePowerLimits.orElse(null), apparentPowerLimits.orElse(null), currentLimits.orElse(null));
     }
 }

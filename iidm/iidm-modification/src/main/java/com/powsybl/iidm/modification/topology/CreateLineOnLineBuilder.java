@@ -14,13 +14,12 @@ import com.powsybl.iidm.network.LineAdder;
  */
 public class CreateLineOnLineBuilder {
 
-    private String voltageLevelId = null;
     private String bbsOrBusId = null;
 
     private Line line = null;
     private LineAdder lineAdder = null;
 
-    private double percent = 50;
+    private double positionPercent = 50;
 
     private String fictitiousVlId = null;
     private String fictitiousVlName = null;
@@ -35,18 +34,13 @@ public class CreateLineOnLineBuilder {
     private String line2Name = null;
 
     public CreateLineOnLine build() {
-        return new CreateLineOnLine(percent, voltageLevelId, bbsOrBusId, fictitiousVlId, fictitiousVlName,
+        return new CreateLineOnLine(positionPercent, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
                 line1Id, line1Name, line2Id, line2Name, line, lineAdder);
     }
 
-    public CreateLineOnLineBuilder withPercent(double percent) {
-        this.percent = percent;
-        return this;
-    }
-
-    public CreateLineOnLineBuilder withVoltageLevelId(String voltageLevelId) {
-        this.voltageLevelId = voltageLevelId;
+    public CreateLineOnLineBuilder withPositionPercent(double positionPercent) {
+        this.positionPercent = positionPercent;
         return this;
     }
 

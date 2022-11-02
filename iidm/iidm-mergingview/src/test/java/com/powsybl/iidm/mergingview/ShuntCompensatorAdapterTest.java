@@ -31,7 +31,7 @@ public class ShuntCompensatorAdapterTest {
         mergingView.merge(networkRef);
 
         final ShuntCompensator shuntCExpected = networkRef.getShuntCompensator("C1_Filter1");
-        final ShuntCompensator shuntCActual   = mergingView.getShuntCompensator("C1_Filter1");
+        final ShuntCompensator shuntCActual = mergingView.getShuntCompensator("C1_Filter1");
         assertNotNull(shuntCActual);
         assertTrue(shuntCActual instanceof ShuntCompensatorAdapter);
         assertSame(mergingView, shuntCActual.getNetwork());

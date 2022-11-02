@@ -368,6 +368,12 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public Connectable<?> getConnectable(String id) {
+        return Optional.ofNullable((Connectable) index.getMergedLine(id))
+                .orElse(index.get(n -> n.getConnectable(id), index::getConnectable));
+    }
+
+    @Override
     public int getConnectableCount() {
         return index.getConnectables().size();
     }

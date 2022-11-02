@@ -93,13 +93,14 @@
                 <iidm:switch id="VL32_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
                 <iidm:switch id="VL32_Switch#1" kind="BREAKER" retained="false" open="false" node1="0" node2="3"/>
                 <iidm:switch id="VL32_Switch#2" kind="BREAKER" retained="false" open="true" node1="0" node2="4"/>
-                <iidm:switch id="VL32_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="5"/>
-                <iidm:bus v="482.2877502441406" angle="14.651644706726074" nodes="0,1,2,3,5"/>
+                <iidm:switch id="lod_5_2_sw_fict" fictitious="true" kind="BREAKER" retained="false" open="true" node1="4" node2="5"/>
+                <iidm:switch id="VL32_Switch#3" kind="BREAKER" retained="false" open="false" node1="0" node2="6"/>
+                <iidm:bus v="482.2877502441406" angle="14.651644706726074" nodes="0,1,2,3,6"/>
             </iidm:nodeBreakerTopology>
             <iidm:load id="lod_5_1" loadType="UNDEFINED" p0="2000.0" q0="100.0" node="3"/>
-            <iidm:load id="lod_5_2" loadType="UNDEFINED" p0="0.0" q0="50.0" node="4"/>
+            <iidm:load id="lod_5_2" loadType="UNDEFINED" p0="0.0" q0="50.0" node="5"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="trf_5_3_1" r="0.0" x="0.036288000154495244" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="5" voltageLevelId1="VL32" node2="2" voltageLevelId2="VL30">
+        <iidm:twoWindingsTransformer id="trf_5_3_1" r="0.0" x="0.036288000154495244" g="0.0" b="-0.0" ratedU1="500.0" ratedU2="18.0" ratedS="100.0" node1="6" voltageLevelId1="VL32" node2="2" voltageLevelId2="VL30">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" loadTapChangingCapabilities="false">
                 <iidm:step r="-10.201804147623294" x="-10.201804147623294" g="11.360811930336002" b="11.360811930336002" rho="0.9476190999150276"/>
                 <iidm:step r="-9.297043098613834" x="-9.297043098613834" g="10.249988992885584" b="10.249988992885584" rho="0.9523809999227525"/>

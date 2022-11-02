@@ -50,6 +50,6 @@
   } ],
   "contingencyStatus" : [ {
     "contingencyId" : "NHV1_NHV2_2",
-    "contingencyStatus" : "CONVERGED"
+    "contingencyStatus" : "SUCCESS"
   } ]
 }

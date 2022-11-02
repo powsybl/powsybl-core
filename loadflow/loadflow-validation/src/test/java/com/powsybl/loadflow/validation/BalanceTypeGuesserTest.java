@@ -28,7 +28,7 @@ public class BalanceTypeGuesserTest {
     public void test() {
         Terminal genTerminal1 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal1.getP()).thenReturn(-126.083);
-        Generator generator1 =  Mockito.mock(Generator.class);
+        Generator generator1 = Mockito.mock(Generator.class);
         Mockito.when(generator1.getId()).thenReturn("gen1");
         Mockito.when(generator1.getTerminal()).thenReturn(genTerminal1);
         Mockito.when(generator1.getTargetP()).thenReturn(126.0);
@@ -37,7 +37,7 @@ public class BalanceTypeGuesserTest {
 
         Terminal genTerminal2 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal2.getP()).thenReturn(-129.085);
-        Generator generator2 =  Mockito.mock(Generator.class);
+        Generator generator2 = Mockito.mock(Generator.class);
         Mockito.when(generator2.getId()).thenReturn("gen2");
         Mockito.when(generator2.getTerminal()).thenReturn(genTerminal2);
         Mockito.when(generator2.getTargetP()).thenReturn(129.0);
@@ -54,7 +54,7 @@ public class BalanceTypeGuesserTest {
 
         Terminal genTerminal3 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal3.getP()).thenReturn(-155.236);
-        Generator generator3 =  Mockito.mock(Generator.class);
+        Generator generator3 = Mockito.mock(Generator.class);
         Mockito.when(generator3.getId()).thenReturn("gen3");
         Mockito.when(generator3.getTerminal()).thenReturn(genTerminal3);
         Mockito.when(generator3.getTargetP()).thenReturn(195.107);

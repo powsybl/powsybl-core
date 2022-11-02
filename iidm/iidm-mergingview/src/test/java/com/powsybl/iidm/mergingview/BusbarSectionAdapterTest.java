@@ -33,7 +33,7 @@ public class BusbarSectionAdapterTest {
         mergingView.merge(networkRef);
 
         final BusbarSection expectedSJB = networkRef.getBusbarSection("voltageLevel1BusbarSection1");
-        final BusbarSection actualSJB   = mergingView.getBusbarSection("voltageLevel1BusbarSection1");
+        final BusbarSection actualSJB = mergingView.getBusbarSection("voltageLevel1BusbarSection1");
         assertNotNull(actualSJB);
         assertTrue(actualSJB instanceof BusbarSectionAdapter);
         assertSame(mergingView, actualSJB.getNetwork());

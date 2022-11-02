@@ -12,7 +12,7 @@ $$ElmLne;ID(a:40);loc_name(a:40);for_name(a:50);fold_id(p);typ_id(p);dline(r);fl
   5;lne_A_B_1;;2;12;1;1;0;0;1;0
 
 $$ElmSym;ID(a:40);loc_name(a:40);fold_id(p);typ_id(p);ngnum(i);i_mot(i);chr_name(a:20);outserv(i);pgini(r);qgini(r);usetp(r);q_min(r);q_max(r);Pmin_uc(r);Pmax_uc(r);iqtype(i)
-  6;sym_B_1;2;13;1;0;;1;25;10;1,02;-1,1;1,2;0;250;0
+  6;sym_B_1;2;13;1;0;;0;25;10;1,02;-1,1;1,2;0;250;0
 
 $$StaCubic;ID(a:40);loc_name(a:40);fold_id(p);chr_name(a:20);obj_id(p);obj_bus(i)
  7;Cub_1;3;;5;0

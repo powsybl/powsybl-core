@@ -11,6 +11,8 @@ import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,6 +36,7 @@ public class DgsParser {
     private static final Pattern QUOTED_TEXT_PATTERN = Pattern.compile("(\"[^\"]*\")");
     private static final DataAttributeType DEFAULT_VECTOR_TYPE = DataAttributeType.INTEGER;
     private static final DataAttributeType DEFAULT_MATRIX_TYPE = DataAttributeType.FLOAT;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DgsParser.class);
 
     private static final class ParsingContext {
 
@@ -432,13 +435,15 @@ public class DgsParser {
         private Optional<RealMatrix> read(String[] fields, ParsingContext context) {
             int actualRows = Integer.parseInt(fields[indexField]);
             int actualCols = Integer.parseInt(fields[indexField + 1]);
-            if (actualRows > this.rows && actualCols > 0.0 || actualRows > 0 && actualCols != this.cols) {
-                throw new PowerFactoryException("RealMatrix: Unexpected number of rows and cols: '"
-                    + attributeName + "' rows: " + actualRows + " cols: " + actualCols + " expected rows: " + this.rows
-                    + " expected cols: " + this.cols);
-            }
             if (actualRows == 0 || actualCols == 0) {
                 return Optional.empty();
+            }
+            if (actualRows != this.rows) {
+                LOGGER.debug("RealMatrix: actual rows {} different than expected {}. All actual rows will be read.", actualRows, this.rows);
+            }
+            if (actualCols != this.cols) {
+                throw new PowerFactoryException("RealMatrix: Unexpected number of cols: '"
+                    + attributeName + "' rows: " + actualRows + " cols: " + actualCols + " expected cols: " + this.cols);
             }
             RealMatrix realMatrix = new BlockRealMatrix(actualRows, actualCols);
             for (int i = 0; i < actualRows; i++) {

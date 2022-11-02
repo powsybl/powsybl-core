@@ -14,10 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.Test;
@@ -172,7 +172,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
-                AbstractConverterTest::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
+                ComparisonUtils::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
     @Test
@@ -218,7 +218,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
 
     @Test
     public void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
-        SensitivityAnalysisResult.SensitivityContingencyStatus value = new SensitivityAnalysisResult.SensitivityContingencyStatus(new Contingency("C1"), SensitivityAnalysisResult.Status.CONVERGED);
+        SensitivityAnalysisResult.SensitivityContingencyStatus value = new SensitivityAnalysisResult.SensitivityContingencyStatus("C1", SensitivityAnalysisResult.Status.SUCCESS);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");

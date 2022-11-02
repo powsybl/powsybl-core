@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**
@@ -118,6 +119,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void twoBusesLineWithCTest() {
         assertTrue(importAndCompareXiidm("TwoBusesLineWithC"));
+    }
+
+    @Test
+    public void twoBusesLineWithNumberOfParallelLines() {
+        assertTrue(importAndCompareXiidm("TwoBusesLineWithNumberOfParallelLines"));
     }
 
     @Test
@@ -211,6 +217,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void commonImpedanceWithDifferentNominal() {
+        assertTrue(importAndCompareXiidm("CommonImpedanceWithDifferentNominal"));
+    }
+
+    @Test
     public void twoBusesGeneratorAndShuntRL() {
         assertTrue(importAndCompareXiidm("TwoBusesGeneratorAndShuntRL"));
     }
@@ -238,6 +249,21 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void hvdc() {
         assertTrue(importAndCompareXiidm("Hvdc"));
+    }
+
+    @Test
+    public void capabilityCurve() {
+        assertTrue(importAndCompareXiidm("CapabilityCurve"));
+    }
+
+    @Test
+    public void transformersWithPhaseAngleClock() {
+        assertTrue(importAndCompareXiidm("TransformersWithPhaseAngleClock"));
+    }
+
+    @Test
+    public void threeWindingsTransformerWinding1Ratio() {
+        assertTrue(importAndCompareXiidm("ThreeWindingsTransformerWinding1Ratio"));
     }
 
     private boolean importAndCompareXiidm(String powerfactoryCase) {

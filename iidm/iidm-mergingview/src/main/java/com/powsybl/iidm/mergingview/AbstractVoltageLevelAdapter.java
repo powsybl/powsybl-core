@@ -394,7 +394,7 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     @Override
     public void remove() {
         // TODO(mathbagu)
-        throw  MergingView.createNotImplementedException();
+        throw MergingView.createNotImplementedException();
     }
 
     @Override

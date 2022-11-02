@@ -12,4 +12,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractInjectionObservabilityTes
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class InjectionObservabilityTest extends AbstractInjectionObservabilityTest {
+
 }

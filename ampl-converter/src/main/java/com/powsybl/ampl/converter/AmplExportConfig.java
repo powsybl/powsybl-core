@@ -9,9 +9,6 @@ package com.powsybl.ampl.converter;
 
 import java.util.Objects;
 
-import com.powsybl.ampl.converter.AmplExportConfig.ExportActionType;
-import com.powsybl.ampl.converter.AmplExportConfig.ExportScope;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

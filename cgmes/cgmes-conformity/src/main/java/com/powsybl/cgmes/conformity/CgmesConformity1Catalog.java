@@ -179,6 +179,20 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources smallBusBranchEqTp() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-BusBranch-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
     public static TestGridModelResources smallNodeBreaker() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
@@ -193,6 +207,49 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "SmallGridTestConfiguration_BC_SV_v3.0.0.xml",
                         "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerEqTp() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerEqTpSsh() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerHvdcEqTp() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-HVDC-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml"),
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }

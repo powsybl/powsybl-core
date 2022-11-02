@@ -89,9 +89,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
 
         context.namingStrategy().readIdMapping(tl, "TieLine"); // TODO: maybe this should be refined for merged line
-
-        addMappingForTopologicalNode(context, tl, 1, boundaryLine1);
-        addMappingForTopologicalNode(context, tl, 2, boundaryLine2);
     }
 
     private void convertLine() {

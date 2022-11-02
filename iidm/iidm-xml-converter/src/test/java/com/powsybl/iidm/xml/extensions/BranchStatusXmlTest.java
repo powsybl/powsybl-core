@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class BranchStatusXmlTest  extends AbstractConverterTest {
+public class BranchStatusXmlTest extends AbstractConverterTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
