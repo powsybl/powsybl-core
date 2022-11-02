@@ -149,7 +149,7 @@ public class DefaultSecurityAnalysis {
     private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder =
                 resultBuilder.preContingency()
-                        .setLoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED);
+                        .setStatus(LoadFlowResult.ComponentResult.Status.CONVERGED);
         violationDetector.checkAll(network, builder::addViolation);
         addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         addMonitorInfos(network, monitorIndex.getNoneStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
@@ -157,7 +157,7 @@ public class DefaultSecurityAnalysis {
     }
 
     private CompletableFuture<Void> setPreContingencyKo(SecurityAnalysisResultBuilder resultBuilder) {
-        resultBuilder.preContingency().setLoadFlowStatus(LoadFlowResult.ComponentResult.Status.FAILED).endPreContingency();
+        resultBuilder.preContingency().setStatus(LoadFlowResult.ComponentResult.Status.FAILED).endPreContingency();
         return CompletableFuture.completedFuture(null);
     }
 

@@ -86,9 +86,9 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                             version, "1.2");
                     networkResult = parser.readValueAs(NetworkResult.class);
                     break;
-                case "contingencyStatus":
+                case "status":
                     parser.nextToken();
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
                             version, "1.3");
                     status = parser.readValueAs(PostContingencyComputationStatus.class);
                     break;
@@ -105,9 +105,9 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
             }
         }
         if (networkResult != null) {
-            return new PostContingencyResult(contingency, limitViolationsResult, networkResult, status);
+            return new PostContingencyResult(status, contingency, limitViolationsResult, networkResult);
         } else {
-            return new PostContingencyResult(contingency, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults, status);
+            return new PostContingencyResult(status, contingency, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
         }
     }
 }

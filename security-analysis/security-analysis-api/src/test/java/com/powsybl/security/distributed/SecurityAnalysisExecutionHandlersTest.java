@@ -227,8 +227,8 @@ public class SecurityAnalysisExecutionHandlersTest {
 
     private static SecurityAnalysisResult resultForContingency(String id) {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED,
-                Collections.singletonList(new PostContingencyResult(new Contingency(id),
-                        LimitViolationsResult.empty(), PostContingencyComputationStatus.CONVERGED)));
+                Collections.singletonList(new PostContingencyResult(PostContingencyComputationStatus.CONVERGED, new Contingency(id),
+                        LimitViolationsResult.empty())));
     }
 
     @Test

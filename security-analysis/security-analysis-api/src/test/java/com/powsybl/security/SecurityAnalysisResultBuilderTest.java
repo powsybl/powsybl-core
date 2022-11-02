@@ -30,7 +30,7 @@ public class SecurityAnalysisResultBuilderTest {
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
                 new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
 
-        SecurityAnalysisResult res = builder.preContingency().setLoadFlowStatus(LoadFlowResult.ComponentResult.Status.FAILED).endPreContingency().build();
+        SecurityAnalysisResult res = builder.preContingency().setStatus(LoadFlowResult.ComponentResult.Status.FAILED).endPreContingency().build();
 
         assertSame(LoadFlowResult.ComponentResult.Status.FAILED, res.getPreContingencyResult().getStatus());
         assertTrue(res.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
@@ -52,7 +52,7 @@ public class SecurityAnalysisResultBuilderTest {
 
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder preContingencyResultBuilder = builder.preContingency(preResultContext);
         preContingencyResultBuilder
-                .setLoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED)
+                .setStatus(LoadFlowResult.ComponentResult.Status.CONVERGED)
                 .addViolations(Security.checkLimits(network), preVioContext)
                 .endPreContingency();
         assertEquals(Security.checkLimits(network).size(), preVioContext.getCalledCount());
@@ -225,7 +225,7 @@ public class SecurityAnalysisResultBuilderTest {
         builder.operatorStrategy(operatorStrategy)
                 .addViolation(violation)
                 .addBusResult(busResult)
-                .setLoadFlowStatus(LoadFlowResult.ComponentResult.Status.CONVERGED)
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .endOperatorStrategy();
 
         SecurityAnalysisResult result = builder.build();
@@ -236,7 +236,7 @@ public class SecurityAnalysisResultBuilderTest {
         OperatorStrategyResult strategyResult = result.getOperatorStrategyResults().get(0);
         assertSame(operatorStrategy, strategyResult.getOperatorStrategy());
         LimitViolationsResult violationsResult = strategyResult.getLimitViolationsResult();
-        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, strategyResult.getStatus());
+        assertSame(PostContingencyComputationStatus.CONVERGED, strategyResult.getStatus());
         assertEquals(1, violationsResult.getLimitViolations().size());
         assertSame(violation, violationsResult.getLimitViolations().get(0));
         NetworkResult networkResult = strategyResult.getNetworkResult();

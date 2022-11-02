@@ -25,9 +25,9 @@ class PreContingencyResultSerializer extends StdSerializer<PreContingencyResult>
     @Override
     public void serialize(PreContingencyResult preContingencyResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        jsonGenerator.writeObjectField("status", preContingencyResult.getStatus());
         jsonGenerator.writeObjectField("limitViolationsResult", preContingencyResult.getLimitViolationsResult());
         jsonGenerator.writeObjectField("networkResult", preContingencyResult.getNetworkResult());
-        jsonGenerator.writeObjectField("status", preContingencyResult.getStatus());
         jsonGenerator.writeEndObject();
     }
 }

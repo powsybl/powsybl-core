@@ -87,8 +87,8 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
                                                   .reduce(Boolean::logicalAnd)
                                                   .orElse(false);
         comparisonWriter = missingResult1 ?
-                           comparisonWriter.write(null, postContingencyResult.getContingencyStatus() == PostContingencyComputationStatus.CONVERGED, equivalent) :
-                           comparisonWriter.write(postContingencyResult.getContingencyStatus() == PostContingencyComputationStatus.CONVERGED, null, equivalent);
+                           comparisonWriter.write(null, postContingencyResult.getStatus() == PostContingencyComputationStatus.CONVERGED, equivalent) :
+                           comparisonWriter.write(postContingencyResult.getStatus() == PostContingencyComputationStatus.CONVERGED, null, equivalent);
         comparisonWriter = missingResult1 ?
                            comparisonWriter.write(null, postContingencyResult.getLimitViolationsResult().getActionsTaken(), equivalent) :
                            comparisonWriter.write(postContingencyResult.getLimitViolationsResult().getActionsTaken(), null, equivalent);

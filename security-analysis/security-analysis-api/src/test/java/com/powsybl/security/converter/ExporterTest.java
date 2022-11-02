@@ -64,14 +64,14 @@ public class ExporterTest extends AbstractConverterTest {
                 .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"), PostContingencyComputationStatus.CONVERGED);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(PostContingencyComputationStatus.CONVERGED, contingency, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
         List<BranchResult> preContingencyBranchResults = List.of(new BranchResult("branch1", 1, 2, 3, 1.1, 2.2, 3.3),
                 new BranchResult("branch2", 0, 0, 0, 0, 0, 0, 10));
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
         List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
         operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", "contingency1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
-                Collections.singletonList("actionId1")), new LimitViolationsResult(Collections.emptyList()), LoadFlowResult.ComponentResult.Status.CONVERGED,
+                Collections.singletonList("actionId1")), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList()),
                 new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,
                 Collections.singletonList(postContingencyResult),
@@ -108,7 +108,7 @@ public class ExporterTest extends AbstractConverterTest {
     @Test
     public void testCompatibilityV12Deserialization() {
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.2.json"));
-        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getContingencyStatus());
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
     }
 
     @Test

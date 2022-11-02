@@ -27,36 +27,34 @@ public class PostContingencyResult {
 
     private final PostContingencyComputationStatus status;
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, PostContingencyComputationStatus status) {
-        this(contingency, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), status);
+    public PostContingencyResult(PostContingencyComputationStatus status, Contingency contingency, LimitViolationsResult limitViolationsResult) {
+        this(status, contingency, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults,
-                                 List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
-                                 PostContingencyComputationStatus status) {
-        this(contingency, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), status);
+    public PostContingencyResult(PostContingencyComputationStatus status, Contingency contingency, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults,
+                                 List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+        this(status, contingency, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
     }
 
-    public PostContingencyResult(Contingency contingency, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, PostContingencyComputationStatus status) {
+    public PostContingencyResult(PostContingencyComputationStatus status, Contingency contingency, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
         this.contingency = Objects.requireNonNull(contingency);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
         this.status = Objects.requireNonNull(status);
     }
 
-    public PostContingencyResult(Contingency contingency, List<LimitViolation> limitViolations,
+    public PostContingencyResult(PostContingencyComputationStatus status, Contingency contingency, List<LimitViolation> limitViolations,
                                  List<BranchResult> branchResults, List<BusResult> busResults,
-                                 List<ThreeWindingsTransformerResult> threeWindingsTransformerResults,
-                                 PostContingencyComputationStatus status) {
-        this(contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults, status);
+                                 List<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+        this(status, contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults);
     }
 
-    public PostContingencyResult(Contingency contingency, List<LimitViolation> limitViolations, PostContingencyComputationStatus status) {
-        this(contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()), status);
+    public PostContingencyResult(PostContingencyComputationStatus status, Contingency contingency, List<LimitViolation> limitViolations) {
+        this(status, contingency, new LimitViolationsResult(limitViolations, Collections.emptyList()));
     }
 
-    public PostContingencyResult(Contingency contingency, List<LimitViolation> limitViolations, List<String> actionsTaken, PostContingencyComputationStatus status) {
-        this(contingency, new LimitViolationsResult(limitViolations, actionsTaken), status);
+    public PostContingencyResult(PostContingencyComputationStatus status, Contingency contingency, List<LimitViolation> limitViolations, List<String> actionsTaken) {
+        this(status, contingency, new LimitViolationsResult(limitViolations, actionsTaken));
     }
 
     public Contingency getContingency() {
@@ -71,7 +69,7 @@ public class PostContingencyResult {
         return networkResult;
     }
 
-    public PostContingencyComputationStatus getContingencyStatus() {
+    public PostContingencyComputationStatus getStatus() {
         return status;
     }
 }

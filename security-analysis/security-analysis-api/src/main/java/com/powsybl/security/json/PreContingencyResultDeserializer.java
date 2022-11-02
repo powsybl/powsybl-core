@@ -96,12 +96,12 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
             }
         }
         if (networkResult != null) {
-            return new PreContingencyResult(preContingencyResult, networkResult, status);
+            return new PreContingencyResult(status, preContingencyResult, networkResult);
         } else {
-            return new PreContingencyResult(preContingencyResult,
+            return new PreContingencyResult(status, preContingencyResult,
                     branchResults,
                     busResults,
-                    threeWindingsTransformerResults, status);
+                    threeWindingsTransformerResults);
         }
     }
 }

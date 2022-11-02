@@ -63,7 +63,7 @@ public class SecurityAnalysisResultBuilderTest {
                 assertEquals(0, postContingencyResult.getContingency().getElements().size());
 
                 assertEquals(convergent ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED,
-                        postContingencyResult.getContingencyStatus());
+                        postContingencyResult.getStatus());
                 LimitViolationsResult postContingencyLimitViolationsResult = postContingencyResult.getLimitViolationsResult();
                 testLimitViolation(postContingencyLimitViolationsResult, convergent, Collections.singletonList("line2"), Arrays.asList("post-action1", "post-action2"));
             }

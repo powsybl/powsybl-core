@@ -28,13 +28,15 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final List<OperatorStrategyResult> operatorStrategyResults;
 
     public static SecurityAnalysisResult empty() {
-        return new SecurityAnalysisResult(LimitViolationsResult.empty(), LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.emptyList());
+        return new SecurityAnalysisResult(new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList()),
+                Collections.emptyList(), Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), preContingencyStatus),
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
                 postContingencyResults, Collections.emptyList());
     }
 
@@ -45,9 +47,9 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<BusResult> preContingencyBusResults,
                                   List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults,
                                   List<OperatorStrategyResult> operatorStrategyResults) {
-        this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults,
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, preContingencyBranchResults,
                         preContingencyBusResults,
-                        preContingencyThreeWindingsTransformerResults, preContingencyStatus),
+                        preContingencyThreeWindingsTransformerResults),
                 postContingencyResults, operatorStrategyResults);
     }
 

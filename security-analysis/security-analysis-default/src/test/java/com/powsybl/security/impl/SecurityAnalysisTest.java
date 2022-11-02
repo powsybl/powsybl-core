@@ -132,7 +132,7 @@ public class SecurityAnalysisTest {
         assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0);
-        assertSame(PostContingencyComputationStatus.CONVERGED, postcontingencyResult.getContingencyStatus());
+        assertSame(PostContingencyComputationStatus.CONVERGED, postcontingencyResult.getStatus());
         assertEquals(1, postcontingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());

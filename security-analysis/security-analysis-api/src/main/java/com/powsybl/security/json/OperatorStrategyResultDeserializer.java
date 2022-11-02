@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
 
@@ -37,7 +38,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
         OperatorStrategy operatorStrategy = null;
         LimitViolationsResult limitViolationsResult = null;
         NetworkResult networkResult = null;
-        LoadFlowResult.ComponentResult.Status status = null;
+        PostContingencyComputationStatus status = null;
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
             version = SecurityAnalysisResultSerializer.VERSION;
@@ -61,7 +62,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
 
                 case "status":
                     parser.nextToken();
-                    status = parser.readValueAs(LoadFlowResult.ComponentResult.Status.class);
+                    status = parser.readValueAs(PostContingencyComputationStatus.class);
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             version, "1.3");
                     break;
@@ -72,14 +73,13 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
         }
         if (version.compareTo("1.3") < 0) {
             if (limitViolationsResult != null) {
-                return new OperatorStrategyResult(operatorStrategy, limitViolationsResult,
-                        limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED,
+                return new OperatorStrategyResult(operatorStrategy, limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED, limitViolationsResult,
                         networkResult);
             } else {
-                return new OperatorStrategyResult(operatorStrategy, limitViolationsResult, LoadFlowResult.ComponentResult.Status.CONVERGED, networkResult);
+                return new OperatorStrategyResult(operatorStrategy, PostContingencyComputationStatus.CONVERGED, limitViolationsResult, networkResult);
             }
         } else {
-            return new OperatorStrategyResult(operatorStrategy, limitViolationsResult, status, networkResult);
+            return new OperatorStrategyResult(operatorStrategy, status, limitViolationsResult, networkResult);
         }
     }
 }

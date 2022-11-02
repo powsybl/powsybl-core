@@ -134,8 +134,6 @@ public class SecurityAnalysisResultBuilder {
      */
     public abstract class AbstractLimitViolationsResultBuilder<B extends AbstractLimitViolationsResultBuilder<B>> {
 
-        protected PostContingencyComputationStatus status;
-
         protected final List<BranchResult> branchResults = new ArrayList<>();
 
         protected final List<BusResult> busResults = new ArrayList<>();
@@ -145,11 +143,6 @@ public class SecurityAnalysisResultBuilder {
         protected final List<LimitViolation> violations = new ArrayList<>();
 
         protected final SecurityAnalysisResultContext resultContext;
-
-        public B setContingencyStatus(PostContingencyComputationStatus status) {
-            this.status = status;
-            return (B) this;
-        }
 
         /**
          * Initiates a result builder with a {@link SecurityAnalysisResultContext}.
@@ -216,14 +209,14 @@ public class SecurityAnalysisResultBuilder {
      */
     public class PreContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PreContingencyResultBuilder> {
 
-        private LoadFlowResult.ComponentResult.Status mainComponentStatus = LoadFlowResult.ComponentResult.Status.CONVERGED;
+        private LoadFlowResult.ComponentResult.Status status = LoadFlowResult.ComponentResult.Status.CONVERGED;
 
         PreContingencyResultBuilder(SecurityAnalysisResultContext resultContext) {
             super(resultContext);
         }
 
-        public PreContingencyResultBuilder setLoadFlowStatus(LoadFlowResult.ComponentResult.Status status) {
-            this.mainComponentStatus = status;
+        public PreContingencyResultBuilder setStatus(LoadFlowResult.ComponentResult.Status status) {
+            this.status = status;
             return this;
         }
 
@@ -234,7 +227,7 @@ public class SecurityAnalysisResultBuilder {
          */
         public SecurityAnalysisResultBuilder endPreContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            preContingencyResult = new PreContingencyResult(new LimitViolationsResult(filteredViolations), new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), mainComponentStatus);
+            preContingencyResult = new PreContingencyResult(status, new LimitViolationsResult(filteredViolations), new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
             interceptors.forEach(i -> i.onPreContingencyResult(preContingencyResult, resultContext));
             return SecurityAnalysisResultBuilder.this;
         }
@@ -243,6 +236,8 @@ public class SecurityAnalysisResultBuilder {
     public class PostContingencyResultBuilder extends AbstractLimitViolationsResultBuilder<PostContingencyResultBuilder> {
 
         private final Contingency contingency;
+
+        private PostContingencyComputationStatus status;
 
         PostContingencyResultBuilder(Contingency contingency, SecurityAnalysisResultContext resultContext) {
             super(Objects.requireNonNull(resultContext));
@@ -257,6 +252,11 @@ public class SecurityAnalysisResultBuilder {
             return this;
         }
 
+        public PostContingencyResultBuilder setContingencyStatus(PostContingencyComputationStatus status) {
+            this.status = status;
+            return this;
+        }
+
         /**
          * Finalize the creation of the PostContingencyResult instance
          *
@@ -264,8 +264,8 @@ public class SecurityAnalysisResultBuilder {
          */
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            PostContingencyResult res = new PostContingencyResult(contingency, filteredViolations,
-                    branchResults, busResults, threeWindingsTransformerResults, status);
+            PostContingencyResult res = new PostContingencyResult(status, contingency, filteredViolations,
+                    branchResults, busResults, threeWindingsTransformerResults);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
 
@@ -277,7 +277,7 @@ public class SecurityAnalysisResultBuilder {
 
         private final OperatorStrategy strategy;
 
-        private LoadFlowResult.ComponentResult.Status mainComponentStatus = LoadFlowResult.ComponentResult.Status.CONVERGED;
+        private PostContingencyComputationStatus status = PostContingencyComputationStatus.CONVERGED;
 
         OperatorStrategyResultBuilder(OperatorStrategy strategy, SecurityAnalysisResultContext resultContext) {
             super(Objects.requireNonNull(resultContext));
@@ -292,8 +292,8 @@ public class SecurityAnalysisResultBuilder {
             return this;
         }
 
-        public OperatorStrategyResultBuilder setLoadFlowStatus(LoadFlowResult.ComponentResult.Status status) {
-            this.mainComponentStatus = status;
+        public OperatorStrategyResultBuilder setStatus(PostContingencyComputationStatus status) {
+            this.status = status;
             return this;
         }
 
@@ -306,7 +306,7 @@ public class SecurityAnalysisResultBuilder {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             LimitViolationsResult limitViolationsResult = new LimitViolationsResult(filteredViolations);
             NetworkResult networkResult = new NetworkResult(branchResults, busResults, threeWindingsTransformerResults);
-            OperatorStrategyResult res = new OperatorStrategyResult(strategy, limitViolationsResult, mainComponentStatus, networkResult);
+            OperatorStrategyResult res = new OperatorStrategyResult(strategy, status, limitViolationsResult, networkResult);
             //TODO: call to interceptors
             operatorStrategyResults.add(res);
             return SecurityAnalysisResultBuilder.this;

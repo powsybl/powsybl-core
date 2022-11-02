@@ -31,7 +31,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
 
     private boolean precontingency;
 
-    LoadFlowResult.ComponentResult.Status preContingencyStatus;
+    private LoadFlowResult.ComponentResult.Status preContingencyStatus;
 
     @Override
     public void beforePreContingencyAnalysis(RunningContext runningContext) {
@@ -53,8 +53,8 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
             preContingencyStatus = LoadFlowResult.ComponentResult.Status.FAILED;
         } else {
             Objects.requireNonNull(runningContext.getContingency());
-            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(),
-                    Collections.emptyList(), getPostContingencyActions(runningContext.getContingency()), PostContingencyComputationStatus.FAILED));
+            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(PostContingencyComputationStatus.FAILED, runningContext.getContingency(),
+                    Collections.emptyList(), getPostContingencyActions(runningContext.getContingency())));
         }
     }
 
@@ -65,10 +65,10 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
             preContingencyStatus = LoadFlowResult.ComponentResult.Status.CONVERGED;
         } else {
             Objects.requireNonNull(runningContext.getContingency());
-            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(),
+            postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(PostContingencyComputationStatus.CONVERGED, runningContext.getContingency(),
                     violations,
-                    getPostContingencyActions(runningContext.getContingency()),
-                    PostContingencyComputationStatus.CONVERGED));
+                    getPostContingencyActions(runningContext.getContingency())
+            ));
         }
     }
 

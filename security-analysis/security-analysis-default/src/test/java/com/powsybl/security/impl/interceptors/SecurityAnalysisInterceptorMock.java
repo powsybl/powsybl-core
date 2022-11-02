@@ -82,7 +82,7 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
     private static void assertPostContingencyResult(PostContingencyResult postContingencyResult) {
         assertNotNull(postContingencyResult);
-        assertSame(PostContingencyComputationStatus.CONVERGED, postContingencyResult.getContingencyStatus());
+        assertSame(PostContingencyComputationStatus.CONVERGED, postContingencyResult.getStatus());
         assertEquals(1, postContingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postContingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());

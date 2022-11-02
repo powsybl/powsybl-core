@@ -7,6 +7,7 @@
     "forecastDistance" : 0
   },
   "preContingencyResult" : {
+    "status" : "CONVERGED",
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
@@ -60,10 +61,10 @@
         "q3" : 2.2,
         "i3" : 3.2
       } ]
-    },
-    "status" : "CONVERGED"
+    }
   },
   "postContingencyResults" : [ {
+    "status" : "CONVERGED",
     "contingency" : {
       "id" : "contingency",
       "elements" : [ {
@@ -142,8 +143,7 @@
       "branchResults" : [ ],
       "busResults" : [ ],
       "threeWindingsTransformerResults" : [ ]
-    },
-    "contingencyStatus" : "CONVERGED"
+    }
   } ],
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {
@@ -155,6 +155,7 @@
       },
       "actionIds" : [ "actionId1" ]
     },
+    "status" : "CONVERGED",
     "limitViolationsResult" : {
       "limitViolations" : [ ],
       "actionsTaken" : [ ]
@@ -163,7 +164,6 @@
       "branchResults" : [ ],
       "busResults" : [ ],
       "threeWindingsTransformerResults" : [ ]
-    },
-    "status" : "CONVERGED"
+    }
   } ]
 }
