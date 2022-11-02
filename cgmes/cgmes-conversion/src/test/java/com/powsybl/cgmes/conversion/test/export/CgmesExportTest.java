@@ -92,7 +92,7 @@ public class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             Exporters.export("CGMES", network, null, tmpDir.resolve("tmp"));
-            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            Network n2 = Network.load(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             VoltageLevel c = n2.getVoltageLevel("C");
             assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("TEST_SW")));
             assertNull(n2.getVscConverterStation("C2").getTerminal().getBusView().getBus());
@@ -116,7 +116,7 @@ public class CgmesExportTest {
                 }
             }
 
-            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, baseName), null);
+            Network n2 = Network.load(new GenericReadOnlyDataSource(tmpDir, baseName), null);
             Generator g1 = n2.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
             Generator g2 = n2.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
             String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
@@ -259,7 +259,7 @@ public class CgmesExportTest {
             assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
 
             // Verify that the fictitious switch is created again when we re-import the exported CGMES data
-            Network networkReimported = Importers.loadNetwork(exportedCgmes, null);
+            Network networkReimported = Network.load(exportedCgmes, null);
             Switch fictitiousSwitchReimported = networkReimported.getSwitch(fictitiousSwitchId);
             assertNotNull(fictitiousSwitchReimported);
             assertTrue(fictitiousSwitchReimported.isFictitious());
@@ -275,7 +275,7 @@ public class CgmesExportTest {
             assertTrue(cgmes1.isNodeBreaker());
             assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
             assertTrue(cgmes1.terminal(disconnectedTerminalId).connected());
-            Network networkReimported1 = Importers.loadNetwork(exportedCgmes1, null);
+            Network networkReimported1 = Network.load(exportedCgmes1, null);
             Switch fictitiousSwitchReimported1 = networkReimported1.getSwitch(fictitiousSwitchId);
             assertNull(fictitiousSwitchReimported1);
         }

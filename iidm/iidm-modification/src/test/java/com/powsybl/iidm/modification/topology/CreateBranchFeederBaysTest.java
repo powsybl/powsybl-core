@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
  */
 public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
 
-    private Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+    private Network network = Network.load("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
     @Test
     public void baseLineTest() throws IOException {
@@ -182,7 +182,7 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
                 .setB2(0.0);
 
         //wrong network
-        Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network1 = Network.load("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBbsId1("bbs1")
@@ -249,7 +249,7 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
 
     @Test
     public void testWithoutExtension() {
-        network = Importers.loadNetwork("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        network = Network.load("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         LineAdder lineAdder = network.newLine()
                 .setId("lineTest")
                 .setR(1.0)

@@ -20,7 +20,6 @@ import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.security.Security;
@@ -256,7 +255,7 @@ public class ActionSimulatorTool implements Tool {
         // load network
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
 
         try {
             // load actions from Groovy DSL

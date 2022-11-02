@@ -17,7 +17,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.ImportersLoader;
 import com.powsybl.iidm.network.ImportersServiceLoader;
 import com.powsybl.iidm.network.Network;
@@ -256,7 +255,7 @@ public class SecurityAnalysisTool implements Tool {
             .orElseThrow(AssertionError::new);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, importersLoader);
+        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, importersLoader);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
         return network;
     }

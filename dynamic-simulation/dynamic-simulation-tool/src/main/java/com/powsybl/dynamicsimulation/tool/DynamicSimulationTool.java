@@ -25,7 +25,6 @@ import com.powsybl.dynamicsimulation.groovy.GroovyDynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
@@ -136,7 +135,7 @@ public class DynamicSimulationTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }

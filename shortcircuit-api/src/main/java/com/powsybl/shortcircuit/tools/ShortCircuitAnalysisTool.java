@@ -8,7 +8,6 @@ package com.powsybl.shortcircuit.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.shortcircuit.*;
 import com.powsybl.shortcircuit.converter.ShortCircuitAnalysisResultExporters;
@@ -86,7 +85,7 @@ public class ShortCircuitAnalysisTool implements Tool {
         Path caseFile = options.getPath(CASE_FILE_OPTION)
                 .orElseThrow(AssertionError::new);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        return Importers.loadNetwork(caseFile);
+        return Network.load(caseFile);
     }
 
     static ShortCircuitInput readInput(CommandLine line, ToolRunningContext context) throws ParseException {

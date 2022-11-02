@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Exporters
 import com.powsybl.iidm.network.ExportersLoader
 import com.powsybl.iidm.network.ExportersServiceLoader
 import com.powsybl.iidm.network.ImportConfig
-import com.powsybl.iidm.network.Importers
 import com.powsybl.iidm.network.ImportersLoader
 import com.powsybl.iidm.network.ImportersServiceLoader
 import com.powsybl.iidm.network.Network
@@ -51,7 +50,7 @@ class NetworkLoadSaveGroovyScriptExtension implements GroovyScriptExtension {
     @Override
     void load(Binding binding, ComputationManager computationManager) {
         binding.loadNetwork = { String file, Properties parameters = null ->
-            Importers.loadNetwork(fileSystem.getPath(file), LocalComputationManager.getDefault(),
+            Network.load(fileSystem.getPath(file), LocalComputationManager.getDefault(),
                     importConfig, parameters, importersLoader)
         }
         binding.saveNetwork =  { String format, Network network, Properties parameters = null, String file ->

@@ -107,7 +107,7 @@ public class ConversionTool implements Tool {
         }
 
         Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams, createNetworkFactory(), new ImportersServiceLoader(), Reporter.NO_OP);
+        Network network = Network.load(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams, createNetworkFactory(), new ImportersServiceLoader(), Reporter.NO_OP);
 
         Properties outputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {

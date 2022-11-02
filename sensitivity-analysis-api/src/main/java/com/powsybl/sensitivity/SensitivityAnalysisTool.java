@@ -22,7 +22,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
@@ -179,7 +178,7 @@ public class SensitivityAnalysisTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }

@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ImportConfig;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
@@ -194,7 +193,7 @@ public class ValidationTool implements Tool {
     private Network loadNetwork(Path caseFile, CommandLine line, ToolRunningContext context) throws IOException {
         context.getOutputStream().println("Loading case " + caseFile);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
