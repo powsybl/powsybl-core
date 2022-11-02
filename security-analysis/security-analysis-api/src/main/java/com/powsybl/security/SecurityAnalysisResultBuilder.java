@@ -264,7 +264,7 @@ public class SecurityAnalysisResultBuilder {
          */
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            PostContingencyResult res = new PostContingencyResult(status, contingency, filteredViolations,
+            PostContingencyResult res = new PostContingencyResult(contingency, status, filteredViolations,
                     branchResults, busResults, threeWindingsTransformerResults);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);

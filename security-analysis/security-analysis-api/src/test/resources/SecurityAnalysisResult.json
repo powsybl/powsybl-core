@@ -64,7 +64,6 @@
     }
   },
   "postContingencyResults" : [ {
-    "status" : "CONVERGED",
     "contingency" : {
       "id" : "contingency",
       "elements" : [ {
@@ -82,6 +81,7 @@
         "type" : "BUSBAR_SECTION"
       } ]
     },
+    "status" : "CONVERGED",
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",

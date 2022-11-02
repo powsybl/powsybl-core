@@ -105,9 +105,9 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
             }
         }
         if (networkResult != null) {
-            return new PostContingencyResult(status, contingency, limitViolationsResult, networkResult);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, networkResult);
         } else {
-            return new PostContingencyResult(status, contingency, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
         }
     }
 }

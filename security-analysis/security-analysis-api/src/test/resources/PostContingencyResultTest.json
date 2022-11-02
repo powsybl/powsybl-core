@@ -1,9 +1,9 @@
 {
-  "status" : "CONVERGED",
   "contingency" : {
     "id" : "contingency",
     "elements" : [ ]
   },
+  "status" : "CONVERGED",
   "limitViolationsResult" : {
     "limitViolations" : [ {
       "subjectId" : "violation",
