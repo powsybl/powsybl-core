@@ -20,6 +20,7 @@ import com.powsybl.security.results.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
@@ -98,11 +99,8 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         }
 
         if (version.compareTo("1.3") < 0) {
-            if (limitViolationsResult != null) {
-                status = limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
-            } else {
-                status = PostContingencyComputationStatus.CONVERGED;
-            }
+            Objects.requireNonNull(limitViolationsResult);
+            status = limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
         }
         if (networkResult != null) {
             return new PostContingencyResult(contingency, status, limitViolationsResult, networkResult);

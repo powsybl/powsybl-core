@@ -19,6 +19,7 @@ import com.powsybl.security.results.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
@@ -89,11 +90,8 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
             }
         }
         if (version.compareTo("1.3") < 0) {
-            if (preContingencyResult != null) {
-                status = preContingencyResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
-            } else {
-                status = LoadFlowResult.ComponentResult.Status.CONVERGED;
-            }
+            Objects.requireNonNull(preContingencyResult);
+            status = preContingencyResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
         }
         if (networkResult != null) {
             return new PreContingencyResult(status, preContingencyResult, networkResult);

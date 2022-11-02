@@ -18,6 +18,7 @@ import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
@@ -71,12 +72,9 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
             }
         }
         if (version.compareTo("1.3") < 0) {
-            if (limitViolationsResult != null) {
-                return new OperatorStrategyResult(operatorStrategy, limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED, limitViolationsResult,
-                        networkResult);
-            } else {
-                return new OperatorStrategyResult(operatorStrategy, PostContingencyComputationStatus.CONVERGED, limitViolationsResult, networkResult);
-            }
+            Objects.requireNonNull(limitViolationsResult);
+            return new OperatorStrategyResult(operatorStrategy, limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED,
+                    limitViolationsResult, networkResult);
         } else {
             return new OperatorStrategyResult(operatorStrategy, status, limitViolationsResult, networkResult);
         }
