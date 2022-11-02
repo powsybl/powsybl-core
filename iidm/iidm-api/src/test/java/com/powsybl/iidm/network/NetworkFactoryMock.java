@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import org.joda.time.DateTime;
 import org.mockito.Mockito;
 
 /**
@@ -17,9 +18,20 @@ public class NetworkFactoryMock implements NetworkFactory {
     @Override
     public Network createNetwork(String id, String sourceFormat) {
         Network network = Mockito.mock(Network.class);
+        Mockito.when(network.getCaseDate())
+                .thenReturn(new DateTime(2021, 12, 20, 0, 0, 0));
         Load load = Mockito.mock(Load.class);
         Mockito.when(network.getLoad(Mockito.anyString()))
                 .thenReturn(load);
+        LoadType[] loadType = new LoadType[1];
+        loadType[0] = LoadType.UNDEFINED;
+        Mockito.doAnswer(invocationOnMock -> {
+            loadType[0] = (LoadType) invocationOnMock.getArguments()[0];
+            return load;
+        }).when(load).setLoadType(Mockito.any(LoadType.class));
+        Mockito.when(load.getLoadType())
+                .thenAnswer(invocationOnMock -> loadType[0]);
+
         return network;
     }
 }

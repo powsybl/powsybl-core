@@ -9,7 +9,6 @@ package com.powsybl.iidm.network;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Reporter;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -45,6 +44,6 @@ public class TestImporter implements Importer {
         if (reporter != null) {
             reporter.report("test", "Import model ${model}", "model", "eurostagTutorialExample1");
         }
-        return Mockito.mock(Network.class);
+        return networkFactory.createNetwork("mock", "test");
     }
 }

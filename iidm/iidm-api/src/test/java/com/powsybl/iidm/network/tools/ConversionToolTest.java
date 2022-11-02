@@ -10,6 +10,8 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.NetworkFactoryMock;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
@@ -33,6 +35,11 @@ public class ConversionToolTest extends AbstractToolTest {
             @Override
             protected ImportConfig createImportConfig() {
                 return ImportConfig.load(platformConfig);
+            }
+
+            @Override
+            protected NetworkFactory createNetworkFactory() {
+                return new NetworkFactoryMock();
             }
         };
     }

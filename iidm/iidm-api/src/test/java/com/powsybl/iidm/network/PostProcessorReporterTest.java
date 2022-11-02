@@ -36,7 +36,7 @@ public class PostProcessorReporterTest extends AbstractConverterTest {
     public void postProcessorWithReporter() throws IOException {
 
         ReporterModel reporter = new ReporterModel("testPostProcessor", "Test importer post processor");
-        Network network1 = importer1.importData(null, NetworkFactory.findDefault(), null, reporter);
+        Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reporter);
         assertNotNull(network1);
 
         Optional<Report> report = reporter.getReports().stream().findFirst();
@@ -47,7 +47,7 @@ public class PostProcessorReporterTest extends AbstractConverterTest {
 
     @Test
     public void postProcessorWithoutReporter() throws Exception {
-        Network network1 = importer1.importData(null, NetworkFactory.findDefault(), null);
+        Network network1 = importer1.importData(null, new NetworkFactoryMock(), null);
         importPostProcessorMock.process(network1, computationManager);
         assertNotNull(network1);
         assertEquals(new DateTime(2021, 12, 20, 0, 0, 0), network1.getCaseDate());
