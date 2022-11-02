@@ -54,7 +54,7 @@ class NetworkLoadSaveGroovyScriptExtension implements GroovyScriptExtension {
                     importConfig, parameters, importersLoader)
         }
         binding.saveNetwork =  { String format, Network network, Properties parameters = null, String file ->
-            Exporters.export(exportersLoader, format, network, parameters, fileSystem.getPath(file))
+            network.export(exportersLoader, format, parameters, fileSystem.getPath(file))
         }
     }
 

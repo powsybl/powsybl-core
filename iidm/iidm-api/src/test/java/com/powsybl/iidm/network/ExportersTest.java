@@ -14,6 +14,7 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,29 +83,37 @@ public class ExportersTest extends AbstractConvertersTest {
     public void failExport() {
         expected.expect(PowsyblException.class);
         expected.expectMessage("Export format " + UNSUPPORTED_FORMAT + " not supported");
-        Exporters.export(loader, UNSUPPORTED_FORMAT, null, null, Exporters.createDataSource(path));
+        Network network = Mockito.spy(Network.class);
+        network.export(loader, UNSUPPORTED_FORMAT, null, Exporters.createDataSource(path));
     }
 
     @Test
     public void export1() throws IOException {
         DataSource dataSource = Exporters.createDataSource(path);
-        Exporters.export(loader, TEST_FORMAT, null, null, dataSource);
-        assertEquals(Byte.BYTES, dataSource.newInputStream(null, EXTENSION).read());
+        Network network = Mockito.spy(Network.class);
+        network.export(loader, TEST_FORMAT, null, dataSource);
+        try (var is = dataSource.newInputStream(null, EXTENSION)) {
+            assertEquals(1, is.read());
+        }
     }
 
     @Test
     public void export2() throws IOException {
-        Exporters.export(loader, TEST_FORMAT, null, null, path);
+        Network network = Mockito.spy(Network.class);
+        network.export(loader, TEST_FORMAT, null, path);
         DataSource dataSource = Exporters.createDataSource(path);
-        assertEquals(Byte.BYTES, dataSource.newInputStream(null, EXTENSION).read());
+        try (var is = dataSource.newInputStream(null, EXTENSION)) {
+            assertEquals(1, is.read());
+        }
     }
 
     @Test
     public void export3() throws IOException {
         Path dir = Files.createTempDirectory("tmp-export");
-        Exporters.export(loader, TEST_FORMAT, null, null, dir.toString(), "tmp");
+        Network network = Mockito.spy(Network.class);
+        network.export(loader, TEST_FORMAT, null, dir.toString(), "tmp");
         try (InputStream is = Files.newInputStream(dir.resolve("tmp.tst"))) {
-            assertEquals(Byte.BYTES, is.read());
+            assertEquals(1, is.read());
         }
     }
 

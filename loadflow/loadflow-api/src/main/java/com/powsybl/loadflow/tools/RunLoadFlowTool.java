@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.Exporter;
-import com.powsybl.iidm.network.Exporters;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
@@ -171,7 +170,7 @@ public class RunLoadFlowTool implements Tool {
         if (outputCaseFile != null) {
             String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-            Exporters.export(outputCaseFormat, network, outputParams, outputCaseFile);
+            network.export(outputCaseFormat, outputParams, outputCaseFile);
         }
     }
 

@@ -7,9 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -1231,5 +1229,71 @@ public interface Network extends Container<Network> {
             default:
                 throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         }
+    }
+
+    /**
+     * A convenient method to export a model to a given format.
+     *
+     * @param format the export format
+     * @param parameters some properties to configure the export
+     * @param dataSource data source
+     * @param reporter the reporter used for functional logs
+     */
+    default void export(ExportersLoader loader, String format, Properties parameters, DataSource dataSource, Reporter reporter) {
+        Exporter exporter = Exporter.find(loader, format);
+        if (exporter == null) {
+            throw new PowsyblException("Export format " + format + " not supported");
+        }
+        exporter.export(this, parameters, dataSource, reporter);
+    }
+
+    default void export(ExportersLoader loader, String format, Properties parameters, DataSource dataSource) {
+        export(loader, format, parameters, dataSource, Reporter.NO_OP);
+    }
+
+    default void export(String format, Properties parameters, DataSource dataSource) {
+        export(new ExportersServiceLoader(), format, parameters, dataSource);
+    }
+
+    /**
+     * A convenient method to export a model to a given format.
+     *
+     * @param format the export format
+     * @param parameters some properties to configure the export
+     * @param file the network file
+     * @param reporter the reporter used for functional logs
+     */
+    default void export(ExportersLoader loader, String format, Properties parameters, Path file, Reporter reporter) {
+        DataSource dataSource = Exporters.createDataSource(file);
+        export(loader, format, parameters, dataSource, reporter);
+    }
+
+    default void export(ExportersLoader loader, String format, Properties parameters, Path file) {
+        export(loader, format, parameters, file, Reporter.NO_OP);
+    }
+
+    default void export(String format, Properties parameters, Path file) {
+        export(new ExportersServiceLoader(), format, parameters, file);
+    }
+
+    /**
+     * A convenient method to export a model to a given format.
+     *
+     * @param format the export format
+     * @param parameters some properties to configure the export
+     * @param directory the output directory where files are generated
+     * @param baseName a base name for all generated files
+     * @param reporter the reporter used for functional logs
+     */
+    default void export(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, Reporter reporter) {
+        export(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reporter);
+    }
+
+    default void export(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {
+        export(loader, format, parameters, directory, basename, Reporter.NO_OP);
+    }
+
+    default void export(String format, Properties parameters, String directory, String baseName) {
+        export(new ExportersServiceLoader(), format, parameters, directory, baseName);
     }
 }
