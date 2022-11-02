@@ -15,9 +15,9 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.export.ExportersServiceLoader;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Exporters;
+import com.powsybl.iidm.network.ExportersServiceLoader;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 

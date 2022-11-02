@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 /**
