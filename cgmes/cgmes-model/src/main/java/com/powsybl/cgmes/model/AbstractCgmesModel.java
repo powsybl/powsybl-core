@@ -26,10 +26,9 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractCgmesModel implements CgmesModel {
 
-    protected AbstractCgmesModel(Reporter reporter) {
+    protected AbstractCgmesModel() {
         // FIXME(Luma) we must remove properties from here. They are not used!
         this.properties = new Properties();
-        this.reporter = reporter;
     }
 
     @Override
@@ -244,29 +243,28 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
         setBasename(CgmesModel.baseName(mainDataSource));
-        read(mainDataSource);
+        read(mainDataSource, reporter);
         if (!hasBoundary() && alternativeDataSourceForBoundary != null) {
-            read(alternativeDataSourceForBoundary);
+            read(alternativeDataSourceForBoundary, reporter);
         }
     }
 
     @Override
-    public void read(ReadOnlyDataSource ds) {
+    public void read(ReadOnlyDataSource ds, Reporter reporter) {
+        Objects.requireNonNull(reporter);
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
-            if (reporter != null) {
-                reporter.report(Report.builder()
-                        .withKey("Read")
-                        .withDefaultMessage("Instance file ${instanceFile}")
-                        .withTypedValue("instanceFile", name, TypedValue.FILENAME)
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build());
-            }
+            reporter.report(Report.builder()
+                    .withKey("Read")
+                    .withDefaultMessage("Instance file ${instanceFile}")
+                    .withTypedValue("instanceFile", name, TypedValue.FILENAME)
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
             try (InputStream is = cds.dataSource().newInputStream(name)) {
-                read(is, baseName, name);
+                read(is, baseName, name, reporter);
             } catch (IOException e) {
                 String msg = String.format("Reading [%s]", name);
                 LOG.warn(msg);
@@ -276,7 +274,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     private final Properties properties;
-    private final Reporter reporter;
     private String baseName;
 
     // Caches
