@@ -81,7 +81,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
         String outputFolder = "exportedCgmes" + baseName;
         DataSource exportedCgmes = tmpDataSource(outputFolder, baseName);
-        network.export("CGMES", exportParams, exportedCgmes);
+        network.save("CGMES", exportParams, exportedCgmes);
         if (originalDataSource != null) {
             copyBoundary(outputFolder, baseName, originalDataSource);
         }
@@ -121,7 +121,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         Properties reExportParams = exportParams;
         String reOutputFolder = "reExportedCgmes" + baseName;
         DataSource reExportedCgmes = tmpDataSource(reOutputFolder, baseName);
-        networkActual.export("CGMES", reExportParams, reExportedCgmes);
+        networkActual.save("CGMES", reExportParams, reExportedCgmes);
         if (originalDataSource != null) {
             copyBoundary(reOutputFolder, baseName, originalDataSource);
         }

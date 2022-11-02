@@ -89,7 +89,7 @@ public class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
-            network.export("CGMES", null, tmpDir.resolve("tmp"));
+            network.save("CGMES", null, tmpDir.resolve("tmp"));
             Network n2 = Network.load(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             VoltageLevel c = n2.getVoltageLevel("C");
             assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("TEST_SW")));
@@ -106,7 +106,7 @@ public class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             // Export to CGMES and add boundary EQ for reimport
-            n.export("CGMES", null, tmpDir.resolve(baseName));
+            n.save("CGMES", null, tmpDir.resolve(baseName));
             String eqbd = ds.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
             if (eqbd != null) {
                 try (InputStream is = ds.newInputStream(eqbd)) {
@@ -137,14 +137,14 @@ public class CgmesExportTest {
 
             // With original regulating mode the regulating control should be written in the EQ output
             String baseNameWithRc = baseName + "-with-rc";
-            n.export("CGMES", null, tmpDir.resolve(baseNameWithRc));
+            n.save("CGMES", null, tmpDir.resolve(baseNameWithRc));
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "EQ"));
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "SSH"));
 
             transformer.getPhaseTapChanger().setRegulating(false);
             transformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
             String baseNameNoRc = baseName + "-no-rc";
-            n.export("CGMES", null, tmpDir.resolve(baseNameNoRc));
+            n.save("CGMES", null, tmpDir.resolve(baseNameNoRc));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "SSH"));
         }
@@ -214,14 +214,14 @@ public class CgmesExportTest {
             Properties paramsOnlySsh = new Properties();
             paramsOnlySsh.put(CgmesExport.PROFILES, List.of("SSH"));
             paramsOnlySsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
-            network.export("CGMES", paramsOnlySsh, tmpDir.resolve(baseName));
+            network.save("CGMES", paramsOnlySsh, tmpDir.resolve(baseName));
             String typeOnlySsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
             assertEquals(typeOriginal, typeOnlySsh);
 
             // If we export EQ and SSH (or all instance fiels), type of tap changer should be changed to tabular
             Properties paramsEqAndSsh = new Properties();
             paramsEqAndSsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
-            network.export("CGMES", paramsEqAndSsh, tmpDir.resolve(baseName));
+            network.save("CGMES", paramsEqAndSsh, tmpDir.resolve(baseName));
             String typeEqAndSsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
             assertEquals(CgmesNames.PHASE_TAP_CHANGER_TABULAR, typeEqAndSsh);
         }
@@ -280,7 +280,7 @@ public class CgmesExportTest {
     }
 
     private static ReadOnlyDataSource exportAndAddBoundaries(Network network, Path tmpDir, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
-        network.export("CGMES", null, tmpDir.resolve(baseName));
+        network.save("CGMES", null, tmpDir.resolve(baseName));
         String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
         if (eqbd != null) {
             try (InputStream is = originalDataSource.newInputStream(eqbd)) {

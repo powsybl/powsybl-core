@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.scripting
 import com.google.auto.service.AutoService
 import com.powsybl.computation.ComputationManager
 import com.powsybl.computation.local.LocalComputationManager
-import com.powsybl.iidm.network.Exporters
 import com.powsybl.iidm.network.ExportersLoader
 import com.powsybl.iidm.network.ExportersServiceLoader
 import com.powsybl.iidm.network.ImportConfig
@@ -54,7 +53,7 @@ class NetworkLoadSaveGroovyScriptExtension implements GroovyScriptExtension {
                     importConfig, parameters, importersLoader)
         }
         binding.saveNetwork =  { String format, Network network, Properties parameters = null, String file ->
-            network.export(exportersLoader, format, parameters, fileSystem.getPath(file))
+            network.save(exportersLoader, format, parameters, fileSystem.getPath(file))
         }
     }
 

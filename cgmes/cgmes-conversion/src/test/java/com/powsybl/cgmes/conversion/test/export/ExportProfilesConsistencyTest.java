@@ -59,6 +59,6 @@ public class ExportProfilesConsistencyTest extends AbstractConverterTest {
     private void exportProfiles(List<String> profiles, Network network, Reporter reporter) {
         Properties params = new Properties();
         params.put(CgmesExport.PROFILES, profiles);
-        network.export(new ExportersServiceLoader(), "CGMES", params, tmpDir.resolve("exported"), reporter);
+        network.save(new ExportersServiceLoader(), "CGMES", params, tmpDir.resolve("exported"), reporter);
     }
 }

@@ -1232,14 +1232,14 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * A convenient method to export a model to a given format.
+     * Save the network to a given format.
      *
      * @param format the export format
      * @param parameters some properties to configure the export
      * @param dataSource data source
      * @param reporter the reporter used for functional logs
      */
-    default void export(ExportersLoader loader, String format, Properties parameters, DataSource dataSource, Reporter reporter) {
+    default void save(ExportersLoader loader, String format, Properties parameters, DataSource dataSource, Reporter reporter) {
         Exporter exporter = Exporter.find(loader, format);
         if (exporter == null) {
             throw new PowsyblException("Export format " + format + " not supported");
@@ -1247,37 +1247,37 @@ public interface Network extends Container<Network> {
         exporter.export(this, parameters, dataSource, reporter);
     }
 
-    default void export(ExportersLoader loader, String format, Properties parameters, DataSource dataSource) {
-        export(loader, format, parameters, dataSource, Reporter.NO_OP);
+    default void save(ExportersLoader loader, String format, Properties parameters, DataSource dataSource) {
+        save(loader, format, parameters, dataSource, Reporter.NO_OP);
     }
 
-    default void export(String format, Properties parameters, DataSource dataSource) {
-        export(new ExportersServiceLoader(), format, parameters, dataSource);
+    default void save(String format, Properties parameters, DataSource dataSource) {
+        save(new ExportersServiceLoader(), format, parameters, dataSource);
     }
 
     /**
-     * A convenient method to export a model to a given format.
+     * Save the network to a given format.
      *
      * @param format the export format
      * @param parameters some properties to configure the export
      * @param file the network file
      * @param reporter the reporter used for functional logs
      */
-    default void export(ExportersLoader loader, String format, Properties parameters, Path file, Reporter reporter) {
+    default void save(ExportersLoader loader, String format, Properties parameters, Path file, Reporter reporter) {
         DataSource dataSource = Exporters.createDataSource(file);
-        export(loader, format, parameters, dataSource, reporter);
+        save(loader, format, parameters, dataSource, reporter);
     }
 
-    default void export(ExportersLoader loader, String format, Properties parameters, Path file) {
-        export(loader, format, parameters, file, Reporter.NO_OP);
+    default void save(ExportersLoader loader, String format, Properties parameters, Path file) {
+        save(loader, format, parameters, file, Reporter.NO_OP);
     }
 
-    default void export(String format, Properties parameters, Path file) {
-        export(new ExportersServiceLoader(), format, parameters, file);
+    default void save(String format, Properties parameters, Path file) {
+        save(new ExportersServiceLoader(), format, parameters, file);
     }
 
     /**
-     * A convenient method to export a model to a given format.
+     * Save the network to a given format.
      *
      * @param format the export format
      * @param parameters some properties to configure the export
@@ -1285,15 +1285,15 @@ public interface Network extends Container<Network> {
      * @param baseName a base name for all generated files
      * @param reporter the reporter used for functional logs
      */
-    default void export(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, Reporter reporter) {
-        export(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reporter);
+    default void save(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, Reporter reporter) {
+        save(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reporter);
     }
 
-    default void export(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {
-        export(loader, format, parameters, directory, basename, Reporter.NO_OP);
+    default void save(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {
+        save(loader, format, parameters, directory, basename, Reporter.NO_OP);
     }
 
-    default void export(String format, Properties parameters, String directory, String baseName) {
-        export(new ExportersServiceLoader(), format, parameters, directory, baseName);
+    default void save(String format, Properties parameters, String directory, String baseName) {
+        save(new ExportersServiceLoader(), format, parameters, directory, baseName);
     }
 }

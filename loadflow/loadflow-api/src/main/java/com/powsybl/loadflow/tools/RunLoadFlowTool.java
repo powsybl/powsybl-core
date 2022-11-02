@@ -170,7 +170,7 @@ public class RunLoadFlowTool implements Tool {
         if (outputCaseFile != null) {
             String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-            network.export(outputCaseFormat, outputParams, outputCaseFile);
+            network.save(outputCaseFormat, outputParams, outputCaseFile);
         }
     }
 

@@ -84,14 +84,14 @@ public class ExportersTest extends AbstractConvertersTest {
         expected.expect(PowsyblException.class);
         expected.expectMessage("Export format " + UNSUPPORTED_FORMAT + " not supported");
         Network network = Mockito.spy(Network.class);
-        network.export(loader, UNSUPPORTED_FORMAT, null, Exporters.createDataSource(path));
+        network.save(loader, UNSUPPORTED_FORMAT, null, Exporters.createDataSource(path));
     }
 
     @Test
     public void export1() throws IOException {
         DataSource dataSource = Exporters.createDataSource(path);
         Network network = Mockito.spy(Network.class);
-        network.export(loader, TEST_FORMAT, null, dataSource);
+        network.save(loader, TEST_FORMAT, null, dataSource);
         try (var is = dataSource.newInputStream(null, EXTENSION)) {
             assertEquals(1, is.read());
         }
@@ -100,7 +100,7 @@ public class ExportersTest extends AbstractConvertersTest {
     @Test
     public void export2() throws IOException {
         Network network = Mockito.spy(Network.class);
-        network.export(loader, TEST_FORMAT, null, path);
+        network.save(loader, TEST_FORMAT, null, path);
         DataSource dataSource = Exporters.createDataSource(path);
         try (var is = dataSource.newInputStream(null, EXTENSION)) {
             assertEquals(1, is.read());
@@ -111,7 +111,7 @@ public class ExportersTest extends AbstractConvertersTest {
     public void export3() throws IOException {
         Path dir = Files.createTempDirectory("tmp-export");
         Network network = Mockito.spy(Network.class);
-        network.export(loader, TEST_FORMAT, null, dir.toString(), "tmp");
+        network.save(loader, TEST_FORMAT, null, dir.toString(), "tmp");
         try (InputStream is = Files.newInputStream(dir.resolve("tmp.tst"))) {
             assertEquals(1, is.read());
         }
