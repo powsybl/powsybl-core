@@ -416,7 +416,6 @@ public final class Security {
                 "Post-contingency limit violations",
                 writeConfig.getFormatterConfig(),
                 new Column(CONTINGENCY),
-                new Column(STATUS),
                 new Column(ACTION),
                 new Column(EQUIPMENT + " (" + sumFilter + ")"),
                 new Column(END),
@@ -463,7 +462,6 @@ public final class Security {
 
                 if (!filteredLimitViolations2.isEmpty() || postContingencyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
                     formatter.writeCell(postContingencyResult.getContingency().getId())
-                            .writeCell(postContingencyResult.getStatus() == PostContingencyComputationStatus.CONVERGED ? "converge" : "diverge")
                             .writeEmptyCell()
                             .writeCell(EQUIPMENT + " (" + filteredLimitViolations2.size() + ")")
                             .writeEmptyCell()
@@ -478,7 +476,6 @@ public final class Security {
 
                     for (String action : postContingencyResult.getLimitViolationsResult().getActionsTaken()) {
                         formatter.writeEmptyCell()
-                                .writeEmptyCell()
                                 .writeCell(action)
                                 .writeEmptyCell()
                                 .writeEmptyCell()
@@ -506,7 +503,6 @@ public final class Security {
         return violation -> {
             try {
                 formatter.writeEmptyCell()
-                        .writeEmptyCell()
                         .writeEmptyCell()
                         .writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId())
                         .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network, writeName))

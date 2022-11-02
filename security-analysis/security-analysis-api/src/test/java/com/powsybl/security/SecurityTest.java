@@ -88,11 +88,11 @@ public class SecurityTest {
         }
         assertEquals(String.join(System.lineSeparator(),
                                  "Post-contingency limit violations",
-                                 "Contingency,Status,Action,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
-                                 "contingency1,converge,,Equipment (2),,,,,,,,,",
-                                 ",,action2,,,,,,,,,,",
-                                 ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00",
-                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
+                                 "Contingency,Action,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
+                                 "contingency1,,Equipment (2),,,,,,,,,",
+                                 ",action2,,,,,,,,,,",
+                                 ",,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00",
+                                 ",,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
     }
 
@@ -106,10 +106,10 @@ public class SecurityTest {
         }
         assertEquals(String.join(System.lineSeparator(),
                                  "Post-contingency limit violations",
-                                 "Contingency,Status,Action,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
-                                 "contingency1,converge,,Equipment (1),,,,,,,,,",
-                                 ",,action2,,,,,,,,,,",
-                                 ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
+                                 "Contingency,Action,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
+                                 "contingency1,,Equipment (1),,,,,,,,,",
+                                 ",action2,,,,,,,,,,",
+                                 ",,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());
     }
 

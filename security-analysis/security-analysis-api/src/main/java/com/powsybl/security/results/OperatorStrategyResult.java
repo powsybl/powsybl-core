@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.results;
 
-import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.strategy.OperatorStrategy;
