@@ -969,10 +969,17 @@ public class CgmesConformity1ModifiedConversionTest {
     @Test
     public void microGridBaseBETargetDeadbandNegative() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseBETargetDeadbandNegative().dataSource(), null);
-        String transformerId = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
+        String transformerId;
+
+        transformerId = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
         PhaseTapChanger ptc = network.getTwoWindingsTransformer(transformerId).getPhaseTapChanger();
         assertTrue(Double.isNaN(ptc.getTargetDeadband()));
         assertFalse(ptc.isRegulating());
+
+        transformerId = "b94318f6-6d24-4f56-96b9-df2531ad6543";
+        RatioTapChanger rtc = network.getTwoWindingsTransformer(transformerId).getRatioTapChanger();
+        assertTrue(Double.isNaN(rtc.getTargetDeadband()));
+        assertFalse(rtc.isRegulating());
     }
 
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {
