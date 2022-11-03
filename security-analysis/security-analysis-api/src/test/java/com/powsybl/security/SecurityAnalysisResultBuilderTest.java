@@ -63,7 +63,7 @@ public class SecurityAnalysisResultBuilderTest {
         CustomContext postResultContext = new CustomContext(network, "post");
         CustomContext postViolationContext = new CustomContext(network, "post-vio");
         builder.contingency(new Contingency("contingency1"), postResultContext)
-                .setContingencyStatus(PostContingencyComputationStatus.CONVERGED)
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network), postViolationContext)
                 .endContingency();
         assertEquals(Security.checkLimits(network).size(), postViolationContext.getCalledCount());
@@ -89,18 +89,18 @@ public class SecurityAnalysisResultBuilderTest {
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
         builder.contingency(new Contingency("contingency1"))
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addBranchResult(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0))
                 .addBusResult(new BusResult("voltageLevelId", "busId", 400, 3.14))
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
-                .setContingencyStatus(PostContingencyComputationStatus.CONVERGED)
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
         builder.contingency(new Contingency("contingency2"))
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network))
-                .setContingencyStatus(PostContingencyComputationStatus.CONVERGED)
                 .endContingency();
 
         SecurityAnalysisResult res = builder.build();

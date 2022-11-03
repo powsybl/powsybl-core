@@ -61,15 +61,15 @@ public class PostContingencyResult {
         return contingency;
     }
 
+    public PostContingencyComputationStatus getStatus() {
+        return status;
+    }
+
     public LimitViolationsResult getLimitViolationsResult() {
         return limitViolationsResult;
     }
 
     public NetworkResult getNetworkResult() {
         return networkResult;
-    }
-
-    public PostContingencyComputationStatus getStatus() {
-        return status;
     }
 }

@@ -252,7 +252,7 @@ public class SecurityAnalysisResultBuilder {
             return this;
         }
 
-        public PostContingencyResultBuilder setContingencyStatus(PostContingencyComputationStatus status) {
+        public PostContingencyResultBuilder setStatus(PostContingencyComputationStatus status) {
             this.status = status;
             return this;
         }
