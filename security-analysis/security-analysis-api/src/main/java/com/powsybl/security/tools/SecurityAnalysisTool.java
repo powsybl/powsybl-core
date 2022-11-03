@@ -255,7 +255,7 @@ public class SecurityAnalysisTool implements Tool {
             .orElseThrow(AssertionError::new);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, importersLoader);
+        Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, importersLoader);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
         return network;
     }

@@ -48,7 +48,7 @@ public class MatpowerExporterTest {
 
     @Test
     public void testMicroGridBe() throws IOException {
-        Network network = Network.load(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource());
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource());
         exportToMatAndCompareTo(network, "/be.json");
     }
 }

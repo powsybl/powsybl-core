@@ -49,11 +49,11 @@ class NetworkLoadSaveGroovyScriptExtension implements GroovyScriptExtension {
     @Override
     void load(Binding binding, ComputationManager computationManager) {
         binding.loadNetwork = { String file, Properties parameters = null ->
-            Network.load(fileSystem.getPath(file), LocalComputationManager.getDefault(),
+            Network.read(fileSystem.getPath(file), LocalComputationManager.getDefault(),
                     importConfig, parameters, importersLoader)
         }
         binding.saveNetwork =  { String format, Network network, Properties parameters = null, String file ->
-            network.save(exportersLoader, format, parameters, fileSystem.getPath(file))
+            network.write(exportersLoader, format, parameters, fileSystem.getPath(file))
         }
     }
 

@@ -147,7 +147,7 @@ public class RunLoadFlowTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
@@ -170,7 +170,7 @@ public class RunLoadFlowTool implements Tool {
         if (outputCaseFile != null) {
             String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
             Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-            network.save(outputCaseFormat, outputParams, outputCaseFile);
+            network.write(outputCaseFormat, outputParams, outputCaseFile);
         }
     }
 

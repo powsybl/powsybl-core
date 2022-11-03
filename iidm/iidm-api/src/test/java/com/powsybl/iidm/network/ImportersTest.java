@@ -191,7 +191,7 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void loadNetwork1() {
-        Network network = Network.load(path, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
+        Network network = Network.read(path, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
     }
@@ -200,13 +200,13 @@ public class ImportersTest extends AbstractConvertersTest {
     public void loadNullNetwork1() {
         expected.expect(PowsyblException.class);
         expected.expectMessage("Unsupported file format or invalid file.");
-        Network.load(badPath, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
+        Network.read(badPath, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
     }
 
     @Test
     public void loadNetwork2() throws IOException {
         try (var is = Importers.createDataSource(path).newInputStream(null, EXTENSION)) {
-            Network network = Network.load(FOO_TST, is, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
+            Network network = Network.read(FOO_TST, is, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
             assertNotNull(network);
             assertNotNull(network.getLoad("LOAD"));
         }
@@ -216,13 +216,13 @@ public class ImportersTest extends AbstractConvertersTest {
     public void loadNullNetwork2() throws IOException {
         expected.expect(PowsyblException.class);
         expected.expectMessage("Unsupported file format or invalid file.");
-        Network.load("baz.txt", Importers.createDataSource(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
+        Network.read("baz.txt", Importers.createDataSource(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
     }
 
     @Test
     public void loadNetworks() throws InterruptedException, ExecutionException, IOException {
         List<Boolean> isLoadPresent = new ArrayList<>();
-        Network.loadAll(fileSystem.getPath(WORK_DIR), false, loader, computationManager, importConfigMock, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), Reporter.NO_OP);
+        Network.readAll(fileSystem.getPath(WORK_DIR), false, loader, computationManager, importConfigMock, null, n -> isLoadPresent.add(n.getLoad("LOAD") != null), null, new NetworkFactoryMock(), Reporter.NO_OP);
         assertEquals(2, isLoadPresent.size());
         isLoadPresent.forEach(Assert::assertTrue);
     }

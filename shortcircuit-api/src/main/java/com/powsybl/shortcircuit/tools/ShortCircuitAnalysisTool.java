@@ -85,7 +85,7 @@ public class ShortCircuitAnalysisTool implements Tool {
         Path caseFile = options.getPath(CASE_FILE_OPTION)
                 .orElseThrow(AssertionError::new);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        return Network.load(caseFile);
+        return Network.read(caseFile);
     }
 
     static ShortCircuitInput readInput(CommandLine line, ToolRunningContext context) throws ParseException {

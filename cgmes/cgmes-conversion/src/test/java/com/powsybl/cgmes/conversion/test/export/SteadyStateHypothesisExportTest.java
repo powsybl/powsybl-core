@@ -133,7 +133,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         r.zip(repackaged);
 
         // Import with new SSH
-        Network actual = Network.load(repackaged,
+        Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
         // Remove ControlAreas extension

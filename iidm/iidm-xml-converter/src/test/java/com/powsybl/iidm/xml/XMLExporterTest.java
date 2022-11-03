@@ -79,10 +79,10 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
         Properties params = new Properties();
         params.setProperty(XMLExporter.VERSION, IidmXmlVersion.V_1_2.toString("."));
         params.setProperty(XMLExporter.THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, "true");
-        assertThrows(PowsyblException.class, () -> network.save("XIIDM", params,
+        assertThrows(PowsyblException.class, () -> network.write("XIIDM", params,
                 workingDir));
         try {
-            network.save("XIIDM", params, workingDir);
+            network.write("XIIDM", params, workingDir);
             fail();
         } catch (PowsyblException exception) {
             assertEquals("Version V_1_2 does not support slackTerminal extension", exception.getMessage());

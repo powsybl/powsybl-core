@@ -193,7 +193,7 @@ public class ValidationTool implements Tool {
     private Network loadNetwork(Path caseFile, CommandLine line, ToolRunningContext context) throws IOException {
         context.getOutputStream().println("Loading case " + caseFile);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Network.load(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
         }

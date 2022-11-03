@@ -450,7 +450,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         // There is no need to create the IIDM-CGMES mappings
         // We are reading only an EQ, we won't have TP data in the input
         // And to compare the expected and actual networks we are dropping all IIDM-CGMES mapping context information
-        return Network.load(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
+        return Network.read(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
     }
 
     private Path exportToCgmesEQ(Network network) throws IOException, XMLStreamException {
@@ -494,7 +494,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringNonEQ));
 
-        compareTemporaryLimits(Network.load(tmpDir.resolve("expected.xml")), Network.load(tmpDir.resolve("actual.xml")));
+        compareTemporaryLimits(Network.read(tmpDir.resolve("expected.xml")), Network.read(tmpDir.resolve("actual.xml")));
     }
 
     private void compareTemporaryLimits(Network expected, Network actual) {

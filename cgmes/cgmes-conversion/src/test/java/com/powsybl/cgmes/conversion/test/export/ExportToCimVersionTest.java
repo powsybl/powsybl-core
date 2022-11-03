@@ -75,7 +75,7 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
         params.put(CgmesExport.CIM_VERSION, "100");
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
         new CgmesExport().export(network, params, zip);
-        Network network100 = Network.load(tmpDir.resolve(cimZipFilename + ".zip"));
+        Network network100 = Network.read(tmpDir.resolve(cimZipFilename + ".zip"));
         CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
         assertTrue(cgmesModel100.isNodeBreaker());
     }
@@ -93,7 +93,7 @@ public class ExportToCimVersionTest extends AbstractConverterTest {
         new CgmesExport().export(network, params, zip);
 
         // Reimport and verify contents of Network
-        Network networkCimVersion = Network.load(tmpDir.resolve(cimZipFilename + ".zip"));
+        Network networkCimVersion = Network.read(tmpDir.resolve(cimZipFilename + ".zip"));
         CimCharacteristics cim = networkCimVersion.getExtension(CimCharacteristics.class);
 
         assertEquals(cimVersion, cim.getCimVersion());

@@ -32,7 +32,7 @@ public class SkipExtensionTest extends AbstractXmlConverterTest {
 
         // Write the file
         Path networkFile = tmpDir.resolve("noExtension.xiidm");
-        network.save("XIIDM", properties, networkFile);
+        network.write("XIIDM", properties, networkFile);
 
         // Compare
         compareXml(getVersionedNetworkAsStream("noExtension.xml", IidmXmlVersion.V_1_0), Files.newInputStream(networkFile));

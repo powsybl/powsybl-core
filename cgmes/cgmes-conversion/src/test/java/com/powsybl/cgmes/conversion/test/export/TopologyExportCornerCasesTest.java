@@ -78,7 +78,7 @@ public class TopologyExportCornerCasesTest extends AbstractConverterTest {
         params.put(CgmesExport.CIM_VERSION, "100");
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
-        Network networkFromCgmes = Network.load(tmpDir.resolve(name + ".zip"));
+        Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"));
         if (checkAllTerminalsConnected) {
             checkAllTerminalsConnected(network, name + "_from_CGMES");
         }

@@ -86,7 +86,7 @@ public class TopologyExportTest extends AbstractConverterTest {
         r.zip(repackaged);
 
         // Import with new TP
-        Network actual = Network.load(repackaged,
+        Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
         prepareNetworkForComparison(expected);

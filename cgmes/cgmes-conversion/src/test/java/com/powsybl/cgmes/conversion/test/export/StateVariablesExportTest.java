@@ -254,7 +254,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         r.zip(repackaged);
 
         // Import with new SV
-        Network actual = Network.load(repackaged,
+        Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
         // Export original and with new SV

@@ -71,7 +71,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         String filename = "frVoltageRegulatingXnode.uct";
         ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
         reporter.report("novalueReport", "No value report");
-        Network.load(filename, getClass().getResourceAsStream("/" + filename), reporter);
+        Network.read(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
 
         // Testing deserializing with unknown specified dictionary
