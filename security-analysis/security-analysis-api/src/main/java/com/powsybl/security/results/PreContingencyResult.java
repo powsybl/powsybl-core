@@ -15,8 +15,11 @@ import java.util.*;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public class PreContingencyResult {
+
     private final LoadFlowResult.ComponentResult.Status status;
+
     private final LimitViolationsResult limitViolationsResult;
+
     private final NetworkResult networkResult;
 
     public PreContingencyResult() {

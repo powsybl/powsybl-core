@@ -21,11 +21,11 @@ public class PostContingencyResult {
 
     private final Contingency contingency;
 
+    private final PostContingencyComputationStatus status;
+
     private final LimitViolationsResult limitViolationsResult;
 
     private final NetworkResult networkResult;
-
-    private final PostContingencyComputationStatus status;
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult) {
         this(contingency, status, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
@@ -38,9 +38,9 @@ public class PostContingencyResult {
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
         this.contingency = Objects.requireNonNull(contingency);
+        this.status = Objects.requireNonNull(status);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
-        this.status = Objects.requireNonNull(status);
     }
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, List<LimitViolation> limitViolations,
