@@ -100,7 +100,7 @@ import java.util.stream.Stream;
 public interface Network extends Container<Network> {
 
     /**
-     * Loads a network from the specified file, trying to guess its format.
+     * Read a network from the specified file, trying to guess its format.
      *
      * @param file               The file to be loaded.
      * @param computationManager A computation manager which may be used by import post-processors
@@ -127,7 +127,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from the specified file, trying to guess its format.
+     * Read a network from the specified file, trying to guess its format.
      *
      * @param file               The file to be loaded.
      * @param computationManager A computation manager which may be used by import post-processors
@@ -141,7 +141,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from the specified file, trying to guess its format,
+     * Read a network from the specified file, trying to guess its format,
      * and using importers and post processors defined as services.
      *
      * @param file               The file to be loaded.
@@ -155,7 +155,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from the specified file, trying to guess its format,
+     * Read a network from the specified file, trying to guess its format,
      * and using importers and post processors defined as services.
      * Import will be performed using import configuration defined in default platform config,
      * and with no importer-specific parameters.
@@ -180,7 +180,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from a raw input stream, trying to guess the format from the specified filename.
+     * Read a network from a raw input stream, trying to guess the format from the specified filename.
      * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
@@ -204,7 +204,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from a raw input stream, trying to guess the format from the specified filename.
+     * Read a network from a raw input stream, trying to guess the format from the specified filename.
      * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
@@ -221,7 +221,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from a raw input stream, trying to guess the format from the specified filename.
+     * Read a network from a raw input stream, trying to guess the format from the specified filename.
      * Please note that the input stream must be from a simple file, not a zipped one.
      *
      * @param filename           The name of the file to be imported.
@@ -237,7 +237,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from a raw input stream, trying to guess the format from the specified filename,
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
      * and using importers and post processors defined as services.
      * Please note that the input stream must be from a simple file, not a zipped one.
      *
@@ -253,7 +253,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from a raw input stream, trying to guess the format from the specified filename,
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
      * and using importers and post processors defined as services.
      * Import will be performed using import configuration defined in default platform config,
      * and with no importer-specific parameters.
@@ -269,7 +269,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from a raw input stream, trying to guess the format from the specified filename,
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
      * and using importers and post processors defined as services.
      * Import will be performed using import configuration defined in default platform config,
      * and with no importer-specific parameters.
@@ -286,7 +286,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Loads a network from a raw input stream, trying to guess the format from the specified filename,
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
      * and using importers and post processors defined as services.
      * Import will be performed using import configuration defined in default platform config,
      * and with no importer-specific parameters.
@@ -1232,7 +1232,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Save the network to a given format.
+     * Write the network to a given format.
      *
      * @param format the export format
      * @param parameters some properties to configure the export
@@ -1256,7 +1256,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Save the network to a given format.
+     * Write the network to a given format.
      *
      * @param format the export format
      * @param parameters some properties to configure the export
@@ -1277,7 +1277,7 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Save the network to a given format.
+     * Write the network to a given format.
      *
      * @param format the export format
      * @param parameters some properties to configure the export
