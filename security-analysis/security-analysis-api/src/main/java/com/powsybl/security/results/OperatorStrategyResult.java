@@ -19,22 +19,26 @@ public class OperatorStrategyResult {
 
     private final OperatorStrategy operatorStrategy;
 
+    private final PostContingencyComputationStatus status;
+
     private final LimitViolationsResult limitViolationsResult;
 
     private final NetworkResult networkResult;
 
-    private final PostContingencyComputationStatus status;
-
     public OperatorStrategyResult(OperatorStrategy operatorStrategy, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
                                   NetworkResult networkResult) {
         this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
+        this.status = Objects.requireNonNull(status);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
-        this.status = Objects.requireNonNull(status);
     }
 
     public OperatorStrategy getOperatorStrategy() {
         return operatorStrategy;
+    }
+
+    public PostContingencyComputationStatus getStatus() {
+        return status;
     }
 
     public LimitViolationsResult getLimitViolationsResult() {
@@ -43,9 +47,5 @@ public class OperatorStrategyResult {
 
     public NetworkResult getNetworkResult() {
         return networkResult;
-    }
-
-    public PostContingencyComputationStatus getStatus() {
-        return status;
     }
 }
