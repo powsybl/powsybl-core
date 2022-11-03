@@ -4,19 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.modification.topology.data;
+package com.powsybl.iidm.modification.json.topology;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.iidm.modification.data.topology.CreateGeneratorBayData;
+import com.powsybl.iidm.modification.data.util.TerminalData;
+import com.powsybl.iidm.modification.json.util.TerminalJsonUtils;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -109,15 +110,9 @@ public class CreateGeneratorBayDataDeserializer extends StdDeserializer<CreateGe
 
                 case "regulatingTerminal":
                     parser.nextToken();
-                    List<String> regTermCharacteristics = parser.readValueAs(new TypeReference<List<String>>() {
-                    });
-                    if (regTermCharacteristics.size() == 1) {
-                        data.setGeneratorRegulatingConnectableId(regTermCharacteristics.get(0));
-                    } else if (regTermCharacteristics.size() == 2) {
-                        data.setGeneratorRegulatingConnectableId(regTermCharacteristics.get(0)).setGeneratorRegulatingSide(regTermCharacteristics.get(1));
-                    } else {
-                        throw new AssertionError("Exactly one or two attributes are necessary to define a regulating terminal");
-                    }
+                    TerminalData terminalData = TerminalJsonUtils.deserialize(parser);
+                    data.setGeneratorRegulatingConnectableId(terminalData.getConnectableId())
+                            .setGeneratorRegulatingSide(terminalData.getSide());
                     break;
 
                 case "voltageRegulatorOn":

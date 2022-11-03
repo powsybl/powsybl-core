@@ -4,25 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.modification.topology.data;
+package com.powsybl.iidm.modification.data.topology;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.modification.NetworkModificationData;
+import com.powsybl.iidm.modification.data.NetworkModificationData;
 import com.powsybl.iidm.modification.topology.CreateFeederBay;
 import com.powsybl.iidm.modification.topology.CreateFeederBayBuilder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.data.util.TerminalUtils.getTerminal;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -206,54 +199,8 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
     }
 
     @Override
-    public String getName() {
+    public String getType() {
         return NAME;
-    }
-
-    @Override
-    public void write(Path path) {
-        Objects.requireNonNull(path);
-
-        try (OutputStream outputStream = Files.newOutputStream(path)) {
-            write(outputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void write(OutputStream os) {
-        Objects.requireNonNull(os);
-        try {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                    .registerModule(new CreateGeneratorBayDataJsonModule());
-            ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
-            writer.writeValue(os, this);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void update(Path path) {
-        Objects.requireNonNull(path);
-        try (InputStream is = Files.newInputStream(path)) {
-            update(is);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    @Override
-    public void update(InputStream is) {
-        Objects.requireNonNull(is);
-        try {
-            ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                    .registerModule(new CreateGeneratorBayDataJsonModule());
-            copy(objectMapper.readerForUpdating(this).readValue(is));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
     @Override
@@ -277,11 +224,6 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
     }
 
     @Override
-    public CreateFeederBay toModification() {
-        throw new PowsyblException("A network should be passed in parameters to create the adder");
-    }
-
-    @Override
     public CreateFeederBay toModification(Network network) {
         checks();
         BusbarSection bbs = network.getBusbarSection(bbsId);
@@ -296,7 +238,7 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
                 .setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)
-                .setRegulatingTerminal(getRegulatingTerminal(network, regulatingConnectableId, regulatingSide))
+                .setRegulatingTerminal(getTerminal(network, regulatingConnectableId, regulatingSide))
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
@@ -318,29 +260,5 @@ public class CreateGeneratorBayData implements NetworkModificationData<CreateGen
         Objects.requireNonNull(bbsId, "Undefined busbar section ID");
         Objects.requireNonNull(positionOrder, "Undefined position order");
         Objects.requireNonNull(direction, "Undefined direction");
-    }
-
-    private static Terminal getRegulatingTerminal(Network network, String regulatingConnectableId, String regulatingSide) {
-        if (regulatingConnectableId == null) {
-            return null;
-        }
-        Connectable<?> c = network.getConnectable(regulatingConnectableId);
-        if (c == null) {
-            throw new PowsyblException("Given regulating connectable " + regulatingConnectableId + " does not exist");
-        }
-        if (c instanceof Injection) {
-            return ((Injection<?>) c).getTerminal();
-        } else if (c instanceof Branch) {
-            if (regulatingSide == null) {
-                throw new PowsyblException("Undefined side for regulation on branch");
-            }
-            return ((Branch<?>) c).getTerminal(Branch.Side.valueOf(regulatingSide));
-        } else if (c instanceof ThreeWindingsTransformer) {
-            if (regulatingSide == null) {
-                throw new PowsyblException("Undefined side for regulation on three-windings transformer");
-            }
-            return ((ThreeWindingsTransformer) c).getTerminal(ThreeWindingsTransformer.Side.valueOf(regulatingSide));
-        }
-        throw new AssertionError("Unexpected type of connectable " + regulatingConnectableId);
     }
 }

@@ -4,17 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.modification.topology.data;
+package com.powsybl.iidm.modification.json.topology;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.modification.data.topology.CreateGeneratorBayData;
+import com.powsybl.iidm.modification.data.util.TerminalData;
+import com.powsybl.iidm.modification.json.util.TerminalJsonUtils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-import static com.powsybl.iidm.modification.topology.data.CreateGeneratorBayData.VERSION;
+import static com.powsybl.iidm.modification.data.topology.CreateGeneratorBayData.VERSION;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -42,16 +45,7 @@ public class CreateGeneratorBayDataSerializer extends StdSerializer<CreateGenera
             jsonGenerator.writeStringField("energySource", data.getGeneratorEnergySource().name());
             jsonGenerator.writeNumberField("minP", data.getGeneratorMinP());
             jsonGenerator.writeNumberField("maxP", data.getGeneratorMaxP());
-            String regulatingConnectableId = data.getGeneratorRegulatingConnectableId();
-            if (regulatingConnectableId != null) {
-                jsonGenerator.writeArrayFieldStart("regulatingTerminal");
-                jsonGenerator.writeString(regulatingConnectableId);
-                String regulatingSide = data.getGeneratorRegulatingSide();
-                if (regulatingSide != null) {
-                    jsonGenerator.writeString(regulatingSide);
-                }
-                jsonGenerator.writeEndArray();
-            }
+            TerminalJsonUtils.serialize(new TerminalData(data.getGeneratorRegulatingConnectableId(), data.getGeneratorRegulatingSide()), jsonGenerator);
             jsonGenerator.writeBooleanField("voltageRegulatorOn", data.isGeneratorVoltageRegulatorOn());
             jsonGenerator.writeNumberField("targetP", data.getGeneratorTargetP());
             JsonUtil.writeOptionalDoubleField(jsonGenerator, "targetQ", data.getGeneratorTargetQ());
