@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

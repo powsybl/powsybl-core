@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
@@ -27,7 +26,7 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
 
     @Test
     public void createCouplingDevice2BusbarSectionsSameSectionIndex() throws IOException {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs1")
                 .withBusbarSectionId2("bbs3")
@@ -40,7 +39,7 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
 
     @Test
     public void createCouplingDevice2BusbarSectionsDifferentSectionIndex() throws IOException {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs1")
                 .withBusbarSectionId2("bbs2")
@@ -52,7 +51,7 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
 
     @Test
     public void createCouplingDeviceThrowsException() {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs")
@@ -78,7 +77,7 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
 
     @Test
     public void createCouplingDeviceWithoutPositionExtensions() throws IOException {
-        Network network = Importers.loadNetwork("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs1")
                 .withBusbarSectionId2("bbs2")
@@ -90,7 +89,7 @@ public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
 
     @Test
     public void createCouplingDevice3BusbarSections() throws IOException {
-        Network network = Importers.loadNetwork("testNetwork3BusbarSections.xiidm", getClass().getResourceAsStream("/testNetwork3BusbarSections.xiidm"));
+        Network network = Network.read("testNetwork3BusbarSections.xiidm", getClass().getResourceAsStream("/testNetwork3BusbarSections.xiidm"));
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("VLTEST13")
                 .withBusbarSectionId2("VLTEST23")

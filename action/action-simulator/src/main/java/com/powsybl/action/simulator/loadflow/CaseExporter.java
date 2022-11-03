@@ -10,9 +10,8 @@ import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.export.ExportersLoader;
-import com.powsybl.iidm.export.ExportersServiceLoader;
+import com.powsybl.iidm.network.ExportersLoader;
+import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;
@@ -68,7 +67,7 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private void exportNetwork(RunningContext context) {
         DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(context.getContingency(), context.getRound()), compressionFormat, null);
-        Exporters.export(loader, outputCaseFormat, context.getNetwork(), new Properties(), dataSource);
+        context.getNetwork().write(loader, outputCaseFormat, new Properties(), dataSource);
     }
 
     /**
