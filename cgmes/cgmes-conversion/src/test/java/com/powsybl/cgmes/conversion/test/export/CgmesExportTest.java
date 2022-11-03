@@ -253,7 +253,7 @@ public class CgmesExportTest {
 
             // Check that the exported CGMES model does not contain the fictitious switch
             // And that the corresponding terminal is disconnected
-            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, null, TripleStoreFactory.defaultImplementation());
+            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes.isNodeBreaker());
             assertFalse(cgmes.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
             assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
@@ -271,7 +271,7 @@ public class CgmesExportTest {
             fictitiousSwitch.setOpen(false);
             String baseName1 = "testTerminalDisconnectedFictitiousSwitchClosedExported";
             ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir, baseName1, ds);
-            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, null, TripleStoreFactory.defaultImplementation());
+            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes1.isNodeBreaker());
             assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
             assertTrue(cgmes1.terminal(disconnectedTerminalId).connected());
