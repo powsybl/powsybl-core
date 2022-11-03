@@ -11,17 +11,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
+import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.security.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
-import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.SecurityAnalysisResult;
 
 /**
  *
@@ -56,58 +54,58 @@ public class SecurityAnalysisResultEquivalenceTest {
         Mockito.when(contingency3.getId()).thenReturn("contingency3");
 
         // similar pre and post contingency results
-        LimitViolationsResult preContingencyResult1 = new LimitViolationsResult(true, Arrays.asList(line1Violation1));
-        PostContingencyResult postContingencyResult11 = new PostContingencyResult(contingency1, new LimitViolationsResult(true, Arrays.asList(line1Violation1, line1Violation2)));
-        PostContingencyResult postContingencyResult12 = new PostContingencyResult(contingency2, new LimitViolationsResult(true, Arrays.asList(line1Violation1, line2Violation)));
-        SecurityAnalysisResult result1 = new SecurityAnalysisResult(preContingencyResult1, Arrays.asList(postContingencyResult11, postContingencyResult12));
+        LimitViolationsResult preContingencyResult1 = new LimitViolationsResult(Arrays.asList(line1Violation1));
+        PostContingencyResult postContingencyResult11 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line1Violation2)));
+        PostContingencyResult postContingencyResult12 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line2Violation)));
+        SecurityAnalysisResult result1 = new SecurityAnalysisResult(preContingencyResult1, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult11, postContingencyResult12));
 
-        LimitViolationsResult preContingencyResult2 = new LimitViolationsResult(true, Arrays.asList(similarLine1Violation1));
-        PostContingencyResult postContingencyResult21 = new PostContingencyResult(contingency1, new LimitViolationsResult(true, Arrays.asList(similarLine1Violation1, similarLine1Violation2)));
-        PostContingencyResult postContingencyResult22 = new PostContingencyResult(contingency2, new LimitViolationsResult(true, Arrays.asList(similarLine1Violation1, similarLine2Violation)));
-        SecurityAnalysisResult result2 = new SecurityAnalysisResult(preContingencyResult2, Arrays.asList(postContingencyResult22, postContingencyResult21));
+        LimitViolationsResult preContingencyResult2 = new LimitViolationsResult(Arrays.asList(similarLine1Violation1));
+        PostContingencyResult postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine1Violation2)));
+        PostContingencyResult postContingencyResult22 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine2Violation)));
+        SecurityAnalysisResult result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21));
 
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // different pre contingency results, similar post contingency results
-        preContingencyResult2 = new LimitViolationsResult(true, Arrays.asList(differentLine1Violation1));
-        result2 = new SecurityAnalysisResult(preContingencyResult2, Arrays.asList(postContingencyResult22, postContingencyResult21));
+        preContingencyResult2 = new LimitViolationsResult(Arrays.asList(differentLine1Violation1));
+        result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, different post contingency results
-        preContingencyResult2 = new LimitViolationsResult(true, Arrays.asList(similarLine1Violation1));
-        postContingencyResult21 = new PostContingencyResult(contingency1, new LimitViolationsResult(true, Arrays.asList(similarLine1Violation1, differentLine1Violation2)));
-        result2 = new SecurityAnalysisResult(preContingencyResult2, Arrays.asList(postContingencyResult22, postContingencyResult21));
+        preContingencyResult2 = new LimitViolationsResult(Arrays.asList(similarLine1Violation1));
+        postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, differentLine1Violation2)));
+        result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, different post contingency results: more contingencies at the end of result2
-        postContingencyResult21 = new PostContingencyResult(contingency1, new LimitViolationsResult(true, Arrays.asList(similarLine1Violation1, similarLine1Violation2)));
-        PostContingencyResult postContingencyResult23 = new PostContingencyResult(contingency3, new LimitViolationsResult(true, Arrays.asList(similarLine1Violation1, similarLine3Violation)));
-        result2 = new SecurityAnalysisResult(preContingencyResult2, Arrays.asList(postContingencyResult22, postContingencyResult21, postContingencyResult23));
+        postContingencyResult21 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine1Violation2)));
+        PostContingencyResult postContingencyResult23 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(similarLine1Violation1, similarLine3Violation)));
+        result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21, postContingencyResult23));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, different post contingency results: more contingencies in result2
-        PostContingencyResult postContingencyResult13 = new PostContingencyResult(contingency3, new LimitViolationsResult(true, Arrays.asList(line1Violation1, line3Violation)));
-        result1 = new SecurityAnalysisResult(preContingencyResult1, Arrays.asList(postContingencyResult13, postContingencyResult12));
+        PostContingencyResult postContingencyResult13 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(line1Violation1, line3Violation)));
+        result1 = new SecurityAnalysisResult(preContingencyResult1, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult13, postContingencyResult12));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, different post contingency results: more contingencies at the end of result1
-        result1 = new SecurityAnalysisResult(preContingencyResult1, Arrays.asList(postContingencyResult13, postContingencyResult11, postContingencyResult12));
-        result2 = new SecurityAnalysisResult(preContingencyResult2, Arrays.asList(postContingencyResult22, postContingencyResult21));
+        result1 = new SecurityAnalysisResult(preContingencyResult1, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult13, postContingencyResult11, postContingencyResult12));
+        result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult22, postContingencyResult21));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, different post contingency results: more contingencies in result1
-        result2 = new SecurityAnalysisResult(preContingencyResult2, Arrays.asList(postContingencyResult23, postContingencyResult21));
+        result2 = new SecurityAnalysisResult(preContingencyResult2, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult23, postContingencyResult21));
 
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // similar pre contingency results, similar post contingency results: more contingencies in result1, but small
-        postContingencyResult12 = new PostContingencyResult(contingency2, new LimitViolationsResult(true, Arrays.asList(smallLine1Violation1, smallLine2Violation)));
-        result1 = new SecurityAnalysisResult(preContingencyResult1, Arrays.asList(postContingencyResult13, postContingencyResult11, postContingencyResult12));
+        postContingencyResult12 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Arrays.asList(smallLine1Violation1, smallLine2Violation)));
+        result1 = new SecurityAnalysisResult(preContingencyResult1, LoadFlowResult.ComponentResult.Status.CONVERGED, Arrays.asList(postContingencyResult13, postContingencyResult11, postContingencyResult12));
 
         assertTrue(resultEquivalence.equivalent(result1, result2));
     }
