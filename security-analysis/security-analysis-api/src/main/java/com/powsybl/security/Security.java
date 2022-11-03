@@ -461,9 +461,9 @@ public final class Security {
                         .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
                         .collect(Collectors.toList());
 
-                if (!filteredLimitViolations2.isEmpty() || !postContingencyResult.getLimitViolationsResult().isComputationOk()) {
+                if (!filteredLimitViolations2.isEmpty() || postContingencyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
                     formatter.writeCell(postContingencyResult.getContingency().getId())
-                            .writeCell(postContingencyResult.getLimitViolationsResult().isComputationOk() ? "converge" : "diverge")
+                            .writeCell(postContingencyResult.getStatus().name())
                             .writeEmptyCell()
                             .writeCell(EQUIPMENT + " (" + filteredLimitViolations2.size() + ")")
                             .writeEmptyCell()
