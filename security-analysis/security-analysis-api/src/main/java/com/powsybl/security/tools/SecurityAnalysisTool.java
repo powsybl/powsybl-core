@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.ImportersLoader;
 import com.powsybl.iidm.network.ImportersServiceLoader;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.action.ActionList;
