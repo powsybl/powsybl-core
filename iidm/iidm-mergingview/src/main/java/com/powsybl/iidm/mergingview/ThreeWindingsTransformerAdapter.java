@@ -250,7 +250,7 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public void remove(boolean removeDanglingSwitches) {
+    public void remove() {
         throw MergingView.createNotImplementedException();
     }
 }
