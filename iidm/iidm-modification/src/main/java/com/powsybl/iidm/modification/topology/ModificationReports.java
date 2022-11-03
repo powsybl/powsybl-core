@@ -286,6 +286,45 @@ final class ModificationReports {
                 .build());
     }
 
+    public static void removedSwitchReport(Reporter reporter, String switchId) {
+        reporter.report(Report.builder()
+                .withKey("SwitchRemoved")
+                .withDefaultMessage("Switch ${switchId} removed")
+                .withValue("switchId", switchId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removedInternalConnectionReport(Reporter reporter, int node1, int node2) {
+        reporter.report(Report.builder()
+                .withKey("InternalConnectionRemoved")
+                .withDefaultMessage("Internal connection between ${node1} and ${node2} removed")
+                .withValue("node1", node1)
+                .withValue("node2", node2)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removedConnectableReport(Reporter reporter, String connectableId) {
+        reporter.report(Report.builder()
+                .withKey("ConnectableRemoved")
+                .withDefaultMessage("Connectable ${connectableId} removed")
+                .withValue("connectableId", connectableId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removeFeederBayAborted(Reporter reporter, String connectableId, int node, String otherConnectableId) {
+        reporter.report(Report.builder()
+                .withKey("RemoveFeederBayAborted")
+                .withDefaultMessage("Remove feeder bay of ${connectableId} cannot go further node ${node}, as it is connected to ${otherConnectableId}")
+                .withValue("connectableId", connectableId)
+                .withValue("node", node)
+                .withValue("otherConnectableId", otherConnectableId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
     private ModificationReports() {
     }
 }

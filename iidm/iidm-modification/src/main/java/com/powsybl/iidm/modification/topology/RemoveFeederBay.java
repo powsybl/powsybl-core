@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundConnectableReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.removeFeederBayBusbarSectionReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -43,12 +42,13 @@ public class RemoveFeederBay extends AbstractNetworkModification {
             return;
         }
 
-        connectable.getTerminals().forEach(t -> {
+        for (Terminal t : connectable.getTerminals()) {
             Graph<Integer, Object> graph = createGraphFromTerminal(t);
             int node = t.getNodeBreakerView().getNode();
-            cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node);
-        });
+            cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, reporter);
+        }
         connectable.remove();
+        removedConnectableReport(reporter, connectableId);
     }
 
     private Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
@@ -73,31 +73,33 @@ public class RemoveFeederBay extends AbstractNetworkModification {
      * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
      * fork node is encountered, for which special care is needed to clean the topology.
      */
-    private void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node) {
+    private void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Reporter reporter) {
         Set<Object> edges = graph.edgesOf(node);
         if (edges.size() == 1) {
             Object edge = edges.iterator().next();
             Integer oppositeNode = getOppositeNode(graph, node, edge);
-            removeSwitchOrInternalConnection(nbv, graph, edge);
-            cleanTopology(nbv, graph, oppositeNode);
+            removeSwitchOrInternalConnection(nbv, graph, edge, reporter);
+            cleanTopology(nbv, graph, oppositeNode, reporter);
         } else if (edges.size() > 1) {
-            cleanFork(nbv, graph, node, edges);
+            cleanFork(nbv, graph, node, edges, reporter);
         }
     }
 
     /**
      * Try to remove all edges of the given fork node
      */
-    private void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges) {
+    private void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges, Reporter reporter) {
         List<Object> toBusesOnly = new ArrayList<>();
         List<Object> mixed = new ArrayList<>();
         for (Object edge : edges) {
             List<Connectable<?>> connectables = getLinkedConnectables(nbv, graph, node, edge);
             if (connectables.stream().allMatch(BusbarSection.class::isInstance)) {
-                // the edge is only linked to busbarSections (or to no connectables), it's a good candidate for removal
+                // the edge is only linked to busbarSections, or to no connectables, hence it's a good candidate for removal
                 toBusesOnly.add(edge);
             } else if (connectables.stream().noneMatch(BusbarSection.class::isInstance)) {
                 // the edge is only linked to other non-busbarSection connectables, no further cleaning can be done
+                // Note that connectables cannot be empty because of previous if
+                removeFeederBayAborted(reporter, connectableId, node, connectables.stream().map(Connectable::getId).findFirst().orElse("none"));
                 return;
             } else {
                 // the edge is linked to busbarSections and non-busbarSection connectables, some further cleaning can be done if there's only one edge of that type
@@ -110,12 +112,12 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         // - or linked to busbarSections and connectables
         // The former ones can be removed:
         for (Object edge : toBusesOnly) {
-            removeAllSwitchesAndInternalConnections(nbv, graph, node, edge);
+            removeAllSwitchesAndInternalConnections(nbv, graph, node, edge, reporter);
         }
         // We don't remove the latter ones if more than one, as this would break the connection between them
         if (mixed.size() == 1) {
             // If only one, we're cleaning the dangling switches and/or internal connections
-            cleanTopology(nbv, graph, node);
+            cleanTopology(nbv, graph, node, reporter);
         }
     }
 
@@ -144,12 +146,13 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     /**
      * Traverse the graph and remove all switches and internal connections until encountering a {@link BusbarSection}.
      */
-    private void removeAllSwitchesAndInternalConnections(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int originNode, Object edge) {
+    private void removeAllSwitchesAndInternalConnections(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
+                                                         int originNode, Object edge, Reporter reporter) {
         Integer oppositeNode = getOppositeNode(graph, originNode, edge);
-        removeSwitchOrInternalConnection(nbv, graph, edge);
+        removeSwitchOrInternalConnection(nbv, graph, edge, reporter);
         if (!isBusbarSection(nbv, oppositeNode)) {
             for (Object otherEdge : new ArrayList<>(graph.edgesOf(oppositeNode))) {
-                removeAllSwitchesAndInternalConnections(nbv, graph, oppositeNode, otherEdge);
+                removeAllSwitchesAndInternalConnections(nbv, graph, oppositeNode, otherEdge, reporter);
             }
         }
     }
@@ -159,12 +162,16 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         return c.isPresent() && c.get() instanceof BusbarSection;
     }
 
-    private static void removeSwitchOrInternalConnection(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, Object edge) {
+    private static void removeSwitchOrInternalConnection(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
+                                                         Object edge, Reporter reporter) {
         if (edge instanceof Switch) {
-            nbv.removeSwitch(((Switch) edge).getId());
+            String switchId = ((Switch) edge).getId();
+            nbv.removeSwitch(switchId);
+            removedSwitchReport(reporter, switchId);
         } else {
             Pair<Integer, Integer> ic = (Pair<Integer, Integer>) edge;
             nbv.removeInternalConnections(ic.getFirst(), ic.getSecond());
+            removedInternalConnectionReport(reporter, ic.getFirst(), ic.getSecond());
         }
         graph.removeEdge(edge);
     }
