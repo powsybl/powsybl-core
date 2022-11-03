@@ -13,6 +13,7 @@ import java.util.Objects;
 
 import com.google.common.base.Equivalence;
 import com.powsybl.security.LimitViolation;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
 
@@ -36,7 +37,8 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
         PostContingencyResultComparator postContingencyResultComparator = new PostContingencyResultComparator();
 
         // compare precontingency results
-        boolean equivalent = violationsResultEquivalence.equivalent(result1.getPreContingencyLimitViolationsResult(), result2.getPreContingencyLimitViolationsResult());
+        boolean equivalent = result1.getPreContingencyResult().getStatus() == result2.getPreContingencyResult().getStatus();
+        equivalent &= violationsResultEquivalence.equivalent(result1.getPreContingencyLimitViolationsResult(), result2.getPreContingencyLimitViolationsResult());
 
         // I still carry on the comparison even if equivalent is already false because I need to print the violations of the post contingency results
         // compare postcontingency results
@@ -86,8 +88,8 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
                                                   .reduce(Boolean::logicalAnd)
                                                   .orElse(false);
         comparisonWriter = missingResult1 ?
-                           comparisonWriter.write(null, postContingencyResult.getLimitViolationsResult().isComputationOk(), equivalent) :
-                           comparisonWriter.write(postContingencyResult.getLimitViolationsResult().isComputationOk(), null, equivalent);
+                           comparisonWriter.write(null, postContingencyResult.getStatus() == PostContingencyComputationStatus.CONVERGED, equivalent) :
+                           comparisonWriter.write(postContingencyResult.getStatus() == PostContingencyComputationStatus.CONVERGED, null, equivalent);
         comparisonWriter = missingResult1 ?
                            comparisonWriter.write(null, postContingencyResult.getLimitViolationsResult().getActionsTaken(), equivalent) :
                            comparisonWriter.write(postContingencyResult.getLimitViolationsResult().getActionsTaken(), null, equivalent);

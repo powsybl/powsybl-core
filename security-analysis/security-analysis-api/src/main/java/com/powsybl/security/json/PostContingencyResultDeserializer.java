@@ -14,11 +14,13 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.results.*;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
@@ -41,6 +43,7 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         List<BusResult> busResults = Collections.emptyList();
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
         NetworkResult networkResult = null;
+        PostContingencyComputationStatus status = null;
 
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
@@ -84,14 +87,25 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                             version, "1.2");
                     networkResult = parser.readValueAs(NetworkResult.class);
                     break;
+                case "status":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
+                            version, "1.3");
+                    status = parser.readValueAs(PostContingencyComputationStatus.class);
+                    break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
+
+        if (version.compareTo("1.3") < 0) {
+            Objects.requireNonNull(limitViolationsResult);
+            status = limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
+        }
         if (networkResult != null) {
-            return new PostContingencyResult(contingency, limitViolationsResult, networkResult);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, networkResult);
         } else {
-            return new PostContingencyResult(contingency, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
         }
     }
 }

@@ -23,6 +23,7 @@ import com.powsybl.iidm.import_.ImportersServiceLoader;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.action.ActionList;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
@@ -317,7 +318,7 @@ public class SecurityAnalysisTool implements Tool {
 
         SecurityAnalysisResult result = report.getResult();
 
-        if (!result.getPreContingencyLimitViolationsResult().isComputationOk()) {
+        if (result.getPreContingencyResult().getStatus() != LoadFlowResult.ComponentResult.Status.CONVERGED) {
             context.getErrorStream().println("Pre-contingency state divergence");
         }
 

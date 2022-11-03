@@ -9,10 +9,10 @@ package com.powsybl.security.interceptors;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
+import com.powsybl.security.results.PreContingencyResult;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -20,8 +20,8 @@ import com.powsybl.security.extensions.CurrentExtension;
 public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInterceptor {
 
     @Override
-    public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
-        for (LimitViolation limitViolation : preContingencyResult.getLimitViolations()) {
+    public void onPreContingencyResult(PreContingencyResult preContingencyResult, SecurityAnalysisResultContext context) {
+        for (LimitViolation limitViolation : preContingencyResult.getLimitViolationsResult().getLimitViolations()) {
             if (limitViolation.getLimitType() == LimitViolationType.CURRENT) {
                 Branch branch = context.getNetwork().getBranch(limitViolation.getSubjectId());
 

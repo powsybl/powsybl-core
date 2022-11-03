@@ -566,6 +566,25 @@ public final class CgmesConformity1ModifiedCatalog {
                 "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
+    public static TestGridModelResources microGridBaseCaseBEEquivalentBranchWithZeroImpedanceInsideVoltageLevel() {
+        String base = ENTSOE_CONFORMITY_1
+            + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+            + "/MicroGrid/BaseCase/BC_BE_v2_eqbranch_with_zero_impedance_inside_voltage_level/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+            + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-BE-EquivalentBranch-with-zero-impedance-inside-voltage_level",
+            null,
+            new ResourceSet(baseModified,
+                "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+            new ResourceSet(base,
+                "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+            new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     public static TestGridModelResources microGridBaseCaseBELimits() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
@@ -1814,6 +1833,26 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
                 new ResourceSet(baseOriginal,
                         "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModel microGridBaseBEInvalidVoltageBus() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_invalid_voltage_bus/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources(
+                "MicroGrid-BaseCase-BE-invalid-voltage-bus",
+                null,
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml"),
+                new ResourceSet(baseOriginal,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
                         "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
                 new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
                         "MicroGridTestConfiguration_TP_BD.xml"));
