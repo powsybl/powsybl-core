@@ -43,9 +43,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         }
 
         for (Terminal t : connectable.getTerminals()) {
-            Graph<Integer, Object> graph = createGraphFromTerminal(t);
-            int node = t.getNodeBreakerView().getNode();
-            cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, reporter);
+            if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                Graph<Integer, Object> graph = createGraphFromTerminal(t);
+                int node = t.getNodeBreakerView().getNode();
+                cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, reporter);
+            }
         }
         connectable.remove();
         removedConnectableReport(reporter, connectableId);

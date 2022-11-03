@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.After;
 import org.junit.Test;
@@ -58,6 +59,17 @@ public class RemoveFeederBayTest {
 
         assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), beforeRemovalObjects);
         assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), removedObjects);
+    }
+
+    @Test
+    public void testBbvRemove() {
+        Network network = EurostagTutorialExample1Factory.create();
+        addListener(network);
+
+        new RemoveFeederBay("LOAD").apply(network);
+
+        assertEquals(Set.of("LOAD"), beforeRemovalObjects);
+        assertEquals(Set.of("LOAD"), removedObjects);
     }
 
     @Test
