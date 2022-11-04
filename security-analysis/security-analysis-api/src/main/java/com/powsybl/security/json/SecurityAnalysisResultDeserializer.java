@@ -16,6 +16,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.NetworkMetadata;
 import com.powsybl.security.results.*;
@@ -101,7 +102,13 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         }
         SecurityAnalysisResult result = null;
         if (preContingencyResult == null) {
-            result = new SecurityAnalysisResult(limitViolationsResult, postContingencyResults, Collections.emptyList(),
+            LoadFlowResult.ComponentResult.Status status = null;
+            if (limitViolationsResult != null && version.equals("1.0")) {
+                status = limitViolationsResult.isComputationOk() ? LoadFlowResult.ComponentResult.Status.CONVERGED : LoadFlowResult.ComponentResult.Status.FAILED;
+            } else {
+                status = LoadFlowResult.ComponentResult.Status.CONVERGED;
+            }
+            result = new SecurityAnalysisResult(limitViolationsResult, status, postContingencyResults, Collections.emptyList(),
                     Collections.emptyList(), Collections.emptyList(), operatorStrategyResults);
         } else {
             result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults, operatorStrategyResults);

@@ -6,13 +6,13 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +35,6 @@ public class SecurityTest {
     TableFormatterConfig formatterConfig;
 
     private final CsvTableFormatterFactory formatterFactory = new CsvTableFormatterFactory();
-    private final AsciiTableFormatterFactory formatterFactoryAscii = new AsciiTableFormatterFactory();
 
     private SecurityAnalysisResult result;
     private LimitViolation line1Violation;
@@ -50,15 +49,15 @@ public class SecurityTest {
 
         // create pre-contingency results, just one violation on line1
         line1Violation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
-        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(line1Violation), Collections.singletonList("action1"));
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(line1Violation), Collections.singletonList("action1"));
 
         // create post-contingency results, still the line1 violation plus line2 violation
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
         line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, Branch.Side.ONE);
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, true, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, Arrays.asList(line1Violation, line2Violation), Collections.singletonList("action2"));
 
-        result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+        result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
 
     @Test
@@ -88,7 +87,7 @@ public class SecurityTest {
         assertEquals(String.join(System.lineSeparator(),
                                  "Post-contingency limit violations",
                                  "Contingency,Status,Action,Equipment (2),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
-                                 "contingency1,converge,,Equipment (2),,,,,,,,,",
+                                 "contingency1,CONVERGED,,Equipment (2),,,,,,,,,",
                                  ",,action2,,,,,,,,,,",
                                  ",,,NHV1_NHV2_1,VLHV1,FR,380,CURRENT,Permanent limit,1100.0000,950.0000,150.0000,110.00",
                                  ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
@@ -106,7 +105,7 @@ public class SecurityTest {
         assertEquals(String.join(System.lineSeparator(),
                                  "Post-contingency limit violations",
                                  "Contingency,Status,Action,Equipment (1),End,Country,Base voltage,Violation type,Violation name,Value,Limit,abs(value-limit),Loading rate %",
-                                 "contingency1,converge,,Equipment (1),,,,,,,,,",
+                                 "contingency1,CONVERGED,,Equipment (1),,,,,,,,,",
                                  ",,action2,,,,,,,,,,",
                                  ",,,NHV1_NHV2_2,VLHV1,FR,380,CURRENT,Permanent limit,950.0000,855.0000,95.0000,105.56"),
                      writer.toString().trim());

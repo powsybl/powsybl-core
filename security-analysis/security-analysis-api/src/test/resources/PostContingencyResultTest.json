@@ -3,8 +3,8 @@
     "id" : "contingency",
     "elements" : [ ]
   },
+  "status" : "CONVERGED",
   "limitViolationsResult" : {
-    "computationOk" : true,
     "limitViolations" : [ {
       "subjectId" : "violation",
       "limitType" : "HIGH_VOLTAGE",

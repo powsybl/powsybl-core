@@ -9,13 +9,11 @@ package com.powsybl.iidm.network.scripting
 import com.google.auto.service.AutoService
 import com.powsybl.computation.ComputationManager
 import com.powsybl.computation.local.LocalComputationManager
-import com.powsybl.iidm.export.Exporters
-import com.powsybl.iidm.export.ExportersLoader
-import com.powsybl.iidm.export.ExportersServiceLoader
-import com.powsybl.iidm.import_.ImportConfig
-import com.powsybl.iidm.import_.Importers
-import com.powsybl.iidm.import_.ImportersLoader
-import com.powsybl.iidm.import_.ImportersServiceLoader
+import com.powsybl.iidm.network.ExportersLoader
+import com.powsybl.iidm.network.ExportersServiceLoader
+import com.powsybl.iidm.network.ImportConfig
+import com.powsybl.iidm.network.ImportersLoader
+import com.powsybl.iidm.network.ImportersServiceLoader
 import com.powsybl.iidm.network.Network
 import com.powsybl.scripting.groovy.GroovyScriptExtension
 
@@ -51,11 +49,11 @@ class NetworkLoadSaveGroovyScriptExtension implements GroovyScriptExtension {
     @Override
     void load(Binding binding, ComputationManager computationManager) {
         binding.loadNetwork = { String file, Properties parameters = null ->
-            Importers.loadNetwork(fileSystem.getPath(file), LocalComputationManager.getDefault(),
+            Network.read(fileSystem.getPath(file), LocalComputationManager.getDefault(),
                     importConfig, parameters, importersLoader)
         }
         binding.saveNetwork =  { String format, Network network, Properties parameters = null, String file ->
-            Exporters.export(exportersLoader, format, network, parameters, fileSystem.getPath(file))
+            network.write(exportersLoader, format, parameters, fileSystem.getPath(file))
         }
     }
 

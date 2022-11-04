@@ -15,9 +15,8 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.export.ExportersServiceLoader;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.ExportersServiceLoader;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -60,6 +59,6 @@ public class ExportProfilesConsistencyTest extends AbstractConverterTest {
     private void exportProfiles(List<String> profiles, Network network, Reporter reporter) {
         Properties params = new Properties();
         params.put(CgmesExport.PROFILES, profiles);
-        Exporters.export(new ExportersServiceLoader(), "CGMES", network, params, tmpDir.resolve("exported"), reporter);
+        network.write(new ExportersServiceLoader(), "CGMES", params, tmpDir.resolve("exported"), reporter);
     }
 }
