@@ -3,7 +3,6 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ZipFileDataSource;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -79,7 +78,7 @@ public class TopologyExportCornerCasesTest extends AbstractConverterTest {
         params.put(CgmesExport.CIM_VERSION, "100");
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
-        Network networkFromCgmes = Importers.loadNetwork(tmpDir.resolve(name + ".zip"));
+        Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"));
         if (checkAllTerminalsConnected) {
             checkAllTerminalsConnected(network, name + "_from_CGMES");
         }

@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.*;
 import com.powsybl.security.results.OperatorStrategyResult;
 
@@ -27,22 +28,26 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final List<OperatorStrategyResult> operatorStrategyResults;
 
     public static SecurityAnalysisResult empty() {
-        return new SecurityAnalysisResult(LimitViolationsResult.empty(), Collections.emptyList());
+        return new SecurityAnalysisResult(new PreContingencyResult(LoadFlowResult.ComponentResult.Status.CONVERGED, LimitViolationsResult.empty(), Collections.emptyList(),
+                Collections.emptyList(), Collections.emptyList()),
+                Collections.emptyList(), Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
+                                  LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()),
                 postContingencyResults, Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
+                                  LoadFlowResult.ComponentResult.Status preContingencyStatus,
                                   List<PostContingencyResult> postContingencyResults,
                                   List<BranchResult> preContingencyBranchResults,
                                   List<BusResult> preContingencyBusResults,
                                   List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults,
                                   List<OperatorStrategyResult> operatorStrategyResults) {
-        this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults,
+        this(new PreContingencyResult(preContingencyStatus, preContingencyResult, preContingencyBranchResults,
                         preContingencyBusResults,
                         preContingencyThreeWindingsTransformerResults),
                 postContingencyResults, operatorStrategyResults);
@@ -80,4 +85,5 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     public List<OperatorStrategyResult> getOperatorStrategyResults() {
         return operatorStrategyResults;
     }
+
 }

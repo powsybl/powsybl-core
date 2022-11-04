@@ -7,11 +7,22 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -87,6 +98,271 @@ import java.util.stream.Stream;
  * @see VariantManager
  */
 public interface Network extends Container<Network> {
+
+    /**
+     * Read a network from the specified file, trying to guess its format.
+     *
+     * @param file               The file to be loaded.
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param networkFactory     Network factory
+     * @param loader             Provides the list of available importers and post-processors
+     * @param reporter           The reporter used for functional logs
+     * @return                   The loaded network
+     */
+    static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
+                        ImportersLoader loader, Reporter reporter) {
+        ReadOnlyDataSource dataSource = Importers.createDataSource(file);
+        Importer importer = Importer.find(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importData(dataSource, networkFactory, parameters, reporter);
+        }
+        throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+    }
+
+    static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters,
+                        ImportersLoader loader, Reporter reporter) {
+        return read(file, computationManager, config, parameters, NetworkFactory.findDefault(), loader, reporter);
+    }
+
+    /**
+     * Read a network from the specified file, trying to guess its format.
+     *
+     * @param file               The file to be loaded.
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param loader             Provides the list of available importers and post-processors
+     * @return                   The loaded network
+     */
+    static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
+        return read(file, computationManager, config, parameters, loader, Reporter.NO_OP);
+    }
+
+    /**
+     * Read a network from the specified file, trying to guess its format,
+     * and using importers and post processors defined as services.
+     *
+     * @param file               The file to be loaded.
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @return                   The loaded network
+     */
+    static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
+        return read(file, computationManager, config, parameters, new ImportersServiceLoader());
+    }
+
+    /**
+     * Read a network from the specified file, trying to guess its format,
+     * and using importers and post processors defined as services.
+     * Import will be performed using import configuration defined in default platform config,
+     * and with no importer-specific parameters.
+     * Post processors will use the default {@link LocalComputationManager}, as defined in
+     * default platform config.
+     *
+     * @param file               The file to be loaded.
+     * @return                   The loaded network
+     */
+    static Network read(Path file) {
+        return read(file, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), null);
+    }
+
+    /**
+     * Loads a network from the specified file path, see {@link #read(Path)}.
+     *
+     * @param file               The file to be loaded.
+     * @return                   The loaded network
+     */
+    static Network read(String file) {
+        return read(Paths.get(file));
+    }
+
+    /**
+     * Read a network from a raw input stream, trying to guess the format from the specified filename.
+     * Please note that the input stream must be from a simple file, not a zipped one.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param networkFactory     Network factory
+     * @param loader             Provides the list of available importers and post-processors
+     * @param reporter           The reporter used for functional logs
+     * @return                   The loaded network
+     */
+    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, Reporter reporter) {
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+        dataSource.putData(filename, data);
+        Importer importer = Importer.find(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importData(dataSource, networkFactory, parameters, reporter);
+        }
+        throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+    }
+
+    /**
+     * Read a network from a raw input stream, trying to guess the format from the specified filename.
+     * Please note that the input stream must be from a simple file, not a zipped one.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param loader             Provides the list of available importers and post-processors
+     * @param reporter           The reporter used for functional logs
+     * @return                   The loaded network
+     */
+    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, Reporter reporter) {
+        return read(filename, data, computationManager, config, parameters, NetworkFactory.findDefault(), loader, reporter);
+    }
+
+    /**
+     * Read a network from a raw input stream, trying to guess the format from the specified filename.
+     * Please note that the input stream must be from a simple file, not a zipped one.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param loader             Provides the list of available importers and post-processors
+     * @return                   The loaded network
+     */
+    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
+        return read(filename, data, computationManager, config, parameters, loader, Reporter.NO_OP);
+    }
+
+    /**
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
+     * and using importers and post processors defined as services.
+     * Please note that the input stream must be from a simple file, not a zipped one.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @return                   The loaded network
+     */
+    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters) {
+        return read(filename, data, computationManager, config, parameters, new ImportersServiceLoader());
+    }
+
+    /**
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
+     * and using importers and post processors defined as services.
+     * Import will be performed using import configuration defined in default platform config,
+     * and with no importer-specific parameters.
+     * Please note that the input stream must be from a simple file, not a zipped one.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @return                   The loaded network
+     */
+    static Network read(String filename, InputStream data, ComputationManager computationManager) {
+        return read(filename, data, computationManager, ImportConfig.CACHE.get(), null);
+    }
+
+    /**
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
+     * and using importers and post processors defined as services.
+     * Import will be performed using import configuration defined in default platform config,
+     * and with no importer-specific parameters.
+     * Post processors will use the default {@link LocalComputationManager}, as defined in
+     * default platform config.
+     * Please note that the input stream must be from a simple file, not a zipped one.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @return                   The loaded network
+     */
+    static Network read(String filename, InputStream data) {
+        return read(filename, data, LocalComputationManager.getDefault());
+    }
+
+    /**
+     * Read a network from a raw input stream, trying to guess the format from the specified filename,
+     * and using importers and post processors defined as services.
+     * Import will be performed using import configuration defined in default platform config,
+     * and with no importer-specific parameters.
+     * Post processors will use the default {@link LocalComputationManager}, as defined in
+     * default platform config.
+     * Please note that the input stream must be from a simple file, not a zipped one.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param reporter           The reporter used for functional logs
+     * @return                   The loaded network
+     */
+    static Network read(String filename, InputStream data, Reporter reporter) {
+        return read(filename, data, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), null, new ImportersServiceLoader(), reporter);
+    }
+
+    static Network read(ReadOnlyDataSource dataSource) {
+        return read(dataSource, null);
+    }
+
+    static Network read(ReadOnlyDataSource dataSource, Properties properties) {
+        return read(dataSource, properties, Reporter.NO_OP);
+    }
+
+    static Network read(ReadOnlyDataSource dataSource, Properties properties, Reporter reporter) {
+        Importer importer = Importer.find(dataSource);
+        if (importer != null) {
+            return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reporter);
+        }
+        throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+    }
+
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
+        if (!Files.isDirectory(dir)) {
+            throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
+        }
+        for (Importer importer : Importer.list(loader, computationManager, config)) {
+            Importers.importAll(dir, importer, parallel, parameters, consumer, listener, networkFactory, reporter);
+        }
+    }
+
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, NetworkFactory.findDefault(), reporter);
+    }
+
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, Reporter.NO_OP);
+    }
+
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, loader, computationManager, config, null, consumer, listener);
+    }
+
+    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, new ImportersServiceLoader(), computationManager, config, parameters, consumer, listener);
+    }
+
+    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, new ImportersServiceLoader(), computationManager, config, consumer, listener);
+    }
+
+    static void readAll(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, computationManager, config, consumer, null);
+    }
+
+    static void readAll(Path dir, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), consumer);
+    }
+
+    static void readAll(Path dir, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), consumer, listener);
+    }
+
+    static void readAll(Path dir, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, false, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), consumer);
+    }
 
     /**
      * A global bus/breaker view of the network.
@@ -953,5 +1229,71 @@ public interface Network extends Container<Network> {
             default:
                 throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         }
+    }
+
+    /**
+     * Write the network to a given format.
+     *
+     * @param format the export format
+     * @param parameters some properties to configure the export
+     * @param dataSource data source
+     * @param reporter the reporter used for functional logs
+     */
+    default void write(ExportersLoader loader, String format, Properties parameters, DataSource dataSource, Reporter reporter) {
+        Exporter exporter = Exporter.find(loader, format);
+        if (exporter == null) {
+            throw new PowsyblException("Export format " + format + " not supported");
+        }
+        exporter.export(this, parameters, dataSource, reporter);
+    }
+
+    default void write(ExportersLoader loader, String format, Properties parameters, DataSource dataSource) {
+        write(loader, format, parameters, dataSource, Reporter.NO_OP);
+    }
+
+    default void write(String format, Properties parameters, DataSource dataSource) {
+        write(new ExportersServiceLoader(), format, parameters, dataSource);
+    }
+
+    /**
+     * Write the network to a given format.
+     *
+     * @param format the export format
+     * @param parameters some properties to configure the export
+     * @param file the network file
+     * @param reporter the reporter used for functional logs
+     */
+    default void write(ExportersLoader loader, String format, Properties parameters, Path file, Reporter reporter) {
+        DataSource dataSource = Exporters.createDataSource(file);
+        write(loader, format, parameters, dataSource, reporter);
+    }
+
+    default void write(ExportersLoader loader, String format, Properties parameters, Path file) {
+        write(loader, format, parameters, file, Reporter.NO_OP);
+    }
+
+    default void write(String format, Properties parameters, Path file) {
+        write(new ExportersServiceLoader(), format, parameters, file);
+    }
+
+    /**
+     * Write the network to a given format.
+     *
+     * @param format the export format
+     * @param parameters some properties to configure the export
+     * @param directory the output directory where files are generated
+     * @param baseName a base name for all generated files
+     * @param reporter the reporter used for functional logs
+     */
+    default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, Reporter reporter) {
+        write(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reporter);
+    }
+
+    default void write(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {
+        write(loader, format, parameters, directory, basename, Reporter.NO_OP);
+    }
+
+    default void write(String format, Properties parameters, String directory, String baseName) {
+        write(new ExportersServiceLoader(), format, parameters, directory, baseName);
     }
 }

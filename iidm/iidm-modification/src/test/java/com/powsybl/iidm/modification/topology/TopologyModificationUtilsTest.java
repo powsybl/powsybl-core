@@ -6,11 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
@@ -34,7 +30,7 @@ public class TopologyModificationUtilsTest extends AbstractXmlConverterTest {
 
     @Test
     public void testFeederOrders() {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl1"));
         assertEquals(13, feederOrders.size());
         assertTrue(feederOrders.contains(100));
@@ -46,7 +42,7 @@ public class TopologyModificationUtilsTest extends AbstractXmlConverterTest {
 
     @Test
     public void testGetPositionsByConnectable() {
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
         assertTrue(positionsByConnectable.containsKey("load1"));
         assertEquals(List.of(70), positionsByConnectable.get("line1"));
@@ -55,7 +51,7 @@ public class TopologyModificationUtilsTest extends AbstractXmlConverterTest {
 
     @Test
     public void testGetPositionsByConnectableWithInternalLine() {
-        Network network = Importers.loadNetwork("network-node-breaker-with-new-internal-line.xml", getClass().getResourceAsStream("/network-node-breaker-with-new-internal-line.xml"));
+        Network network = Network.read("network-node-breaker-with-new-internal-line.xml", getClass().getResourceAsStream("/network-node-breaker-with-new-internal-line.xml"));
         Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
         assertEquals(List.of(14, 105), positionsByConnectable.get("lineTest"));
         assertEquals(14, positionsByConnectable.size());
@@ -81,7 +77,7 @@ public class TopologyModificationUtilsTest extends AbstractXmlConverterTest {
 
     @Test
     public void testNoConnectablePositionExt() {
-        Network network = Importers.loadNetwork("network-nb-no-connectable-position.xiidm", getClass().getResourceAsStream("/network-nb-no-connectable-position.xiidm"));
+        Network network = Network.read("network-nb-no-connectable-position.xiidm", getClass().getResourceAsStream("/network-nb-no-connectable-position.xiidm"));
         Optional<Range<Integer>> unusedOrderPositionsBefore = TopologyModificationUtils.getUnusedOrderPositionsBefore(network.getBusbarSection("vl_test_1_1"));
         Optional<Range<Integer>> unusedOrderPositionsAfter = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("vl_test_1_1"));
         assertEquals(0, (int) unusedOrderPositionsBefore.map(Range::getMinimum).orElse(-1));

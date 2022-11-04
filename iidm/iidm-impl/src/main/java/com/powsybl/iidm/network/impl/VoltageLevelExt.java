@@ -46,7 +46,7 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
     /**
      * Detach an equipment from the topology.
      */
-    void detach(TerminalExt terminal, boolean removeDanglingSwitches);
+    void detach(TerminalExt terminal);
 
     boolean connect(TerminalExt terminal);
 

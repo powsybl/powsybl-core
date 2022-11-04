@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.util.*;
@@ -14,22 +15,31 @@ import java.util.*;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
 public class PreContingencyResult {
+
+    private final LoadFlowResult.ComponentResult.Status status;
+
     private final LimitViolationsResult limitViolationsResult;
+
     private final NetworkResult networkResult;
 
     public PreContingencyResult() {
-        this(null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public PreContingencyResult(LimitViolationsResult limitViolationsResult, Collection<BranchResult> branchResults,
+    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, Collection<BranchResult> branchResults,
                                 Collection<BusResult> busResults,
                                 Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this(limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
+        this(status, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults));
     }
 
-    public PreContingencyResult(LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+    public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+        this.status = Objects.requireNonNull(status);
         this.limitViolationsResult = limitViolationsResult;
         this.networkResult = Objects.requireNonNull(networkResult);
+    }
+
+    public LoadFlowResult.ComponentResult.Status getStatus() {
+        return status;
     }
 
     public LimitViolationsResult getLimitViolationsResult() {
