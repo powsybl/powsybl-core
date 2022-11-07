@@ -48,7 +48,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
 
     private double checkSlope(double slope) {
         if (Double.isNaN(slope)) {
-            invalid("Slope is undefined");
+            missing("slope");
         }
         if (slope < 0) {
             ignored("Slope must be positive");

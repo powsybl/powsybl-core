@@ -880,7 +880,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void detach(final TerminalExt terminal, boolean removeDanglingSwitches) {
+    public void detach(final TerminalExt terminal) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalArgumentException("Incorrect terminal type");
         }

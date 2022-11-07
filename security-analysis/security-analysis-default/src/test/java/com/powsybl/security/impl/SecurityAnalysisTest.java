@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.SwitchAction;
@@ -128,10 +129,10 @@ public class SecurityAnalysisTest {
 
         SecurityAnalysisResult result = report.getResult();
 
-        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0);
-        assertTrue(postcontingencyResult.getLimitViolationsResult().isComputationOk());
+        assertSame(PostContingencyComputationStatus.CONVERGED, postcontingencyResult.getStatus());
         assertEquals(1, postcontingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
@@ -175,7 +176,7 @@ public class SecurityAnalysisTest {
                 interceptors, operatorStrategies, actions);
         SecurityAnalysisResult result = report.getResult();
 
-        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(0, result.getPostContingencyResults().size());
 

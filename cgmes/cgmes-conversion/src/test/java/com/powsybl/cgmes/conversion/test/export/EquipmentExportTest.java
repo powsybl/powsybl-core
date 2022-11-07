@@ -23,8 +23,6 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -452,7 +450,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         // There is no need to create the IIDM-CGMES mappings
         // We are reading only an EQ, we won't have TP data in the input
         // And to compare the expected and actual networks we are dropping all IIDM-CGMES mapping context information
-        return Importers.loadNetwork(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
+        return Network.read(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
     }
 
     private Path exportToCgmesEQ(Network network) throws IOException, XMLStreamException {
@@ -496,7 +494,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringNonEQ));
 
-        compareTemporaryLimits(Importers.loadNetwork(tmpDir.resolve("expected.xml")), Importers.loadNetwork(tmpDir.resolve("actual.xml")));
+        compareTemporaryLimits(Network.read(tmpDir.resolve("expected.xml")), Network.read(tmpDir.resolve("actual.xml")));
     }
 
     private void compareTemporaryLimits(Network expected, Network actual) {
