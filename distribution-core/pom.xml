@@ -446,7 +446,7 @@
             <plugin>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-itools-packager-maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <version>4.10.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

@@ -49,7 +49,5 @@ public interface Boundary {
     /**
      * Get the voltage level at network side.
      */
-    default VoltageLevel getVoltageLevel() {
-        return null;
-    }
+    VoltageLevel getNetworkSideVoltageLevel();
 }

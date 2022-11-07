@@ -60,7 +60,7 @@ public abstract class AbstractHalfLineBoundaryImpl implements Boundary {
     public abstract TieLine getConnectable();
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public VoltageLevel getNetworkSideVoltageLevel() {
         return getConnectable().getTerminal(side).getVoltageLevel();
     }
 

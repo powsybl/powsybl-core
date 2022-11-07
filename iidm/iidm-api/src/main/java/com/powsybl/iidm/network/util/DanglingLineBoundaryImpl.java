@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -78,8 +77,8 @@ public class DanglingLineBoundaryImpl implements Boundary {
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
-        throw new PowsyblException("Voltage level of dangling line boundary is undefined");
+    public VoltageLevel getNetworkSideVoltageLevel() {
+        return parent.getTerminal().getVoltageLevel();
     }
 
     private static double getV(Bus b) {
