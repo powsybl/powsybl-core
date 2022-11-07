@@ -308,7 +308,7 @@ public class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
-            Exporters.export("CGMES", network, null, tmpDir.resolve("tmp"));
+            network.write("CGMES", null, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
             // For bus/branch we need both EQ and TP instance files of boundaries
@@ -319,7 +319,7 @@ public class CgmesExportTest {
                 Files.copy(is, tmpDir.resolve("tmp_TP_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            Network networkFromCgmes = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
             double epsilon = 1e-10;
@@ -351,7 +351,7 @@ public class CgmesExportTest {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             Properties exportParameters = new Properties();
             exportParameters.put(CgmesExport.CIM_VERSION, "100");
-            Exporters.export("CGMES", network, exportParameters, tmpDir.resolve("tmp"));
+            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
             // To be able to import from the exported CGMES data we must add the external boundary definitions
             // Because we work with node/breaker we only need the boundary EQ instance file
@@ -359,7 +359,7 @@ public class CgmesExportTest {
                 Files.copy(is, tmpDir.resolve("tmp_EQ_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            Network networkFromCgmes = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
             double epsilon = 1e-10;
@@ -388,9 +388,9 @@ public class CgmesExportTest {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             Properties exportParameters = new Properties();
             exportParameters.put(CgmesExport.CIM_VERSION, "100");
-            Exporters.export("CGMES", network, exportParameters, tmpDir.resolve("tmp"));
+            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
 
-            Network networkFromCgmes = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             DanglingLine actualDanglingLine = networkFromCgmes.getDanglingLine("DL");
             assertNull(actualDanglingLine);
             double epsilon = 1e-10;
