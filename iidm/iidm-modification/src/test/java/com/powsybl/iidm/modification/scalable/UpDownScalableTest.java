@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -82,4 +83,44 @@ public class UpDownScalableTest {
         assertEquals(1, notFoundIds.size());
         assertTrue(notFoundIds.contains("unknown generator"));
     }
+
+    @Test
+    public void testUpDownWithDeactivatedScalables() {
+        Network testNetwork = ScalableTestNetwork.createNetwork();
+        Scalable upScalable = Scalable.onGenerator("g2");
+        Scalable downScalable = Scalable.onLoad("l1");
+        UpDownScalable upDownScalable = Scalable.upDown(upScalable, downScalable);
+
+        double done = upDownScalable.scale(testNetwork, 50);
+        assertEquals(50, done, EPSILON);
+        assertEquals(100, upDownScalable.maximumValue(testNetwork), EPSILON);
+        assertEquals(50, upScalable.initialValue(testNetwork), EPSILON);
+
+        upDownScalable.deactivateScalables(Set.of(upScalable));
+        done = upDownScalable.scale(testNetwork, 30);
+        assertEquals(0, done, EPSILON);
+        assertEquals(0, upDownScalable.maximumValue(testNetwork), EPSILON);
+    }
+/*
+    @Test
+    public void testStackScalableShallowCopy() {
+        StackScalable stackScalable = Scalable.stack(g1, g2, l1);
+
+        StackScalable shallowCopyInitial = (StackScalable) stackScalable.shallowCopy();
+        Collection<Scalable> activeScalables = shallowCopyInitial.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        stackScalable.deactivateScalables(Set.of(g1, l1));
+
+        activeScalables = shallowCopyInitial.getActiveScalables();
+        assertEquals(3, activeScalables.size());
+        assertTrue(activeScalables.contains(g1) && activeScalables.contains(g2) && activeScalables.contains(l1));
+
+        StackScalable shallowCopyDeactivated = (StackScalable) stackScalable.shallowCopy();
+        activeScalables = shallowCopyDeactivated.getActiveScalables();
+        assertEquals(1, activeScalables.size());
+        assertTrue(activeScalables.contains(g2));
+    }
+*/
 }

@@ -6,10 +6,8 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,5 +163,20 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     @Override
     public double scale(Network n, double asked) {
         return scale(n, asked, scalingConvention);
+    }
+
+    @Override
+    public double initialValue(Network n) {
+        Objects.requireNonNull(n);
+
+        Injection injection = getInjectionOrNull(n);
+        if (injection == null) {
+            return 0;
+        }
+        if (injection instanceof DanglingLine) {
+            return !Double.isNaN(((DanglingLine) injection).getP0()) ? ((DanglingLine) injection).getP0() : 0;
+        } else {
+            throw new PowsyblException("Dangling line scalable was not defined on a dangling line.");
+        }
     }
 }

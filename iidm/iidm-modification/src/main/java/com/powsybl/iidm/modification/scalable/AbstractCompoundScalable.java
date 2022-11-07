@@ -21,7 +21,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable implements Comp
     @Override
     public Collection<Scalable> getScalables() {
         Set<Scalable> scalables = new HashSet<>();
-        scalableActivityMap.keySet().stream().filter(scalableActivityMap::get).forEach(scalable -> {
+        scalableActivityMap.keySet().forEach(scalable -> {
             scalables.add(scalable);
             if (scalable instanceof CompoundScalable) {
                 scalables.addAll(((CompoundScalable) scalable).getScalables());
@@ -105,8 +105,10 @@ abstract class AbstractCompoundScalable extends AbstractScalable implements Comp
         Objects.requireNonNull(powerConvention);
 
         double value = 0;
-        for (Scalable scalable : getScalables()) {
-            value += scalable.maximumValue(n, powerConvention);
+        for (Scalable scalable : getActiveScalables()) {
+            if (!(scalable instanceof CompoundScalable)) {
+                value += scalable.maximumValue(n, powerConvention);
+            }
         }
         return value;
     }
@@ -121,8 +123,10 @@ abstract class AbstractCompoundScalable extends AbstractScalable implements Comp
         Objects.requireNonNull(n);
 
         double value = 0;
-        for (Scalable scalable : getScalables()) {
-            value += scalable.minimumValue(n, powerConvention);
+        for (Scalable scalable : getActiveScalables()) {
+            if (!(scalable instanceof CompoundScalable)) {
+                value += scalable.minimumValue(n, powerConvention);
+            }
         }
         return value;
     }
@@ -135,7 +139,9 @@ abstract class AbstractCompoundScalable extends AbstractScalable implements Comp
     @Override
     public void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
         for (Scalable scalable : getScalables()) {
-            scalable.filterInjections(n, injections, notFoundInjections);
+            if (!(scalable instanceof CompoundScalable)) {
+                scalable.filterInjections(n, injections, notFoundInjections);
+            }
         }
     }
 

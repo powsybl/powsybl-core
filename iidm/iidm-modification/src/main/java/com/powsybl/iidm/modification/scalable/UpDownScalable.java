@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -21,12 +20,21 @@ class UpDownScalable extends AbstractCompoundScalable {
     public UpDownScalable(Scalable upScalable, Scalable downScalable) {
         this.upScalable = Objects.requireNonNull(upScalable);
         this.downScalable = Objects.requireNonNull(downScalable);
-        scalableActivityMap = Map.of(upScalable, true, downScalable, true);
+        scalableActivityMap = new HashMap<>();
+        scalableActivityMap.put(upScalable, true);
+        scalableActivityMap.put(downScalable, true);
     }
 
     @Override
     public double initialValue(Network n) {
-        return upScalable.initialValue(n) + downScalable.initialValue(n);
+        double initialValue = 0;
+        if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+            initialValue += upScalable.initialValue(n);
+        }
+        if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+            initialValue += downScalable.initialValue(n);
+        }
+        return initialValue;
     }
 
     @Override
@@ -37,31 +45,65 @@ class UpDownScalable extends AbstractCompoundScalable {
 
     @Override
     public double maximumValue(Network n, ScalingConvention scalingConvention) {
+        double upScalableMax = 0;
+        double upScalableInitial = 0;
+        double downScalableMax = 0;
+        double downScalableInitial = 0;
+
+        if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+            upScalableMax = upScalable.maximumValue(n, scalingConvention);
+            upScalableInitial = upScalable.initialValue(n);
+        }
+        if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+            downScalableMax = downScalable.maximumValue(n, scalingConvention);
+            downScalableInitial = downScalable.initialValue(n);
+        }
+
         if (scalingConvention == ScalingConvention.LOAD) {
-            return downScalable.maximumValue(n, scalingConvention) - upScalable.initialValue(n);
+            return downScalableMax - upScalableInitial;
         } else {
-            return upScalable.maximumValue(n, scalingConvention) + downScalable.initialValue(n);
+            return upScalableMax + downScalableInitial;
         }
     }
 
     @Override
     public double minimumValue(Network n, ScalingConvention scalingConvention) {
+        double upScalableMin = 0;
+        double upScalableInitial = 0;
+        double downScalableMin = 0;
+        double downScalableInitial = 0;
+
+        if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+            upScalableMin = upScalable.minimumValue(n, scalingConvention);
+            upScalableInitial = upScalable.initialValue(n);
+        }
+        if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+            downScalableMin = downScalable.minimumValue(n, scalingConvention);
+            downScalableInitial = downScalable.initialValue(n);
+        }
+
         if (scalingConvention == ScalingConvention.LOAD) {
-            return upScalable.minimumValue(n, scalingConvention) - downScalable.initialValue(n);
+            return upScalableMin - downScalableInitial;
         } else {
-            return downScalable.minimumValue(n, scalingConvention) + upScalable.initialValue(n);
+            return downScalableMin + upScalableInitial;
         }
     }
 
     @Override
-    public void filterInjections(Network network, List<Injection> injections, List<String> notFound) {
-        upScalable.filterInjections(network, injections, notFound);
-        downScalable.filterInjections(network, injections, notFound);
-    }
-
-    @Override
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return asked > 0 ? upScalable.scale(n, asked, scalingConvention) : downScalable.scale(n, asked, scalingConvention);
+        if (asked > 0) {
+            if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+                return upScalable.scale(n, asked, scalingConvention);
+            } else {
+                return 0;
+            }
+        } else {
+            if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+                return downScalable.scale(n, asked, scalingConvention);
+            } else {
+                return 0;
+            }
+        }
     }
 
     @Override

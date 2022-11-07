@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,5 +165,20 @@ class LoadScalable extends AbstractInjectionScalable {
     @Override
     public double scaleWithConstantPowerFactor(Network n, double asked) {
         return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+    }
+
+    @Override
+    public double initialValue(Network n) {
+        Objects.requireNonNull(n);
+
+        Injection injection = getInjectionOrNull(n);
+        if (injection == null) {
+            return 0;
+        }
+        if (injection instanceof Load) {
+            return !Double.isNaN(((Load) injection).getP0()) ? ((Load) injection).getP0() : 0;
+        } else {
+            throw new PowsyblException("Load scalable was not defined on a load.");
+        }
     }
 }

@@ -7,9 +7,7 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -41,24 +39,12 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
         this.maxValue = maxValue;
     }
 
-    private Injection getInjectionOrNull(Network n) {
+    protected Injection getInjectionOrNull(Network n) {
         Identifiable identifiable = n.getIdentifiable(id);
         if (identifiable instanceof Injection) {
             return (Injection) identifiable;
         } else {
             return null;
-        }
-    }
-
-    @Override
-    public double initialValue(Network n) {
-        Objects.requireNonNull(n);
-
-        Injection injection = getInjectionOrNull(n);
-        if (injection != null) {
-            return !Double.isNaN(injection.getTerminal().getP()) ? injection.getTerminal().getP() : 0;
-        } else {
-            return 0;
         }
     }
 }
