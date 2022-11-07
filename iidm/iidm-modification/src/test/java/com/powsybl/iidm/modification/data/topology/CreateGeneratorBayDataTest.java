@@ -7,7 +7,6 @@
 package com.powsybl.iidm.modification.data.topology;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.topology.CreateFeederBay;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
@@ -38,7 +37,7 @@ public class CreateGeneratorBayDataTest extends AbstractConverterTest {
                 .setPositionOrder(115)
                 .setDirection(BOTTOM);
 
-        Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateFeederBay modification = data.toModification(network);
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
