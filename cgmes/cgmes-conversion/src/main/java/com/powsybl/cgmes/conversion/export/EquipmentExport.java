@@ -42,7 +42,7 @@ public final class EquipmentExport {
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         context.setExportEquipment(true);
         try {
-            boolean writeConnectivityNodes = context.isWriteConnectivityNodes();
+            boolean writeConnectivityNodes = context.writeConnectivityNodes();
 
             String cimNamespace = context.getCim().getNamespace();
             String euNamespace = context.getCim().getEuNamespace();
