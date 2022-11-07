@@ -10,6 +10,12 @@ import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 
 /**
+ * This interface is dedicated to {@link NetworkModification} serialization.
+ * A {@link com.fasterxml.jackson.databind.ser.std.StdSerializer} is associated with each {@link NetworkModificationData}.
+ * Implementations of this interface contain all <b>raw</b> data (no business logic) allowing to create the corresponding {@link NetworkModification},
+ * which can be created via {@link NetworkModificationData#toModification(Network)}.
+ * Be careful that you cannot serialize a {@link NetworkModification} if you don't use this class hierarchy.
+ *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public interface NetworkModificationData<D extends NetworkModificationData<D, M>, M extends NetworkModification> {
