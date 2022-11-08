@@ -227,7 +227,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
 
-        //wrong bbsId
+        // not found id
         CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBusOrBusbarSectionId1("bbs")
@@ -239,6 +239,19 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, Reporter.NO_OP));
         assertEquals("Identifiable bbs not found.", e1.getMessage());
+
+        // wrong identifiable type
+        CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
+                withBranchAdder(lineAdder)
+                .withBusOrBusbarSectionId1("gen1")
+                .withPositionOrder1(115)
+                .withDirection1(BOTTOM)
+                .withBusOrBusbarSectionId2("bbs5")
+                .withPositionOrder2(115)
+                .withDirection2(BOTTOM)
+                .build();
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(nbNetwork, true, Reporter.NO_OP));
+        assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
     }
 
     @Test
