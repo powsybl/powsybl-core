@@ -53,7 +53,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     }
 
     @Override
-    protected void setBus(int side, Bus bus) {
+    protected void setBus(int side, Bus bus, String voltageLevelId) {
         injectionAdder.setConnectableBus(bus.getId()).setBus(bus.getId());
     }
 

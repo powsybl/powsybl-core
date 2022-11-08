@@ -35,7 +35,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract String getBusOrBusbarSectionId(int side);
 
-    protected abstract void setBus(int side, Bus bus);
+    protected abstract void setBus(int side, Bus bus, String voltageLevelId);
 
     protected abstract void setNode(int side, int node, String voltageLevelId);
 
@@ -70,7 +70,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         LOGGER.info("New connectable {} of type {} created", connectable.getId(), connectable.getType());
         createdConnectable(reporter, connectable);
 
-        createExtensionAndTopology(connectable, network, reporter, throwException);
+        createExtensionAndTopology(connectable, network, reporter);
     }
 
     private boolean setAdderConnectivity(Network network, Reporter reporter, boolean throwException) {
@@ -98,7 +98,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                     }
                     return false;
                 }
-                setBus(side, bus);
+                setBus(side, bus, voltageLevel.getId());
             } else if (busOrBusbarSection instanceof BusbarSection) {
                 BusbarSection bbs = (BusbarSection) busOrBusbarSection; // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
                 VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
@@ -116,7 +116,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         return true;
     }
 
-    private boolean checkNetworks(Connectable<?> connectable, Network network, Reporter reporter, boolean throwException) {
+    private static boolean checkNetworks(Connectable<?> connectable, Network network, Reporter reporter, boolean throwException) {
         if (connectable.getNetwork() != network) {
             connectable.remove();
             LOGGER.error("Network given in parameters and in connectableAdder are different. Connectable '{}' of type {} was added then removed",
@@ -130,14 +130,14 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         return true;
     }
 
-    private void createExtensionAndTopology(Connectable<?> connectable, Network network, Reporter reporter, boolean throwException) {
+    private void createExtensionAndTopology(Connectable<?> connectable, Network network, Reporter reporter) {
         String connectableId = connectable.getId();
         boolean createConnectablePosition = false;
         ConnectablePositionAdder<?> connectablePositionAdder = connectable.newExtension(ConnectablePositionAdder.class);
         for (int side : sides) {
             VoltageLevel voltageLevel = getVoltageLevel(side, connectable);
             if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-                continue;
+                continue; // no extension nor switches created in bus-breaker topology
             }
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
             int positionOrder = getPositionOrder(side);

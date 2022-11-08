@@ -59,13 +59,14 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
-    protected void setBus(int side, Bus bus) {
+    protected void setBus(int side, Bus bus, String voltageLevelId) {
         if (side == 1) {
-            branchAdder.setConnectableBus1(bus.getId()).setBus1(bus.getId());
+            branchAdder.setConnectableBus1(bus.getId()).setBus1(bus.getId()).setVoltageLevel1(voltageLevelId);
         } else if (side == 2) {
-            branchAdder.setConnectableBus2(bus.getId()).setBus2(bus.getId());
+            branchAdder.setConnectableBus2(bus.getId()).setBus2(bus.getId()).setVoltageLevel2(voltageLevelId);
+        } else {
+            throw createSideAssertionError(side);
         }
-        throw createSideAssertionError(side);
     }
 
     @Override
