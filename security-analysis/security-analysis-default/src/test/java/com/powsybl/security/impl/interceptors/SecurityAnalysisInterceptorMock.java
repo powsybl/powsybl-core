@@ -6,10 +6,12 @@
  */
 package com.powsybl.security.impl.interceptors;
 
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
 import com.powsybl.security.results.PostContingencyResult;
+import com.powsybl.security.results.PreContingencyResult;
 
 import static org.junit.Assert.*;
 
@@ -25,7 +27,7 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
     private int onSecurityAnalysisResultCount = 0;
 
     @Override
-    public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
+    public void onPreContingencyResult(PreContingencyResult preContingencyResult, SecurityAnalysisResultContext context) {
         super.onPreContingencyResult(preContingencyResult, context);
 
         assertRunningContext(context);
@@ -48,7 +50,7 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
         assertRunningContext(context);
         assertNotNull(result);
-        assertPreContingencyResult(result.getPreContingencyLimitViolationsResult());
+        assertPreContingencyResult(result.getPreContingencyResult());
         result.getPostContingencyResults().forEach(SecurityAnalysisInterceptorMock::assertPostContingencyResult);
         onSecurityAnalysisResultCount++;
     }
@@ -72,15 +74,15 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
         assertEquals("test", context.getNetwork().getSourceFormat());
     }
 
-    private static void assertPreContingencyResult(LimitViolationsResult preContingencyResult) {
+    private static void assertPreContingencyResult(PreContingencyResult preContingencyResult) {
         assertNotNull(preContingencyResult);
-        assertTrue(preContingencyResult.isComputationOk());
-        assertEquals(0, preContingencyResult.getLimitViolations().size());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, preContingencyResult.getStatus());
+        assertEquals(0, preContingencyResult.getLimitViolationsResult().getLimitViolations().size());
     }
 
     private static void assertPostContingencyResult(PostContingencyResult postContingencyResult) {
         assertNotNull(postContingencyResult);
-        assertTrue(postContingencyResult.getLimitViolationsResult().isComputationOk());
+        assertSame(PostContingencyComputationStatus.CONVERGED, postContingencyResult.getStatus());
         assertEquals(1, postContingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postContingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());

@@ -9,6 +9,7 @@ package com.powsybl.cgmes.model.triplestore;
 
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.joda.time.DateTime;
@@ -35,6 +36,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore) {
+        super();
         this.cimNamespace = cimNamespace;
         this.cimVersion = cimVersionFromCimNamespace(cimNamespace);
         this.tripleStore = tripleStore;
@@ -46,7 +48,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName) {
+    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
         // Reset cached nodeBreaker value everytime we read new data
         nodeBreaker = null;
         tripleStore.read(is, baseName, contextName);

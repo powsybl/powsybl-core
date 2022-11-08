@@ -13,8 +13,6 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -83,7 +81,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         exportParams.put(CgmesExport.NAMING_STRATEGY, namingStrategy);
         String outputFolder = "exportedCgmes" + baseName;
         DataSource exportedCgmes = tmpDataSource(outputFolder, baseName);
-        Exporters.export("CGMES", network, exportParams, exportedCgmes);
+        network.write("CGMES", exportParams, exportedCgmes);
         if (originalDataSource != null) {
             copyBoundary(outputFolder, baseName, originalDataSource);
         }
@@ -123,7 +121,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         Properties reExportParams = exportParams;
         String reOutputFolder = "reExportedCgmes" + baseName;
         DataSource reExportedCgmes = tmpDataSource(reOutputFolder, baseName);
-        Exporters.export("CGMES", networkActual, reExportParams, reExportedCgmes);
+        networkActual.write("CGMES", reExportParams, reExportedCgmes);
         if (originalDataSource != null) {
             copyBoundary(reOutputFolder, baseName, originalDataSource);
         }

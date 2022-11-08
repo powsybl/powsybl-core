@@ -46,89 +46,72 @@ public class LimitViolationsResultEquivalenceTest {
         LimitViolation smallVl2Violation = new LimitViolation("VL2", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 200.09);
 
         // computation ko in both results
-        LimitViolationsResult result1 = new LimitViolationsResult(false,
-                                                                  Collections.emptyList(),
+        LimitViolationsResult result1 = new LimitViolationsResult(Collections.emptyList(),
                                                                   Collections.emptyList());
-        LimitViolationsResult result2 = new LimitViolationsResult(false,
-                                                                  Collections.emptyList(),
+        LimitViolationsResult result2 = new LimitViolationsResult(Collections.emptyList(),
                                                                   Collections.emptyList());
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // different computation results
-        result1 = new LimitViolationsResult(true,
-                                            Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
+        result1 = new LimitViolationsResult(Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
                                             Arrays.asList("action1", "action2"));
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // identical results
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
                                             Arrays.asList("action2", "action1"));
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // similar results
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, similarLine1Violation2, sameLine1Violation1, sameVl1Violation2),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, similarLine1Violation2, sameLine1Violation1, sameVl1Violation2),
                                             Arrays.asList("action2", "action1"));
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // different violations
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, differentLine1Violation2, sameLine1Violation1, sameVl1Violation2),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, differentLine1Violation2, sameLine1Violation1, sameVl1Violation2),
                                             Arrays.asList("action2", "action1"));
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // more violations in result1
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation1, sameVl1Violation2),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation1, sameVl1Violation2),
                                             Arrays.asList("action2", "action1"));
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // more violations, but small, in result2
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2, smallLine2Violation),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2, smallLine2Violation),
                                             Arrays.asList("action2", "action1"));
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // more violations in result2
-        result1 = new LimitViolationsResult(true,
-                                            Arrays.asList(line1Violation2, line2Violation, line1Violation1, vl1Violation2),
+        result1 = new LimitViolationsResult(Arrays.asList(line1Violation2, line2Violation, line1Violation1, vl1Violation2),
                                             Arrays.asList("action1", "action2"));
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
                                             Arrays.asList("action2", "action1"));
         assertFalse(resultEquivalence.equivalent(result1, result2));
 
         // more violations, but small, in result1
-        result1 = new LimitViolationsResult(true,
-                                            Arrays.asList(smallLine2Violation, line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
+        result1 = new LimitViolationsResult(Arrays.asList(smallLine2Violation, line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
                                             Arrays.asList("action1", "action2"));
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
                                             Arrays.asList("action2", "action1"));
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // more violations, but small, at the end of (sorted) result1
-        result1 = new LimitViolationsResult(true,
-                                            Arrays.asList(similarLine1Violation2, vl1Violation1, line2Violation, smallVl2Violation, line1Violation1, vl1Violation2),
+        result1 = new LimitViolationsResult(Arrays.asList(similarLine1Violation2, vl1Violation1, line2Violation, smallVl2Violation, line1Violation1, vl1Violation2),
                                             Arrays.asList("action1", "action2"));
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // more violations, but small, at the end of (sorted) result2
-        result1 = new LimitViolationsResult(true,
-                                            Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
+        result1 = new LimitViolationsResult(Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
                                             Arrays.asList("action1", "action2"));
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, similarLine1Violation2, sameLine1Violation1, sameVl1Violation2, smallVl2Violation),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, similarLine1Violation2, sameLine1Violation1, sameVl1Violation2, smallVl2Violation),
                                             Arrays.asList("action2", "action1"));
         assertTrue(resultEquivalence.equivalent(result1, result2));
 
         // different actions
-        result1 = new LimitViolationsResult(true,
-                                            Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
+        result1 = new LimitViolationsResult(Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2),
                                             Arrays.asList("action1", "action2"));
-        result2 = new LimitViolationsResult(true,
-                                            Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
+        result2 = new LimitViolationsResult(Arrays.asList(sameLine2Violation, sameVl1Violation1, sameLine1Violation2, sameLine1Violation1, sameVl1Violation2),
                                             Arrays.asList("action2"));
         assertFalse(resultEquivalence.equivalent(result1, result2));
     }

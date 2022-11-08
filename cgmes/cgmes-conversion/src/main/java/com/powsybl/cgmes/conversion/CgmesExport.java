@@ -20,7 +20,7 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;

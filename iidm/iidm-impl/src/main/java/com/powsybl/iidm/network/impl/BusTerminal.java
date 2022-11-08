@@ -66,7 +66,7 @@ class BusTerminal extends AbstractTerminal {
             // Assert that the new bus exists
             vl.getBus(busId, true);
 
-            vl.detach(BusTerminal.this, false);
+            vl.detach(BusTerminal.this);
             int variantIndex = network.get().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
             vl.attach(BusTerminal.this, false);

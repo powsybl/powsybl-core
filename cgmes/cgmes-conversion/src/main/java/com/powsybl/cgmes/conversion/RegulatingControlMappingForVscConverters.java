@@ -83,7 +83,11 @@ public class RegulatingControlMappingForVscConverters {
         } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
             setRegulatingControlReactivePower(rc, vscConverter);
         } else {
-            context.ignored(rc.vscRegulation, "Unsupported regulation mode for vscConverter " + vscConverter.getId());
+            String what = rc.vscRegulation;
+            if (rc.vscRegulation == null) {
+                what = "EmptyVscRegulation";
+            }
+            context.ignored(what, "Unsupported regulation mode for vscConverter " + vscConverter.getId());
         }
     }
 

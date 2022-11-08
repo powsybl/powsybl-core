@@ -39,8 +39,7 @@ public class LimitViolationsResultEquivalence extends Equivalence<LimitViolation
         LimitViolationEquivalence violationEquivalence = new LimitViolationEquivalence(threshold);
 
         // compare computation
-        boolean equivalent = result1.isComputationOk() == result2.isComputationOk();
-        comparisonWriter.write(result1.isComputationOk(), result2.isComputationOk(), equivalent);
+        boolean equivalent = true;
 
         // I still carry on the comparison even if equivalent is already false because I need to print the violations
         // compare violations

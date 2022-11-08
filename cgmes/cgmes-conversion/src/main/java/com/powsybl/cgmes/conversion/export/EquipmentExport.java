@@ -42,7 +42,7 @@ public final class EquipmentExport {
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         context.setExportEquipment(true);
         try {
-            boolean writeConnectivityNodes = context.isWriteConnectivityNodes();
+            boolean writeConnectivityNodes = context.writeConnectivityNodes();
 
             String cimNamespace = context.getCim().getNamespace();
             String euNamespace = context.getCim().getEuNamespace();
@@ -62,6 +62,7 @@ public final class EquipmentExport {
             Map<Terminal, String> mapTerminal2Id = new HashMap<>();
             Set<String> regulatingControlsWritten = new HashSet<>();
             Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
+            LoadGroups loadGroups = new LoadGroups();
 
             if (writeConnectivityNodes) {
                 writeConnectivityNodes(network, mapNodeKey2NodeId, cimNamespace, writer, context);
@@ -72,7 +73,8 @@ public final class EquipmentExport {
             writeSubstations(network, cimNamespace, writer, context);
             writeVoltageLevels(network, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
             writeBusbarSections(network, cimNamespace, writer, context);
-            writeLoads(network, cimNamespace, writer, context);
+            writeLoads(network, loadGroups, cimNamespace, writer, context);
+            writeLoadGroups(loadGroups.found(), cimNamespace, writer);
             writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writeInitialP, writer, context);
             writeShuntCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
             writeStaticVarCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
@@ -241,13 +243,29 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeLoads(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    // We may receive a warning if we define an empty load group,
+    // So we will output only the load groups that have been found during export of loads
+    private static void writeLoadGroups(Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (LoadGroup loadGroup : foundLoadGroups) {
+            CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, writer);
+            // LoadArea and SubLoadArea are inside the Operation profile
+            // In principle they are not required, but we may have to add them
+            // and write here a reference to "LoadGroup.SubLoadArea"
+            writer.writeEndElement();
+        }
+    }
+
+    private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                EnergyConsumerEq.write(context.getNamingStrategy().getCgmesId(load),
-                    load.getNameOrId(), load.getExtension(LoadDetail.class),
-                    context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
-                    cimNamespace, writer);
+                LoadDetail loadDetail = load.getExtension(LoadDetail.class);
+                String className = CgmesExportUtil.loadClassName(loadDetail);
+                String loadGroup = loadGroups.groupFor(className);
+                EnergyConsumerEq.write(className,
+                        context.getNamingStrategy().getCgmesId(load),
+                        load.getNameOrId(), loadGroup,
+                        context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
+                        cimNamespace, writer);
             }
         }
     }
@@ -551,7 +569,7 @@ public final class EquipmentExport {
 
             // New Load
             String loadId = CgmesExportUtil.getUniqueId();
-            EnergyConsumerEq.write(loadId, danglingLine.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, writer);
+            EnergyConsumerEq.write(CgmesNames.ENERGY_CONSUMER, loadId, danglingLine.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), loadId, connectivityNodeId, 1, cimNamespace, writer);
 
             // New Equivalent Injection

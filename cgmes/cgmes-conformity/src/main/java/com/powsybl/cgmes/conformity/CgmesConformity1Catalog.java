@@ -125,7 +125,7 @@ public final class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-BusBranch",
                 null,
-                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                new ResourceSet(base,
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
@@ -140,7 +140,7 @@ public final class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-NodeBreaker",
                 expectedMiniNodeBreaker(),
-                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                new ResourceSet(base,
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
@@ -1008,8 +1008,7 @@ public final class CgmesConformity1Catalog {
                         "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239scbd7-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239tcbd4-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:6fddfd60-de0d-11e2-8f45-b8f6b1180b6d");
+                        "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66");
     }
 
     public static CgmesModel expectedMicroGridType4BE() {
