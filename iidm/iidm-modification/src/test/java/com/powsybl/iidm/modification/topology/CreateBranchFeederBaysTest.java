@@ -47,11 +47,11 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .setB2(0.0);
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBbsId1("bbs5")
+                .withBusOrBusbarSectionId1("bbs5")
                 .withPositionOrder1(85)
                 .withDirection1(BOTTOM)
                 .withFeederName1("lineTestFeeder1")
-                .withBbsId2("bbs1")
+                .withBusOrBusbarSectionId2("bbs1")
                 .withPositionOrder2(75)
                 .withFeederName2("lineTestFeeder2")
                 .withDirection2(TOP)
@@ -73,15 +73,15 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .setB2(0.0);
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBbsId1("bbs1")
+                .withBusOrBusbarSectionId1("bbs1")
                 .withPositionOrder1(70)
                 .withDirection1(TOP)
-                .withBbsId2("bbs5")
+                .withBusOrBusbarSectionId2("bbs5")
                 .withPositionOrder2(85)
                 .withDirection2(BOTTOM)
                 .build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-line-order-used.xml");
     }
 
@@ -97,10 +97,10 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .setB2(0.0);
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBbsId1("bbs2")
+                .withBusOrBusbarSectionId1("bbs2")
                 .withPositionOrder1(105)
                 .withDirection1(TOP)
-                .withBbsId2("bbs1")
+                .withBusOrBusbarSectionId2("bbs1")
                 .withPositionOrder2(14)
                 .withDirection2(BOTTOM)
                 .build();
@@ -127,10 +127,10 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
         int positionOrder1 = unusedOrderPositionsAfter.get().getMinimum();
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBbsId1("bbs1")
+                .withBusOrBusbarSectionId1("bbs1")
                 .withPositionOrder1(positionOrder1)
                 .withDirection1(TOP)
-                .withBbsId2("bbs5")
+                .withBusOrBusbarSectionId2("bbs5")
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
@@ -159,10 +159,10 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
 
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBbsId1("bbs5")
+                .withBusOrBusbarSectionId1("bbs5")
                 .withPositionOrder1(115)
                 .withDirection1(BOTTOM)
-                .withBbsId2("bbs2")
+                .withBusOrBusbarSectionId2("bbs2")
                 .withPositionOrder2(positionOrder1)
                 .withDirection2(BOTTOM)
                 .build();
@@ -188,10 +188,10 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
-                .withBbsId1("bbs1")
+                .withBusOrBusbarSectionId1("bbs1")
                 .withPositionOrder1(115)
                 .withDirection1(BOTTOM)
-                .withBbsId2("bbs5")
+                .withBusOrBusbarSectionId2("bbs5")
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
@@ -201,28 +201,15 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
         //wrong bbsId
         CreateBranchFeederBays modification1 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
-                .withBbsId1("bbs")
+                .withBusOrBusbarSectionId1("bbs")
                 .withPositionOrder1(115)
                 .withDirection1(BOTTOM)
-                .withBbsId2("bbs5")
+                .withBusOrBusbarSectionId2("bbs5")
                 .withPositionOrder2(115)
                 .withDirection2(BOTTOM)
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
-        assertEquals("Busbar section bbs not found.", e1.getMessage());
-
-        //wrong injectionPositionOrder
-        CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().
-                withBranchAdder(lineAdder)
-                .withBbsId1("bbs1")
-                .withPositionOrder1(0)
-                .withDirection1(BOTTOM)
-                .withBbsId2("bbs5")
-                .withPositionOrder2(115)
-                .withDirection2(BOTTOM)
-                .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
-        assertEquals("PositionOrder 0 already taken.", e2.getMessage());
+        assertEquals("Identifiable bbs not found.", e1.getMessage());
     }
 
     @Test
@@ -238,10 +225,10 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .setRatedU2(400.0);
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(twtAdder)
-                .withBbsId1("bbs5")
+                .withBusOrBusbarSectionId1("bbs5")
                 .withPositionOrder1(115)
                 .withDirection1(BOTTOM)
-                .withBbsId2("bbs1")
+                .withBusOrBusbarSectionId2("bbs1")
                 .withPositionOrder2(121)
                 .withDirection2(TOP)
                 .build();
@@ -263,10 +250,10 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .setB2(0.0);
         new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBbsId1("bbs5")
+                .withBusOrBusbarSectionId1("bbs5")
                 .withPositionOrder1(115)
                 .withDirection1(BOTTOM)
-                .withBbsId2("bbs1")
+                .withBusOrBusbarSectionId2("bbs1")
                 .withPositionOrder2(121)
                 .withDirection2(TOP)
                 .build()

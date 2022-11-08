@@ -48,12 +48,22 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
-    protected String getBbsId(int side) {
+    protected String getBusOrBusbarSectionId(int side) {
         if (side == 1) {
             return bbsId1;
         }
         if (side == 2) {
             return bbsId2;
+        }
+        throw createSideAssertionError(side);
+    }
+
+    @Override
+    protected void setBus(int side, Bus bus) {
+        if (side == 1) {
+            branchAdder.setConnectableBus1(bus.getId()).setBus1(bus.getId());
+        } else if (side == 2) {
+            branchAdder.setConnectableBus2(bus.getId()).setBus2(bus.getId());
         }
         throw createSideAssertionError(side);
     }

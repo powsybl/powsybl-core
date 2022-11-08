@@ -40,7 +40,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
                 .setQ0(0);
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("bbs4")
+                .withBusOrBusBarSectionId("bbs4")
                 .withInjectionPositionOrder(115)
                 .withInjectionFeederName("newLoadFeeder")
                 .withInjectionDirection(BOTTOM)
@@ -66,7 +66,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         int loadPositionOrder = unusedOrderPositionsAfter.get().getMinimum();
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("bbs1")
+                .withBusOrBusBarSectionId("bbs1")
                 .withInjectionPositionOrder(loadPositionOrder)
                 .withInjectionDirection(TOP)
                 .build();
@@ -93,7 +93,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
 
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("bbs2")
+                .withBusOrBusBarSectionId("bbs2")
                 .withInjectionPositionOrder(loadPositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -116,7 +116,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateFeederBay modification0 = new CreateFeederBayBuilder().
                 withInjectionAdder(loadAdder)
-                .withBbsId("bbs1")
+                .withBusOrBusBarSectionId("bbs1")
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -126,22 +126,12 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         //wrong bbsId
         CreateFeederBay modification1 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("bbs")
+                .withBusOrBusBarSectionId("bbs")
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
-        assertEquals("Busbar section bbs not found.", e1.getMessage());
-
-        //wrong injectionPositionOrder
-        CreateFeederBay modification2 = new CreateFeederBayBuilder()
-                .withInjectionAdder(loadAdder)
-                .withBbsId("bbs4")
-                .withInjectionPositionOrder(0)
-                .withInjectionDirection(BOTTOM)
-                .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
-        assertEquals("PositionOrder 0 already taken.", e2.getMessage());
+        assertEquals("Identifiable bbs not found.", e1.getMessage());
     }
 
     @Test
@@ -160,7 +150,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
                 .setEnsureIdUnicity(true);
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(generatorAdder)
-                .withBbsId("bbs1")
+                .withBusOrBusBarSectionId("bbs1")
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -180,7 +170,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
                 .setTargetQ(50);
         NetworkModification addBatteryModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(batteryAdder)
-                .withBbsId("bbs1")
+                .withBusOrBusBarSectionId("bbs1")
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -201,7 +191,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         int danglingLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
         NetworkModification addDanglingLineModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(danglingLineAdder)
-                .withBbsId("bbs5")
+                .withBusOrBusBarSectionId("bbs5")
                 .withInjectionPositionOrder(danglingLinePositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -221,7 +211,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         int shuntCompensatorPositionOrder = unusedOrderPositionsAfter1.get().getMinimum();
         NetworkModification addShuntCompensatorModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(shuntCompensatorAdder)
-                .withBbsId("bbs5")
+                .withBusOrBusBarSectionId("bbs5")
                 .withInjectionPositionOrder(shuntCompensatorPositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -242,7 +232,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         int staticVarCompensatorPositionOrder = unusedOrderPositionsAfter2.get().getMinimum();
         NetworkModification addSVCompensatorModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(staticVarCompensatorAdder)
-                .withBbsId("bbs5")
+                .withBusOrBusBarSectionId("bbs5")
                 .withInjectionPositionOrder(staticVarCompensatorPositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -260,7 +250,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         int lccConverterStationPositionOrder = unusedOrderPositionsAfter3.get().getMinimum();
         NetworkModification addLccConverterStationModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(lccConverterStationAdder)
-                .withBbsId("bbs5")
+                .withBusOrBusBarSectionId("bbs5")
                 .withInjectionPositionOrder(lccConverterStationPositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -279,7 +269,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         int vscConverterStationPositionOrder = unusedOrderPositionsAfter4.get().getMinimum();
         NetworkModification addVscConverterStationModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(vscConverterStationAdder)
-                .withBbsId("bbs5")
+                .withBusOrBusBarSectionId("bbs5")
                 .withInjectionPositionOrder(vscConverterStationPositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
@@ -298,7 +288,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
                 .setQ0(0);
         new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("bbs4")
+                .withBusOrBusBarSectionId("bbs4")
                 .withInjectionPositionOrder(115)
                 .build()
                 .apply(network, true, Reporter.NO_OP);
@@ -327,7 +317,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
                 .setQ0(0);
         new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("VLTEST12")
+                .withBusOrBusBarSectionId("VLTEST12")
                 .withInjectionPositionOrder(10)
                 .build()
                 .apply(network, true, Reporter.NO_OP);

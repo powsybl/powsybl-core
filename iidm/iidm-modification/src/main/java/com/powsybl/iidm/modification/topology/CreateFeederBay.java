@@ -48,8 +48,13 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     }
 
     @Override
-    protected String getBbsId(int side) {
+    protected String getBusOrBusbarSectionId(int side) {
         return bbsId;
+    }
+
+    @Override
+    protected void setBus(int side, Bus bus) {
+        injectionAdder.setConnectableBus(bus.getId()).setBus(bus.getId());
     }
 
     @Override
