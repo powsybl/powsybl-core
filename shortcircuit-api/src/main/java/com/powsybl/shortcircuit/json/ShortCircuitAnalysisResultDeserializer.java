@@ -47,6 +47,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
     @Override
     public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         List<FaultResult> faultResults = null;
+        ShortCircuitAnalysisResult.Status shortCircuitAnalysisStatus = null;
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -61,6 +62,11 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     });
                     break;
 
+                case "status":
+                    parser.nextToken();
+                    shortCircuitAnalysisStatus = ShortCircuitAnalysisResult.Status.valueOf(parser.getValueAsString());
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
@@ -71,7 +77,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
             }
         }
 
-        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults, shortCircuitAnalysisStatus);
         SUPPLIER.get().addExtensions(result, extensions);
 
         return result;

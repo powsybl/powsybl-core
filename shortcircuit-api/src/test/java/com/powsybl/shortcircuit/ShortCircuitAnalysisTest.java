@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import static com.powsybl.shortcircuit.ShortCircuitAnalysisResult.Status.CONVERGED;
 import static org.junit.Assert.*;
 
 /**
@@ -47,7 +48,7 @@ public class ShortCircuitAnalysisTest {
                                                                      ComputationManager computationManager,
                                                                      List<FaultParameters> faultParameters) {
 
-                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
+                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList(), CONVERGED));
             }
         };
 
@@ -81,6 +82,7 @@ public class ShortCircuitAnalysisTest {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
         assertNotNull(result.getFaultResult("Fault_ID_1"));
         assertEquals(2, result.getFaultResults("BusId").size());
+        assertEquals(CONVERGED, result.getStatus());
     }
 
     @Test

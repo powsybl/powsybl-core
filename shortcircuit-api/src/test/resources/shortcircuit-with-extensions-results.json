@@ -1,5 +1,6 @@
 {
   "version" : "1.0",
+  "status" : "CONVERGED",
   "faultResults" : [ {
     "fault" : {
       "type" : "BUS",

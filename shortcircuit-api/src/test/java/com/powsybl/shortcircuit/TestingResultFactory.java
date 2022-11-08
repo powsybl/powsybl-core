@@ -34,7 +34,7 @@ public final class TestingResultFactory {
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
         faultResults.add(faultResult3);
-        return new ShortCircuitAnalysisResult(faultResults);
+        return new ShortCircuitAnalysisResult(faultResults, ShortCircuitAnalysisResult.Status.CONVERGED);
     }
 
     public static FaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
@@ -63,6 +63,6 @@ public final class TestingResultFactory {
         FaultResult faultResult = new FaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
                 new FortescueValue(1.0), new FortescueValue(2.0), Collections.emptyList(), Duration.ofSeconds(1));
         faultResults.add(faultResult);
-        return new ShortCircuitAnalysisResult(faultResults);
+        return new ShortCircuitAnalysisResult(faultResults, ShortCircuitAnalysisResult.Status.CONVERGED);
     }
 }
