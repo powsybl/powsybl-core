@@ -12,8 +12,10 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.apache.commons.lang3.Range;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,7 +33,7 @@ import static org.junit.Assert.*;
 public class CreateFeederBayTest extends AbstractConverterTest {
 
     @Test
-    public void baseLoadTest() throws IOException {
+    public void baseNodeBreakerLoadTest() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -48,6 +50,26 @@ public class CreateFeederBayTest extends AbstractConverterTest {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-load-bbs4.xml");
+    }
+
+    @Test
+    public void baseBusBreakerLoadTest() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        LoadAdder loadAdder = network.getVoltageLevel("VLGEN").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        NetworkModification modification = new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusBarSectionId("NGEN")
+                .withInjectionPositionOrder(115)
+                .withInjectionFeederName("newLoadFeeder")
+                .withInjectionDirection(BOTTOM)
+                .build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/eurostag-create-load-feeder-bay.xml");
     }
 
     @Test
