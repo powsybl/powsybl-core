@@ -23,10 +23,12 @@ class IslandEndHvdc {
 
     // TN: n transformers (n >= 0), C1: one acDcConverter, LS1: one dcLineSegment
     // TN: n transformers (n >= 0), C2: two acDcConverters, LS1: one dcLineSegment
+    // TN: n transformers (n >= 0), CN: n acDcConverters, LSN: 2 * CN (Two dcLineSegments by acDcConverter)
     // TN: n transformers (n >= 0), C1: one acDcConverter, LS2: two dcLineSegments
     // TN: n transformers (n >= 0), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
+
     enum HvdcEndType {
-        HVDC_TN_C1_LS1, HVDC_TN_C2_LS1, HVDC_TN_C1_LS2, HVDC_TN_CN_LSN,
+        HVDC_TN_C1_LS1, HVDC_TN_C2_LS1, HVDC_TN_CN_LS2N, HVDC_TN_CN_LSN
     }
 
     private final List<HvdcEnd> hvdc;
@@ -182,8 +184,8 @@ class IslandEndHvdc {
 
             if (t >= 0 && c == 1 && ls == 1) {
                 return HvdcEndType.HVDC_TN_C1_LS1;
-            } else if (t >= 0 && c == 1 && ls == 2) {
-                return HvdcEndType.HVDC_TN_C1_LS2;
+            } else if (t >= 0 && c >= 1 && ls == 2 * c) {
+                return HvdcEndType.HVDC_TN_CN_LS2N;
             } else if (t >= 0 && c == 2 && ls == 1) {
                 return HvdcEndType.HVDC_TN_C2_LS1;
             } else if (t >= 0 && c == ls && c > 1) {
