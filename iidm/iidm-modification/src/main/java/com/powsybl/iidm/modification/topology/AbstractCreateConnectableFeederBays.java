@@ -87,18 +87,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 return false;
             }
             if (busOrBusbarSection instanceof Bus) {
-                Bus bus = (Bus) busOrBusbarSection;
-                VoltageLevel voltageLevel = bus.getVoltageLevel();
-                if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
-                    LOGGER.error("Voltage level {} has an unsupported topology {}. Should be BUS_BREAKER", voltageLevel.getId(), voltageLevel.getTopologyKind());
-                    unsupportedVoltageLevelTopologyKind(reporter, voltageLevel.getId(), TopologyKind.BUS_BREAKER, voltageLevel.getTopologyKind());
-                    if (throwException) {
-                        throw new PowsyblException(String.format("Voltage level %s has an unsupported topology %s. Should be BUS_BREAKER",
-                                voltageLevel.getId(), voltageLevel.getTopologyKind()));
-                    }
-                    return false;
-                }
-                setBus(side, bus, voltageLevel.getId());
+                Bus bus = (Bus) busOrBusbarSection; // if bus is an identifiable, the voltage level is BUS_BREAKER
+                setBus(side, bus, bus.getVoltageLevel().getId());
             } else if (busOrBusbarSection instanceof BusbarSection) {
                 BusbarSection bbs = (BusbarSection) busOrBusbarSection; // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
                 VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
