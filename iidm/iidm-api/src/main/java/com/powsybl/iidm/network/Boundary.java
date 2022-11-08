@@ -49,5 +49,15 @@ public interface Boundary {
     /**
      * Get the voltage level at network side.
      */
-    VoltageLevel getNetworkSideVoltageLevel();
+    default VoltageLevel getNetworkSideVoltageLevel() {
+        Connectable<?> c = getConnectable();
+        if (c == null) {
+            throw new AssertionError("Missing parent connectable");
+        } else if (c instanceof Injection) {
+            return ((Injection) c).getTerminal().getVoltageLevel();
+        } else if (c instanceof Branch) {
+            return ((Branch) c).getTerminal(getSide()).getVoltageLevel();
+        }
+        throw new AssertionError("Unexpected parent connectable: " + c.getId());
+    }
 }
