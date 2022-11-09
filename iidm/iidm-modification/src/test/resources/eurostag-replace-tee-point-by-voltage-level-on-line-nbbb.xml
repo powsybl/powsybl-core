@@ -3,6 +3,10 @@
     <iidm:voltageLevel id="NHV1_NHV2_1_VL#0" nominalV="380.0" topologyKind="NODE_BREAKER">
         <iidm:nodeBreakerTopology>
             <iidm:busbarSection id="bbs" node="0"/>
+            <iidm:switch id="NEW LINE1_BREAKER_1" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+            <iidm:switch id="NEW LINE1_DISCONNECTOR_1" kind="DISCONNECTOR" retained="false" open="false" node1="4" node2="0"/>
+            <iidm:switch id="NEW LINE2_BREAKER_2" kind="BREAKER" retained="true" open="false" node1="6" node2="5"/>
+            <iidm:switch id="NEW LINE2_DISCONNECTOR_2" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="0"/>
         </iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
