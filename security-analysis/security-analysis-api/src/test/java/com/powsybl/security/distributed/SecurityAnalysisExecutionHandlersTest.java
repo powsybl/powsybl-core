@@ -19,7 +19,6 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.SwitchAction;
-import com.powsybl.security.condition.Condition;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
