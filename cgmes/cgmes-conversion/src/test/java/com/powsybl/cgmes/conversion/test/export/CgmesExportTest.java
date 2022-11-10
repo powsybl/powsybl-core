@@ -337,6 +337,40 @@ public class CgmesExportTest {
     }
 
     @Test
+    public void testFromIidmDanglingLineBusBranchNotBoundary() throws IOException {
+        // If we want to export an IIDM that contains dangling lines,
+        // we will have to rely on some external boundaries definition
+        // If we do not provide this information,
+        // we will re-import it as a regular line
+
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine expected = network.getDanglingLine("DL");
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
+            network.write("CGMES", null, tmpDir.resolve("tmp"));
+
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            Line actual = networkFromCgmes.getLine("DL");
+            assertNotNull(actual);
+            double epsilon = 1e-10;
+            assertEquals(expected.getR(), actual.getR(), epsilon);
+            assertEquals(expected.getX(), actual.getX(), epsilon);
+            assertEquals(expected.getG(), actual.getG1() + actual.getG2(), epsilon);
+            assertEquals(expected.getB(), actual.getB1() + actual.getB2(), epsilon);
+            // The dangling line was exported as an ACLS plus an equivalent injection.
+            // Equivalent injections inside an IGM are mapped to generators,
+            // So we have to check that there is a generator at side 2 (boundary) of the line
+            Generator g = (Generator) actual.getTerminal2().getBusView().getBus().getConnectedTerminalStream()
+                    .filter(t -> t.getConnectable() != actual)
+                    .findFirst().orElseThrow()
+                    .getConnectable();
+            assertEquals(expected.getP0(), -g.getTargetP(), epsilon);
+            assertEquals(expected.getQ0(), -g.getTargetQ(), epsilon);
+        }
+    }
+
+    @Test
     public void testFromIidmDanglingLineNodeBreaker() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition

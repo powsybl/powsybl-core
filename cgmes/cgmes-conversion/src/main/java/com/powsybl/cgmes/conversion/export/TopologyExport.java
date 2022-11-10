@@ -228,8 +228,23 @@ public final class TopologyExport {
     private static void writeTopologicalNodes(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeBusTopologicalNodes(network, addedTopologicalNodes, cimNamespace, writer, context);
         writeHvdcTopologicalNodes(network, cimNamespace, writer);
-        // We do not write topological nodes of dangling lines,
-        // they should be defined in the boundary instance files
+        // We create topological nodes for boundary side of dangling lines that are not mapped to an external boundary node
+        writeDanglingLineTopologicalNodes(network, cimNamespace, writer, context);
+    }
+
+    private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (DanglingLine dl : network.getDanglingLines()) {
+            Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            if (topologicalNodeId.isEmpty()) {
+                // If no information about original boundary has been preserved in the IIDM model,
+                // we will create a new TopologicalNode inside the voltage level of the dangling line network side
+                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
+                String containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
+                String fictTopologicalNodeId = CgmesExportUtil.getUniqueId();
+                dl.addAlias(fictTopologicalNodeId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+                writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer);
+            }
+        }
     }
 
     private static void writeBusTopologicalNodes(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

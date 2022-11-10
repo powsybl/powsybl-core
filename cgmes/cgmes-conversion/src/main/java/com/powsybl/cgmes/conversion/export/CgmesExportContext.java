@@ -490,19 +490,14 @@ public class CgmesExportContext {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
             Optional<String> alias;
             alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
-            if (!alias.isPresent()) {
+            if (alias.isEmpty()) {
                 String equivalentInjectionId = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(equivalentInjectionId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             }
             alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-            if (!alias.isPresent()) {
+            if (alias.isEmpty()) {
                 String equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId();
                 danglingLine.addAlias(equivalentInjectionTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-            }
-            alias = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
-            if (!alias.isPresent()) {
-                String topologicalNode = CgmesExportUtil.getUniqueId();
-                danglingLine.addAlias(topologicalNode, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             }
         }
     }
