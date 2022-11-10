@@ -59,15 +59,14 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  */
 public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
 
-    private String teePointLine1Id;
-    private String teePointLine2Id;
-    private String teePointLineToRemoveId;
-    private String voltageLevelId;
-    private String bbsOrBusId;
-    private String newLine1Id;
-    private String newLine1Name;
-    private String newLine2Id;
-    private String newLine2Name;
+    private final String teePointLine1Id;
+    private final String teePointLine2Id;
+    private final String teePointLineToRemoveId;
+    private final String bbsOrBusId;
+    private final String newLine1Id;
+    private final String newLine1Name;
+    private final String newLine2Id;
+    private final String newLine2Name;
 
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
 
