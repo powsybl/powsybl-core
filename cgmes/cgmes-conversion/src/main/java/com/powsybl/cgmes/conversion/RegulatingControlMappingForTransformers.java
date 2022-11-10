@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.badTargetDeadbandRegulatingControlReport;
-import static com.powsybl.cgmes.conversion.CgmesReports.badTargetValueRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -197,7 +197,7 @@ public class RegulatingControlMappingForTransformers {
         boolean validTargetValue = control.targetValue > 0;
         if (!validTargetValue) {
             context.invalid(rtcId, "Regulating control has a bad target voltage " + control.targetValue);
-            badTargetValueRegulatingControlReport(context.getReporter(), rtcId, control.targetValue);
+            badVoltageTargetValueRegulatingControlReport(context.getReporter(), rtcId, control.targetValue);
         }
 
         boolean validTargetDeadband = control.targetDeadband >= 0;

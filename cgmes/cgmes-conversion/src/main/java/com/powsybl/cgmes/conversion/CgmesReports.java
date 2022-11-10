@@ -31,9 +31,9 @@ public final class CgmesReports {
     }
 
     // WARN
-    public static void badTargetValueRegulatingControlReport(Reporter reporter, String eqId, double targetValue) {
+    public static void badVoltageTargetValueRegulatingControlReport(Reporter reporter, String eqId, double targetValue) {
         reporter.report(Report.builder()
-                .withKey("regulatingControlVoltageBadTargetValue")
+                .withKey("badVoltageTargetValueRegulatingControl")
                 .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
                 .withValue("equipmentId", eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
@@ -43,7 +43,7 @@ public final class CgmesReports {
 
     public static void badTargetDeadbandRegulatingControlReport(Reporter reporter, String eqId, double targetDeadband) {
         reporter.report(Report.builder()
-                .withKey("regulatingControlVoltageBadTargetDeadband")
+                .withKey("badTargetDeadbandRegulatingControl")
                 .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
                 .withValue("equipmentId", eqId)
                 .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
@@ -77,7 +77,7 @@ public final class CgmesReports {
     }
 
     // ERROR
-    public static void inconsistentProfilesReport(Reporter reporter, String networkId) {
+    public static void inconsistentProfilesTPRequiredReport(Reporter reporter, String networkId) {
         reporter.report(Report.builder()
                 .withKey("inconsistentProfilesTPRequired")
                 .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")

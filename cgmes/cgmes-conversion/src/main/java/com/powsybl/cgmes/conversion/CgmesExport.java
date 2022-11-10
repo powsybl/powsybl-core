@@ -37,7 +37,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -123,7 +123,7 @@ public class CgmesExport implements Exporter {
         if (networkIsNodeBreaker
                 && (profiles.contains("SSH") || profiles.contains("SV"))
                 && !profiles.contains("TP")) {
-            inconsistentProfilesReport(context.getReporter(), network.getId());
+            inconsistentProfilesTPRequiredReport(context.getReporter(), network.getId());
             LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
