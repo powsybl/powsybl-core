@@ -56,8 +56,8 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine1Name(String line1CName) {
-        this.newLine1Name = line1CName;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine1Name(String newLine1Name) {
+        this.newLine1Name = newLine1Name;
         return this;
     }
 

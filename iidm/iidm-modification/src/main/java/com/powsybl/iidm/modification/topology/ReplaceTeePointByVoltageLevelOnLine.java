@@ -64,6 +64,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
      * @param newLine1Name           The optional name of the new line connecting the first voltage level to the formerly tapped voltage level
      * @param newLine2Id             The non-null ID of the new line connecting the second voltage level to the formerly tapped voltage level
      * @param newLine2Name           The optional name of the new line connecting the second voltage level to the formerly tapped voltage level
+     * <p>
+     * NB: This constructor is package-private, Please use {@link ReplaceTeePointByVoltageLevelOnLineBuilder} instead.
      */
     ReplaceTeePointByVoltageLevelOnLine(String teePointLine1Id, String teePointLine2Id, String teePointLineToRemoveId, String bbsOrBusId,
                                         String newLine1Id, String newLine1Name, String newLine2Id, String newLine2Name) {
@@ -148,9 +150,10 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                 .map(Line::getTerminals)
                 .flatMap(List::stream)
                 .collect(Collectors.groupingBy(Terminal::getVoltageLevel, Collectors.counting()));
-
         var commonVlMapEntry = Collections.max(countVoltageLevels.entrySet(), Map.Entry.comparingByValue());
-        if (countVoltageLevels.size() != 4 || commonVlMapEntry.getValue() != 3) { // there should be 4 distinct voltage levels and one of them should be found 3 times
+
+        // there should be 4 distinct voltage levels and one of them should be found 3 times
+        if (countVoltageLevels.size() != 4 || commonVlMapEntry.getValue() != 3) {
             noTeePointAndOrAttachedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the tee point and the attached voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
@@ -220,10 +223,10 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         // get line tpLine1 limits
         Branch.Side tpLine1Limits1Side = tpLine1OtherVlSide;
         Branch.Side tpLine1Limits2Side = tpLine1OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
-        LoadingLimitsBags limits1Line1Z = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
+        LoadingLimitsBags limits1TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
             () -> tpLine1.getApparentPowerLimits(tpLine1Limits1Side),
             () -> tpLine1.getCurrentLimits(tpLine1Limits1Side));
-        LoadingLimitsBags limits2Line1Z = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits2Side),
+        LoadingLimitsBags limits2TpLine1 = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits2Side),
             () -> tpLine1.getApparentPowerLimits(tpLine1Limits2Side),
             () -> tpLine1.getCurrentLimits(tpLine1Limits2Side));
 
@@ -231,10 +234,10 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         Branch.Side tpLine2Limits1Side = tpLine2OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
         Branch.Side tpLine2Limits2Side = tpLine2OtherVlSide;
 
-        LoadingLimitsBags limits1LineZ2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
+        LoadingLimitsBags limits1TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
             () -> tpLine2.getApparentPowerLimits(tpLine2Limits1Side),
             () -> tpLine2.getCurrentLimits(tpLine2Limits1Side));
-        LoadingLimitsBags limits2LineZ2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits2Side),
+        LoadingLimitsBags limits2TpLine2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits2Side),
             () -> tpLine2.getApparentPowerLimits(tpLine2Limits2Side),
             () -> tpLine2.getCurrentLimits(tpLine2Limits2Side));
 
@@ -248,13 +251,13 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // Create the two new lines
         Line newLine1 = newLine1Adder.add();
-        addLoadingLimits(newLine1, limits1Line1Z, Branch.Side.ONE);
-        addLoadingLimits(newLine1, limits2Line1Z, Branch.Side.TWO);
+        addLoadingLimits(newLine1, limits1TpLine1, Branch.Side.ONE);
+        addLoadingLimits(newLine1, limits2TpLine1, Branch.Side.TWO);
         createdLineReport(reporter, newLine1Id);
 
         Line newLine2 = newLine2Adder.add();
-        addLoadingLimits(newLine2, limits1LineZ2, Branch.Side.ONE);
-        addLoadingLimits(newLine2, limits2LineZ2, Branch.Side.TWO);
+        addLoadingLimits(newLine2, limits1TpLine2, Branch.Side.ONE);
+        addLoadingLimits(newLine2, limits2TpLine2, Branch.Side.TWO);
         createdLineReport(reporter, newLine2Id);
 
         // remove tee point
