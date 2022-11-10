@@ -610,7 +610,7 @@ public final class EquipmentExport {
     private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer,
                                                         CgmesExportContext context) throws XMLStreamException {
         String connectivityNodeId = null;
-        if (context.isWriteConnectivityNodes()) {
+        if (context.writeConnectivityNodes()) {
             // We keep the connectivity node from the boundary definition as an alias in the dangling line
             if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE).isPresent()) {
                 connectivityNodeId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE);
