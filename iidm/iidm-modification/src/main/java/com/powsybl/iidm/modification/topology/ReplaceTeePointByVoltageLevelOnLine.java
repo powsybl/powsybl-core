@@ -13,8 +13,6 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
@@ -144,16 +142,9 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        // Check the configuration and find the tee point :
         // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
-        Map<VoltageLevel, Long> countVoltageLevels = Stream.of(tpLine1, tpLine2, tpLineToRemove)
-                .map(Line::getTerminals)
-                .flatMap(List::stream)
-                .collect(Collectors.groupingBy(Terminal::getVoltageLevel, Collectors.counting()));
-        var commonVlMapEntry = Collections.max(countVoltageLevels.entrySet(), Map.Entry.comparingByValue());
-
-        // there should be 4 distinct voltage levels and one of them should be found 3 times
-        if (countVoltageLevels.size() != 4 || commonVlMapEntry.getValue() != 3) {
+        VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
+        if (teePoint == null) {
             noTeePointAndOrTappedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
@@ -162,7 +153,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        VoltageLevel teePoint = commonVlMapEntry.getKey();
+        // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
         VoltageLevel tappedVoltageLevel = tpLineToRemove.getTerminal1().getVoltageLevel() == teePoint
                 ? tpLineToRemove.getTerminal2().getVoltageLevel()
                 : tpLineToRemove.getTerminal1().getVoltageLevel();

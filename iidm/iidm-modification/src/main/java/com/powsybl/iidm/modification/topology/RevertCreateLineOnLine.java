@@ -124,41 +124,9 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
             return;
         }
 
-        // Check the configuration and find the tee point and the attached voltage level :
         // tee point is the voltage level in common with lineToBeMerged1 and lineToBeMerged2
-        // tapped voltage level is the voltage level of lineToBeDeleted, not in common with lineToBeMerged1 or lineToBeMerged2
-        VoltageLevel teePoint = null;
-        VoltageLevel attachedVoltageLevel = null;
-        boolean configOk = false;
-        Branch.Side newLineSide1 = null;
-        Branch.Side newLineSide2 = null;
-
-        String lineToBeMerged1VlId1 = lineToBeMerged1.getTerminal1().getVoltageLevel().getId();
-        String lineToBeMerged1VlId2 = lineToBeMerged1.getTerminal2().getVoltageLevel().getId();
-        String lineToBeMerged2VlId1 = lineToBeMerged2.getTerminal1().getVoltageLevel().getId();
-        String lineToBeMerged2VlId2 = lineToBeMerged2.getTerminal2().getVoltageLevel().getId();
-        String lineToBeDeletedVlId1 = lineToBeDeleted.getTerminal1().getVoltageLevel().getId();
-        String lineToBeDeletedVlId2 = lineToBeDeleted.getTerminal2().getVoltageLevel().getId();
-
-        if ((lineToBeMerged1VlId1.equals(lineToBeMerged2VlId1) || lineToBeMerged1VlId1.equals(lineToBeMerged2VlId2) ||
-                lineToBeMerged1VlId2.equals(lineToBeMerged2VlId1) || lineToBeMerged1VlId2.equals(lineToBeMerged2VlId2)) &&
-                (lineToBeMerged2VlId1.equals(lineToBeDeletedVlId1) || lineToBeMerged2VlId1.equals(lineToBeDeletedVlId2) ||
-                        lineToBeMerged2VlId2.equals(lineToBeDeletedVlId1) || lineToBeMerged2VlId2.equals(lineToBeDeletedVlId2)) &&
-                (lineToBeMerged1VlId1.equals(lineToBeDeletedVlId1) || lineToBeMerged1VlId1.equals(lineToBeDeletedVlId2) ||
-                        lineToBeMerged1VlId2.equals(lineToBeDeletedVlId1) || lineToBeMerged1VlId2.equals(lineToBeDeletedVlId2))) {
-            configOk = true;
-
-            String teePointId = lineToBeMerged1VlId1.equals(lineToBeMerged2VlId1) || lineToBeMerged1VlId1.equals(lineToBeMerged2VlId2) ? lineToBeMerged1VlId1 : lineToBeMerged1VlId2;
-            teePoint = network.getVoltageLevel(teePointId);
-
-            newLineSide1 = lineToBeMerged1VlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
-            newLineSide2 = lineToBeMerged2VlId1.equals(teePointId) ? Branch.Side.TWO : Branch.Side.ONE;
-
-            String attachedVoltageLevelId = lineToBeDeletedVlId1.equals(lineToBeMerged2VlId1) || lineToBeDeletedVlId1.equals(lineToBeMerged2VlId2) ? lineToBeDeletedVlId2 : lineToBeDeletedVlId1;
-            attachedVoltageLevel = network.getVoltageLevel(attachedVoltageLevelId);
-        }
-
-        if (!configOk || teePoint == null || attachedVoltageLevel == null) {
+        VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(lineToBeMerged1, lineToBeMerged2, lineToBeDeleted);
+        if (teePoint == null) {
             noTeePointAndOrTappedVoltageLevelReport(reporter, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
             LOG.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
             if (throwException) {
@@ -168,9 +136,18 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
             }
         }
 
+        // tapped voltage level is the voltage level of lineToBeDeleted, at the opposite side of the tee point
+        VoltageLevel tappedVoltageLevel = lineToBeDeleted.getTerminal1().getVoltageLevel() == teePoint
+                ? lineToBeDeleted.getTerminal2().getVoltageLevel()
+                : lineToBeDeleted.getTerminal1().getVoltageLevel();
+
         // Set parameters of the new line replacing the three existing lines
-        LineAdder lineAdder = createLineAdder(mergedLineId, mergedLineName, newLineSide1 == Branch.Side.TWO ? lineToBeMerged1VlId2 : lineToBeMerged1VlId1,
-                newLineSide2 == Branch.Side.TWO ? lineToBeMerged2VlId2 : lineToBeMerged2VlId1, network, lineToBeMerged1, lineToBeMerged2);
+        Branch.Side newLineSide1 = lineToBeMerged1.getTerminal1().getVoltageLevel() == teePoint ? Branch.Side.TWO : Branch.Side.ONE;
+        Branch.Side newLineSide2 = lineToBeMerged2.getTerminal1().getVoltageLevel() == teePoint ? Branch.Side.TWO : Branch.Side.ONE;
+        LineAdder lineAdder = createLineAdder(mergedLineId, mergedLineName,
+                lineToBeMerged1.getTerminal(newLineSide1).getVoltageLevel().getId(),
+                lineToBeMerged2.getTerminal(newLineSide2).getVoltageLevel().getId(),
+                network, lineToBeMerged1, lineToBeMerged2);
 
         attachLine(lineToBeMerged1.getTerminal(newLineSide1), lineAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(lineToBeMerged2.getTerminal(newLineSide2), lineAdder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
@@ -213,7 +190,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         removeVoltageLevelAndSubstation(teePoint, reporter);
 
         // remove attached voltage level and attached substation, if necessary
-        removeVoltageLevelAndSubstation(attachedVoltageLevel, reporter);
+        removeVoltageLevelAndSubstation(tappedVoltageLevel, reporter);
     }
 
     public String getLineToBeMerged1Id() {
