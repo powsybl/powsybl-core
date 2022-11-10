@@ -37,26 +37,30 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  * This method reverses the action done in the ConnectVoltageLevelOnLine class :
  * it replaces 2 existing lines (with the same voltage level at one of their side) with a new line,
  * and eventually removes the voltage level in common (switching voltage level), if it contains no equipments anymore, except bus or bus bar section
- *
- *    VL1 ----------- switching voltage level ----------- VL2         =========>        VL1 ------------------------- VL2
- *          (line1)                             (line2)                                              (line)
- *
- *
+ * <p>
+ * Before modification:
+ * <pre>
+ *     VL1 ----------- switching voltage level ----------- VL2
+ *           (line1)                             (line2)</pre>
+ * After modification:
+ * <pre>
+ *     VL1 ------------------------- VL2
+ *                  (line)</pre>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(RevertConnectVoltageLevelOnLine.class);
 
-    private String line1Id;
-    private String line2Id;
+    private final String line1Id;
+    private final String line2Id;
 
-    private String lineId;
-    private String lineName;
+    private final String lineId;
+    private final String lineName;
 
     /**
      * Constructor.
-     *
+     * <p>
      * NB: This constructor is package-private, Please use {@link RevertConnectVoltageLevelOnLineBuilder} instead.
      */
     RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName) {
@@ -64,26 +68,6 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         this.line2Id = Objects.requireNonNull(line2Id);
         this.lineId = Objects.requireNonNull(lineId);
         this.lineName = lineName;
-    }
-
-    public RevertConnectVoltageLevelOnLine setLine1Id(String line1Id) {
-        this.line1Id = Objects.requireNonNull(line1Id);
-        return this;
-    }
-
-    public RevertConnectVoltageLevelOnLine setLine2Id(String line2Id) {
-        this.line2Id = Objects.requireNonNull(line2Id);
-        return this;
-    }
-
-    public RevertConnectVoltageLevelOnLine setLineId(String lineId) {
-        this.lineId = Objects.requireNonNull(lineId);
-        return this;
-    }
-
-    public RevertConnectVoltageLevelOnLine setLineName(String lineName) {
-        this.lineName = lineName;
-        return this;
     }
 
     private static Line checkAndGetLine(Network network, String lineId, Reporter reporter, boolean throwException) {
