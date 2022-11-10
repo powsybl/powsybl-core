@@ -218,34 +218,4 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
         assertEquals("NEW LINE1 NAME", modification.getLine1CName());
         assertEquals("NEW LINE2 NAME", modification.getLineC2Name());
     }
-
-    @Test
-    public void testSetters() {
-        ReplaceTeePointByVoltageLevelOnLine modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("NHV1_NHV2_1")
-                .withLineZ2Id("NHV1_NHV2_2")
-                .withLineZPId("NHV1_NHV2_3")
-                .withVoltageLevelId("VL")
-                .withBbsOrBusId("BBS")
-                .withLine1CId("NEW LINE1 ID")
-                .withLineC2Id("NEW LINE2 ID").build();
-        modification.setLine1ZId("NHV1_NHV2_1 _A")
-                .setLineZ2Id("NHV1_NHV2_2 _B")
-                .setLineZPId("NHV1_NHV2_3 _C")
-                .setVoltageLevelId("VL_A")
-                .setBbsOrBusId("BBS_A")
-                .setLine1CId("NEW LINE1 ID_C")
-                .setLine1CName("NEW LINE1 NAME")
-                .setLineC2Id("NEW LINE2 ID_C")
-                .setLineC2Name("NEW LINE2 NAME");
-        assertEquals("NHV1_NHV2_1 _A", modification.getLine1ZId());
-        assertEquals("NHV1_NHV2_2 _B", modification.getLineZ2Id());
-        assertEquals("NHV1_NHV2_3 _C", modification.getLineZPId());
-        assertEquals("VL_A", modification.getVoltageLevelId());
-        assertEquals("BBS_A", modification.getBbsOrBusId());
-        assertEquals("NEW LINE1 ID_C", modification.getLine1CId());
-        assertEquals("NEW LINE1 NAME", modification.getLine1CName());
-        assertEquals("NEW LINE2 ID_C", modification.getLineC2Id());
-        assertEquals("NEW LINE2 NAME", modification.getLineC2Name());
-    }
 }

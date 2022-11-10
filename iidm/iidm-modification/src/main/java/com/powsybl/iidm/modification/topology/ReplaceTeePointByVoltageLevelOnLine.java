@@ -99,81 +99,36 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return line1ZId;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLine setLine1ZId(String line1ZId) {
-        this.line1ZId = line1ZId;
-        return this;
-    }
-
     public String getLineZ2Id() {
         return lineZ2Id;
-    }
-
-    public ReplaceTeePointByVoltageLevelOnLine setLineZ2Id(String lineZ2Id) {
-        this.lineZ2Id = lineZ2Id;
-        return this;
     }
 
     public String getLineZPId() {
         return lineZPId;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLine setLineZPId(String lineZPId) {
-        this.lineZPId = lineZPId;
-        return this;
-    }
-
     public String getVoltageLevelId() {
         return voltageLevelId;
-    }
-
-    public ReplaceTeePointByVoltageLevelOnLine setVoltageLevelId(String voltageLevelId) {
-        this.voltageLevelId = voltageLevelId;
-        return this;
     }
 
     public String getBbsOrBusId() {
         return bbsOrBusId;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLine setBbsOrBusId(String bbsOrBusId) {
-        this.bbsOrBusId = bbsOrBusId;
-        return this;
-    }
-
     public String getLine1CId() {
         return line1CId;
-    }
-
-    public ReplaceTeePointByVoltageLevelOnLine setLine1CId(String line1CId) {
-        this.line1CId = line1CId;
-        return this;
     }
 
     public String getLine1CName() {
         return line1CName;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLine setLine1CName(String line1CName) {
-        this.line1CName = line1CName;
-        return this;
-    }
-
     public String getLineC2Id() {
         return lineC2Id;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLine setLineC2Id(String lineC2Id) {
-        this.lineC2Id = lineC2Id;
-        return this;
-    }
-
     public String getLineC2Name() {
         return lineC2Name;
-    }
-
-    public ReplaceTeePointByVoltageLevelOnLine setLineC2Name(String lineC2Name) {
-        this.lineC2Name = lineC2Name;
-        return this;
     }
 
     @Override
