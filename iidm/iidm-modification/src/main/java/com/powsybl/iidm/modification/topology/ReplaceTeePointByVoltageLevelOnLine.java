@@ -40,71 +40,76 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  * This method transform the action done in the CreateLineOnLine class into the action done in the ConnectVoltageLevelOnLine class :
  * it replaces 3 existing lines (with the same voltage level at one of their side (tee point)) with two new lines,
  * and removes the tee point
- *
- *    VL1 ---------- tee point ---------- VL2                            VL1 ---------- attached voltage level ---------- VL2
- *         (line1Z)       |     (lineZ2)                                      (line1C)                          (lineC2)
- *                        |
- *                        | (lineZP)                       =========>
- *                        |
- *                        |
- *               attached voltage level (voltageLevelId)
- *                  (contains bbsOrBusId)
+ * <p>
+ * Before modification:
+ * <pre>
+ * VL1 ----------------- tee point ----------------- VL2
+ *      (teePointLine1)     |       (teePointLine2)
+ *                          |
+ *                          | (teePointLineToRemove)
+ *                          |
+ *                      VL3 tapped
+ *                (contains bbsOrBusId)</pre>
+ * After modification:
+ * <pre>
+ * VL1 ------------ VL3 switching ------------ VL2
+ *      (newLine1)                (newLine2)</pre>
  *
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
 
-    private String line1ZId;
-    private String lineZ2Id;
-    private String lineZPId;
+    private String teePointLine1Id;
+    private String teePointLine2Id;
+    private String teePointLineToRemoveId;
     private String voltageLevelId;
     private String bbsOrBusId;
-    private String line1CId;
-    private String line1CName;
-    private String lineC2Id;
-    private String lineC2Name;
+    private String newLine1Id;
+    private String newLine1Name;
+    private String newLine2Id;
+    private String newLine2Name;
 
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
 
     /**
      * Constructor.
      *
-     * @param line1ZId            The non-null ID of the existing line connecting the first voltage level to the tee point
-     * @param lineZ2Id            The non-null ID of the existing line connecting the tee point to the second voltage level
-     * @param lineZPId            The non-null ID of the existing line connecting the tee point to the attached voltage level
-     * @param voltageLevelId      The non-null ID of the existing attached voltage level
-     * @param bbsOrBusId          The non-null ID of the existing bus or bus bar section in the attached voltage level voltageLevelId,
-     *                            where we want to connect the new lines line1C and lineC2
-     * @param line1CId            The non-null ID of the new line connecting the first voltage level to the attached voltage level
-     * @param line1CName          The optional name of the new line connecting the first voltage level to the attached voltage level
-     * @param lineC2Id            The non-null ID of the new line connecting the second voltage level to the attached voltage level
-     * @param lineC2Name          The optional name of the new line connecting the second voltage level to the attached voltage level
+     * @param teePointLine1Id        The non-null ID of the existing line connecting the tee point to the first voltage level
+     * @param teePointLine2Id        The non-null ID of the existing line connecting the tee point to the second voltage level
+     * @param teePointLineToRemoveId The non-null ID of the existing line connecting the tee point to the tapped voltage level
+     * @param voltageLevelId         The non-null ID of the existing tapped voltage level
+     * @param bbsOrBusId             The non-null ID of the existing bus or bus bar section in the tapped voltage level voltageLevelId,
+     *                               where we want to connect the new lines newLine1 and newLine2
+     * @param newLine1Id             The non-null ID of the new line connecting the first voltage level to the formerly tapped voltage level
+     * @param newLine1Name           The optional name of the new line connecting the first voltage level to the formerly tapped voltage level
+     * @param newLine2Id             The non-null ID of the new line connecting the second voltage level to the formerly tapped voltage level
+     * @param newLine2Name           The optional name of the new line connecting the second voltage level to the formerly tapped voltage level
      */
-    ReplaceTeePointByVoltageLevelOnLine(String line1ZId, String lineZ2Id, String lineZPId,
+    ReplaceTeePointByVoltageLevelOnLine(String teePointLine1Id, String teePointLine2Id, String teePointLineToRemoveId,
                                         String voltageLevelId, String bbsOrBusId,
-                                        String line1CId, String line1CName,
-                                        String lineC2Id, String lineC2Name) {
-        this.line1ZId = Objects.requireNonNull(line1ZId);
-        this.lineZ2Id = Objects.requireNonNull(lineZ2Id);
-        this.lineZPId = Objects.requireNonNull(lineZPId);
+                                        String newLine1Id, String newLine1Name,
+                                        String newLine2Id, String newLine2Name) {
+        this.teePointLine1Id = Objects.requireNonNull(teePointLine1Id);
+        this.teePointLine2Id = Objects.requireNonNull(teePointLine2Id);
+        this.teePointLineToRemoveId = Objects.requireNonNull(teePointLineToRemoveId);
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
-        this.line1CId = Objects.requireNonNull(line1CId);
-        this.line1CName = line1CName;
-        this.lineC2Id = Objects.requireNonNull(lineC2Id);
-        this.lineC2Name = lineC2Name;
+        this.newLine1Id = Objects.requireNonNull(newLine1Id);
+        this.newLine1Name = newLine1Name;
+        this.newLine2Id = Objects.requireNonNull(newLine2Id);
+        this.newLine2Name = newLine2Name;
     }
 
-    public String getLine1ZId() {
-        return line1ZId;
+    public String getTeePointLine1Id() {
+        return teePointLine1Id;
     }
 
-    public String getLineZ2Id() {
-        return lineZ2Id;
+    public String getTeePointLine2Id() {
+        return teePointLine2Id;
     }
 
-    public String getLineZPId() {
-        return lineZPId;
+    public String getTeePointLineToRemoveId() {
+        return teePointLineToRemoveId;
     }
 
     public String getVoltageLevelId() {
@@ -115,50 +120,50 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return bbsOrBusId;
     }
 
-    public String getLine1CId() {
-        return line1CId;
+    public String getNewLine1Id() {
+        return newLine1Id;
     }
 
-    public String getLine1CName() {
-        return line1CName;
+    public String getNewLine1Name() {
+        return newLine1Name;
     }
 
-    public String getLineC2Id() {
-        return lineC2Id;
+    public String getNewLine2Id() {
+        return newLine2Id;
     }
 
-    public String getLineC2Name() {
-        return lineC2Name;
+    public String getNewLine2Name() {
+        return newLine2Name;
     }
 
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        Line line1Z = network.getLine(line1ZId);
+        Line line1Z = network.getLine(teePointLine1Id);
         if (line1Z == null) {
-            notFoundLineReport(reporter, line1ZId);
+            notFoundLineReport(reporter, teePointLine1Id);
             if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, line1ZId));
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine1Id));
             } else {
                 return;
             }
         }
 
-        Line lineZ2 = network.getLine(lineZ2Id);
+        Line lineZ2 = network.getLine(teePointLine2Id);
         if (lineZ2 == null) {
-            notFoundLineReport(reporter, lineZ2Id);
+            notFoundLineReport(reporter, teePointLine2Id);
             if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineZ2Id));
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine2Id));
             } else {
                 return;
             }
         }
 
-        Line lineZP = network.getLine(lineZPId);
+        Line lineZP = network.getLine(teePointLineToRemoveId);
         if (lineZP == null) {
-            notFoundLineReport(reporter, lineZPId);
+            notFoundLineReport(reporter, teePointLineToRemoveId);
             if (throwException) {
-                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineZPId));
+                throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLineToRemoveId));
             } else {
                 return;
             }
@@ -206,17 +211,17 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         }
 
         if (!configOk || teePoint == null || attachedVoltageLevel == null) {
-            noTeePointAndOrAttachedVoltageLevelReport(reporter, line1ZId, lineZ2Id, lineZPId);
+            noTeePointAndOrAttachedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the tee point and the attached voltage level from lines %s, %s and %s", line1ZId, lineZ2Id, lineZPId));
+                throw new PowsyblException(String.format("Unable to find the tee point and the attached voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
             } else {
                 return;
             }
         }
 
         // Set parameters of the new lines line1C and lineC2
-        LineAdder line1CAdder = createLineAdder(line1CId, line1CName, line1Z.getTerminal(line1ZOtherVlSide).getVoltageLevel().getId(), attachedVoltageLevel.getId(), network, line1Z, lineZP);
-        LineAdder lineC2Adder = createLineAdder(lineC2Id, lineC2Name, attachedVoltageLevel.getId(), lineZ2.getTerminal(lineZ2OtherVlSide).getVoltageLevel().getId(), network, lineZ2, lineZP);
+        LineAdder line1CAdder = createLineAdder(newLine1Id, newLine1Name, line1Z.getTerminal(line1ZOtherVlSide).getVoltageLevel().getId(), attachedVoltageLevel.getId(), network, line1Z, lineZP);
+        LineAdder lineC2Adder = createLineAdder(newLine2Id, newLine2Name, attachedVoltageLevel.getId(), lineZ2.getTerminal(lineZ2OtherVlSide).getVoltageLevel().getId(), network, lineZ2, lineZP);
 
         // Create the topology inside the existing attached voltage level and attach lines line1C and lineC2
         attachLine(line1Z.getTerminal(line1ZOtherVlSide), line1CAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
@@ -235,11 +240,11 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
             Bus bus1 = attachedVoltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(line1CId + "_BUS_1")
+                    .setId(newLine1Id + "_BUS_1")
                     .add();
             Bus bus2 = attachedVoltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(lineC2Id + "_BUS_2")
+                    .setId(newLine2Id + "_BUS_2")
                     .add();
             createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, attachedVoltageLevel.getBusBreakerView());
             line1CAdder.setBus2(bus1.getId());
@@ -258,8 +263,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = attachedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", line1CId, attachedVoltageLevel.getNodeBreakerView());
-            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", lineC2Id, attachedVoltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", newLine1Id, attachedVoltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", newLine2Id, attachedVoltageLevel.getNodeBreakerView());
             line1CAdder.setNode2(firstAvailableNode);
             lineC2Adder.setNode1(firstAvailableNode + 3);
         }
@@ -287,22 +292,22 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // Remove the three existing lines
         line1Z.remove();
-        removedLineReport(reporter, line1ZId);
+        removedLineReport(reporter, teePointLine1Id);
         lineZ2.remove();
-        removedLineReport(reporter, lineZ2Id);
+        removedLineReport(reporter, teePointLine2Id);
         lineZP.remove();
-        removedLineReport(reporter, lineZPId);
+        removedLineReport(reporter, teePointLineToRemoveId);
 
         // Create the two new lines
         Line line1C = line1CAdder.add();
         addLoadingLimits(line1C, limits1Line1Z, Branch.Side.ONE);
         addLoadingLimits(line1C, limits2Line1Z, Branch.Side.TWO);
-        createdLineReport(reporter, line1CId);
+        createdLineReport(reporter, newLine1Id);
 
         Line lineC2 = lineC2Adder.add();
         addLoadingLimits(lineC2, limits1LineZ2, Branch.Side.ONE);
         addLoadingLimits(lineC2, limits2LineZ2, Branch.Side.TWO);
-        createdLineReport(reporter, lineC2Id);
+        createdLineReport(reporter, newLine2Id);
 
         // remove tee point
         removeVoltageLevelAndSubstation(teePoint, reporter);

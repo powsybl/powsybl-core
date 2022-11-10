@@ -195,15 +195,15 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withBbsOrBusId("BBS")
                 .withLine1CId("NEW LINE1 ID")
                 .withLineC2Id("NEW LINE2 ID").build();
-        assertEquals("NHV1_NHV2_1", modification.getLine1ZId());
-        assertEquals("NHV1_NHV2_2", modification.getLineZ2Id());
-        assertEquals("NHV1_NHV2_3", modification.getLineZPId());
+        assertEquals("NHV1_NHV2_1", modification.getTeePointLine1Id());
+        assertEquals("NHV1_NHV2_2", modification.getTeePointLine2Id());
+        assertEquals("NHV1_NHV2_3", modification.getTeePointLineToRemoveId());
         assertEquals("VL", modification.getVoltageLevelId());
         assertEquals("BBS", modification.getBbsOrBusId());
-        assertEquals("NEW LINE1 ID", modification.getLine1CId());
-        assertNull(modification.getLine1CName());
-        assertEquals("NEW LINE2 ID", modification.getLineC2Id());
-        assertNull(modification.getLineC2Name());
+        assertEquals("NEW LINE1 ID", modification.getNewLine1Id());
+        assertNull(modification.getNewLine1Name());
+        assertEquals("NEW LINE2 ID", modification.getNewLine2Id());
+        assertNull(modification.getNewLine2Name());
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withLine1ZId("NHV1_NHV2_1")
@@ -215,7 +215,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
                 .withLine1CName("NEW LINE1 NAME")
                 .withLineC2Id("NEW LINE2 ID")
                 .withLineC2Name("NEW LINE2 NAME").build();
-        assertEquals("NEW LINE1 NAME", modification.getLine1CName());
-        assertEquals("NEW LINE2 NAME", modification.getLineC2Name());
+        assertEquals("NEW LINE1 NAME", modification.getNewLine1Name());
+        assertEquals("NEW LINE2 NAME", modification.getNewLine2Name());
     }
 }
