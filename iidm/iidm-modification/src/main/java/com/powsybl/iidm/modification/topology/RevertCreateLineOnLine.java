@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.createdLineReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.noTeePointAndOrAttachedVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.noTeePointAndOrTappedVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundLineReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.removedLineReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
@@ -32,20 +32,22 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.m
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
 
 /**
- * This method reverses the action done in the CreateLineOnLine class :
+ * This method reverses the action done in the {@link CreateLineOnLine} class :
  * it replaces 3 existing lines (with the same voltage level at one of their side) with a new line,
- * and eventually removes the existing voltage levels (tee point and attached voltage level), if they contain no equipments
+ * and eventually removes the existing voltage levels (tee point and tapped voltage level), if they contain no equipments
  * anymore, except bus or bus bar section <br/><br/>
+ * Before modification:
  * <pre>
- *  *    VL1 --------------------- tee point -------------------- VL2                          VL1 ----------------------------- VL2
- *  *         (lineToBeMerged1Id)     |     (lineToBeMerged2Id)                                            (mergedLineId)
- *  *                                 |
- *  *                                 | (lineToBeDeletedId)                   =========>
- *  *                                 |
- *  *                                 |
- *  *                        attached voltage level
- *  *
- * </pre>
+ * VL1 --------------------- tee point -------------------- VL2
+ *      (lineToBeMerged1Id)     |     (lineToBeMerged2Id)
+ *                              |
+ *                              | (lineToBeDeletedId)
+ *                              |
+ *                     tapped voltage level</pre>
+ * After modification:
+ * <pre>
+ * VL1 ----------------------------- VL2
+ *             (mergedLineId)</pre>
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class RevertCreateLineOnLine extends AbstractNetworkModification {
@@ -64,7 +66,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     /**
      * Constructor.
-     *
+     * <p>
      * NB: This constructor is package-private, Please use {@link RevertCreateLineOnLineBuilder} instead.
      */
     RevertCreateLineOnLine(String lineToBeMerged1Id, String lineToBeMerged2Id, String lineToBeDeletedId, String mergedLineId, String mergedLineName) {
@@ -124,7 +126,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
         // Check the configuration and find the tee point and the attached voltage level :
         // tee point is the voltage level in common with lineToBeMerged1 and lineToBeMerged2
-        // attached voltage level is the voltage level of lineToBeDeleted, not in common with lineToBeMerged1 or lineToBeMerged2
+        // tapped voltage level is the voltage level of lineToBeDeleted, not in common with lineToBeMerged1 or lineToBeMerged2
         VoltageLevel teePoint = null;
         VoltageLevel attachedVoltageLevel = null;
         boolean configOk = false;
@@ -157,10 +159,10 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         }
 
         if (!configOk || teePoint == null || attachedVoltageLevel == null) {
-            noTeePointAndOrAttachedVoltageLevelReport(reporter, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
-            LOG.error("Unable to find the tee point and the attached voltage level from lines {}, {} and {}", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
+            noTeePointAndOrTappedVoltageLevelReport(reporter, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
+            LOG.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
             if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the attachment point and the attached voltage level from lines %s, %s and %s", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId));
+                throw new PowsyblException(String.format("Unable to find the attachment point and the tapped voltage level from lines %s, %s and %s", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId));
             } else {
                 return;
             }

@@ -154,9 +154,9 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // there should be 4 distinct voltage levels and one of them should be found 3 times
         if (countVoltageLevels.size() != 4 || commonVlMapEntry.getValue() != 3) {
-            noTeePointAndOrAttachedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
+            noTeePointAndOrTappedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the tee point and the attached voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
+                throw new PowsyblException(String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
             } else {
                 return;
             }
@@ -174,7 +174,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(), tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
         LineAdder newLine2Adder = createLineAdder(newLine2Id, newLine2Name, tappedVoltageLevel.getId(), tpLine2.getTerminal(tpLine2OtherVlSide).getVoltageLevel().getId(), network, tpLine2, tpLineToRemove);
 
-        // Create the topology inside the existing attached voltage level and attach lines newLine1 and newLine2
+        // Create the topology inside the existing tapped voltage level and attach lines newLine1 and newLine2
         attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
