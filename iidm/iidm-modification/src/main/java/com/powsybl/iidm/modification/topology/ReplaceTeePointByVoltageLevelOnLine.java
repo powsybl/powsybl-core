@@ -139,8 +139,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
-        Line line1Z = network.getLine(teePointLine1Id);
-        if (line1Z == null) {
+        Line tpLine1 = network.getLine(teePointLine1Id);
+        if (tpLine1 == null) {
             notFoundLineReport(reporter, teePointLine1Id);
             if (throwException) {
                 throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine1Id));
@@ -149,8 +149,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        Line lineZ2 = network.getLine(teePointLine2Id);
-        if (lineZ2 == null) {
+        Line tpLine2 = network.getLine(teePointLine2Id);
+        if (tpLine2 == null) {
             notFoundLineReport(reporter, teePointLine2Id);
             if (throwException) {
                 throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine2Id));
@@ -159,8 +159,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        Line lineZP = network.getLine(teePointLineToRemoveId);
-        if (lineZP == null) {
+        Line tpLineToRemove = network.getLine(teePointLineToRemoveId);
+        if (tpLineToRemove == null) {
             notFoundLineReport(reporter, teePointLineToRemoveId);
             if (throwException) {
                 throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLineToRemoveId));
@@ -169,8 +169,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        VoltageLevel attachedVoltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (attachedVoltageLevel == null) {
+        VoltageLevel tappedVoltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (tappedVoltageLevel == null) {
             notFoundVoltageLevelReport(reporter, voltageLevelId);
             if (throwException) {
                 throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
@@ -180,37 +180,37 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         }
 
         // Check the configuration and find the tee point :
-        // tee point is the voltage level in common with line1Z, lineZ2 and lineZP
+        // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
         VoltageLevel teePoint = null;
-        Branch.Side line1ZOtherVlSide = null;
-        Branch.Side lineZ2OtherVlSide = null;
+        Branch.Side tpLine1OtherVlSide = null;
+        Branch.Side tpLine2OtherVlSide = null;
         boolean configOk = false;
 
-        String line1ZVlId1 = line1Z.getTerminal1().getVoltageLevel().getId();
-        String line1ZVlId2 = line1Z.getTerminal2().getVoltageLevel().getId();
-        String lineZ2VlId1 = lineZ2.getTerminal1().getVoltageLevel().getId();
-        String lineZ2VlId2 = lineZ2.getTerminal2().getVoltageLevel().getId();
-        String lineZPVlId1 = lineZP.getTerminal1().getVoltageLevel().getId();
-        String lineZPVlId2 = lineZP.getTerminal2().getVoltageLevel().getId();
+        String tpLine1VlId1 = tpLine1.getTerminal1().getVoltageLevel().getId();
+        String tpLine1VlId2 = tpLine1.getTerminal2().getVoltageLevel().getId();
+        String tpLine2VlId1 = tpLine2.getTerminal1().getVoltageLevel().getId();
+        String tpLine2VlId2 = tpLine2.getTerminal2().getVoltageLevel().getId();
+        String tpLineToRemoveVlId1 = tpLineToRemove.getTerminal1().getVoltageLevel().getId();
+        String tpLineToRemoveVlId2 = tpLineToRemove.getTerminal2().getVoltageLevel().getId();
 
-        if ((line1ZVlId1.equals(lineZ2VlId1) || line1ZVlId1.equals(lineZ2VlId2) ||
-                line1ZVlId2.equals(lineZ2VlId1) || line1ZVlId2.equals(lineZ2VlId2)) &&
-                (lineZ2VlId1.equals(lineZPVlId1) || lineZ2VlId1.equals(lineZPVlId2) ||
-                        lineZ2VlId2.equals(lineZPVlId1) || lineZ2VlId2.equals(lineZPVlId2)) &&
-                (line1ZVlId1.equals(lineZPVlId1) || line1ZVlId1.equals(lineZPVlId2) ||
-                        line1ZVlId2.equals(lineZPVlId1) || line1ZVlId2.equals(lineZPVlId2))) {
+        if ((tpLine1VlId1.equals(tpLine2VlId1) || tpLine1VlId1.equals(tpLine2VlId2) ||
+                tpLine1VlId2.equals(tpLine2VlId1) || tpLine1VlId2.equals(tpLine2VlId2)) &&
+                (tpLine2VlId1.equals(tpLineToRemoveVlId1) || tpLine2VlId1.equals(tpLineToRemoveVlId2) ||
+                        tpLine2VlId2.equals(tpLineToRemoveVlId1) || tpLine2VlId2.equals(tpLineToRemoveVlId2)) &&
+                (tpLine1VlId1.equals(tpLineToRemoveVlId1) || tpLine1VlId1.equals(tpLineToRemoveVlId2) ||
+                        tpLine1VlId2.equals(tpLineToRemoveVlId1) || tpLine1VlId2.equals(tpLineToRemoveVlId2))) {
             configOk = true;
 
-            String teePointId = line1ZVlId1.equals(lineZ2VlId1) || line1ZVlId1.equals(lineZ2VlId2) ? line1ZVlId1 : line1ZVlId2;
+            String teePointId = tpLine1VlId1.equals(tpLine2VlId1) || tpLine1VlId1.equals(tpLine2VlId2) ? tpLine1VlId1 : tpLine1VlId2;
             teePoint = network.getVoltageLevel(teePointId);
 
-            Branch.Side line1ZTeePointSide = line1ZVlId1.equals(teePointId) ? Branch.Side.ONE : Branch.Side.TWO;
-            line1ZOtherVlSide = line1ZTeePointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
-            Branch.Side lineZ2TeePointSide = lineZ2VlId1.equals(teePointId) ? Branch.Side.ONE : Branch.Side.TWO;
-            lineZ2OtherVlSide = lineZ2TeePointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+            Branch.Side line1ZTeePointSide = tpLine1VlId1.equals(teePointId) ? Branch.Side.ONE : Branch.Side.TWO;
+            tpLine1OtherVlSide = line1ZTeePointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+            Branch.Side lineZ2TeePointSide = tpLine2VlId1.equals(teePointId) ? Branch.Side.ONE : Branch.Side.TWO;
+            tpLine2OtherVlSide = lineZ2TeePointSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
         }
 
-        if (!configOk || teePoint == null || attachedVoltageLevel == null) {
+        if (!configOk || teePoint == null || tappedVoltageLevel == null) {
             noTeePointAndOrAttachedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the tee point and the attached voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
@@ -219,15 +219,15 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        // Set parameters of the new lines line1C and lineC2
-        LineAdder line1CAdder = createLineAdder(newLine1Id, newLine1Name, line1Z.getTerminal(line1ZOtherVlSide).getVoltageLevel().getId(), attachedVoltageLevel.getId(), network, line1Z, lineZP);
-        LineAdder lineC2Adder = createLineAdder(newLine2Id, newLine2Name, attachedVoltageLevel.getId(), lineZ2.getTerminal(lineZ2OtherVlSide).getVoltageLevel().getId(), network, lineZ2, lineZP);
+        // Set parameters of the new lines newLine1 and newLine2
+        LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(), tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
+        LineAdder newLine2Adder = createLineAdder(newLine2Id, newLine2Name, tappedVoltageLevel.getId(), tpLine2.getTerminal(tpLine2OtherVlSide).getVoltageLevel().getId(), network, tpLine2, tpLineToRemove);
 
-        // Create the topology inside the existing attached voltage level and attach lines line1C and lineC2
-        attachLine(line1Z.getTerminal(line1ZOtherVlSide), line1CAdder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
-        attachLine(lineZ2.getTerminal(lineZ2OtherVlSide), lineC2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
+        // Create the topology inside the existing attached voltage level and attach lines newLine1 and newLine2
+        attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
+        attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
-        TopologyKind topologyKind = attachedVoltageLevel.getTopologyKind();
+        TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
             if (bus == null) {
@@ -238,19 +238,19 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                     return;
                 }
             }
-            Bus bus1 = attachedVoltageLevel.getBusBreakerView()
+            Bus bus1 = tappedVoltageLevel.getBusBreakerView()
                     .newBus()
                     .setId(newLine1Id + "_BUS_1")
                     .add();
-            Bus bus2 = attachedVoltageLevel.getBusBreakerView()
+            Bus bus2 = tappedVoltageLevel.getBusBreakerView()
                     .newBus()
                     .setId(newLine2Id + "_BUS_2")
                     .add();
-            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, attachedVoltageLevel.getBusBreakerView());
-            line1CAdder.setBus2(bus1.getId());
-            line1CAdder.setConnectableBus2(bus1.getId());
-            lineC2Adder.setBus1(bus2.getId());
-            lineC2Adder.setConnectableBus1(bus2.getId());
+            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, tappedVoltageLevel.getBusBreakerView());
+            newLine1Adder.setBus2(bus1.getId());
+            newLine1Adder.setConnectableBus2(bus1.getId());
+            newLine2Adder.setBus1(bus2.getId());
+            newLine2Adder.setConnectableBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
             if (bbs == null) {
@@ -262,51 +262,51 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                 }
             }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-            int firstAvailableNode = attachedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", newLine1Id, attachedVoltageLevel.getNodeBreakerView());
-            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", newLine2Id, attachedVoltageLevel.getNodeBreakerView());
-            line1CAdder.setNode2(firstAvailableNode);
-            lineC2Adder.setNode1(firstAvailableNode + 3);
+            int firstAvailableNode = tappedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", newLine1Id, tappedVoltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", newLine2Id, tappedVoltageLevel.getNodeBreakerView());
+            newLine1Adder.setNode2(firstAvailableNode);
+            newLine2Adder.setNode1(firstAvailableNode + 3);
         }
 
-        // get line line1Z limits
-        Branch.Side line1ZLimits1Side = line1ZOtherVlSide;
-        Branch.Side line1ZLimits2Side = line1ZOtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
-        LoadingLimitsBags limits1Line1Z = new LoadingLimitsBags(() -> line1Z.getActivePowerLimits(line1ZLimits1Side),
-            () -> line1Z.getApparentPowerLimits(line1ZLimits1Side),
-            () -> line1Z.getCurrentLimits(line1ZLimits1Side));
-        LoadingLimitsBags limits2Line1Z = new LoadingLimitsBags(() -> line1Z.getActivePowerLimits(line1ZLimits2Side),
-            () -> line1Z.getApparentPowerLimits(line1ZLimits2Side),
-            () -> line1Z.getCurrentLimits(line1ZLimits2Side));
+        // get line tpLine1 limits
+        Branch.Side tpLine1Limits1Side = tpLine1OtherVlSide;
+        Branch.Side tpLine1Limits2Side = tpLine1OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+        LoadingLimitsBags limits1Line1Z = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits1Side),
+            () -> tpLine1.getApparentPowerLimits(tpLine1Limits1Side),
+            () -> tpLine1.getCurrentLimits(tpLine1Limits1Side));
+        LoadingLimitsBags limits2Line1Z = new LoadingLimitsBags(() -> tpLine1.getActivePowerLimits(tpLine1Limits2Side),
+            () -> tpLine1.getApparentPowerLimits(tpLine1Limits2Side),
+            () -> tpLine1.getCurrentLimits(tpLine1Limits2Side));
 
-        // get line lineZ2 limits
-        Branch.Side lineZ2Limits1Side = lineZ2OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
-        Branch.Side lineZ2Limits2Side = lineZ2OtherVlSide;
+        // get line tpLine2 limits
+        Branch.Side tpLine2Limits1Side = tpLine2OtherVlSide == Branch.Side.ONE ? Branch.Side.TWO : Branch.Side.ONE;
+        Branch.Side tpLine2Limits2Side = tpLine2OtherVlSide;
 
-        LoadingLimitsBags limits1LineZ2 = new LoadingLimitsBags(() -> lineZ2.getActivePowerLimits(lineZ2Limits1Side),
-            () -> lineZ2.getApparentPowerLimits(lineZ2Limits1Side),
-            () -> lineZ2.getCurrentLimits(lineZ2Limits1Side));
-        LoadingLimitsBags limits2LineZ2 = new LoadingLimitsBags(() -> lineZ2.getActivePowerLimits(lineZ2Limits2Side),
-            () -> lineZ2.getApparentPowerLimits(lineZ2Limits2Side),
-            () -> lineZ2.getCurrentLimits(lineZ2Limits2Side));
+        LoadingLimitsBags limits1LineZ2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits1Side),
+            () -> tpLine2.getApparentPowerLimits(tpLine2Limits1Side),
+            () -> tpLine2.getCurrentLimits(tpLine2Limits1Side));
+        LoadingLimitsBags limits2LineZ2 = new LoadingLimitsBags(() -> tpLine2.getActivePowerLimits(tpLine2Limits2Side),
+            () -> tpLine2.getApparentPowerLimits(tpLine2Limits2Side),
+            () -> tpLine2.getCurrentLimits(tpLine2Limits2Side));
 
         // Remove the three existing lines
-        line1Z.remove();
+        tpLine1.remove();
         removedLineReport(reporter, teePointLine1Id);
-        lineZ2.remove();
+        tpLine2.remove();
         removedLineReport(reporter, teePointLine2Id);
-        lineZP.remove();
+        tpLineToRemove.remove();
         removedLineReport(reporter, teePointLineToRemoveId);
 
         // Create the two new lines
-        Line line1C = line1CAdder.add();
-        addLoadingLimits(line1C, limits1Line1Z, Branch.Side.ONE);
-        addLoadingLimits(line1C, limits2Line1Z, Branch.Side.TWO);
+        Line newLine1 = newLine1Adder.add();
+        addLoadingLimits(newLine1, limits1Line1Z, Branch.Side.ONE);
+        addLoadingLimits(newLine1, limits2Line1Z, Branch.Side.TWO);
         createdLineReport(reporter, newLine1Id);
 
-        Line lineC2 = lineC2Adder.add();
-        addLoadingLimits(lineC2, limits1LineZ2, Branch.Side.ONE);
-        addLoadingLimits(lineC2, limits2LineZ2, Branch.Side.TWO);
+        Line newLine2 = newLine2Adder.add();
+        addLoadingLimits(newLine2, limits1LineZ2, Branch.Side.ONE);
+        addLoadingLimits(newLine2, limits2LineZ2, Branch.Side.TWO);
         createdLineReport(reporter, newLine2Id);
 
         // remove tee point
