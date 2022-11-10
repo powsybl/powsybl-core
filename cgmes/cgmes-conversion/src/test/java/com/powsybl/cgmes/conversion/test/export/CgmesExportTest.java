@@ -20,8 +20,6 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
@@ -91,8 +89,8 @@ public class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
-            Exporters.export("CGMES", network, null, tmpDir.resolve("tmp"));
-            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            network.write("CGMES", null, tmpDir.resolve("tmp"));
+            Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             VoltageLevel c = n2.getVoltageLevel("C");
             assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("TEST_SW")));
             assertNull(n2.getVscConverterStation("C2").getTerminal().getBusView().getBus());
@@ -108,7 +106,7 @@ public class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             // Export to CGMES and add boundary EQ for reimport
-            Exporters.export("CGMES", n, null, tmpDir.resolve(baseName));
+            n.write("CGMES", null, tmpDir.resolve(baseName));
             String eqbd = ds.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
             if (eqbd != null) {
                 try (InputStream is = ds.newInputStream(eqbd)) {
@@ -116,7 +114,7 @@ public class CgmesExportTest {
                 }
             }
 
-            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, baseName), null);
+            Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, baseName), null);
             Generator g1 = n2.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
             Generator g2 = n2.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
             String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
@@ -139,14 +137,14 @@ public class CgmesExportTest {
 
             // With original regulating mode the regulating control should be written in the EQ output
             String baseNameWithRc = baseName + "-with-rc";
-            Exporters.export("CGMES", n, null, tmpDir.resolve(baseNameWithRc));
+            n.write("CGMES", null, tmpDir.resolve(baseNameWithRc));
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "EQ"));
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "SSH"));
 
             transformer.getPhaseTapChanger().setRegulating(false);
             transformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
             String baseNameNoRc = baseName + "-no-rc";
-            Exporters.export("CGMES", n, null, tmpDir.resolve(baseNameNoRc));
+            n.write("CGMES", null, tmpDir.resolve(baseNameNoRc));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "SSH"));
         }
@@ -216,14 +214,14 @@ public class CgmesExportTest {
             Properties paramsOnlySsh = new Properties();
             paramsOnlySsh.put(CgmesExport.PROFILES, List.of("SSH"));
             paramsOnlySsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
-            Exporters.export("CGMES", network, paramsOnlySsh, tmpDir.resolve(baseName));
+            network.write("CGMES", paramsOnlySsh, tmpDir.resolve(baseName));
             String typeOnlySsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
             assertEquals(typeOriginal, typeOnlySsh);
 
             // If we export EQ and SSH (or all instance fiels), type of tap changer should be changed to tabular
             Properties paramsEqAndSsh = new Properties();
             paramsEqAndSsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
-            Exporters.export("CGMES", network, paramsEqAndSsh, tmpDir.resolve(baseName));
+            network.write("CGMES", paramsEqAndSsh, tmpDir.resolve(baseName));
             String typeEqAndSsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
             assertEquals(CgmesNames.PHASE_TAP_CHANGER_TABULAR, typeEqAndSsh);
         }
@@ -253,13 +251,13 @@ public class CgmesExportTest {
 
             // Check that the exported CGMES model does not contain the fictitious switch
             // And that the corresponding terminal is disconnected
-            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, null, TripleStoreFactory.defaultImplementation());
+            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes.isNodeBreaker());
             assertFalse(cgmes.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
             assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
 
             // Verify that the fictitious switch is created again when we re-import the exported CGMES data
-            Network networkReimported = Importers.loadNetwork(exportedCgmes, null);
+            Network networkReimported = Network.read(exportedCgmes, null);
             Switch fictitiousSwitchReimported = networkReimported.getSwitch(fictitiousSwitchId);
             assertNotNull(fictitiousSwitchReimported);
             assertTrue(fictitiousSwitchReimported.isFictitious());
@@ -271,18 +269,18 @@ public class CgmesExportTest {
             fictitiousSwitch.setOpen(false);
             String baseName1 = "testTerminalDisconnectedFictitiousSwitchClosedExported";
             ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir, baseName1, ds);
-            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, null, TripleStoreFactory.defaultImplementation());
+            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes1.isNodeBreaker());
             assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
             assertTrue(cgmes1.terminal(disconnectedTerminalId).connected());
-            Network networkReimported1 = Importers.loadNetwork(exportedCgmes1, null);
+            Network networkReimported1 = Network.read(exportedCgmes1, null);
             Switch fictitiousSwitchReimported1 = networkReimported1.getSwitch(fictitiousSwitchId);
             assertNull(fictitiousSwitchReimported1);
         }
     }
 
     private static ReadOnlyDataSource exportAndAddBoundaries(Network network, Path tmpDir, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
-        Exporters.export("CGMES", network, null, tmpDir.resolve(baseName));
+        network.write("CGMES", null, tmpDir.resolve(baseName));
         String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
         if (eqbd != null) {
             try (InputStream is = originalDataSource.newInputStream(eqbd)) {

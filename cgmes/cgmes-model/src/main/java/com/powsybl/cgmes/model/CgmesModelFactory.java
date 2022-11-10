@@ -10,6 +10,7 @@ package com.powsybl.cgmes.model;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.*;
 
 import java.util.Objects;
@@ -23,40 +24,40 @@ public final class CgmesModelFactory {
     }
 
     public static CgmesModel create(ReadOnlyDataSource dataSource) {
-        return create(dataSource, TripleStoreFactory.DEFAULT_IMPLEMENTATION);
+        return create(dataSource, TripleStoreFactory.DEFAULT_IMPLEMENTATION, Reporter.NO_OP);
     }
 
     public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation) {
-        Objects.requireNonNull(dataSource);
-        Objects.requireNonNull(implementation);
-
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
-        return create(dataSource, alternativeDataSourceForBoundary, implementation);
+        return create(dataSource, alternativeDataSourceForBoundary, implementation, Reporter.NO_OP);
+    }
+
+    public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation, Reporter reporter) {
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        return create(dataSource, alternativeDataSourceForBoundary, implementation, reporter);
     }
 
     public static CgmesModel create(
         ReadOnlyDataSource mainDataSource,
         ReadOnlyDataSource alternativeDataSourceForBoundary,
-        String implementation) {
-        Objects.requireNonNull(mainDataSource);
-        Objects.requireNonNull(implementation);
-
-        CgmesModel cgmes = createImplementation(implementation, new TripleStoreOptions(), mainDataSource);
-        cgmes.read(mainDataSource, alternativeDataSourceForBoundary);
-        return cgmes;
+        String implementation,
+        Reporter reporter) {
+        return create(mainDataSource, alternativeDataSourceForBoundary, implementation, reporter, new TripleStoreOptions());
     }
 
     public static CgmesModel create(
             ReadOnlyDataSource mainDataSource,
             ReadOnlyDataSource alternativeDataSourceForBoundary,
             String implementation,
+            Reporter reporter,
             TripleStoreOptions tripleStoreOptions) {
         Objects.requireNonNull(mainDataSource);
         Objects.requireNonNull(implementation);
+        Objects.requireNonNull(reporter);
         Objects.requireNonNull(tripleStoreOptions);
 
         CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource);
-        cgmes.read(mainDataSource, alternativeDataSourceForBoundary);
+        cgmes.read(mainDataSource, alternativeDataSourceForBoundary, reporter);
         return cgmes;
     }
 

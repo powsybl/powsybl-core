@@ -25,9 +25,19 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractPowsyblTripleStore implements TripleStore {
 
-    public AbstractPowsyblTripleStore() {
+    protected AbstractPowsyblTripleStore() {
+        this(new TripleStoreOptions());
+    }
+
+    protected AbstractPowsyblTripleStore(TripleStoreOptions options) {
+        this.options = options;
         queryPrefixes = new HashMap<>();
         defineQueryPrefix("rdf", RDF_NAMESPACE);
+    }
+
+    @Override
+    public TripleStoreOptions getOptions() {
+        return options;
     }
 
     protected static String createRdfId() {
@@ -123,7 +133,9 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         private String line = "";
     }
 
-    private Map<String, String> queryPrefixes;
+    private final TripleStoreOptions options;
+    private final Map<String, String> queryPrefixes;
+
     private String cachedQueryPrefixes;
 
     private static final String NAMESPACE_FOR_CONTEXTS = "contexts:";

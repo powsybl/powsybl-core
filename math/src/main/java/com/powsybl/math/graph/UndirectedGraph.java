@@ -334,7 +334,6 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Remove from the vertices which are not connected to any edge, and which have no associated object.
-     * If {@code andAlsoDanglingEdges} is true, also remove dangling edges.
      */
-    void removeIsolatedVertices(boolean andAlsoDanglingEdges);
+    void removeIsolatedVertices();
 }

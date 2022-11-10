@@ -8,6 +8,8 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -193,14 +195,26 @@ public class RegulatingControlMappingForTransformers {
         // It targetValue is not valid, emit a warning and deactivate regulating control
         boolean validTargetValue = control.targetValue > 0;
         if (!validTargetValue) {
-            context.invalid(rtcId,
-                "Regulating control has a bad target voltage " + control.targetValue);
+            context.invalid(rtcId, "Regulating control has a bad target voltage " + control.targetValue);
+            context.getReporter().report(Report.builder()
+                    .withKey("RegulatingControlVoltageBadTargetValue")
+                    .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
+                    .withValue("equipmentId", rtcId)
+                    .withTypedValue("targetValue", control.targetValue, TypedValue.VOLTAGE)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         }
 
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
-            context.invalid(rtcId,
-                    "Regulating control has a bad target deadband " + control.targetDeadband);
+            context.invalid(rtcId, "Regulating control has a bad target deadband " + control.targetDeadband);
+            context.getReporter().report(Report.builder()
+                    .withKey("RegulatingControlVoltageBadTargetDeadband")
+                    .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband for voltage: ${targetDeadband}")
+                    .withValue("equipmentId", rtcId)
+                    .withTypedValue("targetDeadband", control.targetDeadband, TypedValue.VOLTAGE)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         }
 
         // Order is important
@@ -220,30 +234,30 @@ public class RegulatingControlMappingForTransformers {
 
         boolean okSet = false;
         if (control.mode.endsWith("currentflow")) {
-            okSet = setPtcRegulatingControlCurrentFlow(regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlCurrentFlow(rc.id, regulating, rc.ltcFlag, control, ptc, context);
         } else if (control.mode.endsWith("activepower")) {
-            okSet = setPtcRegulatingControlActivePower(regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlActivePower(rc.id, regulating, rc.ltcFlag, control, ptc, context);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setPtcRegulatingControlCurrentFlow(boolean regulating, boolean ltcFlag, RegulatingControl control,
+    private boolean setPtcRegulatingControlCurrentFlow(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
         PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
                 PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControlActivePower(boolean regulating, boolean ltcFlag, RegulatingControl control,
+    private boolean setPtcRegulatingControlActivePower(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
         PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
+    private boolean setPtcRegulatingControl(String ptcId, boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
                                             RegulatingControl control, PhaseTapChanger ptc, Context context) {
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(control.cgmesTerminal, context)
@@ -256,13 +270,21 @@ public class RegulatingControlMappingForTransformers {
 
         boolean fixedRegulating = regulating;
         if (regulating && regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-            context.fixed("RegulationMode", "Regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
+            context.fixed(ptcId, "RegulationMode: regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
             fixedRegulating = false;
         }
 
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
-            context.invalid("Target deadband", "Regulating control has a bad target deadband " + control.targetDeadband);
+            context.invalid(ptcId, "Regulating control has a bad target deadband " + control.targetDeadband);
+            context.getReporter().report(Report.builder()
+                    .withKey("RegulatingControlBadTargetDeadband")
+                    .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
+                    .withValue("equipmentId", ptcId)
+                    // Could be a current or an active power
+                    .withValue("targetDeadband", control.targetDeadband)
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .build());
         }
 
         // Order is important

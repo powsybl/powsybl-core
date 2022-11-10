@@ -147,7 +147,9 @@ public class DefaultSecurityAnalysis {
     }
 
     private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
-        SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder = resultBuilder.preContingency().setComputationOk(true);
+        SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder =
+                resultBuilder.preContingency()
+                        .setStatus(LoadFlowResult.ComponentResult.Status.CONVERGED);
         violationDetector.checkAll(network, builder::addViolation);
         addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         addMonitorInfos(network, monitorIndex.getNoneStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
@@ -155,7 +157,7 @@ public class DefaultSecurityAnalysis {
     }
 
     private CompletableFuture<Void> setPreContingencyKo(SecurityAnalysisResultBuilder resultBuilder) {
-        resultBuilder.preContingency().setComputationOk(false).endPreContingency();
+        resultBuilder.preContingency().setStatus(LoadFlowResult.ComponentResult.Status.FAILED).endPreContingency();
         return CompletableFuture.completedFuture(null);
     }
 
@@ -222,7 +224,9 @@ public class DefaultSecurityAnalysis {
     private void setContingencyOkAndCheckViolations(String postContVariantId, SecurityAnalysisResultBuilder resultBuilder,
                                                     Contingency contingency, LoadFlowResult lfResult) {
         network.getVariantManager().setWorkingVariant(postContVariantId);
-        SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder = resultBuilder.contingency(contingency).setComputationOk(lfResult.isOk());
+        SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder =
+                resultBuilder.contingency(contingency)
+                        .setStatus(lfResult.isOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED);
         if (lfResult.isOk()) {
             violationDetector.checkAll(contingency, network, builder::addViolation);
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
