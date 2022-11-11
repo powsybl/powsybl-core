@@ -15,8 +15,10 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.Collections;
 import java.util.List;
@@ -87,6 +89,8 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   SecurityAnalysisParameters parameters,
                                                   ContingenciesProvider contingenciesProvider,
                                                   List<SecurityAnalysisInterceptor> interceptors,
+                                                  List<OperatorStrategy> operatorStrategies,
+                                                  List<Action> actions,
                                                   List<StateMonitor> monitors,
                                                   Reporter reporter);
 

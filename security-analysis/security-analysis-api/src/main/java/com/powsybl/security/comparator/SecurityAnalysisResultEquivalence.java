@@ -7,7 +7,7 @@
 package com.powsybl.security.comparator;
 
 import java.io.Writer;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,10 +40,10 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
 
         // I still carry on the comparison even if equivalent is already false because I need to print the violations of the post contingency results
         // compare postcontingency results
-        List<PostContingencyResult> postContingencyResults1 = result1.getPostContingencyResults();
-        List<PostContingencyResult> postContingencyResults2 = result2.getPostContingencyResults();
-        Collections.sort(postContingencyResults1, postContingencyResultComparator);
-        Collections.sort(postContingencyResults2, postContingencyResultComparator);
+        List<PostContingencyResult> postContingencyResults1 = new ArrayList<>(result1.getPostContingencyResults());
+        List<PostContingencyResult> postContingencyResults2 = new ArrayList<>(result2.getPostContingencyResults());
+        postContingencyResults1.sort(postContingencyResultComparator);
+        postContingencyResults2.sort(postContingencyResultComparator);
         int index1 = 0;
         int index2 = 0;
         while (index1 < postContingencyResults1.size() && index2 < postContingencyResults2.size()) {

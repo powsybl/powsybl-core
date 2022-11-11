@@ -32,7 +32,7 @@ public class PostProcessorReporterTest extends AbstractConverterTest {
     private final ImportPostProcessorMock importPostProcessorMock = new ImportPostProcessorMock();
     private final ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(testImporter), Collections.singletonList(importPostProcessorMock));
     private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-    private final Importer importer1 = Importers.addPostProcessors(loader, testImporter, computationManager, "testReporter");
+    private final Importer importer1 = Importer.addPostProcessors(loader, testImporter, computationManager, "testReporter");
 
     @Test
     public void postProcessorWithReporter() throws IOException {

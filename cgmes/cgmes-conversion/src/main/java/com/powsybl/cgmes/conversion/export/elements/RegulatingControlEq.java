@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Connectable;
@@ -24,8 +25,8 @@ public final class RegulatingControlEq {
 
     public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
 
-    public static String writeKindVoltage(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        String regulatingControlId = c.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+    public static String writeKindVoltage(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String regulatingControlId = context.getNamingStrategy().getCgmesIdFromProperty(c, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
         if (regulatingControlId != null && !regulatingControlsWritten.contains(regulatingControlId)) {
             String regulatingControlName = "RC_" + c.getNameOrId();
             RegulatingControlEq.writeKindVoltage(regulatingControlId, regulatingControlName, terminalId, cimNamespace, writer);

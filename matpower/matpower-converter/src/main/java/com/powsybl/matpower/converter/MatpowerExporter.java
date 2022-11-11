@@ -13,7 +13,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.matpower.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

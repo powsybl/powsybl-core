@@ -56,5 +56,26 @@ public final class NamespaceReader {
         return found;
     }
 
+    public static String base(InputStream is) {
+        XMLStreamReader xmlsr;
+        try {
+            xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+            try {
+                while (xmlsr.hasNext()) {
+                    int eventType = xmlsr.next();
+                    if (eventType == XMLStreamConstants.START_ELEMENT) {
+                        return xmlsr.getAttributeValue(null, "base");
+                    }
+                }
+            } finally {
+                xmlsr.close();
+                XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+            }
+            return null;
+        } catch (XMLStreamException e) {
+            throw new CgmesModelException("base", e);
+        }
+    }
+
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 }

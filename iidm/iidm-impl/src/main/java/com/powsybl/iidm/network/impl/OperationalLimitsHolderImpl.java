@@ -44,7 +44,11 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         return Collections.unmodifiableCollection(operationalLimits.values());
     }
 
-    <L extends OperationalLimits> L getOperationalLimits(LimitType type, Class<L> limitClazz) {
+    <L extends OperationalLimits> Optional<L> getOperationalLimits(LimitType type, Class<L> limitClazz) {
+        return Optional.ofNullable(getNullableOperationalLimits(type, limitClazz));
+    }
+
+    <L extends OperationalLimits> L getNullableOperationalLimits(LimitType type, Class<L> limitClazz) {
         if (type == null) {
             throw new IllegalArgumentException("limit type is null");
         }

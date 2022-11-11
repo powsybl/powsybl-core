@@ -33,8 +33,7 @@ public class HvdcOperatorActiveRangeXmlTest extends AbstractConverterTest {
         Network network = HvdcTestNetwork.createLcc();
 
         HvdcLine hvdcLine = network.getHvdcLine("L");
-        hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class).withOprFromCS1toCS2(1.0f).withOprFromCS2toCS1(2.0f).add();
-        HvdcOperatorActivePowerRange extension = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
+        HvdcOperatorActivePowerRange extension = hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class).withOprFromCS1toCS2(1.0f).withOprFromCS2toCS1(2.0f).add();
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,

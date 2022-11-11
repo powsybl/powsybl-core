@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.HvdcConverterStationAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractHvdcConverterStationAdderAdapter<I extends HvdcConverterStationAdder<I>> extends AbstractInjectionAdderAdapter<I> implements HvdcConverterStationAdder<I>  {
+abstract class AbstractHvdcConverterStationAdderAdapter<I extends HvdcConverterStationAdder<I>> extends AbstractInjectionAdderAdapter<I> implements HvdcConverterStationAdder<I> {
 
     protected AbstractHvdcConverterStationAdderAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);

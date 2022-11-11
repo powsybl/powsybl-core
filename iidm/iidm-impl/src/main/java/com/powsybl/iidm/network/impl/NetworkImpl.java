@@ -684,6 +684,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public Connectable<?> getConnectable(String id) {
+        return index.get(id, Connectable.class);
+    }
+
+    @Override
     public int getConnectableCount() {
         return Ints.checkedCast(getConnectableStream().count());
     }
@@ -973,8 +978,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.g2 = brp2.getG2();
             l.half2.b2 = brp2.getB2();
             l.half2.fictitious = dl2.isFictitious();
-            l.limits1 = dl1.getCurrentLimits();
-            l.limits2 = dl2.getCurrentLimits();
+            l.limits1 = dl1.getCurrentLimits().orElse(null);
+            l.limits2 = dl2.getCurrentLimits().orElse(null);
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
                 Bus b1 = t1.getBusBreakerView().getBus();
                 if (b1 != null) {

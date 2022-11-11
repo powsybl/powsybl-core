@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.modification.tripping;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -18,7 +20,7 @@ import java.util.Set;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public abstract class AbstractTripping implements Tripping {
+public abstract class AbstractTripping extends AbstractNetworkModification implements Tripping {
 
     protected final String id;
 
@@ -31,12 +33,8 @@ public abstract class AbstractTripping implements Tripping {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
-
-    @Override
-    public void apply(Network network) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager,
+                      Reporter reporter) {
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 

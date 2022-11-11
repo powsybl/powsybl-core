@@ -160,8 +160,18 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public CurrentLimits getCurrentLimits() {
+        public Collection<OperationalLimits> getOperationalLimits() {
+            return operationalLimitsHolder.getOperationalLimits();
+        }
+
+        @Override
+        public Optional<CurrentLimits> getCurrentLimits() {
             return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        }
+
+        @Override
+        public CurrentLimits getNullableCurrentLimits() {
+            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
         }
 
         @Override
@@ -170,8 +180,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public ApparentPowerLimits getApparentPowerLimits() {
+        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
             return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        }
+
+        @Override
+        public ApparentPowerLimits getNullableApparentPowerLimits() {
+            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
         }
 
         @Override
@@ -180,18 +195,18 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public ActivePowerLimits getActivePowerLimits() {
+        public Optional<ActivePowerLimits> getActivePowerLimits() {
             return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        }
+
+        @Override
+        public ActivePowerLimits getNullableActivePowerLimits() {
+            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
         }
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
             return operationalLimitsHolder.newActivePowerLimits();
-        }
-
-        @Override
-        public Collection<OperationalLimits> getOperationalLimits() {
-            return operationalLimitsHolder.getOperationalLimits();
         }
 
         protected String getTypeDescription() {

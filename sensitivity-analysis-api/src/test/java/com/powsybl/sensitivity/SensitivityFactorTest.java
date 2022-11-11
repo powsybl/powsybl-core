@@ -30,13 +30,26 @@ public class SensitivityFactorTest extends AbstractConverterTest {
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
         assertEquals(ContingencyContext.all(), factor.getContingencyContext());
-        assertEquals("l", factor.getFunctionId());
         assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, factor.getFunctionType());
         assertEquals("l", factor.getFunctionId());
         assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, factor.getVariableType());
         assertEquals("g", factor.getVariableId());
         assertFalse(factor.isVariableSet());
         assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
+    }
+
+    @Test
+    public void test2() {
+        SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
+                SensitivityVariableType.TRANSFORMER_PHASE_1, "ptc1",
+                false, ContingencyContext.all());
+        assertEquals(ContingencyContext.all(), factor1.getContingencyContext());
+        assertEquals("l", factor1.getFunctionId());
+        assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, factor1.getFunctionType());
+        assertEquals(SensitivityVariableType.TRANSFORMER_PHASE_1, factor1.getVariableType());
+        assertEquals("ptc1", factor1.getVariableId());
+        assertFalse(factor1.isVariableSet());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=TRANSFORMER_PHASE_1, variableId='ptc1', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor1.toString());
     }
 
     @Test

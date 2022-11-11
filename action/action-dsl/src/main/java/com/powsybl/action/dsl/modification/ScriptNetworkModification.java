@@ -6,9 +6,10 @@
  */
 package com.powsybl.action.dsl.modification;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.modification.NetworkModification;
 import groovy.lang.Closure;
 
 import java.util.Objects;
@@ -16,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ScriptNetworkModification implements NetworkModification {
+public class ScriptNetworkModification extends AbstractNetworkModification {
 
     private final Closure<Void> script;
 
@@ -29,7 +30,8 @@ public class ScriptNetworkModification implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         script.call(network, computationManager);
     }
 }

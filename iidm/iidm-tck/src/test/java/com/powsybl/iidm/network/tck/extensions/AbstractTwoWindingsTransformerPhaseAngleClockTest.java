@@ -37,8 +37,7 @@ public abstract class AbstractTwoWindingsTransformerPhaseAngleClockTest {
 
     @Test
     public void testEnd() {
-        transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(11).add();
-        TwoWindingsTransformerPhaseAngleClock pacOut = transformer.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+        TwoWindingsTransformerPhaseAngleClock pacOut = transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(11).add();
         assertEquals(11, pacOut.getPhaseAngleClock());
         pacOut.setPhaseAngleClock(10);
         assertEquals(10, pacOut.getPhaseAngleClock());

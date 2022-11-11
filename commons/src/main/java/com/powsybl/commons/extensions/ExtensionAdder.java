@@ -38,5 +38,5 @@ public interface ExtensionAdder<T, E extends Extension<T>> {
      *
      * @return the extendable
      */
-    T add();
+    E add();
 }

@@ -59,7 +59,7 @@ public class ResourceDataSource implements ReadOnlyDataSource {
         return resourceSets.stream().filter(resourceSet -> resourceSet.exists(fileName))
                 .map(resourceSet -> resourceSet.newInputStream(fileName))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("File '" + fileName  + "' not found"));
+                .orElseThrow(() -> new IllegalArgumentException("File '" + fileName + "' not found"));
     }
 
     @Override

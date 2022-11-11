@@ -365,6 +365,15 @@ public abstract class AbstractNetworkTest {
     }
 
     @Test
+    public void testGetConnectable() {
+        Network n = EurostagTutorialExample1Factory.create();
+        assertEquals(6, n.getConnectableCount());
+        assertNotNull(n.getConnectable("GEN"));
+        assertTrue(n.getConnectable("GEN") instanceof Generator);
+        assertEquals("GEN", n.getConnectable("GEN").getId());
+    }
+
+    @Test
     public void testStreams() {
         Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
         Function<Stream<? extends Identifiable>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());

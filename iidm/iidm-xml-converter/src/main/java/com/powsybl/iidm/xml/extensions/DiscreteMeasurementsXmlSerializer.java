@@ -84,8 +84,8 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
 
     @Override
     public DiscreteMeasurements<I> read(I extendable, XmlReaderContext context) throws XMLStreamException {
-        extendable.newExtension(DiscreteMeasurementsAdder.class).add();
-        DiscreteMeasurements<I> discreteMeasurements = extendable.getExtension(DiscreteMeasurements.class);
+        DiscreteMeasurementsAdder<I> adder = extendable.newExtension(DiscreteMeasurementsAdder.class);
+        DiscreteMeasurements<I> discreteMeasurements = adder.add();
         XMLStreamReader reader = context.getReader();
         XmlUtil.readUntilEndElement(getExtensionName(), reader, () -> {
             if (reader.getLocalName().equals(DISCRETE_MEASUREMENT)) {

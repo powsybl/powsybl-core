@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -48,17 +49,43 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
         return getDelegate().getSide(terminalCopied);
     }
 
-    // -------------------------------
-    // Simple delegated methods ------
-    // -------------------------------
     @Override
     public Collection<OperationalLimits> getOperationalLimits1() {
         return getDelegate().getOperationalLimits1();
     }
 
+    // -------------------------------
+    // Simple delegated methods ------
+    // -------------------------------
+
     @Override
-    public CurrentLimits getCurrentLimits1() {
+    public Optional<CurrentLimits> getCurrentLimits1() {
         return getDelegate().getCurrentLimits1();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits1() {
+        return getDelegate().getNullableCurrentLimits1();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return getDelegate().getActivePowerLimits1();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return getDelegate().getNullableActivePowerLimits1();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return getDelegate().getApparentPowerLimits1();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getDelegate().getNullableApparentPowerLimits1();
     }
 
     @Override
@@ -67,23 +94,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits1() {
-        return getDelegate().getApparentPowerLimits1();
-    }
-
-    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return getDelegate().newApparentPowerLimits1();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits1() {
-        return getDelegate().getActivePowerLimits1();
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return getDelegate().newActivePowerLimits1();
     }
 
     @Override
@@ -92,8 +104,38 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2() {
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return getDelegate().newActivePowerLimits1();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits2() {
         return getDelegate().getCurrentLimits2();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits2() {
+        return getDelegate().getNullableCurrentLimits2();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return getDelegate().getActivePowerLimits2();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return getDelegate().getNullableActivePowerLimits2();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return getDelegate().getApparentPowerLimits2();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getDelegate().getNullableApparentPowerLimits2();
     }
 
     @Override
@@ -102,18 +144,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public ApparentPowerLimits getApparentPowerLimits2() {
-        return getDelegate().getApparentPowerLimits2();
-    }
-
-    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return getDelegate().newApparentPowerLimits2();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits2() {
-        return getDelegate().getActivePowerLimits2();
     }
 
     @Override

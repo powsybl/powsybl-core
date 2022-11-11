@@ -45,7 +45,7 @@ public class IdentifiableShortCircuitAdderImpl<I extends Identifiable<I>> extend
     }
 
     @Override
-    public I add() {
+    public IdentifiableShortCircuit<I> add() {
         if (Double.isNaN(ipMax)) {
             throw new PowsyblException("Undefined ipMax");
         }

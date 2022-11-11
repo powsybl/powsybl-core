@@ -48,7 +48,7 @@ public class SensitivityValueKey {
             return true;
         }
 
-        if (!(o instanceof  SensitivityValueKey)) {
+        if (!(o instanceof SensitivityValueKey)) {
             return false;
         }
 

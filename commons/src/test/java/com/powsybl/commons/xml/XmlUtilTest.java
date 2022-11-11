@@ -14,7 +14,10 @@ import org.junit.Test;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,5 +121,21 @@ public class XmlUtilTest {
                 xmlReader.close();
             }
         }
+    }
+
+    @Test
+    public void initializeWriterDefault() throws XMLStreamException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        XMLStreamWriter writer = XmlUtil.initializeWriter(true, " ", baos);
+        writer.close();
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", baos.toString());
+    }
+
+    @Test
+    public void initializeWriter() throws XMLStreamException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        XMLStreamWriter writer = XmlUtil.initializeWriter(false, " ", baos, StandardCharsets.ISO_8859_1);
+        writer.close();
+        assertEquals("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>", baos.toString());
     }
 }

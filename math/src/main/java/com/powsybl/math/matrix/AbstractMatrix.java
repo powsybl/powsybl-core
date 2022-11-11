@@ -52,4 +52,9 @@ public abstract class AbstractMatrix implements Matrix {
     public Matrix add(Matrix other) {
         return add(other, 1d, 1d);
     }
+
+    @Override
+    public Matrix times(Matrix other) {
+        return times(other, 1d);
+    }
 }

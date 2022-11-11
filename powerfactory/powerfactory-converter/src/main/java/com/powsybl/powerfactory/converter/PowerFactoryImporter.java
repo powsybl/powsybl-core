@@ -9,13 +9,13 @@ package com.powsybl.powerfactory.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.model.*;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.joda.time.DateTime;
@@ -113,47 +113,12 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
-    // TODO move to AbstractConverter at the end
-    static class NodeRef {
-
-        final String voltageLevelId;
-        final int node;
-        final int busIndexIn;
-
-        NodeRef(String voltageLevelId, int node, int busIndexIn) {
-            this.voltageLevelId = voltageLevelId;
-            this.node = node;
-            this.busIndexIn = busIndexIn;
-        }
-
-        @Override
-        public String toString() {
-            return "NodeRef(voltageLevelId='" + voltageLevelId + '\'' +
-                    ", node=" + node +
-                    ')';
-        }
-    }
-
-    // TODO delete at the end
-    private static List<NodeRef> checkNodes(DataObject obj, Map<Long, List<NodeRef>> objIdToNode, int connections) {
-        List<NodeRef> nodeRefs = objIdToNode.get(obj.getId());
-        if (nodeRefs == null || nodeRefs.size() != connections) {
-            throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
-                    + ") of connection for '" + obj + "'");
-        }
-        return nodeRefs.stream().sorted(Comparator.comparing(nodoref -> nodoref.busIndexIn)).collect(Collectors.toList());
-    }
-
-    private static PowerFactoryException createNotYetSupportedException() {
-        return new PowerFactoryException("Not yet supported");
-    }
-
     private Network createNetwork(StudyCase studyCase, NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork(studyCase.getName(), FORMAT);
 
         List<DataObject> elmNets = studyCase.getElmNets();
         if (elmNets.isEmpty()) {
-            throw new PowsyblException("No ElmNet object found");
+            throw new PowerFactoryException("No ElmNet object found");
         }
         LOGGER.info("Study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).collect(Collectors.toList()));
 
@@ -172,9 +137,19 @@ public class PowerFactoryImporter implements Importer {
 
         LOGGER.info("Creating topology graphs...");
 
+        // Identify Hvdc configurations
+        List<DataObject> elmVscs = studyCase.getElmNets().stream()
+            .flatMap(elmNet -> elmNet.search(".*.ElmVsc").stream())
+            .collect(Collectors.toList());
+
+        HvdcConverter hvdcConverter = new HvdcConverter(importContext, network);
+        hvdcConverter.computeConfigurations(elmTerms, elmVscs);
+
         // process terminals
         for (DataObject elmTerm : elmTerms) {
-            new NodeConverter(importContext, network).createAndMapConnectedObjs(elmTerm);
+            if (!hvdcConverter.isDcNode(elmTerm)) {
+                new NodeConverter(importContext, network).createAndMapConnectedObjs(elmTerm);
+            }
         }
 
         if (!importContext.cubiclesObjectNotFound.isEmpty()) {
@@ -206,11 +181,16 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmShnt":
-                    createShunt(network, importContext, obj);
+                    new ShuntConverter(importContext, network).create(obj);
                     break;
 
                 case "ElmLne":
-                    new LineConverter(importContext, network).create(obj);
+                    if (!hvdcConverter.isDcLink(obj)) {
+                        new LineConverter(importContext, network).create(obj);
+                    }
+                    break;
+                case "ElmTow":
+                    new LineConverter(importContext, network).createTower(obj);
                     break;
 
                 case "ElmTr2":
@@ -221,14 +201,15 @@ public class PowerFactoryImporter implements Importer {
                     new TransformerConverter(importContext, network).createThreeWindings(obj);
                     break;
                 case "ElmZpu":
-                    throw createNotYetSupportedException();
+                    new CommonImpedanceConverter(importContext, network).create(obj);
+                    break;
 
                 case "ElmNet":
-                case "StaCubic":
-                case "ElmTerm":
                 case "ElmSubstat":
                 case "ElmTrfstat":
+                case "StaCubic":
                 case "StaSwitch":
+                case DataAttributeNames.ELMTERM:
                     // already processed
                     break;
 
@@ -240,16 +221,88 @@ public class PowerFactoryImporter implements Importer {
                     // Referenced by other objects
                     break;
 
-                case "ElmDsl":
+                case "BlkDef":
+                case "ChaRef":
+                case "ChaVec":
+
+                case "ElmArea":
+                case "ElmBmu":
+                case "ElmBoundary":
+                case "ElmBranch":
                 case "ElmComp":
-                case "ElmStactrl":
+                case "ElmDcubi":
+                case "ElmDsl":
+                case "ElmFile":
                 case "ElmPhi__pll":
+                case "ElmRelay":
                 case "ElmSecctrl":
+                case "ElmSite":
+                case "ElmStactrl":
+                case "ElmValve":
+                case "ElmVsc":
+                case "ElmZone":
+
+                case "IntCalcres":
+                case "IntCondition":
+                case "IntEvt":
+                case "IntEvtrel":
+                case "IntFolder":
+                case "IntForm":
+                case "IntGate":
+                case "IntGrf":
+                case "IntGrfcon":
+                case "IntGrflayer":
+                case "IntGrfnet":
+
+                case "IntMat":
+                case "IntMon":
+                case "IntQlim":
+                case "IntRas":
+                case "IntRef":
+                case "IntTemplate":
+                case "IntWdt":
+
+                case "OptElmgenstat":
+                case "OptElmrecmono":
+                case "OptElmsym":
+
+                case "RelChar":
+                case "RelDir":
+                case "RelDisdir":
+                case "RelDisloadenc":
+                case "RelDismho":
+                case "RelDispoly":
+                case "RelDispspoly":
+                case "RelFdetabb":
+                case "RelFdetaegalst":
+                case "RelFdetect":
+                case "RelFdetsie":
+                case "RelFmeas":
+                case "RelFrq":
+                case "RelIoc":
+                case "RelLogdip":
+                case "RelLogic":
+                case "RelLslogic":
+
+                case "RelMeasure":
+                case "RelRecl":
+                case "RelSeldir":
+                case "RelTimer":
+                case "RelToc":
+                case "RelUlim":
+                case "RelZpol":
+
+                case "StaCt":
                 case "StaPqmea":
                 case "StaVmea":
-                case "ElmFile":
-                case "ElmZone":
-                case "ElmRelay":
+                case "StaVt":
+
+                case "TypChatoc":
+                case "TypCon":
+                case "TypCt":
+                case "TypRelay":
+                case "TypVt":
+
                     // not interesting
                     break;
 
@@ -257,6 +310,9 @@ public class PowerFactoryImporter implements Importer {
                     LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj);
             }
         }
+
+        // Create Hvdc Links
+        hvdcConverter.create();
 
         LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
@@ -268,68 +324,10 @@ public class PowerFactoryImporter implements Importer {
     }
 
     private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
+        VoltageAndAngle va = new VoltageAndAngle(importContext, network);
         for (DataObject elmTerm : elmTerms) {
-            setVoltageAndAngle(network, importContext, elmTerm);
+            va.update(elmTerm);
         }
-    }
-
-    private static void setVoltageAndAngle(Network network, ImportContext importContext, DataObject elmTerm) {
-        if (!importContext.elmTermIdToNode.containsKey(elmTerm.getId())) {
-            return;
-        }
-        Optional<Float> uknom = elmTerm.findFloatAttributeValue("uknom");
-        Optional<Float> u = elmTerm.findFloatAttributeValue("m:u");
-        Optional<Float> phiu = elmTerm.findFloatAttributeValue("m:phiu");
-
-        if (uknom.isPresent() && u.isPresent() && phiu.isPresent()) {
-            NodeRef nodeRef = importContext.elmTermIdToNode.get(elmTerm.getId());
-            Terminal terminal = network.getVoltageLevel(nodeRef.voltageLevelId).getNodeBreakerView().getTerminal(nodeRef.node);
-            if (terminal != null) {
-                Bus bus = terminal.getBusView().getBus();
-                if (bus != null) {
-                    bus.setV(u.get() * uknom.get());
-                    bus.setAngle(phiu.get());
-                }
-            }
-        }
-    }
-
-    private void createShunt(Network network, ImportContext importContext, DataObject elmShnt) {
-        NodeRef nodeRef = checkNodes(elmShnt, importContext.objIdToNode, 1).iterator().next();
-        VoltageLevel vl = network.getVoltageLevel(nodeRef.voltageLevelId);
-        int shtype = elmShnt.getIntAttributeValue("shtype");
-        double gPerSection;
-        double bPerSection;
-        if (shtype == 1) { // RL
-            float rrea = elmShnt.getFloatAttributeValue("rrea");
-            float xrea = elmShnt.getFloatAttributeValue("xrea");
-            if (rrea == 0) {
-                gPerSection = 0;
-                bPerSection = -1 / xrea;
-            } else {
-                throw new PowsyblException("Cannot convert RL shunt");
-            }
-        } else if (shtype == 2) { // C
-            float gparac = elmShnt.getFloatAttributeValue("gparac");
-            float bcap = elmShnt.getFloatAttributeValue("bcap");
-            gPerSection = gparac * Math.pow(10, -6);
-            bPerSection = bcap * Math.pow(10, -6);
-        } else {
-            throw new PowsyblException("Shunt type not supported: " + shtype);
-        }
-        int ncapa = elmShnt.getIntAttributeValue("ncapa");
-        int ncapx = elmShnt.getIntAttributeValue("ncapx");
-        vl.newShuntCompensator()
-                .setId(elmShnt.getLocName())
-                .setEnsureIdUnicity(true)
-                .setNode(nodeRef.node)
-                .setSectionCount(ncapa)
-                .newLinearModel()
-                    .setGPerSection(gPerSection)
-                    .setBPerSection(bPerSection)
-                    .setMaximumSectionCount(ncapx)
-                .add()
-                .add();
     }
 
     @Override
@@ -346,6 +344,6 @@ public class PowerFactoryImporter implements Importer {
                 stopwatch.stop();
                 LOGGER.info("PowerFactory import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
             }
-        }).orElseThrow(() -> new PowsyblException("This is not a supported PowerFactory file"));
+        }).orElseThrow(() -> new PowerFactoryException("This is not a supported PowerFactory file"));
     }
 }

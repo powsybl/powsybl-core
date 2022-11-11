@@ -16,8 +16,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class SynchronousMachineEq {
 
-    public static void write(String id, String generatorName, String generatingUnit, String regulatingControlId, String reactiveCapabilityCurveId, double minQ, double maxQ, double ratedS, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String generatorName, String equipmentContainer, String generatingUnit, String regulatingControlId, String reactiveCapabilityCurveId, double minQ, double maxQ, double ratedS, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("SynchronousMachine", id, generatorName, cimNamespace, writer);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
         CgmesExportUtil.writeReference("RotatingMachine.GeneratingUnit", generatingUnit, cimNamespace, writer);
         if (regulatingControlId != null) {
             CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer);

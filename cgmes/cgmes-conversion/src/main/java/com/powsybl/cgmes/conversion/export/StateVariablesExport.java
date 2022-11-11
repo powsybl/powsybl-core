@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -24,7 +23,6 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -54,9 +52,6 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
 
             writeVoltagesForTopologicalNodes();
             writeVoltagesForBoundaryNodes();
-            for (CgmesIidmMapping.CgmesTopologicalNode tn : context.getUnmappedTopologicalNodes()) {
-                writeVoltage(tn.getCgmesId(), 0.0, 0.0);
-            }
             writePowerFlows();
             writeShuntCompensatorSections();
             writeTapSteps();
@@ -102,7 +97,7 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
 
     private void buildAngleRefs(SlackTerminal slackTerminal, Map<String, String> angleRefs) {
         if (slackTerminal != null && slackTerminal.getTerminal() != null) {
-            Bus bus = slackTerminal.getTerminal().getBusView().getBus();
+            Bus bus = slackTerminal.getTerminal().getBusBreakerView().getBus();
             if (bus != null && bus.getSynchronousComponent() != null) {
                 buildAngleRefs(bus.getSynchronousComponent().getNum(), bus.getId(), angleRefs);
             } else if (bus != null) {
@@ -114,7 +109,7 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
         }
     }
 
-    private void buildAngleRefs(int synchronousComponentNum, String busId, Map<String, String> angleRefs) {
+    private void buildAngleRefs(int synchronousComponentNum, String topologicalNodeId, Map<String, String> angleRefs) {
         String componentNum = String.valueOf(synchronousComponentNum);
         if (angleRefs.containsKey(componentNum)) {
             Supplier<String> log = () -> String.format("Several slack buses are defined for synchronous component %s: only first slack bus (%s) is taken into account",
@@ -122,23 +117,20 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
             LOG.info(log.get());
             return;
         }
-        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(busId).iterator().next();
-        angleRefs.put(componentNum, topologicalNode.getCgmesId());
+        angleRefs.put(componentNum, topologicalNodeId);
     }
 
-    private void buildAngleRefs(String busId, Map<String, String> angleRefs) {
-        CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(busId).iterator().next();
-        angleRefs.put(topologicalNode.getCgmesId(),
-                topologicalNode.getCgmesId());
+    private static void buildAngleRefs(String topologicalNodeId, Map<String, String> angleRefs) {
+        angleRefs.put(topologicalNodeId, topologicalNodeId);
     }
 
     private Map<String, List<String>> buildIslands() {
         Map<String, List<String>> islands = new HashMap<>();
-        for (Bus b : context.getNetwork().getBusView().getBuses()) {
+        for (Bus b : context.getNetwork().getBusBreakerView().getBuses()) {
             if (b.getSynchronousComponent() != null) {
                 int num = b.getSynchronousComponent().getNum();
                 islands.computeIfAbsent(String.valueOf(num), i -> new ArrayList<>());
-                islands.get(String.valueOf(num)).addAll(context.getTopologicalNodesByBusViewBus(b.getId()).stream().map(CgmesIidmMapping.CgmesTopologicalNode::getCgmesId).collect(Collectors.toSet()));
+                islands.get(String.valueOf(num)).add(b.getId());
             } else {
                 islands.put(b.getId(), Collections.singletonList(b.getId()));
             }
@@ -147,10 +139,8 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
     }
 
     private void writeVoltagesForTopologicalNodes() throws XMLStreamException {
-        for (Bus b : context.getNetwork().getBusView().getBuses()) {
-            for (CgmesIidmMapping.CgmesTopologicalNode topologicalNode : context.getTopologicalNodesByBusViewBus(b.getId())) {
-                writeVoltage(topologicalNode.getCgmesId(), b.getV(), b.getAngle());
-            }
+        for (Bus b : context.getNetwork().getBusBreakerView().getBuses()) {
+            writeVoltage(b.getId(), b.getV(), b.getAngle());
         }
     }
 
@@ -210,58 +200,46 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
         }
 
         context.getNetwork().getDanglingLineStream().forEach(dl -> {
-            // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
-            // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
-                dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary")
-                        .ifPresent(terminal -> writePowerFlow(terminal, dl.getBoundary().getP(), dl.getBoundary().getQ()));
+                writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ());
             }
-            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network")
-                            .ifPresent(terminal -> writePowerFlow(terminal, dl.getTerminal().getP(), dl.getTerminal().getQ()));
-            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
-                    .ifPresent(eit -> writePowerFlow(eit, -dl.getBoundary().getP(), -dl.getBoundary().getQ()));
+            writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network", dl.getTerminal().getP(), dl.getTerminal().getQ());
+            writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", -dl.getBoundary().getP(), -dl.getBoundary().getQ());
         });
 
         context.getNetwork().getBranchStream().forEach(b -> {
-            b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
-                .ifPresent(t -> writePowerFlow((String) t, b.getTerminal1().getP(), b.getTerminal1().getQ()));
-            b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
-                .ifPresent(t -> writePowerFlow((String) t, b.getTerminal2().getP(), b.getTerminal2().getQ()));
+            writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1().getP(), b.getTerminal1().getQ());
+            writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2().getP(), b.getTerminal2().getQ());
             if (b instanceof TieLine && context.exportBoundaryPowerFlows()) {
                 TieLine tl = (TieLine) b;
-                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Network"))
-                        .ifPresent(t -> writePowerFlow(t, tl.getTerminal1().getP(), tl.getTerminal1().getQ()));
-                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Network"))
-                        .ifPresent(t -> writePowerFlow(t, tl.getTerminal2().getP(), tl.getTerminal2().getQ()));
-                tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary")
-                        .ifPresent(t -> writePowerFlow(t, tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ()));
-                tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary")
-                        .ifPresent(t -> writePowerFlow(t, tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ()));
-                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary"))
-                        .ifPresent(t -> writePowerFlow(t, tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ()));
-                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary"))
-                        .ifPresent(t -> writePowerFlow(t, tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ()));
+                writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Network",
+                        tl.getTerminal1().getP(), tl.getTerminal1().getQ());
+                writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Network",
+                        tl.getTerminal2().getP(), tl.getTerminal2().getQ());
+                writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ());
+                writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ());
+                if (tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary") != null) {
+                    throw new PowsyblException("No need for property " + Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary");
+                }
+                if (tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary") != null) {
+                    throw new PowsyblException("No need for property " + Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary");
+                }
             }
         });
 
         context.getNetwork().getThreeWindingsTransformerStream().forEach(twt -> {
-            twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
-                .ifPresent(t -> writePowerFlow(t, twt.getLeg1().getTerminal().getP(), twt.getLeg1().getTerminal().getQ()));
-            twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
-                .ifPresent(t -> writePowerFlow(t, twt.getLeg2().getTerminal().getP(), twt.getLeg2().getTerminal().getQ()));
-            twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL3)
-                .ifPresent(t -> writePowerFlow(t, twt.getLeg3().getTerminal().getP(), twt.getLeg3().getTerminal().getQ()));
+            writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, twt.getLeg1().getTerminal().getP(), twt.getLeg1().getTerminal().getQ());
+            writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, twt.getLeg2().getTerminal().getP(), twt.getLeg2().getTerminal().getQ());
+            writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL3, twt.getLeg3().getTerminal().getP(), twt.getLeg3().getTerminal().getQ());
         });
 
         if (context.exportFlowsForSwitches()) {
             context.getNetwork().getVoltageLevelStream().forEach(vl -> {
                 SwitchesFlow swflows = new SwitchesFlow(vl);
                 vl.getSwitches().forEach(sw -> {
-                    if (swflows.hasFlow(sw.getId())) {
-                        sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
-                            .ifPresent(t -> writePowerFlow(t, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId())));
-                        sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
-                            .ifPresent(t -> writePowerFlow(t, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId())));
+                    if (context.isExportedEquipment(sw) && swflows.hasFlow(sw.getId())) {
+                        writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()));
+                        writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()));
                     }
                 });
             });
@@ -277,7 +255,7 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
     }
 
     private void writePowerFlow(Terminal terminal) {
-        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
+        String cgmesTerminal = CgmesExportUtil.getTerminalId(terminal, context);
         if (cgmesTerminal != null) {
             writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ());
         } else {
@@ -298,9 +276,6 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
         if (terminal.getConnectable() instanceof StaticVarCompensator) {
             return 0.0;
         }
-        if (terminal.getConnectable() instanceof ShuntCompensator) {
-            return 0.0;
-        }
         return p;
     }
 
@@ -310,17 +285,32 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
         // These loads have been taken into account as inputs for potential power flow analysis
         // They will be written back as SvInjection objects in the SV profile
         // We do not want to export them back as new objects in the EQ profile
-        Bus bus = load.getTerminal().getBusView().getBus();
+        Bus bus = load.getTerminal().getBusBreakerView().getBus();
         if (bus == null) {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
-            CgmesIidmMapping.CgmesTopologicalNode topologicalNode = context.getTopologicalNodesByBusViewBus(bus.getId()).iterator().next();
-            writeSvInjection(load, topologicalNode.getCgmesId());
+            writeSvInjection(load, bus.getId());
         }
     }
 
-    private void writePowerFlow(String terminal, double p, double q) {
+    private void writePowerFlowTerminalFromAlias(Identifiable<?> c, String aliasTypeForTerminalId, double p, double q) {
+        // Export only if we have a terminal identifier
+        if (c.getAliasFromType(aliasTypeForTerminalId).isPresent()) {
+            String cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
+            writePowerFlow(cgmesTerminalId, p, q);
+        }
+    }
+
+    private void writePowerFlowTerminalFromProperty(Identifiable<?> c, String propertyNameForTerminalId, double p, double q) {
+        // Export only if we have a terminal identifier
+        String cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(c, propertyNameForTerminalId);
+        if (cgmesTerminalId != null) {
+            writePowerFlow(cgmesTerminalId, p, q);
+        }
+    }
+
+    private void writePowerFlow(String cgmesTerminalId, double p, double q) {
         // Export only if flow is a number
         if (Double.isNaN(p) && Double.isNaN(q)) {
             return;
@@ -333,7 +323,7 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
             xmlWriter.writeStartElement(cimNamespace, "SvPowerFlow.q");
             xmlWriter.writeCharacters(CgmesExportUtil.format(q));
             xmlWriter.writeEndElement();
-            writeReference("SvPowerFlow.Terminal", terminal);
+            writeReference("SvPowerFlow.Terminal", cgmesTerminalId);
             xmlWriter.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -359,7 +349,7 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
     private void writeShuntCompensatorSections() throws XMLStreamException {
         for (ShuntCompensator s : context.getNetwork().getShuntCompensators()) {
             writeStartId("SvShuntCompensatorSections", CgmesExportUtil.getUniqueId(), false);
-            writeReference("SvShuntCompensatorSections.ShuntCompensator",  context.getNamingStrategy().getCgmesId(s));
+            writeReference("SvShuntCompensatorSections.ShuntCompensator", context.getNamingStrategy().getCgmesId(s));
             xmlWriter.writeStartElement(cimNamespace, "SvShuntCompensatorSections.sections");
             xmlWriter.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             xmlWriter.writeEndElement();
@@ -369,30 +359,35 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
 
     private void writeTapSteps() throws XMLStreamException {
         for (TwoWindingsTransformer twt : context.getNetwork().getTwoWindingsTransformers()) {
+            // For two-windings transformers tap changer may be at end number 1 or 2
+            // If we have exported the EQ the tap changer may have been moved from end 2 to end 1, where IIDM has modelled it.
+            // If we are exporting only the SV the tap changer alias to use is the one of the original location
             if (twt.hasPhaseTapChanger()) {
-                String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).isPresent() ? 1 : 2;
+                String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                 writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition());
                 writeSvTapStepHidden(twt, ptcId);
             } else if (twt.hasRatioTapChanger()) {
-                String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).isPresent() ? 1 : 2;
+                String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                 writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition());
                 writeSvTapStepHidden(twt, rtcId);
             }
         }
 
         for (ThreeWindingsTransformer twt : context.getNetwork().getThreeWindingsTransformers()) {
-            int i = 1;
+            int endNumber = 1;
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
-                    String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                     writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition());
                     writeSvTapStepHidden(twt, ptcId);
                 } else if (leg.hasRatioTapChanger()) {
-                    String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                     writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition());
                     writeSvTapStepHidden(twt, rtcId);
                 }
-                i++;
+                endNumber++;
             }
         }
     }

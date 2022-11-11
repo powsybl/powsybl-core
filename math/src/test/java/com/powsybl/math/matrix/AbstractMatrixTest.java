@@ -68,6 +68,15 @@ public abstract class AbstractMatrixTest {
         assertEquals(4, c.get(0, 0), EPSILON);
         assertEquals(15, c.get(1, 0), EPSILON);
         assertEquals(8, c.get(2, 0), EPSILON);
+
+        Matrix cs2 = a.times(b, 2);
+        DenseMatrix c2 = cs2.toDense();
+
+        assertEquals(3, c2.getRowCount());
+        assertEquals(1, c2.getColumnCount());
+        assertEquals(8, c2.get(0, 0), EPSILON);
+        assertEquals(30, c2.get(1, 0), EPSILON);
+        assertEquals(16, c2.get(2, 0), EPSILON);
     }
 
     @Test

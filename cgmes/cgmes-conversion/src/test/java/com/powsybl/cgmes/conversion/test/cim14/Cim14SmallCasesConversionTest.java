@@ -7,15 +7,22 @@
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
-import java.io.IOException;
-
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.test.ConversionTester;
+import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.powsybl.cgmes.conversion.test.ConversionTester;
-import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
-import com.powsybl.triplestore.api.TripleStoreFactory;
+import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -55,6 +62,29 @@ public class Cim14SmallCasesConversionTest {
     @Test
     public void m7buses() throws IOException {
         tester.testConversion(Cim14SmallCasesNetworkCatalog.m7buses(), Cim14SmallCasesCatalog.m7buses());
+    }
+
+    @Test
+    public void m7busesNoSequenceNumbers() {
+        Network networkSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7buses().dataSource(), null);
+        Network networkNoSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7busesNoSequenceNumbers().dataSource(), null);
+        // Make sure we have not lost any line or switch
+        assertEquals(networkSeq.getLineCount(), networkNoSeq.getLineCount());
+        assertEquals(networkSeq.getSwitchCount(), networkNoSeq.getSwitchCount());
+
+        // Check terminal ids have been sorted properly
+        // In m7buses sequenceNumber ordering is just the opposite of Identifier ordering
+        // Terminal with sequenceNumber 2 ends in _EX
+        // Terminal with sequenceNumber 1 ends in _OR
+        CgmesModel cgmesSeq = networkSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
+        Map<String, String> aclsSeqTerminal1 = cgmesSeq.acLineSegments().stream().collect(Collectors.toMap(acls -> acls.getId("ACLineSegment"), acls -> acls.getId("Terminal1")));
+        CgmesModel cgmesNoSeq = networkNoSeq.getExtension(CgmesModelExtension.class).getCgmesModel();
+        cgmesNoSeq.acLineSegments().forEach(aclsNoSeq -> {
+            String aclsId = aclsNoSeq.getId("ACLineSegment");
+            String aclsSeqTerminal1Id = aclsSeqTerminal1.get(aclsId);
+            String aclsNoSeqTerminal2Id = aclsNoSeq.getId("Terminal2");
+            assertEquals(aclsSeqTerminal1Id, aclsNoSeqTerminal2Id);
+        });
     }
 
     private static ConversionTester tester;

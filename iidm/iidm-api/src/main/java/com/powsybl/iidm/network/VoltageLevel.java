@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
 
@@ -14,6 +15,7 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -791,6 +793,29 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @see VariantManager
          */
         Bus getBus2(String switchId);
+
+        /**
+         * Get buses of the current view (bus-breaker) contained in the given bus-view bus. If the given bus-view bus does not exist, throw an exception.
+         */
+        default Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
+            return getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
+        }
+
+        /**
+         * Get a stream of buses of the current view (bus-breaker) contained in the given bus-view bus. If the given bus-view bus does not exist, throw an exception.
+         */
+        default Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
+            VoltageLevel vl = getBusStream()
+                    .flatMap(Bus::getConnectedTerminalStream)
+                    .map(Terminal::getVoltageLevel)
+                    .findFirst()
+                    .orElseThrow(() -> new PowsyblException("No connected bus is found"));
+            Bus mergedBus = vl.getBusView().getBus(mergedBusId);
+            if (mergedBus == null) {
+                throw new PowsyblException("Bus " + mergedBusId + " is not found in Bus-branch view of voltage level " + vl.getId());
+            }
+            return mergedBus.getConnectedTerminalStream().map(t -> t.getBusBreakerView().getBus()).distinct();
+        }
 
         /**
          * Get a switch.

@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -103,17 +104,20 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            if (leg.getActivePowerLimits() != null) {
+            Optional<ActivePowerLimits> activePowerLimits = leg.getActivePowerLimits();
+            if (activePowerLimits.isPresent()) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], leg.getActivePowerLimits(), context.getWriter(),
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], activePowerLimits.get(), context.getWriter(),
                         context.getVersion(), context.isValid(), context.getOptions()));
             }
-            if (leg.getApparentPowerLimits() != null) {
+            Optional<ApparentPowerLimits> apparentPowerLimits = leg.getApparentPowerLimits();
+            if (apparentPowerLimits.isPresent()) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], leg.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
             }
-            if (leg.getCurrentLimits() != null) {
-                writeCurrentLimits(i[0], leg.getCurrentLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+            Optional<CurrentLimits> currentLimits = leg.getCurrentLimits();
+            if (currentLimits.isPresent()) {
+                writeCurrentLimits(i[0], currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
             }
             i[0]++;
         }

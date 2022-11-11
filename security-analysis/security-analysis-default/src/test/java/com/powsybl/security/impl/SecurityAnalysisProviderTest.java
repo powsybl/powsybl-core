@@ -14,9 +14,11 @@ import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.*;
+import com.powsybl.security.action.Action;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -43,6 +45,8 @@ public class SecurityAnalysisProviderTest {
     private ContingenciesProvider contingenciesProvider;
     private List<SecurityAnalysisInterceptor> interceptors;
     private List<StateMonitor> monitors;
+    private List<OperatorStrategy> operatorStrategies;
+    private List<Action> actions;
 
     @Before
     public void setUp() {
@@ -57,7 +61,8 @@ public class SecurityAnalysisProviderTest {
         contingenciesProvider = new EmptyContingencyListProvider();
         interceptors = Collections.emptyList();
         monitors = Collections.emptyList();
-
+        operatorStrategies = Collections.emptyList();
+        actions = Collections.emptyList();
     }
 
     @Test
@@ -69,7 +74,7 @@ public class SecurityAnalysisProviderTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, Reporter.NO_OP);
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Reporter.NO_OP);
         assertNotNull(report.get());
     }
 
@@ -93,13 +98,13 @@ public class SecurityAnalysisProviderTest {
 
     @Test
     public void testSyncDefaultProvider() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions);
         assertNotNull(report);
     }
 
     @Test
     public void testSyncDefaultProviderMonitor() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, monitors, Reporter.NO_OP);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, Reporter.NO_OP);
         assertNotNull(report);
     }
 

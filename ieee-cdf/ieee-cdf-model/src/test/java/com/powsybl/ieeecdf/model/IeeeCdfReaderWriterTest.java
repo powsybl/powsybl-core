@@ -99,6 +99,11 @@ public class IeeeCdfReaderWriterTest {
     }
 
     @Test
+    public void testIeee9zeroimpedance() throws IOException {
+        testIeeeFile("ieee9zeroimpedancecdf.txt");
+    }
+
+    @Test
     public void testTieLine() throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/tieline.txt")))) {
             IeeeCdfModel model = new IeeeCdfReader().read(reader);

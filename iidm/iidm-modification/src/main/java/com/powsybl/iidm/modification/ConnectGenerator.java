@@ -7,6 +7,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
@@ -18,7 +19,7 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public final class ConnectGenerator implements NetworkModification {
+public final class ConnectGenerator extends AbstractNetworkModification {
 
     private final String generatorId;
 
@@ -27,12 +28,8 @@ public final class ConnectGenerator implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
-
-    @Override
-    public void apply(Network network) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");

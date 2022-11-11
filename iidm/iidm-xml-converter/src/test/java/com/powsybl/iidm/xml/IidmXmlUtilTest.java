@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.junit.Test;
 import org.mockito.Mockito;

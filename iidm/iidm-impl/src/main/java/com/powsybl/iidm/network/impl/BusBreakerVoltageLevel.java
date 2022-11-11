@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -195,7 +196,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         protected boolean isBusValid(Set<ConfiguredBus> busSet) {
             int feederCount = 0;
-            int branchCount = 0;
             for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
@@ -204,10 +204,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case THREE_WINDINGS_TRANSFORMER:
                     case HVDC_CONVERTER_STATION:
                     case DANGLING_LINE:
-                        branchCount++;
-                        feederCount++;
-                        break;
-
                     case LOAD:
                     case GENERATOR:
                     case BATTERY:
@@ -221,7 +217,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         throw new AssertionError();
                 }
             }
-            return Networks.isBusValid(branchCount);
+            return Networks.isBusValid(feederCount);
         }
 
         private MergedBus createMergedBus(int busNum, Set<ConfiguredBus> busSet) {
@@ -659,6 +655,19 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             int e = getEdge(switchId, true);
             int v2 = graph.getEdgeVertex2(e);
             return graph.getVertexObject(v2);
+        }
+
+        @Override
+        public Collection<Bus> getBusesFromBusViewBusId(String mergedBusId) {
+            return getBusStreamFromBusViewBusId(mergedBusId).collect(Collectors.toSet());
+        }
+
+        @Override
+        public Stream<Bus> getBusStreamFromBusViewBusId(String mergedBusId) {
+            MergedBus bus = (MergedBus) busView.getBus(mergedBusId);
+            Objects.requireNonNull(bus, "bus is null");
+            calculatedBusTopology.updateCache();
+            return variants.get().cache.mapping.entrySet().stream().filter(e -> e.getValue() == bus).map(e -> (Bus) e.getKey()).distinct();
         }
 
         @Override

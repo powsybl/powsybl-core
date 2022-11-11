@@ -27,9 +27,7 @@ class PostContingencyResultSerializer extends StdSerializer<PostContingencyResul
         jsonGenerator.writeStartObject();
         jsonGenerator.writeObjectField("contingency", postContingencyResult.getContingency());
         jsonGenerator.writeObjectField("limitViolationsResult", postContingencyResult.getLimitViolationsResult());
-        jsonGenerator.writeObjectField("branchResults", postContingencyResult.getBranchResults());
-        jsonGenerator.writeObjectField("busResults", postContingencyResult.getBusResults());
-        jsonGenerator.writeObjectField("threeWindingsTransformerResults", postContingencyResult.getThreeWindingsTransformerResult());
+        jsonGenerator.writeObjectField("networkResult", postContingencyResult.getNetworkResult());
         jsonGenerator.writeEndObject();
     }
 }

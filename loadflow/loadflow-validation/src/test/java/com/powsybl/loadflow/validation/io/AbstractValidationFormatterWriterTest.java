@@ -274,28 +274,28 @@ public abstract class AbstractValidationFormatterWriterTest {
 
     @Test
     public void testBusesCompare() throws Exception {
-        testBuses(getBusesCompareContent(), false, true, busId,  busId);
+        testBuses(getBusesCompareContent(), false, true, busId, busId);
     }
 
     protected abstract String getBusesCompareContent();
 
     @Test
     public void testBusesCompareDifferentIds() throws Exception {
-        testBuses(getBusesCompareDifferentIdsContent(), false, true, busId,  otherBusId);
+        testBuses(getBusesCompareDifferentIdsContent(), false, true, busId, otherBusId);
     }
 
     protected abstract String getBusesCompareDifferentIdsContent();
 
     @Test
     public void testBusesCompareVerbose() throws Exception {
-        testBuses(getBusesCompareVerboseContent(), true, true, busId,  busId);
+        testBuses(getBusesCompareVerboseContent(), true, true, busId, busId);
     }
 
     protected abstract String getBusesCompareVerboseContent();
 
     @Test
     public void testBusesCompareDifferentIdsVerbose() throws Exception {
-        testBuses(getBusesCompareDifferentIdsVerboseContent(), true, true, busId,  otherBusId);
+        testBuses(getBusesCompareDifferentIdsVerboseContent(), true, true, busId, otherBusId);
     }
 
     protected abstract String getBusesCompareDifferentIdsVerboseContent();
@@ -385,7 +385,7 @@ public abstract class AbstractValidationFormatterWriterTest {
 
     @Test
     public void testShuntsVerbose() throws Exception {
-        testShunts(getShuntsVerboseContent(), true, false, shuntId,  null);
+        testShunts(getShuntsVerboseContent(), true, false, shuntId, null);
     }
 
     protected abstract String getShuntsVerboseContent();

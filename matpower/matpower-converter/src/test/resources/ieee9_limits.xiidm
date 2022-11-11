@@ -88,6 +88,10 @@
             <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="60.0"/>
             <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="70.0"/>
         </iidm:apparentPowerLimits1>
+        <iidm:apparentPowerLimits2 permanentLimit="50.0">
+            <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="60.0"/>
+            <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="70.0"/>
+        </iidm:apparentPowerLimits2>
     </iidm:line>
     <iidm:extension id="VL-1">
         <slt:slackTerminal id="GEN-1"/>

@@ -25,11 +25,10 @@ public class GeneratorShortCircuitTest {
         Network network = EurostagTutorialExample1Factory.create();
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
-        gen.newExtension(GeneratorShortCircuitAdder.class)
+        GeneratorShortCircuit generatorShortCircuit = gen.newExtension(GeneratorShortCircuitAdder.class)
                 .withDirectTransX(20)
                 .withDirectSubtransX(20)
                 .add();
-        GeneratorShortCircuit generatorShortCircuit = gen.getExtension(GeneratorShortCircuit.class);
         assertEquals(20, generatorShortCircuit.getDirectTransX(), 0);
         assertEquals(20, generatorShortCircuit.getDirectSubtransX(), 0);
         assertEquals(Double.NaN, generatorShortCircuit.getStepUpTransformerX(), 0);
@@ -44,12 +43,11 @@ public class GeneratorShortCircuitTest {
         Network network = EurostagTutorialExample1Factory.create();
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
-        gen.newExtension(GeneratorShortCircuitAdder.class)
+        GeneratorShortCircuit generatorShortCircuit = gen.newExtension(GeneratorShortCircuitAdder.class)
                 .withDirectTransX(20)
                 .withDirectSubtransX(20)
                 .withStepUpTransformerX(20)
                 .add();
-        GeneratorShortCircuit generatorShortCircuit = gen.getExtension(GeneratorShortCircuit.class);
         assertEquals(20, generatorShortCircuit.getDirectTransX(), 0);
         assertEquals(20, generatorShortCircuit.getDirectSubtransX(), 0);
         assertEquals(20, generatorShortCircuit.getStepUpTransformerX(), 0);
@@ -66,10 +64,9 @@ public class GeneratorShortCircuitTest {
         Network network = EurostagTutorialExample1Factory.create();
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
-        gen.newExtension(GeneratorShortCircuitAdder.class)
+        GeneratorShortCircuit generatorShortCircuit = gen.newExtension(GeneratorShortCircuitAdder.class)
                 .withDirectTransX(20)
                 .add();
-        GeneratorShortCircuit generatorShortCircuit = gen.getExtension(GeneratorShortCircuit.class);
         assertEquals(20, generatorShortCircuit.getDirectTransX(), 0);
         assertEquals(Double.NaN, generatorShortCircuit.getDirectSubtransX(), 0);
         assertEquals(Double.NaN, generatorShortCircuit.getStepUpTransformerX(), 0);

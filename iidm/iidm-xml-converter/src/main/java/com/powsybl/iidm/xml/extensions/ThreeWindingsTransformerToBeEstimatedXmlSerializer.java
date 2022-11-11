@@ -42,7 +42,7 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
 
     @Override
     public ThreeWindingsTransformerToBeEstimated read(ThreeWindingsTransformer extendable, XmlReaderContext context) {
-        extendable.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
+        return extendable.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
                 .withRatioTapChanger1Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger1Status"))
                 .withRatioTapChanger2Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger2Status"))
                 .withRatioTapChanger3Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger3Status"))
@@ -50,6 +50,5 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
                 .withPhaseTapChanger2Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger2Status"))
                 .withPhaseTapChanger3Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger3Status"))
                 .add();
-        return extendable.getExtension(ThreeWindingsTransformerToBeEstimated.class);
     }
 }

@@ -39,7 +39,6 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
                 .orElseGet(() -> CountryConversion.fromSubregionName(subRegionName)
                         .orElse(null));
 
-        // TODO add naminStrategy (for regions and substations)
         // After applying naming strategy it is possible that two CGMES substations are mapped
         // to the same Network substation, so we should check if corresponding substation has
         // already been created

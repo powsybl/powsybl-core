@@ -42,12 +42,11 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
         HvdcAngleDroopActivePowerControl hadpc = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
         assertNull(hadpc);
 
-        hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
+        hadpc = hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
                 .withP0(200.0f)
                 .withDroop(0.9f)
                 .withEnabled(true)
                 .add();
-        hadpc = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
         assertNotNull(hadpc);
         assertEquals(200.0f, hadpc.getP0(), 0f);
         assertEquals(0.9f, hadpc.getDroop(), 0f);
@@ -69,12 +68,11 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
         String variant3 = "variant3";
 
         HvdcLine hvdcLine = network.getHvdcLine("L");
-        hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
+        HvdcAngleDroopActivePowerControl hadpc = hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
                 .withP0(200.0f)
                 .withDroop(0.9f)
                 .withEnabled(true)
                 .add();
-        HvdcAngleDroopActivePowerControl hadpc  = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
 
         // Testing variant cloning
         VariantManager variantManager = network.getVariantManager();

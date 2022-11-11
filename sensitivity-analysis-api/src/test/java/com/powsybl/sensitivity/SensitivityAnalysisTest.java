@@ -33,7 +33,7 @@ public class SensitivityAnalysisTest {
     private ComputationManager computationManager;
     private SensitivityFactor factor;
     private SensitivityFactorReader factorReader;
-    private SensitivityValueModelWriter valueWriter;
+    private SensitivityResultModelWriter resultWriter;
     private List<Contingency> contingencies;
     private List<SensitivityVariableSet> variableSets;
     private SensitivityAnalysisParameters parameters;
@@ -49,8 +49,8 @@ public class SensitivityAnalysisTest {
                 false,
                 ContingencyContext.none());
         factorReader = handler -> handler.onFactor(factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(), factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
-        valueWriter = new SensitivityValueModelWriter();
         contingencies = Collections.emptyList();
+        resultWriter = new SensitivityResultModelWriter(contingencies);
         variableSets = Collections.emptyList();
         parameters = Mockito.mock(SensitivityAnalysisParameters.class);
     }
@@ -64,10 +64,10 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testRunAsyncWithReaderAndWriter() {
-        SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, valueWriter,
+        SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, resultWriter,
                 contingencies, variableSets, parameters, computationManager, Reporter.NO_OP)
                 .join();
-        assertEquals(1, valueWriter.getValues().size());
+        assertEquals(1, resultWriter.getValues().size());
     }
 
     @Test

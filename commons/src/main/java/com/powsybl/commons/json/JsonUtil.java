@@ -10,10 +10,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -308,11 +305,11 @@ public final class JsonUtil {
         return updateExtensions(parser, context, supplier::findProvider, extensionsNotFound, extendable);
     }
 
-        /**
-         * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
-         *
-         * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
-         */
+    /**
+     * Updates the extensions of the provided extendable with possibly partial definition read from JSON.
+     *
+     * <p>Note that in order for this to work correctly, extension providers need to implement {@link ExtensionJsonSerializer#deserializeAndUpdate}.
+     */
     public static <T extends Extendable> List<Extension<T>> updateExtensions(JsonParser parser, DeserializationContext context, SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
@@ -436,21 +433,49 @@ public final class JsonUtil {
         }
     }
 
+    /**
+     * Called by variants of {@link #parseObject} on each encountered field.
+     * Should return false if an unexpected field was encountered.
+     */
     @FunctionalInterface
     public interface FieldHandler {
-
         boolean onField(String name) throws IOException;
     }
 
+    /**
+     * Parses an object from the current parser position, using the provided field handler.
+     * The parsing will expect the starting position to be START_OBJECT.
+     */
     public static void parseObject(JsonParser parser, FieldHandler fieldHandler) {
+        parseObject(parser, false, fieldHandler);
+    }
+
+    /**
+     * Parses an object from the current parser position, using the provided field handler.
+     * The parsing will accept the starting position to be either a START_OBJECT or a FIELD_NAME,
+     * see contract for {@link JsonDeserializer#deserialize(JsonParser, DeserializationContext)}.
+     */
+    public static void parsePolymorphicObject(JsonParser parser, FieldHandler fieldHandler) {
+        parseObject(parser, true, fieldHandler);
+    }
+
+    /**
+     * Parses an object from the current parser position, using the provided field handler.
+     * If {@code polymorphic} is {@code true}, the parsing will accept the starting position
+     * to be either a START_OBJECT or a FIELD_NAME, see contract for {@link JsonDeserializer#deserialize(JsonParser, DeserializationContext)}.
+     */
+    public static void parseObject(JsonParser parser, boolean polymorphic, FieldHandler fieldHandler) {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(fieldHandler);
         try {
             JsonToken token = parser.currentToken();
-            if (token != JsonToken.START_OBJECT) {
-                throw new PowsyblException("Start object token was expected: " + token);
+            if (!polymorphic && token != JsonToken.START_OBJECT) {
+                throw new PowsyblException("Start object token was expected instead got: " + token);
             }
-            while ((token = parser.nextToken()) != null) {
+            if (token == JsonToken.START_OBJECT) {
+                token = parser.nextToken();
+            }
+            while (token != null) {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     boolean found = fieldHandler.onField(fieldName);
@@ -462,6 +487,7 @@ public final class JsonUtil {
                 } else {
                     throw new PowsyblException("Unexpected token " + token);
                 }
+                token = parser.nextToken();
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -538,5 +564,21 @@ public final class JsonUtil {
 
     public static List<String> parseStringArray(JsonParser parser) {
         return parseValueArray(parser, JsonToken.VALUE_STRING, JsonParser::getText);
+    }
+
+    /**
+     * Saves the provided version into the context (typically a {@link DeserializationContext}),
+     * for later retrieval.
+     */
+    public static void setSourceVersion(DatabindContext context, String version, String sourceVersionAttributeKey) {
+        context.setAttribute(sourceVersionAttributeKey, version);
+    }
+
+    /**
+     * Reads the version from the context (typically a {@link DeserializationContext}) where it has been
+     * previously stored.
+     */
+    public static String getSourceVersion(DatabindContext context, String sourceVersionAttributeKey) {
+        return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
 }

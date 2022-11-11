@@ -11,6 +11,8 @@ import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,6 +36,7 @@ public class DgsParser {
     private static final Pattern QUOTED_TEXT_PATTERN = Pattern.compile("(\"[^\"]*\")");
     private static final DataAttributeType DEFAULT_VECTOR_TYPE = DataAttributeType.INTEGER;
     private static final DataAttributeType DEFAULT_MATRIX_TYPE = DataAttributeType.FLOAT;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DgsParser.class);
 
     private static final class ParsingContext {
 
@@ -348,12 +351,14 @@ public class DgsParser {
         }
 
         private <T> void read(String[] fields, Function<String, T> parser, BiConsumer<String, T> onValue) {
-            if (indexField < fields.length) {
+            if (isValidField(fields, indexField)) {
                 String value = fields[indexField];
-                if (!value.isEmpty()) {
-                    onValue.accept(attributeName, parser.apply(value));
-                }
+                onValue.accept(attributeName, parser.apply(value));
             }
+        }
+
+        static boolean isValidField(String[] fields, int index) {
+            return fields.length > index && !fields[index].isEmpty();
         }
     }
 
@@ -396,13 +401,17 @@ public class DgsParser {
             int actualLength = Integer.parseInt(fields[indexField]);
             if (actualLength > this.length) {
                 throw new PowerFactoryException("VectorArray: Unexpected length: '" + attributeName +
-                        "' length: " + actualLength + ", expected length: " + this.length);
+                    "' length: " + actualLength + ", expected length: " + this.length);
             }
             if (actualLength == 0) {
                 return Optional.empty();
             }
             for (int i = 0; i < actualLength; i++) {
-                values.add(parserFunction.apply(fields[indexField + 1 + i]));
+                if (isValidField(fields, indexField + 1 + i)) {
+                    values.add(parserFunction.apply(fields[indexField + 1 + i]));
+                } else {
+                    return Optional.empty();
+                }
             }
             return Optional.of(values);
         }
@@ -426,19 +435,25 @@ public class DgsParser {
         private Optional<RealMatrix> read(String[] fields, ParsingContext context) {
             int actualRows = Integer.parseInt(fields[indexField]);
             int actualCols = Integer.parseInt(fields[indexField + 1]);
-            if (actualRows > this.rows && actualCols > 0.0 || actualRows > 0 && actualCols != this.cols) {
-                throw new PowerFactoryException("RealMatrix: Unexpected number of rows and cols: '"
-                    + attributeName + "' rows: " + actualRows + " cols: " + actualCols + " expected rows: " + this.rows
-                    + " expected cols: " + this.cols);
-            }
             if (actualRows == 0 || actualCols == 0) {
                 return Optional.empty();
+            }
+            if (actualRows != this.rows) {
+                LOGGER.debug("RealMatrix: actual rows {} different than expected {}. All actual rows will be read.", actualRows, this.rows);
+            }
+            if (actualCols != this.cols) {
+                throw new PowerFactoryException("RealMatrix: Unexpected number of cols: '"
+                    + attributeName + "' rows: " + actualRows + " cols: " + actualCols + " expected cols: " + this.cols);
             }
             RealMatrix realMatrix = new BlockRealMatrix(actualRows, actualCols);
             for (int i = 0; i < actualRows; i++) {
                 for (int j = 0; j < actualCols; j++) {
-                    double value = context.parseDouble(fields[indexField + 2 + i * actualCols + j]);
-                    realMatrix.setEntry(i, j, value);
+                    if (isValidField(fields, indexField + 2 + i * actualCols + j)) {
+                        double value = context.parseDouble(fields[indexField + 2 + i * actualCols + j]);
+                        realMatrix.setEntry(i, j, value);
+                    } else {
+                        return Optional.empty();
+                    }
                 }
             }
             return Optional.of(realMatrix);

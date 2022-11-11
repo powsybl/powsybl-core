@@ -12,6 +12,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.matpower.model.MBus;
 import com.powsybl.matpower.model.MatpowerModelFactory;
 import com.powsybl.matpower.model.MatpowerWriter;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -35,6 +36,7 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**
@@ -98,6 +100,16 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testCase14WithInvertedVoltageLimits() throws IOException {
+        MatpowerModel model14 = MatpowerModelFactory.create14();
+        model14.setCaseName("ieee14-inverted-voltage-limits");
+        MBus bus1 = model14.getBusByNum(1);
+        bus1.setMinimumVoltageMagnitude(1.1);
+        bus1.setMaximumVoltageMagnitude(0.9);
+        testCase(model14);
+    }
+
+    @Test
     public void testCase30() throws IOException {
         testCase(MatpowerModelFactory.create30());
     }
@@ -115,6 +127,11 @@ public class MatpowerImporterTest extends AbstractConverterTest {
     @Test
     public void testCase300() throws IOException {
         testCase(MatpowerModelFactory.create300());
+    }
+
+    @Test
+    public void testCase9zeroimpedance() throws IOException {
+        testCase(MatpowerModelFactory.create9zeroimpedance());
     }
 
     @Test(expected = UncheckedIOException.class)

@@ -141,7 +141,7 @@ public final class CgmesExportUtil {
         return id.startsWith("_") ? id.substring(1) : id;
     }
 
-    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
@@ -154,7 +154,7 @@ public final class CgmesExportUtil {
         }
     }
 
-    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writeStartId(className, id, true, cimNamespace, writer);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(name);
@@ -166,7 +166,7 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
     }
 
-    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer)  throws XMLStreamException {
+    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id));
     }
@@ -186,16 +186,16 @@ public final class CgmesExportUtil {
             // Conform load if fixed part is zero and variable part is non-zero
             if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
                     && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
-                return "ConformLoad";
+                return CgmesNames.CONFORM_LOAD;
             }
             // NonConform load if fixed part is non-zero and variable part is all zero
             if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
                     && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
-                return "NonConformLoad";
+                return CgmesNames.NONCONFORM_LOAD;
             }
         }
         LOG.warn("It is not possible to determine the type of load");
-        return "EnergyConsumer";
+        return CgmesNames.ENERGY_CONSUMER;
     }
 
     /**
@@ -290,7 +290,7 @@ public final class CgmesExportUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
 
-    public static String getTerminalId(Terminal t) {
+    public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
         if (c instanceof DanglingLine) {
@@ -299,11 +299,6 @@ public final class CgmesExportUtil {
             int sequenceNumber = getTerminalSequenceNumber(t);
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
-        Optional<String> terminalId = c.getAliasFromType(aliasType);
-        if (terminalId.isEmpty()) {
-            LOG.error("Alias for type {} not found in connectable {}", aliasType, t.getConnectable().getId());
-            throw new PowsyblException("Alias for type " + aliasType + " not found in connectable " + t.getConnectable().getId());
-        }
-        return terminalId.get();
+        return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
 }

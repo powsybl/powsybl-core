@@ -6,6 +6,7 @@
  */
 package com.powsybl.ieeecdf.converter;
 
+import static com.powsybl.commons.ComparisonUtils.compareTxt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -128,5 +129,20 @@ public class IeeeCdfImporterTest extends AbstractConverterTest {
     @Test
     public void testIeee300() throws IOException {
         testNetwork(IeeeCdfNetworkFactory.create300());
+    }
+
+    @Test
+    public void testIeeezeroimpedance9() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create9zeroimpedance());
+    }
+
+    @Test
+    public void testIeee33() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create33());
+    }
+
+    @Test
+    public void testIeee69() throws IOException {
+        testNetwork(IeeeCdfNetworkFactory.create69());
     }
 }

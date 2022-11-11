@@ -171,7 +171,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.stat = stat;
     }
 
-    public  double getVswhi() {
+    public double getVswhi() {
         return vswhi;
     }
 
@@ -179,7 +179,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.vswhi = vswhi;
     }
 
-    public  double getVswlo() {
+    public double getVswlo() {
         return vswlo;
     }
 
@@ -196,7 +196,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.swrem = swrem;
     }
 
-    public  double getRmpct() {
+    public double getRmpct() {
         return rmpct;
     }
 
@@ -204,7 +204,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.rmpct = rmpct;
     }
 
-    public  String getRmidnt() {
+    public String getRmidnt() {
         return rmidnt;
     }
 
@@ -212,7 +212,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.rmidnt = rmidnt;
     }
 
-    public  double getBinit() {
+    public double getBinit() {
         return binit;
     }
 
@@ -228,7 +228,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n1 = n1;
     }
 
-    public  double getB1() {
+    public double getB1() {
         return b1;
     }
 
@@ -244,7 +244,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n2 = n2;
     }
 
-    public  double getB2() {
+    public double getB2() {
         return b2;
     }
 
@@ -260,7 +260,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n3 = n3;
     }
 
-    public  double getB3() {
+    public double getB3() {
         return b3;
     }
 
@@ -276,7 +276,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n4 = n4;
     }
 
-    public  double getB4() {
+    public double getB4() {
         return b4;
     }
 
@@ -292,7 +292,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n5 = n5;
     }
 
-    public  double getB5() {
+    public double getB5() {
         return b5;
     }
 
@@ -308,7 +308,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n6 = n6;
     }
 
-    public  double getB6() {
+    public double getB6() {
         return b6;
     }
 
@@ -324,7 +324,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n7 = n7;
     }
 
-    public  double getB7() {
+    public double getB7() {
         return b7;
     }
 
@@ -340,7 +340,7 @@ public class PsseSwitchedShunt extends PsseVersioned {
         this.n8 = n8;
     }
 
-    public  double getB8() {
+    public double getB8() {
         return b8;
     }
 

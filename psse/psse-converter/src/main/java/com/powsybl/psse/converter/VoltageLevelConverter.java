@@ -30,7 +30,7 @@ class VoltageLevelConverter extends AbstractConverter {
 
     VoltageLevel create(Substation substation) {
         String voltageLevelId = getContainersMapping().getVoltageLevelId(psseBus.getI());
-        double nominalV = perUnitContext.isIgnoreBaseVoltage() || psseBus.getBaskv() == 0 ? 1 : psseBus.getBaskv();
+        double nominalV = getNominalV(psseBus, perUnitContext.isIgnoreBaseVoltage());
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
 
         if (voltageLevel == null) {
@@ -41,6 +41,10 @@ class VoltageLevelConverter extends AbstractConverter {
                 .add();
         }
         return voltageLevel;
+    }
+
+    static double getNominalV(PsseBus psseBus, boolean isIgnoreBaseVoltage) {
+        return isIgnoreBaseVoltage || psseBus.getBaskv() == 0 ? 1 : psseBus.getBaskv();
     }
 
     private final PsseBus psseBus;

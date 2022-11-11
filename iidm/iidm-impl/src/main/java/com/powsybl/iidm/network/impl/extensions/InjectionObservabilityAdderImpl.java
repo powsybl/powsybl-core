@@ -26,11 +26,11 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
 
     private double standardDeviationV = Double.NaN;
 
-    private boolean redundantP = false;
+    private Boolean redundantP = null;
 
-    private boolean redundantQ = false;
+    private Boolean redundantQ = null;
 
-    private boolean redundantV = false;
+    private Boolean redundantV = null;
 
     public InjectionObservabilityAdderImpl(I extendable) {
         super(extendable);
@@ -64,7 +64,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public InjectionObservabilityAdder<I> withRedundantP(boolean redundant) {
+    public InjectionObservabilityAdder<I> withRedundantP(Boolean redundant) {
         this.redundantP = redundant;
         return this;
     }
@@ -76,7 +76,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public InjectionObservabilityAdder<I> withRedundantQ(boolean redundant) {
+    public InjectionObservabilityAdder<I> withRedundantQ(Boolean redundant) {
         this.redundantQ = redundant;
         return this;
     }
@@ -88,7 +88,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public InjectionObservabilityAdder<I> withRedundantV(boolean redundant) {
+    public InjectionObservabilityAdder<I> withRedundantV(Boolean redundant) {
         this.redundantV = redundant;
         return this;
     }

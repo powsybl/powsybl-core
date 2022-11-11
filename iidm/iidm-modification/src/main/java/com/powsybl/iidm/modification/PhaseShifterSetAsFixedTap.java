@@ -7,6 +7,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -14,7 +15,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Objects;
 
-public class PhaseShifterSetAsFixedTap implements NetworkModification {
+public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
 
     private final String phaseShifterId;
     private final int tapPosition;
@@ -25,12 +26,8 @@ public class PhaseShifterSetAsFixedTap implements NetworkModification {
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager) {
-        apply(network);
-    }
-
-    @Override
-    public void apply(Network network) {
+    public void apply(Network network, boolean throwException,
+                      ComputationManager computationManager, Reporter reporter) {
         Objects.requireNonNull(network);
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {
