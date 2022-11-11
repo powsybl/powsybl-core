@@ -238,8 +238,10 @@ public final class TopologyExport extends AbstractCgmesExporter {
         for (DanglingLine dl : context.getNetwork().getDanglingLines()) {
             Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNodeId.isPresent()) {
-                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getBoundary().getVoltageLevel().getNominalV()).getId();
-                writeTopologicalNode(topologicalNodeId.get(), dl.getNameOrId(), context.getNamingStrategy().getCgmesId(dl.getBoundary().getVoltageLevel()), baseVoltage);
+                // TODO(Luma) here we always write the topological node of the boundary side of dangling line
+                // We create a new topological node in the same voltage level of dangling line network side
+                // This is fixed in separate PR (only boundaries without external references will create new topological nodes)
+                writeTopologicalNode(topologicalNodeId.get(), dl.getNameOrId(), dl.getTerminal().getVoltageLevel());
             }
         }
     }

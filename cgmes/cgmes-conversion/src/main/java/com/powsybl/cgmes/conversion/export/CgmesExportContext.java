@@ -603,12 +603,12 @@ public class CgmesExportContext {
         return baseVoltageByNominalVoltageMapping.get(nominalV);
     }
 
-    public boolean isWriteConnectivityNodes() {
-        boolean isWriteConnectivityNodes = cim.isWriteConnectivityNodes();
-        if (!isWriteConnectivityNodes) {
-            isWriteConnectivityNodes = topologyKind.equals(CgmesTopologyKind.NODE_BREAKER);
+    public boolean writeConnectivityNodes() {
+        boolean writeConnectivityNodes = cim.writeConnectivityNodes();
+        if (!writeConnectivityNodes) {
+            return topologyKind == CgmesTopologyKind.NODE_BREAKER;
         }
-        return isWriteConnectivityNodes;
+        return true;
     }
 
     public Collection<String> getRegionsIds() {

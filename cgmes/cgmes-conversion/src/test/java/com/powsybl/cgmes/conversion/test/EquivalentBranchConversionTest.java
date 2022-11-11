@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -57,6 +58,15 @@ public class EquivalentBranchConversionTest {
         assertEquals(69.0, dl.getX(), 1.0e-6);
         assertEquals(0.0, dl.getG(), 1.0e-6);
         assertEquals(0.0, dl.getB(), 1.0e-6);
+    }
+
+    @Test
+    public void microGridBaseCaseBEEquivalentBranchWithZeroImpedanceTest() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchWithZeroImpedanceInsideVoltageLevel(), config);
+
+        Switch sw = n.getSwitch("b58bf21a-096a-4dae-9a01-3f03b60c24c7");
+        assertTrue(sw.isFictitious());
     }
 
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {

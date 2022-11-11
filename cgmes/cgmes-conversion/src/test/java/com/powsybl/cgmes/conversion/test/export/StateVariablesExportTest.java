@@ -17,8 +17,6 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -255,7 +253,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         r.zip(repackaged);
 
         // Import with new SV
-        Network actual = Importers.loadNetwork(repackaged,
+        Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
         // Export original and with new SV

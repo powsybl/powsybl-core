@@ -8,9 +8,9 @@ package com.powsybl.security.interceptors;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.results.PreContingencyResult;
 
 /**
  * Default implementation of the SecurityAnalysisInterceptor interface.
@@ -20,7 +20,7 @@ import com.powsybl.security.SecurityAnalysisResult;
 public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInterceptor {
 
     @Override
-    public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
+    public void onPreContingencyResult(PreContingencyResult preContingencyResult, SecurityAnalysisResultContext context) {
         // nothing to do
     }
 

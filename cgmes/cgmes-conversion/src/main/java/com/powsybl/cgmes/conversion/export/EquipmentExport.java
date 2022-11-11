@@ -66,7 +66,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
                 ModelDescriptionEq.write(xmlWriter, context.getEqModelDescription(), context);
             }
 
-            if (context.isWriteConnectivityNodes()) {
+            if (context.writeConnectivityNodes()) {
                 writeConnectivityNodes();
             }
             writeTerminals();

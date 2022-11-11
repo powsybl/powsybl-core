@@ -236,7 +236,7 @@
   </cim:TapChangerControl>
   <cim:TapChangerControl rdf:about="#_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b">
     <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
-    <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetDeadband>-0.500000</cim:RegulatingControl.targetDeadband>
     <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
     <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
     <cim:RegulatingControl.targetValue>0e+000</cim:RegulatingControl.targetValue>
