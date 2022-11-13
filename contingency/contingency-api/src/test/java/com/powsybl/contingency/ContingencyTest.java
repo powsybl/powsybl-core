@@ -6,6 +6,7 @@
  */
 package com.powsybl.contingency;
 
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.modification.NetworkModification;

@@ -26,6 +26,8 @@ public class TypedValue {
     public static final String REACTANCE = "REACTANCE";
     public static final String IMPEDANCE = "IMPEDANCE";
     public static final String SUSCEPTANCE = "SUSCEPTANCE";
+    public static final String VOLTAGE = "VOLTAGE";
+    public static final String ANGLE = "ANGLE";
     public static final String SUBSTATION = "SUBSTATION";
     public static final String VOLTAGE_LEVEL = "VOLTAGE_LEVEL";
     public static final String FILENAME = "FILENAME";

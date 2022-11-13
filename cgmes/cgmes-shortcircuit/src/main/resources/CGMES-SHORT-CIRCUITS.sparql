@@ -1,0 +1,36 @@
+#
+# Copyright (c) 2021, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: SynchronousMachineShortcircuitData
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine 
+        a cim:SynchronousMachine ;
+        cim:IdentifiedObject.name ?name .
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.satDirectSubtransX ?satDirectSubtransX }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.satDirectTransX ?satDirectTransX }
+}}
+}
+
+# query: BusbarSectionShortcircuitData
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?BusbarSection
+        a cim:BusbarSection ;
+        cim:IdentifiedObject.name ?name .
+        OPTIONAL { ?BusbarSection cim:BusbarSection.ipMax ?ipMax }
+    ?Terminal
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?BusbarSection ;
+        cim:ACDCTerminal.sequenceNumber "1" .
+}}
+OPTIONAL { GRAPH ?graphTP {
+    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
+}}
+}

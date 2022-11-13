@@ -21,11 +21,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VOLTAGE_LEVEL_ID;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -49,7 +45,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
 
     @Test
     public void replaceTeePointByVoltageLevelOnLineNbTest() throws IOException {
-        Network network = createNbNetwork();
+        Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
@@ -65,73 +61,57 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
         NetworkModification modificationWithError1 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("line1NotFound")
-                .withLineZ2Id("CJ_2")
-                .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withTeePointLine1("line1NotFound")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId(BBS)
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP)).getMessage().contains("Line line1NotFound is not found"));
 
         NetworkModification modificationWithError2 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("CJ_1")
-                .withLineZ2Id("line2NotFound")
-                .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("line2NotFound")
+                .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId(BBS)
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP)).getMessage().contains("Line line2NotFound is not found"));
 
         NetworkModification modificationWithError3 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("CJ_1")
-                .withLineZ2Id("CJ_2")
-                .withLineZPId("line3NotFound")
-                .withVoltageLevelId("VLTEST")
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("line3NotFound")
                 .withBbsOrBusId(BBS)
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP)).getMessage().contains("Line line3NotFound is not found"));
 
-        NetworkModification modificationWithError4 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("CJ_1")
-                .withLineZ2Id("CJ_2")
-                .withLineZPId("testLine")
-                .withVoltageLevelId("notFoundVoltageLevel")
-                .withBbsOrBusId(BBS)
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP)).getMessage().contains("Voltage level notFoundVoltageLevel is not found"));
-
         NetworkModification modificationWithError5 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("CJ_1")
-                .withLineZ2Id("CJ_2")
-                .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId("notFoundBusbarSection")
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError5.apply(network, true, Reporter.NO_OP)).getMessage().contains("Busbar section notFoundBusbarSection is not found in voltage level VLTEST"));
 
         NetworkModification modificationWithError6 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("CJ_1")
-                .withLineZ2Id("CJ_2")
-                .withLineZPId("LINE34")
-                .withVoltageLevelId("VLTEST")
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("LINE34")
                 .withBbsOrBusId(BBS)
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, Reporter.NO_OP)).getMessage().contains("Unable to find the tee point and the attached voltage level from lines CJ_1, CJ_2 and LINE34"));
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("CJ_1")
-                .withLineZ2Id("CJ_2")
-                .withLineZPId("testLine")
-                .withVoltageLevelId("VLTEST")
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId(BBS)
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
@@ -146,13 +126,12 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
         modification.apply(network);
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("NHV1_NHV2_1_1")
-                .withLineZ2Id("NHV1_NHV2_1_2")
-                .withLineZPId("testLine")
-                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
+                .withTeePointLine1("NHV1_NHV2_1_1")
+                .withTeePointLine2("NHV1_NHV2_1_2")
+                .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId(BBS)
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
@@ -167,23 +146,21 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
         modification.apply(network);
 
         NetworkModification modificationWithError = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("NHV1_NHV2_1_1")
-                .withLineZ2Id("NHV1_NHV2_1_2")
-                .withLineZPId("testLine")
-                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
+                .withTeePointLine1("NHV1_NHV2_1_1")
+                .withTeePointLine2("NHV1_NHV2_1_2")
+                .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId("busNotFound")
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError.apply(network, true, Reporter.NO_OP)).getMessage().contains("Bus busNotFound is not found in voltage level " + VOLTAGE_LEVEL_ID));
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("NHV1_NHV2_1_1")
-                .withLineZ2Id("NHV1_NHV2_1_2")
-                .withLineZPId("testLine")
-                .withVoltageLevelId(VOLTAGE_LEVEL_ID)
+                .withTeePointLine1("NHV1_NHV2_1_1")
+                .withTeePointLine2("NHV1_NHV2_1_2")
+                .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId("bus")
-                .withLine1CId("NEW LINE1")
-                .withLineC2Id("NEW LINE2").build();
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
         modification.apply(network, true, Reporter.NO_OP);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
@@ -192,64 +169,31 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractXmlConverte
     @Test
     public void testConstructor() {
         ReplaceTeePointByVoltageLevelOnLine modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("NHV1_NHV2_1")
-                .withLineZ2Id("NHV1_NHV2_2")
-                .withLineZPId("NHV1_NHV2_3")
-                .withVoltageLevelId("VL")
+                .withTeePointLine1("NHV1_NHV2_1")
+                .withTeePointLine2("NHV1_NHV2_2")
+                .withTeePointLineToRemove("NHV1_NHV2_3")
                 .withBbsOrBusId("BBS")
-                .withLine1CId("NEW LINE1 ID")
-                .withLineC2Id("NEW LINE2 ID").build();
-        assertEquals("NHV1_NHV2_1", modification.getLine1ZId());
-        assertEquals("NHV1_NHV2_2", modification.getLineZ2Id());
-        assertEquals("NHV1_NHV2_3", modification.getLineZPId());
-        assertEquals("VL", modification.getVoltageLevelId());
+                .withNewLine1Id("NEW LINE1 ID")
+                .withNewLine2Id("NEW LINE2 ID").build();
+        assertEquals("NHV1_NHV2_1", modification.getTeePointLine1Id());
+        assertEquals("NHV1_NHV2_2", modification.getTeePointLine2Id());
+        assertEquals("NHV1_NHV2_3", modification.getTeePointLineToRemoveId());
         assertEquals("BBS", modification.getBbsOrBusId());
-        assertEquals("NEW LINE1 ID", modification.getLine1CId());
-        assertNull(modification.getLine1CName());
-        assertEquals("NEW LINE2 ID", modification.getLineC2Id());
-        assertNull(modification.getLineC2Name());
+        assertEquals("NEW LINE1 ID", modification.getNewLine1Id());
+        assertNull(modification.getNewLine1Name());
+        assertEquals("NEW LINE2 ID", modification.getNewLine2Id());
+        assertNull(modification.getNewLine2Name());
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("NHV1_NHV2_1")
-                .withLineZ2Id("NHV1_NHV2_2")
-                .withLineZPId("NHV1_NHV2_3")
-                .withVoltageLevelId("VL")
+                .withTeePointLine1("NHV1_NHV2_1")
+                .withTeePointLine2("NHV1_NHV2_2")
+                .withTeePointLineToRemove("NHV1_NHV2_3")
                 .withBbsOrBusId("BBS")
-                .withLine1CId("NEW LINE1 ID")
-                .withLine1CName("NEW LINE1 NAME")
-                .withLineC2Id("NEW LINE2 ID")
-                .withLineC2Name("NEW LINE2 NAME").build();
-        assertEquals("NEW LINE1 NAME", modification.getLine1CName());
-        assertEquals("NEW LINE2 NAME", modification.getLineC2Name());
-    }
-
-    @Test
-    public void testSetters() {
-        ReplaceTeePointByVoltageLevelOnLine modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
-                .withLine1ZId("NHV1_NHV2_1")
-                .withLineZ2Id("NHV1_NHV2_2")
-                .withLineZPId("NHV1_NHV2_3")
-                .withVoltageLevelId("VL")
-                .withBbsOrBusId("BBS")
-                .withLine1CId("NEW LINE1 ID")
-                .withLineC2Id("NEW LINE2 ID").build();
-        modification.setLine1ZId("NHV1_NHV2_1 _A")
-                .setLineZ2Id("NHV1_NHV2_2 _B")
-                .setLineZPId("NHV1_NHV2_3 _C")
-                .setVoltageLevelId("VL_A")
-                .setBbsOrBusId("BBS_A")
-                .setLine1CId("NEW LINE1 ID_C")
-                .setLine1CName("NEW LINE1 NAME")
-                .setLineC2Id("NEW LINE2 ID_C")
-                .setLineC2Name("NEW LINE2 NAME");
-        assertEquals("NHV1_NHV2_1 _A", modification.getLine1ZId());
-        assertEquals("NHV1_NHV2_2 _B", modification.getLineZ2Id());
-        assertEquals("NHV1_NHV2_3 _C", modification.getLineZPId());
-        assertEquals("VL_A", modification.getVoltageLevelId());
-        assertEquals("BBS_A", modification.getBbsOrBusId());
-        assertEquals("NEW LINE1 ID_C", modification.getLine1CId());
-        assertEquals("NEW LINE1 NAME", modification.getLine1CName());
-        assertEquals("NEW LINE2 ID_C", modification.getLineC2Id());
-        assertEquals("NEW LINE2 NAME", modification.getLineC2Name());
+                .withNewLine1Id("NEW LINE1 ID")
+                .withNewLine1Name("NEW LINE1 NAME")
+                .withNewLine2Id("NEW LINE2 ID")
+                .withNewLine2Name("NEW LINE2 NAME").build();
+        assertEquals("NEW LINE1 NAME", modification.getNewLine1Name());
+        assertEquals("NEW LINE2 NAME", modification.getNewLine2Name());
     }
 }

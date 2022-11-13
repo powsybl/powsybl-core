@@ -219,6 +219,8 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
+        parameters.setWithVoltageMap(false);
+        parameters.setWithLimitViolations(false);
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
     }

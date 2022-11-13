@@ -14,11 +14,12 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.matpower.model.*;
+import org.jgrapht.alg.util.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,7 @@ public class MatpowerImporter implements Importer {
     }
 
     private static void createBuses(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
+        Map<String, Pair<Double, Double>> voltageLimitsByVoltageLevelId = new HashMap<>();
         for (MBus mBus : model.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(mBus.getNumber());
             String substationId = containerMapping.getSubstationId(voltageLevelId);
@@ -118,7 +120,7 @@ public class MatpowerImporter implements Importer {
             }
 
             // create voltage limits
-            createVoltageLimits(mBus, voltageLevel);
+            createVoltageLimits(mBus, voltageLevel, voltageLimitsByVoltageLevelId);
 
             // create load
             createLoad(mBus, voltageLevel);
@@ -129,20 +131,38 @@ public class MatpowerImporter implements Importer {
             //create generators
             createGenerators(model, mBus, voltageLevel);
         }
+
+        // set voltage limits
+        for (var e : voltageLimitsByVoltageLevelId.entrySet()) {
+            String voltageLevelId = e.getKey();
+            double lowVoltageLimit = e.getValue().getFirst();
+            double highVoltageLimit = e.getValue().getSecond();
+            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            if (highVoltageLimit >= lowVoltageLimit) {
+                voltageLevel.setLowVoltageLimit(lowVoltageLimit)
+                        .setHighVoltageLimit(highVoltageLimit);
+            } else {
+                LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
+                        lowVoltageLimit, highVoltageLimit, voltageLevelId);
+                voltageLevel.setLowVoltageLimit(highVoltageLimit)
+                        .setHighVoltageLimit(lowVoltageLimit);
+            }
+        }
     }
 
-    private static void createVoltageLimits(MBus mBus, VoltageLevel voltageLevel) {
+    private static void createVoltageLimits(MBus mBus, VoltageLevel voltageLevel, Map<String, Pair<Double, Double>> voltageLimitsByVoltageLevelId) {
         // as in IIDM, we only have one min and one max voltage level by voltage level we keep only the most severe ones
+        Pair<Double, Double> voltageLimits = voltageLimitsByVoltageLevelId.computeIfAbsent(voltageLevel.getId(), k -> Pair.of(Double.NaN, Double.NaN));
         if (mBus.getMinimumVoltageMagnitude() != 0) {
             double lowVoltageLimit = mBus.getMinimumVoltageMagnitude() * voltageLevel.getNominalV();
-            if (Double.isNaN(voltageLevel.getLowVoltageLimit()) || lowVoltageLimit > voltageLevel.getLowVoltageLimit()) {
-                voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+            if (Double.isNaN(voltageLimits.getFirst()) || lowVoltageLimit > voltageLimits.getFirst()) {
+                voltageLimits.setFirst(lowVoltageLimit);
             }
         }
         if (mBus.getMaximumVoltageMagnitude() != 0) {
             double highVoltageLimit = mBus.getMaximumVoltageMagnitude() * voltageLevel.getNominalV();
-            if (Double.isNaN(voltageLevel.getHighVoltageLimit()) || highVoltageLimit < voltageLevel.getHighVoltageLimit()) {
-                voltageLevel.setHighVoltageLimit(highVoltageLimit);
+            if (Double.isNaN(voltageLimits.getSecond()) || highVoltageLimit < voltageLimits.getSecond()) {
+                voltageLimits.setSecond(highVoltageLimit);
             }
         }
     }

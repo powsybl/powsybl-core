@@ -105,6 +105,12 @@ public final class CgmesNames {
 
     public static final Set<String> SWITCH_TYPES = Set.of(SWITCH, "Breaker", "Disconnector", "LoadBreakSwitch", "ProtectedSwitch", "GroundDisconnector");
 
+    public static final String CONFORM_LOAD = "ConformLoad";
+    public static final String NONCONFORM_LOAD = "NonConformLoad";
+    public static final String ENERGY_CONSUMER = "EnergyConsumer";
+    public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
+    public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
+
     private CgmesNames() {
     }
 }

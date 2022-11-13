@@ -48,10 +48,40 @@
     "side" : "ONE"
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
-    "id" : "id7",
+    "id" : "id8",
     "transformerId" : "transformerId3",
     "value" : 2,
     "relativeValue" : false,
     "side" : "THREE"
+  }, {
+    "type" : "GENERATOR",
+    "id" : "id9",
+    "generatorId" : "generatorId1",
+    "activePowerRelativeValue" : true,
+    "activePowerValue" : 100.0
+  }, {
+    "type" : "GENERATOR",
+    "id" : "id10",
+    "generatorId" : "generatorId2",
+    "voltageRegulatorOn" : true,
+    "targetV" : 225.0
+  }, {
+    "type" : "GENERATOR",
+    "id" : "id11",
+    "generatorId" : "generatorId2",
+    "voltageRegulatorOn" : false,
+    "targetQ" : 400.0
+  }, {
+    "type" : "LOAD",
+    "id" : "id12",
+    "loadId" : "loadId1",
+    "relativeValue" : false,
+    "activePowerValue" : 50.0
+  }, {
+    "type" : "LOAD",
+    "id" : "id13",
+    "loadId" : "loadId1",
+    "relativeValue" : true,
+    "reactivePowerValue" : 5.0
   } ]
 }

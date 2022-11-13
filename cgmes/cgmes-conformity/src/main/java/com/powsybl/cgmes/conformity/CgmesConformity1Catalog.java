@@ -125,7 +125,7 @@ public final class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-BusBranch",
                 null,
-                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                new ResourceSet(base,
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
@@ -140,7 +140,7 @@ public final class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-NodeBreaker",
                 expectedMiniNodeBreaker(),
-                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                new ResourceSet(base,
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
@@ -179,6 +179,20 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources smallBusBranchEqTp() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-BusBranch-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
     public static TestGridModelResources smallNodeBreaker() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
@@ -193,6 +207,49 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "SmallGridTestConfiguration_BC_SV_v3.0.0.xml",
                         "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerEqTp() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerEqTpSsh() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerHvdcEqTp() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-HVDC-EQ-TP",
+                null,
+                new ResourceSet(base, "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml"),
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
@@ -951,8 +1008,7 @@ public final class CgmesConformity1Catalog {
                         "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239scbd7-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239tcbd4-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:6fddfd60-de0d-11e2-8f45-b8f6b1180b6d");
+                        "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66");
     }
 
     public static CgmesModel expectedMicroGridType4BE() {

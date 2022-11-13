@@ -89,6 +89,8 @@ public final class CgmesNamespace {
         boolean writeLimitInfiniteDuration();
 
         boolean writeGeneratingUnitInitialP();
+
+        boolean writeConnectivityNodes();
     }
 
     private abstract static class AbstractCim implements Cim {
@@ -155,6 +157,11 @@ public final class CgmesNamespace {
 
         @Override
         public boolean writeGeneratingUnitInitialP() {
+            return false;
+        }
+
+        @Override
+        public boolean writeConnectivityNodes() {
             return false;
         }
 
@@ -232,6 +239,11 @@ public final class CgmesNamespace {
             return true;
         }
 
+        @Override
+        public boolean writeConnectivityNodes() {
+            return false;
+        }
+
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE, "value",
                     "OperationalLimitType.limitType", "LimitTypeKind",
@@ -251,6 +263,11 @@ public final class CgmesNamespace {
         @Override
         public boolean writeGeneratingUnitInitialP() {
             return false;
+        }
+
+        @Override
+        public boolean writeConnectivityNodes() {
+            return true;
         }
 
         private Cim100() {
@@ -277,4 +294,5 @@ public final class CgmesNamespace {
                 throw new PowsyblException("Unsupported CIM version " + cimVersion);
         }
     }
+
 }

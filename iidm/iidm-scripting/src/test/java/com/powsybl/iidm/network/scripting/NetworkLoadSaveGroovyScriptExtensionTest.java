@@ -8,9 +8,9 @@ package com.powsybl.iidm.network.scripting;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.iidm.export.ExportersLoaderList;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.ImportersLoaderList;
+import com.powsybl.iidm.network.ExportersLoaderList;
+import com.powsybl.iidm.network.ImportConfig;
+import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
