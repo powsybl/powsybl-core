@@ -24,7 +24,7 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSerializer<Network, CimCharacteristics> {
 
     public CimCharacteristicsXmlSerializer() {
-        super("cimCharacteristics", "network", CimCharacteristics.class, false, "cimCharacteristics.xsd",
+        super("cimCharacteristics", "network", CimCharacteristics.class, "cimCharacteristics.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cim_characteristics/1_0", "cc");
     }
 

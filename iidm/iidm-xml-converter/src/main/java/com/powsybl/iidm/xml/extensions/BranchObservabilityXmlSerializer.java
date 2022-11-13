@@ -32,7 +32,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
     private static final String REDUNDANT = "redundant";
 
     public BranchObservabilityXmlSerializer() {
-        super("branchObservability", "network", BranchObservability.class, true, "branchObservability.xsd",
+        super("branchObservability", "network", BranchObservability.class, "branchObservability.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/branch_observability/1_0", "bo");
     }
 

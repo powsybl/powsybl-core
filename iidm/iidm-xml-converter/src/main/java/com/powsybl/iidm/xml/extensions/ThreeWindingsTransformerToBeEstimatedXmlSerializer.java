@@ -23,7 +23,7 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
         implements ExtensionXmlSerializer<ThreeWindingsTransformer, ThreeWindingsTransformerToBeEstimated> {
 
     public ThreeWindingsTransformerToBeEstimatedXmlSerializer() {
-        super("threeWindingsTransformerToBeEstimated", "network", ThreeWindingsTransformerToBeEstimated.class, false,
+        super("threeWindingsTransformerToBeEstimated", "network", ThreeWindingsTransformerToBeEstimated.class,
                 "threeWindingsTransformerToBeEstimated.xsd", "http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_to_be_estimated/1_0", "threettbe");
     }
 

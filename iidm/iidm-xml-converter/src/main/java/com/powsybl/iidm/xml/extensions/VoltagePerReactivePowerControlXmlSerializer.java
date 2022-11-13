@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 public class VoltagePerReactivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<StaticVarCompensator, VoltagePerReactivePowerControl> {
 
     public VoltagePerReactivePowerControlXmlSerializer() {
-        super("voltagePerReactivePowerControl", "network", VoltagePerReactivePowerControl.class, false, "voltagePerReactivePowerControl.xsd",
+        super("voltagePerReactivePowerControl", "network", VoltagePerReactivePowerControl.class, "voltagePerReactivePowerControl.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/voltage_per_reactive_power_control/1_0", "vprpc");
     }
 

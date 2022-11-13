@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends AbstractExtensionXmlSerializer<T, ActivePowerControl<T>> {
 
     public ActivePowerControlXmlSerializer() {
-        super("activePowerControl", "network", ActivePowerControl.class, false, "activePowerControl.xsd",
+        super("activePowerControl", "network", ActivePowerControl.class, "activePowerControl.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0", "apc");
     }
 

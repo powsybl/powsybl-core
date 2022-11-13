@@ -25,7 +25,7 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesSvMetadata> {
 
     public CgmesSvMetadataXmlSerializer() {
-        super("cgmesSvMetadata", "network", CgmesSvMetadata.class, true, "cgmesSvMetadata.xsd",
+        super("cgmesSvMetadata", "network", CgmesSvMetadata.class, "cgmesSvMetadata.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_sv_metadata/1_0", "csm");
     }
 

@@ -24,7 +24,7 @@ public class ThreeWindingsTransformerPhaseAngleClockXmlSerializer
 
     public ThreeWindingsTransformerPhaseAngleClockXmlSerializer() {
         super("threeWindingsTransformerPhaseAngleClock", "network", ThreeWindingsTransformerPhaseAngleClock.class,
-                false, "threeWindingsTransformerPhaseAngleClock.xsd",
+                "threeWindingsTransformerPhaseAngleClock.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_phase_angle_clock/1_0",
                 "threewtpac");
     }

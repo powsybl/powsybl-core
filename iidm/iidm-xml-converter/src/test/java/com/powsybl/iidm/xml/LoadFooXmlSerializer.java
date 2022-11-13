@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.test.LoadFooExt;
 public class LoadFooXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadFooExt> {
 
     public LoadFooXmlSerializer() {
-        super("loadFoo", "network", LoadFooExt.class, false, "loadFoo.xsd",
+        super("loadFoo", "network", LoadFooExt.class, "loadFoo.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/loadfoo/1_0", "foo");
     }
 

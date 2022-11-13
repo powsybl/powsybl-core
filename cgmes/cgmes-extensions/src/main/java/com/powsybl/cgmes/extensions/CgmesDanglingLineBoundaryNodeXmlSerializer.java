@@ -21,7 +21,7 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
 
     public CgmesDanglingLineBoundaryNodeXmlSerializer() {
         super("cgmesDanglingLineBoundaryNode", "network", CgmesDanglingLineBoundaryNode.class,
-                false, "cgmesDanglingLineBoundaryNode.xsd",
+                "cgmesDanglingLineBoundaryNode.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0", "cdlbn");
     }
 

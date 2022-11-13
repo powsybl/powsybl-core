@@ -38,11 +38,6 @@ public class GeneratorEntsoeCategoryXmlSerializer implements ExtensionXmlSeriali
     }
 
     @Override
-    public boolean hasSubElements() {
-        return true;
-    }
-
-    @Override
     public InputStream getXsdAsStream() {
         return getClass().getResourceAsStream("/xsd/generatorEntsoeCategory.xsd");
     }

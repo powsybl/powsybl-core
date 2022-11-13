@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class BaseVoltageMappingXmlSerializer extends AbstractExtensionXmlSerializer<Network, BaseVoltageMapping> {
 
     public BaseVoltageMappingXmlSerializer() {
-        super(BaseVoltageMapping.NAME, "network", BaseVoltageMapping.class, true, "baseVoltageMapping.xsd",
+        super(BaseVoltageMapping.NAME, "network", BaseVoltageMapping.class, "baseVoltageMapping.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/base_voltage_mapping/1_0", "bv");
     }
 

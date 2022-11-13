@@ -23,7 +23,7 @@ import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 public class SubstationPositionXmlSerializer extends AbstractExtensionXmlSerializer<Substation, SubstationPosition> {
 
     public SubstationPositionXmlSerializer() {
-        super(SubstationPosition.NAME, "network", SubstationPosition.class, true, "substationPosition.xsd",
+        super(SubstationPosition.NAME, "network", SubstationPosition.class, "substationPosition.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/substation_position/1_0", "sp");
     }
 

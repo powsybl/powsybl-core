@@ -28,7 +28,7 @@ import java.util.List;
 public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Line, MergedXnode> {
 
     public MergedXnodeXmlSerializer() {
-        super("mergedXnode", MergedXnode.class, false, "mxn",
+        super("mergedXnode", MergedXnode.class, "mxn",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.0", "1.1"))

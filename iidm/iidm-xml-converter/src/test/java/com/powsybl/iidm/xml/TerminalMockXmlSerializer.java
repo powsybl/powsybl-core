@@ -32,7 +32,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, TerminalMockExt> {
 
     public TerminalMockXmlSerializer() {
-        super("terminalMock", TerminalMockExt.class, true, "mock",
+        super("terminalMock", TerminalMockExt.class, "mock",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1"))

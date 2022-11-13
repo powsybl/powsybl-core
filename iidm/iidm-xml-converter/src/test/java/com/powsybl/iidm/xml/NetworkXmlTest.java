@@ -78,7 +78,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     public static class BusbarSectionExtXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
 
         public BusbarSectionExtXmlSerializer() {
-            super("busbarSectionExt", "network", BusbarSectionExt.class, false, "busbarSectionExt.xsd",
+            super("busbarSectionExt", "network", BusbarSectionExt.class, "busbarSectionExt.xsd",
                     "http://www.itesla_project.eu/schema/iidm/ext/busbarSectionExt/1_0", "bbse");
         }
 

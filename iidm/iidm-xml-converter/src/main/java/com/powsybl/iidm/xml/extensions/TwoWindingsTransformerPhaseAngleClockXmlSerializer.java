@@ -24,7 +24,7 @@ public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
 
     public TwoWindingsTransformerPhaseAngleClockXmlSerializer() {
         super("twoWindingsTransformerPhaseAngleClock", "network", TwoWindingsTransformerPhaseAngleClock.class,
-                false, "twoWindingsTransformerPhaseAngleClock.xsd",
+                "twoWindingsTransformerPhaseAngleClock.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_phase_angle_clock/1_0", "twowtpac");
     }
 

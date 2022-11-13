@@ -23,7 +23,7 @@ public class LoadDetailXmlSerializer extends AbstractExtensionXmlSerializer<Load
 
     public LoadDetailXmlSerializer() {
         super("detail", "network", LoadDetail.class,
-                false, "loadDetail.xsd",
+                "loadDetail.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/load_detail/1_0",
                 "ld");
     }

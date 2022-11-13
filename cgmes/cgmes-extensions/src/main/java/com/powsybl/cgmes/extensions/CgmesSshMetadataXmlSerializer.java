@@ -26,7 +26,7 @@ import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesSshMetadata> {
 
     public CgmesSshMetadataXmlSerializer() {
-        super("cgmesSshMetadata", "network", CgmesSshMetadata.class, true, "cgmesSshMetadata.xsd",
+        super("cgmesSshMetadata", "network", CgmesSshMetadata.class, "cgmesSshMetadata.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_metadata/1_0", "csshm");
     }
 

@@ -26,7 +26,7 @@ public class HvdcOperatorActivePowerRangeXmlSerializer extends AbstractExtension
 
     public HvdcOperatorActivePowerRangeXmlSerializer() {
         super("hvdcOperatorActivePowerRange", "network", HvdcOperatorActivePowerRange.class,
-                false, "hvdcOperatorActivePowerRange.xsd",
+                "hvdcOperatorActivePowerRange.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/hvdc_operator_active_power_range/1_0",
                 "hopr");
     }

@@ -30,7 +30,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     private static final String VALUE = "value";
 
     public DiscreteMeasurementsXmlSerializer() {
-        super("discreteMeasurements", "network", DiscreteMeasurements.class, true,
+        super("discreteMeasurements", "network", DiscreteMeasurements.class,
                 "discreteMeasurements.xsd", "http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0", "dm");
     }
 

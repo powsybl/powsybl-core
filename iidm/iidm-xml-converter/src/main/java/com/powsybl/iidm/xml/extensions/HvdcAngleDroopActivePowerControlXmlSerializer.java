@@ -25,7 +25,7 @@ public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExten
 
     public HvdcAngleDroopActivePowerControlXmlSerializer() {
         super("hvdcAngleDroopActivePowerControl", "network", HvdcAngleDroopActivePowerControl.class,
-                false, "hvdcAngleDroopActivePowerControl.xsd",
+                "hvdcAngleDroopActivePowerControl.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/hvdc_angle_droop_active_power_control/1_0", "hapc");
     }
 

@@ -26,7 +26,7 @@ import java.util.List;
 public class LinePositionXmlSerializer<T extends Identifiable<T>> extends AbstractExtensionXmlSerializer<T, LinePosition<T>> {
 
     public LinePositionXmlSerializer() {
-        super(LinePosition.NAME, "network", LinePosition.class, true, "linePosition.xsd",
+        super(LinePosition.NAME, "network", LinePosition.class, "linePosition.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/line_position/1_0", "lp");
     }
 

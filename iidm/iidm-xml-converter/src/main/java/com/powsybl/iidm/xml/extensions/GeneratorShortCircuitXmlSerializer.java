@@ -23,7 +23,7 @@ import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 public class GeneratorShortCircuitXmlSerializer extends AbstractExtensionXmlSerializer<Generator, GeneratorShortCircuit> {
 
     public GeneratorShortCircuitXmlSerializer() {
-        super("generatorShortCircuit", "network", GeneratorShortCircuit.class, false,
+        super("generatorShortCircuit", "network", GeneratorShortCircuit.class,
                 "generatorShortCircuit.xsd", "http://www.itesla_project.eu/schema/iidm/ext/generator_short_circuit/1_0",
                 "gsc");
     }

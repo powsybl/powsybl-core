@@ -23,7 +23,7 @@ public class StandbyAutomatonXmlSerializer extends AbstractExtensionXmlSerialize
 
     // TODO make this serializer versionable to fix lowVoltageSetpoint/highVoltageSetpoint
     public StandbyAutomatonXmlSerializer() {
-        super("standbyAutomaton", "network", StandbyAutomaton.class, false, "standbyAutomaton.xsd",
+        super("standbyAutomaton", "network", StandbyAutomaton.class, "standbyAutomaton.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/standby_automaton/1_0", "sa");
     }
 

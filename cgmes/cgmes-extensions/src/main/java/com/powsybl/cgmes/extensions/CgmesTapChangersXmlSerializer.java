@@ -26,7 +26,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
 
     public CgmesTapChangersXmlSerializer() {
         super("cgmesTapChangers", "network", CgmesTapChangers.class,
-                true, "cgmesTapChangers.xsd",
+                "cgmesTapChangers.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_tap_changers/1_0", "ctc");
     }
 

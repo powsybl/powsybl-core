@@ -142,7 +142,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractXmlConverter
     public static class NetworkSourceExtensionXmlSerializer extends AbstractExtensionXmlSerializer<Network, NetworkSourceExtension> {
 
         public NetworkSourceExtensionXmlSerializer() {
-            super("networkSource", "network", NetworkSourceExtension.class, false, "networkSource.xsd",
+            super("networkSource", "network", NetworkSourceExtension.class, "networkSource.xsd",
                     "http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0", "extNetworkSource");
         }
 

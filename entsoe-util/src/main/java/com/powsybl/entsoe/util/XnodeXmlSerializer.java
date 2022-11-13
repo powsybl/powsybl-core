@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.DanglingLine;
 public class XnodeXmlSerializer extends AbstractExtensionXmlSerializer<DanglingLine, Xnode> {
 
     public XnodeXmlSerializer() {
-        super("xnode", "network", Xnode.class, false, "xnode.xsd",
+        super("xnode", "network", Xnode.class, "xnode.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/xnode/1_0", "xn");
     }
 

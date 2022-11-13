@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.test.LoadBarExt;
 public class LoadBarXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadBarExt> {
 
     public LoadBarXmlSerializer() {
-        super("loadBar", "network", LoadBarExt.class, false, "loadBar.xsd",
+        super("loadBar", "network", LoadBarExt.class, "loadBar.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0", "bar");
     }
 

@@ -27,7 +27,7 @@ import java.util.List;
 public class LoadMockXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, LoadMockExt> {
 
     public LoadMockXmlSerializer() {
-        super("loadMock", LoadMockExt.class, false, "lmock",
+        super("loadMock", LoadMockExt.class, "lmock",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))

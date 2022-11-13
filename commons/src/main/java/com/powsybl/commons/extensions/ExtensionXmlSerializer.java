@@ -25,8 +25,6 @@ import java.util.Set;
  */
 public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E>, Versionable {
 
-    boolean hasSubElements();
-
     /**
      * Return the XSD schema describing the extension to serialize in the latest version of its serialization.
      */

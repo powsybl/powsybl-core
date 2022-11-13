@@ -29,7 +29,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
     private static final String VALUE = "value";
 
     public MeasurementsXmlSerializer() {
-        super("measurements", "network", Measurements.class, true, "measurements.xsd",
+        super("measurements", "network", Measurements.class, "measurements.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/measurements/1_0", "m");
     }
 

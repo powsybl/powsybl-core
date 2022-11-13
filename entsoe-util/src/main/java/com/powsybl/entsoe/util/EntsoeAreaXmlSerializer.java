@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.Substation;
 public class EntsoeAreaXmlSerializer extends AbstractExtensionXmlSerializer<Substation, EntsoeArea> {
 
     public EntsoeAreaXmlSerializer() {
-        super("entsoeArea", "network", EntsoeArea.class, true, "entsoeArea.xsd",
+        super("entsoeArea", "network", EntsoeArea.class, "entsoeArea.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/entsoe_area/1_0", "ea");
     }
 

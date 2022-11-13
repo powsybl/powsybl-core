@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 public class CoordinatedReactiveControlXmlSerializer extends AbstractExtensionXmlSerializer<Generator, CoordinatedReactiveControl> {
 
     public CoordinatedReactiveControlXmlSerializer() {
-        super("coordinatedReactiveControl", "network", CoordinatedReactiveControl.class, false, "coordinatedReactiveControl.xsd",
+        super("coordinatedReactiveControl", "network", CoordinatedReactiveControl.class, "coordinatedReactiveControl.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/coordinated_reactive_control/1_0", "crc");
     }
 

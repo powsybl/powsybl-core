@@ -24,7 +24,7 @@ import java.util.Optional;
 public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends AbstractExtensionXmlSerializer<C, ConnectablePosition<C>> {
 
     public ConnectablePositionXmlSerializer() {
-        super(ConnectablePosition.NAME, "network", ConnectablePosition.class, true,
+        super(ConnectablePosition.NAME, "network", ConnectablePosition.class,
                 "connectablePosition.xsd", "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0",
                 "cp");
     }

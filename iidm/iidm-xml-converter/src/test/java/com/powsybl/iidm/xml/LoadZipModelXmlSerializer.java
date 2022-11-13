@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.test.LoadZipModel;
 public class LoadZipModelXmlSerializer extends AbstractExtensionXmlSerializer<Load, LoadZipModel> {
 
     public LoadZipModelXmlSerializer() {
-        super("loadZipModel", "network", LoadZipModel.class, false, "loadZipModel.xsd",
+        super("loadZipModel", "network", LoadZipModel.class, "loadZipModel.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/loadzipmodel/1_0", "extZip");
     }
 

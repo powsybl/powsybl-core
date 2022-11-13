@@ -34,7 +34,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
     private static final String V_1_1 = "1.1";
 
     public GeneratorStartupXmlSerializer() {
-        super(GeneratorStartup.NAME, GeneratorStartup.class, false, "gs",
+        super(GeneratorStartup.NAME, GeneratorStartup.class, "gs",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))

@@ -25,7 +25,7 @@ import java.io.InputStream;
 public class LoadQuxXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Load, LoadQuxExt> {
 
     public LoadQuxXmlSerializer() {
-        super("loadQux", LoadQuxExt.class, false, "lq",
+        super("loadQux", LoadQuxExt.class, "lq",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
                         .build(),

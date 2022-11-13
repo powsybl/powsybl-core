@@ -23,7 +23,7 @@ public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractEx
         implements ExtensionXmlSerializer<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated> {
 
     public TwoWindingsTransformerToBeEstimatedXmlSerializer() {
-        super("twoWindingsTransformerToBeEstimated", "network", TwoWindingsTransformerToBeEstimated.class, false,
+        super("twoWindingsTransformerToBeEstimated", "network", TwoWindingsTransformerToBeEstimated.class,
                 "twoWindingsTransformerToBeEstimated.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_to_be_estimated/1_0", "twottbe");
     }

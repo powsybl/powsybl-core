@@ -32,7 +32,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
     private static final String REDUNDANT = "redundant";
 
     public InjectionObservabilityXmlSerializer() {
-        super("injectionObservability", "network", InjectionObservability.class, true, "injectionObservability.xsd",
+        super("injectionObservability", "network", InjectionObservability.class, "injectionObservability.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/injection_observability/1_0", "io");
     }
 

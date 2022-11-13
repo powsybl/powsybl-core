@@ -26,16 +26,14 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
 
     private final String extensionName;
     private final Class<? super E> extensionClass;
-    private final boolean subElements;
     private final String namespacePrefix;
     private final Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmXmlVersion.class);
     private final Map<String, String> namespaceUris = new HashMap<>();
 
-    protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, boolean subElements, String namespacePrefix,
+    protected AbstractVersionableNetworkExtensionXmlSerializer(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
                                                                Map<IidmXmlVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
-        this.subElements = subElements;
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
         this.extensionVersions.putAll(Objects.requireNonNull(extensionVersions));
         this.namespaceUris.putAll(Objects.requireNonNull(namespaceUris));
@@ -54,11 +52,6 @@ public abstract class AbstractVersionableNetworkExtensionXmlSerializer<T extends
     @Override
     public Class<? super E> getExtensionClass() {
         return extensionClass;
-    }
-
-    @Override
-    public boolean hasSubElements() {
-        return subElements;
     }
 
     @Override

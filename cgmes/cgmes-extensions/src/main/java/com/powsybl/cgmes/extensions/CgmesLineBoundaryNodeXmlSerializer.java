@@ -21,7 +21,7 @@ public class CgmesLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSeri
 
     public CgmesLineBoundaryNodeXmlSerializer() {
         super("cgmesLineBoundaryNode", "network", CgmesLineBoundaryNode.class,
-                false, "cgmesLineBoundaryNode.xsd",
+                "cgmesLineBoundaryNode.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_line_boundary_node/1_0", "clbn");
     }
 

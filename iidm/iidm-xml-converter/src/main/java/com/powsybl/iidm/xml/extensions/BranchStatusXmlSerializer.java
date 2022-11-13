@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.extensions.BranchStatusAdder;
 public class BranchStatusXmlSerializer<C extends Connectable<C>> extends AbstractExtensionXmlSerializer<C, BranchStatus<C>> {
 
     public BranchStatusXmlSerializer() {
-        super(BranchStatus.NAME, "network", BranchStatus.class, true,
+        super(BranchStatus.NAME, "network", BranchStatus.class,
                 "branchStatus.xsd", "http://www.powsybl.org/schema/iidm/ext/branch_status/1_0",
                 "bs");
     }

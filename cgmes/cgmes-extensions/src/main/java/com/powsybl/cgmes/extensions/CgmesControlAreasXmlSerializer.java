@@ -28,7 +28,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     private static final String CONTROL_AREA = "controlArea";
 
     public CgmesControlAreasXmlSerializer() {
-        super("cgmesControlAreas", "network", CgmesControlAreas.class, true, "cgmesControlAreas.xsd",
+        super("cgmesControlAreas", "network", CgmesControlAreas.class, "cgmesControlAreas.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0", "cca");
     }
 

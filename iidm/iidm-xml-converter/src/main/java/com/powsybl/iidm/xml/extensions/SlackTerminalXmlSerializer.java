@@ -33,7 +33,7 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
 
     public SlackTerminalXmlSerializer() {
 
-        super("slackTerminal", SlackTerminal.class, false, "slt",
+        super("slackTerminal", SlackTerminal.class, "slt",
             new ImmutableMap.Builder<IidmXmlVersion, ImmutableSortedSet<String>>()
                 .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"))
                 .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.1"))

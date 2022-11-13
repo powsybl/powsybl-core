@@ -23,7 +23,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 public class IdentifiableShortCircuitXmlSerializer<I extends Identifiable<I>> extends AbstractExtensionXmlSerializer<I, IdentifiableShortCircuit<I>> {
 
     public IdentifiableShortCircuitXmlSerializer() {
-        super("identifiableShortCircuit", "network", IdentifiableShortCircuit.class, false,
+        super("identifiableShortCircuit", "network", IdentifiableShortCircuit.class,
                 "identifiableShortCircuit.xsd", "http://www.powsybl.org/schema/iidm/ext/identifiable_short_circuit/1_0",
                 "isc");
     }

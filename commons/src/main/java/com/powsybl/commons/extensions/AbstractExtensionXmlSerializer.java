@@ -20,8 +20,6 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
 
     private final Class<? super E> extensionClass;
 
-    private final boolean subElements;
-
     private final String xsdFileName;
 
     private final String namespaceUri;
@@ -29,11 +27,10 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
     private final String namespacePrefix;
 
     protected AbstractExtensionXmlSerializer(String extensionName, String categoryName, Class<? super E> extensionClass,
-                                             boolean subElements, String xsdFileName, String namespaceUri, String namespacePrefix) {
+                                             String xsdFileName, String namespaceUri, String namespacePrefix) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.categoryName = Objects.requireNonNull(categoryName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
-        this.subElements = subElements;
         this.xsdFileName = Objects.requireNonNull(xsdFileName);
         this.namespaceUri = Objects.requireNonNull(namespaceUri);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);
@@ -52,10 +49,6 @@ public abstract class AbstractExtensionXmlSerializer<T extends Extendable, E ext
     @Override
     public Class<? super E> getExtensionClass() {
         return extensionClass;
-    }
-
-    public boolean hasSubElements() {
-        return subElements;
     }
 
     @Override

@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 public class BusbarSectionPositionXmlSerializer extends AbstractExtensionXmlSerializer<BusbarSection, BusbarSectionPosition> {
 
     public BusbarSectionPositionXmlSerializer() {
-        super("busbarSectionPosition", "network", BusbarSectionPosition.class, false,
+        super("busbarSectionPosition", "network", BusbarSectionPosition.class,
                 "busbarSectionPosition.xsd", "http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0",
                 "bbsp");
     }
