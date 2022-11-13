@@ -15,7 +15,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
