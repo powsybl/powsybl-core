@@ -37,6 +37,8 @@ import java.util.function.Supplier;
  */
 public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<ShortCircuitAnalysisResult> {
 
+    private static final String CONTEXT_NAME = "ShortCircuitAnalysisResult";
+
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 
@@ -46,6 +48,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
 
     @Override
     public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+        String version = null;
         List<FaultResult> faultResults = null;
         ShortCircuitAnalysisResult.Status shortCircuitAnalysisStatus = null;
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
@@ -53,7 +56,8 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
-                    parser.nextToken(); // skip
+                    parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
 
                 case "faultResults":
@@ -63,6 +67,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     break;
 
                 case "status":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
                     shortCircuitAnalysisStatus = ShortCircuitAnalysisResult.Status.valueOf(parser.getValueAsString());
                     break;
@@ -76,8 +81,12 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults, shortCircuitAnalysisStatus);
+        ShortCircuitAnalysisResult result;
+        if (shortCircuitAnalysisStatus != null) {
+            result = new ShortCircuitAnalysisResult(faultResults, shortCircuitAnalysisStatus);
+        } else {
+            result = new ShortCircuitAnalysisResult(faultResults);
+        }
         SUPPLIER.get().addExtensions(result, extensions);
 
         return result;

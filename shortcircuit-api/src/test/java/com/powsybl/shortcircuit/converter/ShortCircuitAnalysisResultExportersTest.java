@@ -99,6 +99,18 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-feeder-result.json");
     }
 
+    @Test
+    public void readJsonVersion10() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
+    }
+
+    @Test
+    public void readJsonVersion11() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-version11.json"));
+    }
+
     public void writeCsv(ShortCircuitAnalysisResult result, Path path) {
         Network network = EurostagTutorialExample1Factory.create();
         ShortCircuitAnalysisResultExporters.export(result, path, "CSV", network);

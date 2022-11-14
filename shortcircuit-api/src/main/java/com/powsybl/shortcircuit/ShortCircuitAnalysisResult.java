@@ -26,9 +26,22 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
         FAILED
     }
 
-    private final Status shortCircuitAnalysisStatus;
+    private Status shortCircuitAnalysisStatus;
     private final Map<String, FaultResult> resultByFaultId = new TreeMap<>();
     private final Map<String, List<FaultResult>> resultByElementId = new TreeMap<>();
+
+    /**
+     *
+     * @deprecated status added in the result, used for backward compatibility only
+     */
+    @Deprecated (forRemoval = false)
+    public ShortCircuitAnalysisResult(List<FaultResult> faultResults) {
+        Objects.requireNonNull(faultResults);
+        faultResults.forEach(r -> {
+            this.resultByFaultId.put(r.getFault().getId(), r);
+            this.resultByElementId.computeIfAbsent(r.getFault().getElementId(), k -> new ArrayList<>()).add(r);
+        });
+    }
 
     public ShortCircuitAnalysisResult(List<FaultResult> faultResults, Status shortCircuitAnalysisStatus) {
         Objects.requireNonNull(faultResults);
