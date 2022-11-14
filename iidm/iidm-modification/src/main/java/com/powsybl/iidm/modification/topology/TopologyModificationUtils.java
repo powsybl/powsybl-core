@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
@@ -606,5 +608,23 @@ public final class TopologyModificationUtils {
         Optional<LoadingLimitsBag> currentLimits = mergeLimits(lineId, limits.getCurrentLimits(), limitsTeePointSide.getCurrentLimits(), reporter);
 
         return new LoadingLimitsBags(activePowerLimits.orElse(null), apparentPowerLimits.orElse(null), currentLimits.orElse(null));
+    }
+
+    /**
+     * Find tee point connecting the 3 given lines, if any
+     * @return the tee point connecting the 3 given lines or null if none
+     */
+    public static VoltageLevel findTeePoint(Line line1, Line line2, Line line3) {
+        Map<VoltageLevel, Long> countVoltageLevels = Stream.of(line1, line2, line3)
+                .map(Line::getTerminals)
+                .flatMap(List::stream)
+                .collect(Collectors.groupingBy(Terminal::getVoltageLevel, Collectors.counting()));
+        var commonVlMapEntry = Collections.max(countVoltageLevels.entrySet(), Map.Entry.comparingByValue());
+        // If the lines are connected by a tee point, there should be 4 distinct voltage levels and one of them should be found 3 times
+        if (countVoltageLevels.size() == 4 && commonVlMapEntry.getValue() == 3) {
+            return commonVlMapEntry.getKey();
+        } else {
+            return null;
+        }
     }
 }

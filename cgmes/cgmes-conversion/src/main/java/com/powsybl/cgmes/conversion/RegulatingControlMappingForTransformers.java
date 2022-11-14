@@ -8,14 +8,15 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.badTargetDeadbandRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -196,25 +197,13 @@ public class RegulatingControlMappingForTransformers {
         boolean validTargetValue = control.targetValue > 0;
         if (!validTargetValue) {
             context.invalid(rtcId, "Regulating control has a bad target voltage " + control.targetValue);
-            context.getReporter().report(Report.builder()
-                    .withKey("RegulatingControlVoltageBadTargetValue")
-                    .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
-                    .withValue("equipmentId", rtcId)
-                    .withTypedValue("targetValue", control.targetValue, TypedValue.VOLTAGE)
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+            badVoltageTargetValueRegulatingControlReport(context.getReporter(), rtcId, control.targetValue);
         }
 
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid(rtcId, "Regulating control has a bad target deadband " + control.targetDeadband);
-            context.getReporter().report(Report.builder()
-                    .withKey("RegulatingControlVoltageBadTargetDeadband")
-                    .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband for voltage: ${targetDeadband}")
-                    .withValue("equipmentId", rtcId)
-                    .withTypedValue("targetDeadband", control.targetDeadband, TypedValue.VOLTAGE)
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+            badTargetDeadbandRegulatingControlReport(context.getReporter(), rtcId, control.targetDeadband);
         }
 
         // Order is important
@@ -277,14 +266,7 @@ public class RegulatingControlMappingForTransformers {
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid(ptcId, "Regulating control has a bad target deadband " + control.targetDeadband);
-            context.getReporter().report(Report.builder()
-                    .withKey("RegulatingControlBadTargetDeadband")
-                    .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
-                    .withValue("equipmentId", ptcId)
-                    // Could be a current or an active power
-                    .withValue("targetDeadband", control.targetDeadband)
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+            badTargetDeadbandRegulatingControlReport(context.getReporter(), ptcId, control.targetDeadband);
         }
 
         // Order is important
