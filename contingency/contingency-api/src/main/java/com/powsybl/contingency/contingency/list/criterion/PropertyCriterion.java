@@ -77,6 +77,7 @@ public class PropertyCriterion implements Criterion {
             case GENERATOR:
             case DANGLING_LINE:
             case LOAD:
+            case BATTERY:
                 return filterSubstationOrVoltageLevel(((Injection) identifiable).getTerminal().getVoltageLevel());
             case SWITCH:
                 return filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
