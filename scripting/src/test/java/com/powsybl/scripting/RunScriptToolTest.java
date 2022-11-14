@@ -6,7 +6,7 @@
  */
 package com.powsybl.scripting;
 
-import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import org.junit.Before;

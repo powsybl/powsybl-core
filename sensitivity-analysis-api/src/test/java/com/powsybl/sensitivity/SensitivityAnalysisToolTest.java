@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
-import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import org.junit.Before;

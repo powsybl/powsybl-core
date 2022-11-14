@@ -4,14 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.tools.autocompletion;
+package com.powsybl.tools.test;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.test.TestUtil;
-import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.tools.autocompletion.BashCompletionTool;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;

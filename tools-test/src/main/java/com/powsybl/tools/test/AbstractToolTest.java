@@ -4,12 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.tools;
+package com.powsybl.tools.test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.CommandLineTools;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolInitializationContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;

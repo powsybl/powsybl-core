@@ -18,17 +18,28 @@
         <version>5.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-commons-test</artifactId>
+    <artifactId>powsybl-tools-test</artifactId>
+    <name>Tools test</name>
+    <description>Utilities for command line tool testing</description>
 
     <dependencies>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-commons-test</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-tools</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -36,9 +47,20 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.xmlunit</groupId>
-            <artifactId>xmlunit-core</artifactId>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

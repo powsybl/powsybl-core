@@ -4,8 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.tools;
+package com.powsybl.tools.test;
 
+import com.powsybl.tools.CommandLineTools;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.Version;
+import com.powsybl.tools.VersionTool;
 import org.junit.Test;
 
 import java.util.Collections;
