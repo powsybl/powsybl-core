@@ -19,7 +19,9 @@ import java.io.IOException;
  */
 public class ShortCircuitAnalysisResultSerializer extends StdSerializer<ShortCircuitAnalysisResult> {
 
-    private static final String VERSION = "1.0";
+    // VERSION = 1.0 faultResults
+    // VERSION = 1.1 status
+    private static final String VERSION = "1.1";
 
     ShortCircuitAnalysisResultSerializer() {
         super(ShortCircuitAnalysisResult.class);
