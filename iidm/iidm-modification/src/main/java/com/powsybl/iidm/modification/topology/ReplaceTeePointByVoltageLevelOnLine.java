@@ -242,7 +242,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         removedLineReport(reporter, teePointLine1Id);
         tpLine2.remove();
         removedLineReport(reporter, teePointLine2Id);
-        tpLineToRemove.remove();
+        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, throwException, computationManager, reporter);
         removedLineReport(reporter, teePointLineToRemoveId);
 
         // Create the two new lines

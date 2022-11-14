@@ -50,6 +50,8 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     private static final String NETWORK_FILE = "network.xiidm";
     private static final String CONTINGENCIES_FILE = "contingencies.groovy";
     private static final String PARAMETERS_FILE = "parameters.json";
+    private static final String ACTIONS_FILE = "actions.json";
+    private static final String STRATEGIES_FILE = "strategies.json";
 
     private final ResultReader<R> reader;
     private final OptionsCustomizer optionsCustomizer;
@@ -174,6 +176,14 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         return workingDir.resolve(PARAMETERS_FILE);
     }
 
+    private static Path getActionsPath(Path workingDir) {
+        return workingDir.resolve(ACTIONS_FILE);
+    }
+
+    private static Path getStrategiesPath(Path workingDir) {
+        return workingDir.resolve(STRATEGIES_FILE);
+    }
+
     private static Path getContingenciesPath(Path workingDir) {
         return workingDir.resolve(CONTINGENCIES_FILE);
     }
@@ -203,7 +213,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
      */
     private static void addParametersFile(SecurityAnalysisCommandOptions options, Path workingDir, SecurityAnalysisParameters parameters) {
         Path parametersPath = getParametersPath(workingDir);
-        options.parametersFile(getParametersPath(workingDir));
+        options.parametersFile(parametersPath);
         LOGGER.debug("Writing parameters to file {}", parametersPath);
         JsonSecurityAnalysisParameters.write(parameters, parametersPath);
     }
@@ -212,22 +222,28 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
      * Add operator strategies file option, and write it as JSON to working directory.
      */
     private static void addOperatorStrategyFile(SecurityAnalysisCommandOptions options, Path workingDir, List<OperatorStrategy> operatorStrategies) {
-        Path parametersPath = getParametersPath(workingDir);
-        options.parametersFile(getParametersPath(workingDir));
-        LOGGER.debug("Writing operator strategies to file {}", parametersPath);
-        OperatorStrategyList operatorStrategiesList = new OperatorStrategyList(operatorStrategies);
-        operatorStrategiesList.writeFile(parametersPath);
+        if (operatorStrategies.isEmpty()) {
+            return;
+        }
+        Path path = getStrategiesPath(workingDir);
+        options.strategiesFile(path);
+        LOGGER.debug("Writing operator strategies to file {}", path);
+        new OperatorStrategyList(operatorStrategies)
+                .writeFile(path);
     }
 
     /**
      * Add action file option, and write it as JSON to working directory.
      */
     private static void addActionFile(SecurityAnalysisCommandOptions options, Path workingDir, List<Action> actions) {
-        Path parametersPath = getParametersPath(workingDir);
-        options.parametersFile(getParametersPath(workingDir));
-        LOGGER.debug("Writing actions to file {}", parametersPath);
-        ActionList actionsList = new ActionList(actions);
-        actionsList.writeJsonFile(parametersPath);
+        if (actions.isEmpty()) {
+            return;
+        }
+        Path path = getActionsPath(workingDir);
+        options.actionsFile(path);
+        LOGGER.debug("Writing actions to file {}", path);
+        new ActionList(actions)
+                .writeJsonFile(path);
     }
 
     /**
