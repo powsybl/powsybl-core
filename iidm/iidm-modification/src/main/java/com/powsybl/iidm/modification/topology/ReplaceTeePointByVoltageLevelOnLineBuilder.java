@@ -11,44 +11,38 @@ package com.powsybl.iidm.modification.topology;
  */
 public class ReplaceTeePointByVoltageLevelOnLineBuilder {
 
-    private String line1ZId = null;
-    private String lineZ2Id = null;
-    private String lineZPId = null;
-    private String voltageLevelId = null;
+    private String teePointLine1 = null;
+    private String teePointLine2 = null;
+    private String teePointLineToRemove = null;
     private String bbsOrBusId = null;
-    private String line1CId = null;
-    private String line1CName = null;
-    private String lineC2Id = null;
-    private String lineC2Name = null;
+    private String newLine1Id = null;
+    private String newLine1Name = null;
+    private String newLine2Id = null;
+    private String newLine2Name = null;
 
     public ReplaceTeePointByVoltageLevelOnLine build() {
-        return new ReplaceTeePointByVoltageLevelOnLine(line1ZId, lineZ2Id, lineZPId, voltageLevelId, bbsOrBusId,
-                                                       line1CId, line1CName, lineC2Id, lineC2Name);
+        return new ReplaceTeePointByVoltageLevelOnLine(teePointLine1, teePointLine2, teePointLineToRemove, bbsOrBusId,
+                newLine1Id, newLine1Name, newLine2Id, newLine2Name);
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withLine1ZId(String line1ZId) {
-        this.line1ZId = line1ZId;
-        if (line1CId == null) {
-            line1CId = line1ZId;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withTeePointLine1(String teePointLine1) {
+        this.teePointLine1 = teePointLine1;
+        if (newLine1Id == null) {
+            newLine1Id = teePointLine1;
         }
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withLineZ2Id(String lineZ2Id) {
-        this.lineZ2Id = lineZ2Id;
-        if (lineC2Id == null) {
-            lineC2Id = lineZ2Id;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withTeePointLine2(String teePointLine2) {
+        this.teePointLine2 = teePointLine2;
+        if (newLine2Id == null) {
+            newLine2Id = teePointLine2;
         }
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withLineZPId(String lineZPId) {
-        this.lineZPId = lineZPId;
-        return this;
-    }
-
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withVoltageLevelId(String voltageLevelId) {
-        this.voltageLevelId = voltageLevelId;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withTeePointLineToRemove(String teePointLineToRemove) {
+        this.teePointLineToRemove = teePointLineToRemove;
         return this;
     }
 
@@ -57,23 +51,23 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withLine1CId(String line1CId) {
-        this.line1CId = line1CId;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine1Id(String newLine1Id) {
+        this.newLine1Id = newLine1Id;
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withLine1CName(String line1CName) {
-        this.line1CName = line1CName;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine1Name(String newLine1Name) {
+        this.newLine1Name = newLine1Name;
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withLineC2Id(String lineC2Id) {
-        this.lineC2Id = lineC2Id;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine2Id(String newLine2Id) {
+        this.newLine2Id = newLine2Id;
         return this;
     }
 
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withLineC2Name(String lineC2Name) {
-        this.lineC2Name = lineC2Name;
+    public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine2Name(String newLine2Name) {
+        this.newLine2Name = newLine2Name;
         return this;
     }
 }

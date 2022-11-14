@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
@@ -646,17 +647,17 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void read(ReadOnlyDataSource ds) {
+    public void read(ReadOnlyDataSource ds, Reporter reporter) {
         // TODO Review if required by current tests
     }
 
     @Override
-    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
         // TODO Review if required by current tests
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName) {
+    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
         // TODO Review if required by current tests
     }
 }

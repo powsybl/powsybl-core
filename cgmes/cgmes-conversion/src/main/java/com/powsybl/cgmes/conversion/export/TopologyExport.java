@@ -242,8 +242,11 @@ public final class TopologyExport {
         for (DanglingLine dl : network.getDanglingLines()) {
             Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNodeId.isPresent()) {
-                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getBoundary().getVoltageLevel().getNominalV()).getId();
-                writeTopologicalNode(topologicalNodeId.get(), dl.getNameOrId(), context.getNamingStrategy().getCgmesId(dl.getBoundary().getVoltageLevel()), baseVoltage, cimNamespace, writer);
+                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
+                // TODO(Luma) It is wrong to consider the container of boundary topological node to be the same of dangling line
+                //  To be fixed in a separate PR (in fact boundary TNs of dangling lines should not be exported)
+                String containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
+                writeTopologicalNode(topologicalNodeId.get(), dl.getNameOrId(), containerId, baseVoltage, cimNamespace, writer);
             }
         }
     }

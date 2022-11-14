@@ -47,7 +47,7 @@ public final class SecurityAnalysis {
 
         private final SecurityAnalysisProvider provider;
 
-        private Runner(SecurityAnalysisProvider provider) {
+        public Runner(SecurityAnalysisProvider provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 

@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactory;
