@@ -123,4 +123,26 @@ public class SecurityAnalysisCommandOptionsTest {
                         "--log-file=log_4.zip");
     }
 
+    @Test
+    public void testStrategies() {
+        SecurityAnalysisCommandOptions options = new SecurityAnalysisCommandOptions()
+                .caseFile(fileSystem.getPath("test.xiidm"))
+                .parametersFile(fileSystem.getPath("params.json"))
+                .actionsFile(fileSystem.getPath("actions.json"))
+                .strategiesFile(fileSystem.getPath("strategies.json"));
+
+        SimpleCommand cmd = options.toCommand();
+        String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
+        assertEquals(expectedDefaultProgram, cmd.getProgram());
+        assertEquals("security-analysis", cmd.getId());
+        List<String> args = cmd.getArgs(0);
+        Assertions.assertThat(args)
+                .containsExactly("security-analysis",
+                        "--case-file=test.xiidm",
+                        "--parameters-file=params.json",
+                        "--actions-file=actions.json",
+                        "--strategies-file=strategies.json");
+
+    }
+
 }
