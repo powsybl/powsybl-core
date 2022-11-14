@@ -611,17 +611,18 @@ public final class EquipmentExport {
         String connectivityNodeId = null;
         if (context.writeConnectivityNodes()) {
             // We keep the connectivity node from the boundary definition as an alias in the dangling line
-            if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE).isPresent()) {
-                connectivityNodeId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE);
+            if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY).isPresent()) {
+                connectivityNodeId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
             } else {
                 // If no information about original boundary has been preserved in the IIDM model,
                 // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
                 connectivityNodeId = CgmesExportUtil.getUniqueId();
                 String connectivityNodeContainerId = createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
                 ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer);
+                danglingLine.addAlias(connectivityNodeId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
             }
         } else {
-            if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE).isEmpty()) {
+            if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY).isEmpty()) {
                 // Also create a container if we will have to create a Topological Node for the boundary
                 createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
             }

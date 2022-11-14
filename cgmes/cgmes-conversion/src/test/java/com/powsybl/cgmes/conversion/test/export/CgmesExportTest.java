@@ -304,7 +304,7 @@ public class CgmesExportTest {
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         String boundaryTN = "d4affe50316740bdbbf4ae9c7cbf3cfd";
-        expected.addAlias(boundaryTN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+        expected.addAlias(boundaryTN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
         // We also inform the identifiers of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66");
@@ -369,7 +369,7 @@ public class CgmesExportTest {
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = Cgmes3Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
-        expected.addAlias(boundaryCN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE);
+        expected.addAlias(boundaryCN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
         // We inform the identifier of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
