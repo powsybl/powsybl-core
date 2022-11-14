@@ -16,9 +16,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -38,6 +36,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -123,12 +123,7 @@ public class CgmesExport implements Exporter {
         if (networkIsNodeBreaker
                 && (profiles.contains("SSH") || profiles.contains("SV"))
                 && !profiles.contains("TP")) {
-            context.getReporter().report(Report.builder()
-                    .withKey("InconsistentProfilesTPRequired")
-                    .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
-                    .withValue("networkId", network.getId())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
+            inconsistentProfilesTPRequiredReport(context.getReporter(), network.getId());
             LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
