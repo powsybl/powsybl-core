@@ -18,6 +18,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
+import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;

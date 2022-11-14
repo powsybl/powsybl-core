@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.ImportPostProcessor;
+import com.powsybl.iidm.network.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;

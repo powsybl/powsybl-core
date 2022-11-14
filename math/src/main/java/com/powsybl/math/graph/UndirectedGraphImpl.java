@@ -691,12 +691,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    public void removeIsolatedVertices(boolean andAlsoDanglingEdges, int v, TIntArrayList[] adjacencyList) {
+    public void removeIsolatedVertices(int v, TIntArrayList[] adjacencyList) {
 
         Vertex<V> vertex = vertices.get(v);
         if (vertex != null && vertex.getObject() == null) {
             TIntArrayList adjacentEdges = adjacencyList[v];
-            if (adjacentEdges.isEmpty() || (adjacentEdges.size() == 1 && andAlsoDanglingEdges)) {
+            if (adjacentEdges.isEmpty()) {
 
                 removeVertexInternal(v);
                 adjacencyList[v] = null;
@@ -745,10 +745,10 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public void removeIsolatedVertices(boolean andAlsoDanglingEdges) {
+    public void removeIsolatedVertices() {
         TIntArrayList[] adjacencyList = getAdjacencyList();
         for (int v = 0; v < vertices.size(); v++) {
-            removeIsolatedVertices(andAlsoDanglingEdges, v, adjacencyList);
+            removeIsolatedVertices(v, adjacencyList);
         }
     }
 }

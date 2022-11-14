@@ -90,7 +90,7 @@ public final class CgmesNamespace {
 
         boolean writeGeneratingUnitInitialP();
 
-        boolean isWriteConnectivityNodes();
+        boolean writeConnectivityNodes();
     }
 
     private abstract static class AbstractCim implements Cim {
@@ -161,7 +161,7 @@ public final class CgmesNamespace {
         }
 
         @Override
-        public boolean isWriteConnectivityNodes() {
+        public boolean writeConnectivityNodes() {
             return false;
         }
 
@@ -240,7 +240,7 @@ public final class CgmesNamespace {
         }
 
         @Override
-        public boolean isWriteConnectivityNodes() {
+        public boolean writeConnectivityNodes() {
             return false;
         }
 
@@ -266,7 +266,7 @@ public final class CgmesNamespace {
         }
 
         @Override
-        public boolean isWriteConnectivityNodes() {
+        public boolean writeConnectivityNodes() {
             return true;
         }
 

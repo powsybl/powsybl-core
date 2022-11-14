@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>4.11.0-SNAPSHOT</version>
+    <version>5.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -104,8 +104,8 @@
         <graphviz-builder.version>1.0.11</graphviz-builder.version>
         <groovy.version>3.0.9</groovy.version>
         <guava.version>30.0-jre</guava.version>
-        <jackson.version>2.13.2</jackson.version>
-        <jackson-databind.version>2.13.2.2</jackson-databind.version>
+        <jackson.version>2.13.4</jackson.version>
+        <jackson-databind.version>2.13.4.2</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
@@ -380,11 +380,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-comparator</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-converter-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
