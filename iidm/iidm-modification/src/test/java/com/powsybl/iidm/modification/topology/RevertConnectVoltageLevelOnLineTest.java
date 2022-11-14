@@ -153,24 +153,4 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
                 .build();
         assertEquals("NEW LINE NAME", modification.getLineName());
     }
-
-    @Test
-    public void testSetters() {
-        Network network = createNbBbNetwork();
-        Line line1 = network.getLine("NHV1_NHV2_1");
-        Line line2 = network.getLine("NHV1_NHV2_2");
-        RevertConnectVoltageLevelOnLine modification = new RevertConnectVoltageLevelOnLineBuilder()
-                .withLine1Id(line1.getId())
-                .withLine2Id(line2.getId())
-                .withLineId("NEW LINE ID")
-                .build();
-        modification.setLine1Id(line1.getId() + "_A")
-                .setLine2Id(line2.getId() + "_B")
-                .setLineId("NEW LINE ID_C")
-                .setLineName("NEW LINE NAME");
-        assertEquals(line1.getId() + "_A", modification.getLine1Id());
-        assertEquals(line2.getId() + "_B", modification.getLine2Id());
-        assertEquals("NEW LINE ID_C", modification.getLineId());
-        assertEquals("NEW LINE NAME", modification.getLineName());
-    }
 }
