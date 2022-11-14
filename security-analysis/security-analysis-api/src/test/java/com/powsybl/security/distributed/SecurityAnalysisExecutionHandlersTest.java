@@ -17,9 +17,13 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
+import com.powsybl.security.action.Action;
+import com.powsybl.security.action.SwitchAction;
+import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.results.PostContingencyResult;
+import com.powsybl.security.strategy.OperatorStrategy;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -112,12 +116,17 @@ public class SecurityAnalysisExecutionHandlersTest {
 
     @Test
     public void forwardedBeforeWithCompleteInput() throws IOException {
+        Action action = new SwitchAction("action", "switch", false);
+        OperatorStrategy strategy = new OperatorStrategy("strat", "cont", new TrueCondition(), List.of("action"));
+
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
                 .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
                 .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)))
                 .addResultExtensions(ImmutableList.of("ext1", "ext2"))
-                .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT));
+                .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT))
+                .setActions(List.of(action))
+                .setOperatorStrategies(List.of(strategy));
         ExecutionHandler<SecurityAnalysisReport> handler = SecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         Path workingDir = fileSystem.getPath("/work");
@@ -130,6 +139,8 @@ public class SecurityAnalysisExecutionHandlersTest {
                         "--output-file=/work/result.json",
                         "--output-format=JSON",
                         "--contingencies-file=/work/contingencies.groovy",
+                        "--actions-file=/work/actions.json",
+                        "--strategies-file=/work/strategies.json",
                         "--with-extensions=ext1,ext2",
                         "--limit-types=CURRENT",
                         "--task-count=12");
@@ -137,6 +148,8 @@ public class SecurityAnalysisExecutionHandlersTest {
         assertThat(workingDir.resolve("network.xiidm")).exists();
         assertThat(workingDir.resolve("parameters.json")).exists();
         assertThat(workingDir.resolve("contingencies.groovy")).exists();
+        assertThat(workingDir.resolve("strategies.json")).exists();
+        assertThat(workingDir.resolve("actions.json")).exists();
     }
 
     @Test
