@@ -6,7 +6,7 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;

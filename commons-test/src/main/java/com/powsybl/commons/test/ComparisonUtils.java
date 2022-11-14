@@ -1,4 +1,10 @@
-package com.powsybl.commons;
+/**
+ * Copyright (c) 2022, Stanislao Fidanza
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.commons.test;
 
 import com.google.common.io.ByteStreams;
 import org.xmlunit.builder.DiffBuilder;
@@ -10,12 +16,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
-/**
- * Copyright (c) 2022, Stanislao Fidanza
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 

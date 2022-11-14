@@ -7,7 +7,7 @@
 package com.powsybl.tools.autocompletion;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.TestUtil;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;

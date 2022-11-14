@@ -8,8 +8,8 @@ package com.powsybl.powerfactory.dgs;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.TestUtil;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import com.powsybl.powerfactory.model.StudyCase;
 import org.junit.Test;

@@ -73,8 +73,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-commons</artifactId>
-            <type>test-jar</type>
+            <artifactId>powsybl-commons-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

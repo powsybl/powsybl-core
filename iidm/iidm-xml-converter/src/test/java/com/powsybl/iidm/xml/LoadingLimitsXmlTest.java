@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.ComparisonUtils;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;

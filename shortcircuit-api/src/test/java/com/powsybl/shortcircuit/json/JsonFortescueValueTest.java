@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueValue;
 import org.junit.Test;

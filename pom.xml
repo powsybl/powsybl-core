@@ -79,6 +79,7 @@
         <module>tools</module>
         <module>triple-store</module>
         <module>ucte</module>
+        <module>commons-test</module>
     </modules>
 
     <properties>
@@ -267,9 +268,8 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-commons</artifactId>
+                <artifactId>powsybl-commons-test</artifactId>
                 <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>

@@ -6,7 +6,7 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.StudyType;
 import org.junit.Test;

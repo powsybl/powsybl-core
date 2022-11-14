@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.TestUtil;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;

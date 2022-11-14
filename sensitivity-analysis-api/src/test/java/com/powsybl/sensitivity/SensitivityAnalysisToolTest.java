@@ -8,7 +8,7 @@ package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.TestUtil;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
