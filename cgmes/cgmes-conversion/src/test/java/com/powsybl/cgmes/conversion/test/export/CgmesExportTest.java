@@ -326,13 +326,7 @@ public class CgmesExportTest {
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
-            double epsilon = 1e-10;
-            assertEquals(expected.getR(), actual.getR(), epsilon);
-            assertEquals(expected.getX(), actual.getX(), epsilon);
-            assertEquals(expected.getG(), actual.getG(), epsilon);
-            assertEquals(expected.getB(), actual.getB(), epsilon);
-            assertEquals(expected.getP0(), actual.getP0(), epsilon);
-            assertEquals(expected.getQ0(), actual.getQ0(), epsilon);
+            checkDanglingLineParams(expected, actual);
         }
     }
 
@@ -353,20 +347,12 @@ public class CgmesExportTest {
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             Line actual = networkFromCgmes.getLine("DL");
             assertNotNull(actual);
-            double epsilon = 1e-10;
-            assertEquals(expected.getR(), actual.getR(), epsilon);
-            assertEquals(expected.getX(), actual.getX(), epsilon);
-            assertEquals(expected.getG(), actual.getG1() + actual.getG2(), epsilon);
-            assertEquals(expected.getB(), actual.getB1() + actual.getB2(), epsilon);
+            checkDanglingLineParams(expected, actual);
             // The dangling line was exported as an ACLS plus an equivalent injection.
             // Equivalent injections inside an IGM are mapped to generators,
             // So we have to check that there is a generator at side 2 (boundary) of the line
-            Generator g = (Generator) actual.getTerminal2().getBusView().getBus().getConnectedTerminalStream()
-                    .filter(t -> t.getConnectable() != actual)
-                    .findFirst().orElseThrow()
-                    .getConnectable();
-            assertEquals(expected.getP0(), -g.getTargetP(), epsilon);
-            assertEquals(expected.getQ0(), -g.getTargetQ(), epsilon);
+            checkDanglingLineEquivalentInjection(expected, actual);
+            checkFictitiousContainerAtBoundary(expected, actual);
         }
     }
 
@@ -402,13 +388,7 @@ public class CgmesExportTest {
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
-            double epsilon = 1e-10;
-            assertEquals(expected.getR(), actual.getR(), epsilon);
-            assertEquals(expected.getX(), actual.getX(), epsilon);
-            assertEquals(expected.getG(), actual.getG(), epsilon);
-            assertEquals(expected.getB(), actual.getB(), epsilon);
-            assertEquals(expected.getP0(), actual.getP0(), epsilon);
-            assertEquals(expected.getQ0(), actual.getQ0(), epsilon);
+            checkDanglingLineParams(expected, actual);
         }
     }
 
@@ -433,21 +413,52 @@ public class CgmesExportTest {
             Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             DanglingLine actualDanglingLine = networkFromCgmes.getDanglingLine("DL");
             assertNull(actualDanglingLine);
-            double epsilon = 1e-10;
             Line actual = networkFromCgmes.getLine("DL");
-            assertEquals(expected.getR(), actual.getR(), epsilon);
-            assertEquals(expected.getX(), actual.getX(), epsilon);
-            assertEquals(expected.getG(), actual.getG1() + actual.getG2(), epsilon);
-            assertEquals(expected.getB(), actual.getB1() + actual.getB2(), epsilon);
+            checkDanglingLineParams(expected, actual);
             // non-network end is always exported with terminal sequence 2
             // at that node there should be only the equipment corresponding to the equivalent injection
-            Connectable<?> eqAtEnd2 = actual.getTerminal2().getBusView().getBus().getConnectedTerminalStream()
-                    .filter(t -> t.getConnectable() != actual)
-                    .findFirst().map(Terminal::getConnectable).orElseThrow();
-            assertTrue(eqAtEnd2 instanceof Generator);
-            Generator actualEquivalentInjection = (Generator) eqAtEnd2;
-            assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), epsilon);
-            assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), epsilon);
+            checkDanglingLineEquivalentInjection(expected, actual);
+            checkFictitiousContainerAtBoundary(expected, actual);
         }
     }
+
+    private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {
+        assertEquals(expected.getR(), actual.getR(), EPSILON);
+        assertEquals(expected.getX(), actual.getX(), EPSILON);
+        assertEquals(expected.getG(), actual.getG(), EPSILON);
+        assertEquals(expected.getB(), actual.getB(), EPSILON);
+        assertEquals(expected.getP0(), actual.getP0(), EPSILON);
+        assertEquals(expected.getQ0(), actual.getQ0(), EPSILON);
+    }
+
+    private static void checkDanglingLineParams(DanglingLine expected, Line actual) {
+        assertEquals(expected.getR(), actual.getR(), EPSILON);
+        assertEquals(expected.getX(), actual.getX(), EPSILON);
+        assertEquals(expected.getG(), actual.getG1() + actual.getG2(), EPSILON);
+        assertEquals(expected.getB(), actual.getB1() + actual.getB2(), EPSILON);
+    }
+
+    private static void checkFictitiousContainerAtBoundary(DanglingLine expected, Line actual) {
+        // Check that a fictitious voltage level and substation have been created
+        // Voltage level and substation must be different at both ends of line
+        assertNotEquals(expected.getTerminal().getVoltageLevel().getId(), actual.getTerminal2().getVoltageLevel().getId());
+        assertNotEquals(expected.getTerminal().getVoltageLevel().getSubstation().orElseThrow().getId(), actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getId());
+        // Names should end with known suffixes
+        assertTrue(actual.getTerminal2().getVoltageLevel().getNameOrId().endsWith("_VL"));
+        assertTrue(actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getNameOrId().endsWith("_SUBSTATION"));
+    }
+
+    private static void checkDanglingLineEquivalentInjection(DanglingLine expected, Line actual) {
+        Connectable<?> eqAtEnd2 = actual.getTerminal2().getBusView().getBus().getConnectedTerminalStream()
+                .filter(t -> t.getConnectable() != actual)
+                .findFirst()
+                .map(Terminal::getConnectable)
+                .orElseThrow();
+        assertTrue(eqAtEnd2 instanceof Generator);
+        Generator actualEquivalentInjection = (Generator) eqAtEnd2;
+        assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), EPSILON);
+        assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
+    }
+
+    private static final double EPSILON = 1e-10;
 }

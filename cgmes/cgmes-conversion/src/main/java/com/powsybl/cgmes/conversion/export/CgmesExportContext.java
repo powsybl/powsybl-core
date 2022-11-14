@@ -61,6 +61,7 @@ public class CgmesExportContext {
 
     private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
+    private final Map<String, String> fictitiousContainers = new HashMap<>();
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
@@ -94,6 +95,14 @@ public class CgmesExportContext {
                 getTpModelDescription().addDependency(boundaryTpId);
             }
         }
+    }
+
+    public String getFictitiousContainerFor(Identifiable<?> id) {
+        return fictitiousContainers.get(id.getId());
+    }
+
+    public void setFictitiousContainerFor(Identifiable<?> id, String containerId) {
+        fictitiousContainers.put(id.getId(), containerId);
     }
 
     public static final class ModelDescription {

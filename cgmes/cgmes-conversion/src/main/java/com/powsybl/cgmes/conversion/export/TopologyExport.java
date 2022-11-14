@@ -237,9 +237,14 @@ public final class TopologyExport {
             Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNodeId.isEmpty()) {
                 // If no information about original boundary has been preserved in the IIDM model,
-                // we will create a new TopologicalNode inside the voltage level of the dangling line network side
+                // we will create a new TopologicalNode
                 String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
-                String containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
+                // If the EQ has also been exported, a fictitious container should have been created
+                String containerId = context.getFictitiousContainerFor(dl);
+                if (containerId == null) {
+                    // As a last resort, we create the TN in the same container of the dangling line
+                    containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
+                }
                 String fictTopologicalNodeId = CgmesExportUtil.getUniqueId();
                 dl.addAlias(fictTopologicalNodeId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer);
