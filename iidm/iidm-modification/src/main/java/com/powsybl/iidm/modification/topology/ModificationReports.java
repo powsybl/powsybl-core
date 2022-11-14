@@ -181,17 +181,6 @@ final class ModificationReports {
                 .build());
     }
 
-    static void noTeePointPointAndOrAttachedVoltageLevelReport(Reporter reporter, String lineAZId, String lineBZId, String lineCZId) {
-        reporter.report(Report.builder()
-                .withKey("noTeePointAndOrAttachedVoltageLevel")
-                .withDefaultMessage("Unable to find the tee point and/or the attached voltage level from lines ${lineAZId}, ${lineBZId} and ${lineCZId}")
-                .withValue("lineAZId", lineAZId)
-                .withValue("lineBZId", lineBZId)
-                .withValue("lineCZId", lineCZId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     static void notFoundVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("voltageLevelNotFound")
@@ -201,10 +190,10 @@ final class ModificationReports {
                 .build());
     }
 
-    static void noTeePointAndOrAttachedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
+    static void noTeePointAndOrTappedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
         reporter.report(Report.builder()
-                .withKey("noTeePointAndOrAttachedVoltageLevel")
-                .withDefaultMessage("Unable to find the tee point and the attached voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
+                .withKey("noTeePointAndOrTappedVoltageLevel")
+                .withDefaultMessage("Unable to find the tee point and the tapped voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
                 .withValue("line1Id", line1Id)
                 .withValue("line2Id", line2Id)
                 .withValue("line3Id", line3Id)

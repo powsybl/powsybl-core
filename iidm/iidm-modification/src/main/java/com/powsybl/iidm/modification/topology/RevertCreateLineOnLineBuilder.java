@@ -39,7 +39,7 @@ public class RevertCreateLineOnLineBuilder {
     }
 
     /**
-     * @param lineToBeDeletedId     The non-null ID of the third line (connecting tee point to attached voltage level)
+     * @param lineToBeDeletedId     The non-null ID of the third line (connecting tee point to tapped voltage level)
      */
     public RevertCreateLineOnLineBuilder withLineToBeDeletedId(String lineToBeDeletedId) {
         this.lineToBeDeletedId = lineToBeDeletedId;

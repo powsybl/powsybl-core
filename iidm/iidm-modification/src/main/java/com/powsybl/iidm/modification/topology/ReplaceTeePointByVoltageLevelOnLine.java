@@ -11,10 +11,10 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
@@ -41,6 +41,8 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReplaceTeePointByVoltageLevelOnLine.class);
 
     private final String teePointLine1Id;
     private final String teePointLine2Id;
@@ -144,25 +146,19 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
         }
 
-        // Check the configuration and find the tee point :
         // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
-        Map<VoltageLevel, Long> countVoltageLevels = Stream.of(tpLine1, tpLine2, tpLineToRemove)
-                .map(Line::getTerminals)
-                .flatMap(List::stream)
-                .collect(Collectors.groupingBy(Terminal::getVoltageLevel, Collectors.counting()));
-        var commonVlMapEntry = Collections.max(countVoltageLevels.entrySet(), Map.Entry.comparingByValue());
-
-        // there should be 4 distinct voltage levels and one of them should be found 3 times
-        if (countVoltageLevels.size() != 4 || commonVlMapEntry.getValue() != 3) {
-            noTeePointAndOrAttachedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
+        VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
+        if (teePoint == null) {
+            noTeePointAndOrTappedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
+            LOGGER.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
-                throw new PowsyblException(String.format("Unable to find the tee point and the attached voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
+                throw new PowsyblException(String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
             } else {
                 return;
             }
         }
 
-        VoltageLevel teePoint = commonVlMapEntry.getKey();
+        // tapped voltage level is the voltage level of tpLineToRemove, at the opposite side of the tee point
         VoltageLevel tappedVoltageLevel = tpLineToRemove.getTerminal1().getVoltageLevel() == teePoint
                 ? tpLineToRemove.getTerminal2().getVoltageLevel()
                 : tpLineToRemove.getTerminal1().getVoltageLevel();
@@ -174,7 +170,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         LineAdder newLine1Adder = createLineAdder(newLine1Id, newLine1Name, tpLine1.getTerminal(tpLine1OtherVlSide).getVoltageLevel().getId(), tappedVoltageLevel.getId(), network, tpLine1, tpLineToRemove);
         LineAdder newLine2Adder = createLineAdder(newLine2Id, newLine2Name, tappedVoltageLevel.getId(), tpLine2.getTerminal(tpLine2OtherVlSide).getVoltageLevel().getId(), network, tpLine2, tpLineToRemove);
 
-        // Create the topology inside the existing attached voltage level and attach lines newLine1 and newLine2
+        // Create the topology inside the existing tapped voltage level and attach lines newLine1 and newLine2
         attachLine(tpLine1.getTerminal(tpLine1OtherVlSide), newLine1Adder, (bus, adder) -> adder.setConnectableBus1(bus.getId()), (bus, adder) -> adder.setBus1(bus.getId()), (node, adder) -> adder.setNode1(node));
         attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
