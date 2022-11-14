@@ -104,7 +104,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP));
+        assertThrows("Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP));
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")

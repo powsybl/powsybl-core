@@ -17,6 +17,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -34,6 +35,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
 
 /**
@@ -116,11 +119,10 @@ public class Conversion {
         this(cgmes, config, postProcessors, NetworkFactory.findDefault());
     }
 
-    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors,
-                      NetworkFactory networkFactory) {
+    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
-        this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.postProcessors = Objects.requireNonNull(activatedPostProcessors);
         this.networkFactory = Objects.requireNonNull(networkFactory);
     }
 
@@ -129,16 +131,21 @@ public class Conversion {
     }
 
     public Network convert() {
+        return convert(Reporter.NO_OP);
+    }
 
-        if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
-            LOG.debug(cgmes.baseVoltages().tabulate());
+    public Network convert(Reporter reporter) {
+        Objects.requireNonNull(reporter);
+
+        if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
+            LOG.trace("{}{}{}", "BaseVoltages", System.lineSeparator(), cgmes.baseVoltages().tabulate());
         }
         // Check that at least we have an EquipmentCore profile
         if (!cgmes.hasEquipmentCore()) {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        Context context = createContext(network);
+        Context context = createContext(network, reporter);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
@@ -240,6 +247,7 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
+        importedCgmesNetworkReport(context.getReporter(), network.getId());
         return network;
     }
 
@@ -288,17 +296,15 @@ public class Conversion {
     private void convert(
             PropertyBags elements,
             Function<PropertyBag, AbstractObjectConversion> f) {
-        String conversion = null;
-
+        String logTitle = null;
         for (PropertyBag element : elements) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(element.tabulateLocals());
-            }
             AbstractObjectConversion c = f.apply(element);
-            if (conversion == null) {
-                conversion = c.getClass().getName();
-                conversion = conversion.substring(conversion.lastIndexOf('.') + 1);
-                conversion = conversion.replace("Conversion", "");
+            if (LOG.isTraceEnabled()) {
+                if (logTitle == null) {
+                    logTitle = c.getClass().getSimpleName();
+                    logTitle = logTitle.replace("Conversion", "");
+                }
+                LOG.trace(element.tabulateLocals(logTitle));
             }
             if (c.insideBoundary()) {
                 c.convertInsideBoundary();
@@ -314,8 +320,8 @@ public class Conversion {
         return networkFactory.createNetwork(networkId, sourceFormat);
     }
 
-    private Context createContext(Network network) {
-        Context context = new Context(cgmes, config, network);
+    private Context createContext(Network network, Reporter reporter) {
+        Context context = new Context(cgmes, config, network, reporter);
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangers();
@@ -411,8 +417,8 @@ public class Conversion {
             }
         }
         for (PropertyBag line : acLineSegments) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(line.tabulateLocals("ACLineSegment"));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(line.tabulateLocals("ACLineSegment"));
             }
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null) { // Create fictitious voltage levels for AC line segments inside line containers outside boundaries
@@ -494,8 +500,8 @@ public class Conversion {
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
         for (PropertyBag sw : cgmes.switches()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(sw.tabulateLocals("Switch"));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(sw.tabulateLocals("Switch"));
             }
             SwitchConversion c = new SwitchConversion(sw, context);
             if (c.valid()) {
@@ -512,8 +518,8 @@ public class Conversion {
 
     private void convertEquivalentBranchesToLines(Context context, Set<String> delayedBoundaryNodes) {
         for (PropertyBag equivalentBranch : cgmes.equivalentBranches()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(equivalentBranch.tabulateLocals("EquivalentBranch"));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(equivalentBranch.tabulateLocals("EquivalentBranch"));
             }
             EquivalentBranchConversion c = new EquivalentBranchConversion(equivalentBranch, context);
             if (c.valid()) {
@@ -530,9 +536,9 @@ public class Conversion {
 
     private void convertTransformers(Context context, Set<String> delayedBoundaryNodes) {
         cgmes.groupedTransformerEnds().forEach((t, ends) -> {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Transformer {}, {}-winding", t, ends.size());
+                ends.forEach(e -> LOG.trace(e.tabulateLocals("TransformerEnd")));
             }
             if (ends.size() == 2) {
                 convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);

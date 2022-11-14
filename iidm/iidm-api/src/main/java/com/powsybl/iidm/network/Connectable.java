@@ -18,16 +18,7 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     List<? extends Terminal> getTerminals();
 
     /**
-     * Remove the connectable from the voltage level.
-     *
-     * @param removeDanglingSwitches if true, also remove dangling switches in addition to isolated nodes
+     * Remove the connectable from the voltage level (dangling switches are kept).
      */
-    void remove(boolean removeDanglingSwitches);
-
-    /**
-     * Remove the connectable from the voltage level and keep dangling switches.
-     */
-    default void remove() {
-        remove(false);
-    }
+    void remove();
 }

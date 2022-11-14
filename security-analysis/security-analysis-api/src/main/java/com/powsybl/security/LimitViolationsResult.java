@@ -15,6 +15,11 @@ import java.util.Objects;
  */
 public class LimitViolationsResult {
 
+    /**
+     * @deprecated Replaced by status directly in PreContingencyResult
+     * PostContingencyResult and OperatorStrategyResult
+     */
+    @Deprecated(forRemoval = false)
     private final boolean computationOk;
 
     private final List<LimitViolation> limitViolations;
@@ -22,19 +27,35 @@ public class LimitViolationsResult {
     private final List<String> actionsTaken;
 
     public static LimitViolationsResult empty() {
-        return new LimitViolationsResult(true, Collections.emptyList());
+        return new LimitViolationsResult(Collections.emptyList());
     }
 
-    public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations) {
-        this(computationOk, limitViolations, Collections.emptyList());
+    public LimitViolationsResult(List<LimitViolation> limitViolations) {
+        this(limitViolations, Collections.emptyList());
     }
 
+    /**
+     * @deprecated Version with computation ok deprecated and used for backward compatibility
+     * (see computationOk attribute)
+     */
+    @Deprecated(forRemoval = false)
     public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations, List<String> actionsTaken) {
         this.computationOk = computationOk;
         this.limitViolations = Objects.requireNonNull(limitViolations);
         this.actionsTaken = Objects.requireNonNull(actionsTaken);
     }
 
+    public LimitViolationsResult(List<LimitViolation> limitViolations, List<String> actionsTaken) {
+        this.computationOk = true;
+        this.limitViolations = Objects.requireNonNull(limitViolations);
+        this.actionsTaken = Objects.requireNonNull(actionsTaken);
+    }
+
+    /**
+     * @deprecated computationOk is deprecated
+     * (see computationOk attribute)
+     */
+    @Deprecated(forRemoval = false)
     public boolean isComputationOk() {
         return computationOk;
     }

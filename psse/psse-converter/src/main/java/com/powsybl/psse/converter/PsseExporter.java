@@ -9,7 +9,7 @@ package com.powsybl.psse.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.psse.converter.extensions.PsseConversionContextExtension;

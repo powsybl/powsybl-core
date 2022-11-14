@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
@@ -355,9 +357,8 @@ public final class TopologyModificationUtils {
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> previousSliceMax = getMaxOrderUsedBefore(allOrders, sectionIndex);
         Optional<Integer> sliceMin = allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
-        int min = previousSliceMax.map(o -> o + 1).orElse(Integer.MIN_VALUE);
-        int max = sliceMin.map(o -> o - 1).orElse(
-                getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE));
+        int min = previousSliceMax.map(o -> o + 1).orElse(0);
+        int max = sliceMin.or(() -> getMinOrderUsedAfter(allOrders, sectionIndex)).map(o -> o - 1).orElse(Integer.MAX_VALUE);
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
@@ -379,8 +380,7 @@ public final class TopologyModificationUtils {
         int sectionIndex = busbarSectionPosition.getSectionIndex();
         Optional<Integer> nextSliceMin = getMinOrderUsedAfter(allOrders, sectionIndex);
         Optional<Integer> sliceMax = allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
-        int min = sliceMax.map(o -> o + 1).orElse(
-                getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(Integer.MIN_VALUE));
+        int min = sliceMax.or(() -> getMaxOrderUsedBefore(allOrders, sectionIndex)).map(o -> o + 1).orElse(0);
         int max = nextSliceMin.map(o -> o - 1).orElse(Integer.MAX_VALUE);
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
@@ -391,10 +391,15 @@ public final class TopologyModificationUtils {
      * applied to BBS2 will return 3.
      */
     private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        int s = section;
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
-            lowerEntry = allOrders.lowerEntry(section);
-        } while (lowerEntry != null && lowerEntry.getValue().isEmpty());
+            lowerEntry = allOrders.lowerEntry(s);
+            if (lowerEntry == null) {
+                break;
+            }
+            s = lowerEntry.getKey();
+        } while (lowerEntry.getValue().isEmpty());
 
         return Optional.ofNullable(lowerEntry)
                 .flatMap(entry -> entry.getValue().stream().max(Comparator.naturalOrder()));
@@ -406,10 +411,15 @@ public final class TopologyModificationUtils {
      * applied to BBS1 will return 7.
      */
     private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+        int s = section;
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {
-            higherEntry = allOrders.higherEntry(section);
-        } while (higherEntry != null && higherEntry.getValue().isEmpty());
+            higherEntry = allOrders.higherEntry(s);
+            if (higherEntry == null) {
+                break;
+            }
+            s = higherEntry.getKey();
+        } while (higherEntry.getValue().isEmpty());
 
         return Optional.ofNullable(higherEntry)
                 .flatMap(entry -> entry.getValue().stream().min(Comparator.naturalOrder()));
@@ -598,5 +608,23 @@ public final class TopologyModificationUtils {
         Optional<LoadingLimitsBag> currentLimits = mergeLimits(lineId, limits.getCurrentLimits(), limitsTeePointSide.getCurrentLimits(), reporter);
 
         return new LoadingLimitsBags(activePowerLimits.orElse(null), apparentPowerLimits.orElse(null), currentLimits.orElse(null));
+    }
+
+    /**
+     * Find tee point connecting the 3 given lines, if any
+     * @return the tee point connecting the 3 given lines or null if none
+     */
+    public static VoltageLevel findTeePoint(Line line1, Line line2, Line line3) {
+        Map<VoltageLevel, Long> countVoltageLevels = Stream.of(line1, line2, line3)
+                .map(Line::getTerminals)
+                .flatMap(List::stream)
+                .collect(Collectors.groupingBy(Terminal::getVoltageLevel, Collectors.counting()));
+        var commonVlMapEntry = Collections.max(countVoltageLevels.entrySet(), Map.Entry.comparingByValue());
+        // If the lines are connected by a tee point, there should be 4 distinct voltage levels and one of them should be found 3 times
+        if (countVoltageLevels.size() == 4 && commonVlMapEntry.getValue() == 3) {
+            return commonVlMapEntry.getKey();
+        } else {
+            return null;
+        }
     }
 }

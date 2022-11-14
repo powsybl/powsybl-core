@@ -23,10 +23,8 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.xml.ExportOptions;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.junit.Test;
@@ -249,6 +247,16 @@ public class EquipmentExportTest extends AbstractConverterTest {
         }
     }
 
+    @Test
+    public void testLoadGroups() throws XMLStreamException, IOException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network actual = exportImportBusBranch(expected, dataSource);
+        compareNetworksEQdata(expected, actual);
+    }
+
     private Network exportImportNodeBreaker(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
         return exportImport(expected, dataSource, false, true);
     }
@@ -442,7 +450,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         // There is no need to create the IIDM-CGMES mappings
         // We are reading only an EQ, we won't have TP data in the input
         // And to compare the expected and actual networks we are dropping all IIDM-CGMES mapping context information
-        return Importers.loadNetwork(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
+        return Network.read(repackaged, LocalComputationManager.getDefault(), ImportConfig.load(), null);
     }
 
     private Path exportToCgmesEQ(Network network) throws IOException, XMLStreamException {
@@ -486,7 +494,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringNonEQ));
 
-        compareTemporaryLimits(Importers.loadNetwork(tmpDir.resolve("expected.xml")), Importers.loadNetwork(tmpDir.resolve("actual.xml")));
+        compareTemporaryLimits(Network.read(tmpDir.resolve("expected.xml")), Network.read(tmpDir.resolve("actual.xml")));
     }
 
     private void compareTemporaryLimits(Network expected, Network actual) {

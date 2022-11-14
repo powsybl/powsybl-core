@@ -541,67 +541,11 @@ public class UndirectedGraphImplTest {
 
         assertEquals(3, graph.getVertexCount());
         // Vertex 0 is isolated but has an associated object: it must not be removed.
-        graph.removeIsolatedVertices(false);
+        graph.removeIsolatedVertices();
         assertEquals(3, graph.getVertexCount());
         graph.setVertexObject(0, null);
         // Now vertex 0 must be removed.
-        graph.removeIsolatedVertices(false);
+        graph.removeIsolatedVertices();
         assertEquals(2, graph.getVertexCount());
-    }
-
-    /**
-     * <pre>
-     *    0   1
-     *    |   |
-     *      2
-     *      |
-     *      3 </pre>
-     */
-    @Test
-    public void removeIsolatedVerticesAndDanglingEdges() {
-        graph.addVertex();
-        graph.addVertex();
-        graph.addVertex();
-        graph.addVertex();
-        graph.addEdge(0, 2, null);
-        graph.addEdge(1, 2, null);
-        graph.addEdge(2, 3, null);
-        graph.setVertexObject(0, new Vertex("V1"));
-        graph.setVertexObject(3, new Vertex("V2"));
-        assertEquals(4, graph.getVertexCount());
-        assertEquals(3, graph.getEdgeCount());
-        graph.removeIsolatedVertices(true);
-        assertEquals(3, graph.getVertexCount());
-        assertArrayEquals(new int[] {0, 2, 3}, graph.getVertices()); // 1 has been removed
-        assertEquals(2, graph.getEdgeCount());
-        assertArrayEquals(new int[] {0, 2}, graph.getEdges()); // 1-2 has been removed
-
-        graph.addVertexIfNotPresent(1); // restore vertex 1
-        graph.addEdge(1, 2, null); // and corresponding edge
-        graph.setVertexObject(0, null); // 0 is now a dangling vertex
-        graph.removeIsolatedVertices(true);
-        assertEquals(1, graph.getVertexCount());
-        assertArrayEquals(new int[] {3}, graph.getVertices()); // 0, 1 and 2 have been removed
-        assertEquals(0, graph.getEdgeCount());
-    }
-
-    /**
-     * <pre>
-     *    0 -- 1 -- 2</pre>
-     */
-    @Test
-    public void removeIsolatedVerticesAndTwoDanglingEdges() {
-        graph.addVertex();
-        graph.addVertex();
-        graph.addVertex();
-        graph.addEdge(0, 1, null);
-        graph.addEdge(1, 2, null);
-        graph.setVertexObject(0, new Vertex("V1"));
-        assertEquals(3, graph.getVertexCount());
-        assertEquals(2, graph.getEdgeCount());
-        graph.removeIsolatedVertices(true);
-        assertEquals(1, graph.getVertexCount());
-        assertArrayEquals(new int[] {0}, graph.getVertices()); // 1 and 2 have been removed, 0 is kept (has an associated object)
-        assertEquals(0, graph.getEdgeCount()); // 0-1 and 1-2 have both been removed
     }
 }

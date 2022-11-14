@@ -8,12 +8,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -34,7 +30,7 @@ import static org.junit.Assert.*;
  */
 public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
 
-    private Network network = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+    private Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
     @Test
     public void baseLineTest() throws IOException {
@@ -186,7 +182,7 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
                 .setB2(0.0);
 
         //wrong network
-        Network network1 = Importers.loadNetwork("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Network network1 = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         CreateBranchFeederBays modification0 = new CreateBranchFeederBaysBuilder().
                 withBranchAdder(lineAdder)
                 .withBbsId1("bbs1")
@@ -253,7 +249,7 @@ public class CreateBranchFeederBaysTest extends AbstractXmlConverterTest {
 
     @Test
     public void testWithoutExtension() {
-        network = Importers.loadNetwork("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         LineAdder lineAdder = network.newLine()
                 .setId("lineTest")
                 .setR(1.0)

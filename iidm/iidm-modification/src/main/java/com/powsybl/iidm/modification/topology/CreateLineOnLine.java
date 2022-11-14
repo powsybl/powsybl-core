@@ -61,10 +61,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
-     *
-     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
+     * <p>
+     * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
-    public CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
+    CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                             boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
                             String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);

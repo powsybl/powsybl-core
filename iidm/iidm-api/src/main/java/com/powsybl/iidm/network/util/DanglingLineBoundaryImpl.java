@@ -77,7 +77,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public VoltageLevel getNetworkSideVoltageLevel() {
         return parent.getTerminal().getVoltageLevel();
     }
 

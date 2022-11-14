@@ -1,5 +1,5 @@
 {
-  "version" : "1.2",
+  "version" : "1.3",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -7,8 +7,8 @@
     "forecastDistance" : 0
   },
   "preContingencyResult" : {
+    "status" : "CONVERGED",
     "limitViolationsResult" : {
-      "computationOk" : true,
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
         "limitType" : "CURRENT",
@@ -81,8 +81,8 @@
         "type" : "BUSBAR_SECTION"
       } ]
     },
+    "status" : "CONVERGED",
     "limitViolationsResult" : {
-      "computationOk" : true,
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",
         "limitType" : "CURRENT",
@@ -155,8 +155,8 @@
       },
       "actionIds" : [ "actionId1" ]
     },
+    "status" : "CONVERGED",
     "limitViolationsResult" : {
-      "computationOk" : true,
       "limitViolations" : [ ],
       "actionsTaken" : [ ]
     },

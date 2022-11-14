@@ -9,8 +9,10 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
@@ -19,8 +21,7 @@ import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -88,6 +89,33 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR);
         PowsyblException e = assertThrows(PowsyblException.class, modification::build);
         assertEquals("busBar count must be >= 1", e.getMessage());
+    }
+
+    @Test
+    public void testWithOneSection() {
+        Network network = createNbNetwork();
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId(VLTEST)
+                .withBusbarCount(2)
+                .withSectionCount(1)
+                .build();
+        modification.apply(network);
+
+        BusbarSection bbs1 = network.getBusbarSection("VLTEST_1_1");
+        BusbarSection bbs2 = network.getBusbarSection("VLTEST_2_1");
+        assertNotNull(bbs1);
+        assertNotNull(bbs2);
+
+        BusbarSectionPosition bbsp1 = bbs1.getExtension(BusbarSectionPosition.class);
+        BusbarSectionPosition bbsp2 = bbs2.getExtension(BusbarSectionPosition.class);
+        assertNotNull(bbsp1);
+        assertNotNull(bbsp2);
+
+        assertEquals(1, bbsp1.getBusbarIndex());
+        assertEquals(1, bbsp1.getSectionIndex());
+
+        assertEquals(2, bbsp2.getBusbarIndex());
+        assertEquals(1, bbsp2.getSectionIndex());
     }
 
     @Test

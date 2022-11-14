@@ -108,6 +108,24 @@ final class ModificationReports {
                 .build());
     }
 
+    static void notFoundConnectableReport(Reporter reporter, String connectableId) {
+        reporter.report(Report.builder()
+                .withKey("connectableNotFound")
+                .withDefaultMessage("Connectable ${connectableId} is not found")
+                .withValue("connectableId", connectableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removeFeederBayBusbarSectionReport(Reporter reporter, String busbarSectionConnectableId) {
+        reporter.report(Report.builder()
+                .withKey("removeBayBusbarSectionConnectable")
+                .withDefaultMessage("Cannot remove feeder bay for connectable ${busbarSectionConnectableId}, as it is a busbarSection")
+                .withValue("connectableId", busbarSectionConnectableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void noVoltageLevelInCommonReport(Reporter reporter, String line1Id, String line2Id) {
         reporter.report(Report.builder()
                 .withKey("noVoltageLevelInCommon")
@@ -163,17 +181,6 @@ final class ModificationReports {
                 .build());
     }
 
-    static void noTeePointPointAndOrAttachedVoltageLevelReport(Reporter reporter, String lineAZId, String lineBZId, String lineCZId) {
-        reporter.report(Report.builder()
-                .withKey("noTeePointAndOrAttachedVoltageLevel")
-                .withDefaultMessage("Unable to find the tee point and/or the attached voltage level from lines ${lineAZId}, ${lineBZId} and ${lineCZId}")
-                .withValue("lineAZId", lineAZId)
-                .withValue("lineBZId", lineBZId)
-                .withValue("lineCZId", lineCZId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     static void notFoundVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("voltageLevelNotFound")
@@ -183,10 +190,10 @@ final class ModificationReports {
                 .build());
     }
 
-    static void noTeePointAndOrAttachedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
+    static void noTeePointAndOrTappedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
         reporter.report(Report.builder()
-                .withKey("noTeePointAndOrAttachedVoltageLevel")
-                .withDefaultMessage("Unable to find the tee point and the attached voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
+                .withKey("noTeePointAndOrTappedVoltageLevel")
+                .withDefaultMessage("Unable to find the tee point and the tapped voltage level from lines ${line1Id}, ${line2Id} and ${line3Id}")
                 .withValue("line1Id", line1Id)
                 .withValue("line2Id", line2Id)
                 .withValue("line3Id", line3Id)
@@ -264,6 +271,45 @@ final class ModificationReports {
                 .withValue("voltageLevelId", voltageLevelId)
                 .withValue("busbarCount", busbarCount)
                 .withValue("sectionCount", sectionCount)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removedSwitchReport(Reporter reporter, String switchId) {
+        reporter.report(Report.builder()
+                .withKey("SwitchRemoved")
+                .withDefaultMessage("Switch ${switchId} removed")
+                .withValue("switchId", switchId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removedInternalConnectionReport(Reporter reporter, int node1, int node2) {
+        reporter.report(Report.builder()
+                .withKey("InternalConnectionRemoved")
+                .withDefaultMessage("Internal connection between ${node1} and ${node2} removed")
+                .withValue("node1", node1)
+                .withValue("node2", node2)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removedConnectableReport(Reporter reporter, String connectableId) {
+        reporter.report(Report.builder()
+                .withKey("ConnectableRemoved")
+                .withDefaultMessage("Connectable ${connectableId} removed")
+                .withValue("connectableId", connectableId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removeFeederBayAborted(Reporter reporter, String connectableId, int node, String otherConnectableId) {
+        reporter.report(Report.builder()
+                .withKey("RemoveFeederBayAborted")
+                .withDefaultMessage("Remove feeder bay of ${connectableId} cannot go further node ${node}, as it is connected to ${otherConnectableId}")
+                .withValue("connectableId", connectableId)
+                .withValue("node", node)
+                .withValue("otherConnectableId", otherConnectableId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
