@@ -11,8 +11,10 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
@@ -39,6 +41,8 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
 public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReplaceTeePointByVoltageLevelOnLine.class);
 
     private final String teePointLine1Id;
     private final String teePointLine2Id;
@@ -146,6 +150,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
         if (teePoint == null) {
             noTeePointAndOrTappedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
+            LOGGER.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
             } else {

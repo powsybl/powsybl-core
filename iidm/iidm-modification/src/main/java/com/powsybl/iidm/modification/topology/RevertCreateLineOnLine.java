@@ -10,26 +10,14 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.createdLineReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.noTeePointAndOrTappedVoltageLevelReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundLineReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.removedLineReport;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.LoadingLimitsBags;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.attachLine;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.createLineAdder;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.mergeLimits;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.removeVoltageLevelAndSubstation;
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
  * This method reverses the action done in the {@link CreateLineOnLine} class :
