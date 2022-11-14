@@ -221,12 +221,6 @@ public final class StateVariablesExport {
                         tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer, context);
                 writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer, context);
                 writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ(), cimNamespace, writer, context);
-                if (tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary") != null) {
-                    throw new PowsyblException("No need for property " + Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary");
-                }
-                if (tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary") != null) {
-                    throw new PowsyblException("No need for property " + Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary");
-                }
             }
         });
 
