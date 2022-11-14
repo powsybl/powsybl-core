@@ -585,8 +585,16 @@ public class UcteImporter implements Importer {
                 break;
 
             case SYMM:
-                rho = 1d;
-                alpha = Math.toDegrees(2 * Math.atan2(dy, 2 * (1d + dx)));
+                double dyHalf = dy / 2d;
+                double coeff = 1d;
+                if (currentRatioTapChangerRho != null) {
+                    coeff = 2d * currentRatioTapChangerRho - 1d;
+                }
+                double gamma = Math.toDegrees(Math.atan2(dyHalf * coeff, dx + 1d));
+                double dy22 = dyHalf * dyHalf;
+                alpha = gamma + Math.toDegrees(Math.atan2(dyHalf, 1d + dx)); // new alpha = defautAlpha/2 + gamma    in case there is a ratio tap changer
+                rho = Math.sqrt((1d + dy22) / (1d + dy22 * coeff * coeff));
+
                 break;
 
             default:
