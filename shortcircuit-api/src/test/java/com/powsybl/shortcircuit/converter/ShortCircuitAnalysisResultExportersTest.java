@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -105,7 +104,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
         assertEquals(1, result.getFaultResults().size());
-        assertEquals(1.0 , result.getFaultResult("id").getThreePhaseFaultCurrent(), 0);
+        assertEquals(1.0, result.getFaultResult("id").getThreePhaseFaultCurrent(), 0);
         assertEquals(1, result.getFaultResult("id").getLimitViolations().size());
         assertEquals(1, result.getFaultResult("id").getFeederResults().size());
     }
@@ -115,7 +114,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version11.json"));
         assertEquals(1, result.getFaultResults().size());
-        assertEquals(1.0 , result.getFaultResult("id").getThreePhaseFaultCurrent(), 0);
+        assertEquals(1.0, result.getFaultResult("id").getThreePhaseFaultCurrent(), 0);
         assertEquals(1, result.getFaultResult("id").getLimitViolations().size());
         assertEquals(1, result.getFaultResult("id").getFeederResults().size());
         assertEquals(ShortCircuitAnalysisResult.Status.CONVERGED, result.getStatus());
