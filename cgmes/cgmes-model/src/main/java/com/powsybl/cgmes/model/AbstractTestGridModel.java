@@ -5,9 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.model.test;
-
-import com.powsybl.cgmes.model.CgmesModel;
+package com.powsybl.cgmes.model;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

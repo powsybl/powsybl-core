@@ -7,8 +7,8 @@
 
 package com.powsybl.cgmes.conformity;
 
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.TestGridModelResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 /**

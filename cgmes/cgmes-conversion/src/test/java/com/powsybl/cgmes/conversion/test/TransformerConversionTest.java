@@ -15,7 +15,7 @@ import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.TestGridModel;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;

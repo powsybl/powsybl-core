@@ -4,13 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.model.test;
+package com.powsybl.cgmes.model;
 
-import com.powsybl.cgmes.model.CgmesContainer;
-import com.powsybl.cgmes.model.CgmesDcTerminal;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Reporter;

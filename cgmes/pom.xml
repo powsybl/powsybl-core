@@ -30,6 +30,7 @@
         <module>cgmes-model</module>
         <module>cgmes-model-alternatives</module>
         <module>cgmes-shortcircuit</module>
+        <module>cgmes-model-test</module>
     </modules>
 
 </project>

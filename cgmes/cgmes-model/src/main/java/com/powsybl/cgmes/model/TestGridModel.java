@@ -5,9 +5,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.model.test;
+package com.powsybl.cgmes.model;
 
-import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
 public interface TestGridModel {

@@ -8,9 +8,9 @@
 package com.powsybl.cgmes.conformity;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.FakeCgmesModel;
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.FakeCgmesModel;
+import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.TestGridModelResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 import java.util.Arrays;

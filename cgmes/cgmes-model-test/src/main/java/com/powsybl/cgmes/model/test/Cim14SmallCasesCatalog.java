@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.model.test.cim14;
+package com.powsybl.cgmes.model.test;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.FakeCgmesModel;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.FakeCgmesModel;
+import com.powsybl.cgmes.model.TestGridModelResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 /**

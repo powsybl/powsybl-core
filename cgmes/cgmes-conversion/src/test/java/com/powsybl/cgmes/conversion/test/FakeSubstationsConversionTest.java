@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.FakeCgmesModel;
+import com.powsybl.cgmes.model.FakeCgmesModel;
 import com.powsybl.iidm.network.Network;
 
 /**

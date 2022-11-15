@@ -9,7 +9,8 @@ package com.powsybl.cgmes.model.test.cim14;
 
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.TestGridModelResources;
+import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import org.junit.Test;
 
 import java.io.IOException;
