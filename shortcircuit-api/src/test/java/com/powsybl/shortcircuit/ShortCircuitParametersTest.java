@@ -234,6 +234,36 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void readVersion10() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion10.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageMap());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+    }
+
+    @Test
+    public void readVersion11() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion11.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageMap());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(ShortCircuitConstants.VoltageMapType.NOMINAL, parameters.getVoltageMapType());
+        assertEquals(ShortCircuitConstants.NominalVoltageMapType.IEC_909, parameters.getNominalVoltageMapType());
+        assertTrue(parameters.isUseResistances());
+        assertTrue(parameters.isUseLoads());
+        assertTrue(parameters.isUseCapacities());
+        assertTrue(parameters.isUseShunts());
+    }
+
+    @Test
     public void readExtension() {
         ShortCircuitParameters parameters = JsonShortCircuitParameters.read(getClass().getResourceAsStream("/ShortCircuitParametersExtensionUpdate.json"));
         assertEquals(1, parameters.getExtensions().size());

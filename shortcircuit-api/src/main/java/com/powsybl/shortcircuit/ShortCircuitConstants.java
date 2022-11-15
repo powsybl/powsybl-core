@@ -11,6 +11,17 @@ package com.powsybl.shortcircuit;
  */
 public final class ShortCircuitConstants {
 
+    public enum VoltageMapType {
+        NOMINAL,
+        PREVIOUS
+    }
+
+    public enum NominalVoltageMapType {
+        IEC_909,
+        RTE,
+        NONE
+    }
+
     private ShortCircuitConstants() {
     }
 
@@ -19,4 +30,11 @@ public final class ShortCircuitConstants {
     public static final StudyType DEFAULT_STUDY_TYPE = StudyType.TRANSIENT;
     public static final boolean DEFAULT_WITH_FEEDER_RESULT = true;
     public static final double DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD = 0.0;
+    public static final VoltageMapType DEFAULT_VOLTAGE_MAP_TYPE = VoltageMapType.NOMINAL;
+    public static final NominalVoltageMapType DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE = NominalVoltageMapType.IEC_909;
+    public static final boolean DEFAULT_USE_RESISTANCES = true;
+    public static final boolean DEFAULT_USE_LOADS = true;
+    public static final boolean DEFAULT_USE_CAPACITIES = true;
+    public static final boolean DEFAULT_USE_SHUNTS = true;
+
 }

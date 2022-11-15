@@ -30,8 +30,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {
     }
 
-    // VERSION = 1.0
-    public static final String VERSION = "1.0";
+    // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
+    // VERSION = 1.1 voltageMapType, nominalVoltageMapType, useResistances, useLoads, useCapacities, useShunts
+    public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
@@ -41,6 +42,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
+    private VoltageMapType voltageMapType = DEFAULT_VOLTAGE_MAP_TYPE;
+    private NominalVoltageMapType nominalVoltageMapType = DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE;
+    private boolean useResistances = DEFAULT_USE_RESISTANCES;
+    private boolean useLoads = DEFAULT_USE_LOADS;
+    private boolean useCapacities = DEFAULT_USE_CAPACITIES;
+    private boolean useShunts = DEFAULT_USE_SHUNTS;
 
     /**
      * Load parameters from platform default config.
@@ -59,7 +66,13 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
-                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
+                        .setVoltageMapType(config.getEnumProperty("voltage-map-type", VoltageMapType.class, DEFAULT_VOLTAGE_MAP_TYPE))
+                        .setNominalVoltageMapType(config.getEnumProperty("nominal-voltage-map-type", NominalVoltageMapType.class, DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE))
+                        .setUseResistances(config.getBooleanProperty("use-resistances", DEFAULT_USE_RESISTANCES))
+                        .setUseLoads(config.getBooleanProperty("use-loads", DEFAULT_USE_LOADS))
+                        .setUseCapacities(config.getBooleanProperty("use-capacities", DEFAULT_USE_CAPACITIES))
+                        .setUseShunts(config.getBooleanProperty("use-shunts", DEFAULT_USE_SHUNTS)));
 
         parameters.readExtensions(platformConfig);
 
@@ -117,4 +130,59 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
         return this;
     }
+
+    public VoltageMapType getVoltageMapType() {
+        return voltageMapType;
+    }
+
+    public ShortCircuitParameters setVoltageMapType(VoltageMapType voltageMapType) {
+        this.voltageMapType = voltageMapType;
+        return this;
+    }
+
+    public NominalVoltageMapType getNominalVoltageMapType() {
+        return nominalVoltageMapType;
+    }
+
+    public ShortCircuitParameters setNominalVoltageMapType(NominalVoltageMapType nominalVoltageMapType) {
+        this.nominalVoltageMapType = nominalVoltageMapType;
+        return this;
+    }
+
+    public boolean isUseResistances() {
+        return useResistances;
+    }
+
+    public ShortCircuitParameters setUseResistances(boolean useResistances) {
+        this.useResistances = useResistances;
+        return this;
+    }
+
+    public boolean isUseLoads() {
+        return useLoads;
+    }
+
+    public ShortCircuitParameters setUseLoads(boolean useLoads) {
+        this.useLoads = useLoads;
+        return this;
+    }
+
+    public boolean isUseCapacities() {
+        return useCapacities;
+    }
+
+    public ShortCircuitParameters setUseCapacities(boolean useCapacities) {
+        this.useCapacities = useCapacities;
+        return this;
+    }
+
+    public boolean isUseShunts() {
+        return useShunts;
+    }
+
+    public ShortCircuitParameters setUseShunts(boolean useShunts) {
+        this.useShunts = useShunts;
+        return this;
+    }
+
 }
