@@ -111,6 +111,9 @@ public final class CgmesNames {
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
     public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
 
+    public static final String CONNECTIVITY_NODE_BOUNDARY = "ConnectivityNode_Boundary";
+    public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
+
     private CgmesNames() {
     }
 }
