@@ -85,6 +85,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         }
     }
 
+    /** Whether the result should indicate a limit violation */
     public boolean isWithLimitViolations() {
         return withLimitViolations;
     }
@@ -94,6 +95,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the results should include the voltage map on the whole network */
     public boolean isWithVoltageMap() {
         return withVoltageMap;
     }
@@ -103,6 +105,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the results should include information on every feeder of the fault **/
     public boolean isWithFeederResult() {
         return withFeederResult;
     }
@@ -112,6 +115,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** The type of analysis : Transient, subtransient or steady-state calculation **/
     public StudyType getStudyType() {
         return studyType;
     }
@@ -131,6 +135,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** The type of voltage map for the calculation: nominal or previous (voltage values after the loadflow) **/
     public VoltageMapType getVoltageMapType() {
         return voltageMapType;
     }
@@ -140,6 +145,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** If the voltage map used for the calculation is nominal, specifies the values taken **/
     public NominalVoltageMapType getNominalVoltageMapType() {
         return nominalVoltageMapType;
     }
@@ -149,6 +155,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the calculation should take into account the resistances into the admittance matrix **/
     public boolean isUseResistances() {
         return useResistances;
     }
@@ -158,6 +165,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the calculation should take into account the loads into the admittance matrix **/
     public boolean isUseLoads() {
         return useLoads;
     }
@@ -167,6 +175,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the calculation should take into account the capacities into the admittance matrix **/
     public boolean isUseCapacities() {
         return useCapacities;
     }
@@ -176,6 +185,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /** Whether the calculation should take into account the shunts and model it into the admittance matrix **/
     public boolean isUseShunts() {
         return useShunts;
     }

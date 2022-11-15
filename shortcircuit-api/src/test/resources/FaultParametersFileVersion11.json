@@ -1,0 +1,12 @@
+[ {
+  "version" : "1.1",
+  "id" : "f00",
+  "withFeederResult" : true,
+  "studyType" : "STEADY_STATE",
+  "minVoltageDropProportionalThreshold" : 1.0,
+  "voltageMapType" : "NOMINAL",
+  "nominalVoltageMapType" : "IEC_909",
+  "useResistances" : true,
+  "useLoads" : true,
+  "useCapacities" : true
+} ]
