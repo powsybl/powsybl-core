@@ -12,6 +12,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -25,6 +27,7 @@ import java.util.Set;
  */
 public final class TopologyExport {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyExport.class);
     private static final String TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER = "TopologicalNode.ConnectivityNodeContainer";
     private static final String TOPOLOGICAL_NODE_BASE_VOLTAGE = "TopologicalNode.BaseVoltage";
 
@@ -243,6 +246,9 @@ public final class TopologyExport {
                 String containerId = context.getFictitiousContainerFor(dl);
                 if (containerId == null) {
                     // As a last resort, we create the TN in the same container of the dangling line
+                    LOG.error("Dangling line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
+                                    " Dangling line {} is considered entirely inside voltage level {}",
+                            dl.getId(), dl.getUcteXnodeCode() != null ? " linked to X-node " + dl.getUcteXnodeCode() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
                 String fictTopologicalNodeId = CgmesExportUtil.getUniqueId();

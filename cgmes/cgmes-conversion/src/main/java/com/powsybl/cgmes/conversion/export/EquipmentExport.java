@@ -616,6 +616,8 @@ public final class EquipmentExport {
             } else {
                 // If no information about original boundary has been preserved in the IIDM model,
                 // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
+                LOG.info("Dangling line {}{} is not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created",
+                        danglingLine.getId(), danglingLine.getUcteXnodeCode() != null ? " linked to X-node " + danglingLine.getUcteXnodeCode() : "");
                 connectivityNodeId = CgmesExportUtil.getUniqueId();
                 String connectivityNodeContainerId = createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
                 ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer);
@@ -624,6 +626,8 @@ public final class EquipmentExport {
         } else {
             if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY).isEmpty()) {
                 // Also create a container if we will have to create a Topological Node for the boundary
+                LOG.info("Dangling line {}{} is not connected to a topology node in boundaries files: a fictitious substation and voltage level are created",
+                        danglingLine.getId(), danglingLine.getUcteXnodeCode() != null ? " linked to X-node " + danglingLine.getUcteXnodeCode() : "");
                 createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
             }
         }
