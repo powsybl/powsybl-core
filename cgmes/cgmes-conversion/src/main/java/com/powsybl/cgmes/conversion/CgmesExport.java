@@ -76,6 +76,8 @@ public class CgmesExport implements Exporter {
         )
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setBoundaryEqId(Parameter.readString(getFormat(), params, BOUNDARY_EQ_ID_PARAMETER, defaultValueConfig))
+                .setBoundaryTpId(Parameter.readString(getFormat(), params, BOUNDARY_TP_ID_PARAMETER, defaultValueConfig))
                 .setReporter(reporter);
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
@@ -154,7 +156,8 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
-    public static final String WITH_TOPOLOGICAL_MAPPING = "iidm.export.cgmes.with-topological-mapping";
+    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
+    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -189,6 +192,16 @@ public class CgmesExport implements Exporter {
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
+    private static final Parameter BOUNDARY_EQ_ID_PARAMETER = new Parameter(
+            BOUNDARY_EQ_ID,
+            ParameterType.STRING,
+            "Boundary EQ model identifier",
+            null);
+    private static final Parameter BOUNDARY_TP_ID_PARAMETER = new Parameter(
+            BOUNDARY_TP_ID,
+            ParameterType.STRING,
+            "Boundary TP model identifier",
+            null);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
@@ -196,7 +209,9 @@ public class CgmesExport implements Exporter {
             EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
             EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER,
             NAMING_STRATEGY_PARAMETER,
-            PROFILES_PARAMETER);
+            PROFILES_PARAMETER,
+            BOUNDARY_EQ_ID_PARAMETER,
+            BOUNDARY_TP_ID_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }
