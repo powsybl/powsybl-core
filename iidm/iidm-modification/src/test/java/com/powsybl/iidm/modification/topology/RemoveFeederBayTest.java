@@ -55,7 +55,7 @@ public class RemoveFeederBayTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         addListener(network);
 
-        new RemoveFeederBay("LD1").apply(network);
+        new RemoveFeederBayBuilder().withConnectableId("LD1").build().apply(network);
 
         assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), beforeRemovalObjects);
         assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), removedObjects);
