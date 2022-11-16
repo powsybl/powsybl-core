@@ -23,6 +23,7 @@
     <description>Utilities for command line tool testing</description>
 
     <dependencies>
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons-test</artifactId>
@@ -52,6 +53,7 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- Test dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>

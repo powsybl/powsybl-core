@@ -19,8 +19,11 @@
     </parent>
 
     <artifactId>powsybl-commons-test</artifactId>
+    <name>Commons test</name>
+    <description>A set of miscellaneous utility classes for testing</description>
 
     <dependencies>
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
