@@ -495,8 +495,8 @@ public class UcteImporter implements Importer {
 
     private static void createRatioTapChanger(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
         LOGGER.trace("Create ratio tap changer '{}'", transformer.getId());
-        RatioTapChangerAdder rtca = createRatioTapChangerAdder(uctePhaseRegulation, transformer);
-        rtca.add();
+        createRatioTapChangerAdder(uctePhaseRegulation, transformer)
+                .add();
     }
 
     private static RatioTapChangerAdder createRatioTapChangerAdder(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
@@ -558,14 +558,14 @@ public class UcteImporter implements Importer {
 
     private static void createPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
         LOGGER.trace("Create phase tap changer '{}'", transformer.getId());
-        PhaseTapChangerAdder ptca = createPhaseTapChangerAdder(ucteAngleRegulation, transformer, null);
-        ptca.add();
+        createPhaseTapChangerAdder(ucteAngleRegulation, transformer, null)
+                .add();
     }
 
     private static Pair<Double, Double> getRhoAndAlpha(UcteAngleRegulation ucteAngleRegulation, double dx, double dy,
                                                        Double currentRatioTapChangerRho) {
         if (currentRatioTapChangerRho != null && currentRatioTapChangerRho.equals(0.0)) {
-            throw new AssertionError("Unexpected non zero value for current ratio tap changer rho: " + currentRatioTapChangerRho);
+            throw new IllegalStateException("Unexpected non zero value for current ratio tap changer rho: " + currentRatioTapChangerRho);
         }
         double rho;
         double alpha;
@@ -575,8 +575,6 @@ public class UcteImporter implements Importer {
                     rho = 1d / Math.hypot(dy, 1d + dx);
                     alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
                 } else {
-                    //double dyEq = dy / currentRatioTapChangerRho;
-                    //double dxEq = (dx + 1) / currentRatioTapChangerRho - 1;
                     double dyEq = dy;
                     double dxEq = dx + 1 / currentRatioTapChangerRho - 1.;
                     rho = 1d / Math.hypot(dyEq, 1d + dxEq) / currentRatioTapChangerRho; // the formula already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
@@ -594,7 +592,6 @@ public class UcteImporter implements Importer {
                 double dy22 = dyHalf * dyHalf;
                 alpha = gamma + Math.toDegrees(Math.atan2(dyHalf, 1d + dx)); // new alpha = defautAlpha/2 + gamma    in case there is a ratio tap changer
                 rho = Math.sqrt((1d + dy22) / (1d + dy22 * coeff * coeff));
-
                 break;
 
             default:
@@ -615,13 +612,12 @@ public class UcteImporter implements Importer {
         // We propose the following approximation : we compute 1/rhoEq and alphaEq at fixed current ratio tap nr = nro, we compute rho(nro)
         // and build both equivalent phase tap changer and ratio tap changer such that it will be exact at ratio = nro
 
-        RatioTapChangerAdder rtca = createRatioTapChangerAdder(uctePhaseRegulation, transformer);
-        rtca.add();
+        createRatioTapChangerAdder(uctePhaseRegulation, transformer)
+                .add();
         transformer.getRatioTapChanger().setRegulating(false);
         double currentRatioTapChangerRho = transformer.getRatioTapChanger().getCurrentStep().getRho();
-
-        PhaseTapChangerAdder ptca = createPhaseTapChangerAdder(ucteAngleRegulation, transformer, currentRatioTapChangerRho);
-        ptca.add();
+        createPhaseTapChangerAdder(ucteAngleRegulation, transformer, currentRatioTapChangerRho)
+                .add();
     }
 
     private static int getLowTapPosition(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
