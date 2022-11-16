@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.TrueCondition;
@@ -52,6 +53,11 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new GeneratorActionBuilder().withId("id11").withGeneratorId("generatorId2").withVoltageRegulatorOn(false).withTargetQ(400.0).build());
         actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
+        actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeWindingsTransformer.Side.THREE));
+        actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
+        actions.add(new RatioTapChangerRegulationAction("id16", "transformerId5", ThreeWindingsTransformer.Side.THREE, true));
+        actions.add(new PhaseTapChangerRegulationAction("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
+                false, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

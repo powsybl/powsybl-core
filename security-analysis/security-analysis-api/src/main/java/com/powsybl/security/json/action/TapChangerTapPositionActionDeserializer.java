@@ -12,36 +12,42 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.security.action.AbstractTapChangerTapPositionAction;
 import com.powsybl.security.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.security.action.RatioTapChangerTapPositionAction;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class PhaseTapChangerTapPositionActionDeserializer extends StdDeserializer<PhaseTapChangerTapPositionAction> {
+public class TapChangerTapPositionActionDeserializer extends StdDeserializer<AbstractTapChangerTapPositionAction> {
 
-    public PhaseTapChangerTapPositionActionDeserializer() {
+    public TapChangerTapPositionActionDeserializer() {
         super(PhaseTapChangerTapPositionAction.class);
     }
 
     private static class ParsingContext {
         String id;
+        String type;
         String transformerId;
         int value;
         Boolean relativeValue;
-        ThreeWindingsTransformer.Side side;
+        ThreeWindingsTransformer.Side side = null;
     }
 
     @Override
-    public PhaseTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public AbstractTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
-                    if (!PhaseTapChangerTapPositionAction.NAME.equals(jsonParser.nextTextValue())) {
-                        throw JsonMappingException.from(jsonParser, "Expected type " + PhaseTapChangerTapPositionAction.NAME);
+                    String type = jsonParser.nextTextValue();
+                    if (!PhaseTapChangerTapPositionAction.NAME.equals(type) && !RatioTapChangerTapPositionAction.NAME.equals(type)) {
+                        throw JsonMappingException.from(jsonParser, "Expected type " + PhaseTapChangerTapPositionAction.NAME
+                                + "or " + RatioTapChangerTapPositionAction.NAME);
                     }
+                    context.type = type;
                     return true;
                 case "id":
                     context.id = jsonParser.nextTextValue();
@@ -70,10 +76,10 @@ public class PhaseTapChangerTapPositionActionDeserializer extends StdDeserialize
         if (context.value == 0) {
             throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action value field can't equal zero");
         }
-        if (context.side != null) {
+        if (context.type.equals(PhaseTapChangerTapPositionAction.NAME)) {
             return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value, context.side);
         } else {
-            return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value);
+            return new RatioTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value, context.side);
         }
     }
 }

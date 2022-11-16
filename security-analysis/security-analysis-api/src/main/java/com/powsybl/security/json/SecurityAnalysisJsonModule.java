@@ -96,8 +96,14 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
                 new LineConnectionActionSerializer(), new LineConnectionActionDeserializer());
         registerActionType(MultipleActionsAction.class, MultipleActionsAction.NAME,
                 new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
-        registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,
-                new PhaseTapChangerTapPositionActionSerializer(), new PhaseTapChangerTapPositionActionDeserializer());
+        registerActionType(AbstractTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,
+                new TapChangerTapPositionActionSerializer(), new TapChangerTapPositionActionDeserializer());
+        registerActionType(AbstractTapChangerTapPositionAction.class, RatioTapChangerTapPositionAction.NAME,
+                new TapChangerTapPositionActionSerializer(), new TapChangerTapPositionActionDeserializer());
+        registerActionType(AbstractTapChangerRegulationAction.class, PhaseTapChangerRegulationAction.NAME,
+                new TapChangerRegulationActionSerializer(), new TapChangerRegulationActionDeserializer());
+        registerActionType(AbstractTapChangerRegulationAction.class, RatioTapChangerRegulationAction.NAME,
+                new TapChangerRegulationActionSerializer(), new TapChangerRegulationActionDeserializer());
         registerActionType(GeneratorAction.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionDeserializer());
         registerActionType(LoadAction.class, LoadAction.NAME,

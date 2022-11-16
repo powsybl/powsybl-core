@@ -9,7 +9,8 @@ package com.powsybl.security.json.action;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.security.action.AbstractTapChangerRegulationAction;
+import com.powsybl.security.action.PhaseTapChangerRegulationAction;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -17,21 +18,19 @@ import java.io.UncheckedIOException;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class PhaseTapChangerTapPositionActionSerializer extends StdSerializer<PhaseTapChangerTapPositionAction> {
+public class TapChangerRegulationActionSerializer extends StdSerializer<AbstractTapChangerRegulationAction> {
 
-    public PhaseTapChangerTapPositionActionSerializer() {
-        super(PhaseTapChangerTapPositionAction.class);
+    public TapChangerRegulationActionSerializer() {
+        super(AbstractTapChangerRegulationAction.class);
     }
 
     @Override
-    public void serialize(PhaseTapChangerTapPositionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(AbstractTapChangerRegulationAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
-
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("transformerId", action.getTransformerId());
-        jsonGenerator.writeNumberField("value", action.getValue());
-        jsonGenerator.writeBooleanField("relativeValue", action.isRelativeValue());
+        jsonGenerator.writeBooleanField("regulating", action.isRegulating());
         action.getSide().ifPresent(side -> {
             try {
                 jsonGenerator.writeStringField("side", side.toString());
@@ -39,6 +38,10 @@ public class PhaseTapChangerTapPositionActionSerializer extends StdSerializer<Ph
                 throw new UncheckedIOException(e);
             }
         });
+        if (action.getType().equals(PhaseTapChangerRegulationAction.NAME)) {
+            jsonGenerator.writeStringField("regulationMode",
+                    ((PhaseTapChangerRegulationAction) action).getRegulationMode().toString());
+        }
         jsonGenerator.writeEndObject();
     }
 }
