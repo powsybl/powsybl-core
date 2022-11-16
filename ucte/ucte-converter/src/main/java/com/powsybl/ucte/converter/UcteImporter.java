@@ -595,7 +595,7 @@ public class UcteImporter implements Importer {
                 break;
 
             default:
-                throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
+                throw new IllegalStateException("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
         }
         return Pair.of(rho, alpha);
     }
